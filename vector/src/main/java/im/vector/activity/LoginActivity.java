@@ -218,8 +218,8 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
     // Account creation - Three pid
     private TextView mThreePidInstructions;
     private EditText mEmailAddress;
-    private View mPhoneNumberLayout;
-    private EditText mPhoneNumber;
+    //private View mPhoneNumberLayout;
+    //private EditText mPhoneNumber;
     private Button mSubmitThreePidButton;
     private Button mSkipThreePidButton;
 
@@ -278,19 +278,19 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
     private Runnable mRegisterPollingRunnable;
     private Handler mHandler;
 
-    private PhoneNumberHandler mLoginPhoneNumberHandler;
-    private PhoneNumberHandler mRegistrationPhoneNumberHandler;
+    //private PhoneNumberHandler mLoginPhoneNumberHandler;
+    //private PhoneNumberHandler mRegistrationPhoneNumberHandler;
 
     private Dialog mCurrentDialog;
 
     @Override
     protected void onDestroy() {
-        if (mLoginPhoneNumberHandler != null) {
+        /*if (mLoginPhoneNumberHandler != null) {
             mLoginPhoneNumberHandler.release();
         }
         if (mRegistrationPhoneNumberHandler != null) {
             mRegistrationPhoneNumberHandler.release();
-        }
+        }*/
         if (mCurrentDialog != null) {
             mCurrentDialog.dismiss();
             mCurrentDialog = null;
@@ -392,9 +392,9 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
 
         // login
         mLoginEmailTextView = findViewById(R.id.login_user_name);
-        EditText loginPhoneNumber = findViewById(R.id.login_phone_number_value);
-        EditText loginPhoneNumberCountryCode = findViewById(R.id.login_phone_number_country);
-        loginPhoneNumberCountryCode.setCompoundDrawablesWithIntrinsicBounds(null, null, CommonActivityUtils.tintDrawable(this, ContextCompat.getDrawable(this, R.drawable.ic_material_expand_more_black), R.attr.settings_icon_tint_color), null);
+        //EditText loginPhoneNumber = findViewById(R.id.login_phone_number_value);
+        //EditText loginPhoneNumberCountryCode = findViewById(R.id.login_phone_number_country);
+        //loginPhoneNumberCountryCode.setCompoundDrawablesWithIntrinsicBounds(null, null, CommonActivityUtils.tintDrawable(this, ContextCompat.getDrawable(this, R.drawable.ic_material_expand_more_black), R.attr.settings_icon_tint_color), null);
         mLoginPasswordTextView = findViewById(R.id.login_password);
 
         // account creation
@@ -405,10 +405,10 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
         // account creation - three pid
         mThreePidInstructions = findViewById(R.id.instructions);
         mEmailAddress = findViewById(R.id.registration_email);
-        mPhoneNumberLayout = findViewById(R.id.registration_phone_number);
-        mPhoneNumber = findViewById(R.id.registration_phone_number_value);
-        EditText phoneNumberCountryCode = findViewById(R.id.registration_phone_number_country);
-        phoneNumberCountryCode.setCompoundDrawablesWithIntrinsicBounds(null, null, CommonActivityUtils.tintDrawable(this, ContextCompat.getDrawable(this, R.drawable.ic_material_expand_more_black), R.attr.settings_icon_tint_color), null);
+        //mPhoneNumberLayout = findViewById(R.id.registration_phone_number);
+        //mPhoneNumber = findViewById(R.id.registration_phone_number_value);
+        //EditText phoneNumberCountryCode = findViewById(R.id.registration_phone_number_country);
+        //phoneNumberCountryCode.setCompoundDrawablesWithIntrinsicBounds(null, null, CommonActivityUtils.tintDrawable(this, ContextCompat.getDrawable(this, R.drawable.ic_material_expand_more_black), R.attr.settings_icon_tint_color), null);
         mSubmitThreePidButton = findViewById(R.id.button_submit);
         mSkipThreePidButton = findViewById(R.id.button_skip);
 
@@ -550,11 +550,11 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
             }
         });
 
-        mLoginPhoneNumberHandler = new PhoneNumberHandler(this, loginPhoneNumber, loginPhoneNumberCountryCode,
+        /*mLoginPhoneNumberHandler = new PhoneNumberHandler(this, loginPhoneNumber, loginPhoneNumberCountryCode,
                 PhoneNumberHandler.DISPLAY_COUNTRY_ISO_CODE, REQUEST_LOGIN_COUNTRY);
         mLoginPhoneNumberHandler.setCountryCode(PhoneNumberUtils.getCountryCode(this));
         mRegistrationPhoneNumberHandler = new PhoneNumberHandler(this, mPhoneNumber, phoneNumberCountryCode,
-                PhoneNumberHandler.DISPLAY_COUNTRY_ISO_CODE, REQUEST_REGISTRATION_COUNTRY);
+                PhoneNumberHandler.DISPLAY_COUNTRY_ISO_CODE, REQUEST_REGISTRATION_COUNTRY);*/
 
         refreshDisplay();
 
@@ -793,7 +793,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
                 cancelEmailPolling();
                 RegistrationManager.getInstance().clearThreePid();
                 mEmailAddress.setText("");
-                mRegistrationPhoneNumberHandler.reset();
+                //mRegistrationPhoneNumberHandler.reset();
                 fallbackToRegistrationMode();
                 return true;
             }
@@ -1562,8 +1562,8 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
         }
 
         final String username = mLoginEmailTextView.getText().toString().trim();
-        final String phoneNumber = mLoginPhoneNumberHandler.getE164PhoneNumber();
-        final String phoneNumberCountry = mLoginPhoneNumberHandler.getCountryCode();
+        final String phoneNumber = null; //mLoginPhoneNumberHandler.getE164PhoneNumber();
+        final String phoneNumberCountry = null; //mLoginPhoneNumberHandler.getCountryCode();
         final String password = mLoginPasswordTextView.getText().toString().trim();
 
         if (TextUtils.isEmpty(password)) {
@@ -1571,7 +1571,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
             return;
         }
 
-        if (TextUtils.isEmpty(username) && !mLoginPhoneNumberHandler.isPhoneNumberValidForCountry()) {
+        /*if (TextUtils.isEmpty(username) && !mLoginPhoneNumberHandler.isPhoneNumberValidForCountry()) {
             // Check if phone number is empty or just invalid
             if (mLoginPhoneNumberHandler.getPhoneNumber() != null) {
                 Toast.makeText(this, R.string.auth_invalid_phone, Toast.LENGTH_SHORT).show();
@@ -1580,7 +1580,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
                 Toast.makeText(this, getString(R.string.auth_invalid_login_param), Toast.LENGTH_SHORT).show();
                 return;
             }
-        }
+        }*/
 
         // disable UI actions
         enableLoadingScreen(true);
@@ -1993,13 +1993,13 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(LOG_TAG, "## onActivityResult(): IN - requestCode=" + requestCode + " resultCode=" + resultCode);
         if (resultCode == RESULT_OK && requestCode == REQUEST_REGISTRATION_COUNTRY) {
-            if (data != null && data.hasExtra(CountryPickerActivity.EXTRA_OUT_COUNTRY_CODE) && mRegistrationPhoneNumberHandler != null) {
+            /*if (data != null && data.hasExtra(CountryPickerActivity.EXTRA_OUT_COUNTRY_CODE) && mRegistrationPhoneNumberHandler != null) {
                 mRegistrationPhoneNumberHandler.setCountryCode(data.getStringExtra(CountryPickerActivity.EXTRA_OUT_COUNTRY_CODE));
-            }
+            }*/
         } else if (resultCode == RESULT_OK && requestCode == REQUEST_LOGIN_COUNTRY) {
-            if (data != null && data.hasExtra(CountryPickerActivity.EXTRA_OUT_COUNTRY_CODE) && mLoginPhoneNumberHandler != null) {
+           /* if (data != null && data.hasExtra(CountryPickerActivity.EXTRA_OUT_COUNTRY_CODE) && mLoginPhoneNumberHandler != null) {
                 mLoginPhoneNumberHandler.setCountryCode(data.getStringExtra(CountryPickerActivity.EXTRA_OUT_COUNTRY_CODE));
-            }
+            }*/
         } else if (CAPTCHA_CREATION_ACTIVITY_REQUEST_CODE == requestCode) {
             if (resultCode == RESULT_OK) {
                 Log.d(LOG_TAG, "## onActivityResult(): CAPTCHA_CREATION_ACTIVITY_REQUEST_CODE => RESULT_OK");
@@ -2064,7 +2064,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
         // Make sure to start with a clear state
         RegistrationManager.getInstance().clearThreePid();
         mEmailAddress.setText("");
-        mRegistrationPhoneNumberHandler.reset();
+        //mRegistrationPhoneNumberHandler.reset();
         mEmailAddress.requestFocus();
 
         mThreePidInstructions.setText(RegistrationManager.getInstance().getThreePidInstructions(this));
@@ -2080,7 +2080,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
             mEmailAddress.setVisibility(View.GONE);
         }
 
-        if (RegistrationManager.getInstance().supportStage(LoginRestClient.LOGIN_FLOW_TYPE_MSISDN)) {
+        /*if (RegistrationManager.getInstance().supportStage(LoginRestClient.LOGIN_FLOW_TYPE_MSISDN)) {
             mRegistrationPhoneNumberHandler.setCountryCode(PhoneNumberUtils.getCountryCode(this));
             mPhoneNumberLayout.setVisibility(View.VISIBLE);
             if (RegistrationManager.getInstance().isOptional(LoginRestClient.LOGIN_FLOW_TYPE_MSISDN)) {
@@ -2090,7 +2090,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
             }
         } else {
             mPhoneNumberLayout.setVisibility(View.GONE);
-        }
+        }*/
 
         if (RegistrationManager.getInstance().canSkip()) {
             mSkipThreePidButton.setVisibility(View.VISIBLE);
@@ -2100,7 +2100,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
                     // Make sure no three pid is attached to the process
                     RegistrationManager.getInstance().clearThreePid();
                     createAccount();
-                    mRegistrationPhoneNumberHandler.reset();
+                    //mRegistrationPhoneNumberHandler.reset();
                     mEmailAddress.setText("");
                 }
             });
@@ -2138,7 +2138,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
         }
 
         // Check that phone number format is valid and not empty if field is required
-        if (mRegistrationPhoneNumberHandler.getPhoneNumber() != null) {
+        /*if (mRegistrationPhoneNumberHandler.getPhoneNumber() != null) {
             if (!mRegistrationPhoneNumberHandler.isPhoneNumberValidForCountry()) {
                 Toast.makeText(this, R.string.auth_invalid_phone, Toast.LENGTH_SHORT).show();
                 return;
@@ -2146,20 +2146,20 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
         } else if (RegistrationManager.getInstance().isPhoneNumberRequired()) {
             Toast.makeText(this, R.string.auth_missing_phone, Toast.LENGTH_SHORT).show();
             return;
-        }
+        }*/
 
-        if (!RegistrationManager.getInstance().canSkip() && mRegistrationPhoneNumberHandler.getPhoneNumber() == null && TextUtils.isEmpty(email)) {
+        /*if (!RegistrationManager.getInstance().canSkip() && mRegistrationPhoneNumberHandler.getPhoneNumber() == null && TextUtils.isEmpty(email)) {
             // Both are required and empty
             Toast.makeText(this, R.string.auth_missing_email_or_phone, Toast.LENGTH_SHORT).show();
             return;
-        }
+        }*/
 
         if (!TextUtils.isEmpty(email)) {
             // Communicate email to singleton (will be validated later on)
             RegistrationManager.getInstance().addEmailThreePid(email);
         }
 
-        if (mRegistrationPhoneNumberHandler.getPhoneNumber() != null) {
+        /*if (mRegistrationPhoneNumberHandler.getPhoneNumber() != null) {
             // Communicate phone number to singleton + start validation process (always phone first)
             enableLoadingScreen(true);
             RegistrationManager.getInstance().addPhoneNumberThreePid(mRegistrationPhoneNumberHandler.getE164PhoneNumber(), mRegistrationPhoneNumberHandler.getCountryCode(),
@@ -2177,7 +2177,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
                             LoginActivity.this.onThreePidRequestFailed(getString(errorMessageRes));
                         }
                     });
-        } else {
+        } else*/ {
             createAccount();
         }
     }

@@ -471,7 +471,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="send_bug_report_failed">L\'envoi du rapport d\'erreur a échoué (%s)</string>
     <string name="auth_add_email_message">Ajoutez une adresse e-mail à votre compte pour permettre aux utilisateurs de vous retrouver et pour pouvoir réinitialiser votre mot de passe.</string>
     <string name="auth_add_phone_message">Ajoutez un numéro de téléphone à votre compte pour permettre aux utilisateurs de vous retrouver.</string>
-    <string name="auth_add_email_phone_message">Ajoutez une adresse e-mail et / ou un numéro de téléphone à votre compte pour permettre aux utilisateurs de vous retrouver.
+    <string name="auth_add_email_phone_message">Ajoutez une adresse e-mail à votre compte pour permettre aux utilisateurs de vous retrouver.
 
 L\'adresse e-mail vous permettra également de réinitialiser votre mot de passe.</string>
     <string name="auth_add_email_and_phone_message">Ajoutez une adresse e-mail et un numéro de téléphone à votre compte pour permettre aux utilisateurs de vous retrouver.
