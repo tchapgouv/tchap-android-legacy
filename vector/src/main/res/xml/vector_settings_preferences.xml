@@ -113,14 +113,12 @@
 
     </PreferenceCategory>
 
-    <im.vector.preference.VectorDividerCategory/>
+    <!--im.vector.preference.VectorDividerCategory/>
 
     <PreferenceCategory
         android:key="SETTINGS_GROUPS_FLAIR_KEY"
         android:title="@string/settings_flair" >
-
-
-    </PreferenceCategory>
+    </PreferenceCategory-->
 
     <im.vector.preference.VectorDividerCategory/>
 

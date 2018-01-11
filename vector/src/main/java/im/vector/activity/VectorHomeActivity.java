@@ -464,7 +464,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
      */
     private void showFloatingActionButton() {
         if (null != mFloatingActionButton) {
-            if ((mCurrentMenuId == R.id.bottom_action_favourites) || (mCurrentMenuId == R.id.bottom_action_groups)) {
+            if ((mCurrentMenuId == R.id.bottom_action_favourites) /*|| (mCurrentMenuId == R.id.bottom_action_groups)*/) {
                 mFloatingActionButton.setVisibility(View.GONE);
             } else {
                 mFloatingActionButton.show();
@@ -811,7 +811,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 mCurrentFragmentTag = TAG_FRAGMENT_ROOMS;
                 mSearchView.setQueryHint(getString(R.string.home_filter_placeholder_rooms));
                 break;
-            case R.id.bottom_action_groups:
+            /*case R.id.bottom_action_groups:
                 Log.d(LOG_TAG, "onNavigationItemSelected GROUPS");
                 fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_GROUPS);
                 if (fragment == null) {
@@ -819,7 +819,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 }
                 mCurrentFragmentTag = TAG_FRAGMENT_GROUPS;
                 mSearchView.setQueryHint(getString(R.string.home_filter_placeholder_groups));
-                break;
+                break;*/
         }
 
         synchronized (this) {
@@ -1045,9 +1045,9 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
             case R.id.bottom_action_rooms:
                 fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_ROOMS);
                 break;
-            case R.id.bottom_action_groups:
+            /*case R.id.bottom_action_groups:
                 fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_GROUPS);
-                break;
+                break;*/
 
         }
 

@@ -196,6 +196,11 @@ class VectorMessagesAdapterHelper {
      * @param event          the event
      */
     private void refreshGroupFlairView(final View groupFlairView, final Event event) {
+        if (true) {
+            groupFlairView.setVisibility(View.GONE);
+            return;
+        }
+
         final String tag =  event.getSender() +  "__" +  event.eventId;
 
         groupFlairView.setTag(tag);

@@ -2934,7 +2934,7 @@ public class VectorSettingsPreferencesFragment extends PreferenceFragment implem
      * It can be any mobile device, as any browser.
      */
     private void refreshGroupFlairsList() {
-        if (null != mSession) {
+        if ((null != mSession) && (null != mGroupsFlairCategory)) {
             // display a spinner while refreshing
             if (0 == mGroupsFlairCategory.getPreferenceCount()) {
                 ProgressBarPreference preference = new ProgressBarPreference(getActivity());

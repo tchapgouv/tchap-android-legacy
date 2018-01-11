@@ -1411,6 +1411,10 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
      * Refresh the flair list
      */
     private void refreshFlair() {
+        if (null == mFlairSettingsCategory) {
+            return;
+        }
+
         final List<String> groups = mRoom.getLiveState().getRelatedGroups();
         Collections.sort(groups, String.CASE_INSENSITIVE_ORDER);
 
