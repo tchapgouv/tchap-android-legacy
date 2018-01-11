@@ -117,7 +117,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="auth_skip">Ignorer</string>
     <string name="auth_send_reset_email">Envoyer l\'e-mail de réinitialisation</string>
     <string name="auth_return_to_login">Retourner à l\'écran de connexion</string>
-    <string name="auth_user_id_placeholder">E-mail ou nom d\'utilisateur</string>
+    <string name="auth_user_id_placeholder">E-mail</string>
     <string name="auth_password_placeholder">Mot de passe</string>
     <string name="auth_new_password_placeholder">Nouveau mot de passe</string>
     <string name="auth_user_name_placeholder">Nom d\'utilisateur</string>
@@ -127,7 +127,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="auth_opt_phone_number_placeholder">Numéro de téléphone (facultatif)</string>
     <string name="auth_repeat_password_placeholder">Répéter le mot de passe</string>
     <string name="auth_repeat_new_password_placeholder">Confirmez votre nouveau mot de passe</string>
-    <string name="auth_invalid_login_param">Nom d\'utilisateur et/ou mot de passe incorrect</string>
+    <string name="auth_invalid_login_param">Email et/ou mot de passe incorrect</string>
     <string name="auth_invalid_password">Mot de passe trop court (6 min)</string>
     <string name="auth_missing_password">Mot de passe manquant</string>
     <string name="auth_missing_email">Adresse e-mail manquante</string>
