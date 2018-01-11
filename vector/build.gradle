@@ -10,7 +10,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "im.vector"
+        applicationId "im.chap"
         minSdkVersion 16
         targetSdkVersion 26
         // use the version code
@@ -75,19 +75,8 @@ android {
     }
 
     productFlavors {
-        app {
-            applicationId "im.vector.alpha"
-            // use the version name
-            versionCode rootProject.ext.versionCodeProp
-            versionName rootProject.ext.versionNameProp
-            resValue "string", "allow_gcm_use", "true"
-            resValue "string", "allow_ga_use", "true"
-            resValue "string", "short_flavor_description", "G"
-            resValue "string", "flavor_description", "GooglePlay"
-        }
-
         appfdroid {
-            applicationId "im.vector.alpha"
+            applicationId "im.chap"
             // use the version name
             versionCode rootProject.ext.versionCodeProp
             versionName rootProject.ext.versionNameProp
@@ -160,9 +149,9 @@ dependencies {
     /************* Matrix SDK management **************/
     // update settings.gradle
     // use the matrix SDK as external lib
-    compile(name: 'matrix-sdk', ext: 'aar')
+    //compile(name: 'matrix-sdk', ext: 'aar')
     // use the matrix SDK as a sub project
-    //compile project(':matrix-sdk')
+    compile project(':matrix-sdk')
     compile(name: 'olm-sdk', ext: 'aar')
 
     /************* jitsi **************/
@@ -200,13 +189,13 @@ dependencies {
     /************* flavors management **************/
 
     // app flavor only
-    appCompile 'com.google.firebase:firebase-core:11.6.2'
-    appCompile 'com.google.firebase:firebase-messaging:11.6.2'
+    //appCompile 'com.google.firebase:firebase-core:11.6.2'
+    //appCompile 'com.google.firebase:firebase-messaging:11.6.2'
 
     // fdroid flavor only
 }
 
 
-if (!getGradle().getStartParameter().getTaskRequests().toString().contains("fdroid")) {
+/*if (!getGradle().getStartParameter().getTaskRequests().toString().contains("fdroid")) {
     apply plugin: 'com.google.gms.google-services'
-}
+}*/

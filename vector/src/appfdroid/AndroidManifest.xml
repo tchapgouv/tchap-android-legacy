@@ -15,7 +15,7 @@
         tools:replace="allowBackup,label">
         <provider
             android:name="im.vector.db.VectorContentProvider"
-            android:authorities="im.vector.VectorApp.provider"
+            android:authorities="im.chap.provider"
             android:exported="true" />
     </application>
 </manifest>

@@ -773,7 +773,7 @@ public class VectorApp extends MultiDexApplication {
     private static final String FONT_SCALE_LARGEST = "FONT_SCALE_LARGEST";
     private static final String FONT_SCALE_HUGE = "FONT_SCALE_HUGE";
 
-    private static final Locale mApplicationDefaultLanguage = new Locale("en", "US");
+    private static final Locale mApplicationDefaultLanguage = new Locale("fr", "FR");
 
     private static final Map<Float, String> mPrefKeyByFontScale = new LinkedHashMap<Float, String>() {{
         put(0.70f, FONT_SCALE_TINY);
@@ -922,12 +922,12 @@ public class VectorApp extends MultiDexApplication {
             locale = Locale.getDefault();
 
             // detect if the default language is used
-            String defaultStringValue = getString(context, mApplicationDefaultLanguage, R.string.resouces_country);
+            /*String defaultStringValue = getString(context, mApplicationDefaultLanguage, R.string.resouces_country);
             if (TextUtils.equals(defaultStringValue, getString(context, locale, R.string.resouces_country))) {
                 locale = mApplicationDefaultLanguage;
-            }
+            }*/
 
-            saveApplicationLocale(locale);
+            saveApplicationLocale(mApplicationDefaultLanguage);
         } else {
             locale = new Locale(preferences.getString(APPLICATION_LOCALE_LANGUAGE_KEY, ""),
                     preferences.getString(APPLICATION_LOCALE_COUNTRY_KEY, ""),
