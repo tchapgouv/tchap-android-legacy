@@ -10,7 +10,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "im.chap"
+        applicationId "tchap.dinsic"
         minSdkVersion 16
         targetSdkVersion 26
         // use the version code
@@ -76,7 +76,7 @@ android {
 
     productFlavors {
         appfdroid {
-            applicationId "im.chap"
+            applicationId "tchap.dinsic"
             // use the version name
             versionCode rootProject.ext.versionCodeProp
             versionName rootProject.ext.versionNameProp
