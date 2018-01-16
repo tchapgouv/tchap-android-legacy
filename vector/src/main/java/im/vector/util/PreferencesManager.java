@@ -364,7 +364,7 @@ public class PreferencesManager {
      * @return true if the conference call must be done with jitsi.
      */
     public static boolean useJitsiConfCall(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_USE_JITSI_CONF_PREFERENCE_KEY, true);
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_USE_JITSI_CONF_PREFERENCE_KEY, false);
     }
 
     /**
