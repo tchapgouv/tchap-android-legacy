@@ -121,6 +121,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
     private static final String SAVED_LOGIN_PASSWORD_ADDRESS = "SAVED_LOGIN_PASSWORD_ADDRESS";
 
     // creation
+    private static final String SAVED_CREATION_EMAIL_NAME = "SAVED_CREATION_USER_NAME";
     private static final String SAVED_CREATION_USER_NAME = "SAVED_CREATION_USER_NAME";
     private static final String SAVED_CREATION_PASSWORD1 = "SAVED_CREATION_PASSWORD1";
     private static final String SAVED_CREATION_PASSWORD2 = "SAVED_CREATION_PASSWORD2";
@@ -169,6 +170,9 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
     // the IS/HS textviews don't loose the focus
     // and the flow is not checked.
     private boolean mIsPendingLogin;
+
+    // the creation user name
+    private EditText mCreationEmailAddressTextView;
 
     // the creation user name
     private EditText mCreationUsernameTextView;
@@ -398,6 +402,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
         mLoginPasswordTextView = findViewById(R.id.login_password);
 
         // account creation
+        mCreationEmailAddressTextView = findViewById(R.id.creation_your_email);
         mCreationUsernameTextView = findViewById(R.id.creation_your_name);
         mCreationPassword1TextView = findViewById(R.id.creation_password1);
         mCreationPassword2TextView = findViewById(R.id.creation_password2);
@@ -458,7 +463,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
         mRegisterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onRegisterClick(true);
+                onRegisterClick();
             }
         });
 
@@ -493,6 +498,16 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
 
         // set the handler used by the register to poll the server response
         mHandler = new Handler(getMainLooper());
+
+        // home server input validity: when focus changes
+        mCreationEmailAddressTextView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    refreshRegistrationMatrixId();
+                }
+            }
+        });
+        refreshRegistrationMatrixId();
     }
 
     /**
@@ -642,17 +657,6 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
         }
 
         startActivity(intent);
-    }
-
-    /**
-     * check if the current page is supported by the current implementation
-     */
-    private void checkFlows() {
-        if ((mMode == MODE_LOGIN) || (mMode == MODE_FORGOT_PASSWORD) || (mMode == MODE_FORGOT_PASSWORD_WAITING_VALIDATION)) {
-            checkLoginFlows();
-        } else {
-            checkRegistrationFlows();
-        }
     }
 
     //==============================================================================================================
@@ -1140,7 +1144,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
      * i.e checks if this registration page is enough to perform a registration.
      * else switch to a fallback page
      */
-    private void checkRegistrationFlows() {
+    private void checkRegistrationFlows(final SimpleApiCallback<Void> callback) {
         Log.d(LOG_TAG, "## checkRegistrationFlows(): IN");
         // should only check registration flows
         if (mMode != MODE_ACCOUNT_CREATION) {
@@ -1216,6 +1220,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
                                 if (null != registrationFlowResponse) {
                                     RegistrationManager.getInstance().setSupportedRegistrationFlows(registrationFlowResponse);
                                     onRegistrationFlow(registrationFlowResponse);
+                                    callback.onSuccess(null);
                                 } else {
                                     onFailureDuringAuthRequest(e);
                                 }
@@ -1255,60 +1260,6 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
         mProgressTextView.setVisibility(View.GONE);
     }
 
-    /**
-     * The user clicks on the register button.
-     */
-    private void onRegisterClick(boolean checkRegistrationValues) {
-        Log.d(LOG_TAG, "## onRegisterClick(): IN - checkRegistrationValues=" + checkRegistrationValues);
-        onClick();
-
-        // the user switches to another mode
-        if (mMode != MODE_ACCOUNT_CREATION) {
-            mMode = MODE_ACCOUNT_CREATION;
-            refreshDisplay();
-            return;
-        }
-
-        // sanity check
-        if (null == mRegistrationResponse) {
-            Log.d(LOG_TAG, "## onRegisterClick(): return - mRegistrationResponse=nuul");
-            return;
-        }
-
-        // parameters
-        final String name = mCreationUsernameTextView.getText().toString().trim();
-        final String password = mCreationPassword1TextView.getText().toString().trim();
-        final String passwordCheck = mCreationPassword2TextView.getText().toString().trim();
-
-        if (checkRegistrationValues) {
-            if (TextUtils.isEmpty(name)) {
-                Toast.makeText(getApplicationContext(), getString(R.string.auth_invalid_user_name), Toast.LENGTH_SHORT).show();
-                return;
-            } else if (TextUtils.isEmpty(password)) {
-                Toast.makeText(getApplicationContext(), getString(R.string.auth_missing_password), Toast.LENGTH_SHORT).show();
-                return;
-            } else if (password.length() < 6) {
-                Toast.makeText(getApplicationContext(), getString(R.string.auth_invalid_password), Toast.LENGTH_SHORT).show();
-                return;
-            } else if (!TextUtils.equals(password, passwordCheck)) {
-                Toast.makeText(getApplicationContext(), getString(R.string.auth_password_dont_match), Toast.LENGTH_SHORT).show();
-                return;
-            } else {
-                String expression = "^[a-z0-9.\\-_]+$";
-
-                Pattern pattern = Pattern.compile(expression, Pattern.CASE_INSENSITIVE);
-                Matcher matcher = pattern.matcher(name);
-                if (!matcher.matches()) {
-                    Toast.makeText(getApplicationContext(), getString(R.string.auth_invalid_user_name), Toast.LENGTH_SHORT).show();
-                    return;
-                }
-            }
-        }
-
-        RegistrationManager.getInstance().setAccountData(name, password);
-        RegistrationManager.getInstance().checkUsernameAvailability(this, this);
-    }
-
     //==============================================================================================================
     // login management
     //==============================================================================================================
@@ -1317,8 +1268,10 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
      * Dismiss the keyboard and save the updated values
      */
     private void onClick() {
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        if (null != getCurrentFocus()) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        }
     }
 
     /**
@@ -1590,6 +1543,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
             mLoginEmailTextView.setText(savedInstanceState.getString(SAVED_LOGIN_EMAIL_ADDRESS));
             mLoginPasswordTextView.setText(savedInstanceState.getString(SAVED_LOGIN_PASSWORD_ADDRESS));
 
+            mCreationEmailAddressTextView.setText(savedInstanceState.getString(SAVED_CREATION_EMAIL_NAME));
             mCreationUsernameTextView.setText(savedInstanceState.getString(SAVED_CREATION_USER_NAME));
             mCreationPassword1TextView.setText(savedInstanceState.getString(SAVED_CREATION_PASSWORD1));
             mCreationPassword2TextView.setText(savedInstanceState.getString(SAVED_CREATION_PASSWORD2));
@@ -1628,6 +1582,10 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
 
         if (!TextUtils.isEmpty(mLoginPasswordTextView.getText().toString().trim())) {
             savedInstanceState.putString(SAVED_LOGIN_PASSWORD_ADDRESS, mLoginPasswordTextView.getText().toString().trim());
+        }
+
+        if (!TextUtils.isEmpty(mCreationEmailAddressTextView.getText().toString().trim())) {
+            savedInstanceState.putString(SAVED_CREATION_EMAIL_NAME, mCreationEmailAddressTextView.getText().toString().trim());
         }
 
         if (!TextUtils.isEmpty(mCreationUsernameTextView.getText().toString().trim())) {
@@ -2214,7 +2172,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
     private static final String HS_RING_2_URL = "https://matrix.org";
     private static final String IS_RING_2_URL = "https://vector.im";
 
-    private static final String HS_RING_1_URL = "https://matrix.org";
+    private static final String HS_RING_1_URL = "https://matrix_dummy.org";
     private static final String IS_RING_1_URL = "https://vector.im";
 
     private ThirdPidRestClient mDefaultThirdPidRestClient;
@@ -2275,6 +2233,141 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
             @Override
             public void onUnexpectedError(Exception e) {
                 callback.onNetworkError(e);
+            }
+        });
+    }
+
+    /**
+     * Refresh the registration matrix id from the email address
+     */
+    private void refreshRegistrationMatrixId() {
+        if (mMode == MODE_ACCOUNT_CREATION) {
+            mRegisterButton.setEnabled(false);
+            mRegisterButton.setAlpha(0.3f);
+        } else {
+            mRegisterButton.setEnabled(true);
+            mRegisterButton.setAlpha(1.0f);
+        }
+
+        mCreationUsernameTextView.setEnabled(true);
+        mCreationUsernameTextView.setAlpha(1.0f);
+
+        final String emailAddress = mCreationEmailAddressTextView.getText().toString().trim();
+
+        // no email address ?
+        if (TextUtils.isEmpty(emailAddress)) {
+            return;
+        }
+
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(emailAddress).matches()) {
+            Toast.makeText(this, R.string.auth_invalid_email, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        enableLoadingScreen(true);
+
+        findServers(emailAddress, new ApiCallback<String>() {
+            private void onError(String errorMessage) {
+                enableLoadingScreen(false);
+                Toast.makeText(LoginActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onSuccess(String matrixId) {
+                enableLoadingScreen(false);
+
+                if (!TextUtils.equals(mHSUrl, HS_RING_1_URL) && !TextUtils.isEmpty(matrixId)) {
+                    onError(getString(R.string.auth_username_in_use));
+                    return;
+                }
+
+                mRegisterButton.setEnabled(true);
+                mRegisterButton.setAlpha(1.0f);
+
+                if (!TextUtils.isEmpty(matrixId)) {
+                    mCreationUsernameTextView.setText(matrixId);
+                    mCreationUsernameTextView.setEnabled(false);
+                    mCreationUsernameTextView.setAlpha(0.3f);
+                } else {
+                    mCreationUsernameTextView.setText(emailAddress.substring(0, emailAddress.lastIndexOf("@")));
+                    mCreationUsernameTextView.setEnabled(true);
+                    mCreationUsernameTextView.setAlpha(1.0f);
+                }
+            }
+
+            @Override
+            public void onNetworkError(Exception e) {
+                onError(e.getLocalizedMessage());
+            }
+
+            @Override
+            public void onMatrixError(MatrixError matrixError) {
+                onError(matrixError.getLocalizedMessage());
+            }
+
+            @Override
+            public void onUnexpectedError(Exception e) {
+                onError(e.getLocalizedMessage());
+            }
+        });
+    }
+
+    /**
+     * The user clicks on the register button.
+     */
+    private void onRegisterClick() {
+        Log.d(LOG_TAG, "## onRegisterClick(): IN");
+        onClick();
+
+        // the user switches to another mode
+        if (mMode != MODE_ACCOUNT_CREATION) {
+            mMode = MODE_ACCOUNT_CREATION;
+            refreshDisplay();
+            refreshRegistrationMatrixId();
+            return;
+        }
+
+        // parameters
+        final String email = mCreationEmailAddressTextView.getText().toString().trim();
+        final String name = mCreationUsernameTextView.getText().toString().trim();
+        final String password = mCreationPassword1TextView.getText().toString().trim();
+        final String passwordCheck = mCreationPassword2TextView.getText().toString().trim();
+
+        if (TextUtils.isEmpty(name)) {
+            Toast.makeText(getApplicationContext(), getString(R.string.auth_invalid_user_name), Toast.LENGTH_SHORT).show();
+            return;
+        } else if (TextUtils.isEmpty(password)) {
+            Toast.makeText(getApplicationContext(), getString(R.string.auth_missing_password), Toast.LENGTH_SHORT).show();
+            return;
+        } else if (password.length() < 6) {
+            Toast.makeText(getApplicationContext(), getString(R.string.auth_invalid_password), Toast.LENGTH_SHORT).show();
+            return;
+        } else if (!TextUtils.equals(password, passwordCheck)) {
+            Toast.makeText(getApplicationContext(), getString(R.string.auth_password_dont_match), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        enableLoadingScreen(true);
+        RegistrationManager.getInstance().setHsConfig(getHsConfig());
+        RegistrationManager.getInstance().setAccountData(name, password);
+        RegistrationManager.getInstance().checkUsernameAvailability(this, new RegistrationManager.UsernameValidityListener() {
+            @Override
+            public void onUsernameAvailabilityChecked(boolean isAvailable) {
+                if (!isAvailable) {
+                    enableLoadingScreen(false);
+                    Toast.makeText(LoginActivity.this, getString(R.string.auth_username_in_use), Toast.LENGTH_LONG).show();
+                } else {
+                    RegistrationManager.getInstance().clearThreePid();
+                    RegistrationManager.getInstance().addEmailThreePid(email);
+
+                    mIsMailValidationPending = true;
+                    checkRegistrationFlows(new SimpleApiCallback<Void>() {
+                        @Override
+                        public void onSuccess(Void info) {
+                            RegistrationManager.getInstance().attemptRegistration(LoginActivity.this, LoginActivity.this);
+                        }
+                    });
+                }
             }
         });
     }

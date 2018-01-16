@@ -113,7 +113,7 @@
 
                 <ImageView
                     android:id="@+id/login_large_logo"
-                    android:layout_width="wrap_content"
+                    android:layout_width="100dp"
                     android:layout_height="100dp"
                     android:layout_centerHorizontal="true"
                     android:src="@drawable/logo" />
@@ -202,6 +202,14 @@
                     android:orientation="vertical"
                     android:visibility="gone"
                     tools:visibility="visible">
+
+                    <EditText
+                        android:id="@+id/creation_your_email"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/auth_email_placeholder"
+                        android:inputType="text"
+                        android:maxLines="1" />
 
                     <EditText
                         android:id="@+id/creation_your_name"
