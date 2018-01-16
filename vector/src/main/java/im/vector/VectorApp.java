@@ -919,7 +919,8 @@ public class VectorApp extends MultiDexApplication {
         Locale locale;
 
         if (!preferences.contains(APPLICATION_LOCALE_LANGUAGE_KEY)) {
-            locale = Locale.getDefault();
+            Locale.setDefault(mApplicationDefaultLanguage);
+            locale = mApplicationDefaultLanguage;
 
             // detect if the default language is used
             /*String defaultStringValue = getString(context, mApplicationDefaultLanguage, R.string.resouces_country);

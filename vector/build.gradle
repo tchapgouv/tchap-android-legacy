@@ -75,6 +75,18 @@ android {
     }
 
     productFlavors {
+
+        app {
+            applicationId "tchap.dinsic"
+            // use the version name
+            versionCode rootProject.ext.versionCodeProp
+            versionName rootProject.ext.versionNameProp
+            resValue "string", "allow_gcm_use", "true"
+            resValue "string", "allow_ga_use", "true"
+            resValue "string", "short_flavor_description", "G"
+            resValue "string", "flavor_description", "GooglePlay"
+        }
+
         appfdroid {
             applicationId "tchap.dinsic"
             // use the version name
@@ -189,13 +201,13 @@ dependencies {
     /************* flavors management **************/
 
     // app flavor only
-    //appCompile 'com.google.firebase:firebase-core:11.6.2'
-    //appCompile 'com.google.firebase:firebase-messaging:11.6.2'
+    appCompile 'com.google.firebase:firebase-core:11.6.2'
+    appCompile 'com.google.firebase:firebase-messaging:11.6.2'
 
     // fdroid flavor only
 }
 
 
-/*if (!getGradle().getStartParameter().getTaskRequests().toString().contains("fdroid")) {
+if (!getGradle().getStartParameter().getTaskRequests().toString().contains("fdroid")) {
     apply plugin: 'com.google.gms.google-services'
-}*/
+}
