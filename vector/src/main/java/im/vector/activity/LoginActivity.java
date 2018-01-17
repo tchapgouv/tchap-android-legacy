@@ -511,20 +511,6 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
     }
 
     /**
-     * @return the home server Url according to custom HS checkbox
-     */
-    private String getHomeServerUrl() {
-        return TextUtils.isEmpty(mHSUrl) ? DEFAULT_HS_URL : mHSUrl;
-    }
-
-    /**
-     * @return the identity server URL according to custom HS checkbox
-     */
-    private String getIdentityServerUrl() {
-        return TextUtils.isEmpty(mISUrl) ? DEFAULT_IS_URL : mHSUrl;
-    }
-
-    /**
      * Add a listener to be notified when the device gets connected to a network.
      * This method is mainly used to refresh the login UI upon the network is back.
      * See {@link #removeNetworkStateNotificationListener()}
@@ -2166,44 +2152,59 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
     * *********************************************************************************************
     */
     // DINSIC specific
-    private static final String DEFAULT_HS_URL = "https://matrix.org";
-    private static final String DEFAULT_IS_URL = "https://vector.im";
+    private static final String EXTERNAL_BUBBLE_HS_URL = "https://matrix1.e.tchap.rie.gouv.fr";
+    private static final String EXTERNAL_BUBBLE_IS_URL = "https://matrix2.e.tchap.rie.gouv.fr";
 
-    private static final String HS_RING_2_URL = "https://matrix.org";
-    private static final String IS_RING_2_URL = "https://vector.im";
+    private static final String AGENT_BUBBLE_HS_URL = "https://matrix1.a.tchap.rie.gouv.fr";
+    private static final String AGENT_BUBBLE_IS_URL = "https://matrix2.a.tchap.rie.gouv.fr";
 
-    private static final String HS_RING_1_URL = "https://matrix_dummy.org";
-    private static final String IS_RING_1_URL = "https://vector.im";
+    private static final String INTERNAL_SECURED_HS_URL = "https://matrix1.i.tchap.rie.gouv.fr";
+    private static final String INTERNAL_SECURED_IS_URL = "https://matrix2.i.tchap.rie.gouv.fr";
 
-    private ThirdPidRestClient mDefaultThirdPidRestClient;
-    private ThirdPidRestClient mRing2ThirdPidRestClient;
-    private ThirdPidRestClient mRing1ThirdPidRestClient;
+    private ThirdPidRestClient mExternalBubbleThirdPidRestClient;
+    private ThirdPidRestClient mAgentBubbleThirdPidRestClient;
+    private ThirdPidRestClient mInternalSecuredThirdPidRestClient;
 
-    private final String RING_2_EMAIL_HOST = "gouv.fr";
+    private final String AGENT_OR_INTERNAL_SECURED_EMAIL_HOST = "gouv.fr";
+
+
+    /**
+     * @return the home server Url according to custom HS checkbox
+     */
+    private String getHomeServerUrl() {
+        return TextUtils.isEmpty(mHSUrl) ? EXTERNAL_BUBBLE_HS_URL : mHSUrl;
+    }
+
+    /**
+     * @return the identity server URL according to custom HS checkbox
+     */
+    private String getIdentityServerUrl() {
+        return TextUtils.isEmpty(mISUrl) ? EXTERNAL_BUBBLE_IS_URL : mHSUrl;
+    }
 
     private void findServers(final String emailAddress, final ApiCallback<String> callback) {
-        if (null == mDefaultThirdPidRestClient) {
-            mDefaultThirdPidRestClient = new ThirdPidRestClient(new HomeServerConnectionConfig(Uri.parse(DEFAULT_HS_URL), Uri.parse(DEFAULT_IS_URL), null, new ArrayList<Fingerprint>(), false));
+        if (null == mExternalBubbleThirdPidRestClient) {
+            mExternalBubbleThirdPidRestClient = new ThirdPidRestClient(new HomeServerConnectionConfig(Uri.parse(EXTERNAL_BUBBLE_HS_URL), Uri.parse(EXTERNAL_BUBBLE_IS_URL), null, new ArrayList<Fingerprint>(), false));
         }
 
-        if (null == mRing2ThirdPidRestClient) {
-            mRing2ThirdPidRestClient = new ThirdPidRestClient(new HomeServerConnectionConfig(Uri.parse(HS_RING_2_URL), Uri.parse(IS_RING_2_URL), null, new ArrayList<Fingerprint>(), false));
+        if (null == mAgentBubbleThirdPidRestClient) {
+            mAgentBubbleThirdPidRestClient = new ThirdPidRestClient(new HomeServerConnectionConfig(Uri.parse(AGENT_BUBBLE_HS_URL), Uri.parse(AGENT_BUBBLE_IS_URL), null, new ArrayList<Fingerprint>(), false));
         }
 
-        if (null == mRing1ThirdPidRestClient) {
-            mRing1ThirdPidRestClient = new ThirdPidRestClient(new HomeServerConnectionConfig(Uri.parse(HS_RING_1_URL), Uri.parse(IS_RING_1_URL), null, new ArrayList<Fingerprint>(), false));
+        if (null == mInternalSecuredThirdPidRestClient) {
+            mInternalSecuredThirdPidRestClient = new ThirdPidRestClient(new HomeServerConnectionConfig(Uri.parse(INTERNAL_SECURED_HS_URL), Uri.parse(INTERNAL_SECURED_IS_URL), null, new ArrayList<Fingerprint>(), false));
         }
 
         ThirdPidRestClient thirdPartyRestClient;
 
-        if (emailAddress.endsWith("@" + RING_2_EMAIL_HOST)) {
-            thirdPartyRestClient = mRing2ThirdPidRestClient;
-            mHSUrl = HS_RING_2_URL;
-            mISUrl = IS_RING_2_URL;
+        if (emailAddress.endsWith("@" + AGENT_OR_INTERNAL_SECURED_EMAIL_HOST)) {
+            thirdPartyRestClient = mAgentBubbleThirdPidRestClient;
+            mHSUrl = AGENT_BUBBLE_HS_URL;
+            mISUrl = AGENT_BUBBLE_IS_URL;
         } else {
-            thirdPartyRestClient = mDefaultThirdPidRestClient;
-            mHSUrl = DEFAULT_HS_URL;
-            mISUrl = DEFAULT_IS_URL;
+            thirdPartyRestClient = mExternalBubbleThirdPidRestClient;
+            mHSUrl = EXTERNAL_BUBBLE_HS_URL;
+            mISUrl = EXTERNAL_BUBBLE_IS_URL;
         }
 
         // try to match email to 3PID
@@ -2211,9 +2212,9 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
             @Override
             public void onSuccess(String pid) {
                 if (null != pid) {
-                    if (pid.endsWith("@" + IS_RING_1_URL)) {
-                        mHSUrl = HS_RING_1_URL;
-                        mISUrl = DEFAULT_IS_URL;
+                    if (pid.endsWith(":" + INTERNAL_SECURED_HS_URL)) {
+                        mHSUrl = INTERNAL_SECURED_HS_URL;
+                        mISUrl = INTERNAL_SECURED_IS_URL;
                     }
                 }
 
@@ -2276,7 +2277,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
             public void onSuccess(String matrixId) {
                 enableLoadingScreen(false);
 
-                if (!TextUtils.equals(mHSUrl, HS_RING_1_URL) && !TextUtils.isEmpty(matrixId)) {
+                if (!TextUtils.equals(mHSUrl, INTERNAL_SECURED_HS_URL) && !TextUtils.isEmpty(matrixId)) {
                     onError(getString(R.string.auth_username_in_use));
                     return;
                 }
