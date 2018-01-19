@@ -538,6 +538,8 @@ public class RoomUtils {
                                 moreActionListener.onToggleRoomNotifications(session, room.getRoomId());
                                 break;
                             }
+                            // no more home nor favorite so dont make possible the two next actions
+                            /*
                             case R.id.ic_action_select_fav: {
                                 if (isFavorite) {
                                     moreActionListener.moveToConversations(session, room.getRoomId());
@@ -553,7 +555,7 @@ public class RoomUtils {
                                     moreActionListener.moveToLowPriority(session, room.getRoomId());
                                 }
                                 break;
-                            }
+                            }*/
                             case R.id.ic_action_select_remove: {
                                 moreActionListener.onLeaveRoom(session, room.getRoomId());
                                 break;

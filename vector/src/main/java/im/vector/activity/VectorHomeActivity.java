@@ -443,10 +443,11 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         }
 
         final View selectedMenu;
+        //default is people view
         if (savedInstanceState != null) {
-            selectedMenu = mBottomNavigationView.findViewById(savedInstanceState.getInt(CURRENT_MENU_ID, R.id.bottom_action_home));
+            selectedMenu = mBottomNavigationView.findViewById(savedInstanceState.getInt(CURRENT_MENU_ID, R.id.bottom_action_people));
         } else {
-            selectedMenu = mBottomNavigationView.findViewById(R.id.bottom_action_home);
+            selectedMenu = mBottomNavigationView.findViewById(R.id.bottom_action_people);
         }
         if (selectedMenu != null) {
             selectedMenu.performClick();
@@ -463,13 +464,9 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
      * Display the TAB if it is required
      */
     private void showFloatingActionButton() {
-        if (null != mFloatingActionButton) {
-            if ((mCurrentMenuId == R.id.bottom_action_favourites) /*|| (mCurrentMenuId == R.id.bottom_action_groups)*/) {
-                mFloatingActionButton.setVisibility(View.GONE);
-            } else {
+//No more favourite action
                 mFloatingActionButton.show();
-            }
-        }
+
     }
 
     @Override
@@ -775,6 +772,8 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         Fragment fragment = null;
 
         switch (item.getItemId()) {
+            //no more home nor favourite
+            /*
             case R.id.bottom_action_home:
                 Log.d(LOG_TAG, "onNavigationItemSelected HOME");
                 fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_HOME);
@@ -793,6 +792,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 mCurrentFragmentTag = TAG_FRAGMENT_FAVOURITES;
                 mSearchView.setQueryHint(getString(R.string.home_filter_placeholder_favorites));
                 break;
+                */
             case R.id.bottom_action_people:
                 Log.d(LOG_TAG, "onNavigationItemSelected PEOPLE");
                 fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_PEOPLE);
@@ -1033,12 +1033,15 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     private Fragment getSelectedFragment() {
         Fragment fragment = null;
         switch (mCurrentMenuId) {
+            //no more home nor favourite
+            /*
             case R.id.bottom_action_home:
                 fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_HOME);
                 break;
             case R.id.bottom_action_favourites:
                 fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_FAVOURITES);
                 break;
+                */
             case R.id.bottom_action_people:
                 fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_PEOPLE);
                 break;
@@ -2011,19 +2014,22 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         Set<Integer> menuIndexes = new HashSet<>(mBadgeViewByIndex.keySet());
 
         // the badges are not anymore displayed on the home tab
-        menuIndexes.remove(R.id.bottom_action_home);
+        //no more home
+        //menuIndexes.remove(R.id.bottom_action_home);
 
         for (Integer id : menuIndexes) {
             // use a map because contains is faster
             HashSet<String> filteredRoomIdsSet = new HashSet<>();
-
+            //no more favourite
+            /*
             if (id == R.id.bottom_action_favourites) {
                 List<Room> favRooms = mSession.roomsWithTag(RoomTag.ROOM_TAG_FAVOURITE);
 
                 for (Room room : favRooms) {
                     filteredRoomIdsSet.add(room.getRoomId());
                 }
-            } else if (id == R.id.bottom_action_people) {
+            } else */
+            if (id == R.id.bottom_action_people) {
                 filteredRoomIdsSet.addAll(mSession.getDirectChatRoomIdsList());
                 // Add direct chat invitations
                 for (Room room : roomSummaryByRoom.keySet()) {
@@ -2080,12 +2086,13 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
 
             int status = (0 != highlightCount) ? UnreadCounterBadgeView.HIGHLIGHTED :
                     ((0 != roomCount) ? UnreadCounterBadgeView.NOTIFIED : UnreadCounterBadgeView.DEFAULT);
-
+            //no more favourite
+            /*
             if (id == R.id.bottom_action_favourites) {
                 mBadgeViewByIndex.get(id).updateText((roomCount > 0) ? "\u2022" : "", status);
-            } else {
+            } else {*/
                 mBadgeViewByIndex.get(id).updateCounter(roomCount, status);
-            }
+            //}
         }
     }
 
