@@ -2152,20 +2152,21 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
     * *********************************************************************************************
     */
     // DINSIC specific
-    private static final String EXTERNAL_BUBBLE_HS_URL = "https://matrix1.e.tchap.rie.gouv.fr";
-    private static final String EXTERNAL_BUBBLE_IS_URL = "https://matrix2.e.tchap.rie.gouv.fr";
+    private static final String EXTERNAL_BUBBLE_HS_URL = "https://matrix.e.tchap.rie.gouv.fr";
+    private static final String EXTERNAL_BUBBLE_IS_URL = "https://matrix.e.tchap.rie.gouv.fr";
 
-    private static final String AGENT_BUBBLE_HS_URL = "https://matrix1.a.tchap.rie.gouv.fr";
-    private static final String AGENT_BUBBLE_IS_URL = "https://matrix2.a.tchap.rie.gouv.fr";
+    private static final String AGENT_BUBBLE_HS_URL = "https://matrix.i.tchap.rie.gouv.fr";
+    private static final String AGENT_BUBBLE_IS_URL = "https://matrix.i.tchap.rie.gouv.fr";
 
-    private static final String INTERNAL_SECURED_HS_URL = "https://matrix1.i.tchap.rie.gouv.fr";
-    private static final String INTERNAL_SECURED_IS_URL = "https://matrix2.i.tchap.rie.gouv.fr";
+    // not available yfor the sprint 0
+    //private static final String INTERNAL_SECURED_HS_URL = "https://matrix.i.tchap.rie.gouv.fr";
+    //private static final String INTERNAL_SECURED_IS_URL = "https://matrix.i.tchap.rie.gouv.fr";
 
     private ThirdPidRestClient mExternalBubbleThirdPidRestClient;
     private ThirdPidRestClient mAgentBubbleThirdPidRestClient;
-    private ThirdPidRestClient mInternalSecuredThirdPidRestClient;
+    //private ThirdPidRestClient mInternalSecuredThirdPidRestClient;
 
-    private final String AGENT_OR_INTERNAL_SECURED_EMAIL_HOST = "gouv.fr";
+    private final String AGENT_OR_INTERNAL_SECURED_EMAIL_HOST = ".gouv.fr";
 
 
     /**
@@ -2182,6 +2183,13 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
         return TextUtils.isEmpty(mISUrl) ? EXTERNAL_BUBBLE_IS_URL : mHSUrl;
     }
 
+    /**
+     * Perform a 3Pid lookup for an email address.
+     * It also sets mHSUrl / mISUrl linked for this email address.
+     *
+     * @param emailAddress the email address to test
+     * @param callback the asynchronous callback
+     */
     private void findServers(final String emailAddress, final ApiCallback<String> callback) {
         if (null == mExternalBubbleThirdPidRestClient) {
             mExternalBubbleThirdPidRestClient = new ThirdPidRestClient(new HomeServerConnectionConfig(Uri.parse(EXTERNAL_BUBBLE_HS_URL), Uri.parse(EXTERNAL_BUBBLE_IS_URL), null, new ArrayList<Fingerprint>(), false));
@@ -2191,13 +2199,13 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
             mAgentBubbleThirdPidRestClient = new ThirdPidRestClient(new HomeServerConnectionConfig(Uri.parse(AGENT_BUBBLE_HS_URL), Uri.parse(AGENT_BUBBLE_IS_URL), null, new ArrayList<Fingerprint>(), false));
         }
 
-        if (null == mInternalSecuredThirdPidRestClient) {
+        /*if (null == mInternalSecuredThirdPidRestClient) {
             mInternalSecuredThirdPidRestClient = new ThirdPidRestClient(new HomeServerConnectionConfig(Uri.parse(INTERNAL_SECURED_HS_URL), Uri.parse(INTERNAL_SECURED_IS_URL), null, new ArrayList<Fingerprint>(), false));
-        }
+        }*/
 
         ThirdPidRestClient thirdPartyRestClient;
 
-        if (emailAddress.endsWith("@" + AGENT_OR_INTERNAL_SECURED_EMAIL_HOST)) {
+        if (emailAddress.endsWith(AGENT_OR_INTERNAL_SECURED_EMAIL_HOST)) {
             thirdPartyRestClient = mAgentBubbleThirdPidRestClient;
             mHSUrl = AGENT_BUBBLE_HS_URL;
             mISUrl = AGENT_BUBBLE_IS_URL;
@@ -2211,12 +2219,13 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
         thirdPartyRestClient.lookup3Pid(emailAddress, ThreePid.MEDIUM_EMAIL, new ApiCallback<String>() {
             @Override
             public void onSuccess(String pid) {
-                if (null != pid) {
+                // not available for the sprint 0
+                /*if (null != pid) {
                     if (pid.endsWith(":" + INTERNAL_SECURED_HS_URL)) {
                         mHSUrl = INTERNAL_SECURED_HS_URL;
                         mISUrl = INTERNAL_SECURED_IS_URL;
                     }
-                }
+                }*/
 
                 callback.onSuccess(pid);
             }
@@ -2277,10 +2286,11 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
             public void onSuccess(String matrixId) {
                 enableLoadingScreen(false);
 
-                if (!TextUtils.equals(mHSUrl, INTERNAL_SECURED_HS_URL) && !TextUtils.isEmpty(matrixId)) {
+                // not available for the sprint 0
+                /*if (!TextUtils.equals(mHSUrl, INTERNAL_SECURED_HS_URL) && !TextUtils.isEmpty(matrixId)) {
                     onError(getString(R.string.auth_username_in_use));
                     return;
-                }
+                }*/
 
                 mRegisterButton.setEnabled(true);
                 mRegisterButton.setAlpha(1.0f);

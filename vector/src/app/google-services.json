@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:1092909174787:android:89c8d167e4722819",
         "android_client_info": {
-          "package_name": "tchap.dinsic"
+          "package_name": "fr.gouv.rie.tchap"
         }
       },
       "oauth_client": [

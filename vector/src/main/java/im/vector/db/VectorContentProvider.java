@@ -33,7 +33,7 @@ import im.vector.VectorApp;
 public class VectorContentProvider extends ContentProvider {
     private static final String LOG_TAG = VectorContentProvider.class.getSimpleName();
 
-    private static final String AUTHORITIES = "tchap.dinsic.provider";
+    private static final String AUTHORITIES = "fr.gouv.rie.tchap.provider";
 
     private static final String BUG_SEPARATOR = "bugreport";
 

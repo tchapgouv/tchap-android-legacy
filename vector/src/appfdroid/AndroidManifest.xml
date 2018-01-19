@@ -15,7 +15,7 @@
         tools:replace="allowBackup,label">
         <provider
             android:name="im.vector.db.VectorContentProvider"
-            android:authorities="tchap.dinsic.provider"
+            android:authorities="fr.gouv.rie.tchap.provider"
             android:exported="true" />
     </application>
 </manifest>
