@@ -2051,12 +2051,10 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                             } else if (deviceInfo.isBlocked()) {
                                 e2eIconByEventId.put(event.eventId, R.drawable.e2e_blocked);
                             } else {
-                                //don't alert the user
-                                e2eIconByEventId.put(event.eventId, R.drawable.e2e_verified);
+                                e2eIconByEventId.put(event.eventId, R.drawable.e2e_warning);
                             }
                         } else {
-                            //don't alert the user
-                            e2eIconByEventId.put(event.eventId, R.drawable.e2e_verified);
+                            e2eIconByEventId.put(event.eventId, R.drawable.e2e_warning);
                         }
                     }
                 }

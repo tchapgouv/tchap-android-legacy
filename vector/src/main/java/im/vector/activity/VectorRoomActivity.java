@@ -1337,8 +1337,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             mActiveWidgetsBanner.onActivityResume();
         }
 
-        // no alert for the moment
-        // displayE2eRoomAlert();
+        displayE2eRoomAlert();
 
         // init the auto-completion list from the room members
         mEditText.initAutoCompletion(mSession, (null != mRoom) ? mRoom.getRoomId() : null);
@@ -1425,50 +1424,14 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
 
     @Override
     public void onUnknownDevices(Event event, MXCryptoError error) {
-        //In a first time, automatically accept unknown devices
-        // we will review this in next sprints
-        MXUsersDevicesMap<MXDeviceInfo> unknownDevices = (MXUsersDevicesMap<MXDeviceInfo>) error.mExceptionData;
-        if ((null != unknownDevices)){
-            HashMap<String, HashMap<String, MXDeviceInfo>> myMap = unknownDevices.getMap();
-            List<MXDeviceInfo> dis = new ArrayList<>();
-            for ( String userId : unknownDevices.getUserIds()){
-                for (String deviceId : unknownDevices.getUserDeviceIds(userId)){
-                    dis.add(unknownDevices.getObject(deviceId,userId));
-                }
+        refreshNotificationsArea();
+        CommonActivityUtils.displayUnknownDevicesDialog(mSession, this, (MXUsersDevicesMap<MXDeviceInfo>) error.mExceptionData, new VectorUnknownDevicesFragment.IUnknownDevicesSendAnywayListener() {
+            @Override
+            public void onSendAnyway() {
+                mVectorMessageListFragment.resendUnsentMessages();
+                refreshNotificationsArea();
             }
-            if (dis.size()>0)
-                mSession.getCrypto().setDevicesKnown(dis, new ApiCallback<Void>() {
-                    // common method
-                    private void onDone() {
-                        mVectorMessageListFragment.resendUnsentMessages();
-                        refreshNotificationsArea();
-                    }
-
-                    @Override
-                    public void onSuccess(Void info) {
-                        onDone();
-                    }
-
-                    @Override
-                    public void onNetworkError(Exception e) {
-                        onDone();
-                    }
-
-                    @Override
-                    public void onMatrixError(MatrixError e) {
-                        onDone();
-                    }
-
-                    @Override
-                    public void onUnexpectedError(Exception e) {
-                        onDone();
-                    }
-                });
-
-
-
-
-        }
+        });
     }
 
     //================================================================================
@@ -2563,9 +2526,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             boolean hasUndeliverableEvents = (null != undeliveredEvents) && (undeliveredEvents.size() > 0);
             boolean hasUnknownDeviceEvents = (null != unknownDeviceEvents) && (unknownDeviceEvents.size() > 0);
 
-            //don't alert the user
-            // if (hasUndeliverableEvents || hasUnknownDeviceEvents) {
-            if (hasUndeliverableEvents) {
+            if (hasUndeliverableEvents || hasUnknownDeviceEvents) {
                 hasUnsentEvent = true;
                 isAreaVisible = true;
                 iconId = R.drawable.error;
