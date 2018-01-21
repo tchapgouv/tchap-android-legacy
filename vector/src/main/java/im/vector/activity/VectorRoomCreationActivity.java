@@ -39,6 +39,7 @@ import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
 import org.matrix.androidsdk.rest.model.MatrixError;
+import org.matrix.androidsdk.MXSession;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -293,7 +294,7 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
                     createRoom(mParticipants);
                 } else if (mParticipants.size() > 1) {
                     createRoom(mParticipants);
-                } else if (null != (existingRoomId = isDirectChatRoomAlreadyExist(mParticipants.get(0).mUserId))) {
+                } else if (null != (existingRoomId = isDirectChatRoomAlreadyExist(mParticipants.get(0).mUserId,mSession, LOG_TAG))) {
                     HashMap<String, Object> params = new HashMap<>();
                     params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mParticipants.get(0).mUserId);
                     params.put(VectorRoomActivity.EXTRA_ROOM_ID, existingRoomId);
@@ -321,7 +322,7 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
      * @param aUserId user ID to search for
      * @return a room ID if search succeed, null otherwise.
      */
-    private String isDirectChatRoomAlreadyExist(String aUserId) {
+    public static String isDirectChatRoomAlreadyExist(String aUserId, MXSession mSession, String LOG_TAG) {
         if (null != mSession) {
             IMXStore store = mSession.getDataHandler().getStore();
 

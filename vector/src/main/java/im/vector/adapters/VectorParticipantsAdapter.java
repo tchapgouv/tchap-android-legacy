@@ -19,6 +19,7 @@ package im.vector.adapters;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
@@ -40,6 +41,7 @@ import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
 import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.rest.model.RoomMember;
+import org.matrix.androidsdk.rest.model.pid.RoomThirdPartyInvite;
 import org.matrix.androidsdk.rest.model.search.SearchUsersResponse;
 import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.util.Log;
@@ -217,44 +219,62 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
 
         if (null != contacts) {
             for (Contact contact : contacts) {
-                for (String email : contact.getEmails()) {
-                    if (!TextUtils.isEmpty(email) && !ParticipantAdapterItem.isBlackedListed(email)) {
-                        Contact dummyContact = new Contact(email);
-                        dummyContact.setDisplayName(contact.getDisplayName());
-                        dummyContact.addEmailAdress(email);
-                        dummyContact.setThumbnailUri(contact.getThumbnailUri());
+                // Show contacts without emails
+                //------------------------------------
+                if (contact.getEmails().size()==0){
+                    Contact dummyContact = new Contact("null");
+                    dummyContact.setDisplayName(contact.getDisplayName());
+                    dummyContact.addEmailAdress(mContext.getString(R.string.no_email));
+                    dummyContact.setThumbnailUri(contact.getThumbnailUri());
+                    //dummyContact.
 
-                        ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
+                    ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
 
-                        Contact.MXID mxid = PIDsRetriever.getInstance().getMXID(email);
+                    participant.mUserId = "null";
+                    participant.mIsValid = false;
+                    if (mUsedMemberUserIds != null && !mUsedMemberUserIds.contains(participant.mUserId)) {
+                        list.add(participant);
+                    }
 
-                        if (null != mxid) {
-                            participant.mUserId = mxid.mMatrixId;
-                        } else {
-                            participant.mUserId = email;
-                        }
 
-                        if (mUsedMemberUserIds != null && !mUsedMemberUserIds.contains(participant.mUserId)) {
-                            list.add(participant);
+                }
+                else {
+                    // select just one email, in priority the french gov email
+                    boolean findGovEmail = false;
+                    ParticipantAdapterItem candidatParticipant=null;
+                    for (String email : contact.getEmails()) {
+                        if (!TextUtils.isEmpty(email) && !ParticipantAdapterItem.isBlackedListed(email)) {
+                            Contact dummyContact = new Contact(email);
+                            dummyContact.setDisplayName(contact.getDisplayName());
+                            dummyContact.addEmailAdress(email);
+                            dummyContact.setThumbnailUri(contact.getThumbnailUri());
+
+                            ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
+
+                            Contact.MXID mxid = PIDsRetriever.getInstance().getMXID(email);
+
+                            if (null != mxid) {
+                                participant.mUserId = mxid.mMatrixId;
+                            } else {
+                                participant.mUserId = email;
+                            }
+                            if (ParticipantAdapterItem.isFromFrenchGov(email)) {
+                                findGovEmail = true;
+                                if (mUsedMemberUserIds != null && !mUsedMemberUserIds.contains(participant.mUserId)) {
+                                    list.add(participant);
+                                }
+                            }
+                            else if (!findGovEmail && candidatParticipant==null)
+                                candidatParticipant = participant;
                         }
                     }
-                }
-
-                for (Contact.PhoneNumber pn : contact.getPhonenumbers()) {
-                    Contact.MXID mxid = PIDsRetriever.getInstance().getMXID(pn.mMsisdnPhoneNumber);
-
-                    if (null != mxid) {
-                        Contact dummyContact = new Contact(pn.mMsisdnPhoneNumber);
-                        dummyContact.setDisplayName(contact.getDisplayName());
-                        dummyContact.addPhoneNumber(pn.mRawPhoneNumber, pn.mE164PhoneNumber);
-                        dummyContact.setThumbnailUri(contact.getThumbnailUri());
-                        ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
-                        participant.mUserId = mxid.mMatrixId;
-                        if (mUsedMemberUserIds != null && !mUsedMemberUserIds.contains(participant.mUserId)) {
-                            list.add(participant);
+                    if (!findGovEmail && candidatParticipant!=null)
+                        if (mUsedMemberUserIds != null && !mUsedMemberUserIds.contains(candidatParticipant.mUserId)) {
+                            list.add(candidatParticipant);
                         }
-                    }
+
                 }
+
             }
         }
     }
@@ -276,6 +296,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                         mUsedMemberUserIds.add(member.getUserId());
                     }
                 }
+
             }
         }
 
@@ -648,8 +669,9 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
             // -> the user displays only the matrix id (if there is no contact with matrix Id, it could impossible to deselect the toggle
             // -> always displays when there is something to search to let the user toggles the matrix id checkbox.
             if ((contactBookList.size() > 0) || !ContactsManager.getInstance().arePIDsRetrieved() || mShowMatrixUserOnly || !TextUtils.isEmpty(mPattern)) {
+                // Sort also by gouv priority
                 // the contacts are sorted by alphabetical method
-                Collections.sort(contactBookList, ParticipantAdapterItem.alphaComparator);
+                Collections.sort(contactBookList, ParticipantAdapterItem.alphaGouvComparator);
             }
             mParticipantsListsList.add(contactBookList);
         } else {
@@ -927,6 +949,17 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
         final TextView statusTextView = convertView.findViewById(R.id.filtered_list_status);
         final ImageView matrixUserBadge = convertView.findViewById(R.id.filtered_list_matrix_user);
 
+        // Contacts not in priority are seen different
+        if (!participant.isViewedInPriority()){
+            //final int semiTransparentGrey = Color.argb(155, 185, 185, 185);
+            //thumbView.setAlpha( 0.5f);
+            nameTextView.setTypeface(null, Typeface.ITALIC);
+        }
+        else{
+            //thumbView.clearColorFilter();
+            nameTextView.setTypeface(null, Typeface.BOLD);
+        }
+
         // reported by GA
         // it should never happen but it happened...
         if ((null == thumbView) || (null == nameTextView) || (null == statusTextView) || (null == matrixUserBadge)) {
@@ -983,7 +1016,8 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
         }
 
         // Add alpha if cannot be invited
-        convertView.setAlpha(participant.mIsValid ? 1f : 0.5f);
+        //change alpha mgmt for tchap
+        // convertView.setAlpha(participant.mIsValid ? 1f : 0.5f);
 
         // the checkbox is not managed here
         final CheckBox checkBox = convertView.findViewById(R.id.filtered_list_checkbox);
