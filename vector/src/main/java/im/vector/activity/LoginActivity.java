@@ -2166,7 +2166,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
     private ThirdPidRestClient mAgentBubbleThirdPidRestClient;
     //private ThirdPidRestClient mInternalSecuredThirdPidRestClient;
 
-    private final String AGENT_OR_INTERNAL_SECURED_EMAIL_HOST = ".gouv.fr";
+    public static final String AGENT_OR_INTERNAL_SECURED_EMAIL_HOST = "gouv.fr";
 
 
     /**

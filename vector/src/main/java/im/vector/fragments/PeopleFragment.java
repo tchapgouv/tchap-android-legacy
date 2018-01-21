@@ -465,26 +465,33 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
         if (item.mIsValid) {
             boolean isMatrixUserId = MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(item.mUserId).matches();
                if (isMatrixUserId || ParticipantAdapterItem.isFromFrenchGov(item.mContact.getEmails()))
-                contactSelected(item);
+                contactSelected(item, null);
             else {
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-                alertDialogBuilder.setMessage(getString(R.string.room_invite_non_gov_people));
+                //don't have to ask the question if a room already exists
+                String existingRoomId;
+                if (null != (existingRoomId = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(item.mUserId, mSession, LOG_TAG))) {
+                    contactSelected(item,existingRoomId);
+                }
+                else {
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                    alertDialogBuilder.setMessage(getString(R.string.room_invite_non_gov_people));
 
-                // set dialog message
-                alertDialogBuilder
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.ok,
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        contactSelected(item);
-                                    }
-                                })
-                        .setNegativeButton(R.string.cancel, null);
+                    // set dialog message
+                    alertDialogBuilder
+                            .setCancelable(false)
+                            .setPositiveButton(R.string.ok,
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            contactSelected(item,null);
+                                        }
+                                    })
+                            .setNegativeButton(R.string.cancel, null);
 
-                // create alert dialog
-                AlertDialog alertDialog = alertDialogBuilder.create();
-                // show it
-                alertDialog.show();
+                    // create alert dialog
+                    AlertDialog alertDialog = alertDialogBuilder.create();
+                    // show it
+                    alertDialog.show();
+                }
             }
 
 
@@ -517,9 +524,9 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
      *
      * @param item
      */
-    private void contactSelected(final ParticipantAdapterItem item) {
-        String existingRoomId;
-        if (null != (existingRoomId = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(item.mUserId, mSession, LOG_TAG))) {
+    private void contactSelected(final ParticipantAdapterItem item, String existingRoomId) {
+        if (null == existingRoomId) existingRoomId = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(item.mUserId, mSession, LOG_TAG);
+        if (null != existingRoomId) {
             HashMap<String, Object> params = new HashMap<>();
             params.put(VectorRoomActivity.EXTRA_MATRIX_ID, item.mUserId);
             params.put(VectorRoomActivity.EXTRA_ROOM_ID, existingRoomId);

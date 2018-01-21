@@ -66,8 +66,6 @@ import org.matrix.androidsdk.crypto.data.MXUsersDevicesMap;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomPreviewData;
 import org.matrix.androidsdk.data.RoomSummary;
-import org.matrix.androidsdk.data.RoomTag;
-import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.db.MXMediasCache;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
@@ -90,7 +88,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import im.vector.Matrix;
 import im.vector.MyPresenceManager;
@@ -1210,71 +1207,6 @@ public class CommonActivityUtils {
                                    }
         );
     }
-
-    /**
-     * Return the direct room that the searched user and the current
-     * logged user have joined. Works if the searched user is invited
-     * @param aSession        session
-     * @param aSearchedUserId the searched user ID
-     * @return  room , null otherwise
-     */
-
-
-    public static Room findDirectRoom(final MXSession aSession, final String aSearchedUserId) {
-        Room retour = null;
-        List<String> roomIds = aSession.getDirectChatRoomIdsList(aSearchedUserId);
-        List<Room> rooms = getDirectChatRooms(aSession);//(aSearchedUserId);
-        for (Room room : rooms) {
-            //Room room = aSession.getDataHandler().getRoom(roomId);
-            if (null != room) {
-                int sizeMember = room.getMembers().size();
-                int sizeInvite = room.getLiveState().thirdPartyInvites().size();
-                int mySize =  sizeMember+sizeInvite;
-                if (mySize == CommonActivityUtils.ROOM_SIZE_ONE_TO_ONE ) {
-                    if (room.getMember(aSearchedUserId)!=null)
-                        retour = room;
-                    else if (roomIds.contains(room.getRoomId()))
-                        retour = room;
-                }
-            }
-        }
-        return retour;
-
-    }
-
-    /**
-     * Return direct chat rooms
-     */
-    private static List<Room> getDirectChatRooms(final MXSession aSession) {
-        List<Room> directChats = new ArrayList<>();
-        if ((null == aSession) || (null == aSession.getDataHandler())) {
-            Log.e(LOG_TAG, "## getDirectChatRooms() : null session");
-        }
-
-        final List<String> directChatIds = aSession.getDirectChatRoomIdsList();
-        final MXDataHandler dataHandler = aSession.getDataHandler();
-        final IMXStore store = dataHandler.getStore();
-
-        if (directChatIds != null && !directChatIds.isEmpty()) {
-            for (String roomId : directChatIds) {
-                Room room = store.getRoom(roomId);
-
-                if ((null != room) && !room.isConferenceUserRoom()) {
-                    // it seems that the server syncs some left rooms
-                    if (null == room.getMember(aSession.getMyUserId())) {
-                        Log.e(LOG_TAG, "## getDirectChatRooms(): invalid room " + room.getRoomId() + ", the user is not anymore member of it");
-                    } else {
-                        final Set<String> tags = room.getAccountData().getKeys();
-                        if ((null == tags) || !tags.contains(RoomTag.ROOM_TAG_LOW_PRIORITY)) {
-                            directChats.add(dataHandler.getRoom(roomId));
-                        }
-                    }
-                }
-            }
-        }
-        return directChats;
-    }
-
 
     //==============================================================================================================
     // 1:1 Room  methods.

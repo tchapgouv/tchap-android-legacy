@@ -325,7 +325,6 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
     public static String isDirectChatRoomAlreadyExist(String aUserId, MXSession mSession, String LOG_TAG) {
         if (null != mSession) {
             IMXStore store = mSession.getDataHandler().getStore();
-
             HashMap<String, List<String>> directChatRoomsDict;
 
             if (null != store.getDirectChatRoomsDict()) {
@@ -340,16 +339,23 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
 
                             // check if the room is already initialized
                             if ((null != room) && room.isReady() && !room.isInvited() && !room.isLeaving()) {
-                                // test if the member did not leave the room
-                                Collection<RoomMember> members = room.getActiveMembers();
+                                //dinsic: if the member is not already in matrix and just invited he's not active but
+                                // the room can be considered as ok
+                                boolean isMatrixUserId = MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(aUserId).matches();
+                                if (!isMatrixUserId){
+                                    return roomId;
+                                }
+                                else {
+                                    // test if the member did not leave the room
+                                    Collection<RoomMember> members = room.getActiveMembers();
 
-                                for (RoomMember member : members) {
-                                    if (TextUtils.equals(member.getUserId(), aUserId)) {
-                                        Log.d(LOG_TAG, "## isDirectChatRoomAlreadyExist(): for user=" + aUserId + " roomFound=" + roomId);
-                                        return roomId;
+                                    for (RoomMember member : members) {
+                                        if (TextUtils.equals(member.getUserId(), aUserId)) {
+                                            Log.d(LOG_TAG, "## isDirectChatRoomAlreadyExist(): for user=" + aUserId + " roomFound=" + roomId);
+                                            return roomId;
+                                        }
                                     }
                                 }
-
                             }
                         }
                     }
