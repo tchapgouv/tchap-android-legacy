@@ -860,7 +860,8 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
             }
             // display a search toggle for the local contacts
             matrixView.setVisibility(((groupPosition == mLocalContactsSectionPosition) && groupShouldBeExpanded) ? View.VISIBLE : View.GONE);
-
+            // dont use matrix filter
+            /*
             // matrix user checkbox
             CheckBox checkBox = convertView.findViewById(R.id.contacts_filter_checkbox);
             checkBox.setChecked(PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean(KEY_FILTER_MATRIX_USERS_ONLY, false));
@@ -877,7 +878,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                     editor.apply();
                 }
             });
-
+            */
             // as there might be a clickable object in the extra layout,
             // it seems required to have a click listener
             subLayout.setOnClickListener(new View.OnClickListener() {
