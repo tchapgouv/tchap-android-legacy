@@ -129,7 +129,9 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
 
         mOnRoomChangedListener = this;
 
-        mMatrixUserOnlyCheckbox.setChecked(PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean(MATRIX_USER_ONLY_PREF_KEY, false));
+        // dont use Matrix filter
+        if (mMatrixUserOnlyCheckbox!= null)
+            mMatrixUserOnlyCheckbox.setChecked(PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean(MATRIX_USER_ONLY_PREF_KEY, false));
 
         mAdapter.onFilterDone(mCurrentFilter);
 
@@ -253,6 +255,8 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
         }, this, this);
         mRecycler.setAdapter(mAdapter);
 
+        // dont use Matrix filter
+        /*
         View checkBox = mAdapter.findSectionSubViewById(R.id.matrix_only_filter_checkbox);
         if (checkBox != null && checkBox instanceof CheckBox) {
             mMatrixUserOnlyCheckbox = (CheckBox) checkBox;
@@ -267,7 +271,7 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
                     initContactsViews();
                 }
             });
-        }
+        }*/
     }
 
     /*
