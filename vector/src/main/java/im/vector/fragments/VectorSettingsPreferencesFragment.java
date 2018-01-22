@@ -2027,7 +2027,7 @@ public class VectorSettingsPreferencesFragment extends PreferenceFragment implem
     //==============================================================================================================
 
     private void setUserInterfacePreferences() {
-        VectorCustomActionEditTextPreference selectedLangaguePreference = (VectorCustomActionEditTextPreference) findPreference(PreferencesManager.SETTINGS_INTERFACE_LANGUAGE_PREFERENCE_KEY);
+        /*VectorCustomActionEditTextPreference selectedLangaguePreference = (VectorCustomActionEditTextPreference) findPreference(PreferencesManager.SETTINGS_INTERFACE_LANGUAGE_PREFERENCE_KEY);
         selectedLangaguePreference.setSummary(VectorApp.localeToLocalisedString(VectorApp.getApplicationLocale()));
 
         selectedLangaguePreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -2036,7 +2036,7 @@ public class VectorSettingsPreferencesFragment extends PreferenceFragment implem
                 startActivityForResult(LanguagePickerActivity.getIntent(getActivity()), REQUEST_LOCALE);
                 return true;
             }
-        });
+        });*/
 
         VectorCustomActionEditTextPreference textSizePreference = (VectorCustomActionEditTextPreference) findPreference(PreferencesManager.SETTINGS_INTERFACE_TEXT_SIZE_KEY);
         textSizePreference.setSummary(VectorApp.getFontScaleDescription());
