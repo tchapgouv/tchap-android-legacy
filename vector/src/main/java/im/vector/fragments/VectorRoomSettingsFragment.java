@@ -1914,6 +1914,36 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
                         boolean newValue = (boolean) newValueAsVoid;
 
                         if (newValue != mRoom.isEncrypted()) {
+                            // hide warning for e2e
+                            displayLoadingView();
+                            mRoom.enableEncryptionWithAlgorithm(MXCryptoAlgorithms.MXCRYPTO_ALGORITHM_MEGOLM, new ApiCallback<Void>() {
+
+                                private void onDone() {
+                                    hideLoadingView(false);
+                                    refreshEndToEnd();
+                                }
+
+                                @Override
+                                public void onSuccess(Void info) {
+                                    onDone();
+                                }
+
+                                @Override
+                                public void onNetworkError(Exception e) {
+                                    onDone();
+                                }
+
+                                @Override
+                                public void onMatrixError(MatrixError e) {
+                                    onDone();
+                                }
+
+                                @Override
+                                public void onUnexpectedError(Exception e) {
+                                    onDone();
+                                }
+                            });
+                            /*
                             new AlertDialog.Builder(getActivity())
                                     .setTitle(R.string.room_settings_addresses_e2e_prompt_title)
                                     .setMessage(R.string.room_settings_addresses_e2e_prompt_message)
@@ -1962,6 +1992,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
                                     })
                                     .create()
                                     .show();
+                                    */
                         }
                         return true;
                     }
