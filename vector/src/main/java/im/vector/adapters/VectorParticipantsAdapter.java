@@ -62,6 +62,7 @@ import im.vector.activity.CommonActivityUtils;
 import im.vector.contacts.Contact;
 import im.vector.contacts.ContactsManager;
 import im.vector.contacts.PIDsRetriever;
+import im.vector.util.DinsicUtils;
 import im.vector.util.VectorUtils;
 
 /**
@@ -258,7 +259,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                             } else {
                                 participant.mUserId = email;
                             }
-                            if (ParticipantAdapterItem.isFromFrenchGov(email)) {
+                            if (DinsicUtils.isFromFrenchGov(email)) {
                                 findGovEmail = true;
                                 if (mUsedMemberUserIds != null && !mUsedMemberUserIds.contains(participant.mUserId)) {
                                     list.add(participant);

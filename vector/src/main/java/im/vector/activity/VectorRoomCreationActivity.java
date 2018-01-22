@@ -341,7 +341,7 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
                             if ((null != room) && room.isReady() && !room.isInvited() && !room.isLeaving()) {
                                 //dinsic: if the member is not already in matrix and just invited he's not active but
                                 // the room can be considered as ok
-                                boolean isMatrixUserId = MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(aUserId).matches();
+                                boolean isMatrixUserId = MXSession.isUserId(aUserId);
                                 if (!isMatrixUserId){
                                     return roomId;
                                 }

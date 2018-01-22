@@ -50,6 +50,7 @@ import im.vector.adapters.ParticipantAdapterItem;
 import im.vector.adapters.VectorParticipantsAdapter;
 import im.vector.contacts.Contact;
 import im.vector.contacts.ContactsManager;
+import im.vector.util.DinsicUtils;
 import im.vector.util.VectorUtils;
 import im.vector.view.VectorAutoCompleteTextView;
 
@@ -343,10 +344,9 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
                     }
                 } else {
                     displayNames.add(item.mUserId);
+                    if (!isStrangers) isStrangers = !DinsicUtils.isFromFrenchGov(item.mContact.getEmails());
+
                 }
-                if (!isStrangers)
-                    isStrangers = (!MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(item.mUserId).matches() &&
-                            !ParticipantAdapterItem.isFromFrenchGov(item.mContact.getEmails()));
 
             }
         }
@@ -366,10 +366,12 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
 
                 message += displayNames.get(displayNames.size() - 2) + " " + getText(R.string.and) + " " + displayNames.get(displayNames.size() - 1);
             }
-            if (isStrangers)
+            if (isStrangers) {
                 builder.setMessage(getString(R.string.room_invite_non_gov_people));
-            else
+            }
+            else {
                 builder.setMessage(getString(R.string.room_participants_invite_prompt_msg, message));
+            }
             builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {

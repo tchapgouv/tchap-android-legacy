@@ -70,6 +70,7 @@ import im.vector.contacts.PIDsRetriever;
 import im.vector.util.VectorUtils;
 import im.vector.view.EmptyViewItemDecoration;
 import im.vector.view.SimpleDividerItemDecoration;
+import im.vector.util.DinsicUtils;
 
 public class PeopleFragment extends AbsHomeFragment implements ContactsManager.ContactsManagerListener, AbsHomeFragment.OnRoomChangedListener {
     private static final String LOG_TAG = PeopleFragment.class.getSimpleName();
@@ -463,8 +464,8 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
      */
     private void onContactSelected(final ParticipantAdapterItem item) {
         if (item.mIsValid) {
-            boolean isMatrixUserId = MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(item.mUserId).matches();
-               if (isMatrixUserId || ParticipantAdapterItem.isFromFrenchGov(item.mContact.getEmails()))
+            boolean isMatrixUserId = MXSession.isUserId(item.mUserId);
+               if (isMatrixUserId || DinsicUtils.isFromFrenchGov(item.mContact.getEmails()))
                 contactSelected(item, null);
             else {
                 //don't have to ask the question if a room already exists
@@ -625,7 +626,7 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
                             } else {
                                 participant.mUserId = email;
                             }
-                            if (ParticipantAdapterItem.isFromFrenchGov(email)) {
+                            if (DinsicUtils.isFromFrenchGov(email)) {
                                 findGovEmail = true;
                                 participants.add(participant);
                             }

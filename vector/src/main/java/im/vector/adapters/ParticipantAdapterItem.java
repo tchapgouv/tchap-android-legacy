@@ -39,7 +39,7 @@ import im.vector.VectorApp;
 import im.vector.contacts.Contact;
 import im.vector.contacts.PIDsRetriever;
 import im.vector.util.VectorUtils;
-import im.vector.activity.LoginActivity;
+import im.vector.util.DinsicUtils;
 
 // Class representing a room participant.
 public class ParticipantAdapterItem implements java.io.Serializable {
@@ -544,29 +544,6 @@ public class ParticipantAdapterItem implements java.io.Serializable {
     }
 
     /**
-     * Tells if an email is from gov
-     *
-     * @param email the email address to test.
-     * @return true if the email address is from gov
-     */
-    public  static boolean isFromFrenchGov(final String email) {
-        return email.toLowerCase().endsWith (LoginActivity.AGENT_OR_INTERNAL_SECURED_EMAIL_HOST);
-    }
-
-    /**
-     * Tells if one of the email of the list  is from gov
-     *
-     * @param emails list to test.
-     * @return true if one is from gov
-     */
-    public  static boolean isFromFrenchGov(final List<String> emails) {
-        boolean retour=false;
-        for (String myEmail : emails){
-          if (!retour) retour = isFromFrenchGov(myEmail);
-        }
-        return retour;
-    }
-    /**
      * Tells if a participant is to be viewed in priority
      * priority is for Matrix member and gouv member.
      * @param
@@ -580,7 +557,7 @@ public class ParticipantAdapterItem implements java.io.Serializable {
             retour = true;
         else{
             if ((mContact!= null) && (mContact.getEmails().size()>0))
-                retour = isFromFrenchGov(mContact.getEmails());
+                retour = DinsicUtils.isFromFrenchGov(mContact.getEmails());
         }
         return retour;
     }
