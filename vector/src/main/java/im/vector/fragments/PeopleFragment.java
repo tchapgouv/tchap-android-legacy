@@ -464,8 +464,8 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
      */
     private void onContactSelected(final ParticipantAdapterItem item) {
         if (item.mIsValid) {
-            boolean isMatrixUserId = MXSession.isUserId(item.mUserId);
-               if (isMatrixUserId || DinsicUtils.isFromFrenchGov(item.mContact.getEmails()))
+
+            if (MXSession.isUserId(item.mUserId) || DinsicUtils.isFromFrenchGov(item.mContact.getEmails()))
                 contactSelected(item, null);
             else {
                 //don't have to ask the question if a room already exists

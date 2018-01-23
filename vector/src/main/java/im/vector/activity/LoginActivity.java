@@ -84,6 +84,7 @@ import im.vector.UnrecognizedCertHandler;
 import im.vector.receiver.VectorRegistrationReceiver;
 import im.vector.receiver.VectorUniversalLinkReceiver;
 import im.vector.services.EventStreamService;
+import im.vector.util.DinsicUtils;
 import im.vector.util.PhoneNumberUtils;
 
 /**
@@ -2166,7 +2167,6 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
     private ThirdPidRestClient mAgentBubbleThirdPidRestClient;
     //private ThirdPidRestClient mInternalSecuredThirdPidRestClient;
 
-    public static final String AGENT_OR_INTERNAL_SECURED_EMAIL_HOST = "gouv.fr";
 
 
     /**
@@ -2205,7 +2205,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
 
         ThirdPidRestClient thirdPartyRestClient;
 
-        if (emailAddress.endsWith(AGENT_OR_INTERNAL_SECURED_EMAIL_HOST)) {
+        if (emailAddress.endsWith(DinsicUtils.AGENT_OR_INTERNAL_SECURED_EMAIL_HOST)) {
             thirdPartyRestClient = mAgentBubbleThirdPidRestClient;
             mHSUrl = AGENT_BUBBLE_HS_URL;
             mISUrl = AGENT_BUBBLE_IS_URL;

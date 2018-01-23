@@ -9,6 +9,7 @@ import im.vector.activity.LoginActivity;
  */
 
 public class DinsicUtils {
+    public static final String AGENT_OR_INTERNAL_SECURED_EMAIL_HOST = "gouv.fr";
     /**
      * Tells if an email is from gov
      *
@@ -16,7 +17,7 @@ public class DinsicUtils {
      * @return true if the email address is from gov
      */
     public  static boolean isFromFrenchGov(final String email) {
-        return (null != email && email.toLowerCase().endsWith (LoginActivity.AGENT_OR_INTERNAL_SECURED_EMAIL_HOST));
+        return (null != email && email.toLowerCase().endsWith (AGENT_OR_INTERNAL_SECURED_EMAIL_HOST));
     }
 
     /**

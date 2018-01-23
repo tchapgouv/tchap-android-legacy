@@ -344,7 +344,7 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
                     }
                 } else {
                     displayNames.add(item.mUserId);
-                    if (!isStrangers) isStrangers = !DinsicUtils.isFromFrenchGov(item.mContact.getEmails());
+                    isStrangers |= !DinsicUtils.isFromFrenchGov(item.mContact.getEmails());
 
                 }
 

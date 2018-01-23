@@ -556,8 +556,9 @@ public class ParticipantAdapterItem implements java.io.Serializable {
         if (isMatrixUserId)
             retour = true;
         else{
-            if ((mContact!= null) && (mContact.getEmails().size()>0))
+            if ((mContact!= null) && (mContact.getEmails().size()>0)) {
                 retour = DinsicUtils.isFromFrenchGov(mContact.getEmails());
+            }
         }
         return retour;
     }
