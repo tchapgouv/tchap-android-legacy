@@ -1303,7 +1303,8 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
             public void onSuccess(String pid) {
                 Log.d(LOG_TAG, "## onLoginClick() : succeeded " + pid);
 
-                if (!TextUtils.isEmpty(pid)) {
+                // ignore for the sprint 0
+                /*if (!TextUtils.isEmpty(pid)) {*/
                     mLoginHandler.getSupportedLoginFlows(LoginActivity.this, getHsConfig(), new SimpleApiCallback<List<LoginFlow>>() {
                         @Override
                         public void onSuccess(List<LoginFlow> flows) {
@@ -1349,9 +1350,9 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
                     });
 
                     login(getHsConfig(), mHSUrl, mISUrl, emailAddress, null, null, password);
-                } else {
+                /*} else {
                     onError(null);
-                }
+                }*/
             }
 
             @Override
@@ -2199,6 +2200,30 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
             mAgentBubbleThirdPidRestClient = new ThirdPidRestClient(new HomeServerConnectionConfig(Uri.parse(AGENT_BUBBLE_HS_URL), Uri.parse(AGENT_BUBBLE_IS_URL), null, new ArrayList<Fingerprint>(), false));
         }
 
+        /**
+         * For sprint 0, there are only 2 servers
+         * Disable the email check
+         */
+        if (true) {
+            if (emailAddress.endsWith(AGENT_OR_INTERNAL_SECURED_EMAIL_HOST)) {
+                mHSUrl = AGENT_BUBBLE_HS_URL;
+                mISUrl = AGENT_BUBBLE_IS_URL;
+            } else {
+                mHSUrl = EXTERNAL_BUBBLE_HS_URL;
+                mISUrl = EXTERNAL_BUBBLE_IS_URL;
+            }
+
+            (new Handler()).post(new Runnable() {
+                @Override
+                public void run() {
+                    callback.onSuccess(null);
+                }
+            });
+
+            return;
+        }
+
+
         /*if (null == mInternalSecuredThirdPidRestClient) {
             mInternalSecuredThirdPidRestClient = new ThirdPidRestClient(new HomeServerConnectionConfig(Uri.parse(INTERNAL_SECURED_HS_URL), Uri.parse(INTERNAL_SECURED_IS_URL), null, new ArrayList<Fingerprint>(), false));
         }*/
@@ -2300,7 +2325,9 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
                     mCreationUsernameTextView.setEnabled(false);
                     mCreationUsernameTextView.setAlpha(0.3f);
                 } else {
-                    mCreationUsernameTextView.setText(emailAddress.substring(0, emailAddress.lastIndexOf("@")));
+                    if (TextUtils.isEmpty(mCreationUsernameTextView.getText())) {
+                        mCreationUsernameTextView.setText(emailAddress.substring(0, emailAddress.lastIndexOf("@")));
+                    }
                     mCreationUsernameTextView.setEnabled(true);
                     mCreationUsernameTextView.setAlpha(1.0f);
                 }
