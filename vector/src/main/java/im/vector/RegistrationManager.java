@@ -58,7 +58,7 @@ public class RegistrationManager {
     private static final String ERROR_MISSING_STAGE = "ERROR_MISSING_STAGE";
     private static final String ERROR_EMPTY_USER_ID = "ERROR_EMPTY_USER_ID";
 
-    private static final String NEXTLINK_BASE_URL = "https://riot.im/app";
+    //private static final String NEXTLINK_BASE_URL = "https://riot.im/app";
 
     // JSON keys used for registration request
     private static final String JSON_KEY_CLIENT_SECRET = "client_secret";
@@ -798,7 +798,7 @@ public class RegistrationManager {
         if (getThirdPidRestClient() != null) {
             switch (pid.medium) {
                 case ThreePid.MEDIUM_EMAIL:
-                    String nextLink = NEXTLINK_BASE_URL + "/#/register?client_secret=" + pid.clientSecret;
+                    String nextLink = mHsConfig.getHomeserverUri().toString() + "/app/#/register?client_secret="+ pid.clientSecret;
                     nextLink += "&hs_url=" + mHsConfig.getHomeserverUri().toString();
                     nextLink += "&is_url=" + mHsConfig.getIdentityServerUri().toString();
                     nextLink += "&session_id=" + mRegistrationResponse.session;
