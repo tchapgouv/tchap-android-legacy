@@ -104,6 +104,7 @@
     <string name="no_conversation_placeholder">No conversations</string>
     <string name="no_contact_access_placeholder">You didn\'t allow Riot to access your local contacts</string>
     <string name="no_result_placeholder">No results</string>
+    <string name="no_email">Email unknown</string>
 
     <!-- Rooms fragment -->
     <string name="rooms_header">Rooms</string>
@@ -379,6 +380,8 @@
     <string name="people_search_invite_by_id_dialog_title">Invite user by ID</string>
     <string name="people_search_invite_by_id_dialog_description">Please enter one or more email address or Matrix ID</string>
     <string name="people_search_invite_by_id_dialog_hint">Email or Matrix ID</string>
+    <string name="people_invalid_warning_msg">Email required to invite a contact</string>
+    <string name="room_invite_non_gov_people">Do you really want to make him enter on Tchap ? </string>
 
     <!--  Chat -->
     <string name="room_menu_search">Search</string>

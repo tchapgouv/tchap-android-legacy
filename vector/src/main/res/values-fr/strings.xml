@@ -75,6 +75,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="no_conversation_placeholder">Aucune discussion</string>
     <string name="no_contact_access_placeholder">Vous n\'avez pas autorisé Riot à accéder à vos contacts locaux</string>
     <string name="no_result_placeholder">Aucun résultat</string>
+    <string name="no_email">Email pas disponible</string>
 
     <string name="rooms_header">Salons</string>
     <string name="rooms_directory_header">Répertoire de salons</string>
@@ -117,7 +118,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="auth_skip">Ignorer</string>
     <string name="auth_send_reset_email">Envoyer l\'e-mail de réinitialisation</string>
     <string name="auth_return_to_login">Retourner à l\'écran de connexion</string>
-    <string name="auth_user_id_placeholder">E-mail</string>
+    <string name="auth_user_id_placeholder">E-mail ou nom d\'utilisateur</string>
     <string name="auth_password_placeholder">Mot de passe</string>
     <string name="auth_new_password_placeholder">Nouveau mot de passe</string>
     <string name="auth_user_name_placeholder">Nom d\'utilisateur</string>
@@ -127,7 +128,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="auth_opt_phone_number_placeholder">Numéro de téléphone (facultatif)</string>
     <string name="auth_repeat_password_placeholder">Répéter le mot de passe</string>
     <string name="auth_repeat_new_password_placeholder">Confirmez votre nouveau mot de passe</string>
-    <string name="auth_invalid_login_param">Email et/ou mot de passe incorrect</string>
+    <string name="auth_invalid_login_param">Nom d\'utilisateur et/ou mot de passe incorrect</string>
     <string name="auth_invalid_password">Mot de passe trop court (6 min)</string>
     <string name="auth_missing_password">Mot de passe manquant</string>
     <string name="auth_missing_email">Adresse e-mail manquante</string>
@@ -230,6 +231,8 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="people_search_filter_text">Utilisateurs Matrix uniquement</string>
     <string name="people_search_invite_by_id_dialog_title">Inviter un utilisateur par identifiant</string>
     <string name="people_search_invite_by_id_dialog_hint">E-mail ou ID Matrix</string>
+    <string name="people_invalid_warning_msg">Pour inviter un contact un email est requis</string>
+    <string name="room_invite_non_gov_people">Voulez vous vraiment inviter un partenaire exterieur dans Tchap ?</string>
 
     <string name="room_menu_search">Rechercher</string>
     <string name="room_message_placeholder_encrypted">Envoyer un message chiffré…</string>
@@ -471,7 +474,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="send_bug_report_failed">L\'envoi du rapport d\'erreur a échoué (%s)</string>
     <string name="auth_add_email_message">Ajoutez une adresse e-mail à votre compte pour permettre aux utilisateurs de vous retrouver et pour pouvoir réinitialiser votre mot de passe.</string>
     <string name="auth_add_phone_message">Ajoutez un numéro de téléphone à votre compte pour permettre aux utilisateurs de vous retrouver.</string>
-    <string name="auth_add_email_phone_message">Ajoutez une adresse e-mail à votre compte pour permettre aux utilisateurs de vous retrouver.
+    <string name="auth_add_email_phone_message">Ajoutez une adresse e-mail et / ou un numéro de téléphone à votre compte pour permettre aux utilisateurs de vous retrouver.
 
 L\'adresse e-mail vous permettra également de réinitialiser votre mot de passe.</string>
     <string name="auth_add_email_and_phone_message">Ajoutez une adresse e-mail et un numéro de téléphone à votre compte pour permettre aux utilisateurs de vous retrouver.

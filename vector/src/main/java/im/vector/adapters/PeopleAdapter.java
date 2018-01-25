@@ -18,6 +18,7 @@ package im.vector.adapters;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -80,8 +81,9 @@ public class PeopleAdapter extends AbsAdapter {
                 R.layout.adapter_item_room_view, TYPE_HEADER_DEFAULT, TYPE_ROOM, new ArrayList<Room>(), RoomUtils.getRoomsDateComparator(mSession, false));
         mDirectChatsSection.setEmptyViewPlaceholder(context.getString(R.string.no_conversation_placeholder), context.getString(R.string.no_result_placeholder));
 
+        // use the gouv comparator to show in priority matrix and agent users
         mLocalContactsSection = new AdapterSection<>(context, context.getString(R.string.local_address_book_header),
-                R.layout.adapter_local_contacts_sticky_header_subview, R.layout.adapter_item_contact_view, TYPE_HEADER_LOCAL_CONTACTS, TYPE_CONTACT, new ArrayList<ParticipantAdapterItem>(), ParticipantAdapterItem.alphaComparator);
+                R.layout.adapter_local_contacts_sticky_header_subview, R.layout.adapter_item_contact_view, TYPE_HEADER_LOCAL_CONTACTS, TYPE_CONTACT, new ArrayList<ParticipantAdapterItem>(), ParticipantAdapterItem.alphaGouvComparator);
         mLocalContactsSection.setEmptyViewPlaceholder(!ContactsManager.getInstance().isContactBookAccessAllowed() ? mNoContactAccessPlaceholder : mNoResultPlaceholder);
 
         mKnownContactsSection = new KnownContactsAdapterSection(context, context.getString(R.string.user_directory_header), -1,
@@ -350,6 +352,17 @@ public class PeopleAdapter extends AbsAdapter {
             if (position >= getItemCount()) {
                 Log.e(LOG_TAG, "## populateViews() : position out of bound " + position + " / " + getItemCount());
                 return;
+            }
+
+            // show the partipant different depending on priority
+            if (!participant.isViewedInPriority()){
+                final int semiTransparentGrey = Color.argb(155, 185, 185, 185);
+                vContactAvatar.setColorFilter(semiTransparentGrey);
+                vContactName.setTypeface(null, Typeface.ITALIC);
+            }
+            else{
+                vContactAvatar.clearColorFilter();
+                vContactName.setTypeface(null, Typeface.BOLD);
             }
 
             participant.displayAvatar(mSession, vContactAvatar);
