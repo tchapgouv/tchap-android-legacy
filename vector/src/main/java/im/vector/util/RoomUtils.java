@@ -509,22 +509,22 @@ public class RoomUtils {
             final BingRulesManager bingRulesManager = session.getDataHandler().getBingRulesManager();
 
             if (bingRulesManager.isRoomNotificationsDisabled(room.getRoomId())) {
-                item = popup.getMenu().getItem(0);
+                item = popup.getMenu().findItem(R.id.ic_action_select_notifications);
                 item.setIcon(null);
             }
-
+/*
             if (!isFavorite) {
-                item = popup.getMenu().getItem(1);
+                item = popup.getMenu().findItem(R.id.ic_action_select_fav);
                 item.setIcon(null);
             }
 
             if (!isLowPrior) {
-                item = popup.getMenu().getItem(2);
+                item = popup.getMenu().findItem(R.id.ic_action_select_deprioritize);
                 item.setIcon(null);
             }
-
+*/
             if (session.getDirectChatRoomIdsList().indexOf(room.getRoomId()) < 0) {
-                item = popup.getMenu().getItem(3);
+                item = popup.getMenu().findItem(R.id.ic_action_select_direct_chat);
                 item.setIcon(null);
             }
 
@@ -538,6 +538,8 @@ public class RoomUtils {
                                 moreActionListener.onToggleRoomNotifications(session, room.getRoomId());
                                 break;
                             }
+                            // no more home nor favorite so dont make possible the two next actions
+                            /*
                             case R.id.ic_action_select_fav: {
                                 if (isFavorite) {
                                     moreActionListener.moveToConversations(session, room.getRoomId());
@@ -553,7 +555,7 @@ public class RoomUtils {
                                     moreActionListener.moveToLowPriority(session, room.getRoomId());
                                 }
                                 break;
-                            }
+                            }*/
                             case R.id.ic_action_select_remove: {
                                 moreActionListener.onLeaveRoom(session, room.getRoomId());
                                 break;
