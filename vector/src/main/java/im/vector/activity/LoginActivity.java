@@ -2205,7 +2205,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
          * Disable the email check
          */
         if (true) {
-            if (emailAddress.endsWith(AGENT_OR_INTERNAL_SECURED_EMAIL_HOST)) {
+            if (emailAddress.endsWith(DinsicUtils.AGENT_OR_INTERNAL_SECURED_EMAIL_HOST)) {
                 mHSUrl = AGENT_BUBBLE_HS_URL;
                 mISUrl = AGENT_BUBBLE_IS_URL;
             } else {
