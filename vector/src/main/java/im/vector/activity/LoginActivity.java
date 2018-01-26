@@ -2157,8 +2157,8 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
     private static final String EXTERNAL_BUBBLE_HS_URL = "https://matrix.e.tchap.rie.gouv.fr";
     private static final String EXTERNAL_BUBBLE_IS_URL = "https://matrix.e.tchap.rie.gouv.fr";
 
-    private static final String AGENT_BUBBLE_HS_URL = "https://matrix.i.tchap.rie.gouv.fr";
-    private static final String AGENT_BUBBLE_IS_URL = "https://matrix.i.tchap.rie.gouv.fr";
+    private static final String AGENT_BUBBLE_HS_URL = "https://matrix.a.tchap.rie.gouv.fr";
+    private static final String AGENT_BUBBLE_IS_URL = "https://matrix.a.tchap.rie.gouv.fr";
 
     // not available yfor the sprint 0
     //private static final String INTERNAL_SECURED_HS_URL = "https://matrix.i.tchap.rie.gouv.fr";
@@ -2205,7 +2205,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
          * Disable the email check
          */
         if (true) {
-            if (emailAddress.endsWith(AGENT_OR_INTERNAL_SECURED_EMAIL_HOST)) {
+            if (emailAddress.endsWith(DinsicUtils.AGENT_OR_INTERNAL_SECURED_EMAIL_HOST)) {
                 mHSUrl = AGENT_BUBBLE_HS_URL;
                 mISUrl = AGENT_BUBBLE_IS_URL;
             } else {
