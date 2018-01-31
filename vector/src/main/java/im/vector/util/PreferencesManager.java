@@ -489,6 +489,12 @@ public class PreferencesManager {
         // some key names have been updated to supported language switch
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 
+        if (!preferences.contains(SETTINGS_START_ON_BOOT_PREFERENCE_KEY)) {
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putBoolean(SETTINGS_START_ON_BOOT_PREFERENCE_KEY, true);
+            editor.commit();
+        }
+
         if (preferences.contains(context.getString(R.string.settings_pin_missed_notifications))) {
             SharedPreferences.Editor editor = preferences.edit();
             editor.putBoolean(SETTINGS_PIN_MISSED_NOTIFICATIONS_PREFERENCE_KEY, preferences.getBoolean(context.getString(R.string.settings_pin_missed_notifications), false));
