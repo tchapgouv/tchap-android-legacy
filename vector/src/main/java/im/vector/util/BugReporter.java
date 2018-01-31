@@ -265,6 +265,9 @@ public class BugReporter {
                         deleteCrashFile(context);
                     }
 
+                    // tag Tchap bug reports to better triage them
+                    builder.addFormDataPart("label", "dinsic");
+
                     BugReporterMultipartBody requestBody = builder.build();
 
                     // add a progress listener
