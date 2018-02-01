@@ -344,7 +344,18 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
                     }
                 } else {
                     displayNames.add(item.mUserId);
-                    isStrangers |= !DinsicUtils.isFromFrenchGov(item.mContact.getEmails());
+                    if (item.mContact != null && item.mContact.getEmails().size()>0)
+                        isStrangers |= !DinsicUtils.isFromFrenchGov(item.mContact.getEmails());
+                    else
+                    if (item.mUserId!= null && android.util.Patterns.EMAIL_ADDRESS.matcher(item.mUserId).matches()){
+                        List<String>myAddress = new ArrayList<>();
+                        myAddress.add(item.mUserId);
+                        isStrangers |= !DinsicUtils.isFromFrenchGov(myAddress);
+                    }
+
+
+
+
 
                 }
 
