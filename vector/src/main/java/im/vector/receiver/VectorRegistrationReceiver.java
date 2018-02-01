@@ -44,7 +44,7 @@ public class VectorRegistrationReceiver extends BroadcastReceiver {
 
     // Supported path
     public static final String SUPPORTED_PATH_ACCOUNT_EMAIL_VALIDATION = "/_matrix/identity/api/v1/validate/email/submitToken";
-    private static final List<String> mSupportedHosts = Arrays.asList("matrix.i.tchap.rie.gouv.fr", "matrix.a.tchap.rie.gouv.fr", "matrix.e.tchap.rie.gouv.fr");
+    private static final List<String> mSupportedHosts = Arrays.asList("chat.i.tchap.rie.gouv.fr", "chat.a.tchap.rie.gouv.fr", "chat.e.tchap.rie.gouv.fr");
 
 
     // mail validation url query parameters
