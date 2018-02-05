@@ -74,7 +74,7 @@
     <string name="action_close">Close</string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
     <string name="disable">Disable</string>
-
+    <string name="action_edit_contact_form">Edit contact form</string>
     <!-- dialog titles -->
     <string name="dialog_title_confirmation">Confirmation</string>
     <string name="dialog_title_warning">Warning</string>
@@ -381,6 +381,9 @@
     <string name="people_search_invite_by_id_dialog_description">Please enter one or more email address or Matrix ID</string>
     <string name="people_search_invite_by_id_dialog_hint">Email or Matrix ID</string>
     <string name="people_invalid_warning_msg">Email required to invite a contact</string>
+    <string name="people_edit_contact_warning_msg">Contact access impossible</string>
+
+
     <string name="room_invite_non_gov_people">Do you really want to make him enter on Tchap ? </string>
 
     <!--  Chat -->
