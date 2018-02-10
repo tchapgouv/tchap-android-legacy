@@ -200,7 +200,6 @@ public class ParticipantAdapterItem implements java.io.Serializable {
             } else if (rhs == null) {
                 return 1;
             }
-            //JP fct1 take into account the priority factor
 
 
             if (part1.isViewedInPriority() && !part2.isViewedInPriority())
@@ -433,9 +432,8 @@ public class ParticipantAdapterItem implements java.io.Serializable {
         if (null != getAvatarBitmap()) {
             imageView.setImageBitmap(getAvatarBitmap());
         } else {
-            if ((null != mUserId) && (android.util.Patterns.EMAIL_ADDRESS.matcher(mUserId).matches()) || !mIsValid) {
-                imageView.setImageBitmap(VectorUtils.getAvatar(imageView.getContext(), VectorUtils.getAvatarColor(mIsValid ? mUserId : ""), "@@", true));
-            } else {
+            //No@ avatar on tchap
+
                 if (TextUtils.isEmpty(mUserId)) {
                     VectorUtils.loadUserAvatar(imageView.getContext(), session, imageView, mAvatarUrl, mDisplayName, mDisplayName);
                 } else {
@@ -461,7 +459,6 @@ public class ParticipantAdapterItem implements java.io.Serializable {
 
                     VectorUtils.loadUserAvatar(imageView.getContext(), session, imageView, mAvatarUrl, mUserId, mDisplayName);
                 }
-            }
         }
     }
 
@@ -496,9 +493,12 @@ public class ParticipantAdapterItem implements java.io.Serializable {
                 displayname += " (" + mUserId + ")";
             }
         } else {
+            //for now, don't display entire matrix address
+            /*
             if (MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(mUserId).matches()) {
                 displayname += " (" + mUserId + ")";
             }
+            */
         }
 
         return displayname;
@@ -556,11 +556,40 @@ public class ParticipantAdapterItem implements java.io.Serializable {
         if (isMatrixUserId)
             retour = true;
         else{
+            /* finally put gov contacts like others
             if ((mContact!= null) && (mContact.getEmails().size()>0)) {
                 retour = DinsicUtils.isFromFrenchGov(mContact.getEmails());
-            }
+            }*/
+            retour = false;
         }
         return retour;
     }
-
+    /* jp pour test
+    @Override
+    public boolean equals(Object o) {
+        // self check
+        if (this == o)
+            return true;
+        // null check
+        if (o == null)
+            return false;
+        // type check and cast
+        if (getClass() != o.getClass())
+            return false;
+        ParticipantAdapterItem p = (ParticipantAdapterItem) o;
+        if (this.mUserId!=null){
+            return this.mUserId==p.mUserId;
+        }
+        else{
+            return this.mDisplayName == p.mDisplayName;
+        }
+    }
+    @Override
+    public int hashCode() {
+        int result = 17;
+        if (mUserId!=null) result = 31 * result + mUserId.hashCode();
+        if (mDisplayName!=null) result = 31 * result + mDisplayName.hashCode();
+        return result;
+    }
+    */
 }

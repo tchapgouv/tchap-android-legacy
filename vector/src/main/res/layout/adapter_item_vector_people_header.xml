@@ -50,14 +50,14 @@
             android:layout_marginRight="15dp" />
     </RelativeLayout>
 
-    <LinearLayout
+    <!-- LinearLayout
         android:id="@+id/people_header_matrix_contacts_layout"
         android:layout_width="match_parent"
         android:layout_height="20dp"
         android:layout_marginBottom="11dp"
         android:orientation="horizontal"
         android:visibility="visible"
-        tools:visibility="gone">
+        tools:visibility="gone" -->
 
         <!-- no filterCheckBox
         CheckBox
@@ -72,5 +72,5 @@
             android:text="@string/people_search_filter_text"
             android:textColor="?attr/riot_primary_text_color"
             android:textSize="14sp" / -->
-    </LinearLayout>
+    <!-- /LinearLayout -->
 </LinearLayout>

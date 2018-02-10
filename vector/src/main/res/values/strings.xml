@@ -382,7 +382,7 @@
     <string name="people_search_invite_by_id_dialog_hint">Email or Matrix ID</string>
     <string name="people_invalid_warning_msg">Email required to invite a contact</string>
     <string name="room_invite_non_gov_people">Do you really want to make him enter on Tchap ? </string>
-
+    <string name="room_invite_gov_people">Do you want to invite him ? </string>
     <!--  Chat -->
     <string name="room_menu_search">Search</string>
     <string name="room_one_user_is_typing">%s is typing…</string>

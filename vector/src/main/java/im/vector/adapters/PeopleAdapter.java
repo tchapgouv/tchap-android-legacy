@@ -91,9 +91,9 @@ public class PeopleAdapter extends AbsAdapter {
         mKnownContactsSection.setEmptyViewPlaceholder(null, context.getString(R.string.no_result_placeholder));
         mKnownContactsSection.setIsHiddenWhenNoFilter(true);
 
-        addSection(mDirectChatsSection);
+        //addSection(mDirectChatsSection);
         addSection(mLocalContactsSection);
-        addSection(mKnownContactsSection);
+        //addSection(mKnownContactsSection);
     }
 
     /*
@@ -188,7 +188,14 @@ public class PeopleAdapter extends AbsAdapter {
     public void setLocalContacts(final List<ParticipantAdapterItem> localContacts) {
         // updates the placeholder according to the local contacts permissions
         mLocalContactsSection.setEmptyViewPlaceholder(!ContactsManager.getInstance().isContactBookAccessAllowed() ? mNoContactAccessPlaceholder : mNoResultPlaceholder);
-        mLocalContactsSection.setItems(localContacts, mCurrentFilterPattern);
+
+         List<ParticipantAdapterItem> myContacts = new ArrayList<>();
+        for ( ParticipantAdapterItem item : localContacts) {
+          // when contact invitation will be introduced this line will be ok  if (MXSession.isUserId(item.mUserId)){
+                myContacts.add(item);
+            //}
+        }
+        mLocalContactsSection.setItems(myContacts, mCurrentFilterPattern);
         if (!TextUtils.isEmpty(mCurrentFilterPattern)) {
             filterLocalContacts(String.valueOf(mCurrentFilterPattern));
         }
@@ -375,12 +382,14 @@ public class PeopleAdapter extends AbsAdapter {
              */
             if (participant.mContact != null) {
                 boolean isMatrixUserId = MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(participant.mUserId).matches();
-                vContactBadge.setVisibility(isMatrixUserId ? View.VISIBLE : View.GONE);
-
+ //               vContactBadge.setVisibility(isMatrixUserId ? View.VISIBLE : View.GONE);
+                vContactBadge.setVisibility(View.GONE);
+                vContactDesc.setText("");
                 if (participant.mContact.getEmails().size() > 0) {
                     vContactDesc.setText(participant.mContact.getEmails().get(0));
                 } else {
-                    vContactDesc.setText(participant.mContact.getPhonenumbers().get(0).mRawPhoneNumber);
+                    if (null != participant.mContact.getPhonenumbers() && participant.mContact.getPhonenumbers().size()>0)
+                        vContactDesc.setText(participant.mContact.getPhonenumbers().get(0).mRawPhoneNumber);
                 }
             } else {
                 loadContactPresence(vContactDesc, participant, position);

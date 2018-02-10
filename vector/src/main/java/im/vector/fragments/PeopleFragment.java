@@ -46,6 +46,7 @@ import org.matrix.androidsdk.listeners.MXEventListener;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.rest.model.MatrixError;
+import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.search.SearchUsersResponse;
 import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.util.Log;
@@ -54,6 +55,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -152,13 +154,15 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
         super.onResume();
         mSession.getDataHandler().addListener(mEventsListener);
         ContactsManager.getInstance().addListener(this);
-        // Direct chats
-        initDirectChatsData();
-        initDirectChatsViews();
 
         // Local address book
         initContactsData();
+
+        // Direct chats
+        initDirectChatsData();
+
         initContactsViews();
+        initDirectChatsViews();//todo: to be removed
 
         mAdapter.setInvitation(mActivity.getRoomInvitations());
 
@@ -310,11 +314,56 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
                         final Set<String> tags = room.getAccountData().getKeys();
                         if ((null == tags) || !tags.contains(RoomTag.ROOM_TAG_LOW_PRIORITY)) {
                             mDirectChats.add(dataHandler.getRoom(roomId));
+                       }
+                    }
+                }
+            }
+        }
+    }
+    /* get contacts from direct chats */
+    private List<ParticipantAdapterItem> getContactsFromDirectChats() {
+        List<ParticipantAdapterItem> participants = new ArrayList<>();
+
+        if ((null == mSession) || (null == mSession.getDataHandler())) {
+            Log.e(LOG_TAG, "## getContactsFromDirectChats() : null session");
+        }
+
+        final List<String> directChatIds = mSession.getDirectChatRoomIdsList();
+        final MXDataHandler dataHandler = mSession.getDataHandler();
+        final IMXStore store = dataHandler.getStore();
+
+        if (directChatIds != null && !directChatIds.isEmpty()) {
+            for (String roomId : directChatIds) {
+                Room room = store.getRoom(roomId);
+
+                if ((null != room) && !room.isConferenceUserRoom()) {
+                    // it seems that the server syncs some left rooms
+                    if (null == room.getMember(mSession.getMyUserId())) {
+                        Log.e(LOG_TAG, "## getContactsFromDirectChats(): invalid room " + room.getRoomId() + ", the user is not anymore member of it");
+                    } else {
+                        final Set<String> tags = room.getAccountData().getKeys();
+                        if ((null == tags) || !tags.contains(RoomTag.ROOM_TAG_LOW_PRIORITY)) {
+                            Collection<RoomMember> rMembers = dataHandler.getRoom(roomId).getLiveState().getDisplayableMembers();
+                            if (rMembers.size()==2) {
+                                for (RoomMember myMember : rMembers){
+                                    if (!myMember.getUserId().equals(mSession.getMyUserId())){
+                                        if (MXSession.isUserId(myMember.getUserId())) {
+                                            Contact dummyContact = new Contact("null");
+                                            dummyContact.setDisplayName(myMember.displayname);
+                                            ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
+                                            participant.mUserId = myMember.getUserId();
+                                            participants.add(participant);
+                                        }
+
+                                    }
+                                }
+                             }
                         }
                     }
                 }
             }
         }
+        return participants;
     }
 
     /**
@@ -469,17 +518,21 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
     private void onContactSelected(final ParticipantAdapterItem item) {
         if (item.mIsValid) {
 
-            if (MXSession.isUserId(item.mUserId) || DinsicUtils.isFromFrenchGov(item.mContact.getEmails()))
+            if (MXSession.isUserId(item.mUserId))// || DinsicUtils.isFromFrenchGov(item.mContact.getEmails()))
                 contactSelected(item, null);
             else {
+
                 //don't have to ask the question if a room already exists
                 String existingRoomId;
+                String msg = getString(R.string.room_invite_non_gov_people);
+                if (DinsicUtils.isFromFrenchGov(item.mContact.getEmails()))
+                    msg = getString(R.string.room_invite_gov_people);
                 if (null != (existingRoomId = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(item.mUserId, mSession, LOG_TAG))) {
                     contactSelected(item,existingRoomId);
                 }
                 else {
                     AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-                    alertDialogBuilder.setMessage(getString(R.string.room_invite_non_gov_people));
+                    alertDialogBuilder.setMessage(msg);
 
                     // set dialog message
                     alertDialogBuilder
@@ -644,9 +697,15 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
 
             }
         }
-
+        //add participants from direct chats
+        List<ParticipantAdapterItem> myDirectContacts = getContactsFromDirectChats();
+        for (ParticipantAdapterItem myContact : myDirectContacts){
+            if (!DinsicUtils.participantAlreadyAdded(participants,myContact))
+                participants.add(myContact);
+        }
         return participants;
     }
+
 
     private List<ParticipantAdapterItem> getMatrixUsers() {
         List<ParticipantAdapterItem> matrixUsers = new ArrayList<>();
@@ -686,9 +745,7 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
 
         if (isResumed()) {
             mAdapter.setInvitation(mActivity.getRoomInvitations());
-
-            initDirectChatsData();
-            initDirectChatsViews();
+            initContactsData();
         }
     }
 
