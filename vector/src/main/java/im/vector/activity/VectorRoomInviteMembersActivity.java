@@ -28,6 +28,7 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ExpandableListView;
+import android.content.Context;
 
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.listeners.MXEventListener;
@@ -216,14 +217,64 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
         mListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-                Object item = mAdapter.getChild(groupPosition, childPosition);
+                boolean ret = false;
+                final Object item = mAdapter.getChild(groupPosition, childPosition);
 
-                if (item instanceof ParticipantAdapterItem && ((ParticipantAdapterItem) item).mIsValid) {
-                    ParticipantAdapterItem participantAdapterItem = (ParticipantAdapterItem) item;
-                    finish(new ArrayList<>(Arrays.asList(participantAdapterItem)));
-                    return true;
+                if (item instanceof ParticipantAdapterItem){// && ((ParticipantAdapterItem) item).mIsValid) {
+                    final ParticipantAdapterItem participantAdapterItem = (ParticipantAdapterItem) item;
+                    if (((ParticipantAdapterItem) item).mIsValid) {
+                        finish(new ArrayList<>(Arrays.asList(participantAdapterItem)));
+                        ret = true;
+                    }
+                    else{
+                        if (ContactsManager.getInstance().isContactBookAccessAllowed()) {
+                            //enterEmailAddress(item.mContact);
+                            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(VectorRoomInviteMembersActivity.this);
+                            alertDialogBuilder.setMessage(getString(R.string.people_invalid_warning_msg));
+                            final Context theContext = getApplicationContext();
+                            // set dialog message
+                            alertDialogBuilder
+                                    .setNegativeButton(R.string.cancel,null)
+                                    .setPositiveButton(R.string.action_edit_contact_form,
+                                            new DialogInterface.OnClickListener() {
+                                                public void onClick(DialogInterface dialog, int id) {
+                                                    DinsicUtils.editContactForm(theContext,VectorRoomInviteMembersActivity.this,getString(R.string.people_edit_contact_warning_msg),participantAdapterItem.mContact);
+                                                }
+                                            });
+
+                            // create alert dialog
+                            AlertDialog alertDialog = alertDialogBuilder.create();
+                            // show it
+                            alertDialog.show();
+
+                        }
+                        else {
+
+                            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(VectorRoomInviteMembersActivity.this);
+                            alertDialogBuilder.setMessage(getString(R.string.people_invalid_warning_msg));
+
+                            // set dialog message
+                            alertDialogBuilder
+                                    .setCancelable(false)
+                                    .setPositiveButton(R.string.ok,
+                                            new DialogInterface.OnClickListener() {
+                                                public void onClick(DialogInterface dialog, int id) {
+
+                                                }
+                                            });
+
+                            // create alert dialog
+                            AlertDialog alertDialog = alertDialogBuilder.create();
+                            // show it
+                            alertDialog.show();
+
+                        }
+
+
+
+                    }
                 }
-                return false;
+                return ret;
             }
         });
 
