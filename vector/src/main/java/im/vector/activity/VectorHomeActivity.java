@@ -117,6 +117,7 @@ import im.vector.receiver.VectorUniversalLinkReceiver;
 import im.vector.services.EventStreamService;
 import im.vector.util.BugReporter;
 import im.vector.util.CallsManager;
+import im.vector.util.DinsicUtils;
 import im.vector.util.RoomUtils;
 import im.vector.util.ThemeUtils;
 import im.vector.util.VectorUtils;
@@ -1165,9 +1166,20 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                         public void onClick(DialogInterface d, int n) {
                             d.cancel();
                             if (0 == n) {
-                                invitePeopleToNewRoom();
+                                if (!LoginActivity.isUserExternal(mSession)){
+                                    invitePeopleToNewRoom();
+                                }
+                                else{
+                                    DinsicUtils.alertSimpleMsg(VectorHomeActivity.this, getString(R.string.room_creation_forbidden));
+                                }
+
                             } else if (1 == n) {
-                                createRoom();
+                                if (!LoginActivity.isUserExternal(mSession)){
+                                    createRoom();
+                                }
+                                else{
+                                    DinsicUtils.alertSimpleMsg(VectorHomeActivity.this, getString(R.string.room_creation_forbidden));
+                                }
                             } else {
                                 joinARoom();
                             }

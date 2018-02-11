@@ -62,6 +62,7 @@ import java.util.Set;
 import butterknife.BindView;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
+import im.vector.activity.LoginActivity;
 import im.vector.activity.VectorRoomActivity;
 import im.vector.activity.VectorRoomCreationActivity;
 import im.vector.adapters.ParticipantAdapterItem;
@@ -557,23 +558,7 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
 
          }
         else {// tell the user that the email must be filled. Will be improved soon
-            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-            alertDialogBuilder.setMessage(getString(R.string.people_invalid_warning_msg));
-
-            // set dialog message
-            alertDialogBuilder
-                    .setCancelable(false)
-                    .setPositiveButton(R.string.ok,
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-
-                                }
-                            });
-
-            // create alert dialog
-            AlertDialog alertDialog = alertDialogBuilder.create();
-            // show it
-            alertDialog.show();
+            DinsicUtils.alertSimpleMsg(getActivity(), getString(R.string.people_invalid_warning_msg));
         }
 
     }
@@ -591,7 +576,14 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
             CommonActivityUtils.goToRoomPage(getActivity(), mSession, params);
         } else {
             // direct message flow
-            mSession.createDirectMessageRoom(item.mUserId, mCreateDirectMessageCallBack);
+            //it will be more open on next sprints ...
+            if (!LoginActivity.isUserExternal(mSession)){
+                mSession.createDirectMessageRoom(item.mUserId, mCreateDirectMessageCallBack);
+            }
+            else{
+                DinsicUtils.alertSimpleMsg(getActivity(), getString(R.string.room_creation_forbidden));
+
+            }
         }
     }
 

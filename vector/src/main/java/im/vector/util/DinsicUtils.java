@@ -1,10 +1,21 @@
 package im.vector.util;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+
+import org.matrix.androidsdk.MXSession;
+
 import java.util.Iterator;
 import java.util.List;
 
+import im.vector.Matrix;
+import im.vector.R;
 import im.vector.activity.LoginActivity;
 import im.vector.adapters.ParticipantAdapterItem;
+
 
 /**
  * Created by cloud on 1/22/18.
@@ -67,6 +78,26 @@ public class DinsicUtils {
         }
 
         return find;
+
+    }
+    public static void alertSimpleMsg(FragmentActivity activity, String msg){
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
+        alertDialogBuilder.setMessage(msg);
+
+        // set dialog message
+        alertDialogBuilder
+                .setCancelable(false)
+                .setPositiveButton(R.string.ok,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+
+                            }
+                        });
+
+        // create alert dialog
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        // show it
+        alertDialog.show();
 
     }
 

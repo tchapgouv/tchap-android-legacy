@@ -78,7 +78,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="no_email">Email pas disponible</string>
 
     <string name="rooms_header">Discussions</string>
-    <string name="rooms_directory_header">Répertoire de discussions</string>
+    <string name="rooms_directory_header">Discussions publiques</string>
     <string name="no_room_placeholder">Aucune discussion</string>
     <string name="no_public_room_placeholder">Aucune dicussion publique disponible</string>
     <string name="title_activity_room">Discussion</string>
@@ -199,6 +199,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="room_creation_add_member">Ajouter un membre</string>
     <string name="room_title_one_member">1 membre</string>
     <string name="room_e2e_alert_title">Attention !</string>
+    <string name="room_creation_forbidden">Vous n\'êtes pas autorisé à créer cette discussion</string>
     <string name="format_time_s">s</string>
     <string name="format_time_m">m</string>
     <string name="format_time_h">h</string>
@@ -280,9 +281,9 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="room_recents_conversations">DISCUSSIONS</string>
     <string name="room_recents_low_priority">PRIORITÉ BASSE</string>
     <string name="room_recents_invites">INVITATIONS</string>
-    <string name="room_recents_start_chat">Nouveau chat</string>
+    <string name="room_recents_start_chat">Créer une discussion à deux</string>
     <string name="room_recents_create_room">Créer une discussion de groupe</string>
-    <string name="room_recents_join_room">Rejoindre la discussion de groupe</string>
+    <string name="room_recents_join_room">Rejoindre une discussion de groupe</string>
     <string name="room_recents_join_room_title">Rejoindre une discussion</string>
     <string name="directory_search_results_title">Parcourir le répertoire</string>
     <string name="directory_searching_title">Recherche dans le répertoire…</string>
