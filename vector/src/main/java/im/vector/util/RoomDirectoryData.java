@@ -76,8 +76,9 @@ public class RoomDirectoryData implements Serializable {
      *
      * @return the default value
      */
-    public static RoomDirectoryData getDefault() {
-        return new RoomDirectoryData(null, DEFAULT_HOME_SERVER_NAME, null, null, false);
+    public static RoomDirectoryData getDefault(MXSession session) {
+        String usrHost= session.getMyUserId().substring(session.getMyUserId().indexOf(":") + 1);
+       return new RoomDirectoryData(null, usrHost, null, null, false);
     }
 
     /**
