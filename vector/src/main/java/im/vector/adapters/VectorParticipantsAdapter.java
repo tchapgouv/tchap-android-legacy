@@ -721,7 +721,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
     @Override
     public boolean isChildSelectable(int groupPosition, int childPosition) {
         ParticipantAdapterItem item = (ParticipantAdapterItem) getChild(groupPosition, childPosition);
-        return groupPosition != 0 || (null!=item);//.mIsValid; //jp
+        return groupPosition != 0 || (null!=item);//.mIsValid;
     }
 
 
