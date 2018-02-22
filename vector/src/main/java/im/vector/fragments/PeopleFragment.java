@@ -379,6 +379,7 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
             // First time on the screen or contact data outdated
             mLocalContacts.clear();
             List<ParticipantAdapterItem> participants = new ArrayList<>(getContacts());
+
             // Build lists
             for (ParticipantAdapterItem item : participants) {
                 if (item.mContact != null) {
@@ -386,6 +387,25 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
                 }
             }
         }
+        //clear contacts that come from directchats, i.e without contact id
+        else {
+            List<ParticipantAdapterItem> tobeRemoved = new ArrayList<>();
+            for (ParticipantAdapterItem item : mLocalContacts) {
+                if (item.mContact.getContactId() == "null") {
+                    tobeRemoved.add(item);
+                }
+            }
+            for (ParticipantAdapterItem item : tobeRemoved){
+                mLocalContacts.remove(item);
+            }
+        }
+        //add participants from direct chats
+        List<ParticipantAdapterItem> myDirectContacts = getContactsFromDirectChats();
+        for (ParticipantAdapterItem myContact : myDirectContacts){
+            if (!DinsicUtils.participantAlreadyAdded(mLocalContacts,myContact))
+                mLocalContacts.add(myContact);
+        }
+
     }
 
     /**
@@ -689,12 +709,15 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
 
             }
         }
+        //move this code outside
+        /*
         //add participants from direct chats
         List<ParticipantAdapterItem> myDirectContacts = getContactsFromDirectChats();
         for (ParticipantAdapterItem myContact : myDirectContacts){
             if (!DinsicUtils.participantAlreadyAdded(participants,myContact))
                 participants.add(myContact);
         }
+        */
         return participants;
     }
 
@@ -750,6 +773,13 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
     @Override
     public void onPIDsUpdate() {
         final List<ParticipantAdapterItem> newContactList = getContacts();
+        //add participants from direct chats
+        List<ParticipantAdapterItem> myDirectContacts = getContactsFromDirectChats();
+        for (ParticipantAdapterItem myContact : myDirectContacts){
+            if (!DinsicUtils.participantAlreadyAdded(newContactList,myContact))
+                newContactList.add(myContact);
+        }
+
         if (!mLocalContacts.containsAll(newContactList)) {
             mLocalContacts.clear();
             mLocalContacts.addAll(newContactList);
