@@ -85,9 +85,9 @@ import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
 import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.rest.model.MatrixError;
-import org.matrix.androidsdk.rest.model.Message;
+import org.matrix.androidsdk.rest.model.message.Message;
 import org.matrix.androidsdk.rest.model.PowerLevels;
-import org.matrix.androidsdk.rest.model.PublicRoom;
+import org.matrix.androidsdk.rest.model.publicroom.PublicRoom;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.util.JsonUtils;
@@ -1040,12 +1040,6 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                                     displayWidget(widgets.get(n));
                                 }
                             })
-                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    displayWidget(widgets.get(0));
-                                }
-                            })
                             .setNegativeButton(R.string.cancel, null)
                             .show();
                 }
@@ -1057,7 +1051,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             private void startCall(boolean isVideo) {
                 if (CommonActivityUtils.checkPermissions(isVideo ? CommonActivityUtils.REQUEST_CODE_PERMISSION_VIDEO_IP_CALL : CommonActivityUtils.REQUEST_CODE_PERMISSION_AUDIO_IP_CALL,
                         VectorRoomActivity.this)) {
-                    startIpCall(isVideo);
+                    startIpCall(false, isVideo);
                 }
             }
 
@@ -1343,7 +1337,8 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             mActiveWidgetsBanner.onActivityResume();
         }
 
-        displayE2eRoomAlert();
+        // no alert for the moment
+        // displayE2eRoomAlert();
 
         // init the auto-completion list from the room members
         mEditText.initAutoCompletion(mSession, (null != mRoom) ? mRoom.getRoomId() : null);
@@ -1430,14 +1425,50 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
 
     @Override
     public void onUnknownDevices(Event event, MXCryptoError error) {
-        refreshNotificationsArea();
-        CommonActivityUtils.displayUnknownDevicesDialog(mSession, this, (MXUsersDevicesMap<MXDeviceInfo>) error.mExceptionData, new VectorUnknownDevicesFragment.IUnknownDevicesSendAnywayListener() {
-            @Override
-            public void onSendAnyway() {
-                mVectorMessageListFragment.resendUnsentMessages();
-                refreshNotificationsArea();
+        //In a first time, automatically accept unknown devices
+        // we will review this in next sprints
+        MXUsersDevicesMap<MXDeviceInfo> unknownDevices = (MXUsersDevicesMap<MXDeviceInfo>) error.mExceptionData;
+        if ((null != unknownDevices)){
+            HashMap<String, HashMap<String, MXDeviceInfo>> myMap = unknownDevices.getMap();
+            List<MXDeviceInfo> dis = new ArrayList<>();
+            for ( String userId : unknownDevices.getUserIds()){
+                for (String deviceId : unknownDevices.getUserDeviceIds(userId)){
+                    dis.add(unknownDevices.getObject(deviceId,userId));
+                }
             }
-        });
+            if (dis.size()>0)
+                mSession.getCrypto().setDevicesKnown(dis, new ApiCallback<Void>() {
+                    // common method
+                    private void onDone() {
+                        mVectorMessageListFragment.resendUnsentMessages();
+                        refreshNotificationsArea();
+                    }
+
+                    @Override
+                    public void onSuccess(Void info) {
+                        onDone();
+                    }
+
+                    @Override
+                    public void onNetworkError(Exception e) {
+                        onDone();
+                    }
+
+                    @Override
+                    public void onMatrixError(MatrixError e) {
+                        onDone();
+                    }
+
+                    @Override
+                    public void onUnexpectedError(Exception e) {
+                        onDone();
+                    }
+                });
+
+
+
+
+        }
     }
 
     //================================================================================
@@ -1727,7 +1758,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                 }
 
                 if (CommonActivityUtils.checkPermissions(requestCode, VectorRoomActivity.this)) {
-                    startIpCall(isVideoCall);
+                    startIpCall(PreferencesManager.useJitsiConfCall(VectorRoomActivity.this), isVideoCall);
                 }
             }
         });
@@ -1794,10 +1825,11 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
      * Start an IP call: audio call if aIsVideoCall is false or video call if aIsVideoCall
      * is true.
      *
+     * @param useJitsiCall true to use jitsi calls
      * @param aIsVideoCall true to video call, false to audio call
      */
-    private void startIpCall(final boolean aIsVideoCall) {
-        if ((mRoom.getActiveMembers().size() > 2) && PreferencesManager.useJitsiConfCall(this)) {
+    private void startIpCall(final boolean useJitsiCall, final boolean aIsVideoCall) {
+        if ((mRoom.getActiveMembers().size() > 2) && useJitsiCall) {
             startJitsiCall(aIsVideoCall);
             return;
         }
@@ -1858,7 +1890,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                         CommonActivityUtils.displayUnknownDevicesDialog(mSession, VectorRoomActivity.this, (MXUsersDevicesMap<MXDeviceInfo>) cryptoError.mExceptionData, new VectorUnknownDevicesFragment.IUnknownDevicesSendAnywayListener() {
                             @Override
                             public void onSendAnyway() {
-                                startIpCall(aIsVideoCall);
+                                startIpCall(useJitsiCall, aIsVideoCall);
                             }
                         });
 
@@ -2356,11 +2388,11 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             }
         } else if (aRequestCode == CommonActivityUtils.REQUEST_CODE_PERMISSION_AUDIO_IP_CALL) {
             if (CommonActivityUtils.onPermissionResultAudioIpCall(this, aPermissions, aGrantResults)) {
-                startIpCall(false);
+                startIpCall(PreferencesManager.useJitsiConfCall(this), false);
             }
         } else if (aRequestCode == CommonActivityUtils.REQUEST_CODE_PERMISSION_VIDEO_IP_CALL) {
             if (CommonActivityUtils.onPermissionResultVideoIpCall(this, aPermissions, aGrantResults)) {
-                startIpCall(true);
+                startIpCall(		PreferencesManager.useJitsiConfCall(this), true);
             }
         } else {
             Log.w(LOG_TAG, "## onRequestPermissionsResult(): Unknown requestCode =" + aRequestCode);
@@ -2414,7 +2446,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             if (TextUtils.equals(mSession.getMyUser().displayname, text)) {
                 // current user
                 if (TextUtils.isEmpty(mEditText.getText())) {
-                    mEditText.setText(String.format("%s ", SlashComandsParser.CMD_EMOTE));
+                    mEditText.setText(String.format(VectorApp.getApplicationLocale(), "%s ", SlashComandsParser.CMD_EMOTE));
                     mEditText.setSelection(mEditText.getText().length());
                 }
             } else {
@@ -2531,7 +2563,9 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             boolean hasUndeliverableEvents = (null != undeliveredEvents) && (undeliveredEvents.size() > 0);
             boolean hasUnknownDeviceEvents = (null != unknownDeviceEvents) && (unknownDeviceEvents.size() > 0);
 
-            if (hasUndeliverableEvents || hasUnknownDeviceEvents) {
+            //don't alert the user
+            // if (hasUndeliverableEvents || hasUnknownDeviceEvents) {
+            if (hasUndeliverableEvents) {
                 hasUnsentEvent = true;
                 isAreaVisible = true;
                 iconId = R.drawable.error;
@@ -2707,11 +2741,11 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             if (0 == names.size()) {
                 mLatestTypingMessage = null;
             } else if (1 == names.size()) {
-                mLatestTypingMessage = String.format(this.getString(R.string.room_one_user_is_typing), names.get(0));
+                mLatestTypingMessage = String.format(VectorApp.getApplicationLocale(), this.getString(R.string.room_one_user_is_typing), names.get(0));
             } else if (2 == names.size()) {
-                mLatestTypingMessage = String.format(this.getString(R.string.room_two_users_are_typing), names.get(0), names.get(1));
+                mLatestTypingMessage = String.format(VectorApp.getApplicationLocale(), this.getString(R.string.room_two_users_are_typing), names.get(0), names.get(1));
             } else if (names.size() > 2) {
-                mLatestTypingMessage = String.format(this.getString(R.string.room_many_users_are_typing), names.get(0), names.get(1));
+                mLatestTypingMessage = String.format(VectorApp.getApplicationLocale(), this.getString(R.string.room_many_users_are_typing), names.get(0), names.get(1));
             }
         }
 

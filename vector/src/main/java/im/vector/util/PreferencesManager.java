@@ -18,7 +18,6 @@ package im.vector.util;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.media.RingtoneManager;
@@ -121,8 +120,9 @@ public class PreferencesManager {
     private static final String SETTINGS_NOTIFICATION_RINGTONE_PREFERENCE_KEY = "SETTINGS_NOTIFICATION_RINGTONE_PREFERENCE_KEY";
     public static final String SETTINGS_NOTIFICATION_RINGTONE_SELECTION_PREFERENCE_KEY = "SETTINGS_NOTIFICATION_RINGTONE_SELECTION_PREFERENCE_KEY";
 
-    private static final String SETTINGS_USE_NATIVE_CAMERA_PREFERENCE_KEY = "SETTINGS_USE_NATIVE_CAMERA_PREFERENCE_KEY";
+    public static final String SETTINGS_GROUPS_FLAIR_KEY = "SETTINGS_GROUPS_FLAIR_KEY";
 
+    private static final String SETTINGS_USE_NATIVE_CAMERA_PREFERENCE_KEY = "SETTINGS_USE_NATIVE_CAMERA_PREFERENCE_KEY";
 
     private static final int MEDIA_SAVING_3_DAYS = 0;
     private static final int MEDIA_SAVING_1_WEEK = 1;
@@ -364,7 +364,7 @@ public class PreferencesManager {
      * @return true if the conference call must be done with jitsi.
      */
     public static boolean useJitsiConfCall(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_USE_JITSI_CONF_PREFERENCE_KEY, true);
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_USE_JITSI_CONF_PREFERENCE_KEY, false);
     }
 
     /**
@@ -488,6 +488,12 @@ public class PreferencesManager {
     public static void fixMigrationIssues(Context context) {
         // some key names have been updated to supported language switch
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+
+        if (!preferences.contains(SETTINGS_START_ON_BOOT_PREFERENCE_KEY)) {
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putBoolean(SETTINGS_START_ON_BOOT_PREFERENCE_KEY, true);
+            editor.commit();
+        }
 
         if (preferences.contains(context.getString(R.string.settings_pin_missed_notifications))) {
             SharedPreferences.Editor editor = preferences.edit();

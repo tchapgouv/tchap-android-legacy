@@ -73,9 +73,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 import im.vector.Matrix;
-import im.vector.R;
+import im.vector.R;;
 import im.vector.VectorApp;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.VectorMediasPickerActivity;
@@ -124,11 +125,16 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
     private static final String PREF_KEY_BANNED_DIVIDER = "banned_divider";
     private static final String PREF_KEY_ENCRYPTION = "encryptionKey";
 
+    private static final String PREF_KEY_FLAIR = "flair";
+    private static final String PREF_KEY_FLAIR_DIVIDER = "flair_divider";
+
     private static final String ADDRESSES_PREFERENCE_KEY_BASE = "ADDRESSES_PREFERENCE_KEY_BASE";
     private static final String NO_LOCAL_ADDRESS_PREFERENCE_KEY = "NO_LOCAL_ADDRESS_PREFERENCE_KEY";
     private static final String ADD_ADDRESSES_PREFERENCE_KEY = "ADD_ADDRESSES_PREFERENCE_KEY";
 
     private static final String BANNED_PREFERENCE_KEY_BASE = "BANNED_PREFERENCE_KEY_BASE";
+
+    private static final String FLAIR_PREFERENCE_KEY_BASE = "FLAIR_PREFERENCE_KEY_BASE";
 
     private static final String UNKNOWN_VALUE = "UNKNOWN_VALUE";
 
@@ -147,6 +153,10 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
     // banned members
     private PreferenceCategory mBannedMembersSettingsCategory;
     private PreferenceCategory mBannedMembersSettingsCategoryDivider;
+
+    // flair
+    private PreferenceCategory mFlairSettingsCategory;
+    private PreferenceCategory mFlairSettingsCategoryDivider;
 
     // UI elements
     private RoomAvatarPreference mRoomPhotoAvatar;
@@ -334,6 +344,8 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
         mAdvandceSettingsCategory = (PreferenceCategory) getPreferenceManager().findPreference(PREF_KEY_ADVANCED);
         mBannedMembersSettingsCategory = (PreferenceCategory) getPreferenceManager().findPreference(PREF_KEY_BANNED);
         mBannedMembersSettingsCategoryDivider = (PreferenceCategory) getPreferenceManager().findPreference(PREF_KEY_BANNED_DIVIDER);
+        mFlairSettingsCategoryDivider = (PreferenceCategory) getPreferenceManager().findPreference(PREF_KEY_FLAIR_DIVIDER);
+        mFlairSettingsCategory = (PreferenceCategory) getPreferenceManager().findPreference(PREF_KEY_FLAIR);
 
         mRoomAccessRulesListPreference.setOnPreferenceWarningIconClickListener(new VectorListPreference.OnPreferenceWarningIconClickListener() {
             @Override
@@ -518,6 +530,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
             updateRoomDirectoryVisibilityAsync();
 
             refreshAddresses();
+            refreshFlair();
             refreshBannedMembersList();
             refreshEndToEnd();
         }
@@ -1290,7 +1303,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
         Collections.sort(bannedMembers, new Comparator<RoomMember>() {
             @Override
             public int compare(RoomMember m1, RoomMember m2) {
-                return m1.getUserId().toLowerCase().compareTo(m2.getUserId().toLowerCase());
+                return m1.getUserId().toLowerCase(VectorApp.getApplicationLocale()).compareTo(m2.getUserId().toLowerCase(VectorApp.getApplicationLocale()));
             }
         });
 
@@ -1326,6 +1339,155 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
 
                 mBannedMembersSettingsCategory.addPreference(preference);
             }
+        }
+    }
+
+    //================================================================================
+    // flair management
+    //================================================================================
+
+    private final ApiCallback mFlairUpdatesCallback = new ApiCallback<Void>() {
+        @Override
+        public void onSuccess(Void info) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    hideLoadingView(false);
+                    refreshFlair();
+                }
+            });
+        }
+
+        /**
+         * Error management.
+         * @param errorMessage the error message
+         */
+        private void onError(final String errorMessage) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT).show();
+                    hideLoadingView(false);
+                    refreshFlair();
+                }
+            });
+        }
+
+        @Override
+        public void onNetworkError(Exception e) {
+            onError(e.getLocalizedMessage());
+        }
+
+        @Override
+        public void onMatrixError(MatrixError e) {
+            onError(e.getLocalizedMessage());
+        }
+
+        @Override
+        public void onUnexpectedError(Exception e) {
+            onError(e.getLocalizedMessage());
+        }
+    };
+
+    /**
+     * Tells if the current user can updates the related group aka flairs
+     *
+     * @return true if the user is allowed.
+     */
+    private boolean canUpdateFlair() {
+        boolean canUpdateAliases = false;
+
+        PowerLevels powerLevels = mRoom.getLiveState().getPowerLevels();
+
+        if (null != powerLevels) {
+            int powerLevel = powerLevels.getUserPowerLevel(mSession.getMyUserId());
+            canUpdateAliases = powerLevel >= powerLevels.minimumPowerLevelForSendingEventAsStateEvent(Event.EVENT_TYPE_STATE_RELATED_GROUPS);
+        }
+
+        return canUpdateAliases;
+    }
+
+    /**
+     * Refresh the flair list
+     */
+    private void refreshFlair() {
+        if (null == mFlairSettingsCategory) {
+            return;
+        }
+
+        final List<String> groups = mRoom.getLiveState().getRelatedGroups();
+        Collections.sort(groups, String.CASE_INSENSITIVE_ORDER);
+
+        mFlairSettingsCategory.removeAll();
+
+        if (!groups.isEmpty()) {
+            for (final String groupId : groups) {
+                VectorCustomActionEditTextPreference preference = new VectorCustomActionEditTextPreference(getActivity());
+                preference.setTitle(groupId);
+                preference.setKey(FLAIR_PREFERENCE_KEY_BASE + groupId);
+
+                preference.setOnPreferenceLongClickListener(new VectorCustomActionEditTextPreference.OnPreferenceLongClickListener() {
+                    @Override
+                    public boolean onPreferenceLongClick(Preference preference) {
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                displayLoadingView();
+                                mRoom.removeRelatedGroup(groupId, mFlairUpdatesCallback);
+                            }
+                        });
+
+                        return true;
+                    }
+                });
+                mFlairSettingsCategory.addPreference(preference);
+            }
+        } else {
+            VectorCustomActionEditTextPreference preference = new VectorCustomActionEditTextPreference(getActivity());
+            preference.setTitle(getString(R.string.room_settings_no_flair));
+            preference.setKey(FLAIR_PREFERENCE_KEY_BASE + "no_flair");
+
+            mFlairSettingsCategory.addPreference(preference);
+        }
+
+        if (canUpdateFlair()) {
+            // display the "add addresses" entry
+            EditTextPreference addAddressPreference = new EditTextPreference(getActivity());
+            addAddressPreference.setTitle(R.string.room_settings_add_new_group);
+            addAddressPreference.setDialogTitle(R.string.room_settings_add_new_group);
+            addAddressPreference.setKey(FLAIR_PREFERENCE_KEY_BASE + "__add");
+            addAddressPreference.setIcon(CommonActivityUtils.tintDrawable(getActivity(), ContextCompat.getDrawable(getActivity(), R.drawable.ic_add_black), R.attr.settings_icon_tint_color));
+
+            addAddressPreference.setOnPreferenceChangeListener(
+                    new Preference.OnPreferenceChangeListener() {
+                        @Override
+                        public boolean onPreferenceChange(Preference preference, Object newValue) {
+                            final String groupId = ((String) newValue).trim();
+
+                            // ignore empty alias
+                            if (!TextUtils.isEmpty(groupId)) {
+                                if (!MXSession.isGroupId(groupId)) {
+                                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                                    builder.setTitle(R.string.room_settings_invalid_group_format_dialog_title);
+                                    builder.setMessage(getString(R.string.room_settings_invalid_group_format_dialog_body, groupId));
+                                    builder.setPositiveButton(R.string.ok, null);
+                                    AlertDialog dialog = builder.create();
+                                    dialog.show();
+                                } else if (!groups.contains(groupId)) {
+                                    getActivity().runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            displayLoadingView();
+                                            mRoom.addRelatedGroup(groupId, mFlairUpdatesCallback);
+                                        }
+                                    });
+                                }
+                            }
+                            return false;
+                        }
+                    });
+
+            mFlairSettingsCategory.addPreference(addAddressPreference);
         }
     }
 
@@ -1752,6 +1914,36 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
                         boolean newValue = (boolean) newValueAsVoid;
 
                         if (newValue != mRoom.isEncrypted()) {
+                            // hide warning for e2e
+                            displayLoadingView();
+                            mRoom.enableEncryptionWithAlgorithm(MXCryptoAlgorithms.MXCRYPTO_ALGORITHM_MEGOLM, new ApiCallback<Void>() {
+
+                                private void onDone() {
+                                    hideLoadingView(false);
+                                    refreshEndToEnd();
+                                }
+
+                                @Override
+                                public void onSuccess(Void info) {
+                                    onDone();
+                                }
+
+                                @Override
+                                public void onNetworkError(Exception e) {
+                                    onDone();
+                                }
+
+                                @Override
+                                public void onMatrixError(MatrixError e) {
+                                    onDone();
+                                }
+
+                                @Override
+                                public void onUnexpectedError(Exception e) {
+                                    onDone();
+                                }
+                            });
+                            /*
                             new AlertDialog.Builder(getActivity())
                                     .setTitle(R.string.room_settings_addresses_e2e_prompt_title)
                                     .setMessage(R.string.room_settings_addresses_e2e_prompt_message)
@@ -1800,6 +1992,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
                                     })
                                     .create()
                                     .show();
+                                    */
                         }
                         return true;
                     }

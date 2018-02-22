@@ -50,10 +50,10 @@
         android:key="SETTINGS_USER_INTERFACE_KEY"
         android:title="@string/settings_user_interface" >
 
-        <im.vector.preference.VectorCustomActionEditTextPreference
+        <!--im.vector.preference.VectorCustomActionEditTextPreference
             android:key="SETTINGS_INTERFACE_LANGUAGE_PREFERENCE_KEY"
             android:title="@string/settings_interface_language"
-            android:dialogTitle="@string/settings_select_language"/>
+            android:dialogTitle="@string/settings_select_language"/-->
 
         <im.vector.preference.VectorCustomActionEditTextPreference
             android:key="SETTINGS_INTERFACE_TEXT_SIZE_KEY"
@@ -112,6 +112,13 @@
             android:key="SETTINGS_PIN_UNREAD_MESSAGES_PREFERENCE_KEY"/>
 
     </PreferenceCategory>
+
+    <!--im.vector.preference.VectorDividerCategory/>
+
+    <PreferenceCategory
+        android:key="SETTINGS_GROUPS_FLAIR_KEY"
+        android:title="@string/settings_flair" >
+    </PreferenceCategory-->
 
     <im.vector.preference.VectorDividerCategory/>
 

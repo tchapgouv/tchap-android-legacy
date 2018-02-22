@@ -24,6 +24,7 @@
     <string name="title_activity_member_details">Member Details</string>
     <string name="title_activity_historical">Historical</string>
     <string name="title_activity_bug_report">Bug report</string>
+    <string name="title_activity_group_details">Community details</string>
 
     <!-- button names -->
     <string name="ok">OK</string>
@@ -89,6 +90,7 @@
     <string name="home_filter_placeholder_favorites">Search for favourites</string>
     <string name="home_filter_placeholder_people">Search for people</string>
     <string name="home_filter_placeholder_rooms">Search for rooms</string>
+    <string name="home_filter_placeholder_groups">Search for communities</string>
 
     <!-- Home fragment -->
     <string name="invitations_header">Invites</string>
@@ -102,6 +104,7 @@
     <string name="no_conversation_placeholder">No conversations</string>
     <string name="no_contact_access_placeholder">You didn\'t allow Riot to access your local contacts</string>
     <string name="no_result_placeholder">No results</string>
+    <string name="no_email">Email unknown</string>
 
     <!-- Rooms fragment -->
     <string name="rooms_header">Rooms</string>
@@ -112,6 +115,11 @@
         <item quantity="one">1 user</item>
         <item quantity="other">%d users</item>
     </plurals>
+
+    <!-- Groups fragment -->
+    <string name="groups_invite_header">Invite</string>
+    <string name="groups_header">Communities</string>
+    <string name="no_group_placeholder">No groups</string>
 
     <string name="send_bug_report_include_logs">Send logs</string>
     <string name="send_bug_report_include_crash_logs">Send crash logs</string>
@@ -287,7 +295,7 @@
     <string name="permissions_rationale_msg_record_audio_explanation">\n\nPlease allow access on the next pop-up to be able to make the call.</string>
     <string name="permissions_rationale_msg_camera_and_audio">Riot needs permission to access your camera and your microphone to perform video calls.\n\nPlease allow access on the next pop-ups to be able to make the call.</string>
     <string name="permissions_rationale_msg_contacts">Riot needs permission to access your address book contacts to find other Matrix users based on their email and phone numbers.\n\nPlease allow access on the next pop-up to discover address book users reachable from Riot.</string>
-    <string name="permissions_msg_contacts_warning_other_androids">Riot needs permission to access your address book contacts to find other Matrix users based on their email and phone numbers.\n\nAllow Riot to access your contacts ?</string>
+    <string name="permissions_msg_contacts_warning_other_androids">Riot needs permission to access your address book contact to find other Matrix users based on their email and phone numbers.\n\nAllow Riot to access your contacts ?</string>
 
     <string name="permissions_action_not_performed_missing_permissions">Sorry.. Action not performed, due to missing permissions</string>
 
@@ -372,6 +380,8 @@
     <string name="people_search_invite_by_id_dialog_title">Invite user by ID</string>
     <string name="people_search_invite_by_id_dialog_description">Please enter one or more email address or Matrix ID</string>
     <string name="people_search_invite_by_id_dialog_hint">Email or Matrix ID</string>
+    <string name="people_invalid_warning_msg">Email required to invite a contact</string>
+    <string name="room_invite_non_gov_people">Do you really want to make him enter on Tchap ? </string>
 
     <!--  Chat -->
     <string name="room_menu_search">Search</string>
@@ -599,6 +609,9 @@
     <string name="settings_phone_number_verification_error">Error while validating your phone number</string>
     <string name="settings_phone_number_code">Code</string>
 
+
+    <string name="settings_flair">Flair</string>
+
     <!-- medias saving settings -->
     <string name="media_saving_period_3_days">3 days</string>
     <string name="media_saving_period_1_week">1 week</string>
@@ -662,6 +675,12 @@
     <!-- Room settings: advanced addresses -->
     <string name="room_settings_addresses_no_local_addresses">This room has no local addresses</string>
     <string name="room_settings_addresses_add_new_address">New address (e.g #foo:matrix.org")</string>
+
+    <string name="room_settings_no_flair"> This room is not showing flair for any communities</string>
+    <string name="room_settings_add_new_group">New community ID (e.g +foo:matrix.org")</string>
+    <string name="room_settings_invalid_group_format_dialog_title">Invalid community ID</string>
+    <string name="room_settings_invalid_group_format_dialog_body">\'%s\' is not a valid community ID</string>
+
 
     <string name="room_settings_addresses_invalid_format_dialog_title">Invalid alias format</string>
     <string name="room_settings_addresses_invalid_format_dialog_body">\'%s\' is not a valid format for an alias</string>
@@ -815,4 +834,37 @@
 
     <string name="encrypted_message">Encrypted message</string>
 
+    // groups creation
+    <string name="create">Create</string>
+    <string name="create_community">Create Community</string>
+    <string name="community_name">Community name</string>
+    <string name="community_name_hint">Example</string>
+    <string name="community_id">Community Id</string>
+    <string name="community_id_hint">example</string>
+    <string name="group_id_cannot_be_empty">Community ID cannot be empty</string>
+    <string name="group_id_invalid_characters"> Community IDs may only contain characters a-z, 0-9, or \'=_-./\'</string>
+
+    // group details
+    <string name="group_details_home">Home</string>
+    <string name="group_details_people">People</string>
+    <string name="group_details_rooms">Rooms</string>
+    <string name="featured_rooms">Featured rooms</string>
+    <string name="featured_users">Featured users</string>
+    <string name="no_users_placeholder">No users</string>
+
+    <string name="rooms">Rooms</string>
+    <string name="joined">Joined</string>
+    <string name="invited">Invited</string>
+    <string name="filter_group_members">Filter group members</string>
+    <string name="filter_group_rooms">Filter group rooms</string>
+
+    <string name="group_one_member">1 member</string>
+    <string name="group_members">%d members</string>
+
+    <string name="group_one_room">1 room</string>
+    <string name="group_rooms">%d rooms</string>
+    <string name="group_no_long_description">The community admin has not provided a long description for this community.</string>
+
+    <string name="one_new_message">1 new message</string>
+    <string name="new_messages">%d new messages</string>
 </resources>

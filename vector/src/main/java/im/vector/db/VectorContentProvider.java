@@ -33,7 +33,7 @@ import im.vector.VectorApp;
 public class VectorContentProvider extends ContentProvider {
     private static final String LOG_TAG = VectorContentProvider.class.getSimpleName();
 
-    private static final String AUTHORITIES = "im.vector.VectorApp.provider";
+    private static final String AUTHORITIES = "fr.gouv.rie.tchap.provider";
 
     private static final String BUG_SEPARATOR = "bugreport";
 
@@ -97,7 +97,7 @@ public class VectorContentProvider extends ContentProvider {
     @Override
     public String getType(Uri arg0) {
         String type = null;
-        String extension = MimeTypeMap.getFileExtensionFromUrl(arg0.toString().toLowerCase());
+        String extension = MimeTypeMap.getFileExtensionFromUrl(arg0.toString().toLowerCase(VectorApp.getApplicationLocale()));
         if (extension != null) {
             MimeTypeMap mime = MimeTypeMap.getSingleton();
             type = mime.getMimeTypeFromExtension(extension);

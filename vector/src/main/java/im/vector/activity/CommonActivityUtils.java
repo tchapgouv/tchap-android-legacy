@@ -43,7 +43,7 @@ import android.os.Looper;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.annotation.AttrRes;
-import android.support.design.widget.Snackbar;
+import android.support.annotation.ColorInt;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -1579,16 +1579,14 @@ public class CommonActivityUtils {
         saveFileInto(srcFile, Environment.DIRECTORY_DOWNLOADS, filename, new ApiCallback<String>() {
             @Override
             public void onSuccess(String fullFilePath) {
-                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                    if (null != fullFilePath) {
-                        DownloadManager downloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
+                if (null != fullFilePath) {
+                    DownloadManager downloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
 
-                        try {
-                            File file = new File(fullFilePath);
-                            downloadManager.addCompletedDownload(file.getName(), file.getName(), true, mimeType, file.getAbsolutePath(), file.length(), true);
-                        } catch (Exception e) {
-                            Log.e(LOG_TAG, "## saveMediaIntoDownloads(): Exception Msg=" + e.getMessage());
-                        }
+                    try {
+                        File file = new File(fullFilePath);
+                        downloadManager.addCompletedDownload(file.getName(), file.getName(), true, mimeType, file.getAbsolutePath(), file.length(), true);
+                    } catch (Exception e) {
+                        Log.e(LOG_TAG, "## saveMediaIntoDownloads(): Exception Msg=" + e.getMessage());
                     }
                 }
 
@@ -2055,18 +2053,28 @@ public class CommonActivityUtils {
     }
 
     /**
-     * Tint the drawable with the menu icon color
+     * Tint the drawable with a theme attribute
      *
      * @param context  the context
      * @param drawable the drawable to tint
+     * @param attribute the theme color
      * @return the tinted drawable
      */
     public static Drawable tintDrawable(Context context, Drawable drawable, @AttrRes int attribute) {
-        int color = ThemeUtils.getColor(context, attribute);
+        return tintDrawableWithColor(drawable, ThemeUtils.getColor(context, attribute));
+    }
+
+    /**
+     * Tint the drawable with a color integer
+     *
+     * @param drawable the drawable to tint
+     * @param color the color
+     * @return the tinted drawable
+     */
+    public static Drawable tintDrawableWithColor(Drawable drawable, @ColorInt int color) {
         Drawable tinted = DrawableCompat.wrap(drawable);
         drawable.mutate();
         DrawableCompat.setTint(tinted, color);
-
         return tinted;
     }
 }

@@ -15,7 +15,7 @@
             android:id="@+id/animated_logo_image_view"
             android:layout_width="240dp"
             android:layout_height="240dp"
-            android:src="@drawable/riot_splash" />
+            android:src="@drawable/tchap_splash"/>
 
         <RelativeLayout
             android:layout_width="match_parent"

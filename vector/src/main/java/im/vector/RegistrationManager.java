@@ -28,7 +28,7 @@ import org.matrix.androidsdk.rest.client.LoginRestClient;
 import org.matrix.androidsdk.rest.client.ProfileRestClient;
 import org.matrix.androidsdk.rest.client.ThirdPidRestClient;
 import org.matrix.androidsdk.rest.model.MatrixError;
-import org.matrix.androidsdk.rest.model.ThreePid;
+import org.matrix.androidsdk.rest.model.pid.ThreePid;
 import org.matrix.androidsdk.rest.model.login.Credentials;
 import org.matrix.androidsdk.rest.model.login.LoginFlow;
 import org.matrix.androidsdk.rest.model.login.RegistrationFlowResponse;
@@ -57,8 +57,6 @@ public class RegistrationManager {
 
     private static final String ERROR_MISSING_STAGE = "ERROR_MISSING_STAGE";
     private static final String ERROR_EMPTY_USER_ID = "ERROR_EMPTY_USER_ID";
-
-    private static final String NEXTLINK_BASE_URL = "https://riot.im/app";
 
     // JSON keys used for registration request
     private static final String JSON_KEY_CLIENT_SECRET = "client_secret";
@@ -222,6 +220,22 @@ public class RegistrationManager {
     }
 
     /**
+     * @return true if there is a password flow.
+     */
+    private boolean isPasswordBasedFlowSupported() {
+        if ((null != mRegistrationResponse) && (null != mRegistrationResponse.flows)) {
+            for (LoginFlow flow : mRegistrationResponse.flows) {
+                if (TextUtils.equals(flow.type, LoginRestClient.LOGIN_FLOW_TYPE_PASSWORD) ||
+                        ((null != flow.stages) && flow.stages.contains(LoginRestClient.LOGIN_FLOW_TYPE_PASSWORD))) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Make the registration request with params depending on singleton values
      *
      * @param context
@@ -264,10 +278,24 @@ public class RegistrationManager {
                 registrationType = LoginRestClient.LOGIN_FLOW_TYPE_DUMMY;
                 authParams = new HashMap<>();
                 authParams.put(JSON_KEY_TYPE, LoginRestClient.LOGIN_FLOW_TYPE_DUMMY);
-            } else {
+            } else if (isPasswordBasedFlowSupported()) {
+                // never has been tested
                 registrationType = LoginRestClient.LOGIN_FLOW_TYPE_PASSWORD;
                 authParams = new HashMap<>();
                 authParams.put(JSON_KEY_TYPE, LoginRestClient.LOGIN_FLOW_TYPE_PASSWORD);
+                authParams.put(JSON_KEY_SESSION, mRegistrationResponse.session);
+
+                if (null != mUsername) {
+                    authParams.put("username", mUsername);
+                }
+
+                if (null != mPassword) {
+                    authParams.put("password", mPassword);
+                }
+            } else {
+                // others
+                registrationType = "";
+                authParams = new HashMap<>();
             }
 
             if (TextUtils.equals(registrationType, LoginRestClient.LOGIN_FLOW_TYPE_MSISDN)
@@ -768,7 +796,9 @@ public class RegistrationManager {
         if (getThirdPidRestClient() != null) {
             switch (pid.medium) {
                 case ThreePid.MEDIUM_EMAIL:
-                    String nextLink = NEXTLINK_BASE_URL + "/#/register?client_secret=" + pid.clientSecret;
+                    String nextLinkBase = mHsConfig.getHomeserverUri().toString();
+                    nextLinkBase = nextLinkBase.replace("matrix", "chat");
+                    String nextLink = nextLinkBase + "/#/register?client_secret="+ pid.clientSecret;
                     nextLink += "&hs_url=" + mHsConfig.getHomeserverUri().toString();
                     nextLink += "&is_url=" + mHsConfig.getIdentityServerUri().toString();
                     nextLink += "&session_id=" + mRegistrationResponse.session;

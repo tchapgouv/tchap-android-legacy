@@ -50,6 +50,7 @@ import im.vector.adapters.ParticipantAdapterItem;
 import im.vector.adapters.VectorParticipantsAdapter;
 import im.vector.contacts.Contact;
 import im.vector.contacts.ContactsManager;
+import im.vector.util.DinsicUtils;
 import im.vector.util.VectorUtils;
 import im.vector.view.VectorAutoCompleteTextView;
 
@@ -327,6 +328,7 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
             }
         }
 
+        boolean isStrangers = false;
         // build the output lists
         for (ParticipantAdapterItem item : participantAdapterItems) {
             // check if the user id can be added
@@ -342,12 +344,25 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
                     }
                 } else {
                     displayNames.add(item.mUserId);
+                    if (item.mContact != null && item.mContact.getEmails().size()>0)
+                        isStrangers |= !DinsicUtils.isFromFrenchGov(item.mContact.getEmails());
+                    else
+                    if (item.mUserId!= null && android.util.Patterns.EMAIL_ADDRESS.matcher(item.mUserId).matches()){
+                        List<String>myAddress = new ArrayList<>();
+                        myAddress.add(item.mUserId);
+                        isStrangers |= !DinsicUtils.isFromFrenchGov(myAddress);
+                    }
+
+
+
+
+
                 }
+
             }
         }
-
         // a confirmation dialog has been requested
-        if (mAddConfirmationDialog && (displayNames.size() > 0)) {
+        if ((isStrangers || mAddConfirmationDialog) && (displayNames.size() > 0)) {
             android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(VectorRoomInviteMembersActivity.this);
             builder.setTitle(R.string.dialog_title_confirmation);
 
@@ -362,8 +377,12 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
 
                 message += displayNames.get(displayNames.size() - 2) + " " + getText(R.string.and) + " " + displayNames.get(displayNames.size() - 1);
             }
-
-            builder.setMessage(getString(R.string.room_participants_invite_prompt_msg, message));
+            if (isStrangers) {
+                builder.setMessage(getString(R.string.room_invite_non_gov_people));
+            }
+            else {
+                builder.setMessage(getString(R.string.room_participants_invite_prompt_msg, message));
+            }
             builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {

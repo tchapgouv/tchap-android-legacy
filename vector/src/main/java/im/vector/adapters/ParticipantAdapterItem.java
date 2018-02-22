@@ -39,6 +39,7 @@ import im.vector.VectorApp;
 import im.vector.contacts.Contact;
 import im.vector.contacts.PIDsRetriever;
 import im.vector.util.VectorUtils;
+import im.vector.util.DinsicUtils;
 
 // Class representing a room participant.
 public class ParticipantAdapterItem implements java.io.Serializable {
@@ -136,11 +137,11 @@ public class ParticipantAdapterItem implements java.io.Serializable {
      */
     private void initSearchByPatternFields() {
         if (!TextUtils.isEmpty(mDisplayName)) {
-            mLowerCaseDisplayName = mDisplayName.toLowerCase();
+            mLowerCaseDisplayName = mDisplayName.toLowerCase(VectorApp.getApplicationLocale());
         }
 
         if (!TextUtils.isEmpty(mUserId)) {
-            mLowerCaseMatrixId = mUserId.toLowerCase();
+            mLowerCaseMatrixId = mUserId.toLowerCase(VectorApp.getApplicationLocale());
         }
     }
 
@@ -177,6 +178,36 @@ public class ParticipantAdapterItem implements java.io.Serializable {
             } else if (rhs == null) {
                 return 1;
             }
+
+            return String.CASE_INSENSITIVE_ORDER.compare(lhs, rhs);
+        }
+    };
+
+    /**
+     * Get a comparator to sort members, first matrix and gouv.fr, then alphabetically
+     *
+     * @param session
+     * @return
+     */
+    public static final Comparator<ParticipantAdapterItem> alphaGouvComparator = new Comparator<ParticipantAdapterItem>() {
+        @Override
+        public int compare(ParticipantAdapterItem part1, ParticipantAdapterItem part2) {
+            String lhs = part1.getComparisonDisplayName();
+            String rhs = part2.getComparisonDisplayName();
+
+            if (lhs == null) {
+                return -1;
+            } else if (rhs == null) {
+                return 1;
+            }
+            //JP fct1 take into account the priority factor
+
+
+            if (part1.isViewedInPriority() && !part2.isViewedInPriority())
+                return -1;
+            else if (!part1.isViewedInPriority() && part2.isViewedInPriority())
+                return +1;
+            //---
 
             return String.CASE_INSENSITIVE_ORDER.compare(lhs, rhs);
         }
@@ -352,7 +383,7 @@ public class ParticipantAdapterItem implements java.io.Serializable {
 
                 if (componentsArrays.length > 0) {
                     for (int i = 0; i < componentsArrays.length; i++) {
-                        mDisplayNameComponents.add(componentsArrays[i].trim().toLowerCase());
+                        mDisplayNameComponents.add(componentsArrays[i].trim().toLowerCase(VectorApp.getApplicationLocale()));
                     }
                 }
             }
@@ -446,7 +477,7 @@ public class ParticipantAdapterItem implements java.io.Serializable {
 
         // for the matrix users, append the matrix id to see the difference
         if (null == mContact) {
-            String lowerCaseDisplayname = displayname.toLowerCase();
+            String lowerCaseDisplayname = displayname.toLowerCase(VectorApp.getApplicationLocale());
 
             // detect if the username is used by several users
             int pos = -1;
@@ -511,4 +542,25 @@ public class ParticipantAdapterItem implements java.io.Serializable {
 
         return !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
+
+    /**
+     * Tells if a participant is to be viewed in priority
+     * priority is for Matrix member and gouv member.
+     * @param
+     * @return true if matrix user or email address is from gov
+     */
+    public boolean isViewedInPriority() {
+        boolean retour = false;
+        boolean isMatrixUserId = MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(mUserId).matches();
+
+        if (isMatrixUserId)
+            retour = true;
+        else{
+            if ((mContact!= null) && (mContact.getEmails().size()>0)) {
+                retour = DinsicUtils.isFromFrenchGov(mContact.getEmails());
+            }
+        }
+        return retour;
+    }
+
 }

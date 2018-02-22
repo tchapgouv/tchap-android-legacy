@@ -265,6 +265,9 @@ public class BugReporter {
                         deleteCrashFile(context);
                     }
 
+                    // tag Tchap bug reports to better triage them
+                    builder.addFormDataPart("label", "dinsic");
+
                     BugReporterMultipartBody requestBody = builder.build();
 
                     // add a progress listener
@@ -300,6 +303,7 @@ public class BugReporter {
 
                     int responseCode = HttpURLConnection.HTTP_INTERNAL_ERROR;
                     Response response = null;
+                    String errorMessage = null;
 
                     // trigger the request
                     try {
@@ -308,11 +312,14 @@ public class BugReporter {
                         responseCode = response.code();
                     } catch (Exception e) {
                         Log.e(LOG_TAG, "response " + e.getMessage());
+                        errorMessage = e.getLocalizedMessage();
                     }
 
                     // if the upload failed, try to retrieve the reason
                     if (responseCode != HttpURLConnection.HTTP_OK) {
-                        if ((null == response) || (null == response.body())) {
+                        if (null != errorMessage) {
+                            serverError = "Failed with error " + errorMessage;
+                        } else if ((null == response) || (null == response.body())) {
                             serverError = "Failed with error " + responseCode;
                         } else {
                             InputStream is = null;

@@ -16,7 +16,8 @@
 
 package im.vector.fragments;
 
-import android.content.Intent;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
@@ -37,6 +38,7 @@ import android.widget.CompoundButton;
 import android.widget.Filter;
 
 import org.matrix.androidsdk.MXDataHandler;
+import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomTag;
 import org.matrix.androidsdk.data.store.IMXStore;
@@ -44,12 +46,13 @@ import org.matrix.androidsdk.listeners.MXEventListener;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.rest.model.MatrixError;
-import org.matrix.androidsdk.rest.model.Search.SearchUsersResponse;
+import org.matrix.androidsdk.rest.model.search.SearchUsersResponse;
 import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -57,7 +60,8 @@ import java.util.Set;
 import butterknife.BindView;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
-import im.vector.activity.VectorMemberDetailsActivity;
+import im.vector.activity.VectorRoomActivity;
+import im.vector.activity.VectorRoomCreationActivity;
 import im.vector.adapters.ParticipantAdapterItem;
 import im.vector.adapters.PeopleAdapter;
 import im.vector.contacts.Contact;
@@ -66,9 +70,9 @@ import im.vector.contacts.PIDsRetriever;
 import im.vector.util.VectorUtils;
 import im.vector.view.EmptyViewItemDecoration;
 import im.vector.view.SimpleDividerItemDecoration;
+import im.vector.util.DinsicUtils;
 
 public class PeopleFragment extends AbsHomeFragment implements ContactsManager.ContactsManagerListener, AbsHomeFragment.OnRoomChangedListener {
-
     private static final String LOG_TAG = PeopleFragment.class.getSimpleName();
 
     private static final String MATRIX_USER_ONLY_PREF_KEY = "MATRIX_USER_ONLY_PREF_KEY";
@@ -130,7 +134,9 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
 
         mOnRoomChangedListener = this;
 
-        mMatrixUserOnlyCheckbox.setChecked(PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean(MATRIX_USER_ONLY_PREF_KEY, false));
+        // dont use Matrix filter
+        if (mMatrixUserOnlyCheckbox!= null)
+            mMatrixUserOnlyCheckbox.setChecked(PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean(MATRIX_USER_ONLY_PREF_KEY, false));
 
         mAdapter.onFilterDone(mCurrentFilter);
 
@@ -254,6 +260,8 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
         }, this, this);
         mRecycler.setAdapter(mAdapter);
 
+        // dont use Matrix filter
+        /*
         View checkBox = mAdapter.findSectionSubViewById(R.id.matrix_only_filter_checkbox);
         if (checkBox != null && checkBox instanceof CheckBox) {
             mMatrixUserOnlyCheckbox = (CheckBox) checkBox;
@@ -268,7 +276,7 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
                     initContactsViews();
                 }
             });
-        }
+        }*/
     }
 
     /*
@@ -460,21 +468,111 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
      */
     private void onContactSelected(final ParticipantAdapterItem item) {
         if (item.mIsValid) {
-            Intent startRoomInfoIntent = new Intent(getActivity(), VectorMemberDetailsActivity.class);
-            startRoomInfoIntent.putExtra(VectorMemberDetailsActivity.EXTRA_MEMBER_ID, item.mUserId);
 
-            if (!TextUtils.isEmpty(item.mAvatarUrl)) {
-                startRoomInfoIntent.putExtra(VectorMemberDetailsActivity.EXTRA_MEMBER_AVATAR_URL, item.mAvatarUrl);
+            if (MXSession.isUserId(item.mUserId) || DinsicUtils.isFromFrenchGov(item.mContact.getEmails()))
+                contactSelected(item, null);
+            else {
+                //don't have to ask the question if a room already exists
+                String existingRoomId;
+                if (null != (existingRoomId = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(item.mUserId, mSession, LOG_TAG))) {
+                    contactSelected(item,existingRoomId);
+                }
+                else {
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                    alertDialogBuilder.setMessage(getString(R.string.room_invite_non_gov_people));
+
+                    // set dialog message
+                    alertDialogBuilder
+                            .setCancelable(false)
+                            .setPositiveButton(R.string.ok,
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            contactSelected(item,null);
+                                        }
+                                    })
+                            .setNegativeButton(R.string.cancel, null);
+
+                    // create alert dialog
+                    AlertDialog alertDialog = alertDialogBuilder.create();
+                    // show it
+                    alertDialog.show();
+                }
             }
 
-            if (!TextUtils.isEmpty(item.mDisplayName)) {
-                startRoomInfoIntent.putExtra(VectorMemberDetailsActivity.EXTRA_MEMBER_DISPLAY_NAME, item.mDisplayName);
-            }
 
-            startRoomInfoIntent.putExtra(VectorMemberDetailsActivity.EXTRA_MATRIX_ID, mSession.getCredentials().userId);
-            startActivity(startRoomInfoIntent);
+
+
+         }
+        else {// tell the user that the email must be filled. Will be improved soon
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+            alertDialogBuilder.setMessage(getString(R.string.people_invalid_warning_msg));
+
+            // set dialog message
+            alertDialogBuilder
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.ok,
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+
+                                }
+                            });
+
+            // create alert dialog
+            AlertDialog alertDialog = alertDialogBuilder.create();
+            // show it
+            alertDialog.show();
+        }
+
+    }
+    /**
+     * click on a local or known contact
+     *
+     * @param item
+     */
+    private void contactSelected(final ParticipantAdapterItem item, String existingRoomId) {
+        if (null == existingRoomId) existingRoomId = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(item.mUserId, mSession, LOG_TAG);
+        if (null != existingRoomId) {
+            HashMap<String, Object> params = new HashMap<>();
+            params.put(VectorRoomActivity.EXTRA_MATRIX_ID, item.mUserId);
+            params.put(VectorRoomActivity.EXTRA_ROOM_ID, existingRoomId);
+            CommonActivityUtils.goToRoomPage(getActivity(), mSession, params);
+        } else {
+            // direct message flow
+            mSession.createDirectMessageRoom(item.mUserId, mCreateDirectMessageCallBack);
         }
     }
+
+    // direct message
+    private final ApiCallback<String> mCreateDirectMessageCallBack = new ApiCallback<String>() {
+        @Override
+        public void onSuccess(final String roomId) {
+            HashMap<String, Object> params = new HashMap<>();
+            params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
+            params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
+            params.put(VectorRoomActivity.EXTRA_EXPAND_ROOM_HEADER, true);
+
+            Log.d(LOG_TAG, "## mCreateDirectMessageCallBack: onSuccess - start goToRoomPage");
+            CommonActivityUtils.goToRoomPage(getActivity(), mSession, params);
+        }
+
+        private void onError(final String message) {
+        }
+
+        @Override
+        public void onNetworkError(Exception e) {
+            onError(e.getLocalizedMessage());
+        }
+
+        @Override
+        public void onMatrixError(final MatrixError e) {
+            onError(e.getLocalizedMessage());
+        }
+
+        @Override
+        public void onUnexpectedError(final Exception e) {
+            onError(e.getLocalizedMessage());
+        }
+    };
 
     /*
      * *********************************************************************************************
@@ -495,39 +593,55 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
 
         if (null != contacts) {
             for (Contact contact : contacts) {
-                for (String email : contact.getEmails()) {
-                    if (!TextUtils.isEmpty(email) && !ParticipantAdapterItem.isBlackedListed(email)) {
-                        Contact dummyContact = new Contact(email);
-                        dummyContact.setDisplayName(contact.getDisplayName());
-                        dummyContact.addEmailAdress(email);
-                        dummyContact.setThumbnailUri(contact.getThumbnailUri());
+                // injecter les contacts sans emails
+                //------------------------------------
+                if (contact.getEmails().size()==0){
+                    Contact dummyContact = new Contact("null");
+                    dummyContact.setDisplayName(contact.getDisplayName());
+                    dummyContact.addEmailAdress(getString(R.string.no_email));
+                    dummyContact.setThumbnailUri(contact.getThumbnailUri());
+                    //dummyContact.
 
-                        ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
+                    ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
 
-                        Contact.MXID mxid = PIDsRetriever.getInstance().getMXID(email);
+                    participant.mUserId = "null";
+                    participant.mIsValid = false;
+                    participants.add(participant);
 
-                        if (null != mxid) {
-                            participant.mUserId = mxid.mMatrixId;
-                        } else {
-                            participant.mUserId = email;
+
+                }
+                else {
+                    //select just one email, in priority the french gov email
+                    boolean findGovEmail = false;
+                    ParticipantAdapterItem candidatParticipant=null;
+                    for (String email : contact.getEmails()) {
+                        if (!TextUtils.isEmpty(email) && !ParticipantAdapterItem.isBlackedListed(email)) {
+                            Contact dummyContact = new Contact(email);
+                            dummyContact.setDisplayName(contact.getDisplayName());
+                            dummyContact.addEmailAdress(email);
+                            dummyContact.setThumbnailUri(contact.getThumbnailUri());
+
+                            ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
+
+                            Contact.MXID mxid = PIDsRetriever.getInstance().getMXID(email);
+
+                            if (null != mxid) {
+                                participant.mUserId = mxid.mMatrixId;
+                            } else {
+                                participant.mUserId = email;
+                            }
+                            if (DinsicUtils.isFromFrenchGov(email)) {
+                                findGovEmail = true;
+                                participants.add(participant);
+                            }
+                            else if (!findGovEmail && candidatParticipant==null)
+                                candidatParticipant = participant;
                         }
-                        participants.add(participant);
                     }
+                    if (!findGovEmail && candidatParticipant!=null)
+                        participants.add(candidatParticipant);
                 }
 
-                for (Contact.PhoneNumber pn : contact.getPhonenumbers()) {
-                    Contact.MXID mxid = PIDsRetriever.getInstance().getMXID(pn.mMsisdnPhoneNumber);
-
-                    if (null != mxid) {
-                        Contact dummyContact = new Contact(pn.mMsisdnPhoneNumber);
-                        dummyContact.setDisplayName(contact.getDisplayName());
-                        dummyContact.addPhoneNumber(pn.mRawPhoneNumber, pn.mE164PhoneNumber);
-                        dummyContact.setThumbnailUri(contact.getThumbnailUri());
-                        ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
-                        participant.mUserId = mxid.mMatrixId;
-                        participants.add(participant);
-                    }
-                }
             }
         }
 

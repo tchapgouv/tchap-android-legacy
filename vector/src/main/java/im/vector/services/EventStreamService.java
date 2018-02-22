@@ -73,6 +73,7 @@ import im.vector.gcm.GcmRegistrationManager;
 import im.vector.receiver.DismissNotificationReceiver;
 import im.vector.util.CallsManager;
 import im.vector.util.NotificationUtils;
+import im.vector.util.PreferencesManager;
 import im.vector.util.RiotEventDisplay;
 
 /**
@@ -113,11 +114,13 @@ public class EventStreamService extends Service {
     private static final int NOTIF_ID_MESSAGE = 60;
     private static final int NOTIF_ID_FOREGROUND_SERVICE = 61;
 
+    private static final int FOREGROUND_NOT_IN_FOREGROUND = -1;
     private static final int FOREGROUND_INITIAL_SYNCING = 41;
     private static final int FOREGROUND_LISTENING_FOR_EVENTS = 42;
-    private static final int FOREGROUND_NOTIF_ID_PENDING_CALL = 44;
-    private static final int FOREGROUND_ID_INCOMING_CALL = 45;
-    private int mForegroundServiceIdentifier = -1;
+    private static final int FOREGROUND_PENDING_CALL = 44;
+    private static final int FOREGROUND_INCOMING_CALL = 45;
+
+    private int mForegroundServiceIdentifier = FOREGROUND_NOT_IN_FOREGROUND;
 
     /**
      * Default bing rule
@@ -426,7 +429,7 @@ public class EventStreamService extends Service {
         Log.d(LOG_TAG, "## autoRestart() : restarts after " + delay + " ms");
 
         // reset the service identifier
-        mForegroundServiceIdentifier = -1;
+        mForegroundServiceIdentifier = FOREGROUND_NOT_IN_FOREGROUND;
 
         // restart the services after 3 seconds
         Intent restartServiceIntent = new Intent(getApplicationContext(), this.getClass());
@@ -459,6 +462,16 @@ public class EventStreamService extends Service {
         if (!mIsSelfDestroyed) {
             Log.d(LOG_TAG, "## onDestroy() : restart it");
             setServiceState(StreamAction.STOP);
+
+            // stop the foreground service on devices which don't allow restart the background service
+            // during the initial syncing
+            // and if the GCM registration was done
+            if (!PreferencesManager.canStartBackgroundService(getApplicationContext()) &&
+                    (mForegroundServiceIdentifier == FOREGROUND_INITIAL_SYNCING)
+                    && Matrix.getInstance(getApplicationContext()).getSharedGCMRegistrationManager().hasRegistrationToken()) {
+                stopForeground(true);
+            }
+
             autoRestart();
         } else {
             Log.d(LOG_TAG, "## onDestroy()");
@@ -761,10 +774,11 @@ public class EventStreamService extends Service {
         Log.d(LOG_TAG, "## gcmStatusUpdate");
 
         if (mIsForeground) {
-            Log.d(LOG_TAG, "## gcmStatusUpdate : gcm status succeeds so stopForeground");
+            Log.d(LOG_TAG, "## gcmStatusUpdate : gcm status succeeds so stopForeground (" + mForegroundServiceIdentifier + ")");
+
             if (FOREGROUND_LISTENING_FOR_EVENTS == mForegroundServiceIdentifier) {
                 stopForeground(true);
-                mForegroundServiceIdentifier = -1;
+                mForegroundServiceIdentifier = FOREGROUND_NOT_IN_FOREGROUND;
                 mIsForeground = false;
             }
         }
@@ -778,7 +792,7 @@ public class EventStreamService extends Service {
      * to strongly reduce the likelihood of the App being killed.
      */
     private void updateServiceForegroundState() {
-        Log.d(LOG_TAG, "## updateServiceForegroundState");
+        Log.d(LOG_TAG, "## updateServiceForegroundState from state " + mForegroundServiceIdentifier);
 
         MXSession session = Matrix.getInstance(getApplicationContext()).getDefaultSession();
 
@@ -819,11 +833,11 @@ public class EventStreamService extends Service {
 
             mIsForeground = true;
         } else {
-            Log.d(LOG_TAG, "## updateServiceForegroundState : put the service in background");
+            Log.d(LOG_TAG, "## updateServiceForegroundState : put the service in background from state " + mForegroundServiceIdentifier);
 
             if ((FOREGROUND_LISTENING_FOR_EVENTS == mForegroundServiceIdentifier) || (FOREGROUND_INITIAL_SYNCING == mForegroundServiceIdentifier)) {
                 stopForeground(true);
-                mForegroundServiceIdentifier = -1;
+                mForegroundServiceIdentifier = FOREGROUND_NOT_IN_FOREGROUND;
             }
             mIsForeground = false;
         }
@@ -1132,18 +1146,27 @@ public class EventStreamService extends Service {
 
         if ((null != event) && !mBackgroundNotificationEventIds.contains(event.eventId)) {
             mBackgroundNotificationEventIds.add(event.eventId);
-
-            String header = (TextUtils.isEmpty(roomName) ? event.roomId : roomName) + ": " +
-                    (TextUtils.isEmpty(senderDisplayName) ? event.sender : senderDisplayName) + " ";
-
+            String header = "";
             String text;
 
-            if (event.isEncrypted()) {
-                text = context.getString(R.string.encrypted_message);
+            if (null == event.content) {
+                if (1 == mBackgroundNotificationEventIds.size()) {
+                    text =  context.getString(R.string.one_new_message);
+                } else {
+                    text =  context.getString(R.string.new_messages, mBackgroundNotificationEventIds.size());
+                }
+                mBackgroundNotificationStrings.clear();
             } else {
-                EventDisplay eventDisplay = new RiotEventDisplay(context, event, null);
-                eventDisplay.setPrependMessagesWithAuthor(false);
-                text = eventDisplay.getTextualDisplay().toString();
+                header = (TextUtils.isEmpty(roomName) ? event.roomId : roomName) + ": " +
+                        (TextUtils.isEmpty(senderDisplayName) ? event.sender : senderDisplayName) + " ";
+
+                if (event.isEncrypted()) {
+                    text = context.getString(R.string.encrypted_message);
+                } else {
+                    EventDisplay eventDisplay = new RiotEventDisplay(context, event, null);
+                    eventDisplay.setPrependMessagesWithAuthor(false);
+                    text = eventDisplay.getTextualDisplay().toString();
+                }
             }
 
             if (!TextUtils.isEmpty(text)) {
@@ -1162,75 +1185,6 @@ public class EventStreamService extends Service {
         } else if (0 == unreadMessagesCount) {
             mBackgroundNotificationStrings.clear();
             nm.cancel(NOTIF_ID_MESSAGE);
-        }
-    }
-
-    /**
-     * Notify that a notification for even has been received.
-     *
-     * @param event               the notified event
-     * @param roomName            the room name
-     * @param senderDisplayName   the sender display name
-     * @param unreadMessagesCount the unread messages count
-     */
-    public void onNotifiedEventWithBackgroundSyncDisabled(Event event, String roomName, String senderDisplayName, int unreadMessagesCount) {
-        if ((null != event) && !mBackgroundNotificationEventIds.contains(event.eventId)) {
-            mBackgroundNotificationEventIds.add(event.eventId);
-
-            // TODO the session id should be provided by the server
-            MXSession session = Matrix.getInstance(getApplicationContext()).getDefaultSession();
-
-            if (null != session) {
-                RoomState roomState = null;
-
-                try {
-                    roomState = session.getDataHandler().getRoom(event.roomId).getLiveState();
-                } catch (Exception e) {
-                    Log.e(LOG_TAG, "Fail to retrieve the roomState of " + event.roomId);
-                }
-
-                if (TextUtils.equals(event.getType(), Event.EVENT_TYPE_MESSAGE_ENCRYPTED) && session.isCryptoEnabled()) {
-                    session.getDataHandler().decryptEvent(event, null);
-                }
-
-                // test if the message is displayable
-                EventDisplay eventDisplay = new RiotEventDisplay(getApplicationContext(), event, roomState);
-                eventDisplay.setPrependMessagesWithAuthor(false);
-                String text = eventDisplay.getTextualDisplay().toString();
-
-                // display a dedicated message in decryption error cases
-                if (null != event.getCryptoError()) {
-                    text = getApplicationContext().getString(R.string.encrypted_message);
-                }
-
-                // sanity check
-                if (!TextUtils.isEmpty(text) && (null != roomState)) {
-
-                    if (TextUtils.isEmpty(roomName)) {
-                        roomName = roomState.getDisplayName(session.getMyUserId());
-                    }
-
-                    if (TextUtils.isEmpty(senderDisplayName)) {
-                        senderDisplayName = roomState.getMemberName(event.sender);
-                    }
-
-                    String header = roomName + ": " + senderDisplayName + " ";
-
-                    SpannableString notifiedLine = new SpannableString(header + text);
-                    notifiedLine.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), 0, header.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-                    Log.d(LOG_TAG, "## onMessageReceivedInternal() : trigger a notification " + notifiedLine);
-
-                    mBackgroundNotificationStrings.add(0, notifiedLine);
-                    BingRulesManager bingRulesManager = session.getDataHandler().getBingRulesManager();
-                    BingRule rule = bingRulesManager.isReady() ? bingRulesManager.fulfilledBingRule(event) : new BingRule(false);
-
-                    displayMessagesNotification(mBackgroundNotificationStrings, rule);
-                }
-            }
-        } else if (0 == unreadMessagesCount) {
-            mBackgroundNotificationStrings.clear();
-            displayMessagesNotification(mBackgroundNotificationStrings, null);
         }
     }
 
@@ -1602,7 +1556,7 @@ public class EventStreamService extends Service {
                     callId);
 
             startForeground(NOTIF_ID_FOREGROUND_SERVICE, notification);
-            mForegroundServiceIdentifier = FOREGROUND_ID_INCOMING_CALL;
+            mForegroundServiceIdentifier = FOREGROUND_INCOMING_CALL;
 
             mIncomingCallId = callId;
 
@@ -1628,7 +1582,7 @@ public class EventStreamService extends Service {
         if (null != callId) {
             Notification notification = NotificationUtils.buildPendingCallNotification(getApplicationContext(), room.getName(session.getCredentials().userId), room.getRoomId(), session.getCredentials().userId, callId);
             startForeground(NOTIF_ID_FOREGROUND_SERVICE, notification);
-            mForegroundServiceIdentifier = FOREGROUND_NOTIF_ID_PENDING_CALL;
+            mForegroundServiceIdentifier = FOREGROUND_PENDING_CALL;
             mCallIdInProgress = callId;
         }
     }
@@ -1640,14 +1594,14 @@ public class EventStreamService extends Service {
         NotificationManager nm = (NotificationManager) EventStreamService.this.getSystemService(Context.NOTIFICATION_SERVICE);
 
         // hide the call
-        if ((FOREGROUND_NOTIF_ID_PENDING_CALL == mForegroundServiceIdentifier) || (FOREGROUND_ID_INCOMING_CALL == mForegroundServiceIdentifier)) {
-            if (FOREGROUND_NOTIF_ID_PENDING_CALL == mForegroundServiceIdentifier) {
+        if ((FOREGROUND_PENDING_CALL == mForegroundServiceIdentifier) || (FOREGROUND_INCOMING_CALL == mForegroundServiceIdentifier)) {
+            if (FOREGROUND_PENDING_CALL == mForegroundServiceIdentifier) {
                 mCallIdInProgress = null;
             } else {
                 mIncomingCallId = null;
             }
             nm.cancel(NOTIF_ID_FOREGROUND_SERVICE);
-            mForegroundServiceIdentifier = -1;
+            mForegroundServiceIdentifier = FOREGROUND_NOT_IN_FOREGROUND;
             stopForeground(true);
             updateServiceForegroundState();
         }

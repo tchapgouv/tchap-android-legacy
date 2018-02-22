@@ -75,6 +75,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="no_conversation_placeholder">Aucune discussion</string>
     <string name="no_contact_access_placeholder">Vous n\'avez pas autorisé Riot à accéder à vos contacts locaux</string>
     <string name="no_result_placeholder">Aucun résultat</string>
+    <string name="no_email">Email pas disponible</string>
 
     <string name="rooms_header">Salons</string>
     <string name="rooms_directory_header">Répertoire de salons</string>
@@ -230,6 +231,8 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="people_search_filter_text">Utilisateurs Matrix uniquement</string>
     <string name="people_search_invite_by_id_dialog_title">Inviter un utilisateur par identifiant</string>
     <string name="people_search_invite_by_id_dialog_hint">E-mail ou ID Matrix</string>
+    <string name="people_invalid_warning_msg">Pour inviter un contact un email est requis</string>
+    <string name="room_invite_non_gov_people">Voulez vous vraiment inviter un partenaire exterieur dans Tchap ?</string>
 
     <string name="room_menu_search">Rechercher</string>
     <string name="room_message_placeholder_encrypted">Envoyer un message chiffré…</string>

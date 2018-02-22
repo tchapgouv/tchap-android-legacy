@@ -33,7 +33,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.internal.BottomNavigationItemView;
 import android.support.design.internal.BottomNavigationMenuView;
@@ -110,6 +109,7 @@ import im.vector.R;
 import im.vector.VectorApp;
 import im.vector.fragments.AbsHomeFragment;
 import im.vector.fragments.FavouritesFragment;
+import im.vector.fragments.GroupsFragment;
 import im.vector.fragments.HomeFragment;
 import im.vector.fragments.PeopleFragment;
 import im.vector.fragments.RoomsFragment;
@@ -117,7 +117,6 @@ import im.vector.receiver.VectorUniversalLinkReceiver;
 import im.vector.services.EventStreamService;
 import im.vector.util.BugReporter;
 import im.vector.util.CallsManager;
-import im.vector.util.PreferencesManager;
 import im.vector.util.RoomUtils;
 import im.vector.util.ThemeUtils;
 import im.vector.util.VectorUtils;
@@ -140,6 +139,9 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
 
     // jump to a member details sheet
     public static final String EXTRA_MEMBER_ID = "VectorHomeActivity.EXTRA_MEMBER_ID";
+
+    // jump to a group details sheet
+    public static final String EXTRA_GROUP_ID = "VectorHomeActivity.EXTRA_GROUP_ID";
 
     // there are two ways to open an external link
     // 1- EXTRA_UNIVERSAL_LINK_URI : the link is opened as soon there is an event check processed (application is launched when clicking on the URI link)
@@ -166,6 +168,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     private static final String TAG_FRAGMENT_FAVOURITES = "TAG_FRAGMENT_FAVOURITES";
     private static final String TAG_FRAGMENT_PEOPLE = "TAG_FRAGMENT_PEOPLE";
     private static final String TAG_FRAGMENT_ROOMS = "TAG_FRAGMENT_ROOMS";
+    private static final String TAG_FRAGMENT_GROUPS = "TAG_FRAGMENT_GROUPS";
 
     // Key used to restore the proper fragment after orientation change
     private static final String CURRENT_MENU_ID = "CURRENT_MENU_ID";
@@ -176,6 +179,8 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     private Uri mUniversalLinkToOpen = null;
 
     private String mMemberIdToOpen = null;
+
+    private String mGroupIdToOpen = null;
 
     @BindView(R.id.listView_spinner_views)
     View mWaitingView;
@@ -311,6 +316,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
             intent.removeExtra(EXTRA_JUMP_TO_UNIVERSAL_LINK);
             intent.removeExtra(EXTRA_JUMP_TO_ROOM_PARAMS);
             intent.removeExtra(EXTRA_MEMBER_ID);
+            intent.removeExtra(EXTRA_GROUP_ID);
             intent.removeExtra(VectorUniversalLinkReceiver.EXTRA_UNIVERSAL_LINK_URI);
         } else {
 
@@ -338,6 +344,9 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
 
             mMemberIdToOpen = intent.getStringExtra(EXTRA_MEMBER_ID);
             intent.removeExtra(EXTRA_MEMBER_ID);
+
+            mGroupIdToOpen = intent.getStringExtra(EXTRA_GROUP_ID);
+            intent.removeExtra(EXTRA_GROUP_ID);
 
             // the home activity has been launched with an universal link
             if (intent.hasExtra(VectorUniversalLinkReceiver.EXTRA_UNIVERSAL_LINK_URI)) {
@@ -434,10 +443,11 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         }
 
         final View selectedMenu;
+        //default is people view
         if (savedInstanceState != null) {
-            selectedMenu = mBottomNavigationView.findViewById(savedInstanceState.getInt(CURRENT_MENU_ID, R.id.bottom_action_home));
+            selectedMenu = mBottomNavigationView.findViewById(savedInstanceState.getInt(CURRENT_MENU_ID, R.id.bottom_action_people));
         } else {
-            selectedMenu = mBottomNavigationView.findViewById(R.id.bottom_action_home);
+            selectedMenu = mBottomNavigationView.findViewById(R.id.bottom_action_people);
         }
         if (selectedMenu != null) {
             selectedMenu.performClick();
@@ -448,6 +458,15 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         PublicRoomsManager.getInstance().refreshPublicRoomsCount(null);
 
         initViews();
+    }
+
+    /**
+     * Display the TAB if it is required
+     */
+    private void showFloatingActionButton() {
+//No more favourite action
+                mFloatingActionButton.show();
+
     }
 
     @Override
@@ -487,13 +506,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
             addEventsListener();
         }
 
-        if (null != mFloatingActionButton) {
-            if (mCurrentMenuId == R.id.bottom_action_favourites) {
-                mFloatingActionButton.setVisibility(View.GONE);
-            } else {
-                mFloatingActionButton.show();
-            }
-        }
+        showFloatingActionButton();
 
         this.runOnUiThread(new Runnable() {
             @Override
@@ -537,6 +550,14 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
             startRoomInfoIntent.putExtra(VectorMemberDetailsActivity.EXTRA_MATRIX_ID, mSession.getCredentials().userId);
             startActivity(startRoomInfoIntent);
             mMemberIdToOpen = null;
+        }
+
+        if (null != mGroupIdToOpen) {
+            Intent groupIntent = new Intent(VectorHomeActivity.this, VectorGroupDetailsActivity.class);
+            groupIntent.putExtra(VectorGroupDetailsActivity.EXTRA_GROUP_ID, mGroupIdToOpen);
+            groupIntent.putExtra(VectorGroupDetailsActivity.EXTRA_MATRIX_ID, mSession.getCredentials().userId);
+            startActivity(groupIntent);
+            mGroupIdToOpen = null;
         }
 
         // https://github.com/vector-im/vector-android/issues/323
@@ -690,6 +711,8 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         mMemberIdToOpen = intent.getStringExtra(EXTRA_MEMBER_ID);
         intent.removeExtra(EXTRA_MEMBER_ID);
 
+        mGroupIdToOpen = intent.getStringExtra(EXTRA_GROUP_ID);
+        intent.removeExtra(EXTRA_GROUP_ID);
 
         // start waiting view
         if (intent.getBooleanExtra(EXTRA_WAITING_VIEW_STATUS, VectorHomeActivity.WAITING_VIEW_STOP)) {
@@ -749,6 +772,8 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         Fragment fragment = null;
 
         switch (item.getItemId()) {
+            //no more home nor favourite
+            /*
             case R.id.bottom_action_home:
                 Log.d(LOG_TAG, "onNavigationItemSelected HOME");
                 fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_HOME);
@@ -767,6 +792,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 mCurrentFragmentTag = TAG_FRAGMENT_FAVOURITES;
                 mSearchView.setQueryHint(getString(R.string.home_filter_placeholder_favorites));
                 break;
+                */
             case R.id.bottom_action_people:
                 Log.d(LOG_TAG, "onNavigationItemSelected PEOPLE");
                 fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_PEOPLE);
@@ -785,6 +811,15 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 mCurrentFragmentTag = TAG_FRAGMENT_ROOMS;
                 mSearchView.setQueryHint(getString(R.string.home_filter_placeholder_rooms));
                 break;
+            /*case R.id.bottom_action_groups:
+                Log.d(LOG_TAG, "onNavigationItemSelected GROUPS");
+                fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_GROUPS);
+                if (fragment == null) {
+                    fragment = GroupsFragment.newInstance();
+                }
+                mCurrentFragmentTag = TAG_FRAGMENT_GROUPS;
+                mSearchView.setQueryHint(getString(R.string.home_filter_placeholder_groups));
+                break;*/
         }
 
         synchronized (this) {
@@ -792,16 +827,14 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 mFloatingActionButtonTimer.cancel();
                 mFloatingActionButtonTimer = null;
             }
-            mFloatingActionButton.show();
         }
 
         // clear waiting view
         stopWaitingView();
 
-        // don't display the fab for the favorites tab
-        mFloatingActionButton.setVisibility((item.getItemId() != R.id.bottom_action_favourites) ? View.VISIBLE : View.GONE);
-
         mCurrentMenuId = item.getItemId();
+
+        showFloatingActionButton();
 
         if (fragment != null) {
             resetFilter();
@@ -896,7 +929,11 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
             mFloatingActionButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    onFloatingButtonClick();
+                    Fragment fragment = getSelectedFragment();
+
+                    if (!(fragment instanceof AbsHomeFragment) || !((AbsHomeFragment) fragment).onFabClick()) {
+                        onFloatingButtonClick();
+                    }
                 }
             });
         }
@@ -996,18 +1033,25 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     private Fragment getSelectedFragment() {
         Fragment fragment = null;
         switch (mCurrentMenuId) {
+            //no more home nor favourite
+            /*
             case R.id.bottom_action_home:
                 fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_HOME);
                 break;
             case R.id.bottom_action_favourites:
                 fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_FAVOURITES);
                 break;
+                */
             case R.id.bottom_action_people:
                 fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_PEOPLE);
                 break;
             case R.id.bottom_action_rooms:
                 fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_ROOMS);
                 break;
+            /*case R.id.bottom_action_groups:
+                fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_GROUPS);
+                break;*/
+
         }
 
         return fragment;
@@ -1129,12 +1173,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                             }
                         }
                     })
-                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            invitePeopleToNewRoom();
-                        }
-                    })
                     .setNegativeButton(R.string.cancel, null)
                     .show();
         }
@@ -1173,9 +1211,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                                 VectorHomeActivity.this.runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        if (null != mFloatingActionButton) {
-                                            mFloatingActionButton.show();
-                                        }
+                                        showFloatingActionButton();
                                     }
                                 });
                             }
@@ -1191,9 +1227,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                         VectorHomeActivity.this.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                if (null != mFloatingActionButton) {
-                                    mFloatingActionButton.show();
-                                }
+                                showFloatingActionButton();
                             }
                         });
 
@@ -1980,19 +2014,22 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         Set<Integer> menuIndexes = new HashSet<>(mBadgeViewByIndex.keySet());
 
         // the badges are not anymore displayed on the home tab
-        menuIndexes.remove(R.id.bottom_action_home);
+        //no more home
+        //menuIndexes.remove(R.id.bottom_action_home);
 
         for (Integer id : menuIndexes) {
             // use a map because contains is faster
             HashSet<String> filteredRoomIdsSet = new HashSet<>();
-
+            //no more favourite
+            /*
             if (id == R.id.bottom_action_favourites) {
                 List<Room> favRooms = mSession.roomsWithTag(RoomTag.ROOM_TAG_FAVOURITE);
 
                 for (Room room : favRooms) {
                     filteredRoomIdsSet.add(room.getRoomId());
                 }
-            } else if (id == R.id.bottom_action_people) {
+            } else */
+            if (id == R.id.bottom_action_people) {
                 filteredRoomIdsSet.addAll(mSession.getDirectChatRoomIdsList());
                 // Add direct chat invitations
                 for (Room room : roomSummaryByRoom.keySet()) {
@@ -2049,12 +2086,13 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
 
             int status = (0 != highlightCount) ? UnreadCounterBadgeView.HIGHLIGHTED :
                     ((0 != roomCount) ? UnreadCounterBadgeView.NOTIFIED : UnreadCounterBadgeView.DEFAULT);
-
+            //no more favourite
+            /*
             if (id == R.id.bottom_action_favourites) {
                 mBadgeViewByIndex.get(id).updateText((roomCount > 0) ? "\u2022" : "", status);
-            } else {
+            } else {*/
                 mBadgeViewByIndex.get(id).updateCounter(roomCount, status);
-            }
+            //}
         }
     }
 

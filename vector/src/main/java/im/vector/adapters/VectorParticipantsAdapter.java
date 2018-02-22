@@ -19,6 +19,7 @@ package im.vector.adapters;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
@@ -40,7 +41,8 @@ import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
 import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.rest.model.RoomMember;
-import org.matrix.androidsdk.rest.model.Search.SearchUsersResponse;
+import org.matrix.androidsdk.rest.model.pid.RoomThirdPartyInvite;
+import org.matrix.androidsdk.rest.model.search.SearchUsersResponse;
 import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.util.Log;
 
@@ -55,10 +57,12 @@ import java.util.Set;
 
 import im.vector.Matrix;
 import im.vector.R;
+import im.vector.VectorApp;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.contacts.Contact;
 import im.vector.contacts.ContactsManager;
 import im.vector.contacts.PIDsRetriever;
+import im.vector.util.DinsicUtils;
 import im.vector.util.VectorUtils;
 
 /**
@@ -182,7 +186,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
         if (null == pattern) {
             pattern = "";
         } else {
-            pattern = pattern.toLowerCase().trim().toLowerCase();
+            pattern = pattern.toLowerCase().trim().toLowerCase(VectorApp.getApplicationLocale());
         }
 
         if (!pattern.equals(mPattern) || TextUtils.isEmpty(mPattern)) {
@@ -216,44 +220,62 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
 
         if (null != contacts) {
             for (Contact contact : contacts) {
-                for (String email : contact.getEmails()) {
-                    if (!TextUtils.isEmpty(email) && !ParticipantAdapterItem.isBlackedListed(email)) {
-                        Contact dummyContact = new Contact(email);
-                        dummyContact.setDisplayName(contact.getDisplayName());
-                        dummyContact.addEmailAdress(email);
-                        dummyContact.setThumbnailUri(contact.getThumbnailUri());
+                // Show contacts without emails
+                //------------------------------------
+                if (contact.getEmails().size()==0){
+                    Contact dummyContact = new Contact("null");
+                    dummyContact.setDisplayName(contact.getDisplayName());
+                    dummyContact.addEmailAdress(mContext.getString(R.string.no_email));
+                    dummyContact.setThumbnailUri(contact.getThumbnailUri());
+                    //dummyContact.
 
-                        ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
+                    ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
 
-                        Contact.MXID mxid = PIDsRetriever.getInstance().getMXID(email);
+                    participant.mUserId = "null";
+                    participant.mIsValid = false;
+                    if (mUsedMemberUserIds != null && !mUsedMemberUserIds.contains(participant.mUserId)) {
+                        list.add(participant);
+                    }
 
-                        if (null != mxid) {
-                            participant.mUserId = mxid.mMatrixId;
-                        } else {
-                            participant.mUserId = email;
-                        }
 
-                        if (mUsedMemberUserIds != null && !mUsedMemberUserIds.contains(participant.mUserId)) {
-                            list.add(participant);
+                }
+                else {
+                    // select just one email, in priority the french gov email
+                    boolean findGovEmail = false;
+                    ParticipantAdapterItem candidatParticipant=null;
+                    for (String email : contact.getEmails()) {
+                        if (!TextUtils.isEmpty(email) && !ParticipantAdapterItem.isBlackedListed(email)) {
+                            Contact dummyContact = new Contact(email);
+                            dummyContact.setDisplayName(contact.getDisplayName());
+                            dummyContact.addEmailAdress(email);
+                            dummyContact.setThumbnailUri(contact.getThumbnailUri());
+
+                            ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
+
+                            Contact.MXID mxid = PIDsRetriever.getInstance().getMXID(email);
+
+                            if (null != mxid) {
+                                participant.mUserId = mxid.mMatrixId;
+                            } else {
+                                participant.mUserId = email;
+                            }
+                            if (DinsicUtils.isFromFrenchGov(email)) {
+                                findGovEmail = true;
+                                if (mUsedMemberUserIds != null && !mUsedMemberUserIds.contains(participant.mUserId)) {
+                                    list.add(participant);
+                                }
+                            }
+                            else if (!findGovEmail && candidatParticipant==null)
+                                candidatParticipant = participant;
                         }
                     }
-                }
-
-                for (Contact.PhoneNumber pn : contact.getPhonenumbers()) {
-                    Contact.MXID mxid = PIDsRetriever.getInstance().getMXID(pn.mMsisdnPhoneNumber);
-
-                    if (null != mxid) {
-                        Contact dummyContact = new Contact(pn.mMsisdnPhoneNumber);
-                        dummyContact.setDisplayName(contact.getDisplayName());
-                        dummyContact.addPhoneNumber(pn.mRawPhoneNumber, pn.mE164PhoneNumber);
-                        dummyContact.setThumbnailUri(contact.getThumbnailUri());
-                        ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
-                        participant.mUserId = mxid.mMatrixId;
-                        if (mUsedMemberUserIds != null && !mUsedMemberUserIds.contains(participant.mUserId)) {
-                            list.add(participant);
+                    if (!findGovEmail && candidatParticipant!=null)
+                        if (mUsedMemberUserIds != null && !mUsedMemberUserIds.contains(candidatParticipant.mUserId)) {
+                            list.add(candidatParticipant);
                         }
-                    }
+
                 }
+
             }
         }
     }
@@ -275,6 +297,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                         mUsedMemberUserIds.add(member.getUserId());
                     }
                 }
+
             }
         }
 
@@ -306,7 +329,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                 iterator.remove();
             } else if (!TextUtils.isEmpty(item.mDisplayName)) {
                 // Add to the display names list
-                displayNamesList.add(item.mDisplayName.toLowerCase());
+                displayNamesList.add(item.mDisplayName.toLowerCase(VectorApp.getApplicationLocale()));
             }
         }
 
@@ -433,14 +456,15 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
 
                         mIsOfflineContactsSearch = false;
                         mKnownContactsLimited = (null != searchUsersResponse.limited) ? searchUsersResponse.limited : false;
-                        onKnownContactsSearchEnd(participantItemList, theFirstEntry, searchListener);
+
+                        searchAccountKnownContacts(theFirstEntry, participantItemList, false, searchListener);
                     }
                 }
 
                 private void onError() {
                     if (TextUtils.equals(fPattern, mPattern)) {
                         mIsOfflineContactsSearch = true;
-                        searchAccountKnownContacts(theFirstEntry, searchListener);
+                        searchAccountKnownContacts(theFirstEntry, new ArrayList<ParticipantAdapterItem>(), true, searchListener);
                     }
                 }
 
@@ -460,19 +484,19 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                 }
             });
         } else {
-            searchAccountKnownContacts(theFirstEntry, searchListener);
+            searchAccountKnownContacts(theFirstEntry, new ArrayList<ParticipantAdapterItem>(), true, searchListener);
         }
     }
 
     /**
      * Search the known contacts from the account known users list.
      *
-     * @param theFirstEntry  the adapter first entry
-     * @param searchListener the listener
+     * @param theFirstEntry        the adapter first entry
+     * @param participantItemList  the participants initial list
+     * @param sortRoomContactsList true to sort the room contacts list
+     * @param searchListener       the listener
      */
-    private void searchAccountKnownContacts(final ParticipantAdapterItem theFirstEntry, final OnParticipantsSearchListener searchListener) {
-        List<ParticipantAdapterItem> participantItemList = new ArrayList<>();
-
+    private void searchAccountKnownContacts(final ParticipantAdapterItem theFirstEntry, final List<ParticipantAdapterItem> participantItemList, final boolean sortRoomContactsList, final OnParticipantsSearchListener searchListener) {
         // the list is not anymore limited
         mKnownContactsLimited = false;
 
@@ -490,7 +514,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
-                                searchAccountKnownContacts(theFirstEntry, searchListener);
+                                searchAccountKnownContacts(theFirstEntry, participantItemList, sortRoomContactsList, searchListener);
                             }
                         });
                     }
@@ -570,7 +594,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
             }
         }
 
-        onKnownContactsSearchEnd(participantItemList, theFirstEntry, searchListener);
+        onKnownContactsSearchEnd(participantItemList, theFirstEntry, sortRoomContactsList, searchListener);
     }
 
     /**
@@ -579,9 +603,10 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
      *
      * @param participantItemList the known contacts list
      * @param theFirstEntry       the adapter first entry
+     * @param sort                true to sort participantItemList
      * @param searchListener      the search listener
      */
-    private void onKnownContactsSearchEnd(List<ParticipantAdapterItem> participantItemList, final ParticipantAdapterItem theFirstEntry, final OnParticipantsSearchListener searchListener) {
+    private void onKnownContactsSearchEnd(List<ParticipantAdapterItem> participantItemList, final ParticipantAdapterItem theFirstEntry, final boolean sort, final OnParticipantsSearchListener searchListener) {
         // ensure that the PIDs have been retrieved
         // it might have failed
         ContactsManager.getInstance().retrievePids();
@@ -646,8 +671,9 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
             // -> the user displays only the matrix id (if there is no contact with matrix Id, it could impossible to deselect the toggle
             // -> always displays when there is something to search to let the user toggles the matrix id checkbox.
             if ((contactBookList.size() > 0) || !ContactsManager.getInstance().arePIDsRetrieved() || mShowMatrixUserOnly || !TextUtils.isEmpty(mPattern)) {
+                // Sort also by gouv priority
                 // the contacts are sorted by alphabetical method
-                Collections.sort(contactBookList, ParticipantAdapterItem.alphaComparator);
+                Collections.sort(contactBookList, ParticipantAdapterItem.alphaGouvComparator);
             }
             mParticipantsListsList.add(contactBookList);
         } else {
@@ -655,7 +681,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
         }
 
         if (!TextUtils.isEmpty(mPattern)) {
-            if (roomContactsList.size() > 0) {
+            if ((roomContactsList.size() > 0) && sort) {
                 Collections.sort(roomContactsList, mSortMethod);
             }
             mParticipantsListsList.add(roomContactsList);
@@ -858,7 +884,8 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
             }
             // display a search toggle for the local contacts
             matrixView.setVisibility(((groupPosition == mLocalContactsSectionPosition) && groupShouldBeExpanded) ? View.VISIBLE : View.GONE);
-
+            // dont use matrix filter
+            /*
             // matrix user checkbox
             CheckBox checkBox = convertView.findViewById(R.id.contacts_filter_checkbox);
             checkBox.setChecked(PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean(KEY_FILTER_MATRIX_USERS_ONLY, false));
@@ -875,7 +902,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                     editor.apply();
                 }
             });
-
+            */
             // as there might be a clickable object in the extra layout,
             // it seems required to have a click listener
             subLayout.setOnClickListener(new View.OnClickListener() {
@@ -924,6 +951,17 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
         final TextView nameTextView = convertView.findViewById(R.id.filtered_list_name);
         final TextView statusTextView = convertView.findViewById(R.id.filtered_list_status);
         final ImageView matrixUserBadge = convertView.findViewById(R.id.filtered_list_matrix_user);
+
+        // Contacts not in priority are seen different
+        if (!participant.isViewedInPriority()){
+            //final int semiTransparentGrey = Color.argb(155, 185, 185, 185);
+            //thumbView.setAlpha( 0.5f);
+            nameTextView.setTypeface(null, Typeface.ITALIC);
+        }
+        else{
+            //thumbView.clearColorFilter();
+            nameTextView.setTypeface(null, Typeface.BOLD);
+        }
 
         // reported by GA
         // it should never happen but it happened...
@@ -981,7 +1019,8 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
         }
 
         // Add alpha if cannot be invited
-        convertView.setAlpha(participant.mIsValid ? 1f : 0.5f);
+        //change alpha mgmt for tchap
+        // convertView.setAlpha(participant.mIsValid ? 1f : 0.5f);
 
         // the checkbox is not managed here
         final CheckBox checkBox = convertView.findViewById(R.id.filtered_list_checkbox);
