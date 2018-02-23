@@ -2385,10 +2385,10 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
      * @return true if external
      */
     public  static boolean isUserExternal(MXSession session) {
-        boolean myReturn=true;
+        boolean myReturn = true;
         String myHost = session.getHomeServerConfig().getHomeserverUri().getHost();
         String myUri = "https://"+myHost;
-        myReturn=  (myUri.equals(EXTERNAL_BUBBLE_HS_URL));
+        myReturn =  (myUri.equals(EXTERNAL_BUBBLE_HS_URL));
         return myReturn;
     }
 

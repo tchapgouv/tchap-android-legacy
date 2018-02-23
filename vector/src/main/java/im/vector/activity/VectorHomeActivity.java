@@ -1166,10 +1166,10 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                         public void onClick(DialogInterface d, int n) {
                             d.cancel();
                             if (0 == n) {
-                                if (!LoginActivity.isUserExternal(mSession)){
+                                if (!LoginActivity.isUserExternal(mSession)) {
                                     invitePeopleToNewRoom();
                                 }
-                                else{
+                                else {
                                     DinsicUtils.alertSimpleMsg(VectorHomeActivity.this, getString(R.string.room_creation_forbidden));
                                 }
 

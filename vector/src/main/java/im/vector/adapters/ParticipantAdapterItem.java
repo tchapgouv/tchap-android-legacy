@@ -564,32 +564,4 @@ public class ParticipantAdapterItem implements java.io.Serializable {
         }
         return retour;
     }
-    /* jp pour test
-    @Override
-    public boolean equals(Object o) {
-        // self check
-        if (this == o)
-            return true;
-        // null check
-        if (o == null)
-            return false;
-        // type check and cast
-        if (getClass() != o.getClass())
-            return false;
-        ParticipantAdapterItem p = (ParticipantAdapterItem) o;
-        if (this.mUserId!=null){
-            return this.mUserId==p.mUserId;
-        }
-        else{
-            return this.mDisplayName == p.mDisplayName;
-        }
-    }
-    @Override
-    public int hashCode() {
-        int result = 17;
-        if (mUserId!=null) result = 31 * result + mUserId.hashCode();
-        if (mDisplayName!=null) result = 31 * result + mDisplayName.hashCode();
-        return result;
-    }
-    */
 }
