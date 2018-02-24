@@ -30,8 +30,6 @@ import android.widget.TextView;
 
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
-import org.matrix.androidsdk.data.RoomSummary;
-import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
 import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.util.Log;
@@ -379,22 +377,10 @@ public class PeopleAdapter extends AbsAdapter {
                 boolean isMatrixUserId = MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(participant.mUserId).matches();
                 vContactBadge.setVisibility(isMatrixUserId ? View.VISIBLE : View.GONE);
 
-                List<String> roomLists = mSession.getDirectChatRoomIdsList(participant.mUserId);
-                if ( roomLists.size()>0) {
-                    String roomId = roomLists.get(0);
-                    IMXStore store = mSession.getDataHandler().getStore(roomId);
-                    final RoomSummary roomSummary = store.getSummary(roomId);
-                    CharSequence lastMsgToDisplay = RoomUtils.getRoomMessageToDisplay(mContext, mSession, roomSummary);
-
-                    vContactDesc.setText(lastMsgToDisplay);
-                }
-                else {
-                    if (participant.mContact.getEmails().size() > 0) {
-                        vContactDesc.setText(participant.mContact.getEmails().get(0));
-                    } else {
-                        if (null != participant.mContact.getPhonenumbers() && participant.mContact.getPhonenumbers().size() > 0)
-                            vContactDesc.setText(participant.mContact.getPhonenumbers().get(0).mRawPhoneNumber);
-                    }
+                if (participant.mContact.getEmails().size() > 0) {
+                    vContactDesc.setText(participant.mContact.getEmails().get(0));
+                } else {
+                    vContactDesc.setText(participant.mContact.getPhonenumbers().get(0).mRawPhoneNumber);
                 }
             } else {
                 loadContactPresence(vContactDesc, participant, position);
