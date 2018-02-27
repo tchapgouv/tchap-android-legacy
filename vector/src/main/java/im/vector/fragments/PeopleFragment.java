@@ -509,49 +509,7 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
 
          }
         else {// tell the user that the email must be filled. Propose to fill it
-            if (ContactsManager.getInstance().isContactBookAccessAllowed()) {
-                final Context theContext = this.getContext();
-                //enterEmailAddress(item.mContact);
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-                alertDialogBuilder.setMessage(getString(R.string.people_invalid_warning_msg));
-
-                // set dialog message
-                alertDialogBuilder
-                        .setNegativeButton(R.string.cancel,null)
-                        .setPositiveButton(R.string.action_edit_contact_form,
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        DinsicUtils.editContactForm(theContext,getActivity(),getString(R.string.people_edit_contact_warning_msg),item.mContact);
-                                    }
-                                });
-
-                // create alert dialog
-                AlertDialog alertDialog = alertDialogBuilder.create();
-                // show it
-                alertDialog.show();
-
-            }
-            else {
-
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-                alertDialogBuilder.setMessage(getString(R.string.people_invalid_warning_msg));
-
-                // set dialog message
-                alertDialogBuilder
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.ok,
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-
-                                    }
-                                });
-
-                // create alert dialog
-                AlertDialog alertDialog = alertDialogBuilder.create();
-                // show it
-                alertDialog.show();
-
-            }
+            DinsicUtils.editContact(getActivity(),this.getContext(),item);
         }
 
     }

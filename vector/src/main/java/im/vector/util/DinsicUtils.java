@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
+import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 
 import org.matrix.androidsdk.util.Log;
@@ -17,7 +18,9 @@ import java.util.List;
 
 import im.vector.R;
 import im.vector.activity.LoginActivity;
+import im.vector.adapters.ParticipantAdapterItem;
 import im.vector.contacts.Contact;
+import im.vector.contacts.ContactsManager;
 
 /**
  * Created by cloud on 1/22/18.
@@ -102,6 +105,45 @@ public class DinsicUtils {
             // set dialog message
             alertDialogBuilder
                     .setCancelable(false)
+                    .setPositiveButton(R.string.ok,null);
+
+            // create alert dialog
+            AlertDialog alertDialog = alertDialogBuilder.create();
+            // show it
+            alertDialog.show();
+
+        }
+    }
+
+    public static void editContact(final FragmentActivity activity, final Context theContext,final ParticipantAdapterItem item) {
+        if (ContactsManager.getInstance().isContactBookAccessAllowed()) {
+            //enterEmailAddress(item.mContact);
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
+            alertDialogBuilder.setMessage(activity.getString(R.string.people_invalid_warning_msg));
+            // set dialog message
+            alertDialogBuilder
+                    .setNegativeButton(R.string.cancel,null)
+                    .setPositiveButton(R.string.action_edit_contact_form,
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    DinsicUtils.editContactForm(theContext,activity,activity.getString(R.string.people_edit_contact_warning_msg),item.mContact);
+                                }
+                            });
+
+            // create alert dialog
+            AlertDialog alertDialog = alertDialogBuilder.create();
+            // show it
+            alertDialog.show();
+
+        }
+        else {
+
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
+            alertDialogBuilder.setMessage(activity.getString(R.string.people_invalid_warning_msg));
+
+            // set dialog message
+            alertDialogBuilder
+                    .setCancelable(false)
                     .setPositiveButton(R.string.ok,
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
@@ -115,7 +157,8 @@ public class DinsicUtils {
             alertDialog.show();
 
         }
-    }
 
+
+    }
 
 }

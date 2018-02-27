@@ -222,7 +222,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
             for (Contact contact : contacts) {
                 // Show contacts without emails
                 //------------------------------------
-                if (contact.getEmails().size()==0){
+                if (contact.getEmails().size()==0) {
                     Contact dummyContact = new Contact(contact.getContactId());
                     dummyContact.setDisplayName(contact.getDisplayName());
                     dummyContact.addEmailAdress(mContext.getString(R.string.no_email));
@@ -721,7 +721,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
     @Override
     public boolean isChildSelectable(int groupPosition, int childPosition) {
         ParticipantAdapterItem item = (ParticipantAdapterItem) getChild(groupPosition, childPosition);
-        return groupPosition != 0 || (null!=item);//.mIsValid;
+        return groupPosition != 0 || (null!=item);
     }
 
 
