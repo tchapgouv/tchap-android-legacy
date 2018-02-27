@@ -432,8 +432,6 @@ public class ParticipantAdapterItem implements java.io.Serializable {
         if (null != getAvatarBitmap()) {
             imageView.setImageBitmap(getAvatarBitmap());
         } else {
-            //No@ avatar on tchap
-
                 if (TextUtils.isEmpty(mUserId)) {
                     VectorUtils.loadUserAvatar(imageView.getContext(), session, imageView, mAvatarUrl, mDisplayName, mDisplayName);
                 } else {
@@ -473,7 +471,6 @@ public class ParticipantAdapterItem implements java.io.Serializable {
         String displayname = mDisplayName;
 
         // for the matrix users, append the matrix id to see the difference
-        if (null == mContact) {
             String lowerCaseDisplayname = displayname.toLowerCase(VectorApp.getApplicationLocale());
 
             // detect if the username is used by several users
@@ -492,15 +489,6 @@ public class ParticipantAdapterItem implements java.io.Serializable {
             if (pos >= 0) {
                 displayname += " (" + mUserId + ")";
             }
-        } else {
-            //for now, don't display entire matrix address
-            /*
-            if (MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(mUserId).matches()) {
-                displayname += " (" + mUserId + ")";
-            }
-            */
-        }
-
         return displayname;
     }
 
@@ -545,7 +533,7 @@ public class ParticipantAdapterItem implements java.io.Serializable {
 
     /**
      * Tells if a participant is to be viewed in priority
-     * priority is for Matrix member and gouv member.
+     * priority is for Matrix member
      * @param
      * @return true if matrix user or email address is from gov
      */
@@ -556,10 +544,6 @@ public class ParticipantAdapterItem implements java.io.Serializable {
         if (isMatrixUserId)
             retour = true;
         else{
-            /* finally put gov contacts like others
-            if ((mContact!= null) && (mContact.getEmails().size()>0)) {
-                retour = DinsicUtils.isFromFrenchGov(mContact.getEmails());
-            }*/
             retour = false;
         }
         return retour;

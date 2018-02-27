@@ -278,9 +278,8 @@ public class RoomsFragment extends AbsHomeFragment implements AbsHomeFragment.On
                 Room room = store.getRoom(summary.getRoomId());
 
                 // test
-                if ((null != room) && // if the room still exists
+                if ((null != room) && // if the room still exists,even if it's a direct room
                         !room.isConferenceUserRoom() && // not a VOIP conference room
-                        //add direct rooms !directChatRoomIds.contains(room.getRoomId()) &&
                         !lowPriorityRoomIds.contains(room.getRoomId())) {
                     mRooms.add(room);
                 }
