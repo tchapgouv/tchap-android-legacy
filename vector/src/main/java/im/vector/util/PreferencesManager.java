@@ -85,6 +85,7 @@ public class PreferencesManager {
     public static final String SETTINGS_ENCRYPTION_INFORMATION_DEVICE_KEY_PREFERENCE_KEY = "SETTINGS_ENCRYPTION_INFORMATION_DEVICE_KEY_PREFERENCE_KEY";
 
     public static final String SETTINGS_DISPLAY_NAME_PREFERENCE_KEY = "SETTINGS_DISPLAY_NAME_PREFERENCE_KEY";
+    public static final String SETTINGS_DISPLAY_EMAIL_PREFERENCE_KEY = "SETTINGS_DISPLAY_EMAIL_PREFERENCE_KEY";
     public static final String SETTINGS_ENABLE_ALL_NOTIF_PREFERENCE_KEY = "SETTINGS_ENABLE_ALL_NOTIF_PREFERENCE_KEY";
     public static final String SETTINGS_ENABLE_THIS_DEVICE_PREFERENCE_KEY = "SETTINGS_ENABLE_THIS_DEVICE_PREFERENCE_KEY";
     public static final String SETTINGS_TURN_SCREEN_ON_PREFERENCE_KEY = "SETTINGS_TURN_SCREEN_ON_PREFERENCE_KEY";
@@ -377,6 +378,8 @@ public class PreferencesManager {
         return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_USE_MATRIX_APPS_PREFERENCE_KEY, false);
     }
 
+
+    // true par defaut
     /**
      * Tells if the application is started on boot
      *
@@ -489,12 +492,14 @@ public class PreferencesManager {
         // some key names have been updated to supported language switch
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 
+        // suppress
         if (!preferences.contains(SETTINGS_START_ON_BOOT_PREFERENCE_KEY)) {
             SharedPreferences.Editor editor = preferences.edit();
             editor.putBoolean(SETTINGS_START_ON_BOOT_PREFERENCE_KEY, true);
             editor.commit();
         }
 
+        // suppress + verify using of settings_pin_missed_notifications XML + code
         if (preferences.contains(context.getString(R.string.settings_pin_missed_notifications))) {
             SharedPreferences.Editor editor = preferences.edit();
             editor.putBoolean(SETTINGS_PIN_MISSED_NOTIFICATIONS_PREFERENCE_KEY, preferences.getBoolean(context.getString(R.string.settings_pin_missed_notifications), false));
@@ -509,6 +514,7 @@ public class PreferencesManager {
             editor.commit();
         }
 
+
         if (preferences.contains("MARKDOWN_PREFERENCE_KEY")) {
             SharedPreferences.Editor editor = preferences.edit();
             editor.putBoolean(SETTINGS_DISABLE_MARKDOWN_KEY, !preferences.getBoolean("MARKDOWN_PREFERENCE_KEY", false));
@@ -516,18 +522,21 @@ public class PreferencesManager {
             editor.commit();
         }
 
+        // do not force the value of jitsi to true
         if (!preferences.contains(SETTINGS_USE_JITSI_CONF_PREFERENCE_KEY)) {
             SharedPreferences.Editor editor = preferences.edit();
             editor.putBoolean(SETTINGS_USE_JITSI_CONF_PREFERENCE_KEY, true);
             editor.commit();
         }
 
+        // suppress
         if (!preferences.contains(SETTINGS_PIN_MISSED_NOTIFICATIONS_PREFERENCE_KEY)) {
             SharedPreferences.Editor editor = preferences.edit();
             editor.putBoolean(SETTINGS_PIN_MISSED_NOTIFICATIONS_PREFERENCE_KEY, true);
             editor.commit();
         }
 
+        // suppress
         if (!preferences.contains(SETTINGS_PIN_UNREAD_MESSAGES_PREFERENCE_KEY)) {
             SharedPreferences.Editor editor = preferences.edit();
             editor.putBoolean(SETTINGS_PIN_UNREAD_MESSAGES_PREFERENCE_KEY, true);
