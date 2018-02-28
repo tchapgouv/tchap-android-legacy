@@ -512,22 +512,6 @@ public class RoomUtils {
                 item = popup.getMenu().findItem(R.id.ic_action_select_notifications);
                 item.setIcon(null);
             }
-/*
-            if (!isFavorite) {
-                item = popup.getMenu().findItem(R.id.ic_action_select_fav);
-                item.setIcon(null);
-            }
-
-            if (!isLowPrior) {
-                item = popup.getMenu().findItem(R.id.ic_action_select_deprioritize);
-                item.setIcon(null);
-            }
-*/
-            if (session.getDirectChatRoomIdsList().indexOf(room.getRoomId()) < 0) {
-                item = popup.getMenu().findItem(R.id.ic_action_select_direct_chat);
-                item.setIcon(null);
-            }
-
 
             if (moreActionListener != null) {
                 popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
@@ -536,32 +520,6 @@ public class RoomUtils {
                         switch (item.getItemId()) {
                             case R.id.ic_action_select_notifications: {
                                 moreActionListener.onToggleRoomNotifications(session, room.getRoomId());
-                                break;
-                            }
-                            // no more home nor favorite so dont make possible the two next actions
-                            /*
-                            case R.id.ic_action_select_fav: {
-                                if (isFavorite) {
-                                    moreActionListener.moveToConversations(session, room.getRoomId());
-                                } else {
-                                    moreActionListener.moveToFavorites(session, room.getRoomId());
-                                }
-                                break;
-                            }
-                            case R.id.ic_action_select_deprioritize: {
-                                if (isLowPrior) {
-                                    moreActionListener.moveToConversations(session, room.getRoomId());
-                                } else {
-                                    moreActionListener.moveToLowPriority(session, room.getRoomId());
-                                }
-                                break;
-                            }*/
-                            case R.id.ic_action_select_remove: {
-                                moreActionListener.onLeaveRoom(session, room.getRoomId());
-                                break;
-                            }
-                            case R.id.ic_action_select_direct_chat: {
-                                moreActionListener.onToggleDirectChat(session, room.getRoomId());
                                 break;
                             }
                             case R.id.ic_action_add_homescreen_shortcut: {
