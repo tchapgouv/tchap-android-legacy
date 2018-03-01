@@ -66,7 +66,7 @@ public class VectorRoomCreationAdapter extends ArrayAdapter<ParticipantAdapterIt
 
     // used layouts
     private final int mMemberLayoutResourceId;
-    private final int mAddMemberLayoutResourceId;
+    //private final int mAddMemberLayoutResourceId;
 
     // members list display names
     private final ArrayList<String> mDisplayNamesList = new ArrayList<>();
@@ -78,16 +78,16 @@ public class VectorRoomCreationAdapter extends ArrayAdapter<ParticipantAdapterIt
      * Create a room creation adapter.
      *
      * @param context                   the context.
-     * @param addMemberLayoutResourceId the add member layout.
+     //* @param addMemberLayoutResourceId the add member layout.
      * @param memberLayoutResourceId    the member layout id
      * @param session                   the session.
      */
-    public VectorRoomCreationAdapter(Context context, int addMemberLayoutResourceId, int memberLayoutResourceId, MXSession session) {
+    public VectorRoomCreationAdapter(Context context/*, int addMemberLayoutResourceId*/, int memberLayoutResourceId, MXSession session) {
         super(context, memberLayoutResourceId);
 
         mContext = context;
         mLayoutInflater = LayoutInflater.from(context);
-        mAddMemberLayoutResourceId = addMemberLayoutResourceId;
+        //mAddMemberLayoutResourceId = addMemberLayoutResourceId;
         mMemberLayoutResourceId = memberLayoutResourceId;
         mSession = session;
     }
@@ -130,13 +130,13 @@ public class VectorRoomCreationAdapter extends ArrayAdapter<ParticipantAdapterIt
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (0 == position) {
+        /*if (0 == position) {
             if (convertView == null) {
                 convertView = mLayoutInflater.inflate(mAddMemberLayoutResourceId, parent, false);
             }
 
             return convertView;
-        }
+        }*/
 
         if (convertView == null) {
             convertView = mLayoutInflater.inflate(mMemberLayoutResourceId, parent, false);
