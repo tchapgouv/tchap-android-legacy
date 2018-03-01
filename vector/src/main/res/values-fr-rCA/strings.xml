@@ -2,5 +2,4 @@
 <resources>
     <!-- use to retrieve the supported languages list -->
     <!-- should the same value as the file name -->
-    <string name="room_settings_create_shortcut">Créer un raccourci</string>
 </resources>
