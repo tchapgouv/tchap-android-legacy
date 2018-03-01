@@ -238,9 +238,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     private List<Room> mDirectChatInvitations;
     private List<Room> mRoomInvitations;
 
-    // floating action bar dialog
-    private AlertDialog mFabDialog;
-
      /*
      * *********************************************************************************************
      * Static methods
@@ -665,12 +662,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 mFloatingActionButtonTimer.cancel();
                 mFloatingActionButtonTimer = null;
             }
-        }
-
-        if (mFabDialog != null) {
-            // Prevent leak after orientation changed
-            mFabDialog.dismiss();
-            mFabDialog = null;
         }
 
         removeBadgeEventsListener();
@@ -1158,23 +1149,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     private void onFloatingButtonClick() {
         // ignore any action if there is a pending one
         if (!isWaitingViewVisible()) {
-            CharSequence items[] = new CharSequence[]{getString(R.string.room_recents_start_chat), getString(R.string.room_recents_create_room), getString(R.string.room_recents_join_room)};
-            mFabDialog = new AlertDialog.Builder(this)
-                    .setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface d, int n) {
-                            d.cancel();
-                            if (0 == n) {
-                                invitePeopleToNewRoom();
-                            } else if (1 == n) {
-                                createRoom();
-                            } else {
-                                joinARoom();
-                            }
-                        }
-                    })
-                    .setNegativeButton(R.string.cancel, null)
-                    .show();
+            invitePeopleToNewRoom();
         }
     }
 
