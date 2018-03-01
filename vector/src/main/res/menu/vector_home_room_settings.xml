@@ -4,7 +4,7 @@
     <group android:id="@+id/add_shortcut_actions">
         <item
             android:id="@+id/ic_action_add_homescreen_shortcut"
-            android:title="Créer un raccourci" />
+            android:title="@string/room_settings_create_shortcut" />
     </group>
 
     <group android:id="@+id/active_room_actions">
