@@ -138,7 +138,7 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
         // get the UI items
         mSpinnerView = findViewById(R.id.room_creation_spinner_views);
         ListView membersListView = findViewById(R.id.room_creation_members_list_view);
-        mAdapter = new VectorRoomCreationAdapter(this, R.layout.adapter_item_vector_creation_add_member, R.layout.adapter_item_vector_add_participants, mSession);
+        mAdapter = new VectorRoomCreationAdapter(this/*, R.layout.adapter_item_vector_creation_add_member*/, R.layout.adapter_item_vector_add_participants, mSession);
 
         // init the content
         if ((null != savedInstanceState) && savedInstanceState.containsKey(PARTICIPANTS_LIST)) {
