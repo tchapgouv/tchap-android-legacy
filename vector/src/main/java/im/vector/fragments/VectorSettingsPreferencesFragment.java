@@ -118,8 +118,6 @@ import im.vector.util.PreferencesManager;
 import im.vector.util.ThemeUtils;
 import im.vector.util.VectorUtils;
 
-import static im.vector.util.PreferencesManager.SETTINGS_DISPLAY_EMAIL_PREFERENCE_KEY;
-
 public class VectorSettingsPreferencesFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String LOG_TAG = VectorSettingsPreferencesFragment.class.getSimpleName();
 
