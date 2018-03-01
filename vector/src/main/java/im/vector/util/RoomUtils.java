@@ -526,6 +526,10 @@ public class RoomUtils {
                                 moreActionListener.addHomeScreenShortcut(session, room.getRoomId());
                                 break;
                             }
+                            case R.id.ic_action_select_remove: {
+                                moreActionListener.onLeaveRoom(session, room.getRoomId());
+                                break;
+                            }
                         }
                         return false;
                     }
