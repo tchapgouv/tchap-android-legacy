@@ -1688,6 +1688,10 @@ public class VectorSettingsPreferencesFragment extends PreferenceFragment implem
             // add new emails list
             mDisplayedEmails = newEmailsList;
 
+            if(null != newEmailsList && mDisplayedEmails.size() > 1) {
+                Log.e(LOG_TAG, "## there are more than one email in the account ");
+            }
+            
             for (final ThirdPartyIdentifier email3PID : currentEmail3PID) {
                 VectorCustomActionEditTextPreference preference = new VectorCustomActionEditTextPreference(getActivity());
 
