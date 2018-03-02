@@ -69,10 +69,17 @@ public class RoomUtils {
 
     private static final String LOG_TAG = RoomUtils.class.getSimpleName();
 
+<<<<<<< HEAD
     // Session
     private MXSession session;
 
     // Room
+=======
+    // session
+    private MXSession session;
+
+    // room
+>>>>>>> DINSIC_sp1.7_DirectChat
     private Room room;
 
     public interface MoreActionListener {
@@ -731,19 +738,7 @@ public class RoomUtils {
      * @return true if direct chat
      */
     public static boolean isDirectChat(final MXSession session, final String roomId) {
-        final IMXStore store = session.getDataHandler().getStore();
-        final Map<String, List<String>> directChatRoomsDict;
-
-        if (store.getDirectChatRoomsDict() != null) {
-            directChatRoomsDict = new HashMap<>(store.getDirectChatRoomsDict());
-
-            if (directChatRoomsDict.containsKey(session.getMyUserId())) {
-                List<String> roomIdsList = new ArrayList<>(directChatRoomsDict.get(session.getMyUserId()));
-                return roomIdsList.contains(roomId);
-            }
-        }
-
-        return false;
+        return (null != roomId) && session.getDirectChatRoomIdsList().contains(roomId);
     }
 
     /**
