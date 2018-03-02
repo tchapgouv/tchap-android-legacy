@@ -291,6 +291,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="room_settings_de_prioritize">Passer en faible priorité</string>
     <string name="room_settings_direct_chat">Discussion directe</string>
     <string name="room_settings_leave_conversation">Quitter la discussion</string>
+    <string name="room_settings_create_shortcut">Créer un raccourci</string>
     <string name="room_settings_forget">Oublier</string>
 
     <string name="room_sliding_menu_messages">Messages</string>

@@ -381,7 +381,7 @@ public class PreferencesManager {
      * Tells if the application is started on boot
      *
      * @param context the context
-     * @return true if the application must be started on boot
+     * @return true if the application must be started on boot (defaultValue = true)
      */
     public static boolean autoStartOnBoot(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_START_ON_BOOT_PREFERENCE_KEY, false);
@@ -489,12 +489,14 @@ public class PreferencesManager {
         // some key names have been updated to supported language switch
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 
+        // TODO(DINSIC) to delete
         if (!preferences.contains(SETTINGS_START_ON_BOOT_PREFERENCE_KEY)) {
             SharedPreferences.Editor editor = preferences.edit();
             editor.putBoolean(SETTINGS_START_ON_BOOT_PREFERENCE_KEY, true);
             editor.commit();
         }
 
+        // TODO(DINSIC) to delete + verify using of settings_pin_missed_notifications XML + code
         if (preferences.contains(context.getString(R.string.settings_pin_missed_notifications))) {
             SharedPreferences.Editor editor = preferences.edit();
             editor.putBoolean(SETTINGS_PIN_MISSED_NOTIFICATIONS_PREFERENCE_KEY, preferences.getBoolean(context.getString(R.string.settings_pin_missed_notifications), false));
@@ -509,6 +511,7 @@ public class PreferencesManager {
             editor.commit();
         }
 
+
         if (preferences.contains("MARKDOWN_PREFERENCE_KEY")) {
             SharedPreferences.Editor editor = preferences.edit();
             editor.putBoolean(SETTINGS_DISABLE_MARKDOWN_KEY, !preferences.getBoolean("MARKDOWN_PREFERENCE_KEY", false));
@@ -516,18 +519,21 @@ public class PreferencesManager {
             editor.commit();
         }
 
+        // TODO(DINSIC) do not force the value of jitsi to true
         if (!preferences.contains(SETTINGS_USE_JITSI_CONF_PREFERENCE_KEY)) {
             SharedPreferences.Editor editor = preferences.edit();
             editor.putBoolean(SETTINGS_USE_JITSI_CONF_PREFERENCE_KEY, true);
             editor.commit();
         }
 
+        // TODO(DINSIC) to delete
         if (!preferences.contains(SETTINGS_PIN_MISSED_NOTIFICATIONS_PREFERENCE_KEY)) {
             SharedPreferences.Editor editor = preferences.edit();
             editor.putBoolean(SETTINGS_PIN_MISSED_NOTIFICATIONS_PREFERENCE_KEY, true);
             editor.commit();
         }
 
+        // TODO(DINSIC) to delete
         if (!preferences.contains(SETTINGS_PIN_UNREAD_MESSAGES_PREFERENCE_KEY)) {
             SharedPreferences.Editor editor = preferences.edit();
             editor.putBoolean(SETTINGS_PIN_UNREAD_MESSAGES_PREFERENCE_KEY, true);

@@ -116,6 +116,7 @@ import im.vector.util.CallsManager;
 import im.vector.util.NotificationUtils;
 import im.vector.util.PreferencesManager;
 import im.vector.util.ReadMarkerManager;
+import im.vector.util.RoomUtils;
 import im.vector.util.SlashComandsParser;
 import im.vector.util.ThemeUtils;
 import im.vector.util.VectorMarkdownParser;
@@ -3055,7 +3056,12 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                             // i.e not a room preview
                             boolean hideMembersButtons = (null == mRoom) || !TextUtils.isEmpty(mEventId) || (null != sRoomPreviewData);
                             mActionBarHeaderActiveMembersListButton.setVisibility(hideMembersButtons ? View.INVISIBLE : View.VISIBLE);
-                            mActionBarHeaderActiveMembersInviteButton.setVisibility(hideMembersButtons ? View.INVISIBLE : View.VISIBLE);
+                            if (!RoomUtils.isDirectChat(mSession, mRoom.getRoomId())) {
+                                mActionBarHeaderActiveMembersInviteButton.setVisibility(View.VISIBLE);
+                            } else {
+                                mActionBarHeaderActiveMembersInviteButton.setVisibility(View.GONE);
+                            }
+
                         } else {
                             mActionBarHeaderActiveMembersLayout.setVisibility(View.GONE);
                         }
