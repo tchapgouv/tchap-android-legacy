@@ -69,17 +69,8 @@ public class RoomUtils {
 
     private static final String LOG_TAG = RoomUtils.class.getSimpleName();
 
-<<<<<<< HEAD
-    // Session
     private MXSession session;
 
-    // Room
-=======
-    // session
-    private MXSession session;
-
-    // room
->>>>>>> DINSIC_sp1.7_DirectChat
     private Room room;
 
     public interface MoreActionListener {
@@ -782,13 +773,5 @@ public class RoomUtils {
         } else {
             return null;
         }
-    }
-
-    /**
-     * Tell if room is Direct Chat
-     * @return true if is direct chat
-     */
-    public boolean isDirect() {
-        return session.getDirectChatRoomIdsList().contains(room.getRoomId());
     }
 }
