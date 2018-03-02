@@ -13,9 +13,51 @@
         android:textAllCaps="false"
         android:textSize="16sp" />
 
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/header_create_room"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/search_invite_by_id"
+        android:background="?attr/list_header_background_color"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:id="@+id/people_header_sub_layout"
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:layout_marginBottom="11dp"
+            android:layout_marginTop="11dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/people_header_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="16dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="CREER UN SALON"
+                    android:textColor="?attr/riot_primary_text_color"
+                    android:textSize="14sp" />
+
+            </RelativeLayout>
+
+            <ImageView
+                android:id="@+id/heading_image"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="15dp" />
+        </RelativeLayout>
+    </LinearLayout>
+
     <ExpandableListView
         android:id="@+id/room_details_members_list"
-        android:layout_below="@+id/search_invite_by_id"
+        android:layout_below="@+id/header_create_room"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:divider="@android:color/transparent"
