@@ -35,6 +35,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 
+import org.matrix.androidsdk.MXDataHandler;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomAccountData;
@@ -67,6 +68,12 @@ import im.vector.adapters.AdapterUtils;
 public class RoomUtils {
 
     private static final String LOG_TAG = RoomUtils.class.getSimpleName();
+
+    // Session
+    private MXSession session;
+
+    // Room
+    private Room room;
 
     public interface MoreActionListener {
         void onToggleRoomNotifications(MXSession session, String roomId);
@@ -780,5 +787,13 @@ public class RoomUtils {
         } else {
             return null;
         }
+    }
+
+    /**
+     * Tell if room is Direct Chat
+     * @return true if is direct chat
+     */
+    public boolean isDirect() {
+        return session.getDirectChatRoomIdsList().contains(room.getRoomId());
     }
 }
