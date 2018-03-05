@@ -78,7 +78,7 @@
             android:layout_alignTop="@+id/filtered_list_avatar"
             android:layout_marginRight="-7dp"
             android:layout_marginTop="-7dp"
-            android:src="@drawable/logo"
+            android:src="@drawable/ic_tchap_red"
             android:visibility="gone" />
 
         <ImageView
