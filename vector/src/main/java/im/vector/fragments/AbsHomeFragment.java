@@ -25,6 +25,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import org.matrix.androidsdk.MXSession;
