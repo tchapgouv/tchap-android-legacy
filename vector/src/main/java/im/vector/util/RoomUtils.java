@@ -35,6 +35,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 
+import org.matrix.androidsdk.MXDataHandler;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomAccountData;
@@ -67,6 +68,10 @@ import im.vector.adapters.AdapterUtils;
 public class RoomUtils {
 
     private static final String LOG_TAG = RoomUtils.class.getSimpleName();
+
+    private MXSession session;
+
+    private Room room;
 
     public interface MoreActionListener {
         void onToggleRoomNotifications(MXSession session, String roomId);
@@ -512,22 +517,6 @@ public class RoomUtils {
                 item = popup.getMenu().findItem(R.id.ic_action_select_notifications);
                 item.setIcon(null);
             }
-/*
-            if (!isFavorite) {
-                item = popup.getMenu().findItem(R.id.ic_action_select_fav);
-                item.setIcon(null);
-            }
-
-            if (!isLowPrior) {
-                item = popup.getMenu().findItem(R.id.ic_action_select_deprioritize);
-                item.setIcon(null);
-            }
-*/
-            if (session.getDirectChatRoomIdsList().indexOf(room.getRoomId()) < 0) {
-                item = popup.getMenu().findItem(R.id.ic_action_select_direct_chat);
-                item.setIcon(null);
-            }
-
 
             if (moreActionListener != null) {
                 popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
@@ -538,34 +527,12 @@ public class RoomUtils {
                                 moreActionListener.onToggleRoomNotifications(session, room.getRoomId());
                                 break;
                             }
-                            // no more home nor favorite so dont make possible the two next actions
-                            /*
-                            case R.id.ic_action_select_fav: {
-                                if (isFavorite) {
-                                    moreActionListener.moveToConversations(session, room.getRoomId());
-                                } else {
-                                    moreActionListener.moveToFavorites(session, room.getRoomId());
-                                }
-                                break;
-                            }
-                            case R.id.ic_action_select_deprioritize: {
-                                if (isLowPrior) {
-                                    moreActionListener.moveToConversations(session, room.getRoomId());
-                                } else {
-                                    moreActionListener.moveToLowPriority(session, room.getRoomId());
-                                }
-                                break;
-                            }*/
-                            case R.id.ic_action_select_remove: {
-                                moreActionListener.onLeaveRoom(session, room.getRoomId());
-                                break;
-                            }
-                            case R.id.ic_action_select_direct_chat: {
-                                moreActionListener.onToggleDirectChat(session, room.getRoomId());
-                                break;
-                            }
                             case R.id.ic_action_add_homescreen_shortcut: {
                                 moreActionListener.addHomeScreenShortcut(session, room.getRoomId());
+                                break;
+                            }
+                            case R.id.ic_action_select_remove: {
+                                moreActionListener.onLeaveRoom(session, room.getRoomId());
                                 break;
                             }
                         }
@@ -762,19 +729,7 @@ public class RoomUtils {
      * @return true if direct chat
      */
     public static boolean isDirectChat(final MXSession session, final String roomId) {
-        final IMXStore store = session.getDataHandler().getStore();
-        final Map<String, List<String>> directChatRoomsDict;
-
-        if (store.getDirectChatRoomsDict() != null) {
-            directChatRoomsDict = new HashMap<>(store.getDirectChatRoomsDict());
-
-            if (directChatRoomsDict.containsKey(session.getMyUserId())) {
-                List<String> roomIdsList = new ArrayList<>(directChatRoomsDict.get(session.getMyUserId()));
-                return roomIdsList.contains(roomId);
-            }
-        }
-
-        return false;
+        return (null != roomId) && session.getDirectChatRoomIdsList().contains(roomId);
     }
 
     /**

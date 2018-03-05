@@ -72,6 +72,7 @@ import im.vector.activity.VectorMemberDetailsActivity;
 import im.vector.activity.VectorRoomInviteMembersActivity;
 import im.vector.adapters.ParticipantAdapterItem;
 import im.vector.adapters.VectorRoomDetailsMembersAdapter;
+import im.vector.util.RoomUtils;
 import im.vector.util.ThemeUtils;
 import im.vector.util.VectorUtils;
 
@@ -631,9 +632,10 @@ public class VectorRoomDetailsMembersFragment extends Fragment {
         if (null != mRemoveMembersMenuItem) {
             mRemoveMembersMenuItem.setVisible(mIsMultiSelectionMode);
 
-            // fix https://github.com/vector-im/vector-android/issues/196
-            if ((null != mAddMembersFloatingActionButton)) {
+            if (null != mAddMembersFloatingActionButton && !RoomUtils.isDirectChat(mSession, mRoom.getRoomId())) {
                 mAddMembersFloatingActionButton.setVisibility(mIsMultiSelectionMode ? View.GONE : View.VISIBLE);
+            } else {
+                mAddMembersFloatingActionButton.setVisibility(View.GONE);
             }
         }
 
