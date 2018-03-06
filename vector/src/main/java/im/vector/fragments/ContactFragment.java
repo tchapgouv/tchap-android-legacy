@@ -574,8 +574,8 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
 
 
          }
-        else {// tell the user that the email must be filled. Will be improved soon
-            DinsicUtils.alertSimpleMsg(getActivity(), getString(R.string.people_invalid_warning_msg));
+        else {// tell the user that the email must be filled. Propose to fill it
+            DinsicUtils.editContact(getActivity(),this.getContext(),item);
         }
 
     }
@@ -658,7 +658,7 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                 // injecter les contacts sans emails
                 //------------------------------------
                 if (contact.getEmails().size()==0){
-                    Contact dummyContact = new Contact("null");
+                    Contact dummyContact = new Contact(contact.getContactId());
                     dummyContact.setDisplayName(contact.getDisplayName());
                     dummyContact.addEmailAdress(getString(R.string.no_email));
                     dummyContact.setThumbnailUri(contact.getThumbnailUri());

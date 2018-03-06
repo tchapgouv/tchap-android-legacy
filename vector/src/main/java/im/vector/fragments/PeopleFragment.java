@@ -17,13 +17,9 @@
 package im.vector.fragments;
 
 import android.app.AlertDialog;
-import android.content.ContentResolver;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.Intent;
-import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Looper;
@@ -38,9 +34,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.Filter;
-import android.provider.ContactsContract;
-import android.app.Activity;
 
 import org.matrix.androidsdk.MXDataHandler;
 import org.matrix.androidsdk.MXSession;
@@ -508,25 +503,34 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
 
 
          }
-        else {// tell the user that the email must be filled. Propose to fill it
-            DinsicUtils.editContact(getActivity(),this.getContext(),item);
+        else {// tell the user that the email must be filled. Will be improved soon
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+            alertDialogBuilder.setMessage(getString(R.string.people_invalid_warning_msg));
+
+            // set dialog message
+            alertDialogBuilder
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.ok,
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+
+                                }
+                            });
+
+            // create alert dialog
+            AlertDialog alertDialog = alertDialogBuilder.create();
+            // show it
+            alertDialog.show();
         }
 
     }
-
-
-
-
     /**
      * click on a local or known contact
      *
      * @param item
      */
     private void contactSelected(final ParticipantAdapterItem item, String existingRoomId) {
-        if (null == existingRoomId) {
-            existingRoomId = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(item.mUserId, mSession, LOG_TAG);
-        }
-
+        if (null == existingRoomId) existingRoomId = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(item.mUserId, mSession, LOG_TAG);
         if (null != existingRoomId) {
             HashMap<String, Object> params = new HashMap<>();
             params.put(VectorRoomActivity.EXTRA_MATRIX_ID, item.mUserId);
@@ -592,7 +596,7 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
                 // injecter les contacts sans emails
                 //------------------------------------
                 if (contact.getEmails().size()==0){
-                    Contact dummyContact = new Contact(contact.getContactId());
+                    Contact dummyContact = new Contact("null");
                     dummyContact.setDisplayName(contact.getDisplayName());
                     dummyContact.addEmailAdress(getString(R.string.no_email));
                     dummyContact.setThumbnailUri(contact.getThumbnailUri());
