@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Vector Creations Ltd
+ * Copyright 2017 Vector Creations Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,6 @@ import org.matrix.androidsdk.listeners.MXEventListener;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.rest.model.MatrixError;
-import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.search.SearchUsersResponse;
 import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.util.Log;
@@ -55,14 +54,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import butterknife.BindView;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
-import im.vector.activity.LoginActivity;
 import im.vector.activity.VectorRoomActivity;
 import im.vector.activity.VectorRoomCreationActivity;
 import im.vector.adapters.ParticipantAdapterItem;
@@ -155,15 +152,13 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
         super.onResume();
         mSession.getDataHandler().addListener(mEventsListener);
         ContactsManager.getInstance().addListener(this);
+        // Direct chats
+        initDirectChatsData();
+        initDirectChatsViews();
 
         // Local address book
         initContactsData();
-
-        // Direct chats
-        initDirectChatsData();
-
         initContactsViews();
-        initDirectChatsViews();//todo: to be removed
 
         mAdapter.setInvitation(mActivity.getRoomInvitations());
 
@@ -315,56 +310,11 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
                         final Set<String> tags = room.getAccountData().getKeys();
                         if ((null == tags) || !tags.contains(RoomTag.ROOM_TAG_LOW_PRIORITY)) {
                             mDirectChats.add(dataHandler.getRoom(roomId));
-                       }
-                    }
-                }
-            }
-        }
-    }
-    /* get contacts from direct chats */
-    private List<ParticipantAdapterItem> getContactsFromDirectChats() {
-        List<ParticipantAdapterItem> participants = new ArrayList<>();
-
-        if ((null == mSession) || (null == mSession.getDataHandler())) {
-            Log.e(LOG_TAG, "## getContactsFromDirectChats() : null session");
-        }
-
-        final List<String> directChatIds = mSession.getDirectChatRoomIdsList();
-        final MXDataHandler dataHandler = mSession.getDataHandler();
-        final IMXStore store = dataHandler.getStore();
-
-        if (directChatIds != null && !directChatIds.isEmpty()) {
-            for (String roomId : directChatIds) {
-                Room room = store.getRoom(roomId);
-
-                if ((null != room) && !room.isConferenceUserRoom()) {
-                    // it seems that the server syncs some left rooms
-                    if (null == room.getMember(mSession.getMyUserId())) {
-                        Log.e(LOG_TAG, "## getContactsFromDirectChats(): invalid room " + room.getRoomId() + ", the user is not anymore member of it");
-                    } else {
-                        final Set<String> tags = room.getAccountData().getKeys();
-                        if ((null == tags) || !tags.contains(RoomTag.ROOM_TAG_LOW_PRIORITY)) {
-                            Collection<RoomMember> rMembers = dataHandler.getRoom(roomId).getLiveState().getDisplayableMembers();
-                            if (rMembers.size()==2) {
-                                for (RoomMember myMember : rMembers){
-                                    if (!myMember.getUserId().equals(mSession.getMyUserId())){
-                                        if (MXSession.isUserId(myMember.getUserId())) {
-                                            Contact dummyContact = new Contact("null");
-                                            dummyContact.setDisplayName(myMember.displayname);
-                                            ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
-                                            participant.mUserId = myMember.getUserId();
-                                            participants.add(participant);
-                                        }
-
-                                    }
-                                }
-                             }
                         }
                     }
                 }
             }
         }
-        return participants;
     }
 
     /**
@@ -379,7 +329,6 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
             // First time on the screen or contact data outdated
             mLocalContacts.clear();
             List<ParticipantAdapterItem> participants = new ArrayList<>(getContacts());
-
             // Build lists
             for (ParticipantAdapterItem item : participants) {
                 if (item.mContact != null) {
@@ -387,25 +336,6 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
                 }
             }
         }
-        //clear contacts that come from directchats, i.e without contact id
-        else {
-            List<ParticipantAdapterItem> tobeRemoved = new ArrayList<>();
-            for (ParticipantAdapterItem item : mLocalContacts) {
-                if (item.mContact.getContactId() == "null") {
-                    tobeRemoved.add(item);
-                }
-            }
-            for (ParticipantAdapterItem item : tobeRemoved){
-                mLocalContacts.remove(item);
-            }
-        }
-        //add participants from direct chats
-        List<ParticipantAdapterItem> myDirectContacts = getContactsFromDirectChats();
-        for (ParticipantAdapterItem myContact : myDirectContacts){
-            if (!DinsicUtils.participantAlreadyAdded(mLocalContacts,myContact))
-                mLocalContacts.add(myContact);
-        }
-
     }
 
     /**
@@ -539,21 +469,17 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
     private void onContactSelected(final ParticipantAdapterItem item) {
         if (item.mIsValid) {
 
-            if (MXSession.isUserId(item.mUserId))// || DinsicUtils.isFromFrenchGov(item.mContact.getEmails()))
+            if (MXSession.isUserId(item.mUserId) || DinsicUtils.isFromFrenchGov(item.mContact.getEmails()))
                 contactSelected(item, null);
             else {
-
                 //don't have to ask the question if a room already exists
                 String existingRoomId;
-                String msg = getString(R.string.room_invite_non_gov_people);
-                if (DinsicUtils.isFromFrenchGov(item.mContact.getEmails()))
-                    msg = getString(R.string.room_invite_gov_people);
                 if (null != (existingRoomId = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(item.mUserId, mSession, LOG_TAG))) {
                     contactSelected(item,existingRoomId);
                 }
                 else {
                     AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-                    alertDialogBuilder.setMessage(msg);
+                    alertDialogBuilder.setMessage(getString(R.string.room_invite_non_gov_people));
 
                     // set dialog message
                     alertDialogBuilder
@@ -578,7 +504,23 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
 
          }
         else {// tell the user that the email must be filled. Will be improved soon
-            DinsicUtils.alertSimpleMsg(getActivity(), getString(R.string.people_invalid_warning_msg));
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+            alertDialogBuilder.setMessage(getString(R.string.people_invalid_warning_msg));
+
+            // set dialog message
+            alertDialogBuilder
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.ok,
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+
+                                }
+                            });
+
+            // create alert dialog
+            AlertDialog alertDialog = alertDialogBuilder.create();
+            // show it
+            alertDialog.show();
         }
 
     }
@@ -596,14 +538,7 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
             CommonActivityUtils.goToRoomPage(getActivity(), mSession, params);
         } else {
             // direct message flow
-            //it will be more open on next sprints ...
-            if (!LoginActivity.isUserExternal(mSession)){
-                mSession.createDirectMessageRoom(item.mUserId, mCreateDirectMessageCallBack);
-            }
-            else{
-                DinsicUtils.alertSimpleMsg(getActivity(), getString(R.string.room_creation_forbidden));
-
-            }
+            mSession.createDirectMessageRoom(item.mUserId, mCreateDirectMessageCallBack);
         }
     }
 
@@ -709,18 +644,9 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
 
             }
         }
-        //move this code outside
-        /*
-        //add participants from direct chats
-        List<ParticipantAdapterItem> myDirectContacts = getContactsFromDirectChats();
-        for (ParticipantAdapterItem myContact : myDirectContacts){
-            if (!DinsicUtils.participantAlreadyAdded(participants,myContact))
-                participants.add(myContact);
-        }
-        */
+
         return participants;
     }
-
 
     private List<ParticipantAdapterItem> getMatrixUsers() {
         List<ParticipantAdapterItem> matrixUsers = new ArrayList<>();
@@ -760,7 +686,9 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
 
         if (isResumed()) {
             mAdapter.setInvitation(mActivity.getRoomInvitations());
-            initContactsData();
+
+            initDirectChatsData();
+            initDirectChatsViews();
         }
     }
 
@@ -773,13 +701,6 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
     @Override
     public void onPIDsUpdate() {
         final List<ParticipantAdapterItem> newContactList = getContacts();
-        //add participants from direct chats
-        List<ParticipantAdapterItem> myDirectContacts = getContactsFromDirectChats();
-        for (ParticipantAdapterItem myContact : myDirectContacts){
-            if (!DinsicUtils.participantAlreadyAdded(newContactList,myContact))
-                newContactList.add(myContact);
-        }
-
         if (!mLocalContacts.containsAll(newContactList)) {
             mLocalContacts.clear();
             mLocalContacts.addAll(newContactList);
