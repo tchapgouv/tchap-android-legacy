@@ -1,30 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:background="?attr/riot_primary_background_color">
 
-    <LinearLayout
+    <pl.droidsonroids.gif.GifImageView
+        android:id="@+id/animated_logo_image_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_centerInParent="true">
-
-        <pl.droidsonroids.gif.GifImageView
-            android:id="@+id/animated_logo_image_view"
-            android:layout_width="240dp"
-            android:layout_height="240dp"
-            android:src="@drawable/tchap_splash"/>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <ProgressBar
-                android:layout_centerInParent="true"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:indeterminate="true"/>
-        </RelativeLayout>
-    </LinearLayout>
-</RelativeLayout>
+        android:layout_marginBottom="0.1dp"
+        android:layout_marginTop="0.1dp"
+        android:src="@drawable/tchap_splash"/>
+</LinearLayout>
