@@ -22,7 +22,7 @@
         android:layout_alignTop="@+id/contact_avatar_layout"
         android:layout_marginRight="-7dp"
         android:layout_marginTop="-7dp"
-        android:src="@drawable/ic_tchap_red"
+        android:src="@drawable/logo_tchap"
         android:visibility="gone" />
 
     <LinearLayout

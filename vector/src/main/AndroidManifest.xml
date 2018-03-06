@@ -90,10 +90,10 @@
     <application
         android:name="im.vector.VectorApp"
         android:allowBackup="false"
-        android:icon="@drawable/ic_tchap_red"
+        android:icon="@drawable/logo_tchap"
         android:label="@string/riot_app_name"
         android:largeHeap="true"
-        android:logo="@drawable/ic_tchap_red"
+        android:logo="@drawable/logo_tchap"
         android:resizeableActivity="false"
         android:theme="@style/AppTheme"
         tools:replace="allowBackup,label">

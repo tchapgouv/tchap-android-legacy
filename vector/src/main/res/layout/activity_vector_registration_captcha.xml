@@ -16,7 +16,7 @@
             android:layout_height="100dp"
 
             android:layout_centerHorizontal="true"
-            android:src="@drawable/logo_transparent">
+            android:src="@drawable/icon_notification_transparent">
         </ImageView>
     </RelativeLayout>
 
