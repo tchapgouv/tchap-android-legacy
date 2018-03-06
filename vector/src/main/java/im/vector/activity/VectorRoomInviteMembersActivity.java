@@ -22,6 +22,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentActivity;
 import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -31,6 +32,7 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ExpandableListView;
+import android.content.Context;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -227,14 +229,20 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
         mListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-                Object item = mAdapter.getChild(groupPosition, childPosition);
+                boolean ret = false;
+                final Object item = mAdapter.getChild(groupPosition, childPosition);
 
-                if (item instanceof ParticipantAdapterItem && ((ParticipantAdapterItem) item).mIsValid) {
-                    ParticipantAdapterItem participantAdapterItem = (ParticipantAdapterItem) item;
-                    finish(new ArrayList<>(Arrays.asList(participantAdapterItem)));
-                    return true;
+                if (item instanceof ParticipantAdapterItem) {
+                    final ParticipantAdapterItem participantAdapterItem = (ParticipantAdapterItem) item;
+                    if (((ParticipantAdapterItem) item).mIsValid) {
+                        finish(new ArrayList<>(Arrays.asList(participantAdapterItem)));
+                        ret = true;
+                    }
+                    else {
+                        DinsicUtils.editContact(VectorRoomInviteMembersActivity.this,getApplicationContext(),(ParticipantAdapterItem) item);
+                    }
                 }
-                return false;
+                return ret;
             }
         });
 
