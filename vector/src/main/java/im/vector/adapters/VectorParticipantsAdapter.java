@@ -65,7 +65,6 @@ import im.vector.contacts.PIDsRetriever;
 import im.vector.util.DinsicUtils;
 import im.vector.util.VectorUtils;
 
-import static android.view.View.VISIBLE;
 
 /**
  * This class displays the users search results list.
@@ -842,7 +841,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
             return convertView;
         }
 
-        subLayout.setVisibility((groupPosition == mFirstEntryPosition) ? View.GONE : VISIBLE);
+        subLayout.setVisibility((groupPosition == mFirstEntryPosition) ? View.GONE : View.VISIBLE);
 
         View loadingView = subLayout.findViewById(R.id.heading_loading_view);
 
@@ -852,7 +851,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
             return convertView;
         }
 
-        loadingView.setVisibility(groupPosition == mLocalContactsSectionPosition && !ContactsManager.getInstance().arePIDsRetrieved() ? VISIBLE : View.GONE);
+        loadingView.setVisibility(groupPosition == mLocalContactsSectionPosition && !ContactsManager.getInstance().arePIDsRetrieved() ? View.VISIBLE : View.GONE);
 
         ImageView imageView = convertView.findViewById(R.id.heading_image);
         View matrixView = convertView.findViewById(R.id.people_header_matrix_contacts_layout);
@@ -884,7 +883,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                 }
             }
             // display a search toggle for the local contacts
-            matrixView.setVisibility(((groupPosition == mLocalContactsSectionPosition) && groupShouldBeExpanded) ? VISIBLE : View.GONE);
+            matrixView.setVisibility(((groupPosition == mLocalContactsSectionPosition) && groupShouldBeExpanded) ? View.VISIBLE : View.GONE);
             // dont use matrix filter
             /*
             // matrix user checkbox
@@ -1007,7 +1006,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
         // the contact defines a matrix user but there is no way to get more information (presence, avatar)
         if (participant.mContact != null) {
             boolean isMatrixUserId = MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(participant.mUserId).matches();
-            matrixUserBadge.setVisibility(isMatrixUserId ? VISIBLE : View.GONE);
+            matrixUserBadge.setVisibility(isMatrixUserId ? View.VISIBLE : View.GONE);
 
             if (participant.mContact.getEmails().size() > 0) {
                 statusTextView.setText(participant.mContact.getEmails().get(0));
@@ -1028,7 +1027,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
         checkBox.setVisibility(View.GONE);
 
         final View addParticipantImageView = convertView.findViewById(R.id.filtered_list_add_button);
-        addParticipantImageView.setVisibility(mWithAddIcon ? VISIBLE : View.GONE);
+        addParticipantImageView.setVisibility(mWithAddIcon ? View.VISIBLE : View.GONE);
 
         return convertView;
     }
