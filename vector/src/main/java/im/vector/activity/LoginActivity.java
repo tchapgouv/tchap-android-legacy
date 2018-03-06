@@ -584,7 +584,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             Log.d(LOG_TAG, "KEYCODE_BACK pressed");
-            if ((MODE_ACCOUNT_CREATION == mMode) && (null != mRegistrationResponse)) {
+            if (MODE_ACCOUNT_CREATION == mMode) {
                 Log.d(LOG_TAG, "## cancel the registration mode");
                 fallbackToLoginMode();
                 return true;
@@ -1105,9 +1105,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
     private void checkIfMailValidationPending() {
         Log.d(LOG_TAG, "## checkIfMailValidationPending(): mIsMailValidationPending=" + mIsMailValidationPending);
 
-        if (null == mRegistrationResponse) {
-            Log.d(LOG_TAG, "## checkIfMailValidationPending(): pending mail validation delayed (mRegistrationResponse=null)");
-        } else if (mIsMailValidationPending) {
+        if (mIsMailValidationPending) {
             mIsMailValidationPending = false;
 
             // remove the pending polling register if any
@@ -1620,9 +1618,6 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
      * Refresh the visibility of mHomeServerText
      */
     private void refreshDisplay() {
-
-        // check if the device supported the dedicated mode
-        //checkFlows();
 
         // views
         View loginLayout = findViewById(R.id.login_inputs_layout);
@@ -2383,4 +2378,19 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
             }
         });
     }
+    /**
+     * Tells if current user is external
+     *
+     * @param
+     * @return true if external
+     */
+    public  static boolean isUserExternal(MXSession session) {
+        boolean myReturn = true;
+        String myHost = session.getHomeServerConfig().getHomeserverUri().getHost();
+        String myUri = "https://"+myHost;
+        myReturn =  (myUri.equals(EXTERNAL_BUBBLE_HS_URL));
+        return myReturn;
+    }
+
+
 }

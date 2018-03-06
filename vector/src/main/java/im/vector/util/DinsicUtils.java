@@ -9,13 +9,14 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
-
+import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.util.Log;
-
+import java.util.Iterator;
 import java.util.List;
-
+import im.vector.Matrix;
 import im.vector.R;
 import im.vector.activity.LoginActivity;
 import im.vector.adapters.ParticipantAdapterItem;
@@ -157,7 +158,59 @@ public class DinsicUtils {
             alertDialog.show();
 
         }
+    }  
 
+    public static boolean participantAlreadyAdded(List<ParticipantAdapterItem> participants, ParticipantAdapterItem participant){
+
+        boolean find = false;
+        Iterator<ParticipantAdapterItem> iterator = participants.iterator();
+        boolean finish = !iterator.hasNext();
+        while (!finish){
+            ParticipantAdapterItem curp = iterator.next();
+            if (curp!= null)
+                find = curp.mUserId.equals(participant.mUserId);
+            finish = (find || !(iterator.hasNext()));
+        }
+
+        return find;
+
+    }
+
+    public static boolean removeParticipantIfExist(List<ParticipantAdapterItem> participants, ParticipantAdapterItem participant){
+
+        boolean find = false;
+        Iterator<ParticipantAdapterItem> iterator = participants.iterator();
+        boolean finish = !iterator.hasNext();
+        while (!finish){
+            ParticipantAdapterItem curp = iterator.next();
+            if (curp!= null) {
+                find = curp.mUserId.equals(participant.mUserId);
+                if (find) iterator.remove();
+            }
+            finish = (find || !(iterator.hasNext()));
+        }
+
+        return find;
+
+    }
+    public static void alertSimpleMsg(FragmentActivity activity, String msg){
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
+        alertDialogBuilder.setMessage(msg);
+
+        // set dialog message
+        alertDialogBuilder
+                .setCancelable(false)
+                .setPositiveButton(R.string.ok,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+
+                            }
+                        });
+
+        // create alert dialog
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        // show it
+        alertDialog.show();
 
     }
 

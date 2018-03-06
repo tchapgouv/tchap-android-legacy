@@ -31,10 +31,10 @@
     <string name="ongoing_conference_call_video">vidéo</string>
     <string name="cannot_start_call">Impossible de démarrer l\'appel, réessayez plus tard</string>
     <string name="missing_permissions_warning">En raison de permissions manquantes, certaines fonctionnalités peuvent être absentes...</string>
-    <string name="missing_permissions_to_start_conf_call">Vous avez besoin de la permission d\'invitation pour démarrer une téléconférence dans ce salon</string>
+    <string name="missing_permissions_to_start_conf_call">Vous avez besoin de la permission d\'invitation pour démarrer une téléconférence dans cette conversation</string>
     <string name="missing_permissions_title_to_start_conf_call">Impossible de démarrer l\'appel</string>
     <string name="device_information">Informations sur l\'appareil</string>
-    <string name="room_no_conference_call_in_encrypted_rooms">Les téléconférences ne sont pas prises en charge dans les salons chiffrés</string>
+    <string name="room_no_conference_call_in_encrypted_rooms">Les téléconférences ne sont pas prises en charge dans les conversations chiffrées</string>
     <string name="or">ou</string>
     <string name="and">et</string>
     <string name="invite">Inviter</string>
@@ -60,29 +60,29 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="bottom_action_home">Accueil</string>
     <string name="bottom_action_favourites">Favoris</string>
     <string name="bottom_action_people">Personnes</string>
-    <string name="bottom_action_rooms">Salons</string>
+    <string name="bottom_action_rooms">Conversations</string>
 
-    <string name="home_filter_placeholder_home">Rechercher des salons</string>
+    <string name="home_filter_placeholder_home">Rechercher des conversations</string>
     <string name="home_filter_placeholder_favorites">Rechercher des favoris</string>
     <string name="home_filter_placeholder_people">Rechercher des personnes</string>
-    <string name="home_filter_placeholder_rooms">Rechercher des salons</string>
+    <string name="home_filter_placeholder_rooms">Rechercher des conversations</string>
 
     <string name="invitations_header">Invitations</string>
     <string name="low_priority_header">Priorité basse</string>
 
-    <string name="direct_chats_header">Discussions</string>
-    <string name="local_address_book_header">Carnet d\'adresses local</string>
+    <string name="direct_chats_header">Dialogues</string>
+    <string name="local_address_book_header">Contacts</string>
     <string name="matrix_only_filter">Contacts Matrix uniquement</string>
-    <string name="no_conversation_placeholder">Aucune discussion</string>
+    <string name="no_conversation_placeholder">Aucune conversation</string>
     <string name="no_contact_access_placeholder">Vous n\'avez pas autorisé Riot à accéder à vos contacts locaux</string>
     <string name="no_result_placeholder">Aucun résultat</string>
     <string name="no_email">Email pas disponible</string>
 
-    <string name="rooms_header">Salons</string>
+    <string name="rooms_header">Conversations</string>
     <string name="rooms_directory_header">Répertoire de salons</string>
-    <string name="no_room_placeholder">Aucun salon</string>
+    <string name="no_room_placeholder">Aucune conversation</string>
     <string name="no_public_room_placeholder">Aucun salon public disponible</string>
-    <string name="title_activity_room">Salon</string>
+    <string name="title_activity_room">Conversation</string>
     <string name="redact">Effacer</string>
     <string name="send_anyway">Envoyer quand même</string>
     <string name="send_bug_report_include_logs">Envoyer les journaux</string>
@@ -106,7 +106,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="users">utilisateurs</string>
     <string name="search">Rechercher</string>
 
-    <string name="start_new_chat">Nouvelle discussion</string>
+    <string name="start_new_chat">Nouveau dialogue</string>
     <string name="start_voice_call">Nouvel appel vocal</string>
     <string name="start_video_call">Nouvel appel vidéo</string>
 
@@ -195,17 +195,18 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="preview">Aperçu</string>
     <string name="reject">Rejeter</string>
 
-    <string name="room_preview_try_join_an_unknown_room_default">un salon</string>
+    <string name="room_preview_try_join_an_unknown_room_default">une conversation</string>
     <string name="room_creation_title">Nouvelle discussion</string>
     <string name="room_creation_add_member">Ajouter un membre</string>
     <string name="room_title_one_member">1 membre</string>
     <string name="room_e2e_alert_title">Attention !</string>
+    <string name="room_creation_forbidden">Vous n\'êtes pas autorisé à créer cette conversation</string>
     <string name="format_time_s">s</string>
     <string name="format_time_m">m</string>
     <string name="format_time_h">h</string>
     <string name="format_time_d">j</string>
 
-    <string name="room_participants_leave_prompt_title">Quitter le salon</string>
+    <string name="room_participants_leave_prompt_title">Quitter la conversation</string>
     <string name="room_participants_create">Créer</string>
 
     <string name="room_participants_online">En ligne</string>
@@ -219,7 +220,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="room_participants_header_devices">APPAREILS</string>
 
     <string name="room_participants_action_invite">Inviter</string>
-    <string name="room_participants_action_leave">Quitter ce salon</string>
+    <string name="room_participants_action_leave">Quitter cette conversation</string>
     <string name="room_participants_action_remove">Exclure de ce salon</string>
     <string name="room_participants_action_ban">Bannir</string>
     <string name="room_participants_action_unban">Révoquer le bannissement</string>
@@ -234,7 +235,8 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="people_search_invite_by_id_dialog_hint">E-mail ou ID Matrix</string>
     <string name="people_invalid_warning_msg">Pour inviter un contact un email est requis</string>
     <string name="people_edit_contact_warning_msg">Accès à la fiche contact impossible</string>
-    <string name="room_invite_non_gov_people">Voulez vous vraiment inviter un partenaire exterieur dans Tchap ?</string>
+    <string name="room_invite_non_gov_people">Voulez vous vraiment inviter un partenaire exterieur dans Tchap (un mail lui sera envoyé) ?</string>
+    <string name="room_invite_gov_people">Voulez vous l\'inviter dans Tchap (un mail lui sera envoyé)  ?</string>
 
     <string name="room_menu_search">Rechercher</string>
     <string name="room_message_placeholder_encrypted">Envoyer un message chiffré…</string>
@@ -264,13 +266,13 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="room_event_action_cancel_download">Annuler le téléchargement</string>
 
     <string name="room_displayname_invite_from">Invitation de %s</string>
-    <string name="room_displayname_room_invite">Invitation au salon</string>
-    <string name="room_displayname_no_title">Salon vide</string>
+    <string name="room_displayname_room_invite">Invitation à la conversation</string>
+    <string name="room_displayname_no_title">Conversation vide</string>
 
     <string name="search_hint">Rechercher</string>
     <string name="search_members_hint">Filtrer les membres du salon</string>
     <string name="search_no_results">Aucun résultat</string>
-    <string name="tab_title_search_rooms">SALONS</string>
+    <string name="tab_title_search_rooms">CONVERSATIONS</string>
     <string name="tab_title_search_messages">MESSAGES</string>
     <string name="tab_title_search_people">PERSONNES</string>
     <string name="tab_title_search_files">FICHIERS</string>
@@ -278,10 +280,10 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="room_recents_join">REJOINDRE</string>
     <string name="room_recents_directory">RÉPERTOIRE</string>
     <string name="room_recents_favourites">FAVORIS</string>
-    <string name="room_recents_conversations">SALONS</string>
+    <string name="room_recents_conversations">CONVERSATIONS</string>
     <string name="room_recents_low_priority">PRIORITÉ BASSE</string>
     <string name="room_recents_invites">INVITATIONS</string>
-    <string name="room_recents_start_chat">Nouvelle discussion</string>
+    <string name="room_recents_start_chat">Créer un dialogue</string>
     <string name="room_recents_create_room">Créer un salon</string>
     <string name="room_recents_join_room">Rejoindre le salon</string>
     <string name="room_recents_join_room_title">Rejoindre un salon</string>
@@ -293,6 +295,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="room_settings_de_prioritize">Passer en faible priorité</string>
     <string name="room_settings_direct_chat">Discussion directe</string>
     <string name="room_settings_leave_conversation">Quitter la discussion</string>
+    <string name="room_settings_create_shortcut">Créer un raccourci</string>
     <string name="room_settings_forget">Oublier</string>
 
     <string name="room_sliding_menu_messages">Messages</string>
@@ -343,8 +346,8 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="settings_contacts_app_permission">Autorisation sur les contacts</string>
     <string name="settings_contacts_phonebook_country">Pays pour le répertoire téléphonique</string>
     <string name="settings_home_display">Page d\'accueil</string>
-    <string name="settings_pin_missed_notifications">Épingler les salons avec des notifications manquées</string>
-    <string name="settings_pin_unread_messages">Épingler les salons avec des messages non lus</string>
+    <string name="settings_pin_missed_notifications">Épingler les conversations avec des notifications manquées</string>
+    <string name="settings_pin_unread_messages">Épingler les conversations avec des messages non lus</string>
     <string name="settings_devices_list">Appareils</string>
     <string name="devices_details_dialog_title">Détails de l\'appareil</string>
     <string name="devices_details_id_title">Identifiant</string>
@@ -433,13 +436,13 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="encryption_information_verification">Vérification</string>
     <string name="encryption_information_ed25519_fingerprint">Empreinte Ed25519</string>
 
-    <string name="encryption_export_e2e_room_keys">Exporter les clés E2E des salons</string>
-    <string name="encryption_export_room_keys">Exporter les clés des salons</string>
+    <string name="encryption_export_e2e_room_keys">Exporter les clés E2E des discussions</string>
+    <string name="encryption_export_room_keys">Exporter les clés des discussions</string>
     <string name="encryption_export_export">Exporter</string>
     <string name="encryption_export_enter_passphrase">Saisir la phrase de passe</string>
     <string name="encryption_export_confirm_passphrase">Confirmer la phrase de passe</string>
-    <string name="encryption_import_e2e_room_keys">Importer les clés E2E des salons</string>
-    <string name="encryption_import_room_keys">Importer les clés des salons</string>
+    <string name="encryption_import_e2e_room_keys">Importer les clés E2E des conversations</string>
+    <string name="encryption_import_room_keys">Importer les clés des conversations</string>
     <string name="encryption_import_import">Importer</string>
     <string name="encryption_never_send_to_unverified_devices_title">Chiffrer uniquement vers les appareils vérifiés</string>
     <string name="encryption_information_not_verified">NON vérifié</string>
@@ -551,10 +554,10 @@ Autorisez-vous Riot à accéder à vos contacts ?</string>
 
     <string name="room_jump_to_first_unread">Aller au premier message non lu.</string>
 
-    <string name="room_preview_invitation_format">%s vous a invité à rejoindre ce salon</string>
+    <string name="room_preview_invitation_format">%s vous a invité à rejoindre cette conversation</string>
     <string name="room_preview_unlinked_email_warning">Cette invitation a été envoyée à %s, qui n\'est pas associé à ce compte.
 Vous pouvez vous identifier avec un compte différent ou ajouter cette adresse e-mail à votre compte.</string>
-    <string name="room_preview_try_join_an_unknown_room">Vous essayez d\'accéder à %s. Souhaitez-vous rejoindre le salon pour participer à la discussion ?</string>
+    <string name="room_preview_try_join_an_unknown_room">Vous essayez d\'accéder à %s. Souhaitez-vous rejoindre le salon pour participer à la conversation ?</string>
     <string name="room_preview_room_interactions_disabled">Ceci est un aperçu du salon. Vous ne pouvez pas interagir.</string>
 
     <string name="room_header_active_members">%1$d/%2$d membres actifs</string>
@@ -563,12 +566,12 @@ Vous pouvez vous identifier avec un compte différent ou ajouter cette adresse e
 
 Il ne doit pas être considéré comme fiable pour sécuriser des données.
 
-Les appareils ne pourront pas encore déchiffrer l\'historique de messages d\'avant leur arrivée sur le salon.
+Les appareils ne pourront pas encore déchiffrer l\'historique de messages d\'avant leur arrivée sur la conversation.
 
 Les messages chiffrés ne seront pas visibles sur les clients qui n\'ont pas encore implémenté le chiffrement.</string>
 
-    <string name="room_participants_leave_prompt_msg">Voulez-vous vraiment quitter le salon ?</string>
-    <string name="room_participants_remove_prompt_msg">Voulez-vous vraiment exclure %s de cette discussion ?</string>
+    <string name="room_participants_leave_prompt_msg">Voulez-vous vraiment quitter la conversation ?</string>
+    <string name="room_participants_remove_prompt_msg">Voulez-vous vraiment exclure %s de cette conversation ?</string>
     <string name="room_participants_idle">Inactif</string>
     <string name="room_participants_action_ignore">Masquer tous les messages de cet utilisateur</string>
     <string name="room_participants_action_unignore">Afficher tous les messages de cet utilisateur</string>
@@ -603,10 +606,10 @@ En êtes-vous sûr(e) ?</string>
     <string name="room_displayname_more_than_two_members">%1$s, %2$d et d\'autres</string>
     <string name="room_recents_join_room_prompt">Saisissez un identifiant ou un alias de salon</string>
 
-    <string name="directory_search_room">%1$d salon</string>
-    <string name="directory_search_rooms">%1$d salons</string>
-    <string name="directory_search_room_for">%1$d salon trouvé pour %2$s</string>
-    <string name="directory_search_rooms_for">%1$s salons trouvés pour %2$s</string>
+    <string name="directory_search_room">%1$d conversation</string>
+    <string name="directory_search_rooms">%1$d conversation</string>
+    <string name="directory_search_room_for">%1$d conversation trouvée pour %2$s</string>
+    <string name="directory_search_rooms_for">%1$s conversations trouvées pour %2$s</string>
     <string name="settings_turn_screen_on">Allumer l\'écran pendant 3 secondes</string>
 
     <string name="settings_invited_to_room">Quand je suis invité sur un salon</string>
@@ -666,7 +669,7 @@ Les messages chiffrés ne seront pas visibles sur les clients qui n\'ont pas enc
 
 
     <string name="encryption_export_room_keys_summary">Exporter les clés vers un fichier local</string>
-    <string name="encryption_export_saved_as">Les clés E2E du salons sont sauvegardées dans \"%s\"</string>
+    <string name="encryption_export_saved_as">Les clés E2E sont sauvegardées dans \"%s\"</string>
 
     <string name="encryption_import_room_keys_summary">Importer les clés à partir d\'un fichier local</string>
     <string name="encryption_never_send_to_unverified_devices_summary">Ne jamais envoyer de messages chiffrés aux appareils non vérifiés depuis cet appareil</string>
@@ -679,8 +682,8 @@ Les messages chiffrés ne seront pas visibles sur les clients qui n\'ont pas enc
 
 Vous pouvez le faire maintenant ou plus tard à partir des paramètres de l\'application.</string>
 
-    <string name="unknown_devices_alert_title">Le salon contient des appareils inconnus</string>
-    <string name="unknown_devices_alert_message">Ce salon contient des appareils inconnus, qui n\'ont pas été vérifiés.
+    <string name="unknown_devices_alert_title">La conversation contient des appareils inconnus</string>
+    <string name="unknown_devices_alert_message">Cette conversation contient des appareils inconnus, qui n\'ont pas été vérifiés.
 Cela signifie qu\'il n\'y a aucune garantie que les appareils appartiennent aux utilisateurs qu\'ils prétendent.
 Nous vous recommandons d\'effectuer le processus de vérification pour chaque appareil avant de continuer, mais vous pouvez renvoyer le message sans vérifier si vous préférez. 
 
@@ -689,7 +692,7 @@ Appareils inconnus :</string>
     <string name="directory_server_fail_to_retrieve_server">Le serveur est peut-être indisponible ou surchargé</string>
     <string name="directory_server_type_homeserver">Saisir un serveur d\'accueil pour lister ses salons publics</string>
     <string name="notification_unread_notified_messages">%d messages notifiés non lus</string>
-    <string name="notification_unread_notified_messages_in_room">%1$d messages notifiés non lus dans %2$d salons</string>
+    <string name="notification_unread_notified_messages_in_room">%1$d messages notifiés non lus dans %2$d conversations</string>
 
     <string name="settings_user_interface">Interface utilisateur</string>
     <string name="settings_interface_language">Langue de l\'interface</string>

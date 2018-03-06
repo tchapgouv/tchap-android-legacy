@@ -9,7 +9,7 @@
         <item name="waiting_background_color">#AAAAAAAA</item>
 
         <!-- primary dark color (status bar) -->
-        <item name="primary_dark_color">#5EA584</item>
+        <item name="primary_dark_color">@color/vector_tchap_primary_color</item>
 
         <!-- application bar background color -->
         <item name="primary_color">@color/primary_color_light</item>
@@ -123,7 +123,7 @@
         <item name="primary_text_color">@android:color/white</item>
 
         <!-- application bar icons color -->
-        <item name="primary_control_color">#5EA584</item>
+        <item name="primary_control_color">@color/vector_tchap_primary_color</item>
 
         <!-- application bar text hint color -->
         <item name="primary_hint_text_color">@color/primary_hint_text_color_dark</item>
