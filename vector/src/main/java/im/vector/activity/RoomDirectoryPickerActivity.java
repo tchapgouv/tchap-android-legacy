@@ -165,10 +165,10 @@ public class RoomDirectoryPickerActivity extends RiotAppCompatActivity implement
                 list.add(insertionIndex++, RoomDirectoryData.getIncludeAllServers(mSession, userHSUrl, userHSName));
 
                 // Add user's HS but for Matrix public rooms only
-                if (!list.isEmpty()) {
+ /*               if (!list.isEmpty()) {
                     list.add(insertionIndex++, RoomDirectoryData.getDefault());
                 }
-
+*/
                 // Add custom directory servers
                 for (String hsURL : hsUrlsList) {
                     if (!TextUtils.equals(userHSUrl, hsURL)) {

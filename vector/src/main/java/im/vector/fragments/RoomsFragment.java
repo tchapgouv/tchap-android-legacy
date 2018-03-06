@@ -416,7 +416,7 @@ public class RoomsFragment extends AbsHomeFragment implements AbsHomeFragment.On
     private void refreshDirectorySourceSpinner() {
         // no directory source, use the default one
         if (null == mSelectedRoomDirectory) {
-            mSelectedRoomDirectory = RoomDirectoryData.getDefault();
+            mSelectedRoomDirectory = RoomDirectoryData.getDefault(mSession);
         }
 
         if (null == mRoomDirectoryAdapter) {
