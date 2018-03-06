@@ -7,10 +7,10 @@
     <application
         android:name="im.vector.VectorApp"
         android:allowBackup="false"
-        android:icon="@drawable/logo_tchap"
+        android:icon="@drawable/logo_tchap_color"
         android:label="@string/riot_app_name"
         android:largeHeap="true"
-        android:logo="@drawable/logo_tchap"
+        android:logo="@drawable/logo_tchap_color"
         android:theme="@style/AppTheme"
         tools:replace="allowBackup,label">
         <provider

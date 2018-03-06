@@ -530,7 +530,10 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
      * @param item
      */
     private void contactSelected(final ParticipantAdapterItem item, String existingRoomId) {
-        if (null == existingRoomId) existingRoomId = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(item.mUserId, mSession, LOG_TAG);
+        if (null == existingRoomId) {
+            existingRoomId = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(item.mUserId, mSession, LOG_TAG);
+        }
+
         if (null != existingRoomId) {
             HashMap<String, Object> params = new HashMap<>();
             params.put(VectorRoomActivity.EXTRA_MATRIX_ID, item.mUserId);

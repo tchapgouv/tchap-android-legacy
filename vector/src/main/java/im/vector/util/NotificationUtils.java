@@ -567,7 +567,7 @@ public class NotificationUtils {
 
                     NotificationCompat.WearableExtender wearableExtender = new NotificationCompat.WearableExtender();
                     NotificationCompat.Action action =
-                            new NotificationCompat.Action.Builder(R.drawable.icon_notification_transparent,
+                            new NotificationCompat.Action.Builder(R.drawable.message_notification_transparent,
                                     message,
                                     stackBuilderTap.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT))
                                     .build();
@@ -768,7 +768,7 @@ public class NotificationUtils {
 
                         NotificationCompat.WearableExtender wearableExtender = new NotificationCompat.WearableExtender();
                         NotificationCompat.Action action =
-                                new NotificationCompat.Action.Builder(R.drawable.icon_notification_transparent,
+                                new NotificationCompat.Action.Builder(R.drawable.message_notification_transparent,
                                         message,
                                         stackBuilderTap.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT))
                                         .build();
@@ -936,7 +936,7 @@ public class NotificationUtils {
                 }
             }
 
-            builder.setSmallIcon(R.drawable.icon_notification_transparent);
+            builder.setSmallIcon(R.drawable.message_notification_transparent);
             manageNotificationSound(context, builder, isBackground, bingRule.isDefaultNotificationSound(bingRule.getNotificationSound()));
 
             return builder.build();
@@ -982,7 +982,7 @@ public class NotificationUtils {
             stackBuilderTap.addNextIntent(roomIntentTap);
             builder.setContentIntent(stackBuilderTap.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT));
 
-            builder.setSmallIcon(R.drawable.icon_notification_transparent);
+            builder.setSmallIcon(R.drawable.message_notification_transparent);
 
             manageNotificationSound(context, builder, false, bingRule.isDefaultNotificationSound(bingRule.getNotificationSound()));
 
