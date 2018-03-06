@@ -65,6 +65,7 @@ import im.vector.contacts.PIDsRetriever;
 import im.vector.util.DinsicUtils;
 import im.vector.util.VectorUtils;
 
+
 /**
  * This class displays the users search results list.
  * The first list row can be customized.
@@ -154,7 +155,6 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
         mLayoutInflater = LayoutInflater.from(context);
         mCellLayoutResourceId = cellLayoutResourceId;
         mHeaderLayoutResourceId = headerLayoutResourceId;
-
         mSession = session;
         mRoomId = roomId;
         mWithAddIcon = withAddIcon;
