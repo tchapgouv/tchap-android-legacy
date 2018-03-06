@@ -14,9 +14,8 @@
             android:id="@+id/login_large_logo"
             android:layout_width="100dp"
             android:layout_height="100dp"
-
             android:layout_centerHorizontal="true"
-            android:src="@drawable/permanent_notification_transparent">
+            android:src="@drawable/logo_tchap_transparent">
         </ImageView>
     </RelativeLayout>
 
