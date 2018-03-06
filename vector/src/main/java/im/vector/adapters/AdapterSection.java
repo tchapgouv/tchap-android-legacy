@@ -105,8 +105,8 @@ public class AdapterSection<T> {
      * Update the title depending on the number of items
      */
     void updateTitle() {
-        String newTitle;
-        if (getNbItems() > 0) {
+        String newTitle = "";
+        if (getNbItems() > 0 && mTitle.length()>0) {
             newTitle = mTitle.concat("   " + getNbItems());
         } else {
             newTitle = mTitle;

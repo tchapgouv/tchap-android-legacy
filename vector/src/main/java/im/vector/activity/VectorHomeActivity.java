@@ -111,12 +111,13 @@ import im.vector.fragments.AbsHomeFragment;
 import im.vector.fragments.FavouritesFragment;
 import im.vector.fragments.GroupsFragment;
 import im.vector.fragments.HomeFragment;
-import im.vector.fragments.PeopleFragment;
+import im.vector.fragments.ContactFragment;
 import im.vector.fragments.RoomsFragment;
 import im.vector.receiver.VectorUniversalLinkReceiver;
 import im.vector.services.EventStreamService;
 import im.vector.util.BugReporter;
 import im.vector.util.CallsManager;
+import im.vector.util.DinsicUtils;
 import im.vector.util.RoomUtils;
 import im.vector.util.ThemeUtils;
 import im.vector.util.VectorUtils;
@@ -788,7 +789,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 Log.d(LOG_TAG, "onNavigationItemSelected PEOPLE");
                 fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_PEOPLE);
                 if (fragment == null) {
-                    fragment = PeopleFragment.newInstance();
+                    fragment = ContactFragment.newInstance();
                 }
                 mCurrentFragmentTag = TAG_FRAGMENT_PEOPLE;
                 mSearchView.setQueryHint(getString(R.string.home_filter_placeholder_people));

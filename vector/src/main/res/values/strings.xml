@@ -330,7 +330,7 @@
     <string name="room_title_one_member">1 member</string>
     <string name="room_e2e_alert_title">Warning!</string>
     <string name="room_e2e_alert_message">End-to-end encryption is in beta and may not be reliable.\n\nYou should not yet trust it to secure data.\n\nDevices will not yet be able to decrypt history from before they joined the room.\n\nEncrypted messages will not be visible on clients that do not yet implement encryption.</string>
-
+    <string name="room_creation_forbidden">You are not authorized to create a room</string>
     <!--  Time -->
     <string name="format_time_s">s</string>
     <string name="format_time_m">m</string>
@@ -382,7 +382,7 @@
     <string name="people_search_invite_by_id_dialog_hint">Email or Matrix ID</string>
     <string name="people_invalid_warning_msg">Email required to invite a contact</string>
     <string name="room_invite_non_gov_people">Do you really want to make him enter on Tchap ? </string>
-
+    <string name="room_invite_gov_people">Do you want to invite him ? </string>
     <!--  Chat -->
     <string name="room_menu_search">Search</string>
     <string name="room_one_user_is_typing">%s is typing…</string>

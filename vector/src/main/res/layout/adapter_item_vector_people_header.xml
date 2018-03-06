@@ -49,28 +49,4 @@
             android:layout_centerVertical="true"
             android:layout_marginRight="15dp" />
     </RelativeLayout>
-
-    <LinearLayout
-        android:id="@+id/people_header_matrix_contacts_layout"
-        android:layout_width="match_parent"
-        android:layout_height="20dp"
-        android:layout_marginBottom="11dp"
-        android:orientation="horizontal"
-        android:visibility="visible"
-        tools:visibility="gone">
-
-        <!-- no filterCheckBox
-        CheckBox
-            android:id="@+id/contacts_filter_checkbox"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="19dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/people_search_filter_text"
-            android:textColor="?attr/riot_primary_text_color"
-            android:textSize="14sp" / -->
-    </LinearLayout>
 </LinearLayout>
