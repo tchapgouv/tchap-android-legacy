@@ -2058,7 +2058,8 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 }
             } else */
             if (id == R.id.bottom_action_people) {
-                filteredRoomIdsSet.addAll(mSession.getDataHandler().getDirectChatRoomIdsList());
+                //badge in bottom_people only for invitation
+
                 // Add direct chat invitations
                 for (Room room : roomSummaryByRoom.keySet()) {
                     if (room.isDirectChatInvitation() && !room.isConferenceUserRoom()) {
@@ -2071,15 +2072,13 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 for (Room room : lowPriorRooms) {
                     filteredRoomIdsSet.remove(room.getRoomId());
                 }
-            } else if (id == R.id.bottom_action_rooms) {
-                HashSet<String> directChatRoomIds = new HashSet<>(mSession.getDataHandler().getDirectChatRoomIdsList());
-                HashSet<String> lowPriorityRoomIds = new HashSet<>(mSession.roomIdsWithTag(RoomTag.ROOM_TAG_LOW_PRIORITY));
 
-                directChatRoomIds.addAll(directChatInvitations);
+            } else if (id == R.id.bottom_action_rooms) {
+                HashSet<String> lowPriorityRoomIds = new HashSet<>(mSession.roomIdsWithTag(RoomTag.ROOM_TAG_LOW_PRIORITY));
 
                 for (Room room : roomSummaryByRoom.keySet()) {
                     if (!room.isConferenceUserRoom() && // not a VOIP conference room
-                            !directChatRoomIds.contains(room.getRoomId()) && // not a direct chat
+                            !directChatInvitations.contains(room.getRoomId()) && // not a direct chat
                             !lowPriorityRoomIds.contains(room.getRoomId())) {
                         filteredRoomIdsSet.add(room.getRoomId());
                     }
