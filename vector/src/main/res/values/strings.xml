@@ -364,7 +364,7 @@
     <string name="room_participants_offline">Offline</string>
     <string name="room_participants_idle">Idle</string>
     <string name="room_participants_now">now</string>
-    <string name="room_participants_ago">ago</string>
+    <string name="room_participants_ago">since</string>
 
     <string name="room_participants_header_admin_tools">ADMIN TOOLS</string>
     <string name="room_participants_header_call">CALL</string>
