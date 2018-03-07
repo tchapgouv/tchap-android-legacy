@@ -541,7 +541,6 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
         }
     }
 
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -1243,6 +1242,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
     private void showMainLayout() {
         mMainLayout.setVisibility(View.VISIBLE);
         mProgressTextView.setVisibility(View.GONE);
+        mButtonsView.setVisibility(View.VISIBLE);
     }
 
     //==============================================================================================================
@@ -1631,7 +1631,6 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
         threePidLayout.setVisibility((mMode == MODE_ACCOUNT_CREATION_THREE_PID) ? View.VISIBLE : View.GONE);
 
         boolean isLoginMode = mMode == MODE_LOGIN;
-        boolean isForgetPasswordMode = (mMode == MODE_FORGOT_PASSWORD) || (mMode == MODE_FORGOT_PASSWORD_WAITING_VALIDATION);
 
         mButtonsView.setVisibility(View.VISIBLE);
 
@@ -2378,4 +2377,19 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
             }
         });
     }
+    /**
+     * Tells if current user is external
+     *
+     * @param
+     * @return true if external
+     */
+    public  static boolean isUserExternal(MXSession session) {
+        boolean myReturn = true;
+        String myHost = session.getHomeServerConfig().getHomeserverUri().getHost();
+        String myUri = "https://"+myHost;
+        myReturn =  (myUri.equals(EXTERNAL_BUBBLE_HS_URL));
+        return myReturn;
+    }
+
+
 }

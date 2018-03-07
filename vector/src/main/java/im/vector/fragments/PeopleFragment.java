@@ -293,7 +293,7 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
             Log.e(LOG_TAG, "## initDirectChatsData() : null session");
         }
 
-        final List<String> directChatIds = mSession.getDirectChatRoomIdsList();
+        final List<String> directChatIds = mSession.getDataHandler().getDirectChatRoomIdsList();
         final MXDataHandler dataHandler = mSession.getDataHandler();
         final IMXStore store = dataHandler.getStore();
 
@@ -530,7 +530,10 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
      * @param item
      */
     private void contactSelected(final ParticipantAdapterItem item, String existingRoomId) {
-        if (null == existingRoomId) existingRoomId = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(item.mUserId, mSession, LOG_TAG);
+        if (null == existingRoomId) {
+            existingRoomId = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(item.mUserId, mSession, LOG_TAG);
+        }
+
         if (null != existingRoomId) {
             HashMap<String, Object> params = new HashMap<>();
             params.put(VectorRoomActivity.EXTRA_MATRIX_ID, item.mUserId);
@@ -722,6 +725,11 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
 
     @Override
     public void onRoomLeft(String roomId) {
+        mAdapter.removeDirectChat(roomId);
+    }
+
+    @Override
+    public void onRoomForgot(String roomId) {
         mAdapter.removeDirectChat(roomId);
     }
 }

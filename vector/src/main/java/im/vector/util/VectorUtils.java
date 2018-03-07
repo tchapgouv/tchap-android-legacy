@@ -273,7 +273,9 @@ public class VectorUtils {
                 displayName = context.getString(R.string.room_displayname_two_members, roomState.getMemberName(member1.getUserId()), roomState.getMemberName(member2.getUserId()));
             } else {
                 RoomMember member = othersActiveMembers.get(0);
-                displayName = context.getString(R.string.room_displayname_more_than_two_members, roomState.getMemberName(member.getUserId()), othersActiveMembers.size() - 1);
+                displayName = context.getString(R.string.room_displayname_many_members,
+                        roomState.getMemberName(member.getUserId()),
+                        context.getResources().getQuantityString(R.plurals.others, othersActiveMembers.size() - 1, othersActiveMembers.size() - 1));
             }
 
             return displayName;
@@ -291,7 +293,7 @@ public class VectorUtils {
     // avatars cache
     static final private LruCache<String, Bitmap> mAvatarImageByKeyDict = new LruCache<>(20 * 1024 * 1024);
     // the avatars background color
-    static final private ArrayList<Integer> mColorList = new ArrayList<>(Arrays.asList(0xff76cfa6, 0xff50e2c2, 0xfff4c371));
+    static final private ArrayList<Integer> mColorList = new ArrayList<>(Arrays.asList(0xff4D3F7E, 0xff4D3F7E, 0xff4D3F7E));
 
     /**
      * Provides the avatar background color from a text.

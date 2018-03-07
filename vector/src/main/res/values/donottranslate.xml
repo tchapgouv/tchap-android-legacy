@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="riot_app_name">Tchap</string>
+    <string name="riot_app_name">Riot.im</string>
 
     <!-- server urls -->
     <string name="vector_im_server_url" translatable="false">https://vector.im</string>
@@ -11,6 +11,8 @@
     <!-- empty means to use the active HS url -->
     <!-- set a valid URL like "https://matrix.org" to use a custom one -->
     <string name="push_server_url" translatable="false"></string>
+
+    <!--string name="settings_room_privacy_label">Privacy</string-->
 
     <!-- Room settings, access and visibility : WHO CAN READ HISTORY? (read rule) -->
     <string name="room_settings_read_history_entry_value_anyone" translatable="false">world_readable</string>
