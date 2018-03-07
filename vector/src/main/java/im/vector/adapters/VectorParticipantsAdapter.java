@@ -916,7 +916,6 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                 @Override
                 public void onClick(View v) {
                     if (parent instanceof ExpandableListView) {
-                        //think that it could be reported on riot
                         if (((ExpandableListView) parent).isGroupExpanded(groupPosition)) {
                             ((ExpandableListView) parent).collapseGroup(groupPosition);
                         } else {

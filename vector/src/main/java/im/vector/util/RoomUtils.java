@@ -29,6 +29,7 @@ import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
+import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -44,6 +45,7 @@ import org.matrix.androidsdk.data.RoomSummary;
 import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.model.Event;
+import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.util.BingRulesManager;
 import org.matrix.androidsdk.util.EventDisplay;
@@ -74,7 +76,7 @@ public class RoomUtils {
     private Room room;
 
     public interface MoreActionListener {
-        void onToggleRoomNotifications(MXSession session, String roomId);
+        void onUpdateRoomNotificationsState(MXSession session, String roomId, BingRulesManager.RoomNotificationState state);
 
         void onToggleDirectChat(MXSession session, String roomId);
 
@@ -85,6 +87,8 @@ public class RoomUtils {
         void moveToLowPriority(MXSession session, String roomId);
 
         void onLeaveRoom(MXSession session, String roomId);
+
+        void onForgetRoom(MXSession session, String roomId);
 
         void addHomeScreenShortcut(MXSession session, String roomId);
     }
@@ -466,12 +470,14 @@ public class RoomUtils {
             return;
         }
 
+        Context popmenuContext = new ContextThemeWrapper(context, R.style.PopMenuStyle);
+
         final PopupMenu popup;
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            popup = new PopupMenu(context, actionView, Gravity.END);
+            popup = new PopupMenu(popmenuContext, actionView, Gravity.END);
         } else {
-            popup = new PopupMenu(context, actionView);
+            popup = new PopupMenu(popmenuContext, actionView);
         }
         popup.getMenuInflater().inflate(R.menu.vector_home_room_settings, popup.getMenu());
         CommonActivityUtils.tintMenuIcons(popup.getMenu(), ThemeUtils.getColor(context, R.attr.settings_icon_tint_color));
@@ -511,11 +517,37 @@ public class RoomUtils {
 
             MenuItem item;
 
-            final BingRulesManager bingRulesManager = session.getDataHandler().getBingRulesManager();
+            BingRulesManager.RoomNotificationState state = session.getDataHandler().getBingRulesManager().getRoomNotificationState(room.getRoomId());
 
-            if (bingRulesManager.isRoomNotificationsDisabled(room.getRoomId())) {
-                item = popup.getMenu().findItem(R.id.ic_action_select_notifications);
+            if (BingRulesManager.RoomNotificationState.ALL_MESSAGES_NOISY != state) {
+                item = popup.getMenu().findItem(R.id.ic_action_notifications_noisy);
                 item.setIcon(null);
+            }
+
+            if (BingRulesManager.RoomNotificationState.ALL_MESSAGES != state) {
+                item = popup.getMenu().findItem(R.id.ic_action_notifications_all_message);
+                item.setIcon(null);
+            }
+
+            if (BingRulesManager.RoomNotificationState.MENTIONS_ONLY != state) {
+                item = popup.getMenu().findItem(R.id.ic_action_notifications_mention_only);
+                item.setIcon(null);
+            }
+
+            if (BingRulesManager.RoomNotificationState.MUTE != state) {
+                item = popup.getMenu().findItem(R.id.ic_action_notifications_mute);
+                item.setIcon(null);
+            }
+
+            RoomMember member = room.getMember(session.getMyUserId());
+            final boolean isBannedKickedRoom = (null != member) && member.kickedOrBanned();
+
+            if (isBannedKickedRoom) {
+                item = popup.getMenu().findItem(R.id.ic_action_select_remove);
+
+                if (null != item) {
+                    item.setTitle(R.string.forget_room);
+                }
             }
 
             if (moreActionListener != null) {
@@ -523,16 +555,32 @@ public class RoomUtils {
                     @Override
                     public boolean onMenuItemClick(final MenuItem item) {
                         switch (item.getItemId()) {
-                            case R.id.ic_action_select_notifications: {
-                                moreActionListener.onToggleRoomNotifications(session, room.getRoomId());
+                            case R.id.ic_action_notifications_noisy:
+                                moreActionListener.onUpdateRoomNotificationsState(session, room.getRoomId(), BingRulesManager.RoomNotificationState.ALL_MESSAGES_NOISY);
+                                break;
+
+                            case R.id.ic_action_notifications_all_message:
+                                moreActionListener.onUpdateRoomNotificationsState(session, room.getRoomId(), BingRulesManager.RoomNotificationState.ALL_MESSAGES);
+                                break;
+
+                            case R.id.ic_action_notifications_mention_only:
+                                moreActionListener.onUpdateRoomNotificationsState(session, room.getRoomId(), BingRulesManager.RoomNotificationState.MENTIONS_ONLY);
+                                break;
+
+                            case R.id.ic_action_notifications_mute:
+                                moreActionListener.onUpdateRoomNotificationsState(session, room.getRoomId(), BingRulesManager.RoomNotificationState.MUTE);
+                                break;
+
+                            case R.id.ic_action_select_remove: {
+                                if (isBannedKickedRoom) {
+                                    moreActionListener.onForgetRoom(session, room.getRoomId());
+                                } else {
+                                    moreActionListener.onLeaveRoom(session, room.getRoomId());
+                                }
                                 break;
                             }
                             case R.id.ic_action_add_homescreen_shortcut: {
                                 moreActionListener.addHomeScreenShortcut(session, room.getRoomId());
-                                break;
-                            }
-                            case R.id.ic_action_select_remove: {
-                                moreActionListener.onLeaveRoom(session, room.getRoomId());
                                 break;
                             }
                         }
@@ -711,25 +759,13 @@ public class RoomUtils {
     }
 
     /**
-     * Enable or disable notifications for the given room
-     *
-     * @param session
-     * @param roomId
-     * @param listener
-     */
-    public static void toggleNotifications(final MXSession session, final String roomId, final BingRulesManager.onBingRuleUpdateListener listener) {
-        BingRulesManager bingRulesManager = session.getDataHandler().getBingRulesManager();
-        bingRulesManager.muteRoomNotifications(roomId, !bingRulesManager.isRoomNotificationsDisabled(roomId), listener);
-    }
-
-    /**
      * Get whether the room of the given is a direct chat
      *
      * @param roomId
      * @return true if direct chat
      */
     public static boolean isDirectChat(final MXSession session, final String roomId) {
-        return (null != roomId) && session.getDirectChatRoomIdsList().contains(roomId);
+        return (null != roomId) && session.getDataHandler().getDirectChatRoomIdsList().contains(roomId);
     }
 
     /**

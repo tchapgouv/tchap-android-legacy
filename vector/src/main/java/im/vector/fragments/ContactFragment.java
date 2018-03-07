@@ -295,9 +295,9 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
             Log.e(LOG_TAG, "## initDirectChatsData() : null session");
         }
 
-        final List<String> directChatIds = mSession.getDirectChatRoomIdsList();
         final MXDataHandler dataHandler = mSession.getDataHandler();
         final IMXStore store = dataHandler.getStore();
+        final List<String> directChatIds = dataHandler.getDirectChatRoomIdsList();
 
         mDirectChats.clear();
         if (directChatIds != null && !directChatIds.isEmpty()) {
@@ -326,9 +326,9 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
             Log.e(LOG_TAG, "## getContactsFromDirectChats() : null session");
         }
 
-        final List<String> directChatIds = mSession.getDirectChatRoomIdsList();
         final MXDataHandler dataHandler = mSession.getDataHandler();
         final IMXStore store = dataHandler.getStore();
+        final List<String> directChatIds = dataHandler.getDirectChatRoomIdsList();
 
         if (directChatIds != null && !directChatIds.isEmpty()) {
             for (String roomId : directChatIds) {
@@ -798,6 +798,11 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
 
     @Override
     public void onRoomLeft(String roomId) {
+        mAdapter.removeDirectChat(roomId);
+    }
+
+    @Override
+    public void onRoomForgot(String roomId) {
         mAdapter.removeDirectChat(roomId);
     }
 }

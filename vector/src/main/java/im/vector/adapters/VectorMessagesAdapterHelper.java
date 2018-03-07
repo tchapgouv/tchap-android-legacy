@@ -33,6 +33,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.gson.JsonNull;
@@ -46,6 +47,7 @@ import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.rest.model.MatrixError;
+import org.matrix.androidsdk.rest.model.URLPreview;
 import org.matrix.androidsdk.rest.model.group.Group;
 import org.matrix.androidsdk.rest.model.group.GroupProfile;
 import org.matrix.androidsdk.rest.model.message.Message;
@@ -59,6 +61,7 @@ import org.matrix.androidsdk.view.HtmlTagHandler;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -73,8 +76,10 @@ import im.vector.util.MatrixURLSpan;
 import im.vector.util.PreferencesManager;
 import im.vector.util.RiotEventDisplay;
 import im.vector.util.ThemeUtils;
+import im.vector.util.VectorImageGetter;
 import im.vector.util.VectorUtils;
 import im.vector.view.PillView;
+import im.vector.view.UrlPreviewView;
 import im.vector.widgets.WidgetsManager;
 
 /**
@@ -84,21 +89,29 @@ class VectorMessagesAdapterHelper {
     private static final String LOG_TAG = VectorMessagesAdapterHelper.class.getSimpleName();
 
     /**
-     * Enable multiline mode, split on ```
+     * Enable multiline mode, split on <pre><code>...</code></pre> and retain those delimiters in
+     * the returned fenced block.
      */
-    private static final Pattern FENCED_CODE_BLOCK_PATTERN = Pattern.compile("(?m)(?<=```)|(?=```)");
+    public static final String START_FENCED_BLOCK = "<pre><code>";
+    public static final String END_FENCED_BLOCK = "</code></pre>";
+    private static final Pattern FENCED_CODE_BLOCK_PATTERN = Pattern.compile("(?m)(?=<pre><code>)|(?<=</code></pre>)");
 
     private IMessagesAdapterActionsListener mEventsListener;
 
     private final Context mContext;
     private final MXSession mSession;
+    private final VectorMessagesAdapter mAdapter;
     private Room mRoom = null;
 
     private MatrixLinkMovementMethod mLinkMovementMethod;
 
-    VectorMessagesAdapterHelper(Context context, MXSession session) {
+    private VectorImageGetter mImageGetter;
+
+
+    VectorMessagesAdapterHelper(Context context, MXSession session, VectorMessagesAdapter adapter) {
         mContext = context;
         mSession = session;
+        mAdapter = adapter;
     }
 
     /**
@@ -110,7 +123,6 @@ class VectorMessagesAdapterHelper {
         mEventsListener = listener;
     }
 
-
     /**
      * Define the links movement method
      *
@@ -118,6 +130,15 @@ class VectorMessagesAdapterHelper {
      */
     void setLinkMovementMethod(MatrixLinkMovementMethod method) {
         mLinkMovementMethod = method;
+    }
+
+    /**
+     * Set the image getter.
+     *
+     * @param imageGetter the image getter
+     */
+    void setImageGetter(VectorImageGetter imageGetter) {
+        mImageGetter = imageGetter;
     }
 
     /**
@@ -150,9 +171,12 @@ class VectorMessagesAdapterHelper {
         if (null != senderTextView) {
             Event event = row.getEvent();
 
+            // Hide the group flair by default
+            groupFlairView.setVisibility(View.GONE);
+            groupFlairView.setTag(null);
+
             if (isMergedView) {
                 senderTextView.setVisibility(View.GONE);
-                groupFlairView.setVisibility(View.GONE);
             } else {
                 String eventType = event.getType();
 
@@ -166,7 +190,6 @@ class VectorMessagesAdapterHelper {
                         Event.EVENT_TYPE_STATE_HISTORY_VISIBILITY.equals(eventType) ||
                         Event.EVENT_TYPE_MESSAGE_ENCRYPTION.equals(eventType)) {
                     senderTextView.setVisibility(View.GONE);
-                    groupFlairView.setVisibility(View.GONE);
                 } else {
                     senderTextView.setVisibility(View.VISIBLE);
                     senderTextView.setText(getUserDisplayName(event.getSender(), row.getRoomState()));
@@ -183,8 +206,133 @@ class VectorMessagesAdapterHelper {
                         }
                     });
 
-                    refreshGroupFlairView(groupFlairView, event);
+                    // Group flair are not displayed in tchap FTM
+                    //refreshGroupFlairView(groupFlairView, event);
                 }
+            }
+        }
+    }
+
+    /**
+     * Refresh the flairs group view
+     *
+     * @param groupFlairView the flairs view
+     * @param event          the event
+     * @param groupIdsSet    the groupids
+     * @param tag            the tag
+     */
+    private void refreshGroupFlairView(final View groupFlairView, final Event event, final Set<String> groupIdsSet, final String tag) {
+        Log.d(LOG_TAG, "## refreshGroupFlairView () : " + event.sender + " allows flair to " + groupIdsSet);
+        Log.d(LOG_TAG, "## refreshGroupFlairView () : room related groups " + mRoom.getLiveState().getRelatedGroups());
+
+        if (!groupIdsSet.isEmpty()) {
+            // keeps only the intersections
+            groupIdsSet.retainAll(mRoom.getLiveState().getRelatedGroups());
+        }
+
+        Log.d(LOG_TAG, "## refreshGroupFlairView () : group ids to display " + groupIdsSet);
+
+        if (groupIdsSet.isEmpty()) {
+            groupFlairView.setVisibility(View.GONE);
+        } else {
+
+            if (!mSession.isAlive()) {
+                return;
+            }
+
+            groupFlairView.setVisibility(View.VISIBLE);
+
+            ArrayList<ImageView> imageViews = new ArrayList<>();
+
+            imageViews.add((ImageView) (groupFlairView.findViewById(R.id.message_avatar_group_1).findViewById(R.id.avatar_img)));
+            imageViews.add((ImageView) (groupFlairView.findViewById(R.id.message_avatar_group_2).findViewById(R.id.avatar_img)));
+            imageViews.add((ImageView) (groupFlairView.findViewById(R.id.message_avatar_group_3).findViewById(R.id.avatar_img)));
+
+            TextView moreText = groupFlairView.findViewById(R.id.message_more_than_expected);
+
+            final List<String> groupIds = new ArrayList<>(groupIdsSet);
+            int index = 0;
+            int bound = Math.min(groupIds.size(), imageViews.size());
+
+            for (; index < bound; index++) {
+                final String groupId = groupIds.get(index);
+                final ImageView imageView = imageViews.get(index);
+
+                imageView.setVisibility(View.VISIBLE);
+
+                Group group = mSession.getGroupsManager().getGroup(groupId);
+
+                if (null == group) {
+                    group = new Group(groupId);
+                }
+
+                GroupProfile cachedGroupProfile = mSession.getGroupsManager().getGroupProfile(groupId);
+
+                if (null != cachedGroupProfile) {
+                    Log.d(LOG_TAG, "## refreshGroupFlairView () : profile of " + groupId + " is cached");
+                    group.setGroupProfile(cachedGroupProfile);
+                    VectorUtils.loadGroupAvatar(mContext, mSession, imageView, group);
+                } else {
+                    VectorUtils.loadGroupAvatar(mContext, mSession, imageView, group);
+
+                    Log.d(LOG_TAG, "## refreshGroupFlairView () : get profile of " + groupId);
+
+                    mSession.getGroupsManager().getGroupProfile(groupId, new ApiCallback<GroupProfile>() {
+                        private void refresh(GroupProfile profile) {
+                            if (TextUtils.equals((String) groupFlairView.getTag(), tag)) {
+                                Group group = new Group(groupId);
+                                group.setGroupProfile(profile);
+                                Log.d(LOG_TAG, "## refreshGroupFlairView () : refresh group avatar " + groupId);
+                                VectorUtils.loadGroupAvatar(mContext, mSession, imageView, group);
+                            }
+                        }
+
+                        @Override
+                        public void onSuccess(GroupProfile groupProfile) {
+                            Log.d(LOG_TAG, "## refreshGroupFlairView () : get profile of " + groupId + " succeeded");
+                            refresh(groupProfile);
+                        }
+
+                        @Override
+                        public void onNetworkError(Exception e) {
+                            Log.e(LOG_TAG, "## refreshGroupFlairView () : get profile of " + groupId + " failed " + e.getMessage());
+                            refresh(null);
+                        }
+
+                        @Override
+                        public void onMatrixError(MatrixError e) {
+                            Log.e(LOG_TAG, "## refreshGroupFlairView () : get profile of " + groupId + " failed " + e.getMessage());
+                            refresh(null);
+                        }
+
+                        @Override
+                        public void onUnexpectedError(Exception e) {
+                            Log.e(LOG_TAG, "## refreshGroupFlairView () : get profile of " + groupId + " failed " + e.getMessage());
+                            refresh(null);
+                        }
+                    });
+                }
+            }
+
+            for (; index < imageViews.size(); index++) {
+                imageViews.get(index).setVisibility(View.GONE);
+            }
+
+            moreText.setVisibility((groupIdsSet.size() <= imageViews.size()) ? View.GONE : View.VISIBLE);
+            moreText.setText("+" + (groupIdsSet.size() - imageViews.size()));
+
+            if (groupIdsSet.size() > 0) {
+                groupFlairView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (null != mEventsListener) {
+                            mEventsListener.onGroupFlairClick(event.getSender()
+                                    , groupIds);
+                        }
+                    }
+                });
+            } else {
+                groupFlairView.setOnClickListener(null);
             }
         }
     }
@@ -196,154 +344,52 @@ class VectorMessagesAdapterHelper {
      * @param event          the event
      */
     private void refreshGroupFlairView(final View groupFlairView, final Event event) {
-        if (true) {
-            groupFlairView.setVisibility(View.GONE);
-            return;
-        }
-
-        final String tag =  event.getSender() +  "__" +  event.eventId;
-
-        groupFlairView.setTag(tag);
-        groupFlairView.setVisibility(View.GONE);
+        final String tag = event.getSender() + "__" + event.eventId;
 
         if (null == mRoom) {
             mRoom = mSession.getDataHandler().getRoom(event.roomId);
         }
 
-        Log.d(LOG_TAG, "## refreshGroupFlairView () : eventId " + event.eventId + " from " + event.sender);
-
         // no related groups to this room
         if (mRoom.getLiveState().getRelatedGroups().isEmpty()) {
             Log.d(LOG_TAG, "## refreshGroupFlairView () : no related group");
+            groupFlairView.setVisibility(View.GONE);
             return;
         }
 
-        mSession.getGroupsManager().getUserPublicisedGroups(event.getSender(), false, new ApiCallback<Set<String>>() {
-            @Override
-            public void onSuccess(Set<String> groupIdsSet) {
-                Log.d(LOG_TAG, "## refreshGroupFlairView () : " + event.sender + " allows flair to " + groupIdsSet);
-                Log.d(LOG_TAG, "## refreshGroupFlairView () : room related groups " + mRoom.getLiveState().getRelatedGroups());
+        groupFlairView.setTag(tag);
 
-                if (!groupIdsSet.isEmpty()) {
-                    // keeps only the intersections
-                    groupIdsSet.retainAll(mRoom.getLiveState().getRelatedGroups());
+        Log.d(LOG_TAG, "## refreshGroupFlairView () : eventId " + event.eventId + " from " + event.sender);
+
+        // cached value first
+        Set<String> userPublicisedGroups = mSession.getGroupsManager().getUserPublicisedGroups(event.getSender());
+
+        if (null != userPublicisedGroups) {
+            refreshGroupFlairView(groupFlairView, event, userPublicisedGroups, tag);
+        } else {
+            groupFlairView.setVisibility(View.GONE);
+            mSession.getGroupsManager().getUserPublicisedGroups(event.getSender(), false, new ApiCallback<Set<String>>() {
+                @Override
+                public void onSuccess(Set<String> groupIdsSet) {
+                    refreshGroupFlairView(groupFlairView, event, groupIdsSet, tag);
                 }
 
-                Log.d(LOG_TAG, "## refreshGroupFlairView () : group ids to display " + groupIdsSet);
-
-                if (TextUtils.equals((String) groupFlairView.getTag(), tag)) {
-                    if (groupIdsSet.isEmpty()) {
-                        groupFlairView.setVisibility(View.GONE);
-                    } else {
-                        if (!mSession.isAlive()) {
-                            return;
-                        }
-
-                        groupFlairView.setVisibility(View.VISIBLE);
-
-                        ArrayList<ImageView> imageViews = new ArrayList<>();
-
-                        imageViews.add((ImageView) (groupFlairView.findViewById(R.id.message_avatar_group_1).findViewById(R.id.avatar_img)));
-                        imageViews.add((ImageView) (groupFlairView.findViewById(R.id.message_avatar_group_2).findViewById(R.id.avatar_img)));
-                        imageViews.add((ImageView) (groupFlairView.findViewById(R.id.message_avatar_group_3).findViewById(R.id.avatar_img)));
-
-                        TextView moreText = groupFlairView.findViewById(R.id.message_more_than_expected);
-
-                        final List<String> groupIds = new ArrayList<>(groupIdsSet);
-                        int index = 0;
-                        int bound = Math.min(groupIds.size(), imageViews.size());
-
-                        for (; index < bound; index++) {
-                            final String groupId = groupIds.get(index);
-                            final ImageView imageView = imageViews.get(index);
-
-                            imageView.setVisibility(View.VISIBLE);
-
-                            Group group = mSession.getGroupsManager().getGroup(groupId);
-
-                            if (null == group) {
-                                group = new Group(groupId);
-                            }
-                            VectorUtils.loadGroupAvatar(mContext, mSession, imageView, group);
-
-                            Log.d(LOG_TAG, "## refreshGroupFlairView () : get profile of " + groupId);
-
-                            mSession.getGroupsManager().getGroupProfile(groupId, new ApiCallback<GroupProfile>() {
-                                private void refresh(GroupProfile profile) {
-                                    if (TextUtils.equals((String) groupFlairView.getTag(), tag)) {
-                                        Group group = new Group(groupId);
-                                        group.setGroupProfile(profile);
-                                        Log.d(LOG_TAG, "## refreshGroupFlairView () : refresh group avatar " + groupId);
-                                        VectorUtils.loadGroupAvatar(mContext, mSession, imageView, group);
-                                    }
-                                }
-
-                                @Override
-                                public void onSuccess(GroupProfile groupProfile) {
-                                    Log.d(LOG_TAG, "## refreshGroupFlairView () : get profile of " + groupId + " succeeded");
-                                    refresh(groupProfile);
-                                }
-
-                                @Override
-                                public void onNetworkError(Exception e) {
-                                    Log.e(LOG_TAG, "## refreshGroupFlairView () : get profile of " + groupId + " failed " + e.getMessage());
-                                    refresh(null);
-                                }
-
-                                @Override
-                                public void onMatrixError(MatrixError e) {
-                                    Log.e(LOG_TAG, "## refreshGroupFlairView () : get profile of " + groupId + " failed " + e.getMessage());
-                                    refresh(null);
-                                }
-
-                                @Override
-                                public void onUnexpectedError(Exception e) {
-                                    Log.e(LOG_TAG, "## refreshGroupFlairView () : get profile of " + groupId + " failed " + e.getMessage());
-                                    refresh(null);
-                                }
-                            });
-                        }
-
-                        for (; index < imageViews.size(); index++) {
-                            imageViews.get(index).setVisibility(View.GONE);
-                        }
-
-                        moreText.setVisibility((groupIdsSet.size() <= imageViews.size()) ? View.GONE : View.VISIBLE);
-                        moreText.setText("+" + (groupIdsSet.size() - imageViews.size()));
-
-                        if (groupIdsSet.size() > 0) {
-                            groupFlairView.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    if (null != mEventsListener) {
-                                        mEventsListener.onGroupFlairClick(event.getSender()
-                                                , groupIds);
-                                    }
-                                }
-                            });
-                        } else {
-                            groupFlairView.setOnClickListener(null);
-                        }
-
-                    }
+                @Override
+                public void onNetworkError(Exception e) {
+                    Log.e(LOG_TAG, "## refreshGroupFlairView failed " + e.getMessage());
                 }
-            }
 
-            @Override
-            public void onNetworkError(Exception e) {
-                Log.e(LOG_TAG, "## refreshGroupFlairView failed " + e.getMessage());
-            }
+                @Override
+                public void onMatrixError(MatrixError e) {
+                    Log.e(LOG_TAG, "## refreshGroupFlairView failed " + e.getMessage());
+                }
 
-            @Override
-            public void onMatrixError(MatrixError e) {
-                Log.e(LOG_TAG, "## refreshGroupFlairView failed " + e.getMessage());
-            }
-
-            @Override
-            public void onUnexpectedError(Exception e) {
-                Log.e(LOG_TAG, "## refreshGroupFlairView failed " + e.getMessage());
-            }
-        });
+                @Override
+                public void onUnexpectedError(Exception e) {
+                    Log.e(LOG_TAG, "## refreshGroupFlairView failed " + e.getMessage());
+                }
+            });
+        }
     }
 
     /**
@@ -683,7 +729,7 @@ class VectorMessagesAdapterHelper {
     }
 
     // cache the pills to avoid compute them again
-    Map<String, Drawable> mPillsCache = new HashMap<>();
+    private Map<String, Drawable> mPillsDrawableCache = new HashMap<>();
 
     /**
      * Trap the clicked URL.
@@ -700,17 +746,31 @@ class VectorMessagesAdapterHelper {
             int flags = strBuilder.getSpanFlags(span);
 
             if (PillView.isPillable(span.getURL())) {
-                String key = span.getURL() + " " + isHighlighted;
-                Drawable drawable = mPillsCache.get(key);
+                final String key = span.getURL() + " " + isHighlighted;
+                Drawable drawable = mPillsDrawableCache.get(key);
 
                 if (null == drawable) {
-                    PillView aView = new PillView(mContext);
-                    aView.setText(strBuilder.subSequence(start, end), span.getURL());
+                    final PillView aView = new PillView(mContext);
+                    aView.initData(strBuilder.subSequence(start, end), span.getURL(), mSession, new PillView.OnUpdateListener() {
+                        @Override
+                        public void onAvatarUpdate() {
+                            // force to compose
+                            aView.setBackgroundResource(android.R.color.transparent);
+
+                            // get a drawable from the view
+                            Drawable updatedDrawable = aView.getDrawable();
+                            mPillsDrawableCache.put(key, updatedDrawable);
+                            // should update only the current cell
+                            // but it might have been recycled
+                            mAdapter.notifyDataSetChanged();
+                        }
+                    });
                     aView.setHighlighted(isHighlighted);
                     drawable = aView.getDrawable();
                 }
+
                 if (null != drawable) {
-                    mPillsCache.put(key, drawable);
+                    mPillsDrawableCache.put(key, drawable);
                     ImageSpan imageSpan = new ImageSpan(drawable);
                     drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
                     strBuilder.setSpan(imageSpan, start, end, flags);
@@ -737,12 +797,9 @@ class VectorMessagesAdapterHelper {
      * @return true if it contains code blocks
      */
     boolean containsFencedCodeBlocks(final Message message) {
-        if ((null == message.body) || !message.body.contains("```")) {
-            return false;
-        }
-
-        final String[] blocks = getFencedCodeBlocks(message);
-        return (blocks.length > 1);
+        return (null != message.formatted_body) &&
+                message.formatted_body.contains(START_FENCED_BLOCK) &&
+                message.formatted_body.contains(END_FENCED_BLOCK);
     }
 
     private Map<String, String[]> mCodeBlocksMap = new HashMap<>();
@@ -754,15 +811,15 @@ class VectorMessagesAdapterHelper {
      * @return the split message body
      */
     String[] getFencedCodeBlocks(final Message message) {
-        if (TextUtils.isEmpty(message.body)) {
+        if (TextUtils.isEmpty(message.formatted_body)) {
             return new String[0];
         }
 
-        String[] codeBlocks = mCodeBlocksMap.get(message.body);
+        String[] codeBlocks = mCodeBlocksMap.get(message.formatted_body);
 
         if (null == codeBlocks) {
-            codeBlocks = FENCED_CODE_BLOCK_PATTERN.split(message.body);
-            mCodeBlocksMap.put(message.body, codeBlocks);
+            codeBlocks = FENCED_CODE_BLOCK_PATTERN.split(message.formatted_body);
+            mCodeBlocksMap.put(message.formatted_body, codeBlocks);
         }
 
         return codeBlocks;
@@ -772,16 +829,14 @@ class VectorMessagesAdapterHelper {
      * Highlight fenced code
      *
      * @param textView the text view
-     * @param text     the text
      */
-    void highlightFencedCode(final TextView textView, final Spannable text) {
+    void highlightFencedCode(final TextView textView) {
         // sanity check
         if (null == textView) {
             return;
         }
 
         textView.setBackgroundColor(ThemeUtils.getColor(mContext, R.attr.markdown_block_background_color));
-        textView.setText(text);
 
         if (null != mLinkMovementMethod) {
             textView.setMovementMethod(mLinkMovementMethod);
@@ -832,7 +887,7 @@ class VectorMessagesAdapterHelper {
 
             // the links are not yet supported by ConsoleHtmlTagHandler
             // the markdown tables are not properly supported
-            sequence = Html.fromHtml(htmlFormattedText, null, isCustomizable ? htmlTagHandler : null);
+            sequence = Html.fromHtml(htmlFormattedText, mImageGetter, isCustomizable ? htmlTagHandler : null);
 
             // sanity check
             if (!TextUtils.isEmpty(sequence)) {
@@ -956,13 +1011,12 @@ class VectorMessagesAdapterHelper {
         return res;
     }
 
-    private static final List<String> mAllowedHTMLTags = Arrays.asList(
+    private static final Set<String> mAllowedHTMLTags = new HashSet<>(Arrays.asList(
             "font", // custom to matrix for IRC-style font coloring
             "del", // for markdown
-            // deliberately no h1/h2 to stop people shouting.
-            "h3", "h4", "h5", "h6", "blockquote", "p", "a", "ul", "ol",
+            "h1", "h2", "h3", "h4", "h5", "h6", "blockquote", "p", "a", "ul", "ol", "sup", "sub",
             "nl", "li", "b", "i", "u", "strong", "em", "strike", "code", "hr", "br", "div",
-            "table", "thead", "caption", "tbody", "tr", "th", "td", "pre");
+            "table", "thead", "caption", "tbody", "tr", "th", "td", "pre", "span", "img"));
 
     private static final Pattern mHtmlPatter = Pattern.compile("<(\\w+)[^>]*>", Pattern.CASE_INSENSITIVE);
 
@@ -977,7 +1031,7 @@ class VectorMessagesAdapterHelper {
         String html = htmlString;
         Matcher matcher = mHtmlPatter.matcher(htmlString);
 
-        ArrayList<String> tagsToRemove = new ArrayList<>();
+        HashSet<String> tagsToRemove = new HashSet<>();
 
         while (matcher.find()) {
 
@@ -985,11 +1039,8 @@ class VectorMessagesAdapterHelper {
                 String tag = htmlString.substring(matcher.start(1), matcher.end(1));
 
                 // test if the tag is not allowed
-                if (mAllowedHTMLTags.indexOf(tag) < 0) {
-                    // add it once
-                    if (tagsToRemove.indexOf(tag) < 0) {
-                        tagsToRemove.add(tag);
-                    }
+                if (!mAllowedHTMLTags.contains(tag)) {
+                    tagsToRemove.add(tag);
                 }
             } catch (Exception e) {
                 Log.e(LOG_TAG, "sanitiseHTML failed " + e.getLocalizedMessage());
@@ -997,17 +1048,144 @@ class VectorMessagesAdapterHelper {
         }
 
         // some tags to remove ?
-        if (tagsToRemove.size() > 0) {
+        if (!tagsToRemove.isEmpty()) {
             // append the tags to remove
-            String tagsToRemoveString = tagsToRemove.get(0);
+            String tagsToRemoveString = "";
 
-            for (int i = 1; i < tagsToRemove.size(); i++) {
-                tagsToRemoveString += "|" + tagsToRemove.get(i);
+            for (String tag : tagsToRemove) {
+                if (!tagsToRemoveString.isEmpty()) {
+                    tagsToRemoveString += "|";
+                }
+
+                tagsToRemoveString += tag;
             }
 
             html = html.replaceAll("<\\/?(" + tagsToRemoveString + ")[^>]*>", "");
         }
 
         return html;
+    }
+
+    /*
+  * *********************************************************************************************
+  *  Url preview managements
+  * *********************************************************************************************
+  */
+    private final Map<String, List<String>> mExtractedUrls = new HashMap<>();
+    private final Map<String, URLPreview> mUrlsPreview = new HashMap<>();
+    private final Set<String> mPendingUrls = new HashSet<>();
+    private final Set<String> mDismissedPreviews = new HashSet<>();
+
+    /**
+     * Retrieves the webUrl extracted from a text
+     *
+     * @param text the text
+     * @return the web urls list
+     */
+    private List<String> extractWebUrl(String text) {
+        List<String> list = mExtractedUrls.get(text);
+
+        if (null == list) {
+            list = new ArrayList<>();
+
+            Matcher matcher = android.util.Patterns.WEB_URL.matcher(text);
+            while (matcher.find()) {
+                try {
+                    String value = text.substring(matcher.start(0), matcher.end(0));
+
+                    if (!list.contains(value)) {
+                        list.add(value);
+                    }
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, "## extractWebUrl() " + e.getMessage());
+                }
+            }
+
+            mExtractedUrls.put(text, list);
+        }
+
+        return list;
+    }
+
+    void manageURLPreviews(final Message message, final View convertView, final String id) {
+        LinearLayout urlsPreviewLayout = convertView.findViewById(R.id.messagesAdapter_urls_preview_list);
+
+        // sanity checks
+        if (null == urlsPreviewLayout) {
+            return;
+        }
+
+        //
+        if (TextUtils.isEmpty(message.body)) {
+            urlsPreviewLayout.setVisibility(View.GONE);
+            return;
+        }
+
+        List<String> urls = extractWebUrl(message.body);
+
+        if (urls.isEmpty()) {
+            urlsPreviewLayout.setVisibility(View.GONE);
+            return;
+        }
+
+        // avoid removing items if they are displayed
+        if (TextUtils.equals((String) urlsPreviewLayout.getTag(), id)) {
+            // all the urls have been displayed
+            if (urlsPreviewLayout.getChildCount() == urls.size()) {
+                return;
+            }
+        }
+
+        urlsPreviewLayout.setTag(id);
+
+        // remove url previews
+        while (urlsPreviewLayout.getChildCount() > 0) {
+            urlsPreviewLayout.removeViewAt(0);
+        }
+
+        urlsPreviewLayout.setVisibility(View.VISIBLE);
+
+        for (final String url : urls) {
+            final String downloadKey = url.hashCode() + "---";
+            String displayKey = url + "<----->" + id;
+
+            if (UrlPreviewView.didUrlPreviewDismiss(displayKey)) {
+                Log.d(LOG_TAG, "## manageURLPreviews() : " + displayKey + " has been dismissed");
+            } else if (mPendingUrls.contains(url)) {
+                // please wait
+            } else if (!mUrlsPreview.containsKey(downloadKey)) {
+                mPendingUrls.add(url);
+                mSession.getEventsApiClient().getURLPreview(url, System.currentTimeMillis(), new ApiCallback<URLPreview>() {
+                    @Override
+                    public void onSuccess(URLPreview urlPreview) {
+                        mPendingUrls.remove(url);
+
+                        if (!mUrlsPreview.containsKey(downloadKey)) {
+                            mUrlsPreview.put(downloadKey, urlPreview);
+                            mAdapter.notifyDataSetChanged();
+                        }
+                    }
+
+                    @Override
+                    public void onNetworkError(Exception e) {
+                        onSuccess(null);
+                    }
+
+                    @Override
+                    public void onMatrixError(MatrixError e) {
+                        onSuccess(null);
+                    }
+
+                    @Override
+                    public void onUnexpectedError(Exception e) {
+                        onSuccess(null);
+                    }
+                });
+            } else {
+                UrlPreviewView previewView = new UrlPreviewView(mContext);
+                previewView.setUrlPreview(mContext, mSession, mUrlsPreview.get(downloadKey), displayKey);
+                urlsPreviewLayout.addView(previewView);
+            }
+        }
     }
 }

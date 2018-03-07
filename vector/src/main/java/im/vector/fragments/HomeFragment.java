@@ -51,7 +51,7 @@ import im.vector.util.PreferencesManager;
 import im.vector.util.RoomUtils;
 import im.vector.view.HomeSectionView;
 
-public class HomeFragment extends AbsHomeFragment implements HomeRoomAdapter.OnSelectRoomListener {
+public class HomeFragment extends AbsHomeFragment implements HomeRoomAdapter.OnSelectRoomListener, AbsHomeFragment.OnRoomChangedListener {
     private static final String LOG_TAG = HomeFragment.class.getSimpleName();
 
     @BindView(R.id.nested_scrollview)
@@ -107,6 +107,8 @@ public class HomeFragment extends AbsHomeFragment implements HomeRoomAdapter.OnS
         mSecondaryColor = ContextCompat.getColor(getActivity(), R.color.tab_home_secondary);
 
         initViews();
+
+        mOnRoomChangedListener = this;
 
         // Eventually restore the pattern of adapter after orientation change
         for (HomeSectionView homeSectionView : mHomeSectionViews) {
@@ -273,7 +275,7 @@ public class HomeFragment extends AbsHomeFragment implements HomeRoomAdapter.OnS
             return;
         }
         final Collection<Room> roomCollection = mSession.getDataHandler().getStore().getRooms();
-        final List<String> directChatIds = mSession.getDirectChatRoomIdsList();
+        final List<String> directChatIds = mSession.getDataHandler().getDirectChatRoomIdsList();
 
         for (Room room : roomCollection) {
             if (!room.isConferenceUserRoom() && !room.isInvited() && !room.isDirectChatInvitation()) {
@@ -352,4 +354,24 @@ public class HomeFragment extends AbsHomeFragment implements HomeRoomAdapter.OnS
         RoomUtils.displayPopupMenu(getActivity(), mSession, room, v, isFavorite, isLowPriority, this);
     }
 
+
+    /*
+     * *********************************************************************************************
+     * Listeners
+     * *********************************************************************************************
+     */
+
+    @Override
+    public void onToggleDirectChat(String roomId, boolean isDirectChat) {
+    }
+
+    @Override
+    public void onRoomLeft(String roomId) {
+    }
+
+    @Override
+    public void onRoomForgot(String roomId) {
+        // there is no sync event when a room is forgotten
+        initData();
+    }
 }

@@ -3,7 +3,7 @@
     <!-- use to retrieve the supported languages list -->
     <!-- should the same value as the file name -->
     <string name="resouces_language">zh</string>
-    <string name="resouces_country">CN</string>
+    <string name="resouces_country">US</string>
 
     <string name="resend">重新发送</string>
     <string name="quote">引用</string>
@@ -155,11 +155,10 @@
     <string name="room_recents_start_chat">开始聊天</string>
     <string name="room_recents_create_room">创建聊天室</string>
 
-    <string name="room_settings_notifications">通知</string>
     <string name="room_settings_direct_chat">私聊</string>
     <string name="room_sliding_menu_messages">消息</string>
     <string name="room_sliding_menu_settings">设置</string>
-    <string name="room_sliding_menu_version">版本</string>
+    <string name="room_sliding_menu_version">"版本 "</string>
     <string name="settings_email_address">电子邮箱</string>
     <string name="settings_add_email_address">添加邮件地址</string>
     <string name="settings_add_phone_number">添加电话号码</string>
@@ -279,7 +278,6 @@
     <string name="room_message_file_not_found">文件未找到</string>
     <string name="room_do_not_have_permission_to_post">你没有发送到这个聊天室的权限</string>
     <string name="room_new_message_notification">1 条新消息</string>
-    <string name="room_new_messages_notification">%1$d 条新消息</string>
 
     <string name="ssl_trust">信任</string>
     <string name="ssl_do_not_trust">不信任</string>
@@ -300,7 +298,6 @@
     <string name="room_displayname_invite_from">来自 %s 的邀请</string>
     <string name="room_displayname_room_invite">聊天室邀请</string>
     <string name="room_displayname_two_members">%1$s 和 %2$s</string>
-    <string name="room_displayname_more_than_two_members">%1$s 和 %2$d 个其他人</string>
     <string name="room_recents_favourites">收藏夹</string>
     <string name="room_recents_low_priority">低优先级</string>
     <string name="room_settings_de_prioritize">降低优先级</string>
@@ -411,8 +408,6 @@
     <string name="encryption_information_verify_key_match">我验证密钥匹配</string>
 
     <string name="unknown_devices_alert_title">聊天室有未知设备</string>
-    <string name="notification_unread_notified_messages">%d 条已通知的未读消息</string>
-    <string name="notification_unread_notified_messages_in_room">%2$d 个聊天室的 %1$d 条已通知的未读消息</string>
 <string name="later">稍后</string>
     <string name="permalink">永久链接</string>
     <string name="rename">重命名</string>
@@ -450,11 +445,6 @@
     <string name="call_error_ice_failed">媒体连接失败</string>
     <string name="call_error_camera_init_failed">无法初始化相机</string>
     <string name="call_error_answered_elsewhere">另一端已接听通话</string>
-    <string name="call_error_peer_hangup_elsewhere">另一端挂起通话</string>
-    <string name="call_error_peer_cancelled_call">呼叫被取消</string>
-
-    <string name="action_accept">接受</string>
-    <string name="action_ignore">忽略</string>
 
     <string name="permissions_rationale_popup_title">信息</string>
     <string name="permissions_rationale_msg_camera_explanation">
@@ -474,8 +464,6 @@
 你可能希望用一个不同的账户登录，或者把这个电子邮箱加入到这个账户。</string>
     <string name="room_preview_room_interactions_disabled">这是此聊天室的一个预览。聊天室交互已禁用。</string>
 
-    <string name="room_header_active_members">%1$d/%2$d 活跃成员</string>
-    <string name="room_title_members">%1$d 个成员</string>
     <string name="room_e2e_alert_message">端对端加密依然在测试阶段，可能不可靠。
 
 你不应该相信它来保护你的数据。
@@ -495,7 +483,6 @@
     <string name="room_recents_invites">邀请</string>
     <string name="directory_search_results_title">浏览目录</string>
     <string name="directory_search_room">%1$d 个聊天室</string>
-    <string name="directory_search_rooms">%1$d 个聊天室</string>
     <string name="directory_searching_title">搜索目录..</string>
 
     <string name="room_settings_favourite">收藏夹</string>
@@ -524,7 +511,6 @@
     <string name="room_settings_room_photo">聊天室图片</string>
     <string name="room_settings_room_tag">聊天室标签</string>
     <string name="room_settings_tag_pref_dialog_title">标签为：</string>
-    <string name="room_settings_mute_notifs">静默通知</string>
 
     <string name="room_settings_tag_pref_entry_favourite">收藏夹</string>
     <string name="room_settings_tag_pref_entry_low_priority">低优先级</string>
@@ -574,10 +560,7 @@
 这只会关闭一次。
 请谅解由此造成的不便。</string>
     <string name="read_receipts_list">阅读收据清单</string>
-    <string name="membership_changes">%d 个成员身份改变了</string>
-    <string name="compression_options">发送为</string>
-    <string name="settings_key_display_all_events">settings_key_display_all_events</string>
-    <string name="settings_key_use_rage_shake">settings_key_use_rage_shake</string>
+    <string name="compression_options">"发送为 "</string>
     <string name="permissions_rationale_msg_contacts">Riot 需要访问您的通讯录联系人的权限，才能根据其电子邮件和电话号码查找其他 Matrix 用户。
 
 请在下一个弹出窗口中授权允许访问，以发现从 Riot 可访问的通讯录用户。</string>
@@ -598,7 +581,6 @@
     <string name="malformed_id">格式不正确的 ID。应该是一个电子邮件地址或 Matrix ID，如”@localpart:domain“</string>
     <string name="tab_title_search_people">联系人</string>
     <string name="directory_search_room_for">为 %2$s 找到 %1$d 个聊天室</string>
-    <string name="directory_search_rooms_for">为 %2$s 找到 %1$s 个聊天室</string>
     <string name="room_sliding_menu_third_party_notices">第三方通知</string>
     <string name="settings_profile_picture">档案图片</string>
     <string name="settings_third_party_notices">第三方通知</string>
@@ -618,7 +600,7 @@
     <string name="room_settings_labs_end_to_end_is_active">端对端加密已激活</string>
     <string name="failed_to_load_timeline_position">%s 正在尝试在这个聊天室的时间轴上加载一个特定的点，但无法找到它.</string>
     <string name="encryption_information_name">名称</string>
-    <string name="encryption_information_verify_device_warning">要验证此设备是否可信任，请使用其他方式（例如亲自或打电话）联系其所有者，并询问他们在其设备的用户设置中看到的密钥是否与以下密钥相匹配：</string>
+    <string name="encryption_information_verify_device_warning">" 要验证此设备是否可信任，请使用其他方式（例如亲自或打电话）联系其所有者，并询问他们在其设备的用户设置中看到的密钥是否与以下密钥相匹配："</string>
     <string name="encryption_information_verify_device_warning2">如果匹配，请按下面的验证按钮。如果没有，那么其他人正在拦截此设备，而您可能想要按阻止按钮。\n在将来，此验证过程将会更加复杂。</string>
     <string name="unknown_devices_alert_message">这个聊天室包含未经验证的未知设备。
 这意味着设备不能保证属于他们声称的用户。
@@ -704,7 +686,7 @@
     <string name="settings_hide_read_receipts">隐藏到达</string>
     <string name="settings_dont_send_typings_notifs">不发送打字通知</string>
     <string name="settings_always_show_timestamps">总是显示消息时间戳</string>
-    <string name="settings_disable_markdown">禁用markdown格式化</string>
+    <string name="settings_disable_markdown">发送时禁用 markdown 格式化</string>
     <string name="settings_data_save_mode">数据保存模式</string>
 
     <string name="media_saving_period_3_days">3天</string>
@@ -739,13 +721,10 @@
     <string name="event_formatter_widget_removed">%1$s 被 %2$s 移除</string>
     <string name="settings_labs_create_conference_with_jitsi">用 jitsi 创建会议通话</string>
     <string name="widget_delete_message_confirmation">你确定要删除这个小部件吗？</string>
-    <string name="active_widgets">%1$d 个活跃的小部件</string>
 
     // Widget Integration Manager
-    <string name="widget_integration_need_to_be_able_to_invite">你需要能够邀请用户来做那件事。</string>
     <string name="widget_integration_unable_to_create">无法创建小部件。</string>
     <string name="widget_integration_failed_to_send_request">发送请求失败。</string>
-    <string name="widget_integration_room_not_recognised">这个房间未被识别。</string>
     <string name="widget_integration_positive_power_level">特权级别必须是正整数。</string>
     <string name="widget_integration_must_be_in_room">你不在这个聊天室。</string>
     <string name="widget_integration_no_permission_in_room">你没有权限在这个聊天室里面做那件事。</string>
@@ -754,9 +733,8 @@
     <string name="widget_integration_room_not_visible">聊天室 %s 不可见。</string>
     <string name="settings_labs_matrix_apps">Matrix 应用</string>
     <string name="room_add_matrix_apps">添加 Matrix 应用</string>
-    <string name="add_matrix_apps_not_supported">在这个设备上不支持</string>
-<string name="notification_sync_in_progress">同步中</string>
-    <string name="notification_listen_for_events">聆听事件</string>
+    <string name="notification_sync_in_progress">同步中</string>
+    <string name="notification_listen_for_events">监听事件</string>
 
     <string name="call">通话</string>
     <string name="settings_containing_my_display_name">包含我昵称的消息</string>
@@ -767,4 +745,60 @@
     <string name="share_without_verifying">不验证而分享</string>
     <string name="ignore_request">忽略请求</string>
 
+<string name="title_activity_bug_report">错误报告</string>
+
+    <string name="option_take_photo">拍照</string>
+    <string name="option_take_video">拍视频</string>
+
+    <string name="settings_labs_native_camera">使用本地相机</string>
+
+    // share keys
+    <string name="conference_call_warning_title">警告！</string>
+    <string name="conference_call_warning_message">会议通话正在开发中，可能不可靠。</string>
+
+    // slash commands
+    <string name="command_error">命令错误</string>
+    <string name="unrecognized_command">不可识别的命令：%s</string>
+
+    // notification statuses
+    <string name="notification_off">关闭</string>
+    <string name="notification_on">打开</string>
+    <string name="encrypted_message">加密的消息</string>
+
+<string name="notification_noisy_notifications">吵闹的通知</string>
+    <string name="notification_silent_notifications">静默通知</string>
+
+    <string name="settings_analytics">统计</string>
+    <string name="settings_opt_out_of_analytics">不再统计</string>
+    <string name="settings_opt_out_of_analytics_summary">Riot 会收集匿名统计数据来帮助我们改进程序。</string>
+
+
+    <string name="notification_noisy">吵闹的</string>
+
+    <string name="loading">正在加载...</string>
+
+    <string name="action_exit">退出</string>
+    <string name="groups_invite_header">邀请</string>
+    <string name="start_new_chat_prompt_msg">你确定要和 %s 开始一个新的聊天吗？</string>
+    <string name="start_voice_call_prompt_msg">你确定要开始一个音频通话吗？</string>
+    <string name="start_video_call_prompt_msg">你确定要开始一个视频通话吗？</string>
+
+    <string name="room_participants_kick_prompt_msg">你确定要把这个用户从这个聊天中移除吗？</string>
+    <string name="room_participants_ban_prompt_msg">你确定要把这个用户从这个聊天中封禁吗？</string>
+
+    <string name="room_settings_all_messages">全部消息</string>
+    <string name="room_settings_mention_only">只限提及</string>
+    <string name="room_settings_mute">静音</string>
+    <string name="room_settings_add_homescreen_shortcut">添加主屏幕快捷方式</string>
+
+    <string name="settings_inline_url_preview">默认启用内联 URL 预览</string>
+    <string name="settings_vibrate_on_mention">提及时震动</string>
+
+    <string name="room_settings_room_notifications_title">通知</string>
+    <string name="create">创建</string>
+    <string name="community_name_hint">例子</string>
+    <string name="new_messages">%d 条新消息</string>
+
+    <string name="rejoin">重新加入</string>
+    <string name="forget_room">忘记聊天室</string>
 </resources>
