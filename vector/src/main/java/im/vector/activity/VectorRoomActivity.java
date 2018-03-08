@@ -3566,7 +3566,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                 String participantUserId;
 
                 // test if room is already seen as "direct message"
-                if (mSession.getDataHandler().getDirectChatRoomIdsList().indexOf(sRoomPreviewData.getRoomId()) < 0) {
+                if (!RoomUtils.isDirectChat(mSession, sRoomPreviewData.getRoomId())) {
                     for (RoomMember member : members) {
                         // search for the second participant
                         if (!member.getUserId().equals(myUserId)) {

@@ -454,22 +454,6 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="directory_server_placeholder">URL du serveur d\'accueil</string>
     <string name="directory_server_all_rooms_on_server">Tous les salons sur le serveur %s</string>
     <string name="directory_server_native_rooms">Tous les salons natifs sur %s</string>
-
-    <!-- Notifications -->
-    <plurals name="notification_unread_notified_messages">
-        <item quantity="one">1 message notifié non lu</item>
-        <item quantity="other">%d messages notifiés non lus</item>
-    </plurals>
-    <plurals name="notification_unread_notified_messages_in_room_msgs">
-        <item quantity="one">1 message notifié non lu</item>
-        <item quantity="other">%d messages notifiés non lus</item>
-    </plurals>
-    <plurals name="notification_unread_notified_messages_in_room_rooms">
-        <item quantity="one">1 conversation</item>
-        <item quantity="other">%d conversations</item>
-    </plurals>
-    <string name="notification_unread_notified_messages_in_room">%1$s dans %2$s"</string>
-
     <string name="historical_placeholder">Rechercher dans l\'historique</string>
 
 <plurals name="public_room_nb_users">
@@ -605,15 +589,6 @@ En êtes-vous sûr(e) ?</string>
     <string name="room_event_action_report_prompt_ignore_user">Voulez-vous cacher tous les messages de cet utilisateur ?</string>
     <string name="room_displayname_two_members">%1$s et %2$s</string>
     <string name="room_recents_join_room_prompt">Saisissez un identifiant ou un alias de salon</string>
-    <plurals name="directory_search_rooms">
-        <item quantity="one">1 conversation</item>
-        <item quantity="other">%d conversations</item>
-    </plurals>
-
-    <plurals name="directory_search_rooms_for">
-        <item quantity="one">%1$s conversation trouvée pour %2$s</item>
-        <item quantity="other">%1$s conversations trouvées pour %2$s</item>
-    </plurals>
     <string name="settings_turn_screen_on">Allumer l\'écran pendant 3 secondes</string>
 
     <string name="settings_invited_to_room">Quand je suis invité sur un salon</string>
@@ -896,4 +871,42 @@ Appareils inconnus :</string>
 	<item quantity="other">%d nouveaux messages</item>
 </plurals>
 
-    </resources>
+    <string name="room_displayname_many_members">%1$s et %2$s</string>
+    <plurals name="others">
+	<item quantity="one">Un autre</item>
+	<item quantity="other">%d autres</item>
+    </plurals>
+
+    <string name="list_members">Liste les membres</string>
+
+    <plurals name="directory_search_rooms">
+        <item quantity="one">1 conversation</item>
+        <item quantity="other">%d conversations</item>
+    </plurals>
+    <plurals name="directory_search_rooms_for">
+        <item quantity="one">%1$s conversation trouvée pour %2$s</item>
+        <item quantity="other">%1$s conversations trouvées pour %2$s</item>
+    </plurals>
+    <plurals name="notification_unread_notified_messages">
+        <item quantity="one">1 message notifié non lu</item>
+        <item quantity="other">%d messages notifiés non lus</item>
+    </plurals>
+    <plurals name="notification_unread_notified_messages_in_room_msgs">
+        <item quantity="one">1 message notifié non lu</item>
+        <item quantity="other">%d messages notifiés non lus</item>
+    </plurals>
+    <plurals name="notification_unread_notified_messages_in_room_rooms">
+        <item quantity="one">1 conversation</item>
+        <item quantity="other">%d conversations</item>
+    </plurals>
+    <string name="notification_unread_notified_messages_in_room">%1$s dans %2$s"</string>
+
+    <plurals name="active_widgets">
+	<item quantity="one">Un gadget actif</item>
+	<item quantity="other">%d gadgets actifs</item>
+</plurals>
+
+    // Widget Integration Manager
+    <string name="avatar">Avatar</string>
+
+</resources>
