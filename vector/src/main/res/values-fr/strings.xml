@@ -230,7 +230,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="people_search_invite_by_id_dialog_hint">E-mail ou ID Matrix</string>
     <string name="people_invalid_warning_msg">Pour inviter un contact un email est requis</string>
     <string name="people_edit_contact_warning_msg">Accès à la fiche contact impossible</string>
-    <string name="room_invite_non_gov_people">Voulez vous vraiment inviter un partenaire exterieur dans Tchap (un mail lui sera envoyé) ?</string>
+    <string name="room_invite_non_gov_people">Voulez-vous vraiment inviter un partenaire extérieur dans Tchap (un mail lui sera envoyé) ?</string>
     <string name="room_invite_gov_people">Voulez vous l\'inviter dans Tchap (un mail lui sera envoyé) ?</string>
 
     <string name="room_menu_search">Rechercher</string>
