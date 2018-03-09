@@ -595,9 +595,6 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
         } else {
             // direct message flow
             //it will be more open on next sprints ...
-            // TODO external users will invite other external users
-            // TODO FIX issue : external users will be recognized to avoid them to create an empty room
-            // TODO when they click on an internal contact
             if (!LoginActivity.isUserExternal(mSession)) {
                 mSession.createDirectMessageRoom(item.mUserId, mCreateDirectMessageCallBack);
             } else {
