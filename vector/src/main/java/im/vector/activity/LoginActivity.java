@@ -440,10 +440,6 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
 
         if (null != savedInstanceState) {
             restoreSavedData(savedInstanceState);
-        } else {
-            /*SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(LoginActivity.this);
-            mHomeServerText.setText(preferences.getString(HOME_SERVER_URL_PREF, getResources().getString(R.string.default_hs_server_url)));
-            mIdentityServerText.setText(preferences.getString(IDENTITY_SERVER_URL_PREF, getResources().getString(R.string.default_identity_server_url)));*/
         }
 
         // trap the UI events
@@ -834,20 +830,6 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
                             Log.d(LOG_TAG, "onForgotOnEmailValidated : failed UNAUTHORIZED");
 
                             onError(getResources().getString(R.string.auth_reset_password_error_unauthorized), false);
-                        } else if (TextUtils.equals(e.errcode, MatrixError.NOT_FOUND)) {
-                            String hsUrlString = hsConfig.getHomeserverUri().toString();
-
-                            // if the identifier is not found on riot.im
-                            // check if it was created with matrix.org
-                            if (TextUtils.equals(hsUrlString, getString(R.string.vector_im_server_url))) {
-                                hsConfig.setHomeserverUri(Uri.parse(getString(R.string.matrix_org_server_url)));
-                                onForgotOnEmailValidated(hsConfig);
-
-                                Log.d(LOG_TAG, "onForgotOnEmailValidated : test with matrix.org as HS");
-
-                            } else {
-                                onError(e.getLocalizedMessage(), false);
-                            }
                         } else {
                             onError(e.getLocalizedMessage(), true);
                         }
@@ -1414,18 +1396,9 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
 
                 @Override
                 public void onMatrixError(MatrixError e) {
-                    // if the registration is forbidden with matrix.org url
-                    // try with the vector.im HS
-                    /*if (TextUtils.equals(hsUrlString, getString(R.string.vector_im_server_url)) && TextUtils.equals(e.errcode, MatrixError.FORBIDDEN)) {
-                        Log.e(LOG_TAG, "onLoginClick : test with matrix.org as HS");
-                        mHomeserverConnectionConfig = new HomeServerConnectionConfig(Uri.parse(getString(R.string.matrix_org_server_url)), Uri.parse(identityUrlString), null, new ArrayList<Fingerprint>(), false);
-                        login(mHomeserverConnectionConfig, getString(R.string.matrix_org_server_url), identityUrlString, username, phoneNumber, phoneNumberCountry, password);
-                    } else*/
-                    {
-                        Log.e(LOG_TAG, "onLoginClick : onMatrixError " + e.getLocalizedMessage());
-                        enableLoadingScreen(false);
-                        onFailureDuringAuthRequest(e);
-                    }
+                    Log.e(LOG_TAG, "onLoginClick : onMatrixError " + e.getLocalizedMessage());
+                    enableLoadingScreen(false);
+                    onFailureDuringAuthRequest(e);
                 }
             });
         } catch (Exception e) {
