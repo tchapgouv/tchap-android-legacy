@@ -1153,7 +1153,12 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     private void onFloatingButtonClick() {
         // ignore any action if there is a pending one
         if (!isWaitingViewVisible()) {
-            invitePeopleToNewRoom();
+            // the FAB action is temporarily blocked for external users to prevent them from creating direct chat
+            if(LoginActivity.isUserExternal(mSession)) {
+                DinsicUtils.alertSimpleMsg(this, getString(R.string.action_forbidden));
+            } else {
+                invitePeopleToNewRoom();
+            }
         }
     }
 

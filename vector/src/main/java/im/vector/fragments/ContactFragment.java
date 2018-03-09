@@ -536,6 +536,7 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
     private void onContactSelected(final ParticipantAdapterItem item) {
         if (item.mIsValid) {
 
+            // tell if contact is tchap user
             if (MXSession.isUserId(item.mUserId))// || DinsicUtils.isFromFrenchGov(item.mContact.getEmails()))
                 contactSelected(item, null);
             else {
@@ -549,32 +550,32 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                     contactSelected(item,existingRoomId);
                 }
                 else {
-                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-                    alertDialogBuilder.setMessage(msg);
+                    if (LoginActivity.isUserExternal(mSession)) {
+                        DinsicUtils.alertSimpleMsg(getActivity(), getString(R.string.room_creation_forbidden));
+                    } else {
+                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                        alertDialogBuilder.setMessage(msg);
 
-                    // set dialog message
-                    alertDialogBuilder
-                            .setCancelable(false)
-                            .setPositiveButton(R.string.ok,
-                                    new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int id) {
-                                            contactSelected(item,null);
-                                        }
-                                    })
-                            .setNegativeButton(R.string.cancel, null);
+                        // set dialog message
+                        alertDialogBuilder
+                                .setCancelable(false)
+                                .setPositiveButton(R.string.ok,
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int id) {
+                                                contactSelected(item,null);
+                                            }
+                                        })
+                                .setNegativeButton(R.string.cancel, null);
 
-                    // create alert dialog
-                    AlertDialog alertDialog = alertDialogBuilder.create();
-                    // show it
-                    alertDialog.show();
+                        // create alert dialog
+                        AlertDialog alertDialog = alertDialogBuilder.create();
+                        // show it
+                        alertDialog.show();
+                    }
                 }
             }
 
-
-
-
-         }
-        else {// tell the user that the email must be filled. Propose to fill it
+        } else {// tell the user that the email must be filled. Propose to fill it
             DinsicUtils.editContact(getActivity(),this.getContext(),item);
         }
 
@@ -594,12 +595,10 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
         } else {
             // direct message flow
             //it will be more open on next sprints ...
-            if (!LoginActivity.isUserExternal(mSession)){
+            if (!LoginActivity.isUserExternal(mSession)) {
                 mSession.createDirectMessageRoom(item.mUserId, mCreateDirectMessageCallBack);
-            }
-            else{
-                DinsicUtils.alertSimpleMsg(getActivity(), getString(R.string.room_creation_forbidden));
-
+            } else {
+                DinsicUtils.alertSimpleMsg(this.getActivity(), getString(R.string.room_creation_forbidden));
             }
         }
     }

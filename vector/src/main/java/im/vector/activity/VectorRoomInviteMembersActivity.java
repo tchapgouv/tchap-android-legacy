@@ -250,7 +250,11 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
         inviteByIdTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                displayInviteByUserId();
+                if(LoginActivity.isUserExternal(mSession)) {
+                    DinsicUtils.alertSimpleMsg(VectorRoomInviteMembersActivity.this, getString(R.string.action_forbidden));
+                } else {
+                    displayInviteByUserId();
+                }
             }
         });
 
@@ -258,13 +262,16 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
         createRoomView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                createNewRoom();
+                if(!LoginActivity.isUserExternal(mSession)) {
+                    createNewRoom();
+                } else {
+                    DinsicUtils.alertSimpleMsg(VectorRoomInviteMembersActivity.this, getString(R.string.room_creation_forbidden));
+                }
             }
         });
 
         // Check permission to access contacts
         CommonActivityUtils.checkPermissions(CommonActivityUtils.REQUEST_CODE_PERMISSION_MEMBERS_SEARCH, this);
-
     }
 
     @Override

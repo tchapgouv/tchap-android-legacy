@@ -80,6 +80,8 @@
     <string name="copied_to_clipboard">Copied to clipboard</string>
     <string name="disable">Disable</string>
     <string name="action_edit_contact_form">Edit contact form</string>
+    <string name="action_forbidden">You are not authorized to perform this action</string>
+
     <!-- dialog titles -->
     <string name="dialog_title_confirmation">Confirmation</string>
     <string name="dialog_title_warning">Warning</string>
