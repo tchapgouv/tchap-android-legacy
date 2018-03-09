@@ -138,9 +138,6 @@ public final class GcmRegistrationManager {
     // 3 states : null not initialized (retrieved by flavor)
     private static Boolean mUseGCM;
 
-    //
-    private boolean mLastBatteryOptimizationStatus;
-
     // pusher rest client
     private Map<String, PushersRestClient> mPushersRestClients = new HashMap<>();
 
@@ -181,7 +178,6 @@ public final class GcmRegistrationManager {
         });
 
         mRegistrationState = getStoredRegistrationState();
-        mLastBatteryOptimizationStatus = PreferencesManager.canStartBackgroundService(mContext);
         mRegistrationToken = getStoredRegistrationToken();
     }
 
@@ -536,8 +532,7 @@ public final class GcmRegistrationManager {
      * @return true if the registration was done with event Id only
      */
     public void onAppResume() {
-        if ((mRegistrationState == RegistrationState.SERVER_REGISTERED) &&
-                (mLastBatteryOptimizationStatus != PreferencesManager.canStartBackgroundService(mContext))) {
+        if (mRegistrationState == RegistrationState.SERVER_REGISTERED) {
             Log.d(LOG_TAG, "## onAppResume() : force the GCM registration");
 
             forceSessionsRegistration(new ThirdPartyRegistrationListener() {
@@ -1193,9 +1188,9 @@ public final class GcmRegistrationManager {
      * @return the delay between two syncs in ms.
      */
     public int getBackgroundSyncDelay() {
-        // on fdroid version, the default sync delay is about 10 minutes
+        // on riot fdroid version, the default sync delay is about 1 minutes
         // set a large value because many users don't know it can be defined from the settings page
-        // for french gov deployment, defaulkt sync delay of 10s
+        // for french gov deployment, default sync delay of 10s
         if ((null == mRegistrationToken) && (null == getStoredRegistrationToken()) && !getGcmSharedPreferences().contains(PREFS_SYNC_DELAY)) {
             return  10000;
         } else {
