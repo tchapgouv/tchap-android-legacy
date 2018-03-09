@@ -60,7 +60,6 @@ import java.util.Set;
 import butterknife.BindView;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
-import im.vector.activity.LoginActivity;
 import im.vector.activity.VectorRoomActivity;
 import im.vector.activity.VectorRoomCreationActivity;
 import im.vector.adapters.ParticipantAdapterItem;
@@ -499,9 +498,6 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
                 }
             }
         } else {// tell the user that the email must be filled. Will be improved soon
-            if (LoginActivity.isUserExternal(mSession)) {
-                DinsicUtils.alertSimpleMsg(getActivity(), getString(R.string.room_creation_forbidden));
-            }
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
             alertDialogBuilder.setMessage(getString(R.string.people_invalid_warning_msg));
 

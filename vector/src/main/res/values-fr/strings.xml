@@ -53,6 +53,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="copied_to_clipboard">Copié dans le presse-papiers</string>
     <string name="disable">Désactiver</string>
     <string name="action_edit_contact_form">Editer le contact</string>
+    <string name="action_forbidden">Vous n\'êtes pas autorisé à réaliser cette action</string>
 
     <string name="dialog_title_confirmation">Confirmation</string>
     <string name="dialog_title_warning">Attention</string>

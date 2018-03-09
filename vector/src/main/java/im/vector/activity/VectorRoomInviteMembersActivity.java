@@ -251,7 +251,7 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
             @Override
             public void onClick(View v) {
                 if(LoginActivity.isUserExternal(mSession)) {
-                    DinsicUtils.alertSimpleMsg(VectorRoomInviteMembersActivity.this, getString(R.string.room_creation_forbidden));
+                    DinsicUtils.alertSimpleMsg(VectorRoomInviteMembersActivity.this, getString(R.string.action_forbidden));
                 } else {
                     displayInviteByUserId();
                 }
