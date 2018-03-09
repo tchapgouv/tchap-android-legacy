@@ -595,7 +595,11 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
         } else {
             // direct message flow
             //it will be more open on next sprints ...
-            mSession.createDirectMessageRoom(item.mUserId, mCreateDirectMessageCallBack);
+            if(!DinsicUtils.isFromFrenchGov(item.mContact.getEmails())){
+                mSession.createDirectMessageRoom(item.mUserId, mCreateDirectMessageCallBack);
+            } else {
+                DinsicUtils.alertSimpleMsg(this.getActivity(), getString(R.string.room_creation_forbidden));
+            }
         }
     }
 
