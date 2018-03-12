@@ -208,7 +208,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="room_participants_online">En ligne</string>
     <string name="room_participants_offline">Hors ligne</string>
     <string name="room_participants_now">maintenant</string>
-    <string name="room_participants_ago">de là</string>
+    <string name="room_participants_ago">depuis</string>
 
     <string name="room_participants_header_admin_tools">OUTILS DE L\'ADMINISTRATEUR</string>
     <string name="room_participants_header_call">APPEL</string>

@@ -374,25 +374,23 @@ public class ContactAdapter extends AbsAdapter {
             participant.displayAvatar(mSession, vContactAvatar);
             vContactName.setText(participant.getUniqueDisplayName(null));
 
-            /*
-             * Get the description to be displayed below the name
-             * For local contact, it is the medium (email, phone number)
-             * For other contacts, it is the presence
-             */
-            if (participant.mContact != null) {
-                boolean isMatrixUserId = MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(participant.mUserId).matches();
- //               vContactBadge.setVisibility(isMatrixUserId ? View.VISIBLE : View.GONE);
-                vContactBadge.setVisibility(View.GONE);
-                vContactDesc.setText("");
-                if (participant.mContact.getEmails().size() > 0) {
-                    vContactDesc.setText(participant.mContact.getEmails().get(0));
-                } else {
-                    if (null != participant.mContact.getPhonenumbers() && participant.mContact.getPhonenumbers().size()>0)
-                        vContactDesc.setText(participant.mContact.getPhonenumbers().get(0).mRawPhoneNumber);
-                }
-            } else {
+            // Prepare the description to be displayed below the name
+            // - for a matrix user: display the user's presence (if any)
+            // - for others (local contacts): display one of his media (email, phone number), if any
+            boolean isMatrixUserId = MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(participant.mUserId).matches();
+            vContactBadge.setVisibility(View.GONE);
+            if (isMatrixUserId) {
                 loadContactPresence(vContactDesc, participant, position);
-                vContactBadge.setVisibility(View.GONE);
+            }
+            if (!isMatrixUserId || vContactDesc.getText().length() == 0) {
+                vContactDesc.setText("");
+                if (null != participant.mContact) {
+                    if (null != participant.mContact.getEmails() && !participant.mContact.getEmails().isEmpty()) {
+                        vContactDesc.setText(participant.mContact.getEmails().get(0));
+                    } else if (null != participant.mContact.getPhonenumbers() && !participant.mContact.getPhonenumbers().isEmpty()) {
+                        vContactDesc.setText(participant.mContact.getPhonenumbers().get(0).mRawPhoneNumber);
+                    }
+                }
             }
 
             itemView.setOnClickListener(new View.OnClickListener() {
