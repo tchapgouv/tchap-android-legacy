@@ -38,7 +38,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.matrix.androidsdk.MXSession;
+import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.listeners.MXEventListener;
+import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
 import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.rest.model.MatrixError;
@@ -101,6 +103,12 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
 
     // participants list
     private List<ParticipantAdapterItem> mHiddenParticipantItems = new ArrayList<>();
+
+    // current activity
+    VectorRoomInviteMembersActivity mActivity;
+
+    // current session
+    MXSession mxSession;
 
     // adapter
     private VectorParticipantsAdapter mAdapter;
@@ -532,7 +540,7 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
     private  void createNewRoom() {
         hideKeyboard();
         showWaitingView();
-        mSession.createRoom(new SimpleApiCallback<String>(VectorRoomInviteMembersActivity.this) {
+        mSession.createRoom(new SimpleApiCallback<String>(mActivity) {
             @Override
             public void onSuccess(final String roomId) {
                 mLoadingView.post(new Runnable() {
@@ -543,7 +551,7 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
                         params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
                         params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
                         params.put(VectorRoomActivity.EXTRA_EXPAND_ROOM_HEADER, true);
-                        CommonActivityUtils.goToRoomPage(VectorRoomInviteMembersActivity.this, mSession, params);
+                        CommonActivityUtils.goToRoomPage(mActivity, mSession, params);
                     }
                 });
             }
@@ -553,7 +561,7 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
                     @Override
                     public void run() {
                         if (null != message) {
-                            Toast.makeText(VectorRoomInviteMembersActivity.this, message, Toast.LENGTH_LONG).show();
+                            Toast.makeText(mActivity, message, Toast.LENGTH_LONG).show();
                         }
                         stopWaitingView();
                     }

@@ -473,9 +473,9 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
                 contactSelected(item, null);
             else {
                 //don't have to ask the question if a room already exists
-                String existingRoomId;
-                if (null != (existingRoomId = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(item.mUserId, mSession, LOG_TAG))) {
-                    contactSelected(item, existingRoomId);
+                Room existingRoom;
+                if (null != (existingRoom = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(item.mUserId, mSession, false))) {
+                    contactSelected(item, existingRoom);
                 } else {
                     AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
                     alertDialogBuilder.setMessage(getString(R.string.room_invite_non_gov_people));
@@ -523,15 +523,15 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
      *
      * @param item
      */
-    private void contactSelected(final ParticipantAdapterItem item, String existingRoomId) {
-        if (null == existingRoomId) {
-            existingRoomId = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(item.mUserId, mSession, LOG_TAG);
+    private void contactSelected(final ParticipantAdapterItem item, Room existingRoom) {
+        if (null == existingRoom.getRoomId()) {
+            existingRoom = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(item.mUserId, mSession, true);
         }
 
-        if (null != existingRoomId) {
+        if (null != existingRoom) {
             HashMap<String, Object> params = new HashMap<>();
             params.put(VectorRoomActivity.EXTRA_MATRIX_ID, item.mUserId);
-            params.put(VectorRoomActivity.EXTRA_ROOM_ID, existingRoomId);
+            params.put(VectorRoomActivity.EXTRA_ROOM_ID, existingRoom.getRoomId());
             CommonActivityUtils.goToRoomPage(getActivity(), mSession, params);
         } else {
             // direct message flow
