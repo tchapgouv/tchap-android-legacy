@@ -44,7 +44,6 @@ public class VectorRegistrationReceiver extends BroadcastReceiver {
 
     // Supported path
     public static final String SUPPORTED_PATH_ACCOUNT_EMAIL_VALIDATION = "/_matrix/identity/api/v1/validate/email/submitToken";
-    private static final List<String> mSupportedHosts = Arrays.asList("matrix.i.tchap.rie.gouv.fr", "matrix.a.tchap.rie.gouv.fr", "matrix.e.tchap.rie.gouv.fr");
 
 
     // mail validation url query parameters
@@ -118,7 +117,7 @@ public class VectorRegistrationReceiver extends BroadcastReceiver {
                 String uriFragment, host = uri.getHost();
                 Log.i(LOG_TAG, "## parseMailRegistrationLink(): host=" + host);
 
-                if (!mSupportedHosts.contains(host)) {
+                if (!LoginActivity.mSupportedHosts.contains(host)) {
                     Log.e(LOG_TAG, "## parseUniversalLink : unsupported host =" + host);
                     return null;
                 }

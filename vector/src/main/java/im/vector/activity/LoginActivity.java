@@ -1,6 +1,7 @@
 /*
  * Copyright 2016 OpenMarket Ltd
  * Copyright 2017 Vector Creations Ltd
+ * Copyright 2018 Dinsic
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,27 +25,20 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
-import android.preference.PreferenceManager;
 import android.support.annotation.ColorInt;
-import android.support.annotation.StringRes;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.content.ContextCompat;
-import android.text.Editable;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -52,7 +46,6 @@ import android.widget.Toast;
 
 import org.matrix.androidsdk.HomeServerConnectionConfig;
 import org.matrix.androidsdk.MXSession;
-import org.matrix.androidsdk.rest.api.ThirdPidApi;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
 import org.matrix.androidsdk.rest.client.LoginRestClient;
@@ -70,14 +63,15 @@ import org.matrix.androidsdk.util.JsonUtils;
 import org.matrix.androidsdk.util.Log;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Random;
 
+import fr.gouv.tchap.sdk.rest.client.TchapRestClient;
+import fr.gouv.tchap.sdk.rest.model.Platform;
 import im.vector.LoginHandler;
 import im.vector.Matrix;
-import im.vector.PhoneNumberHandler;
 import im.vector.R;
 import im.vector.RegistrationManager;
 import im.vector.UnrecognizedCertHandler;
@@ -85,12 +79,13 @@ import im.vector.receiver.VectorRegistrationReceiver;
 import im.vector.receiver.VectorUniversalLinkReceiver;
 import im.vector.services.EventStreamService;
 import im.vector.util.DinsicUtils;
-import im.vector.util.PhoneNumberUtils;
 
 /**
  * Displays the login screen.
  */
 public class LoginActivity extends MXCActionBarActivity implements RegistrationManager.RegistrationListener, RegistrationManager.UsernameValidityListener {
+    public static final List<String> mSupportedHosts = Arrays.asList("matrix.i.tchap.rie.gouv.fr", "matrix.a.tchap.rie.gouv.fr", "matrix.e.tchap.rie.gouv.fr");
+
     private static final String LOG_TAG = LoginActivity.class.getSimpleName();
 
     private static final int ACCOUNT_CREATION_ACTIVITY_REQUEST_CODE = 314;
@@ -285,8 +280,6 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
 
     // save the config because trust a certificate is asynchronous.
     private HomeServerConnectionConfig mServerConfig;
-    private String mHSUrl = null;
-    private String mISUrl = null;
 
     @Override
     protected void onDestroy() {
@@ -500,11 +493,11 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
         mCreationEmailAddressTextView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus) {
-                    refreshRegistrationMatrixId();
+                    refreshRegistrationTchapPlatform();
                 }
             }
         });
-        refreshRegistrationMatrixId();
+        refreshRegistrationTchapPlatform();
     }
 
     /**
@@ -1273,84 +1266,76 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
 
         enableLoadingScreen(true);
 
-        Log.d(LOG_TAG, "## onLoginClick() : search [" + emailAddress + "]");
-        findServers(emailAddress, new ApiCallback<String>() {
+        Log.d(LOG_TAG, "## onLoginClick()");
+        discoverTchapPlatform(emailAddress, new ApiCallback<Platform>() {
             private void onError(String errorMessage) {
                 Toast.makeText(LoginActivity.this, (null == errorMessage) ? getString(R.string.auth_invalid_login_param) : errorMessage, Toast.LENGTH_LONG).show();
                 enableLoadingScreen(false);
             }
 
             @Override
-            public void onSuccess(String pid) {
-                Log.d(LOG_TAG, "## onLoginClick() : succeeded " + pid);
+            public void onSuccess(Platform platform) {
+                mTchapPlatform = platform;
 
-                // ignore for the sprint 0
-                /*if (!TextUtils.isEmpty(pid)) {*/
-                    mLoginHandler.getSupportedLoginFlows(LoginActivity.this, getHsConfig(), new SimpleApiCallback<List<LoginFlow>>() {
-                        @Override
-                        public void onSuccess(List<LoginFlow> flows) {
-                            // stop listening to network state
-                            removeNetworkStateNotificationListener();
+                mLoginHandler.getSupportedLoginFlows(LoginActivity.this, getHsConfig(), new SimpleApiCallback<List<LoginFlow>>() {
+                    @Override
+                    public void onSuccess(List<LoginFlow> flows) {
+                        // stop listening to network state
+                        removeNetworkStateNotificationListener();
 
-                            enableLoadingScreen(false);
-                            setActionButtonsEnabled(true);
-                            boolean isSupported = true;
+                        enableLoadingScreen(false);
+                        setActionButtonsEnabled(true);
+                        boolean isSupported = true;
 
-                            // supported only m.login.password by now
-                            for (LoginFlow flow : flows) {
-                                isSupported &= TextUtils.equals(LoginRestClient.LOGIN_FLOW_TYPE_PASSWORD, flow.type);
-                            }
-
-                            // if not supported, switch to the fallback login
-                            if (!isSupported) {
-                                Intent intent = new Intent(LoginActivity.this, FallbackLoginActivity.class);
-                                intent.putExtra(FallbackLoginActivity.EXTRA_HOME_SERVER_ID, getHsConfig().getHomeserverUri().toString());
-                                startActivityForResult(intent, FALLBACK_LOGIN_ACTIVITY_REQUEST_CODE);
-                            } else {
-                                login(getHsConfig(), mHSUrl, mISUrl, emailAddress, null, null, password);
-                            }
+                        // supported only m.login.password by now
+                        for (LoginFlow flow : flows) {
+                            isSupported &= TextUtils.equals(LoginRestClient.LOGIN_FLOW_TYPE_PASSWORD, flow.type);
                         }
 
-                        @Override
-                        public void onNetworkError(Exception e) {
-                            Log.e(LOG_TAG, "Network Error: " + e.getMessage(), e);
-                            // listen to network state, to resume processing as soon as the network is back
-                            addNetworkStateNotificationListener();
-                            onError(getString(R.string.login_error_unable_login) + " : " + e.getLocalizedMessage());
+                        // if not supported, switch to the fallback login
+                        if (!isSupported) {
+                            Intent intent = new Intent(LoginActivity.this, FallbackLoginActivity.class);
+                            intent.putExtra(FallbackLoginActivity.EXTRA_HOME_SERVER_ID, getHsConfig().getHomeserverUri().toString());
+                            startActivityForResult(intent, FALLBACK_LOGIN_ACTIVITY_REQUEST_CODE);
+                        } else {
+                            login(getHsConfig(), emailAddress, null, null, password);
                         }
+                    }
 
-                        @Override
-                        public void onUnexpectedError(Exception e) {
-                            onError(getString(R.string.login_error_unable_login) + " : " + e.getLocalizedMessage());
-                        }
+                    @Override
+                    public void onNetworkError(Exception e) {
+                        Log.e(LOG_TAG, "Network Error: " + e.getMessage(), e);
+                        // listen to network state, to resume processing as soon as the network is back
+                        addNetworkStateNotificationListener();
+                        onError(getString(R.string.login_error_unable_login) + " : " + e.getLocalizedMessage());
+                    }
 
-                        @Override
-                        public void onMatrixError(MatrixError e) {
-                            onFailureDuringAuthRequest(e);
-                        }
-                    });
+                    @Override
+                    public void onUnexpectedError(Exception e) {
+                        onError(getString(R.string.login_error_unable_login) + " : " + e.getLocalizedMessage());
+                    }
 
-                    login(getHsConfig(), mHSUrl, mISUrl, emailAddress, null, null, password);
-                /*} else {
-                    onError(null);
-                }*/
+                    @Override
+                    public void onMatrixError(MatrixError e) {
+                        onFailureDuringAuthRequest(e);
+                    }
+                });
+
+                login(getHsConfig(), emailAddress, null, null, password);
             }
 
             @Override
             public void onNetworkError(Exception e) {
-                Log.e(LOG_TAG, "## onLoginClick() : failed " + e.getMessage());
                 onError(getString(R.string.login_error_unable_login) + " : " + e.getLocalizedMessage());
             }
 
             @Override
             public void onMatrixError(MatrixError matrixError) {
-                Log.e(LOG_TAG, "## onLoginClick() : failed " + matrixError.getMessage());
                 onError(getString(R.string.login_error_unable_login) + " : " + matrixError.getLocalizedMessage());
             }
 
             @Override
             public void onUnexpectedError(Exception e) {
-                Log.e(LOG_TAG, "## onLoginClick() : failed " + e.getMessage());
                 onError(getString(R.string.login_error_unable_login) + " : " + e.getLocalizedMessage());
             }
         });
@@ -1360,15 +1345,12 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
      * Make login request with given params
      *
      * @param hsConfig           the HS config
-     * @param hsUrlString        the HS url
-     * @param identityUrlString  the Identity server URL
      * @param username           the username
      * @param phoneNumber        the phone number
      * @param phoneNumberCountry the phone number country code
      * @param password           the user password
      */
-    private void login(final HomeServerConnectionConfig hsConfig, final String hsUrlString,
-                       final String identityUrlString, final String username, final String phoneNumber,
+    private void login(final HomeServerConnectionConfig hsConfig, final String username, final String phoneNumber,
                        final String phoneNumberCountry, final String password) {
         try {
             mLoginHandler.login(this, hsConfig, username, phoneNumber, phoneNumberCountry, password, new SimpleApiCallback<HomeServerConnectionConfig>(this) {
@@ -2050,7 +2032,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
         if (!TextUtils.isEmpty(publicKey)) {
             Log.d(LOG_TAG, "## onWaitingCaptcha");
             Intent intent = new Intent(LoginActivity.this, AccountCreationCaptchaActivity.class);
-            intent.putExtra(AccountCreationCaptchaActivity.EXTRA_HOME_SERVER_URL, mHSUrl);
+            intent.putExtra(AccountCreationCaptchaActivity.EXTRA_HOME_SERVER_URL, getHomeServerUrl());
             intent.putExtra(AccountCreationCaptchaActivity.EXTRA_SITE_KEY, publicKey);
             startActivityForResult(intent, CAPTCHA_CREATION_ACTIVITY_REQUEST_CODE);
         } else {
@@ -2095,128 +2077,95 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
     * *********************************************************************************************
     */
     // DINSIC specific
-    private static final String EXTERNAL_BUBBLE_HS_URL = "https://matrix.e.tchap.rie.gouv.fr";
-    private static final String EXTERNAL_BUBBLE_IS_URL = "https://matrix.e.tchap.rie.gouv.fr";
-
-    private static final String AGENT_BUBBLE_HS_URL = "https://matrix.a.tchap.rie.gouv.fr";
-    private static final String AGENT_BUBBLE_IS_URL = "https://matrix.a.tchap.rie.gouv.fr";
-
-    // not available yfor the sprint 0
-    //private static final String INTERNAL_SECURED_HS_URL = "https://matrix.i.tchap.rie.gouv.fr";
-    //private static final String INTERNAL_SECURED_IS_URL = "https://matrix.i.tchap.rie.gouv.fr";
-
-    private ThirdPidRestClient mExternalBubbleThirdPidRestClient;
-    private ThirdPidRestClient mAgentBubbleThirdPidRestClient;
-    //private ThirdPidRestClient mInternalSecuredThirdPidRestClient;
-
-
+    private Platform mTchapPlatform;
 
     /**
-     * @return the home server Url according to custom HS checkbox
+     * @return the home server Url according to current tchap platform.
      */
     private String getHomeServerUrl() {
-        return TextUtils.isEmpty(mHSUrl) ? EXTERNAL_BUBBLE_HS_URL : mHSUrl;
+        return (null != mTchapPlatform) ? mTchapPlatform.hs_url : null;
     }
 
     /**
-     * @return the identity server URL according to custom HS checkbox
+     * @return the identity server URL according to current tchap platform.
      */
     private String getIdentityServerUrl() {
-        return TextUtils.isEmpty(mISUrl) ? EXTERNAL_BUBBLE_IS_URL : mHSUrl;
+        return (null != mTchapPlatform) ? mTchapPlatform.is_url : null;
     }
 
     /**
-     * Perform a 3Pid lookup for an email address.
-     * It also sets mHSUrl / mISUrl linked for this email address.
+     * Get the Tchap platform configuration (HS/IS) for the provided email address.
      *
-     * @param emailAddress the email address to test
+     * @param emailAddress the email address to consider
      * @param callback the asynchronous callback
      */
-    private void findServers(final String emailAddress, final ApiCallback<String> callback) {
-        if (null == mExternalBubbleThirdPidRestClient) {
-            mExternalBubbleThirdPidRestClient = new ThirdPidRestClient(new HomeServerConnectionConfig(Uri.parse(EXTERNAL_BUBBLE_HS_URL), Uri.parse(EXTERNAL_BUBBLE_IS_URL), null, new ArrayList<Fingerprint>(), false));
+    private void discoverTchapPlatform(final String emailAddress, final ApiCallback<Platform> callback) {
+        Log.d(LOG_TAG, "## discoverTchapPlatform [" + emailAddress + "]");
+        // Copy the list of the known ISes in order to run over the list until to get an answer.
+        List<String> currentHosts = new ArrayList<String>(mSupportedHosts);
+        discoverTchapPlatform(emailAddress, currentHosts, callback);
+    }
+
+    /**
+     * Round-robin over all provided hosts by removing them one by one until we get the Tchap platform for the provided email address.
+     *
+     * @param emailAddress the email address to consider
+     * @param currentHosts the list of available ISes
+     * @param callback the asynchronous callback
+     */
+    private void discoverTchapPlatform(final String emailAddress, final List<String> currentHosts, final ApiCallback<Platform> callback) {
+        if (currentHosts.isEmpty()) {
+            callback.onMatrixError(new MatrixError(MatrixError.UNKNOWN, "No host"));
         }
 
-        if (null == mAgentBubbleThirdPidRestClient) {
-            mAgentBubbleThirdPidRestClient = new ThirdPidRestClient(new HomeServerConnectionConfig(Uri.parse(AGENT_BUBBLE_HS_URL), Uri.parse(AGENT_BUBBLE_IS_URL), null, new ArrayList<Fingerprint>(), false));
-        }
+        int index = (new Random()).nextInt(currentHosts.size());
+        String selectedUrl = "https://" + currentHosts.get(index);
+        currentHosts.remove(index);
 
-        /**
-         * For sprint 0, there are only 2 servers
-         * Disable the email check
-         */
-        if (true) {
-            if (emailAddress.endsWith(DinsicUtils.AGENT_OR_INTERNAL_SECURED_EMAIL_HOST)) {
-                mHSUrl = AGENT_BUBBLE_HS_URL;
-                mISUrl = AGENT_BUBBLE_IS_URL;
-            } else {
-                mHSUrl = EXTERNAL_BUBBLE_HS_URL;
-                mISUrl = EXTERNAL_BUBBLE_IS_URL;
-            }
-
-            (new Handler()).post(new Runnable() {
-                @Override
-                public void run() {
-                    callback.onSuccess(null);
-                }
-            });
-
-            return;
-        }
-
-
-        /*if (null == mInternalSecuredThirdPidRestClient) {
-            mInternalSecuredThirdPidRestClient = new ThirdPidRestClient(new HomeServerConnectionConfig(Uri.parse(INTERNAL_SECURED_HS_URL), Uri.parse(INTERNAL_SECURED_IS_URL), null, new ArrayList<Fingerprint>(), false));
-        }*/
-
-        ThirdPidRestClient thirdPartyRestClient;
-
-        if (emailAddress.endsWith(DinsicUtils.AGENT_OR_INTERNAL_SECURED_EMAIL_HOST)) {
-            thirdPartyRestClient = mAgentBubbleThirdPidRestClient;
-            mHSUrl = AGENT_BUBBLE_HS_URL;
-            mISUrl = AGENT_BUBBLE_IS_URL;
-        } else {
-            thirdPartyRestClient = mExternalBubbleThirdPidRestClient;
-            mHSUrl = EXTERNAL_BUBBLE_HS_URL;
-            mISUrl = EXTERNAL_BUBBLE_IS_URL;
-        }
-
-        // try to match email to 3PID
-        thirdPartyRestClient.lookup3Pid(emailAddress, ThreePid.MEDIUM_EMAIL, new ApiCallback<String>() {
+        TchapRestClient tchapRestClient = new TchapRestClient(new HomeServerConnectionConfig(Uri.parse(selectedUrl), Uri.parse(selectedUrl), null, new ArrayList<Fingerprint>(), false));
+        tchapRestClient.discoverUrls(emailAddress, ThreePid.MEDIUM_EMAIL, new ApiCallback<Platform>() {
             @Override
-            public void onSuccess(String pid) {
-                // not available for the sprint 0
-                /*if (null != pid) {
-                    if (pid.endsWith(":" + INTERNAL_SECURED_HS_URL)) {
-                        mHSUrl = INTERNAL_SECURED_HS_URL;
-                        mISUrl = INTERNAL_SECURED_IS_URL;
-                    }
-                }*/
-
-                callback.onSuccess(pid);
+            public void onSuccess(Platform platform) {
+                Log.d(LOG_TAG, "## discoverTchapPlatform succeeded");
+                callback.onSuccess(platform);
             }
 
             @Override
             public void onNetworkError(Exception e) {
+                Log.e(LOG_TAG, "## discoverTchapPlatform failed " + e.getMessage());
                 callback.onNetworkError(e);
             }
 
             @Override
             public void onMatrixError(MatrixError matrixError) {
-                callback.onMatrixError(matrixError);
+                Log.e(LOG_TAG, "## discoverTchapPlatform failed " + matrixError.getMessage());
+                if (currentHosts.isEmpty()) {
+                    // We checked all the known hosts, return the error
+                    callback.onMatrixError(matrixError);
+                } else {
+                    // Try again
+                    discoverTchapPlatform(emailAddress, currentHosts, callback);
+                }
             }
 
             @Override
             public void onUnexpectedError(Exception e) {
-                callback.onNetworkError(e);
+                Log.e(LOG_TAG, "## discoverTchapPlatform failed " + e.getMessage());
+                if (currentHosts.isEmpty()) {
+                    // We checked all the known hosts, return the error
+                    callback.onUnexpectedError(e);
+                } else {
+                    // Try again
+                    discoverTchapPlatform(emailAddress, currentHosts, callback);
+                }
             }
         });
     }
 
     /**
-     * Refresh the registration matrix id from the email address
+     * Registration: refresh the tchap platform from the email address
      */
-    private void refreshRegistrationMatrixId() {
+    private void refreshRegistrationTchapPlatform() {
         if (mMode == MODE_ACCOUNT_CREATION) {
             mRegisterButton.setEnabled(false);
             mRegisterButton.setAlpha(0.3f);
@@ -2241,37 +2190,27 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
         }
 
         enableLoadingScreen(true);
+        Log.d(LOG_TAG, "## refreshRegistrationTchapPlatform");
 
-        findServers(emailAddress, new ApiCallback<String>() {
+        discoverTchapPlatform(emailAddress, new ApiCallback<Platform>() {
             private void onError(String errorMessage) {
                 enableLoadingScreen(false);
                 Toast.makeText(LoginActivity.this, errorMessage, Toast.LENGTH_LONG).show();
             }
 
             @Override
-            public void onSuccess(String matrixId) {
+            public void onSuccess(Platform platform) {
+                mTchapPlatform = platform;
                 enableLoadingScreen(false);
-
-                // not available for the sprint 0
-                /*if (!TextUtils.equals(mHSUrl, INTERNAL_SECURED_HS_URL) && !TextUtils.isEmpty(matrixId)) {
-                    onError(getString(R.string.auth_username_in_use));
-                    return;
-                }*/
 
                 mRegisterButton.setEnabled(true);
                 mRegisterButton.setAlpha(1.0f);
 
-                if (!TextUtils.isEmpty(matrixId)) {
-                    mCreationUsernameTextView.setText(matrixId);
-                    mCreationUsernameTextView.setEnabled(false);
-                    mCreationUsernameTextView.setAlpha(0.3f);
-                } else {
-                    if (TextUtils.isEmpty(mCreationUsernameTextView.getText())) {
-                        mCreationUsernameTextView.setText(emailAddress.substring(0, emailAddress.lastIndexOf("@")));
-                    }
-                    mCreationUsernameTextView.setEnabled(true);
-                    mCreationUsernameTextView.setAlpha(1.0f);
+                if (TextUtils.isEmpty(mCreationUsernameTextView.getText())) {
+                    mCreationUsernameTextView.setText(emailAddress.substring(0, emailAddress.lastIndexOf("@")));
                 }
+                mCreationUsernameTextView.setEnabled(true);
+                mCreationUsernameTextView.setAlpha(1.0f);
             }
 
             @Override
@@ -2302,7 +2241,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
         if (mMode != MODE_ACCOUNT_CREATION) {
             mMode = MODE_ACCOUNT_CREATION;
             refreshDisplay();
-            refreshRegistrationMatrixId();
+            refreshRegistrationTchapPlatform();
             return;
         }
 
@@ -2356,12 +2295,9 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
      * @param
      * @return true if external
      */
-    public  static boolean isUserExternal(MXSession session) {
-        boolean myReturn = true;
+    public static boolean isUserExternal(MXSession session) {
         String myHost = session.getHomeServerConfig().getHomeserverUri().getHost();
-        String myUri = "https://"+myHost;
-        myReturn =  (myUri.equals(EXTERNAL_BUBBLE_HS_URL));
-        return myReturn;
+        return myHost.contains(".e.");
     }
 
 

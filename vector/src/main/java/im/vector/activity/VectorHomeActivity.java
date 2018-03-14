@@ -2083,7 +2083,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
 
                 for (Room room : roomSummaryByRoom.keySet()) {
                     if (!room.isConferenceUserRoom() && // not a VOIP conference room
-                            !directChatInvitations.contains(room.getRoomId()) && // not a direct chat
+                            !directChatInvitations.contains(room.getRoomId()) && // not a direct chat invitation
                             !lowPriorityRoomIds.contains(room.getRoomId())) {
                         filteredRoomIdsSet.add(room.getRoomId());
                     }
