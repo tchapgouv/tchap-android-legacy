@@ -551,7 +551,7 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
                         params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
                         params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
                         params.put(VectorRoomActivity.EXTRA_EXPAND_ROOM_HEADER, true);
-                        CommonActivityUtils.goToRoomPage(mActivity, mSession, params);
+                        CommonActivityUtils.goToRoomPage(VectorRoomInviteMembersActivity.this, mSession, params);
                     }
                 });
             }
