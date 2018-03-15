@@ -259,9 +259,9 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
     };
 
 
-    //================================================================================
+    //=============================================================================================
     // Menu management
-    //================================================================================
+    //=============================================================================================
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -280,7 +280,6 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        Room existingRoomId;
 
         if (id == R.id.action_create_room) {
             if (mParticipants.isEmpty()) {
@@ -294,24 +293,19 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
                     createRoom(mParticipants);
                 } else if (mParticipants.size() > 1) {
                     createRoom(mParticipants);
-                } else if (null != (existingRoomId = isDirectChatRoomAlreadyExist(mParticipants.get(0).mUserId,mSession, false))) {
-                    openDirectChat(mParticipants.get(0), false);
                 } else {
-                    // direct message flow
-                    mSpinnerView.setVisibility(View.VISIBLE);
-                    mSession.createDirectMessageRoom(mParticipants.get(0).mUserId, mCreateDirectMessageCallBack);
+                    isDirectChatOpened(mParticipants.get(0), true);
                 }
             }
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
 
-    //================================================================================
+    //=============================================================================================
     // Room creation
-    //================================================================================
+    //=============================================================================================
 
     /**
      * Return the first direct chat room for a given user ID.
@@ -333,12 +327,13 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
                     if (!roomIdsList.isEmpty()) {
                         for (String roomId : roomIdsList) {
                             Room room = mSession.getDataHandler().getRoom(roomId, false);
+                            // check if the room is already initialized
+                            // dinsic: if the member is not already in matrix and just invited he's not active but
+                            // the room can be considered as ok
                             if ((null != room) && !room.isLeaving()) {
-                                if (room.isInvited() || !ignoreInvite) {
-                                    // check if the room is already initialized
-                                    //dinsic: if the member is not already in matrix and just invited he's not active but
-                                    // the room can be considered as ok
+                                if (!ignoreInvite || !room.isInvited()) {
                                     if (!MXSession.isUserId(aUserId)) {
+                                        Log.d(LOG_TAG, "## isDirectChatRoomAlreadyExist(): for user=" + aUserId + " for room id=" + roomId);
                                         return room;
                                     } else {
                                         // test if the member did not leave the room
@@ -349,6 +344,7 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
                                                 return room;
                                             }
                                         }
+                                        Log.d(LOG_TAG, "## isDirectChatRoomAlreadyExist(): for user=" + aUserId + " for room id=" + roomId);
                                     }
                                 }
                             }
@@ -362,24 +358,25 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
     }
 
 
-    //==============================================================================================================
+    //=============================================================================================
     // Handle open existing direct chat room
-    //==============================================================================================================
+    //=============================================================================================
 
     /**
      * Open the current direct chat with the corresponding user id.
+     * Look for a potential existing direct chat with this user (by considering pending invite too)
      *
      * @param item : participant id
      * @param canCreate create the direct chat if it does not exist.
-     * @return the corresponding room id or null
+     * @return boolean that says if the direct chat room is open or not
      */
-    private boolean openDirectChat (final ParticipantAdapterItem item, boolean canCreate) {
+    private boolean isDirectChatOpened(final ParticipantAdapterItem item, boolean canCreate) {
         Room existingRoom = this.isDirectChatRoomAlreadyExist(item.mUserId, mSession, false);
-        boolean directChatOpened = false;
+        boolean succeeded = false;
 
         if (null != existingRoom) {
             if (existingRoom.isInvited()) {
-                directChatOpened = true;
+                succeeded = true;
                 this.showWaitingView();
 
                 mSession.joinRoom(existingRoom.getRoomId(), new ApiCallback<String>() {
@@ -421,7 +418,7 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
                     }
                 });
             } else {
-                directChatOpened = true;
+                succeeded = true;
                 HashMap<String, Object> params = new HashMap<>();
                 params.put(VectorRoomActivity.EXTRA_MATRIX_ID, item.mUserId);
                 params.put(VectorRoomActivity.EXTRA_ROOM_ID, existingRoom.getRoomId());
@@ -432,14 +429,14 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
             // direct message flow
             //it will be more open on next sprints ...
             if (!LoginActivity.isUserExternal(mSession)) {
-                directChatOpened = true;
+                succeeded = true;
                 this.showWaitingView();
                 mSession.createDirectMessageRoom(item.mUserId, mCreateDirectMessageCallBack);
             } else {
                 DinsicUtils.alertSimpleMsg(this, getString(R.string.room_creation_forbidden));
             }
         }
-        return directChatOpened;
+        return succeeded;
     }
 
     /**
@@ -505,9 +502,9 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
     }
 
 
-    //==============================================================================================================
+    //=============================================================================================
     // Handle the waiting view
-    //==============================================================================================================
+    //=============================================================================================
 
     /**
      * SHow teh waiting view

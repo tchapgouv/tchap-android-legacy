@@ -667,6 +667,7 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
             params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
             params.put(VectorRoomActivity.EXTRA_EXPAND_ROOM_HEADER, true);
 
+            Log.d(LOG_TAG, "## mCreateDirectMessageCallBack: onSuccess - start goToRoomPage");
             CommonActivityUtils.goToRoomPage(getActivity(), mSession, params);
         }
 
