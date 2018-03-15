@@ -265,24 +265,6 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
             }
         }, this, this);
         mRecycler.setAdapter(mAdapter);
-
-        // dont use Matrix filter
-        /*
-        View checkBox = mAdapter.findSectionSubViewById(R.id.matrix_only_filter_checkbox);
-        if (checkBox != null && checkBox instanceof CheckBox) {
-            mMatrixUserOnlyCheckbox = (CheckBox) checkBox;
-            mMatrixUserOnlyCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                    SharedPreferences.Editor editor = preferences.edit();
-                    editor.putBoolean(MATRIX_USER_ONLY_PREF_KEY, mMatrixUserOnlyCheckbox.isChecked());
-                    editor.commit();
-
-                    initContactsViews();
-                }
-            });
-        }*/
     }
 
     /*
