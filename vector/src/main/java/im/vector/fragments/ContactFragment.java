@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 New Vector Ltd
+ * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.Filter;
+import android.widget.Toast;
 
 import org.matrix.androidsdk.MXDataHandler;
 import org.matrix.androidsdk.MXSession;
@@ -81,6 +82,9 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
 
     @BindView(R.id.recyclerview)
     RecyclerView mRecycler;
+
+    @BindView(R.id.listView_spinner_views)
+    View mWaitingView;
 
     private CheckBox mMatrixUserOnlyCheckbox;
 
@@ -312,7 +316,7 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                         final Set<String> tags = room.getAccountData().getKeys();
                         if ((null == tags) || !tags.contains(RoomTag.ROOM_TAG_LOW_PRIORITY)) {
                             mDirectChats.add(dataHandler.getRoom(roomId));
-                       }
+                        }
                     }
                 }
             }
@@ -355,7 +359,7 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
 
                                     }
                                 }
-                             }
+                            }
                         }
                     }
                 }
@@ -538,18 +542,14 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
 
             // tell if contact is tchap user
             if (MXSession.isUserId(item.mUserId))// || DinsicUtils.isFromFrenchGov(item.mContact.getEmails()))
-                contactSelected(item, null);
+                openDirectChat(item.mUserId, true);
             else {
-
                 //don't have to ask the question if a room already exists
-                String existingRoomId;
                 String msg = getString(R.string.room_invite_non_gov_people);
                 if (DinsicUtils.isFromFrenchGov(item.mContact.getEmails()))
                     msg = getString(R.string.room_invite_gov_people);
-                if (null != (existingRoomId = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(item.mUserId, mSession, LOG_TAG))) {
-                    contactSelected(item,existingRoomId);
-                }
-                else {
+
+                if (!openDirectChat(item.mUserId, false)) {
                     if (LoginActivity.isUserExternal(mSession)) {
                         DinsicUtils.alertSimpleMsg(getActivity(), getString(R.string.room_creation_forbidden));
                     } else {
@@ -562,7 +562,7 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                                 .setPositiveButton(R.string.ok,
                                         new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int id) {
-                                                contactSelected(item,null);
+                                                openDirectChat(item.mUserId, true);
                                             }
                                         })
                                 .setNegativeButton(R.string.cancel, null);
@@ -574,39 +574,94 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                     }
                 }
             }
-
-        } else {// tell the user that the email must be filled. Propose to fill it
-            DinsicUtils.editContact(getActivity(),this.getContext(),item);
+        } else{// tell the user that the email must be filled. Propose to fill it
+            DinsicUtils.editContact(mActivity, this.getContext(), item);
         }
-
     }
+
     /**
-     * click on a local or known contact
+     * Open the current direct chat with the corresponding user id.
+     * Look for a potential existing direct chat with this user (by considering pending invite too)
      *
-     * @param item
+     * @param participantId (matrix id ou email)
+     * @param canCreate create the direct chat if it does not exist.
+     * @return boolean that says if the direct chat room is open or not
      */
-    private void contactSelected(final ParticipantAdapterItem item, String existingRoomId) {
-        if (null == existingRoomId) existingRoomId = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(item.mUserId, mSession, LOG_TAG);
-        if (null != existingRoomId) {
-            HashMap<String, Object> params = new HashMap<>();
-            params.put(VectorRoomActivity.EXTRA_MATRIX_ID, item.mUserId);
-            params.put(VectorRoomActivity.EXTRA_ROOM_ID, existingRoomId);
-            CommonActivityUtils.goToRoomPage(getActivity(), mSession, params);
-        } else {
+    private boolean openDirectChat (String participantId, boolean canCreate) {
+        Room existingRoom = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(participantId, mSession, true);
+        boolean succeeded = false;
+
+        if (null != existingRoom) {
+            if (existingRoom.isInvited()) {
+                succeeded = true;
+                mActivity.showWaitingView();
+
+                mSession.joinRoom(existingRoom.getRoomId(), new ApiCallback<String>() {
+                    @Override
+                    public void onSuccess(String roomId) {
+                        mActivity.stopWaitingView();
+
+                        HashMap<String, Object> params = new HashMap<>();
+                        params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
+                        params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
+                        CommonActivityUtils.goToRoomPage(mActivity, mSession, params);
+                    }
+
+                    private void onError(final String message) {
+                        mWaitingView.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (null != message) {
+                                    Toast.makeText(mActivity, message, Toast.LENGTH_LONG).show();
+                                }
+                                mActivity.stopWaitingView();
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onNetworkError(Exception e) {
+                        onError(e.getLocalizedMessage());
+                    }
+
+                    @Override
+                    public void onMatrixError(final MatrixError e) {
+                        onError(e.getLocalizedMessage());
+                    }
+
+                    @Override
+                    public void onUnexpectedError(final Exception e) {
+                        onError(e.getLocalizedMessage());
+                    }
+                });
+            } else {
+                succeeded = true;
+                HashMap<String, Object> params = new HashMap<>();
+                params.put(VectorRoomActivity.EXTRA_MATRIX_ID, participantId);
+                params.put(VectorRoomActivity.EXTRA_ROOM_ID, existingRoom.getRoomId());
+                CommonActivityUtils.goToRoomPage(mActivity, mSession, params);
+
+            }
+        } else if (canCreate){
             // direct message flow
             //it will be more open on next sprints ...
             if (!LoginActivity.isUserExternal(mSession)) {
-                mSession.createDirectMessageRoom(item.mUserId, mCreateDirectMessageCallBack);
+                succeeded = true;
+                mActivity.showWaitingView();
+                mSession.createDirectMessageRoom(participantId, mCreateDirectMessageCallBack);
             } else {
                 DinsicUtils.alertSimpleMsg(this.getActivity(), getString(R.string.room_creation_forbidden));
             }
         }
+        return succeeded;
     }
 
     // direct message
     private final ApiCallback<String> mCreateDirectMessageCallBack = new ApiCallback<String>() {
         @Override
         public void onSuccess(final String roomId) {
+            mActivity.stopWaitingView();
+
             HashMap<String, Object> params = new HashMap<>();
             params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
             params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
@@ -617,6 +672,15 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
         }
 
         private void onError(final String message) {
+            mWaitingView.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (null != message) {
+                        Toast.makeText(mActivity, message, Toast.LENGTH_LONG).show();
+                    }
+                    mActivity.stopWaitingView();
+                }
+            });
         }
 
         @Override
