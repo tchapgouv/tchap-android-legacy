@@ -1,5 +1,6 @@
 /*
  * Copyright 2016 OpenMarket Ltd
+ * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,7 +61,7 @@ public class VectorUniversalLinkActivity extends RiotBaseActivity {
 
                 Uri intentUri = getIntent().getData();
                 // account registration URL set in a mail:
-                HashMap<String, String> mailRegParams = VectorRegistrationReceiver.parseMailRegistrationLink(intentUri);
+                HashMap<String, String> mailRegParams = VectorRegistrationReceiver.parseMailRegistrationLink(getApplicationContext(), intentUri);
 
                 // when there is a next link, assume it is a new account creation
                 if (mailRegParams.containsKey(VectorRegistrationReceiver.KEY_MAIL_VALIDATION_NEXT_LINK) || (null == Matrix.getInstance(this).getDefaultSession())) {
