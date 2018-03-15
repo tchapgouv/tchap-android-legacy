@@ -1,5 +1,5 @@
 /* 
- * Copyright 2018 Dinsic
+ * Copyright 2018 DINSIC
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,14 +36,14 @@ public class TchapRestClient extends RestClient<TchapApi> {
     }
 
     /**
-     * Retrieve the Tchap platform configuration from a 3rd party id.
+     * Retrieve the Tchap platform from a 3rd party id.
      * @param address 3rd party id
      * @param medium the media.
      * @param callback the callback
      */
-    public void discoverUrls(String address, String medium, final ApiCallback<Platform> callback) {
+    public void info(String address, String medium, final ApiCallback<Platform> callback) {
         try {
-            mApi.discoverUrls(address, medium, new Callback<Platform>() {
+            mApi.info(address, medium, new Callback<Platform>() {
                 @Override
                 public void success(Platform platform, Response response) {
                     callback.onSuccess(platform);

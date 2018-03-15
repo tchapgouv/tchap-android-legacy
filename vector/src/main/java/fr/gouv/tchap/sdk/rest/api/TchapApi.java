@@ -1,5 +1,5 @@
 /* 
- * Copyright 2018 Dinsic
+ * Copyright 2018 DINSIC
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,13 +23,13 @@ import retrofit.http.Query;
 public interface TchapApi {
 
     /**
-     * Get the Tchap platform configuration (HS/IS tuple) from a medium. This can be used both for registration & login.
+     * Get the Tchap platform configuration from a medium. This can be used both for registration & login.
      *
      * @param address  the address.
      * @param medium   the medium.
      * @param callback the asynchronous callback called with the response
      */
-    @GET("/discover_urls")
-    void discoverUrls(@Query("address") String address,
-                      @Query("medium") String medium, Callback<Platform> callback);
+    @GET("/info")
+    void info(@Query("address") String address,
+              @Query("medium") String medium, Callback<Platform> callback);
 }

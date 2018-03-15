@@ -1,5 +1,5 @@
 /* 
- * Copyright 2018 Dinsic
+ * Copyright 2018 DINSIC
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ package fr.gouv.tchap.sdk.rest.model;
  * Class to contain a Tchap platform configuration.
  */
 public class Platform {
-    public String hs_url;
-    public String is_url;
+    // The homeserver name.
+    public String hs;
+    // Tell whether the provided email has been invited or not
+    public boolean invited;
 }

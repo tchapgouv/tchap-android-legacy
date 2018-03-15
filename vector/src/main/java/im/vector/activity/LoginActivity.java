@@ -1,7 +1,7 @@
 /*
  * Copyright 2016 OpenMarket Ltd
  * Copyright 2017 Vector Creations Ltd
- * Copyright 2018 Dinsic
+ * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,14 +78,11 @@ import im.vector.UnrecognizedCertHandler;
 import im.vector.receiver.VectorRegistrationReceiver;
 import im.vector.receiver.VectorUniversalLinkReceiver;
 import im.vector.services.EventStreamService;
-import im.vector.util.DinsicUtils;
 
 /**
  * Displays the login screen.
  */
 public class LoginActivity extends MXCActionBarActivity implements RegistrationManager.RegistrationListener, RegistrationManager.UsernameValidityListener {
-    public static final List<String> mSupportedHosts = Arrays.asList("matrix.i.tchap.rie.gouv.fr", "matrix.a.tchap.rie.gouv.fr", "matrix.e.tchap.rie.gouv.fr");
-
     private static final String LOG_TAG = LoginActivity.class.getSimpleName();
 
     private static final int ACCOUNT_CREATION_ACTIVITY_REQUEST_CODE = 314;
@@ -2083,14 +2080,14 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
      * @return the home server Url according to current tchap platform.
      */
     private String getHomeServerUrl() {
-        return (null != mTchapPlatform) ? mTchapPlatform.hs_url : null;
+        return (null != mTchapPlatform) ? getString(R.string.server_url_prefix) + mTchapPlatform.hs : null;
     }
 
     /**
      * @return the identity server URL according to current tchap platform.
      */
     private String getIdentityServerUrl() {
-        return (null != mTchapPlatform) ? mTchapPlatform.is_url : null;
+        return (null != mTchapPlatform) ? getString(R.string.server_url_prefix) + mTchapPlatform.hs : null;
     }
 
     /**
@@ -2102,7 +2099,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
     private void discoverTchapPlatform(final String emailAddress, final ApiCallback<Platform> callback) {
         Log.d(LOG_TAG, "## discoverTchapPlatform [" + emailAddress + "]");
         // Copy the list of the known ISes in order to run over the list until to get an answer.
-        List<String> currentHosts = new ArrayList<String>(mSupportedHosts);
+        List<String> currentHosts = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.identity_server_names)));
         discoverTchapPlatform(emailAddress, currentHosts, callback);
     }
 
@@ -2119,14 +2116,14 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
         }
 
         int index = (new Random()).nextInt(currentHosts.size());
-        String selectedUrl = "https://" + currentHosts.get(index);
+        String selectedUrl = getString(R.string.server_url_prefix) + currentHosts.get(index);
         currentHosts.remove(index);
 
         TchapRestClient tchapRestClient = new TchapRestClient(new HomeServerConnectionConfig(Uri.parse(selectedUrl), Uri.parse(selectedUrl), null, new ArrayList<Fingerprint>(), false));
-        tchapRestClient.discoverUrls(emailAddress, ThreePid.MEDIUM_EMAIL, new ApiCallback<Platform>() {
+        tchapRestClient.info(emailAddress, ThreePid.MEDIUM_EMAIL, new ApiCallback<Platform>() {
             @Override
             public void onSuccess(Platform platform) {
-                Log.d(LOG_TAG, "## discoverTchapPlatform succeeded");
+                Log.d(LOG_TAG, "## discoverTchapPlatform succeeded (" + platform.hs +")");
                 callback.onSuccess(platform);
             }
 

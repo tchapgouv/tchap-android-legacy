@@ -1,5 +1,6 @@
 /*
  * Copyright 2016 OpenMarket Ltd
+ * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import im.vector.R;
 import im.vector.activity.LoginActivity;
 
 @SuppressLint("LongLogTag")
@@ -82,7 +84,7 @@ public class VectorRegistrationReceiver extends BroadcastReceiver {
                 // test if URI path is allowed
                 if (SUPPORTED_PATH_ACCOUNT_EMAIL_VALIDATION.equals(intentUri.getPath())) {
                     // account registration URL set in a mail:
-                    HashMap<String, String> mailRegParams = parseMailRegistrationLink(intentUri);
+                    HashMap<String, String> mailRegParams = parseMailRegistrationLink(aContext, intentUri);
 
                     // build Login intent
                     Intent intent = new Intent(aContext, LoginActivity.class);
@@ -101,10 +103,11 @@ public class VectorRegistrationReceiver extends BroadcastReceiver {
      * This flow flow is part of the registration process {@see <a href="http://matrix.org/speculator/spec/HEAD/identity_service.html">Indenty spec server</a>}:
      * https://vector.im/_matrix/identity/api/v1/validate/email/submitToken?token=172230&client_secret=3a164877-1f6a-4aa3-a056-0dc20ebe6392&sid=3672&nextLink=https%3A//vector.im/develop/%23/register%3Fclient_secret%3D3a164877-1f6a-4aa3-a056-0dc20ebe6392%26hs_url%3Dhttps%3A//matrix.org%26is_url%3Dhttps%3A//vector.im%26session_id%3DipLKXEvRArNFZkDVpIZvqJMa%26sid%3D3672
      *
+     * @param aContext
      * @param uri the uri to parse
      * @return the parameters extracted from the the URI.
      */
-    public static HashMap<String, String> parseMailRegistrationLink(Uri uri) {
+    public static HashMap<String, String> parseMailRegistrationLink(final Context aContext, Uri uri) {
         HashMap<String, String> mapParams = new HashMap<>();
 
         try {
@@ -117,7 +120,9 @@ public class VectorRegistrationReceiver extends BroadcastReceiver {
                 String uriFragment, host = uri.getHost();
                 Log.i(LOG_TAG, "## parseMailRegistrationLink(): host=" + host);
 
-                if (!LoginActivity.mSupportedHosts.contains(host)) {
+                List<String> supportedHosts = Arrays.asList(aContext.getResources().getStringArray(R.array.identity_server_names));
+
+                if (!supportedHosts.contains(host)) {
                     Log.e(LOG_TAG, "## parseUniversalLink : unsupported host =" + host);
                     return null;
                 }
