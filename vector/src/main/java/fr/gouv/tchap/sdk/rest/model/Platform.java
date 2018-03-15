@@ -21,6 +21,6 @@ package fr.gouv.tchap.sdk.rest.model;
 public class Platform {
     // The homeserver name.
     public String hs;
-    // Tell whether the provided email has been invited or not
+    // Tell whether the given 3pid has been invited to the platform or not.
     public boolean invited;
 }
