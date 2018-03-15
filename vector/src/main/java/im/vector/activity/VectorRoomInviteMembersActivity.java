@@ -22,25 +22,17 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.FragmentActivity;
-import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ExpandableListView;
-import android.content.Context;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.matrix.androidsdk.MXSession;
-import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.listeners.MXEventListener;
-import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
 import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.rest.model.MatrixError;
@@ -57,10 +49,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-import butterknife.Optional;
 import im.vector.Matrix;
 import im.vector.R;
 import im.vector.adapters.ParticipantAdapterItem;
@@ -103,12 +91,6 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
 
     // participants list
     private List<ParticipantAdapterItem> mHiddenParticipantItems = new ArrayList<>();
-
-    // current activity
-    VectorRoomInviteMembersActivity mActivity;
-
-    // current session
-    MXSession mxSession;
 
     // adapter
     private VectorParticipantsAdapter mAdapter;
@@ -540,7 +522,7 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
     private  void createNewRoom() {
         hideKeyboard();
         showWaitingView();
-        mSession.createRoom(new SimpleApiCallback<String>(mActivity) {
+        mSession.createRoom(new SimpleApiCallback<String>(VectorRoomInviteMembersActivity.this) {
             @Override
             public void onSuccess(final String roomId) {
                 mLoadingView.post(new Runnable() {
@@ -561,7 +543,7 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
                     @Override
                     public void run() {
                         if (null != message) {
-                            Toast.makeText(mActivity, message, Toast.LENGTH_LONG).show();
+                            Toast.makeText(VectorRoomInviteMembersActivity.this, message, Toast.LENGTH_LONG).show();
                         }
                         stopWaitingView();
                     }

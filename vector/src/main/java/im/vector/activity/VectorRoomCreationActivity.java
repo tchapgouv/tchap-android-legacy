@@ -1,6 +1,7 @@
 /*
  * Copyright 2015 OpenMarket Ltd
  * Copyright 2017 Vector Creations Ltd
+ * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -313,7 +314,7 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
      * @param aUserId user ID to search for
      * @return a room ID if search succeed, null otherwise.
      */
-    public static Room isDirectChatRoomAlreadyExist(String aUserId, MXSession mSession, boolean ignoreInvite) {
+    public static Room isDirectChatRoomAlreadyExist(String aUserId, MXSession mSession, boolean includeInvite) {
         if (null != mSession) {
             IMXStore store = mSession.getDataHandler().getStore();
             HashMap<String, List<String>> directChatRoomsDict;
@@ -331,7 +332,7 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
                             // dinsic: if the member is not already in matrix and just invited he's not active but
                             // the room can be considered as ok
                             if ((null != room) && !room.isLeaving()) {
-                                if (!ignoreInvite || !room.isInvited()) {
+                                if (includeInvite || !room.isInvited()) {
                                     if (!MXSession.isUserId(aUserId)) {
                                         Log.d(LOG_TAG, "## isDirectChatRoomAlreadyExist(): for user=" + aUserId + " for room id=" + roomId);
                                         return room;
@@ -371,7 +372,7 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
      * @return boolean that says if the direct chat room is open or not
      */
     private boolean isDirectChatOpened(final ParticipantAdapterItem item, boolean canCreate) {
-        Room existingRoom = this.isDirectChatRoomAlreadyExist(item.mUserId, mSession, false);
+        Room existingRoom = this.isDirectChatRoomAlreadyExist(item.mUserId, mSession, true);
         boolean succeeded = false;
 
         if (null != existingRoom) {

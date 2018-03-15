@@ -1,5 +1,6 @@
 /*
  * Copyright 2017 Vector Creations Ltd
+ * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -474,7 +475,7 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
             else {
                 //don't have to ask the question if a room already exists
                 Room existingRoom;
-                if (null != (existingRoom = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(item.mUserId, mSession, true))) {
+                if (null != (existingRoom = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(item.mUserId, mSession, false))) {
                     contactSelected(item, existingRoom);
                 } else {
                     AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
@@ -525,7 +526,7 @@ public class PeopleFragment extends AbsHomeFragment implements ContactsManager.C
      */
     private void contactSelected(final ParticipantAdapterItem item, Room existingRoom) {
         if (null == existingRoom) {
-            existingRoom = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(item.mUserId, mSession, true);
+            existingRoom = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(item.mUserId, mSession, false);
         }
 
         if (null != existingRoom) {

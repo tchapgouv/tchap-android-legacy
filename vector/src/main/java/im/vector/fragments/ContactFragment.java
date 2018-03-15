@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 New Vector Ltd
+ * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -549,7 +549,7 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                 String msg = getString(R.string.room_invite_non_gov_people);
                 if (DinsicUtils.isFromFrenchGov(item.mContact.getEmails()))
                     msg = getString(R.string.room_invite_gov_people);
-                if (null != (existingRoom = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(item.mUserId, mSession, true))) {
+                if (null != (existingRoom = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(item.mUserId, mSession, false))) {
                     openDirectChat(item, false);
                 } else if (LoginActivity.isUserExternal(mSession)) {
                     DinsicUtils.alertSimpleMsg(getActivity(), getString(R.string.room_creation_forbidden));
@@ -588,7 +588,7 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
      * @return the corresponding room id or null
      */
     private boolean openDirectChat (final ParticipantAdapterItem item, boolean canCreate) {
-        Room existingRoom = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(item.mUserId, mSession, false);
+        Room existingRoom = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(item.mUserId, mSession, true);
         boolean directChatOpened = false;
 
         if (null != existingRoom) {
