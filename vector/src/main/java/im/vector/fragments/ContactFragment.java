@@ -542,58 +542,58 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
 
             // tell if contact is tchap user
             if (MXSession.isUserId(item.mUserId))// || DinsicUtils.isFromFrenchGov(item.mContact.getEmails()))
-                openDirectChat(item, true);
+                openDirectChat(item.mUserId, true);
             else {
                 //don't have to ask the question if a room already exists
-                Room existingRoom;
                 String msg = getString(R.string.room_invite_non_gov_people);
                 if (DinsicUtils.isFromFrenchGov(item.mContact.getEmails()))
                     msg = getString(R.string.room_invite_gov_people);
-                if (null != (existingRoom = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(item.mUserId, mSession, false))) {
-                    openDirectChat(item, false);
-                } else if (LoginActivity.isUserExternal(mSession)) {
-                    DinsicUtils.alertSimpleMsg(getActivity(), getString(R.string.room_creation_forbidden));
-                } else {
-                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-                    alertDialogBuilder.setMessage(msg);
 
-                    // set dialog message
-                    alertDialogBuilder
-                            .setCancelable(false)
-                            .setPositiveButton(R.string.ok,
-                                    new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int id) {
-                                            openDirectChat(item,true);
-                                        }
-                                    })
-                            .setNegativeButton(R.string.cancel, null);
+                if (!openDirectChat(item.mUserId, false)) {
+                    if (LoginActivity.isUserExternal(mSession)) {
+                        DinsicUtils.alertSimpleMsg(getActivity(), getString(R.string.room_creation_forbidden));
+                    } else {
+                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                        alertDialogBuilder.setMessage(msg);
 
-                    // create alert dialog
-                    AlertDialog alertDialog = alertDialogBuilder.create();
-                    // show it
-                    alertDialog.show();
+                        // set dialog message
+                        alertDialogBuilder
+                                .setCancelable(false)
+                                .setPositiveButton(R.string.ok,
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int id) {
+                                                openDirectChat(item.mUserId, true);
+                                            }
+                                        })
+                                .setNegativeButton(R.string.cancel, null);
+
+                        // create alert dialog
+                        AlertDialog alertDialog = alertDialogBuilder.create();
+                        // show it
+                        alertDialog.show();
+                    }
                 }
             }
-
-        } else {// tell the user that the email must be filled. Propose to fill it
+        } else{// tell the user that the email must be filled. Propose to fill it
             DinsicUtils.editContact(mActivity, this.getContext(), item);
         }
     }
 
     /**
      * Open the current direct chat with the corresponding user id.
+     * Look for a potential existing direct chat with this user (by considering pending invite too)
      *
-     * @param item : participant id
+     * @param participantId (matrix id ou email)
      * @param canCreate create the direct chat if it does not exist.
-     * @return the corresponding room id or null
+     * @return boolean that says if the direct chat room is open or not
      */
-    private boolean openDirectChat (final ParticipantAdapterItem item, boolean canCreate) {
-        Room existingRoom = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(item.mUserId, mSession, true);
-        boolean directChatOpened = false;
+    private boolean openDirectChat (String participantId, boolean canCreate) {
+        Room existingRoom = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(participantId, mSession, true);
+        boolean succeeded = false;
 
         if (null != existingRoom) {
             if (existingRoom.isInvited()) {
-                directChatOpened = true;
+                succeeded = true;
                 mActivity.showWaitingView();
 
                 mSession.joinRoom(existingRoom.getRoomId(), new ApiCallback<String>() {
@@ -635,9 +635,9 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                     }
                 });
             } else {
-                directChatOpened = true;
+                succeeded = true;
                 HashMap<String, Object> params = new HashMap<>();
-                params.put(VectorRoomActivity.EXTRA_MATRIX_ID, item.mUserId);
+                params.put(VectorRoomActivity.EXTRA_MATRIX_ID, participantId);
                 params.put(VectorRoomActivity.EXTRA_ROOM_ID, existingRoom.getRoomId());
                 CommonActivityUtils.goToRoomPage(mActivity, mSession, params);
 
@@ -646,14 +646,14 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
             // direct message flow
             //it will be more open on next sprints ...
             if (!LoginActivity.isUserExternal(mSession)) {
-                directChatOpened = true;
+                succeeded = true;
                 mActivity.showWaitingView();
-                mSession.createDirectMessageRoom(item.mUserId, mCreateDirectMessageCallBack);
+                mSession.createDirectMessageRoom(participantId, mCreateDirectMessageCallBack);
             } else {
                 DinsicUtils.alertSimpleMsg(this.getActivity(), getString(R.string.room_creation_forbidden));
             }
         }
-        return directChatOpened;
+        return succeeded;
     }
 
     // direct message

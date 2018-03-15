@@ -284,18 +284,27 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
 
         if (id == R.id.action_create_room) {
             if (mParticipants.isEmpty()) {
+                // create an empty room
+                // if there is no participant added to the list
                 createRoom(mParticipants);
             } else {
                 // the first entry is self so ignore
+                // in order to avoid to invite myself
                 mParticipants.remove(0);
 
                 // standalone case : should be accepted ?
                 if (mParticipants.isEmpty()) {
+                    // create an empty room
+                    // if there is no participant added to the list
                     createRoom(mParticipants);
                 } else if (mParticipants.size() > 1) {
+                    // create a new room with inviting multiple participants
                     createRoom(mParticipants);
                 } else {
-                    isDirectChatOpened(mParticipants.get(0), true);
+                    // open a direct chat with this participant
+                    // by considering pending invite too
+                    // or create a new one if it doesn't exist
+                    openDirectChat(mParticipants.get(0).mUserId, true);
                 }
             }
             return true;
@@ -312,6 +321,8 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
      * Return the first direct chat room for a given user ID.
      *
      * @param aUserId user ID to search for
+     * @param mSession current session
+     * @param includeInvite boolean to tell us if pending invitations have to be consider or not
      * @return a room ID if search succeed, null otherwise.
      */
     public static Room isDirectChatRoomAlreadyExist(String aUserId, MXSession mSession, boolean includeInvite) {
@@ -329,10 +340,10 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
                         for (String roomId : roomIdsList) {
                             Room room = mSession.getDataHandler().getRoom(roomId, false);
                             // check if the room is already initialized
-                            // dinsic: if the member is not already in matrix and just invited he's not active but
-                            // the room can be considered as ok
                             if ((null != room) && !room.isLeaving()) {
-                                if (includeInvite || !room.isInvited()) {
+                                if (includeInvite || (room.isReady() && !room.isInvited())) {
+                                    // dinsic: if the member is not already in matrix and just invited he's not active but
+                                    // the room can be considered as ok
                                     if (!MXSession.isUserId(aUserId)) {
                                         Log.d(LOG_TAG, "## isDirectChatRoomAlreadyExist(): for user=" + aUserId + " for room id=" + roomId);
                                         return room;
@@ -342,10 +353,10 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
 
                                         for (RoomMember member : members) {
                                             if (TextUtils.equals(member.getUserId(), aUserId)) {
+                                                Log.d(LOG_TAG, "## isDirectChatRoomAlreadyExist(): for user=" + aUserId + " for room id=" + roomId);
                                                 return room;
                                             }
                                         }
-                                        Log.d(LOG_TAG, "## isDirectChatRoomAlreadyExist(): for user=" + aUserId + " for room id=" + roomId);
                                     }
                                 }
                             }
@@ -360,19 +371,19 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
 
 
     //=============================================================================================
-    // Handle open existing direct chat room
+    // Handle existing direct chat room
     //=============================================================================================
 
     /**
      * Open the current direct chat with the corresponding user id.
      * Look for a potential existing direct chat with this user (by considering pending invite too)
      *
-     * @param item : participant id
+     * @param participantId : participant id (matrix id ou email)
      * @param canCreate create the direct chat if it does not exist.
-     * @return boolean that says if the direct chat room is open or not
+     * @return boolean that says if the direct chat room is opened or not
      */
-    private boolean isDirectChatOpened(final ParticipantAdapterItem item, boolean canCreate) {
-        Room existingRoom = this.isDirectChatRoomAlreadyExist(item.mUserId, mSession, true);
+    private boolean openDirectChat(String participantId, boolean canCreate) {
+        Room existingRoom = this.isDirectChatRoomAlreadyExist(participantId, mSession, true);
         boolean succeeded = false;
 
         if (null != existingRoom) {
@@ -421,7 +432,7 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
             } else {
                 succeeded = true;
                 HashMap<String, Object> params = new HashMap<>();
-                params.put(VectorRoomActivity.EXTRA_MATRIX_ID, item.mUserId);
+                params.put(VectorRoomActivity.EXTRA_MATRIX_ID, participantId);
                 params.put(VectorRoomActivity.EXTRA_ROOM_ID, existingRoom.getRoomId());
                 CommonActivityUtils.goToRoomPage(VectorRoomCreationActivity.this, mSession, params);
 
@@ -432,7 +443,7 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
             if (!LoginActivity.isUserExternal(mSession)) {
                 succeeded = true;
                 this.showWaitingView();
-                mSession.createDirectMessageRoom(item.mUserId, mCreateDirectMessageCallBack);
+                mSession.createDirectMessageRoom(participantId, mCreateDirectMessageCallBack);
             } else {
                 DinsicUtils.alertSimpleMsg(this, getString(R.string.room_creation_forbidden));
             }
