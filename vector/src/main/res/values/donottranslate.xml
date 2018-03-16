@@ -2,11 +2,16 @@
 <resources>
     <string name="riot_app_name">Tchap</string>
 
-    <!-- server urls -->
-    <string name="vector_im_server_url" translatable="false">https://vector.im</string>
-    <string name="matrix_org_server_url" translatable="false">https://matrix.org</string>
-    <string name="default_hs_server_url" translatable="false">https://matrix.org</string>
-    <string name="default_identity_server_url" translatable="false">https://vector.im</string>
+    <!-- Identity server names -->
+    <string-array
+        name="identity_server_names" translatable="false" >
+        <item>i.tchap.rie.gouv.fr</item>
+        <item>a.tchap.rie.gouv.fr</item>
+        <item>e.tchap.rie.gouv.fr</item>
+    </string-array>
+
+    <!-- Server url prefix -->
+    <string name="server_url_prefix" translatable="false">https://matrix.</string>
 
     <!-- empty means to use the active HS url -->
     <!-- set a valid URL like "https://matrix.org" to use a custom one -->

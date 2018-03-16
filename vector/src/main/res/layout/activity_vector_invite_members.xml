@@ -13,9 +13,40 @@
         android:textAllCaps="false"
         android:textSize="16sp" />
 
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/header_create_room"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/search_invite_by_id"
+        android:background="?attr/list_header_background_color"
+        android:orientation="vertical"
+        android:layout_marginBottom="10dp">
+
+        <RelativeLayout
+            android:id="@+id/people_header_sub_layout"
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:layout_marginBottom="11dp"
+            android:layout_marginTop="11dp">
+
+                <TextView
+                    android:id="@+id/create_new_room"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="16dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="@string/room_recents_create_room"
+                    android:textColor="?attr/riot_primary_text_color"
+                    android:textSize="14sp"
+                    android:textAllCaps="true"/>
+        </RelativeLayout>
+
+    </LinearLayout>
+
     <ExpandableListView
         android:id="@+id/room_details_members_list"
-        android:layout_below="@+id/search_invite_by_id"
+        android:layout_below="@+id/header_create_room"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:divider="@android:color/transparent"

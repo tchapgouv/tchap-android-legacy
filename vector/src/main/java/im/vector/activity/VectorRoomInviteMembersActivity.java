@@ -26,12 +26,16 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ExpandableListView;
+import android.widget.Toast;
 
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.listeners.MXEventListener;
+import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
 import org.matrix.androidsdk.rest.model.Event;
+import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.util.Log;
@@ -39,6 +43,7 @@ import org.matrix.androidsdk.util.Log;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -153,7 +158,8 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        setContentView(R.layout.activity_vector_invite_members);
+        
         if (CommonActivityUtils.shouldRestartApp(this)) {
             Log.e(LOG_TAG, "Restart the application.");
             CommonActivityUtils.restartApp(this);
@@ -192,9 +198,6 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
         // tell if a confirmation dialog must be displayed.
         mAddConfirmationDialog = intent.getBooleanExtra(EXTRA_ADD_CONFIRMATION_DIALOG, false);
 
-        //
-        setContentView(R.layout.activity_vector_invite_members);
-
         // the user defines a
         if (null != mPatternToSearchEditText) {
             mPatternToSearchEditText.setHint(R.string.room_participants_invite_search_another_user);
@@ -216,14 +219,20 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
         mListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-                Object item = mAdapter.getChild(groupPosition, childPosition);
+                boolean ret = false;
+                final Object item = mAdapter.getChild(groupPosition, childPosition);
 
-                if (item instanceof ParticipantAdapterItem && ((ParticipantAdapterItem) item).mIsValid) {
-                    ParticipantAdapterItem participantAdapterItem = (ParticipantAdapterItem) item;
-                    finish(new ArrayList<>(Arrays.asList(participantAdapterItem)));
-                    return true;
+                if (item instanceof ParticipantAdapterItem) {
+                    final ParticipantAdapterItem participantAdapterItem = (ParticipantAdapterItem) item;
+                    if (((ParticipantAdapterItem) item).mIsValid) {
+                        finish(new ArrayList<>(Arrays.asList(participantAdapterItem)));
+                        ret = true;
+                    }
+                    else {
+                        DinsicUtils.editContact(VectorRoomInviteMembersActivity.this,getApplicationContext(),(ParticipantAdapterItem) item);
+                    }
                 }
-                return false;
+                return ret;
             }
         });
 
@@ -231,7 +240,23 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
         inviteByIdTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                displayInviteByUserId();
+                if(LoginActivity.isUserExternal(mSession)) {
+                    DinsicUtils.alertSimpleMsg(VectorRoomInviteMembersActivity.this, getString(R.string.action_forbidden));
+                } else {
+                    displayInviteByUserId();
+                }
+            }
+        });
+
+        View createRoomView = findViewById(R.id.create_new_room);
+        createRoomView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!LoginActivity.isUserExternal(mSession)) {
+                    createNewRoom();
+                } else {
+                    DinsicUtils.alertSimpleMsg(VectorRoomInviteMembersActivity.this, getString(R.string.room_creation_forbidden));
+                }
             }
         });
 
@@ -352,13 +377,7 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
                         myAddress.add(item.mUserId);
                         isStrangers |= !DinsicUtils.isFromFrenchGov(myAddress);
                     }
-
-
-
-
-
                 }
-
             }
         }
         // a confirmation dialog has been requested
@@ -495,5 +514,100 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
             public void afterTextChanged(Editable s) {
             }
         });
+    }
+
+    /**
+     * Handle new room creation
+     */
+    private  void createNewRoom() {
+        hideKeyboard();
+        showWaitingView();
+        mSession.createRoom(new SimpleApiCallback<String>(VectorRoomInviteMembersActivity.this) {
+            @Override
+            public void onSuccess(final String roomId) {
+                mLoadingView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        stopWaitingView();
+                        HashMap<String, Object> params = new HashMap<>();
+                        params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
+                        params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
+                        params.put(VectorRoomActivity.EXTRA_EXPAND_ROOM_HEADER, true);
+                        CommonActivityUtils.goToRoomPage(VectorRoomInviteMembersActivity.this, mSession, params);
+                    }
+                });
+            }
+
+            private void onError(final String message) {
+                mLoadingView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (null != message) {
+                            Toast.makeText(VectorRoomInviteMembersActivity.this, message, Toast.LENGTH_LONG).show();
+                        }
+                        stopWaitingView();
+                    }
+                });
+            }
+
+            @Override
+            public void onNetworkError(Exception e) {
+                onError(e.getLocalizedMessage());
+            }
+
+            @Override
+            public void onMatrixError(final MatrixError e) {
+                onError(e.getLocalizedMessage());
+            }
+
+            @Override
+            public void onUnexpectedError(final Exception e) {
+                onError(e.getLocalizedMessage());
+            }
+        });
+    }
+
+    //==============================================================================================================
+    // Handle the waiting view
+    //==============================================================================================================
+
+    /**
+     * SHow teh waiting view
+     */
+    public void showWaitingView() {
+        if (null != mLoadingView) {
+            mLoadingView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    /**
+     * Hide the waiting view
+     */
+    public void stopWaitingView() {
+        if (null != mLoadingView) {
+            mLoadingView.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * Tells if the waiting view is currently displayed
+     *
+     * @return true if the waiting view is displayed
+     */
+    public boolean isWaitingViewVisible() {
+        return (null != mLoadingView) && (View.VISIBLE == mLoadingView.getVisibility());
+    }
+
+    //==============================================================================================================
+    // Handle keyboard visibility
+    //==============================================================================================================
+
+    private void hideKeyboard () {
+        // Check if no view has focus:
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager)getSystemService(this.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 }

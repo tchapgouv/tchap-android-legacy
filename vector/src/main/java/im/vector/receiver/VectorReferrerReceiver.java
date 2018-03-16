@@ -94,7 +94,8 @@ public class VectorReferrerReceiver extends BroadcastReceiver {
             Log.d(LOG_TAG, "## onReceive() : IS " + is);
 
 
-            if (!TextUtils.isEmpty(hs) || !TextUtils.isEmpty(is)) {
+            // INSTALL_REFERRER_ACTION is not enabled in tchap
+            /*if (!TextUtils.isEmpty(hs) || !TextUtils.isEmpty(is)) {
                 SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
                 SharedPreferences.Editor editor = preferences.edit();
 
@@ -112,7 +113,7 @@ public class VectorReferrerReceiver extends BroadcastReceiver {
                     Log.d(LOG_TAG, "## onReceive() : warn loginactivity");
                     ((LoginActivity)VectorApp.getCurrentActivity()).onServerUrlsUpdate();
                 }
-            }
+            }*/
         }
     }
 }

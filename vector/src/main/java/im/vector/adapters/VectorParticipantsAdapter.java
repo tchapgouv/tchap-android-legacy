@@ -65,6 +65,7 @@ import im.vector.contacts.PIDsRetriever;
 import im.vector.util.DinsicUtils;
 import im.vector.util.VectorUtils;
 
+
 /**
  * This class displays the users search results list.
  * The first list row can be customized.
@@ -154,7 +155,6 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
         mLayoutInflater = LayoutInflater.from(context);
         mCellLayoutResourceId = cellLayoutResourceId;
         mHeaderLayoutResourceId = headerLayoutResourceId;
-
         mSession = session;
         mRoomId = roomId;
         mWithAddIcon = withAddIcon;
@@ -222,8 +222,8 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
             for (Contact contact : contacts) {
                 // Show contacts without emails
                 //------------------------------------
-                if (contact.getEmails().size()==0){
-                    Contact dummyContact = new Contact("null");
+                if (contact.getEmails().size()==0) {
+                    Contact dummyContact = new Contact(contact.getContactId());
                     dummyContact.setDisplayName(contact.getDisplayName());
                     dummyContact.addEmailAdress(mContext.getString(R.string.no_email));
                     dummyContact.setThumbnailUri(contact.getThumbnailUri());
@@ -262,7 +262,8 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                             if (DinsicUtils.isFromFrenchGov(email)) {
                                 findGovEmail = true;
                                 if (mUsedMemberUserIds != null && !mUsedMemberUserIds.contains(participant.mUserId)) {
-                                    list.add(participant);
+                                        DinsicUtils.removeParticipantIfExist(list,participant);
+                                        list.add(participant);
                                 }
                             }
                             else if (!findGovEmail && candidatParticipant==null)
@@ -271,7 +272,8 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                     }
                     if (!findGovEmail && candidatParticipant!=null)
                         if (mUsedMemberUserIds != null && !mUsedMemberUserIds.contains(candidatParticipant.mUserId)) {
-                            list.add(candidatParticipant);
+                                DinsicUtils.removeParticipantIfExist(list,candidatParticipant);
+                                list.add(candidatParticipant);
                         }
 
                 }
@@ -649,10 +651,12 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                 firstEntryList.add(mFirstEntry);
             } else if (null != item.mContact) {
                 if (!mShowMatrixUserOnly || !item.mContact.getMatrixIdMediums().isEmpty()) {
-                    contactBookList.add(item);
+                    if (!DinsicUtils.participantAlreadyAdded(contactBookList,item))
+                        contactBookList.add(item);
                 }
             } else {
-                roomContactsList.add(item);
+                if (!DinsicUtils.participantAlreadyAdded(roomContactsList,item))
+                    roomContactsList.add(item);
             }
         }
 
@@ -673,7 +677,8 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
             if ((contactBookList.size() > 0) || !ContactsManager.getInstance().arePIDsRetrieved() || mShowMatrixUserOnly || !TextUtils.isEmpty(mPattern)) {
                 // Sort also by gouv priority
                 // the contacts are sorted by alphabetical method
-                Collections.sort(contactBookList, ParticipantAdapterItem.alphaGouvComparator);
+
+                Collections.sort(contactBookList, ParticipantAdapterItem.alphaComparator);// alphaGouvComparator);
             }
             mParticipantsListsList.add(contactBookList);
         } else {
@@ -721,7 +726,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
     @Override
     public boolean isChildSelectable(int groupPosition, int childPosition) {
         ParticipantAdapterItem item = (ParticipantAdapterItem) getChild(groupPosition, childPosition);
-        return groupPosition != 0 || item.mIsValid;
+        return groupPosition != 0 || (null!=item);
     }
 
 
@@ -854,10 +859,10 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
         loadingView.setVisibility(groupPosition == mLocalContactsSectionPosition && !ContactsManager.getInstance().arePIDsRetrieved() ? View.VISIBLE : View.GONE);
 
         ImageView imageView = convertView.findViewById(R.id.heading_image);
-        View matrixView = convertView.findViewById(R.id.people_header_matrix_contacts_layout);
+        //View matrixView = convertView.findViewById(R.id.people_header_matrix_contacts_layout);
 
         // reported by GA
-        if ((null == imageView) || (null == matrixView)) {
+        if ((null == imageView)) {// || (null == matrixView)) {
             Log.e(LOG_TAG, "## getGroupView() : null UI items");
             return convertView;
         }
@@ -876,14 +881,16 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
 
                 if (expandableListView.isGroupExpanded(groupPosition) != groupShouldBeExpanded) {
                     if (groupShouldBeExpanded) {
+                        imageView.setImageResource(R.drawable.ic_material_expand_less_black);
                         expandableListView.expandGroup(groupPosition);
                     } else {
+                        imageView.setImageResource(R.drawable.ic_material_expand_more_black);
                         expandableListView.collapseGroup(groupPosition);
                     }
                 }
             }
             // display a search toggle for the local contacts
-            matrixView.setVisibility(((groupPosition == mLocalContactsSectionPosition) && groupShouldBeExpanded) ? View.VISIBLE : View.GONE);
+            //if (matrixView != null) matrixView.setVisibility(((groupPosition == mLocalContactsSectionPosition) && groupShouldBeExpanded) ? View.VISIBLE : View.GONE);
             // dont use matrix filter
             /*
             // matrix user checkbox
@@ -909,17 +916,18 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                 @Override
                 public void onClick(View v) {
                     if (parent instanceof ExpandableListView) {
-                        if (isExpanded) {
+                        if (((ExpandableListView) parent).isGroupExpanded(groupPosition)) {
                             ((ExpandableListView) parent).collapseGroup(groupPosition);
                         } else {
                             ((ExpandableListView) parent).expandGroup(groupPosition);
                         }
+
                     }
                 }
             });
         } else {
             imageView.setImageDrawable(null);
-            matrixView.setVisibility(View.GONE);
+            //if (matrixView!=null) matrixView.setVisibility(View.GONE);
         }
 
         return convertView;

@@ -2,25 +2,29 @@
 <resources>
 
     <!-- main app colors -->
-    <color name="vector_green_color">#FF76cfa6</color>
+    <color name="vector_green_color">#4D3F7E</color>
     <color name="vector_fuchsia_color">#ff0064</color>
     <color name="vector_silver_color">#FFC7C7C7</color>
     <color name="vector_dark_grey_color">#FF999999</color>
+    <color name="vector_tchap_primary_color">#4D3F7E</color>
+    <color name="vector_tchap_secondary_color">#4D3F7E</color>
+    <color name="vector_tchap_primary_color_light">#4D3F7E</color>
+    <color name="vector_tchap_secondary_color_light">#4D3F7E</color>
 
     <!-- home activity tab bar color -->
     <color name="tab_home">@color/vector_green_color</color>
-    <color name="tab_home_secondary">#5EA584</color>
+    <color name="tab_home_secondary">@color/vector_tchap_primary_color</color>
     <color name="tab_favourites">#BD79CC</color>
     <color name="tab_favourites_secondary">#744C7F</color>
-    <color name="tab_people">#F8A15F</color>
-    <color name="tab_people_secondary">#D97051</color>
-    <color name="tab_rooms">@color/vector_green_color</color>
-    <color name="tab_rooms_secondary">#5EA584</color>
+    <color name="tab_people">@color/vector_tchap_primary_color</color>
+    <color name="tab_people_secondary">@color/vector_tchap_secondary_color</color>
+    <color name="tab_rooms">@color/vector_tchap_primary_color</color>
+    <color name="tab_rooms_secondary">@color/vector_tchap_secondary_color</color>
     <color name="tab_groups">#a6d0e5</color>
     <color name="tab_groups_secondary">#81bddb</color>
 
     <!-- color of the direct chat avatar ring -->
-    <color name="direct_chat_ring_color">#8076cfa6</color>
+    <color name="direct_chat_ring_color">@color/vector_tchap_secondary_color</color>
 
     <!-- theses colours are requested a background cannot be set by an ?att on android < 5 -->
     <!-- dedicated drawables are created for each theme -->
@@ -28,7 +32,7 @@
     <color name="riot_primary_background_color_dark">#2d2d2d</color>
     <color name="riot_primary_background_color_black">#000000</color>
 
-    <color name="primary_color_light">#76CFA6</color>
+    <color name="primary_color_light">@color/vector_tchap_primary_color_light</color>
     <color name="primary_color_dark">#353535</color>
 
     <color name="list_divider_color_light">#339D9D9D</color>
@@ -41,8 +45,8 @@
     <color name="tab_bar_unselected_background_color_dark">@color/primary_color_dark</color>
 
     <!-- Text Colors -->
-    <color name="primary_hint_text_color_light">#BBE7D3</color>
-    <color name="primary_hint_text_color_dark">#BBE7D3</color>
+    <color name="primary_hint_text_color_light">@color/vector_tchap_primary_color_light</color>
+    <color name="primary_hint_text_color_dark">@color/vector_tchap_primary_color</color>
 
     <color name="riot_primary_text_color_light">#FF3C3C3C</color>
     <color name="default_text_hint_color_light">#903C3C3C</color>

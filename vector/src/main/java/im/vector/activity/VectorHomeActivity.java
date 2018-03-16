@@ -111,12 +111,13 @@ import im.vector.fragments.AbsHomeFragment;
 import im.vector.fragments.FavouritesFragment;
 import im.vector.fragments.GroupsFragment;
 import im.vector.fragments.HomeFragment;
-import im.vector.fragments.PeopleFragment;
+import im.vector.fragments.ContactFragment;
 import im.vector.fragments.RoomsFragment;
 import im.vector.receiver.VectorUniversalLinkReceiver;
 import im.vector.services.EventStreamService;
 import im.vector.util.BugReporter;
 import im.vector.util.CallsManager;
+import im.vector.util.DinsicUtils;
 import im.vector.util.RoomUtils;
 import im.vector.util.ThemeUtils;
 import im.vector.util.VectorUtils;
@@ -237,9 +238,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
 
     private List<Room> mDirectChatInvitations;
     private List<Room> mRoomInvitations;
-
-    // floating action bar dialog
-    private AlertDialog mFabDialog;
 
      /*
      * *********************************************************************************************
@@ -380,6 +378,8 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                     } else if (MXSession.isRoomAlias(roomIdOrAlias)) {
                         Log.d(LOG_TAG, "Has a valid universal link of the room Alias " + roomIdOrAlias);
 
+                        showWaitingView();
+
                         // it is a room alias
                         // convert the room alias to room Id
                         mSession.getDataHandler().roomIdByAlias(roomIdOrAlias, new SimpleApiCallback<String>() {
@@ -493,13 +493,14 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         // jump to an external link
         if (null != mUniversalLinkToOpen) {
             intent.putExtra(VectorUniversalLinkReceiver.EXTRA_UNIVERSAL_LINK_URI, mUniversalLinkToOpen);
-            this.runOnUiThread(new Runnable() {
+
+            new Handler(getMainLooper()).postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     processIntentUniversalLink();
                     mUniversalLinkToOpen = null;
                 }
-            });
+            }, 100);
         }
 
         if (mSession.isAlive()) {
@@ -667,12 +668,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
             }
         }
 
-        if (mFabDialog != null) {
-            // Prevent leak after orientation changed
-            mFabDialog.dismiss();
-            mFabDialog = null;
-        }
-
         removeBadgeEventsListener();
     }
 
@@ -797,7 +792,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 Log.d(LOG_TAG, "onNavigationItemSelected PEOPLE");
                 fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_PEOPLE);
                 if (fragment == null) {
-                    fragment = PeopleFragment.newInstance();
+                    fragment = ContactFragment.newInstance();
                 }
                 mCurrentFragmentTag = TAG_FRAGMENT_PEOPLE;
                 mSearchView.setQueryHint(getString(R.string.home_filter_placeholder_people));
@@ -1158,23 +1153,12 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     private void onFloatingButtonClick() {
         // ignore any action if there is a pending one
         if (!isWaitingViewVisible()) {
-            CharSequence items[] = new CharSequence[]{getString(R.string.room_recents_start_chat), getString(R.string.room_recents_create_room), getString(R.string.room_recents_join_room)};
-            mFabDialog = new AlertDialog.Builder(this)
-                    .setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface d, int n) {
-                            d.cancel();
-                            if (0 == n) {
-                                invitePeopleToNewRoom();
-                            } else if (1 == n) {
-                                createRoom();
-                            } else {
-                                joinARoom();
-                            }
-                        }
-                    })
-                    .setNegativeButton(R.string.cancel, null)
-                    .show();
+            // the FAB action is temporarily blocked for external users to prevent them from creating direct chat
+            if(LoginActivity.isUserExternal(mSession)) {
+                DinsicUtils.alertSimpleMsg(this, getString(R.string.action_forbidden));
+            } else {
+                invitePeopleToNewRoom();
+            }
         }
     }
 
@@ -1482,50 +1466,84 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         CommonActivityUtils.previewRoom(this, roomPreviewData);
     }
 
-    public void onRejectInvitation(final MXSession session, final String roomId) {
-        Room room = session.getDataHandler().getRoom(roomId);
+    /**
+     * Create the room forget / leave callback
+     *
+     * @param roomId the room id
+     * @param onSuccessCallback the success callback
+     * @return the asynchronous callback
+     */
+    private ApiCallback<Void> getForgetLeaveCallback(final String roomId, final SimpleApiCallback<Void> onSuccessCallback) {
+        return new ApiCallback<Void>() {
+            @Override
+            public void onSuccess(Void info) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        // clear any pending notification for this room
+                        EventStreamService.cancelNotificationsForRoomId(mSession.getMyUserId(), roomId);
+                        stopWaitingView();
+
+                        if (null != onSuccessCallback) {
+                            onSuccessCallback.onSuccess(null);
+                        }
+                    }
+                });
+            }
+
+            private void onError(final String message) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        stopWaitingView();
+                        Toast.makeText(VectorHomeActivity.this, message, Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onNetworkError(Exception e) {
+                onError(e.getLocalizedMessage());
+            }
+
+            @Override
+            public void onMatrixError(MatrixError e) {
+                onError(e.getLocalizedMessage());
+            }
+
+            @Override
+            public void onUnexpectedError(Exception e) {
+                onError(e.getLocalizedMessage());
+            }
+        };
+    }
+
+    /**
+     * Trigger the room forget
+     * @param roomId the room id
+     * @param onSuccessCallback the success asynchronous callback
+     */
+    public void onForgetRoom(final String roomId, final SimpleApiCallback<Void> onSuccessCallback) {
+        Room room = mSession.getDataHandler().getRoom(roomId);
 
         if (null != room) {
             showWaitingView();
+            room.forget(getForgetLeaveCallback(roomId, onSuccessCallback));
+        }
+    }
 
-            room.leave(new ApiCallback<Void>() {
-                @Override
-                public void onSuccess(Void info) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            // clear any pending notification for this room
-                            EventStreamService.cancelNotificationsForRoomId(mSession.getMyUserId(), roomId);
-                            stopWaitingView();
-                        }
-                    });
-                }
+    /**
+     * Trigger the room leave / invitation reject.
+     *
+     * @param roomId the room id
+     * @param onSuccessCallback the success asynchronous callback
+     */
+    public void onRejectInvitation(final String roomId, final SimpleApiCallback<Void> onSuccessCallback) {
+        Room room = mSession.getDataHandler().getRoom(roomId);
 
-                private void onError(final String message) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            stopWaitingView();
-                            Toast.makeText(VectorHomeActivity.this, message, Toast.LENGTH_LONG).show();
-                        }
-                    });
-                }
-
-                @Override
-                public void onNetworkError(Exception e) {
-                    onError(e.getLocalizedMessage());
-                }
-
-                @Override
-                public void onMatrixError(MatrixError e) {
-                    onError(e.getLocalizedMessage());
-                }
-
-                @Override
-                public void onUnexpectedError(Exception e) {
-                    onError(e.getLocalizedMessage());
-                }
-            });
+        if (null != room) {
+            showWaitingView();
+            room.leave(getForgetLeaveCallback(roomId, onSuccessCallback));
         }
     }
 
@@ -1661,6 +1679,21 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
 
                     case R.id.sliding_menu_send_bug_report: {
                         BugReporter.sendBugReport();
+                        break;
+                    }
+
+                    case R.id.sliding_menu_exit : {
+                        if (null != EventStreamService.getInstance()) {
+                            EventStreamService.getInstance().stopNow();
+                        }
+                        VectorHomeActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                VectorHomeActivity.this.finish();
+                                System.exit(0);
+                            }
+                        });
+
                         break;
                     }
 
@@ -2030,7 +2063,8 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 }
             } else */
             if (id == R.id.bottom_action_people) {
-                filteredRoomIdsSet.addAll(mSession.getDirectChatRoomIdsList());
+                //badge in bottom_people only for invitation
+
                 // Add direct chat invitations
                 for (Room room : roomSummaryByRoom.keySet()) {
                     if (room.isDirectChatInvitation() && !room.isConferenceUserRoom()) {
@@ -2043,15 +2077,13 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 for (Room room : lowPriorRooms) {
                     filteredRoomIdsSet.remove(room.getRoomId());
                 }
-            } else if (id == R.id.bottom_action_rooms) {
-                HashSet<String> directChatRoomIds = new HashSet<>(mSession.getDirectChatRoomIdsList());
-                HashSet<String> lowPriorityRoomIds = new HashSet<>(mSession.roomIdsWithTag(RoomTag.ROOM_TAG_LOW_PRIORITY));
 
-                directChatRoomIds.addAll(directChatInvitations);
+            } else if (id == R.id.bottom_action_rooms) {
+                HashSet<String> lowPriorityRoomIds = new HashSet<>(mSession.roomIdsWithTag(RoomTag.ROOM_TAG_LOW_PRIORITY));
 
                 for (Room room : roomSummaryByRoom.keySet()) {
                     if (!room.isConferenceUserRoom() && // not a VOIP conference room
-                            !directChatRoomIds.contains(room.getRoomId()) && // not a direct chat
+                            !directChatInvitations.contains(room.getRoomId()) && // not a direct chat invitation
                             !lowPriorityRoomIds.contains(room.getRoomId())) {
                         filteredRoomIdsSet.add(room.getRoomId());
                     }

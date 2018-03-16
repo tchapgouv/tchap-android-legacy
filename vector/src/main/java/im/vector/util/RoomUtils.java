@@ -29,12 +29,14 @@ import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
+import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 
+import org.matrix.androidsdk.MXDataHandler;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomAccountData;
@@ -43,6 +45,7 @@ import org.matrix.androidsdk.data.RoomSummary;
 import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.model.Event;
+import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.util.BingRulesManager;
 import org.matrix.androidsdk.util.EventDisplay;
@@ -68,8 +71,12 @@ public class RoomUtils {
 
     private static final String LOG_TAG = RoomUtils.class.getSimpleName();
 
+    private MXSession session;
+
+    private Room room;
+
     public interface MoreActionListener {
-        void onToggleRoomNotifications(MXSession session, String roomId);
+        void onUpdateRoomNotificationsState(MXSession session, String roomId, BingRulesManager.RoomNotificationState state);
 
         void onToggleDirectChat(MXSession session, String roomId);
 
@@ -80,6 +87,8 @@ public class RoomUtils {
         void moveToLowPriority(MXSession session, String roomId);
 
         void onLeaveRoom(MXSession session, String roomId);
+
+        void onForgetRoom(MXSession session, String roomId);
 
         void addHomeScreenShortcut(MXSession session, String roomId);
     }
@@ -461,12 +470,14 @@ public class RoomUtils {
             return;
         }
 
+        Context popmenuContext = new ContextThemeWrapper(context, R.style.PopMenuStyle);
+
         final PopupMenu popup;
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            popup = new PopupMenu(context, actionView, Gravity.END);
+            popup = new PopupMenu(popmenuContext, actionView, Gravity.END);
         } else {
-            popup = new PopupMenu(context, actionView);
+            popup = new PopupMenu(popmenuContext, actionView);
         }
         popup.getMenuInflater().inflate(R.menu.vector_home_room_settings, popup.getMenu());
         CommonActivityUtils.tintMenuIcons(popup.getMenu(), ThemeUtils.getColor(context, R.attr.settings_icon_tint_color));
@@ -506,62 +517,66 @@ public class RoomUtils {
 
             MenuItem item;
 
-            final BingRulesManager bingRulesManager = session.getDataHandler().getBingRulesManager();
+            BingRulesManager.RoomNotificationState state = session.getDataHandler().getBingRulesManager().getRoomNotificationState(room.getRoomId());
 
-            if (bingRulesManager.isRoomNotificationsDisabled(room.getRoomId())) {
-                item = popup.getMenu().findItem(R.id.ic_action_select_notifications);
-                item.setIcon(null);
-            }
-/*
-            if (!isFavorite) {
-                item = popup.getMenu().findItem(R.id.ic_action_select_fav);
+            if (BingRulesManager.RoomNotificationState.ALL_MESSAGES_NOISY != state) {
+                item = popup.getMenu().findItem(R.id.ic_action_notifications_noisy);
                 item.setIcon(null);
             }
 
-            if (!isLowPrior) {
-                item = popup.getMenu().findItem(R.id.ic_action_select_deprioritize);
-                item.setIcon(null);
-            }
-*/
-            if (session.getDirectChatRoomIdsList().indexOf(room.getRoomId()) < 0) {
-                item = popup.getMenu().findItem(R.id.ic_action_select_direct_chat);
+            if (BingRulesManager.RoomNotificationState.ALL_MESSAGES != state) {
+                item = popup.getMenu().findItem(R.id.ic_action_notifications_all_message);
                 item.setIcon(null);
             }
 
+            if (BingRulesManager.RoomNotificationState.MENTIONS_ONLY != state) {
+                item = popup.getMenu().findItem(R.id.ic_action_notifications_mention_only);
+                item.setIcon(null);
+            }
+
+            if (BingRulesManager.RoomNotificationState.MUTE != state) {
+                item = popup.getMenu().findItem(R.id.ic_action_notifications_mute);
+                item.setIcon(null);
+            }
+
+            RoomMember member = room.getMember(session.getMyUserId());
+            final boolean isBannedKickedRoom = (null != member) && member.kickedOrBanned();
+
+            if (isBannedKickedRoom) {
+                item = popup.getMenu().findItem(R.id.ic_action_select_remove);
+
+                if (null != item) {
+                    item.setTitle(R.string.forget_room);
+                }
+            }
 
             if (moreActionListener != null) {
                 popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(final MenuItem item) {
                         switch (item.getItemId()) {
-                            case R.id.ic_action_select_notifications: {
-                                moreActionListener.onToggleRoomNotifications(session, room.getRoomId());
+                            case R.id.ic_action_notifications_noisy:
+                                moreActionListener.onUpdateRoomNotificationsState(session, room.getRoomId(), BingRulesManager.RoomNotificationState.ALL_MESSAGES_NOISY);
                                 break;
-                            }
-                            // no more home nor favorite so dont make possible the two next actions
-                            /*
-                            case R.id.ic_action_select_fav: {
-                                if (isFavorite) {
-                                    moreActionListener.moveToConversations(session, room.getRoomId());
-                                } else {
-                                    moreActionListener.moveToFavorites(session, room.getRoomId());
-                                }
+
+                            case R.id.ic_action_notifications_all_message:
+                                moreActionListener.onUpdateRoomNotificationsState(session, room.getRoomId(), BingRulesManager.RoomNotificationState.ALL_MESSAGES);
                                 break;
-                            }
-                            case R.id.ic_action_select_deprioritize: {
-                                if (isLowPrior) {
-                                    moreActionListener.moveToConversations(session, room.getRoomId());
-                                } else {
-                                    moreActionListener.moveToLowPriority(session, room.getRoomId());
-                                }
+
+                            case R.id.ic_action_notifications_mention_only:
+                                moreActionListener.onUpdateRoomNotificationsState(session, room.getRoomId(), BingRulesManager.RoomNotificationState.MENTIONS_ONLY);
                                 break;
-                            }*/
+
+                            case R.id.ic_action_notifications_mute:
+                                moreActionListener.onUpdateRoomNotificationsState(session, room.getRoomId(), BingRulesManager.RoomNotificationState.MUTE);
+                                break;
+
                             case R.id.ic_action_select_remove: {
-                                moreActionListener.onLeaveRoom(session, room.getRoomId());
-                                break;
-                            }
-                            case R.id.ic_action_select_direct_chat: {
-                                moreActionListener.onToggleDirectChat(session, room.getRoomId());
+                                if (isBannedKickedRoom) {
+                                    moreActionListener.onForgetRoom(session, room.getRoomId());
+                                } else {
+                                    moreActionListener.onLeaveRoom(session, room.getRoomId());
+                                }
                                 break;
                             }
                             case R.id.ic_action_add_homescreen_shortcut: {
@@ -744,37 +759,13 @@ public class RoomUtils {
     }
 
     /**
-     * Enable or disable notifications for the given room
-     *
-     * @param session
-     * @param roomId
-     * @param listener
-     */
-    public static void toggleNotifications(final MXSession session, final String roomId, final BingRulesManager.onBingRuleUpdateListener listener) {
-        BingRulesManager bingRulesManager = session.getDataHandler().getBingRulesManager();
-        bingRulesManager.muteRoomNotifications(roomId, !bingRulesManager.isRoomNotificationsDisabled(roomId), listener);
-    }
-
-    /**
      * Get whether the room of the given is a direct chat
      *
      * @param roomId
      * @return true if direct chat
      */
     public static boolean isDirectChat(final MXSession session, final String roomId) {
-        final IMXStore store = session.getDataHandler().getStore();
-        final Map<String, List<String>> directChatRoomsDict;
-
-        if (store.getDirectChatRoomsDict() != null) {
-            directChatRoomsDict = new HashMap<>(store.getDirectChatRoomsDict());
-
-            if (directChatRoomsDict.containsKey(session.getMyUserId())) {
-                List<String> roomIdsList = new ArrayList<>(directChatRoomsDict.get(session.getMyUserId()));
-                return roomIdsList.contains(roomId);
-            }
-        }
-
-        return false;
+        return (null != roomId) && session.getDataHandler().getDirectChatRoomIdsList().contains(roomId);
     }
 
     /**

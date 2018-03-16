@@ -90,10 +90,10 @@
     <application
         android:name="im.vector.VectorApp"
         android:allowBackup="false"
-        android:icon="@drawable/logo"
+        android:icon="@drawable/logo_tchap_color"
         android:label="@string/riot_app_name"
         android:largeHeap="true"
-        android:logo="@drawable/logo"
+        android:logo="@drawable/logo_tchap_color"
         android:resizeableActivity="false"
         android:theme="@style/AppTheme"
         tools:replace="allowBackup,label">
@@ -129,7 +129,7 @@
         <activity
             android:name="im.vector.activity.SplashActivity"
             android:configChanges="orientation|screenSize"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar.FullScreen"></activity>
 
         <activity
             android:name="im.vector.activity.LoggingOutActivity"
@@ -542,6 +542,7 @@
 
         <receiver android:name="im.vector.receiver.DismissNotificationReceiver"/>
 
+        <!-- Disable INSTALL_REFERRER on tchap
         <receiver
             android:name="im.vector.receiver.VectorReferrerReceiver"
             android:enabled="true"
@@ -550,7 +551,7 @@
                 <action android:name="com.android.vending.INSTALL_REFERRER" />
             </intent-filter>
         </receiver>
-
+        -->
 
         <!-- Shared items  -->
         <activity

@@ -7,7 +7,7 @@
     android:background="?attr/list_header_background_color"
     android:paddingLeft="10dp">
 
-    <!-- no filter CheckBox
+    <!-- Dinsic: Remove the filter CheckBox
     CheckBox
         android:id="@+id/matrix_only_filter_checkbox"
         android:layout_width="match_parent"

@@ -39,6 +39,7 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
+import android.preference.SwitchPreference;
 import android.provider.Settings;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.content.ContextCompat;
@@ -113,8 +114,10 @@ import im.vector.preference.ProgressBarPreference;
 import im.vector.preference.UserAvatarPreference;
 import im.vector.preference.VectorCustomActionEditTextPreference;
 import im.vector.preference.VectorGroupPreference;
+import im.vector.preference.VectorSwitchPreference;
 import im.vector.util.PhoneNumberUtils;
 import im.vector.util.PreferencesManager;
+import im.vector.util.RageShake;
 import im.vector.util.ThemeUtils;
 import im.vector.util.VectorUtils;
 
@@ -129,7 +132,6 @@ public class VectorSettingsPreferencesFragment extends PreferenceFragment implem
     private static final String PUSHER_PREFERENCE_KEY_BASE = "PUSHER_PREFERENCE_KEY_BASE";
     private static final String DEVICES_PREFERENCE_KEY_BASE = "DEVICES_PREFERENCE_KEY_BASE";
     private static final String IGNORED_USER_KEY_BASE = "IGNORED_USER_KEY_BASE";
-    private static final String ADD_EMAIL_PREFERENCE_KEY = "ADD_EMAIL_PREFERENCE_KEY";
     private static final String ADD_PHONE_NUMBER_PREFERENCE_KEY = "ADD_PHONE_NUMBER_PREFERENCE_KEY";
     private static final String APP_INFO_LINK_PREFERENCE_KEY = "application_info_link";
 
@@ -174,6 +176,7 @@ public class VectorSettingsPreferencesFragment extends PreferenceFragment implem
             refreshDisplay();
         }
     };
+
     private View mLoadingView;
     // cryptography
     private DeviceInfo mMyDeviceInfo;
@@ -204,7 +207,6 @@ public class VectorSettingsPreferencesFragment extends PreferenceFragment implem
     private EditTextPreference mSyncRequestTimeoutPreference;
     private EditTextPreference mSyncRequestDelayPreference;
     private PreferenceCategory mLabsCategory;
-
     private PreferenceCategory mGroupsFlairCategory;
 
     // static constructor
@@ -494,12 +496,57 @@ public class VectorSettingsPreferencesFragment extends PreferenceFragment implem
             });
         }
 
+        // display name
         final EditTextPreference displaynamePref = (EditTextPreference) findPreference(PreferencesManager.SETTINGS_DISPLAY_NAME_PREFERENCE_KEY);
         displaynamePref.setSummary(mSession.getMyUser().displayname);
         displaynamePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 onDisplayNameClick((null == newValue) ? null : ((String) newValue).trim());
+                return false;
+            }
+        });
+
+        final VectorSwitchPreference urlPreviewPreference = (VectorSwitchPreference)findPreference(PreferencesManager.SETTINGS_SHOW_URL_PREVIEW_KEY);
+        urlPreviewPreference.setChecked(mSession.isURLPreviewEnabled());
+
+        urlPreviewPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+
+                if ((null != newValue) && ((boolean)newValue != mSession.isURLPreviewEnabled())) {
+                    displayLoadingView();
+                    mSession.setURLPreviewStatus((boolean) newValue, new ApiCallback<Void>() {
+                        @Override
+                        public void onSuccess(Void info) {
+                            urlPreviewPreference.setChecked(mSession.isURLPreviewEnabled());
+                            hideLoadingView();
+                        }
+
+                        private void onError(String errorMessage) {
+                            if (null != getActivity()) {
+                                Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT).show();
+                            }
+                            onSuccess(null);
+                        }
+
+                        @Override
+                        public void onNetworkError(Exception e) {
+                            onError(e.getLocalizedMessage());
+                        }
+
+                        @Override
+                        public void onMatrixError(MatrixError e) {
+                            onError(e.getLocalizedMessage());
+                        }
+
+                        @Override
+                        public void onUnexpectedError(Exception e) {
+                            onError(e.getLocalizedMessage());
+                        }
+                    });
+                }
+
                 return false;
             }
         });
@@ -746,6 +793,7 @@ public class VectorSettingsPreferencesFragment extends PreferenceFragment implem
             }
         });
 
+        // SaveMode Managment
         final CheckBoxPreference dataSaveModePref = (CheckBoxPreference) findPreference(PreferencesManager.SETTINGS_DATA_SAVE_MODE_PREFERENCE_KEY);
         dataSaveModePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
@@ -754,6 +802,26 @@ public class VectorSettingsPreferencesFragment extends PreferenceFragment implem
                 for (MXSession session : sessions) {
                     session.setUseDataSaveMode((boolean) newValue);
                 }
+
+                return true;
+            }
+        });
+
+        // Rageshake Managment
+        final CheckBoxPreference useRageShakeModePref = (CheckBoxPreference) findPreference(PreferencesManager.SETTINGS_USE_RAGE_SHAKE_KEY);
+        final boolean mIsUsedRageShake = PreferencesManager.useRageshake(appContext);
+
+        if(mIsUsedRageShake) {
+            useRageShakeModePref.setChecked(true);
+        } else {
+            useBackgroundSyncPref.setChecked(false);
+        }
+
+        useRageShakeModePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+
+                PreferencesManager.setUseRageshake(appContext, (boolean) newValue);
 
                 return true;
             }
@@ -950,34 +1018,6 @@ public class VectorSettingsPreferencesFragment extends PreferenceFragment implem
     }
 
     private void addButtons() {
-        // display the "add email" entry
-        EditTextPreference addEmailPreference = new EditTextPreference(getActivity());
-        addEmailPreference.setTitle(R.string.settings_add_email_address);
-        addEmailPreference.setDialogTitle(R.string.settings_add_email_address);
-        addEmailPreference.setKey(ADD_EMAIL_PREFERENCE_KEY);
-        addEmailPreference.setIcon(CommonActivityUtils.tintDrawable(getActivity(), ContextCompat.getDrawable(getActivity(), R.drawable.ic_add_black), R.attr.settings_icon_tint_color));
-        addEmailPreference.setOrder(100);
-        addEmailPreference.getEditText().setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-
-        addEmailPreference.setOnPreferenceChangeListener(
-                new Preference.OnPreferenceChangeListener() {
-                    @Override
-                    public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        final String email = (null == newValue) ? null : ((String) newValue).trim();
-
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                addEmail(email);
-                            }
-                        });
-
-                        return false;
-                    }
-                });
-
-        mUserSettingsCategory.addPreference(addEmailPreference);
-
         // display the "add phone number" entry
         Preference addPhoneNumberPreference = new Preference(getActivity());
         addPhoneNumberPreference.setKey(ADD_PHONE_NUMBER_PREFERENCE_KEY);
@@ -1307,6 +1347,12 @@ public class VectorSettingsPreferencesFragment extends PreferenceFragment implem
             switch (requestCode) {
                 case REQUEST_NOTIFICATION_RINGTONE: {
                     PreferencesManager.setNotificationRingTone(getActivity(), (Uri) data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI));
+
+                    // test if the selected ring tone can be played
+                    if (null == PreferencesManager.getNotificationRingToneName(getActivity())) {
+                        PreferencesManager.setNotificationRingTone(getActivity(), PreferencesManager.getNotificationRingTone(getActivity()));
+                    }
+
                     refreshNotificationRingTone();
                     break;
                 }
@@ -1715,47 +1761,19 @@ public class VectorSettingsPreferencesFragment extends PreferenceFragment implem
             // add new emails list
             mDisplayedEmails = newEmailsList;
 
-            int index = 0;
-            final Preference addEmailBtn = mUserSettingsCategory.findPreference(ADD_EMAIL_PREFERENCE_KEY);
-
-            // reported by GA
-            if (null == addEmailBtn) {
-                return;
+            if (null != mDisplayedEmails && mDisplayedEmails.size() > 1) {
+                Log.e(LOG_TAG, "## there are more than one email in the account ");
             }
-
-            int order = addEmailBtn.getOrder();
-
+            
             for (final ThirdPartyIdentifier email3PID : currentEmail3PID) {
                 VectorCustomActionEditTextPreference preference = new VectorCustomActionEditTextPreference(getActivity());
 
                 preference.setTitle(getString(R.string.settings_email_address));
                 preference.setSummary(email3PID.address);
-                preference.setKey(EMAIL_PREFERENCE_KEY_BASE + index);
-                preference.setOrder(order);
-
-                preference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        displayDelete3PIDConfirmationDialog(email3PID, preference.getSummary());
-                        return true;
-                    }
-                });
-
-                preference.setOnPreferenceLongClickListener(new VectorCustomActionEditTextPreference.OnPreferenceLongClickListener() {
-                    @Override
-                    public boolean onPreferenceLongClick(Preference preference) {
-                        VectorUtils.copyToClipboard(getActivity(), email3PID.address);
-                        return true;
-                    }
-                });
+                preference.setKey(EMAIL_PREFERENCE_KEY_BASE);
 
                 mUserSettingsCategory.addPreference(preference);
-
-                index++;
-                order++;
             }
-
-            addEmailBtn.setOrder(order);
         }
     }
 
@@ -1779,131 +1797,6 @@ public class VectorSettingsPreferencesFragment extends PreferenceFragment implem
         }
     }
 
-    /**
-     * Attempt to add a new email to the account
-     *
-     * @param email the email to add.
-     */
-    private void addEmail(String email) {
-        // check first if the email syntax is valid
-        if (TextUtils.isEmpty(email) || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            Toast.makeText(getActivity(), getString(R.string.auth_invalid_email), Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // check first if the email syntax is valid
-        if (mDisplayedEmails.indexOf(email) >= 0) {
-            Toast.makeText(getActivity(), getString(R.string.auth_email_already_defined), Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        final ThreePid pid = new ThreePid(email, ThreePid.MEDIUM_EMAIL);
-
-        displayLoadingView();
-
-        mSession.getMyUser().requestEmailValidationToken(pid, new ApiCallback<Void>() {
-            @Override
-            public void onSuccess(Void info) {
-                if (null != getActivity()) {
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            showEmailValidationDialog(pid);
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onNetworkError(Exception e) {
-                onCommonDone(e.getLocalizedMessage());
-            }
-
-            @Override
-            public void onMatrixError(MatrixError e) {
-                if (TextUtils.equals(MatrixError.THREEPID_IN_USE, e.errcode)) {
-                    onCommonDone(getString(R.string.account_email_already_used_error));
-                } else {
-                    onCommonDone(e.getLocalizedMessage());
-                }
-            }
-
-            @Override
-            public void onUnexpectedError(Exception e) {
-                onCommonDone(e.getLocalizedMessage());
-            }
-        });
-    }
-
-    /**
-     * Show an email validation dialog to warn the user tho valid his email link.
-     *
-     * @param pid the used pid.
-     */
-    private void showEmailValidationDialog(final ThreePid pid) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle(R.string.account_email_validation_title);
-        builder.setMessage(R.string.account_email_validation_message);
-        builder.setPositiveButton(R.string._continue, new DialogInterface.OnClickListener() {
-
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                mSession.getMyUser().add3Pid(pid, true, new ApiCallback<Void>() {
-                    @Override
-                    public void onSuccess(Void info) {
-                        if (null != getActivity()) {
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    hideLoadingView();
-                                    refreshEmailsList();
-                                }
-                            });
-                        }
-                    }
-
-                    @Override
-                    public void onNetworkError(Exception e) {
-                        onCommonDone(e.getLocalizedMessage());
-                    }
-
-                    @Override
-                    public void onMatrixError(MatrixError e) {
-                        if (TextUtils.equals(e.errcode, MatrixError.THREEPID_AUTH_FAILED)) {
-                            if (null != getActivity()) {
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        hideLoadingView();
-                                        Toast.makeText(getActivity(), getString(R.string.account_email_validation_error), Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                            }
-                        } else {
-                            onCommonDone(e.getLocalizedMessage());
-                        }
-                    }
-
-                    @Override
-                    public void onUnexpectedError(Exception e) {
-                        onCommonDone(e.getLocalizedMessage());
-                    }
-                });
-            }
-        });
-
-        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                hideLoadingView();
-            }
-        });
-
-        AlertDialog alert = builder.create();
-        alert.show();
-    }
 
     //==============================================================================================================
     // Phone number management

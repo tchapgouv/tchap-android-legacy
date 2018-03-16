@@ -4,7 +4,7 @@
     <group android:id="@+id/account_group">
         <item
             android:id="@+id/sliding_menu_messages"
-            android:icon="@drawable/logo_transparent"
+            android:icon="@drawable/logo_tchap_transparent"
             android:title="@string/room_sliding_menu_messages"/>
 
         <item
@@ -16,6 +16,11 @@
             android:id="@+id/sliding_menu_send_bug_report"
             android:icon="@drawable/ic_material_bug_report"
             android:title="@string/send_bug_report"/>
+
+        <item
+            android:id="@+id/sliding_menu_exit"
+            android:icon="@drawable/ic_power_settings"
+            android:title="@string/action_exit"/>
 
         <item
             android:id="@+id/sliding_menu_sign_out"

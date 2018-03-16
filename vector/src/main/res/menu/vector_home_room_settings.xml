@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+
     <group android:id="@+id/active_room_actions">
+        <item
+            android:id="@+id/ic_action_notifications_noisy"
+            android:icon="@drawable/ic_material_done"
+            android:title="@string/room_settings_all_messages_noisy" />
 
         <item
-            android:id="@+id/ic_action_select_notifications"
+            android:id="@+id/ic_action_notifications_all_message"
             android:icon="@drawable/ic_material_done"
-            android:title="@string/room_settings_notifications" />
-
-        <!-- item no more home nor favorite so dont allow these actions
-            android:id="@+id/ic_action_select_fav"
-            android:icon="@drawable/ic_material_done"
-            android:title="@string/room_settings_favourite" />
+            android:title="@string/room_settings_all_messages" />
 
         <item
-            android:id="@+id/ic_action_select_deprioritize"
+            android:id="@+id/ic_action_notifications_mention_only"
             android:icon="@drawable/ic_material_done"
-            android:title="@string/room_settings_de_prioritize" / -->
+            android:title="@string/room_settings_mention_only"/>
 
         <item
-            android:id="@+id/ic_action_select_direct_chat"
+            android:id="@+id/ic_action_notifications_mute"
             android:icon="@drawable/ic_material_done"
-            android:title="@string/room_settings_direct_chat" />
+            android:title="@string/room_settings_mute" />
 
         <item
             android:id="@+id/ic_action_select_remove"
@@ -31,7 +31,7 @@
     <group android:id="@+id/add_shortcut_actions">
         <item
             android:id="@+id/ic_action_add_homescreen_shortcut"
-            android:title="Créer un raccourci" />
+            android:title="@string/room_settings_add_homescreen_shortcut" />
     </group>
 
     <group android:id="@+id/historical_room_actions">
