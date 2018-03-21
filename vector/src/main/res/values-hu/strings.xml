@@ -836,9 +836,6 @@ Ismeretlen eszközök:</string>
     <string name="group_rooms">%d szoba</string>
     <string name="group_no_long_description">A közösség adminisztrátora nem adott meg hosszú leírást ehhez a közösséghez.</string>
 
-    <string name="one_new_message">1 új üzenet</string>
-    <string name="new_messages">%d új üzenet</string>
-
     <string name="has_been_kicked">Ki lettél rúgva innen: %1$s, %2$s által</string>
     <string name="has_been_banned">Ki lettél tiltva innen: %1$s, %2$s által</string>
     <string name="reason_colon">Ok: %1$s</string>
@@ -911,4 +908,6 @@ Ismeretlen eszközök:</string>
 
 <string name="receipt_avatar">Visszaigazolási avatar</string>
     <string name="notice_avatar">Észlelés avatar</string>
+    <string name="settings_enable_content_sending">Részletes értesítések megtartása</string>
+    <string name="settings_enable_content_sending_summary">Kapcsold be ezt a lehetőséget ha a részletes értesítésekhez a háttér szinkronizáció ki van kapcsolva. Ehhez az üzenetet titkosítatlanul kell küldeni a Google szolgáltatás szerverein keresztül</string>
     </resources>
