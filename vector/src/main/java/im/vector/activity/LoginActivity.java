@@ -680,6 +680,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
                 // it might be null if the identity / homeserver urls are invalids
                 if (null == hsConfig) {
                     Log.e(LOG_TAG, "## onForgotPasswordClick(): invalid platform");
+                    onError(getString(R.string.auth_invalid_email));
                     return;
                 }
 
