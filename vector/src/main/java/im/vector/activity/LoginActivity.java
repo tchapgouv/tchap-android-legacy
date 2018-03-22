@@ -114,7 +114,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
     private static final String SAVED_LOGIN_PASSWORD_ADDRESS = "SAVED_LOGIN_PASSWORD_ADDRESS";
 
     // creation
-    private static final String SAVED_CREATION_EMAIL_NAME = "SAVED_CREATION_USER_NAME";
+    private static final String SAVED_CREATION_EMAIL_NAME = "SAVED_CREATION_EMAIL_NAME";
     private static final String SAVED_CREATION_USER_NAME = "SAVED_CREATION_USER_NAME";
     private static final String SAVED_CREATION_PASSWORD1 = "SAVED_CREATION_PASSWORD1";
     private static final String SAVED_CREATION_PASSWORD2 = "SAVED_CREATION_PASSWORD2";
