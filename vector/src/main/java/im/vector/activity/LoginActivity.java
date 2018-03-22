@@ -527,9 +527,12 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
         }
     }
 
-    @Override
-    protected void onResume() {
+    protected void onResume(Bundle savedInstanceState) {
         super.onResume();
+        if (null != savedInstanceState) {
+            Log.e(LOG_TAG, "## LoginActivity_onResume() : restoreSavedData");
+            restoreSavedData(savedInstanceState);
+        }
     }
 
     /**
