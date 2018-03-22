@@ -5,9 +5,9 @@
     <!-- Identity server names -->
     <string-array
         name="identity_server_names" translatable="false" >
-        <item>i.tchap.rie.gouv.fr</item>
-        <item>a.tchap.rie.gouv.fr</item>
-        <item>e.tchap.rie.gouv.fr</item>
+        <item>i.tchap.gouv.fr</item>
+        <item>a.tchap.gouv.fr</item>
+        <item>e.tchap.gouv.fr</item>
     </string-array>
 
     <!-- Server url prefix -->
