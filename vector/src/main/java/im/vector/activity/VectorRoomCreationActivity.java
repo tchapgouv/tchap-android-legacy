@@ -66,51 +66,9 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
 
     // UI items
     private VectorRoomCreationAdapter mAdapter;
-    private View mSpinnerView;
 
     // the search is displayed at first call
     private boolean mIsFirstResume = true;
-
-    // direct message
-    private final ApiCallback<String> mCreateDirectMessageCallBack = new ApiCallback<String>() {
-        @Override
-        public void onSuccess(final String roomId) {
-            HashMap<String, Object> params = new HashMap<>();
-            params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
-            params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
-            params.put(VectorRoomActivity.EXTRA_EXPAND_ROOM_HEADER, true);
-
-            Log.d(LOG_TAG, "## mCreateDirectMessageCallBack: onSuccess - start goToRoomPage");
-            CommonActivityUtils.goToRoomPage(VectorRoomCreationActivity.this, mSession, params);
-        }
-
-        private void onError(final String message) {
-            mSpinnerView.post(new Runnable() {
-                @Override
-                public void run() {
-                    if (null != message) {
-                        Toast.makeText(VectorRoomCreationActivity.this, message, Toast.LENGTH_LONG).show();
-                    }
-                    mSpinnerView.setVisibility(View.GONE);
-                }
-            });
-        }
-
-        @Override
-        public void onNetworkError(Exception e) {
-            onError(e.getLocalizedMessage());
-        }
-
-        @Override
-        public void onMatrixError(final MatrixError e) {
-            onError(e.getLocalizedMessage());
-        }
-
-        @Override
-        public void onUnexpectedError(final Exception e) {
-            onError(e.getLocalizedMessage());
-        }
-    };
 
     // displayed participants
     private ArrayList<ParticipantAdapterItem> mParticipants = new ArrayList<>();
@@ -138,7 +96,7 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
         }
 
         // get the UI items
-        mSpinnerView = findViewById(R.id.room_creation_spinner_views);
+        waitingView = findViewById(R.id.room_creation_spinner_views);
         ListView membersListView = findViewById(R.id.room_creation_members_list_view);
         mAdapter = new VectorRoomCreationAdapter(this, R.layout.adapter_item_vector_creation_add_member, R.layout.adapter_item_vector_add_participants, mSession);
 
@@ -304,7 +262,7 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
                     // open a direct chat with this participant
                     // by considering pending invite too
                     // or create a new one if it doesn't exist
-                    openDirectChat(mParticipants.get(0).mUserId, true);
+                    DinsicUtils.openDirectChat(this, mParticipants.get(0).mUserId, mSession, true);
                 }
             }
             return true;
@@ -369,95 +327,13 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
         return null;
     }
 
-
-    //=============================================================================================
-    // Handle existing direct chat room
-    //=============================================================================================
-
-    /**
-     * Open the current direct chat with the corresponding user id.
-     * Look for a potential existing direct chat with this user (by considering pending invite too)
-     *
-     * @param participantId : participant id (matrix id ou email)
-     * @param canCreate create the direct chat if it does not exist.
-     * @return boolean that says if the direct chat room is opened or not
-     */
-    private boolean openDirectChat(String participantId, boolean canCreate) {
-        Room existingRoom = this.isDirectChatRoomAlreadyExist(participantId, mSession, true);
-        boolean succeeded = false;
-
-        if (null != existingRoom) {
-            if (existingRoom.isInvited()) {
-                succeeded = true;
-                this.showWaitingView();
-
-                mSession.joinRoom(existingRoom.getRoomId(), new ApiCallback<String>() {
-                    @Override
-                    public void onSuccess(String roomId) {
-                        VectorRoomCreationActivity.this.stopWaitingView();
-
-                        HashMap<String, Object> params = new HashMap<>();
-                        params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
-                        params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
-                        CommonActivityUtils.goToRoomPage(VectorRoomCreationActivity.this, mSession, params);
-                    }
-
-                    private void onError(final String message) {
-                        mSpinnerView.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (null != message) {
-                                    Toast.makeText(VectorRoomCreationActivity.this, message, Toast.LENGTH_LONG).show();
-                                }
-                                VectorRoomCreationActivity.this.stopWaitingView();
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onNetworkError(Exception e) {
-                        onError(e.getLocalizedMessage());
-                    }
-
-                    @Override
-                    public void onMatrixError(final MatrixError e) {
-                        onError(e.getLocalizedMessage());
-                    }
-
-                    @Override
-                    public void onUnexpectedError(final Exception e) {
-                        onError(e.getLocalizedMessage());
-                    }
-                });
-            } else {
-                succeeded = true;
-                HashMap<String, Object> params = new HashMap<>();
-                params.put(VectorRoomActivity.EXTRA_MATRIX_ID, participantId);
-                params.put(VectorRoomActivity.EXTRA_ROOM_ID, existingRoom.getRoomId());
-                CommonActivityUtils.goToRoomPage(VectorRoomCreationActivity.this, mSession, params);
-
-            }
-        } else if (canCreate){
-            // direct message flow
-            //it will be more open on next sprints ...
-            if (!LoginActivity.isUserExternal(mSession)) {
-                succeeded = true;
-                this.showWaitingView();
-                mSession.createDirectMessageRoom(participantId, mCreateDirectMessageCallBack);
-            } else {
-                DinsicUtils.alertSimpleMsg(this, getString(R.string.room_creation_forbidden));
-            }
-        }
-        return succeeded;
-    }
-
     /**
      * Create a room with a list of participants.
      *
      * @param participants the list of participant
      */
     private void createRoom(final List<ParticipantAdapterItem> participants) {
-        mSpinnerView.setVisibility(View.VISIBLE);
+        waitingView.setVisibility(View.VISIBLE);
 
         CreateRoomParams params = new CreateRoomParams();
 
@@ -485,13 +361,13 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
             }
 
             private void onError(final String message) {
-                mSpinnerView.post(new Runnable() {
+                waitingView.post(new Runnable() {
                     @Override
                     public void run() {
                         if (null != message) {
                             Toast.makeText(VectorRoomCreationActivity.this, message, Toast.LENGTH_LONG).show();
                         }
-                        mSpinnerView.setVisibility(View.GONE);
+                        waitingView.setVisibility(View.GONE);
                     }
                 });
             }
@@ -511,37 +387,5 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
                 onError(e.getLocalizedMessage());
             }
         });
-    }
-
-
-    //=============================================================================================
-    // Handle the waiting view
-    //=============================================================================================
-
-    /**
-     * SHow teh waiting view
-     */
-    public void showWaitingView() {
-        if (null != mSpinnerView) {
-            mSpinnerView.setVisibility(View.VISIBLE);
-        }
-    }
-
-    /**
-     * Hide the waiting view
-     */
-    public void stopWaitingView() {
-        if (null != mSpinnerView) {
-            mSpinnerView.setVisibility(View.GONE);
-        }
-    }
-
-    /**
-     * Tells if the waiting view is currently displayed
-     *
-     * @return true if the waiting view is displayed
-     */
-    public boolean isWaitingViewVisible() {
-        return (null != mSpinnerView) && (View.VISIBLE == mSpinnerView.getVisibility());
     }
 }

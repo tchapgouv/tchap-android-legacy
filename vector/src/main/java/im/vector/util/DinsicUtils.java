@@ -11,10 +11,24 @@ import android.net.Uri;
 import android.provider.ContactsContract;
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.Toast;
+
+import org.matrix.androidsdk.MXSession;
+import org.matrix.androidsdk.data.Room;
+import org.matrix.androidsdk.rest.callback.ApiCallback;
+import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.util.Log;
+
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import im.vector.R;
+import im.vector.activity.CommonActivityUtils;
+import im.vector.activity.LoginActivity;
+import im.vector.activity.RiotAppCompatActivity;
+import im.vector.activity.VectorRoomActivity;
+import im.vector.activity.VectorRoomCreationActivity;
 import im.vector.adapters.ParticipantAdapterItem;
 import im.vector.contacts.Contact;
 import im.vector.contacts.ContactsManager;
@@ -23,7 +37,7 @@ import im.vector.contacts.ContactsManager;
  * Created by cloud on 1/22/18.
  */
 
-public class DinsicUtils {
+public class DinsicUtils extends RiotAppCompatActivity {
     private static final String LOG_TAG = "DinsicUtils";
     public static final String AGENT_OR_INTERNAL_SECURED_EMAIL_HOST = "gouv.fr";
     /**
@@ -189,6 +203,7 @@ public class DinsicUtils {
         return find;
 
     }
+
     public static void alertSimpleMsg(FragmentActivity activity, String msg){
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
         alertDialogBuilder.setMessage(msg);
@@ -210,4 +225,135 @@ public class DinsicUtils {
 
     }
 
+    //=============================================================================================
+    // Handle existing direct chat room
+    //=============================================================================================
+
+    /**
+     *
+     * Select the most suitable direct chat for the provided user identifier (matrix or third party id).
+     * During this search, the pending invite are considered too.
+     * The selected room (if any) may be opened synchronously or not. It depends if the room is ready or not.
+     *
+     * @param activity current activity
+     * @param participantId : participant id (matrix id ou email)
+     * @param session current session
+     * @param canCreate create the direct chat if it does not exist.
+     * @return boolean that says if the direct chat room is opened or not
+     *
+     */
+    public static boolean openDirectChat(final Activity activity, String participantId, final MXSession session, boolean canCreate) {
+        Room existingRoom = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(participantId, session, true);
+        boolean succeeded = false;
+
+        // direct message api callback
+        ApiCallback<String> createDirectMessageCallBack = new ApiCallback<String>() {
+            @Override
+            public void onSuccess(final String roomId) {
+                stopWaitingView();
+
+                HashMap<String, Object> params = new HashMap<>();
+                params.put(VectorRoomActivity.EXTRA_MATRIX_ID, session.getMyUserId());
+                params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
+                params.put(VectorRoomActivity.EXTRA_EXPAND_ROOM_HEADER, true);
+
+                Log.d(LOG_TAG, "## mCreateDirectMessageCallBack: onSuccess - start goToRoomPage");
+                CommonActivityUtils.goToRoomPage(activity, session, params);
+            }
+
+            private void onError(final String message) {
+                waitingView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (null != message) {
+                            Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
+                        }
+                        stopWaitingView();
+                    }
+                });
+            }
+
+            @Override
+            public void onNetworkError(Exception e) {
+                onError(e.getLocalizedMessage());
+            }
+
+            @Override
+            public void onMatrixError(final MatrixError e) {
+                onError(e.getLocalizedMessage());
+            }
+
+            @Override
+            public void onUnexpectedError(final Exception e) {
+                onError(e.getLocalizedMessage());
+            }
+        };
+
+
+        if (null != existingRoom) {
+            if (existingRoom.isInvited()) {
+                succeeded = true;
+                showWaitingView();
+
+                session.joinRoom(existingRoom.getRoomId(), new ApiCallback<String>() {
+                    @Override
+                    public void onSuccess(String roomId) {
+                        stopWaitingView();
+
+                        HashMap<String, Object> params = new HashMap<>();
+                        params.put(VectorRoomActivity.EXTRA_MATRIX_ID, session.getMyUserId());
+                        params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
+                        params.put(VectorRoomActivity.EXTRA_EXPAND_ROOM_HEADER, true);
+
+                        CommonActivityUtils.goToRoomPage(activity, session, params);
+                    }
+
+                    private void onError(final String message) {
+                        waitingView.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (null != message) {
+                                    Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
+                                }
+                                stopWaitingView();
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onNetworkError(Exception e) {
+                        onError(e.getLocalizedMessage());
+                    }
+
+                    @Override
+                    public void onMatrixError(final MatrixError e) {
+                        onError(e.getLocalizedMessage());
+                    }
+
+                    @Override
+                    public void onUnexpectedError(final Exception e) {
+                        onError(e.getLocalizedMessage());
+                    }
+                });
+            } else {
+                succeeded = true;
+                HashMap<String, Object> params = new HashMap<>();
+                params.put(VectorRoomActivity.EXTRA_MATRIX_ID, participantId);
+                params.put(VectorRoomActivity.EXTRA_ROOM_ID, existingRoom.getRoomId());
+                CommonActivityUtils.goToRoomPage(activity, session, params);
+            }
+
+        } else if (canCreate){
+            // direct message flow
+            //it will be more open on next sprints ...
+            if (!LoginActivity.isUserExternal(session)) {
+                succeeded = true;
+                showWaitingView();
+                session.createDirectMessageRoom(participantId, createDirectMessageCallBack);
+            } else {
+                DinsicUtils.alertSimpleMsg((FragmentActivity) activity, activity.getString(R.string.room_creation_forbidden));
+            }
+        }
+        return succeeded;
+    }
 }

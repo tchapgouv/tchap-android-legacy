@@ -84,7 +84,7 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
     RecyclerView mRecycler;
 
     @BindView(R.id.listView_spinner_views)
-    View mWaitingView;
+    View waitingView;
 
     private CheckBox mMatrixUserOnlyCheckbox;
 
@@ -524,14 +524,14 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
 
             // tell if contact is tchap user
             if (MXSession.isUserId(item.mUserId))// || DinsicUtils.isFromFrenchGov(item.mContact.getEmails()))
-                openDirectChat(item.mUserId, true);
+                DinsicUtils.openDirectChat(mActivity, item.mUserId, mSession, true);
             else {
                 //don't have to ask the question if a room already exists
                 String msg = getString(R.string.room_invite_non_gov_people);
                 if (DinsicUtils.isFromFrenchGov(item.mContact.getEmails()))
                     msg = getString(R.string.room_invite_gov_people);
 
-                if (!openDirectChat(item.mUserId, false)) {
+                if (!DinsicUtils.openDirectChat(mActivity, item.mUserId, mSession, true)) {
                     if (LoginActivity.isUserExternal(mSession)) {
                         DinsicUtils.alertSimpleMsg(getActivity(), getString(R.string.room_creation_forbidden));
                     } else {
@@ -544,7 +544,7 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                                 .setPositiveButton(R.string.ok,
                                         new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int id) {
-                                                openDirectChat(item.mUserId, true);
+                                                DinsicUtils.openDirectChat(mActivity, item.mUserId, mSession, true);
                                             }
                                         })
                                 .setNegativeButton(R.string.cancel, null);
@@ -560,126 +560,6 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
             DinsicUtils.editContact(mActivity, this.getContext(), item);
         }
     }
-
-    /**
-     * Open the current direct chat with the corresponding user id.
-     * Look for a potential existing direct chat with this user (by considering pending invite too)
-     *
-     * @param participantId (matrix id ou email)
-     * @param canCreate create the direct chat if it does not exist.
-     * @return boolean that says if the direct chat room is open or not
-     */
-    private boolean openDirectChat (String participantId, boolean canCreate) {
-        Room existingRoom = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(participantId, mSession, true);
-        boolean succeeded = false;
-
-        if (null != existingRoom) {
-            if (existingRoom.isInvited()) {
-                succeeded = true;
-                mActivity.showWaitingView();
-
-                mSession.joinRoom(existingRoom.getRoomId(), new ApiCallback<String>() {
-                    @Override
-                    public void onSuccess(String roomId) {
-                        mActivity.stopWaitingView();
-
-                        HashMap<String, Object> params = new HashMap<>();
-                        params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
-                        params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
-                        CommonActivityUtils.goToRoomPage(mActivity, mSession, params);
-                    }
-
-                    private void onError(final String message) {
-                        mWaitingView.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (null != message) {
-                                    Toast.makeText(mActivity, message, Toast.LENGTH_LONG).show();
-                                }
-                                mActivity.stopWaitingView();
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onNetworkError(Exception e) {
-                        onError(e.getLocalizedMessage());
-                    }
-
-                    @Override
-                    public void onMatrixError(final MatrixError e) {
-                        onError(e.getLocalizedMessage());
-                    }
-
-                    @Override
-                    public void onUnexpectedError(final Exception e) {
-                        onError(e.getLocalizedMessage());
-                    }
-                });
-            } else {
-                succeeded = true;
-                HashMap<String, Object> params = new HashMap<>();
-                params.put(VectorRoomActivity.EXTRA_MATRIX_ID, participantId);
-                params.put(VectorRoomActivity.EXTRA_ROOM_ID, existingRoom.getRoomId());
-                CommonActivityUtils.goToRoomPage(mActivity, mSession, params);
-
-            }
-        } else if (canCreate){
-            // direct message flow
-            //it will be more open on next sprints ...
-            if (!LoginActivity.isUserExternal(mSession)) {
-                succeeded = true;
-                mActivity.showWaitingView();
-                mSession.createDirectMessageRoom(participantId, mCreateDirectMessageCallBack);
-            } else {
-                DinsicUtils.alertSimpleMsg(this.getActivity(), getString(R.string.room_creation_forbidden));
-            }
-        }
-        return succeeded;
-    }
-
-    // direct message
-    private final ApiCallback<String> mCreateDirectMessageCallBack = new ApiCallback<String>() {
-        @Override
-        public void onSuccess(final String roomId) {
-            mActivity.stopWaitingView();
-
-            HashMap<String, Object> params = new HashMap<>();
-            params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
-            params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
-            params.put(VectorRoomActivity.EXTRA_EXPAND_ROOM_HEADER, true);
-
-            Log.d(LOG_TAG, "## mCreateDirectMessageCallBack: onSuccess - start goToRoomPage");
-            CommonActivityUtils.goToRoomPage(getActivity(), mSession, params);
-        }
-
-        private void onError(final String message) {
-            mWaitingView.post(new Runnable() {
-                @Override
-                public void run() {
-                    if (null != message) {
-                        Toast.makeText(mActivity, message, Toast.LENGTH_LONG).show();
-                    }
-                    mActivity.stopWaitingView();
-                }
-            });
-        }
-
-        @Override
-        public void onNetworkError(Exception e) {
-            onError(e.getLocalizedMessage());
-        }
-
-        @Override
-        public void onMatrixError(final MatrixError e) {
-            onError(e.getLocalizedMessage());
-        }
-
-        @Override
-        public void onUnexpectedError(final Exception e) {
-            onError(e.getLocalizedMessage());
-        }
-    };
 
     /*
      * *********************************************************************************************

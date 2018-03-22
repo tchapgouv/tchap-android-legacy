@@ -86,9 +86,6 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
     // main UI items
     private ExpandableListView mListView;
 
-    // load
-    private View mLoadingView;
-
     // participants list
     private List<ParticipantAdapterItem> mHiddenParticipantItems = new ArrayList<>();
 
@@ -203,7 +200,7 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
             mPatternToSearchEditText.setHint(R.string.room_participants_invite_search_another_user);
         }
 
-        mLoadingView = findViewById(R.id.search_in_progress_view);
+        waitingView = findViewById(R.id.search_in_progress_view);
 
         mListView = findViewById(R.id.room_details_members_list);
         // the chevron is managed in the header view
@@ -303,14 +300,14 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
 
         // display a spinner while the other room members are listed
         if (!mAdapter.isKnownMembersInitialized()) {
-            mLoadingView.setVisibility(View.VISIBLE);
+            showWaitingView();
         }
 
         // wait that the local contacts are populated
         if (!ContactsManager.getInstance().didPopulateLocalContacts()) {
             Log.d(LOG_TAG, "## onPatternUpdate() : The local contacts are not yet populated");
             mAdapter.reset();
-            mLoadingView.setVisibility(View.VISIBLE);
+            showWaitingView();
             return;
         }
 
@@ -320,7 +317,7 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
                 mListView.post(new Runnable() {
                     @Override
                     public void run() {
-                        mLoadingView.setVisibility(View.GONE);
+                        stopWaitingView();
                     }
                 });
             }
@@ -525,7 +522,7 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
         mSession.createRoom(new SimpleApiCallback<String>(VectorRoomInviteMembersActivity.this) {
             @Override
             public void onSuccess(final String roomId) {
-                mLoadingView.post(new Runnable() {
+                waitingView.post(new Runnable() {
                     @Override
                     public void run() {
                         stopWaitingView();
@@ -539,7 +536,7 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
             }
 
             private void onError(final String message) {
-                mLoadingView.post(new Runnable() {
+                waitingView.post(new Runnable() {
                     @Override
                     public void run() {
                         if (null != message) {
@@ -567,36 +564,6 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
         });
     }
 
-    //==============================================================================================================
-    // Handle the waiting view
-    //==============================================================================================================
-
-    /**
-     * SHow teh waiting view
-     */
-    public void showWaitingView() {
-        if (null != mLoadingView) {
-            mLoadingView.setVisibility(View.VISIBLE);
-        }
-    }
-
-    /**
-     * Hide the waiting view
-     */
-    public void stopWaitingView() {
-        if (null != mLoadingView) {
-            mLoadingView.setVisibility(View.GONE);
-        }
-    }
-
-    /**
-     * Tells if the waiting view is currently displayed
-     *
-     * @return true if the waiting view is displayed
-     */
-    public boolean isWaitingViewVisible() {
-        return (null != mLoadingView) && (View.VISIBLE == mLoadingView.getVisibility());
-    }
 
     //==============================================================================================================
     // Handle keyboard visibility
