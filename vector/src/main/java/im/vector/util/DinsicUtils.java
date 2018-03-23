@@ -1,3 +1,19 @@
+/*
+ * Copyright 2018 DINSIC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package im.vector.util;
 
 import android.app.Activity;
@@ -11,10 +27,23 @@ import android.net.Uri;
 import android.provider.ContactsContract;
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
+import android.widget.Toast;
+
+import org.matrix.androidsdk.MXSession;
+import org.matrix.androidsdk.data.Room;
+import org.matrix.androidsdk.rest.callback.ApiCallback;
+import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.util.Log;
+
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import im.vector.R;
+import im.vector.activity.CommonActivityUtils;
+import im.vector.activity.LoginActivity;
+import im.vector.activity.RiotAppCompatActivity;
+import im.vector.activity.VectorRoomActivity;
+import im.vector.activity.VectorRoomCreationActivity;
 import im.vector.adapters.ParticipantAdapterItem;
 import im.vector.contacts.Contact;
 import im.vector.contacts.ContactsManager;
@@ -189,6 +218,7 @@ public class DinsicUtils {
         return find;
 
     }
+
     public static void alertSimpleMsg(FragmentActivity activity, String msg){
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
         alertDialogBuilder.setMessage(msg);
@@ -210,4 +240,92 @@ public class DinsicUtils {
 
     }
 
+    //=============================================================================================
+    // Handle existing direct chat room
+    //=============================================================================================
+
+    /**
+     * Select the most suitable direct chat for the provided user identifier (matrix or third party id).
+     * During this search, the pending invite are considered too.
+     * The selected room (if any) may be opened synchronously or not. It depends if the room is ready or not.
+     *
+     * @param activity current activity
+     * @param participantId : participant id (matrix id ou email)
+     * @param session current session
+     * @param canCreate create the direct chat if it does not exist.
+     * @return boolean that says if the direct chat room is found or not
+     */
+    public static boolean openDirectChat(final RiotAppCompatActivity activity, String participantId, final MXSession session, boolean canCreate) {
+        Room existingRoom = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(participantId, session, true);
+        boolean succeeded = false;
+
+        // direct message api callback
+        ApiCallback<String> prepareDirectChatCallBack = new ApiCallback<String>() {
+            @Override
+            public void onSuccess(final String roomId) {
+                activity.stopWaitingView();
+
+                HashMap<String, Object> params = new HashMap<>();
+                params.put(VectorRoomActivity.EXTRA_MATRIX_ID, session.getMyUserId());
+                params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
+                params.put(VectorRoomActivity.EXTRA_EXPAND_ROOM_HEADER, true);
+
+                Log.d(LOG_TAG, "## prepareDirectChatCallBack: onSuccess - start goToRoomPage");
+                CommonActivityUtils.goToRoomPage(activity, session, params);
+            }
+
+            private void onError(final String message) {
+                activity.waitingView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (null != message) {
+                            Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
+                        }
+                        activity.stopWaitingView();
+                    }
+                });
+            }
+
+            @Override
+            public void onNetworkError(Exception e) {
+                onError(e.getLocalizedMessage());
+            }
+
+            @Override
+            public void onMatrixError(final MatrixError e) {
+                onError(e.getLocalizedMessage());
+            }
+
+            @Override
+            public void onUnexpectedError(final Exception e) {
+                onError(e.getLocalizedMessage());
+            }
+        };
+
+        if (null != existingRoom) {
+            // If I am invited to this room, I accept invitation and join it
+            if (existingRoom.isInvited()) {
+                succeeded = true;
+                activity.showWaitingView();
+                session.joinRoom(existingRoom.getRoomId(), prepareDirectChatCallBack);
+            } else {
+                succeeded = true;
+                HashMap<String, Object> params = new HashMap<>();
+                params.put(VectorRoomActivity.EXTRA_MATRIX_ID, participantId);
+                params.put(VectorRoomActivity.EXTRA_ROOM_ID, existingRoom.getRoomId());
+                CommonActivityUtils.goToRoomPage(activity, session, params);
+            }
+        } else if (canCreate){
+            // direct message flow
+            //it will be more open on next sprints ...
+            if (!LoginActivity.isUserExternal(session)) {
+                succeeded = true;
+                activity.showWaitingView();
+                session.createDirectMessageRoom(participantId, prepareDirectChatCallBack);
+            } else {
+                DinsicUtils.alertSimpleMsg(activity, activity.getString(R.string.room_creation_forbidden));
+            }
+        }
+        return succeeded;
+    }
 }
