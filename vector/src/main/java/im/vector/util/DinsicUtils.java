@@ -270,7 +270,7 @@ public class DinsicUtils {
                 params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
                 params.put(VectorRoomActivity.EXTRA_EXPAND_ROOM_HEADER, true);
 
-                Log.d(LOG_TAG, "## mCreateDirectMessageCallBack: onSuccess - start goToRoomPage");
+                Log.d(LOG_TAG, "## prepareDirectChatCallBack: onSuccess - start goToRoomPage");
                 CommonActivityUtils.goToRoomPage(activity, session, params);
             }
 
