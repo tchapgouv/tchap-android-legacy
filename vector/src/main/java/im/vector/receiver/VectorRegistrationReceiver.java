@@ -27,12 +27,9 @@ import android.text.TextUtils;
 import org.matrix.androidsdk.util.Log;
 
 import java.net.URLDecoder;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Set;
 
-import im.vector.R;
 import im.vector.activity.LoginActivity;
 
 @SuppressLint("LongLogTag")

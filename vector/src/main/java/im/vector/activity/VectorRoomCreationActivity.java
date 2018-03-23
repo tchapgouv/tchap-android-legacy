@@ -37,7 +37,6 @@ import android.widget.Toast;
 
 import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.data.Room;
-import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
 import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.MXSession;
@@ -333,7 +332,7 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
      * @param participants the list of participant
      */
     private void createRoom(final List<ParticipantAdapterItem> participants) {
-        waitingView.setVisibility(View.VISIBLE);
+        showWaitingView();
 
         CreateRoomParams params = new CreateRoomParams();
 
@@ -367,7 +366,7 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
                         if (null != message) {
                             Toast.makeText(VectorRoomCreationActivity.this, message, Toast.LENGTH_LONG).show();
                         }
-                        waitingView.setVisibility(View.GONE);
+                        stopWaitingView();
                     }
                 });
             }

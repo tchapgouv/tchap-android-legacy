@@ -1,5 +1,6 @@
 /*
  * Copyright 2015 OpenMarket Ltd
+ * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +37,7 @@ public class RiotAppCompatActivity extends AppCompatActivity {
     public static View waitingView;
 
     /**
-     * Show teh waiting view
+     * Show the waiting view
      */
     public static void showWaitingView() {
         if (null != waitingView) {

@@ -34,7 +34,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.Filter;
-import android.widget.Toast;
 
 import org.matrix.androidsdk.MXDataHandler;
 import org.matrix.androidsdk.MXSession;
@@ -61,8 +60,6 @@ import butterknife.BindView;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.LoginActivity;
-import im.vector.activity.VectorRoomActivity;
-import im.vector.activity.VectorRoomCreationActivity;
 import im.vector.adapters.ParticipantAdapterItem;
 import im.vector.adapters.ContactAdapter;
 import im.vector.contacts.Contact;
