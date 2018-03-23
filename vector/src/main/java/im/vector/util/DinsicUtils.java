@@ -11,10 +11,23 @@ import android.net.Uri;
 import android.provider.ContactsContract;
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.Toast;
+
+import org.matrix.androidsdk.MXSession;
+import org.matrix.androidsdk.data.Room;
+import org.matrix.androidsdk.rest.callback.ApiCallback;
+import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.util.Log;
+
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import im.vector.R;
+import im.vector.activity.CommonActivityUtils;
+import im.vector.activity.LoginActivity;
+import im.vector.activity.VectorRoomActivity;
+import im.vector.activity.VectorRoomCreationActivity;
 import im.vector.adapters.ParticipantAdapterItem;
 import im.vector.contacts.Contact;
 import im.vector.contacts.ContactsManager;
@@ -154,6 +167,8 @@ public class DinsicUtils {
             alertDialog.show();
 
         }
+
+
     }  
 
     public static boolean participantAlreadyAdded(List<ParticipantAdapterItem> participants, ParticipantAdapterItem participant){
@@ -189,6 +204,7 @@ public class DinsicUtils {
         return find;
 
     }
+
     public static void alertSimpleMsg(FragmentActivity activity, String msg){
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
         alertDialogBuilder.setMessage(msg);
@@ -210,4 +226,119 @@ public class DinsicUtils {
 
     }
 
+    //=============================================================================================
+    // Handle existing direct chat room
+    //=============================================================================================
+
+    /**
+     * Open the current direct chat with the corresponding user id.
+     * Look for a potential existing direct chat with this user (by considering pending invite too)
+     *
+     * @param participantId : participant id (matrix id ou email)
+     * @param canCreate create the direct chat if it does not exist.
+     * @param mActivity current activity
+     * @param mSession current session
+     * @param mSpinnerView
+     * @param mCreateDirectMessageCallBack
+     * @return boolean that says if the direct chat room is opened or not
+     */
+    public static boolean openDirectChat(String participantId, boolean canCreate, final Activity mActivity, final MXSession mSession, final View mSpinnerView, ApiCallback mCreateDirectMessageCallBack) {
+        Room existingRoom = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(participantId, mSession, true);
+        boolean succeeded = false;
+
+        if (null != existingRoom) {
+            if (existingRoom.isInvited()) {
+                succeeded = true;
+                showWaitingView(mSpinnerView);
+
+                mSession.joinRoom(existingRoom.getRoomId(), new ApiCallback<String>() {
+                    @Override
+                    public void onSuccess(String roomId) {
+                        stopWaitingView(mSpinnerView);
+
+                        HashMap<String, Object> params = new HashMap<>();
+                        params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
+                        params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
+                        CommonActivityUtils.goToRoomPage(mActivity, mSession, params);
+                    }
+
+                    private void onError(final String message) {
+                        mSpinnerView.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (null != message) {
+                                    Toast.makeText(mActivity, message, Toast.LENGTH_LONG).show();
+                                }
+                                stopWaitingView(mSpinnerView);
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onNetworkError(Exception e) {
+                        onError(e.getLocalizedMessage());
+                    }
+
+                    @Override
+                    public void onMatrixError(final MatrixError e) {
+                        onError(e.getLocalizedMessage());
+                    }
+
+                    @Override
+                    public void onUnexpectedError(final Exception e) {
+                        onError(e.getLocalizedMessage());
+                    }
+                });
+            } else {
+                succeeded = true;
+                HashMap<String, Object> params = new HashMap<>();
+                params.put(VectorRoomActivity.EXTRA_MATRIX_ID, participantId);
+                params.put(VectorRoomActivity.EXTRA_ROOM_ID, existingRoom.getRoomId());
+                CommonActivityUtils.goToRoomPage(mActivity, mSession, params);
+            }
+        } else if (canCreate){
+            // direct message flow
+            //it will be more open on next sprints ...
+            if (!LoginActivity.isUserExternal(mSession)) {
+                succeeded = true;
+                showWaitingView(mSpinnerView);
+                mSession.createDirectMessageRoom(participantId, mCreateDirectMessageCallBack);
+            } else {
+                DinsicUtils.alertSimpleMsg((FragmentActivity) mActivity, mActivity.getString(R.string.room_creation_forbidden));
+            }
+        }
+        return succeeded;
+    }
+
+
+    //=============================================================================================
+    // Handle the waiting view
+    //=============================================================================================
+
+    /**
+     * SHow teh waiting view
+     */
+    public static void showWaitingView(View mSpinnerView) {
+        if (null != mSpinnerView) {
+            mSpinnerView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    /**
+     * Hide the waiting view
+     */
+    public static void stopWaitingView(View mSpinnerView) {
+        if (null != mSpinnerView) {
+            mSpinnerView.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * Tells if the waiting view is currently displayed
+     *
+     * @return true if the waiting view is displayed
+     */
+    public static  boolean isWaitingViewVisible(View mSpinnerView) {
+        return (null != mSpinnerView) && (View.VISIBLE == mSpinnerView.getVisibility());
+    }
 }
