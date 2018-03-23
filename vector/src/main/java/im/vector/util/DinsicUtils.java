@@ -52,7 +52,7 @@ import im.vector.contacts.ContactsManager;
  * Created by cloud on 1/22/18.
  */
 
-public class DinsicUtils extends RiotAppCompatActivity {
+public class DinsicUtils {
     private static final String LOG_TAG = "DinsicUtils";
     public static final String AGENT_OR_INTERNAL_SECURED_EMAIL_HOST = "gouv.fr";
     /**
@@ -257,7 +257,7 @@ public class DinsicUtils extends RiotAppCompatActivity {
      * @return boolean that says if the direct chat room is opened or not
      *
      */
-    public static boolean openDirectChat(final Activity activity, String participantId, final MXSession session, boolean canCreate) {
+    public static boolean openDirectChat(final RiotAppCompatActivity activity, String participantId, final MXSession session, boolean canCreate) {
         Room existingRoom = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(participantId, session, true);
         boolean succeeded = false;
 
@@ -265,7 +265,7 @@ public class DinsicUtils extends RiotAppCompatActivity {
         ApiCallback<String> createDirectMessageCallBack = new ApiCallback<String>() {
             @Override
             public void onSuccess(final String roomId) {
-                stopWaitingView();
+                activity.stopWaitingView();
 
                 HashMap<String, Object> params = new HashMap<>();
                 params.put(VectorRoomActivity.EXTRA_MATRIX_ID, session.getMyUserId());
@@ -277,13 +277,13 @@ public class DinsicUtils extends RiotAppCompatActivity {
             }
 
             private void onError(final String message) {
-                waitingView.post(new Runnable() {
+                activity.waitingView.post(new Runnable() {
                     @Override
                     public void run() {
                         if (null != message) {
                             Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
                         }
-                        stopWaitingView();
+                        activity.stopWaitingView();
                     }
                 });
             }
@@ -308,12 +308,12 @@ public class DinsicUtils extends RiotAppCompatActivity {
             // If I am invited to this room, I accept invitation and join it
             if (existingRoom.isInvited()) {
                 succeeded = true;
-                showWaitingView();
+                activity.showWaitingView();
 
                 session.joinRoom(existingRoom.getRoomId(), new ApiCallback<String>() {
                     @Override
                     public void onSuccess(String roomId) {
-                        stopWaitingView();
+                        activity.stopWaitingView();
 
                         HashMap<String, Object> params = new HashMap<>();
                         params.put(VectorRoomActivity.EXTRA_MATRIX_ID, session.getMyUserId());
@@ -324,13 +324,13 @@ public class DinsicUtils extends RiotAppCompatActivity {
                     }
 
                     private void onError(final String message) {
-                        waitingView.post(new Runnable() {
+                        activity.waitingView.post(new Runnable() {
                             @Override
                             public void run() {
                                 if (null != message) {
                                     Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
                                 }
-                                stopWaitingView();
+                                activity.stopWaitingView();
                             }
                         });
                     }
@@ -363,10 +363,10 @@ public class DinsicUtils extends RiotAppCompatActivity {
             //it will be more open on next sprints ...
             if (!LoginActivity.isUserExternal(session)) {
                 succeeded = true;
-                showWaitingView();
+                activity.showWaitingView();
                 session.createDirectMessageRoom(participantId, createDirectMessageCallBack);
             } else {
-                DinsicUtils.alertSimpleMsg((FragmentActivity) activity, activity.getString(R.string.room_creation_forbidden));
+                DinsicUtils.alertSimpleMsg(activity, activity.getString(R.string.room_creation_forbidden));
             }
         }
         return succeeded;

@@ -34,12 +34,12 @@ public class RiotAppCompatActivity extends AppCompatActivity {
     // Handle loading view (also called wainting view or spinner view
     //==============================================================================================
 
-    public static View waitingView;
+    public View waitingView;
 
     /**
      * Show the waiting view
      */
-    public static void showWaitingView() {
+    public void showWaitingView() {
         if (null != waitingView) {
             waitingView.setVisibility(View.VISIBLE);
         }
@@ -48,7 +48,7 @@ public class RiotAppCompatActivity extends AppCompatActivity {
     /**
      * Hide the waiting view
      */
-    public static void stopWaitingView() {
+    public void stopWaitingView() {
         if (null != waitingView) {
             waitingView.setVisibility(View.GONE);
         }
