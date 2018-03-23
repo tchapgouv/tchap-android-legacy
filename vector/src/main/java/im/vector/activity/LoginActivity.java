@@ -114,7 +114,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
     private static final String SAVED_LOGIN_PASSWORD_ADDRESS = "SAVED_LOGIN_PASSWORD_ADDRESS";
 
     // creation
-    private static final String SAVED_CREATION_EMAIL_NAME = "SAVED_CREATION_USER_NAME";
+    private static final String SAVED_CREATION_EMAIL_NAME = "SAVED_CREATION_EMAIL_NAME";
     private static final String SAVED_CREATION_USER_NAME = "SAVED_CREATION_USER_NAME";
     private static final String SAVED_CREATION_PASSWORD1 = "SAVED_CREATION_PASSWORD1";
     private static final String SAVED_CREATION_PASSWORD2 = "SAVED_CREATION_PASSWORD2";
@@ -639,13 +639,6 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
      * the user forgot his password
      */
     private void onForgotPasswordClick() {
-        final HomeServerConnectionConfig hsConfig = getHsConfig();
-
-        // it might be null if the identity / homeserver urls are invalids
-        if (null == hsConfig) {
-            return;
-        }
-
         // parameters
         final String email = mForgotEmailTextView.getText().toString().trim();
         final String password = mForgotPassword1TextView.getText().toString().trim();
@@ -670,87 +663,121 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
 
         enableLoadingScreen(true);
 
-        ProfileRestClient pRest = new ProfileRestClient(hsConfig);
-
-        // privacy
-        //Log.d(LOG_TAG, "onForgotPasswordClick for email " + email);
-        Log.d(LOG_TAG, "onForgotPasswordClick");
-
-        pRest.forgetPassword(email, new ApiCallback<ThreePid>() {
-            @Override
-            public void onSuccess(ThreePid thirdPid) {
-                if (mMode == MODE_FORGOT_PASSWORD) {
-                    Log.d(LOG_TAG, "onForgotPasswordClick : requestEmailValidationToken succeeds");
-
-                    enableLoadingScreen(false);
-
-                    // refresh the messages
-                    hideMainLayoutAndToast(getResources().getString(R.string.auth_reset_password_email_validation_message, email));
-
-                    mMode = MODE_FORGOT_PASSWORD_WAITING_VALIDATION;
-                    refreshDisplay();
-
-                    mForgotPid = new HashMap<>();
-                    mForgotPid.put("client_secret", thirdPid.clientSecret);
-                    mForgotPid.put("id_server", hsConfig.getIdentityServerUri().getHost());
-                    mForgotPid.put("sid", thirdPid.sid);
-                }
-            }
-
-            /**
-             * Display a toast to warn that the operation failed
-             * @param errorMessage the error message.
-             */
-            private void onError(final String errorMessage) {
-                Log.e(LOG_TAG, "onForgotPasswordClick : requestEmailValidationToken fails with error " + errorMessage);
-
-                if (mMode == MODE_FORGOT_PASSWORD) {
-                    enableLoadingScreen(false);
-                    Toast.makeText(LoginActivity.this, errorMessage, Toast.LENGTH_LONG).show();
-                }
+        Log.d(LOG_TAG, "## onForgotPasswordClick()");
+        discoverTchapPlatform(email, new ApiCallback<Platform>() {
+            private void onError(String errorMessage) {
+                Toast.makeText(LoginActivity.this, (null == errorMessage) ? getString(R.string.auth_invalid_email) : errorMessage, Toast.LENGTH_LONG).show();
+                enableLoadingScreen(false);
             }
 
             @Override
-            public void onNetworkError(final Exception e) {
-                if (mMode == MODE_FORGOT_PASSWORD) {
-                    UnrecognizedCertificateException unrecCertEx = CertUtil.getCertificateException(e);
-                    if (unrecCertEx != null) {
-                        final Fingerprint fingerprint = unrecCertEx.getFingerprint();
+            public void onSuccess(Platform platform) {
+                Log.d(LOG_TAG, "## onForgotPasswordClick(): discoverTchapPlatform succeeds");
+                mTchapPlatform = platform;
 
-                        UnrecognizedCertHandler.show(hsConfig, fingerprint, false, new UnrecognizedCertHandler.Callback() {
-                            @Override
-                            public void onAccept() {
-                                onForgotPasswordClick();
-                            }
+                final HomeServerConnectionConfig hsConfig = getHsConfig();
 
-                            @Override
-                            public void onIgnore() {
+                // it might be null if the identity / homeserver urls are invalids
+                if (null == hsConfig) {
+                    Log.e(LOG_TAG, "## onForgotPasswordClick(): invalid platform");
+                    onError(getString(R.string.auth_invalid_email));
+                    return;
+                }
+
+                ProfileRestClient pRest = new ProfileRestClient(hsConfig);
+
+                pRest.forgetPassword(email, new ApiCallback<ThreePid>() {
+                    @Override
+                    public void onSuccess(ThreePid thirdPid) {
+                        if (mMode == MODE_FORGOT_PASSWORD) {
+                            Log.d(LOG_TAG, "## onForgotPasswordClick(): requestEmailValidationToken succeeds");
+
+                            enableLoadingScreen(false);
+
+                            // refresh the messages
+                            hideMainLayoutAndToast(getResources().getString(R.string.auth_reset_password_email_validation_message, email));
+
+                            mMode = MODE_FORGOT_PASSWORD_WAITING_VALIDATION;
+                            refreshDisplay();
+
+                            mForgotPid = new HashMap<>();
+                            mForgotPid.put("client_secret", thirdPid.clientSecret);
+                            mForgotPid.put("id_server", hsConfig.getIdentityServerUri().getHost());
+                            mForgotPid.put("sid", thirdPid.sid);
+                        }
+                    }
+
+                    /**
+                     * Display a toast to warn that the operation failed
+                     * @param errorMessage the error message.
+                     */
+                    private void onError(final String errorMessage) {
+                        Log.e(LOG_TAG, "## onForgotPasswordClick(): requestEmailValidationToken fails with error " + errorMessage);
+
+                        if (mMode == MODE_FORGOT_PASSWORD) {
+                            enableLoadingScreen(false);
+                            Toast.makeText(LoginActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                        }
+                    }
+
+                    @Override
+                    public void onNetworkError(final Exception e) {
+                        if (mMode == MODE_FORGOT_PASSWORD) {
+                            UnrecognizedCertificateException unrecCertEx = CertUtil.getCertificateException(e);
+                            if (unrecCertEx != null) {
+                                final Fingerprint fingerprint = unrecCertEx.getFingerprint();
+
+                                UnrecognizedCertHandler.show(hsConfig, fingerprint, false, new UnrecognizedCertHandler.Callback() {
+                                    @Override
+                                    public void onAccept() {
+                                        onForgotPasswordClick();
+                                    }
+
+                                    @Override
+                                    public void onIgnore() {
+                                        onError(e.getLocalizedMessage());
+                                    }
+
+                                    @Override
+                                    public void onReject() {
+                                        onError(e.getLocalizedMessage());
+                                    }
+                                });
+                            } else {
                                 onError(e.getLocalizedMessage());
                             }
+                        }
+                    }
 
-                            @Override
-                            public void onReject() {
-                                onError(e.getLocalizedMessage());
-                            }
-                        });
-                    } else {
+                    @Override
+                    public void onUnexpectedError(Exception e) {
                         onError(e.getLocalizedMessage());
                     }
-                }
+
+                    @Override
+                    public void onMatrixError(MatrixError e) {
+                        if (TextUtils.equals(MatrixError.THREEPID_NOT_FOUND, e.errcode)) {
+                            onError(getString(R.string.account_email_not_found_error));
+                        } else {
+                            onError(e.getLocalizedMessage());
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onNetworkError(Exception e) {
+                onError(e.getLocalizedMessage());
+            }
+
+            @Override
+            public void onMatrixError(MatrixError matrixError) {
+                onError(matrixError.getLocalizedMessage());
             }
 
             @Override
             public void onUnexpectedError(Exception e) {
                 onError(e.getLocalizedMessage());
-            }
-
-            @Override
-            public void onMatrixError(MatrixError e) {
-                if (TextUtils.equals(MatrixError.THREEPID_NOT_FOUND, e.errcode)) {
-                    onError(getString(R.string.account_email_not_found_error));
-                } else {
-                    onError(e.getLocalizedMessage());
-                }
             }
         });
     }
@@ -968,7 +995,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
      */
     private void submitEmailToken(final String aToken, final String aClientSecret, final String aSid, final String aSessionId, final String aHomeServer, final String aIdentityServer) {
         final HomeServerConnectionConfig homeServerConfig = mServerConfig = new HomeServerConnectionConfig(Uri.parse(aHomeServer), Uri.parse(aIdentityServer), null, new ArrayList<Fingerprint>(), false);
-        RegistrationManager.getInstance().setHsConfig(getHsConfig());
+        RegistrationManager.getInstance().setHsConfig(homeServerConfig);
         Log.d(LOG_TAG, "## submitEmailToken(): IN");
 
         if (mMode == MODE_ACCOUNT_CREATION) {
@@ -1192,7 +1219,8 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
                 enableLoadingScreen(false);
             }
         } else {
-            setActionButtonsEnabled(true);
+            // The registration flows are already known, pursue the current action.
+            callback.onSuccess(null);
         }
     }
 
@@ -1266,7 +1294,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
         Log.d(LOG_TAG, "## onLoginClick()");
         discoverTchapPlatform(emailAddress, new ApiCallback<Platform>() {
             private void onError(String errorMessage) {
-                Toast.makeText(LoginActivity.this, (null == errorMessage) ? getString(R.string.auth_invalid_login_param) : errorMessage, Toast.LENGTH_LONG).show();
+                Toast.makeText(LoginActivity.this, (null == errorMessage) ? getString(R.string.login_error_unable_login) : errorMessage, Toast.LENGTH_LONG).show();
                 enableLoadingScreen(false);
             }
 
@@ -1274,7 +1302,16 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
             public void onSuccess(Platform platform) {
                 mTchapPlatform = platform;
 
-                mLoginHandler.getSupportedLoginFlows(LoginActivity.this, getHsConfig(), new SimpleApiCallback<List<LoginFlow>>() {
+                final HomeServerConnectionConfig hsConfig = getHsConfig();
+
+                // it might be null if the identity / homeserver urls are invalids
+                if (null == hsConfig) {
+                    Log.e(LOG_TAG, "## onLoginClick(): invalid platform");
+                    onError(getString(R.string.login_error_unable_login));
+                    return;
+                }
+
+                mLoginHandler.getSupportedLoginFlows(LoginActivity.this, hsConfig, new SimpleApiCallback<List<LoginFlow>>() {
                     @Override
                     public void onSuccess(List<LoginFlow> flows) {
                         // stop listening to network state
@@ -1292,10 +1329,10 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
                         // if not supported, switch to the fallback login
                         if (!isSupported) {
                             Intent intent = new Intent(LoginActivity.this, FallbackLoginActivity.class);
-                            intent.putExtra(FallbackLoginActivity.EXTRA_HOME_SERVER_ID, getHsConfig().getHomeserverUri().toString());
+                            intent.putExtra(FallbackLoginActivity.EXTRA_HOME_SERVER_ID, hsConfig.getHomeserverUri().toString());
                             startActivityForResult(intent, FALLBACK_LOGIN_ACTIVITY_REQUEST_CODE);
                         } else {
-                            login(getHsConfig(), emailAddress, null, null, password);
+                            login(hsConfig, emailAddress, null, null, password);
                         }
                     }
 
@@ -1304,12 +1341,12 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
                         Log.e(LOG_TAG, "Network Error: " + e.getMessage(), e);
                         // listen to network state, to resume processing as soon as the network is back
                         addNetworkStateNotificationListener();
-                        onError(getString(R.string.login_error_unable_login) + " : " + e.getLocalizedMessage());
+                        onError(e.getLocalizedMessage());
                     }
 
                     @Override
                     public void onUnexpectedError(Exception e) {
-                        onError(getString(R.string.login_error_unable_login) + " : " + e.getLocalizedMessage());
+                        onError(e.getLocalizedMessage());
                     }
 
                     @Override
@@ -1317,8 +1354,6 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
                         onFailureDuringAuthRequest(e);
                     }
                 });
-
-                login(getHsConfig(), emailAddress, null, null, password);
             }
 
             @Override
@@ -1360,14 +1395,14 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
 
                 @Override
                 public void onNetworkError(Exception e) {
-                    Log.e(LOG_TAG, "onLoginClick : Network Error: " + e.getMessage());
+                    Log.e(LOG_TAG, "## login(): Network Error: " + e.getMessage());
                     enableLoadingScreen(false);
                     Toast.makeText(getApplicationContext(), getString(R.string.login_error_network_error), Toast.LENGTH_LONG).show();
                 }
 
                 @Override
                 public void onUnexpectedError(Exception e) {
-                    Log.e(LOG_TAG, "onLoginClick : onUnexpectedError" + e.getMessage());
+                    Log.e(LOG_TAG, "## login(): onUnexpectedError" + e.getMessage());
                     enableLoadingScreen(false);
                     String msg = getString(R.string.login_error_unable_login) + " : " + e.getMessage();
                     Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
@@ -1375,7 +1410,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
 
                 @Override
                 public void onMatrixError(MatrixError e) {
-                    Log.e(LOG_TAG, "onLoginClick : onMatrixError " + e.getLocalizedMessage());
+                    Log.e(LOG_TAG, "## login(): onMatrixError " + e.getLocalizedMessage());
                     enableLoadingScreen(false);
                     onFailureDuringAuthRequest(e);
                 }
@@ -2124,7 +2159,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
         tchapRestClient.info(emailAddress, ThreePid.MEDIUM_EMAIL, new ApiCallback<Platform>() {
             @Override
             public void onSuccess(Platform platform) {
-                Log.d(LOG_TAG, "## discoverTchapPlatform succeeded (" + platform.hs +")");
+                Log.d(LOG_TAG, "## discoverTchapPlatform succeeded (" + platform.hs + ", " + platform.invited +")");
                 callback.onSuccess(platform);
             }
 
@@ -2175,6 +2210,9 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
         mCreationUsernameTextView.setEnabled(true);
         mCreationUsernameTextView.setAlpha(1.0f);
 
+        // Reset the registration flows
+        mRegistrationResponse = null;
+
         final String emailAddress = mCreationEmailAddressTextView.getText().toString().trim();
 
         // no email address ?
@@ -2193,7 +2231,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
         discoverTchapPlatform(emailAddress, new ApiCallback<Platform>() {
             private void onError(String errorMessage) {
                 enableLoadingScreen(false);
-                Toast.makeText(LoginActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                Toast.makeText(LoginActivity.this, (null == errorMessage) ? getString(R.string.auth_invalid_email) : errorMessage, Toast.LENGTH_LONG).show();
             }
 
             @Override

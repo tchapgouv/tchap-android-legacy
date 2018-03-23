@@ -1,3 +1,12 @@
+Changes in Tchap 0.1.2 (2018-03-22)
+===================================================
+ 
+Improvement:
+ * Update the known identity server names #76
+ 
+Bug Fix:
+ * Registration: the email field is changed on app resume #65
+
 Changes in Tchap 0.1.1 (2018-03-16)
 ===================================================
  
