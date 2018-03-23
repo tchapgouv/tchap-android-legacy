@@ -1,7 +1,6 @@
 /*
  * Copyright 2015 OpenMarket Ltd
  *
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -37,7 +36,7 @@ public class RiotAppCompatActivity extends AppCompatActivity {
     public View waitingView;
 
     /**
-     * Show the waiting view
+     * Show teh waiting view
      */
     public void showWaitingView() {
         if (null != waitingView) {

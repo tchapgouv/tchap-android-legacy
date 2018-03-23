@@ -41,6 +41,7 @@ import java.util.List;
 import im.vector.Matrix;
 import im.vector.R;
 import im.vector.adapters.GroupDetailsFragmentPagerAdapter;
+import im.vector.fragments.GroupDetailsBaseFragment;
 import im.vector.util.ThemeUtils;
 import im.vector.view.RiotViewPager;
 
@@ -60,6 +61,7 @@ public class VectorGroupDetailsActivity extends MXCActionBarActivity {
     private Group mGroup;
 
     // UI views
+    private View mLoadingView;
     private ProgressBar mGroupSyncInProgress;
 
     private RiotViewPager mPager;
@@ -184,7 +186,7 @@ public class VectorGroupDetailsActivity extends MXCActionBarActivity {
         setContentView(R.layout.activity_vector_group_details);
 
         // UI widgets binding & init fields
-        waitingView = findViewById(R.id.group_loading_layout);
+        mLoadingView = findViewById(R.id.group_loading_layout);
 
         // tab creation and restore tabs UI context
         ActionBar actionBar = getSupportActionBar();
@@ -278,6 +280,24 @@ public class VectorGroupDetailsActivity extends MXCActionBarActivity {
         super.onResume();
         refreshGroupInfo();
         mSession.getDataHandler().addListener(mGroupEventsListener);
+    }
+
+    /**
+     * SHow the waiting view
+     */
+    public void showWaitingView() {
+        if (null != mLoadingView) {
+            mLoadingView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    /**
+     * Hide the waiting view
+     */
+    public void stopWaitingView() {
+        if (null != mLoadingView) {
+            mLoadingView.setVisibility(View.GONE);
+        }
     }
 
     /**
