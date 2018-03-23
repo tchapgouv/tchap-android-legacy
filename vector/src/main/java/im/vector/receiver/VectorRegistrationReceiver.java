@@ -1,6 +1,5 @@
 /*
  * Copyright 2016 OpenMarket Ltd
- * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,9 +26,12 @@ import android.text.TextUtils;
 import org.matrix.androidsdk.util.Log;
 
 import java.net.URLDecoder;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
+import im.vector.R;
 import im.vector.activity.LoginActivity;
 
 @SuppressLint("LongLogTag")
