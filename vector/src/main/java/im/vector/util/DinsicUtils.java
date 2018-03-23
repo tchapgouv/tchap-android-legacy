@@ -245,7 +245,6 @@ public class DinsicUtils {
     //=============================================================================================
 
     /**
-     *
      * Select the most suitable direct chat for the provided user identifier (matrix or third party id).
      * During this search, the pending invite are considered too.
      * The selected room (if any) may be opened synchronously or not. It depends if the room is ready or not.
@@ -254,15 +253,14 @@ public class DinsicUtils {
      * @param participantId : participant id (matrix id ou email)
      * @param session current session
      * @param canCreate create the direct chat if it does not exist.
-     * @return boolean that says if the direct chat room is opened or not
-     *
+     * @return boolean that says if the direct chat room is found or not
      */
     public static boolean openDirectChat(final RiotAppCompatActivity activity, String participantId, final MXSession session, boolean canCreate) {
         Room existingRoom = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(participantId, session, true);
         boolean succeeded = false;
 
         // direct message api callback
-        ApiCallback<String> createDirectMessageCallBack = new ApiCallback<String>() {
+        ApiCallback<String> prepareDirectChatCallBack = new ApiCallback<String>() {
             @Override
             public void onSuccess(final String roomId) {
                 activity.stopWaitingView();
@@ -309,47 +307,7 @@ public class DinsicUtils {
             if (existingRoom.isInvited()) {
                 succeeded = true;
                 activity.showWaitingView();
-
-                session.joinRoom(existingRoom.getRoomId(), new ApiCallback<String>() {
-                    @Override
-                    public void onSuccess(String roomId) {
-                        activity.stopWaitingView();
-
-                        HashMap<String, Object> params = new HashMap<>();
-                        params.put(VectorRoomActivity.EXTRA_MATRIX_ID, session.getMyUserId());
-                        params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
-                        params.put(VectorRoomActivity.EXTRA_EXPAND_ROOM_HEADER, true);
-
-                        CommonActivityUtils.goToRoomPage(activity, session, params);
-                    }
-
-                    private void onError(final String message) {
-                        activity.waitingView.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (null != message) {
-                                    Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
-                                }
-                                activity.stopWaitingView();
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onNetworkError(Exception e) {
-                        onError(e.getLocalizedMessage());
-                    }
-
-                    @Override
-                    public void onMatrixError(final MatrixError e) {
-                        onError(e.getLocalizedMessage());
-                    }
-
-                    @Override
-                    public void onUnexpectedError(final Exception e) {
-                        onError(e.getLocalizedMessage());
-                    }
-                });
+                session.joinRoom(existingRoom.getRoomId(), prepareDirectChatCallBack);
             } else {
                 succeeded = true;
                 HashMap<String, Object> params = new HashMap<>();
@@ -357,14 +315,13 @@ public class DinsicUtils {
                 params.put(VectorRoomActivity.EXTRA_ROOM_ID, existingRoom.getRoomId());
                 CommonActivityUtils.goToRoomPage(activity, session, params);
             }
-
         } else if (canCreate){
             // direct message flow
             //it will be more open on next sprints ...
             if (!LoginActivity.isUserExternal(session)) {
                 succeeded = true;
                 activity.showWaitingView();
-                session.createDirectMessageRoom(participantId, createDirectMessageCallBack);
+                session.createDirectMessageRoom(participantId, prepareDirectChatCallBack);
             } else {
                 DinsicUtils.alertSimpleMsg(activity, activity.getString(R.string.room_creation_forbidden));
             }

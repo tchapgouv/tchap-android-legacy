@@ -528,7 +528,7 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                 if (DinsicUtils.isFromFrenchGov(item.mContact.getEmails()))
                     msg = getString(R.string.room_invite_gov_people);
 
-                if (!DinsicUtils.openDirectChat(mActivity, item.mUserId, mSession, true)) {
+                if (!DinsicUtils.openDirectChat(mActivity, item.mUserId, mSession, false)) {
                     if (LoginActivity.isUserExternal(mSession)) {
                         DinsicUtils.alertSimpleMsg(getActivity(), getString(R.string.room_creation_forbidden));
                     } else {
