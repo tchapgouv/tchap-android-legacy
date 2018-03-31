@@ -3150,7 +3150,12 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                             // i.e not a room preview
                             boolean hideMembersButtons = (null == mRoom) || !TextUtils.isEmpty(mEventId) || (null != sRoomPreviewData);
                             mActionBarHeaderActiveMembersListButton.setVisibility(hideMembersButtons ? View.INVISIBLE : View.VISIBLE);
-                            if (!RoomUtils.isDirectChat(mSession, mRoom.getRoomId())) {
+                            String myRoomId="";
+                            if (null != mRoom)
+                                myRoomId=mRoom.getRoomId();
+                            else if (null != sRoomPreviewData)
+                                myRoomId = sRoomPreviewData.getRoomId();
+                            if (!RoomUtils.isDirectChat(mSession, myRoomId)) {
                                 mActionBarHeaderActiveMembersInviteButton.setVisibility(View.VISIBLE);
                             } else {
                                 mActionBarHeaderActiveMembersInviteButton.setVisibility(View.GONE);
