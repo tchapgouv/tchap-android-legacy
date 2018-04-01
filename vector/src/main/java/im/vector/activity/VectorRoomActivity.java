@@ -3149,8 +3149,9 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                             // display the both action buttons only when it makes sense
                             // i.e not a room preview
                             boolean hideMembersButtons = (null == mRoom) || !TextUtils.isEmpty(mEventId) || (null != sRoomPreviewData);
-                            mActionBarHeaderActiveMembersListButton.setVisibility(hideMembersButtons ? View.INVISIBLE : View.VISIBLE);
-                            if (!RoomUtils.isDirectChat(mSession, mRoom.getRoomId())) {
+                            mActionBarHeaderActiveMembersListButton.setVisibility(hideMembersButtons ? View.GONE : View.VISIBLE);
+                            // Hide the invite button for the direct chats (this option is disabled for them)
+                            if (!hideMembersButtons && !RoomUtils.isDirectChat(mSession, mRoom.getRoomId())) {
                                 mActionBarHeaderActiveMembersInviteButton.setVisibility(View.VISIBLE);
                             } else {
                                 mActionBarHeaderActiveMembersInviteButton.setVisibility(View.GONE);
