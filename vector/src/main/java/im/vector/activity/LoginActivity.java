@@ -543,6 +543,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
         mMainLayout.setVisibility(View.VISIBLE);
 
         // cancel the registration flow
+        cancelEmailPolling();
         mEmailValidationExtraParams = null;
         mRegistrationResponse = null;
         showMainLayout();
