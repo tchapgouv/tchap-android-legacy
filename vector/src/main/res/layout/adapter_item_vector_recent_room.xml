@@ -230,13 +230,13 @@
                 android:background="@android:color/white" />
 
             <Button
-                android:id="@+id/recents_invite_reject_button"
+                android:id="@+id/recents_invite_join_button"
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
+                android:layout_height="36dp"
                 android:layout_weight="0.26"
                 android:background="@color/vector_green_color"
                 android:fontFamily="sans-serif-medium"
-                android:text="@string/reject"
+                android:text="@string/join"
                 android:textColor="@android:color/white"
                 android:textSize="14sp" />
 
@@ -248,13 +248,13 @@
                 android:background="@android:color/white" />
 
             <Button
-                android:id="@+id/recents_invite_preview_button"
+                android:id="@+id/recents_invite_reject_button"
                 android:layout_width="0dp"
-                android:layout_height="36dp"
+                android:layout_height="match_parent"
                 android:layout_weight="0.26"
                 android:background="@color/vector_green_color"
                 android:fontFamily="sans-serif-medium"
-                android:text="@string/preview"
+                android:text="@string/reject"
                 android:textColor="@android:color/white"
                 android:textSize="14sp" />
 

@@ -1520,6 +1520,15 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         }
     }
 
+    public void onJoinRoom(final String roomId, final SimpleApiCallback<Void> onSuccessCallback) {
+        Room room = mSession.getDataHandler().getRoom(roomId);
+
+        if (null != room) {
+            showWaitingView();
+            room.join(getForgetLeaveCallback(roomId, onSuccessCallback));
+        }
+    }
+
     /*
      * *********************************************************************************************
      * Sliding menu management

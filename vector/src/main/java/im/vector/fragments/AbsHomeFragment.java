@@ -166,9 +166,9 @@ public abstract class AbsHomeFragment extends Fragment implements AbsAdapter.Roo
      */
 
     @Override
-    public void onPreviewRoom(MXSession session, String roomId) {
-        Log.i(LOG_TAG, "onPreviewRoom " + roomId);
-        mActivity.onPreviewRoom(session, roomId);
+    public void onJoinRoom(MXSession session, String roomId) {
+        Log.i(LOG_TAG, "onJoinRoom " + roomId);
+        //jp todo mActivity PreviewRoom(session, roomId);
     }
 
     @Override

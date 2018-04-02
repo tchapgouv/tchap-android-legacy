@@ -683,7 +683,7 @@ public class VectorRoomSummaryAdapter extends BaseExpandableListAdapter {
         View encryptedIcon = convertView.findViewById(R.id.room_avatar_encrypted_icon);
 
         View invitationView = convertView.findViewById(R.id.recents_groups_invitation_group);
-        Button preViewButton = convertView.findViewById(R.id.recents_invite_preview_button);
+        Button joinButton = convertView.findViewById(R.id.recents_invite_join_button);
         Button rejectButton = convertView.findViewById(R.id.recents_invite_reject_button);
 
         View showMoreView = convertView.findViewById(R.id.roomSummaryAdapter_show_more_layout);
@@ -819,11 +819,11 @@ public class VectorRoomSummaryAdapter extends BaseExpandableListAdapter {
         if (isInvited) {
             actionClickArea.setVisibility(View.GONE);
 
-            preViewButton.setOnClickListener(new View.OnClickListener() {
+            joinButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (null != mListener) {
-                        mListener.onPreviewRoom(mMxSession, fRoomId);
+                       //jp todo  mListener.onPreviewRoom(mMxSession, fRoomId);
                     }
                 }
             });
