@@ -409,9 +409,10 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
     private void initContactsData() {
         ContactsManager.getInstance().retrievePids();
 
-        if (mContactsSnapshotSession == -1
-                || mContactsSnapshotSession != ContactsManager.getInstance().getLocalContactsSnapshotSession()
-                || !ContactsManager.getInstance().didPopulateLocalContacts()) {
+        if (!ContactsManager.getInstance().didPopulateLocalContacts()) {
+            Log.d(LOG_TAG, "## initContactsData() : The local contacts are not yet populated");
+            mLocalContacts.clear();
+        } else if (mContactsSnapshotSession == -1 || mContactsSnapshotSession != ContactsManager.getInstance().getLocalContactsSnapshotSession()) {
             // First time on the screen or contact data outdated
             mLocalContacts.clear();
             List<ParticipantAdapterItem> participants = new ArrayList<>(getContacts());
@@ -422,9 +423,8 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                     mLocalContacts.add(item);
                 }
             }
-        }
-        //clear contacts that come from directchats, i.e without contact id
-        else {
+        } else {
+            //clear contacts that come from directchats, i.e without contact id
             List<ParticipantAdapterItem> tobeRemoved = new ArrayList<>();
             for (ParticipantAdapterItem item : mLocalContacts) {
                 if (item.mContact.getContactId() == "null") {
@@ -435,6 +435,7 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                 mLocalContacts.remove(item);
             }
         }
+
         //add participants from direct chats
         List<ParticipantAdapterItem> myDirectContacts = getContactsFromDirectChats();
         for (ParticipantAdapterItem myContact : myDirectContacts){
