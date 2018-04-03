@@ -1,5 +1,6 @@
 /*
  * Copyright 2017 Vector Creations Ltd
+ * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -197,23 +198,18 @@ public class RegistrationManager {
      */
     public void checkUsernameAvailability(final Context context, final UsernameValidityListener listener) {
         if (getLoginRestClient() != null) {
-            final RegistrationParams params = new RegistrationParams();
+            // Trigger a fake registration (without password) to know whether the user name is available or not.
+            RegistrationParams params = new RegistrationParams();
             params.username = mUsername;
-            params.password = mPassword;
-
             register(context, params, new InternalRegistrationListener() {
                 @Override
                 public void onRegistrationSuccess() {
-                    listener.onUsernameAvailabilityChecked(true);
+                    // The registration could not succeed without password.
                 }
 
                 @Override
                 public void onRegistrationFailed(String message) {
-                    if (TextUtils.equals(MatrixError.USER_IN_USE, message)) {
-                        listener.onUsernameAvailabilityChecked(false);
-                    } else {
-                        listener.onUsernameAvailabilityChecked(true);
-                    }
+                    listener.onUsernameAvailabilityChecked(!TextUtils.equals(MatrixError.USER_IN_USE, message));
                 }
             });
         }
@@ -252,10 +248,17 @@ public class RegistrationManager {
             } else if (mEmail != null && !isCompleted(LoginRestClient.LOGIN_FLOW_TYPE_EMAIL_IDENTITY)) {
                 if (TextUtils.isEmpty(mEmail.sid)) {
                     // Email token needs to be requested before doing validation
+                    Log.d(LOG_TAG, "attemptRegistration: request email validation");
                     requestValidationToken(mEmail, new ThreePidRequestListener() {
                         @Override
                         public void onThreePidRequested(ThreePid pid) {
                             if (!TextUtils.isEmpty(pid.sid)) {
+                                // The session id for the email validation has just been received.
+                                // We trigger here a new registration request without delay to attach the current username
+                                // and the pwd to the registration session.
+                                RegistrationManager.getInstance().attemptRegistration(context, listener);
+
+                                // Notify the listener to wait for the email validation
                                 listener.onWaitingEmailValidation();
                             }
                         }

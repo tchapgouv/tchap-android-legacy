@@ -171,6 +171,7 @@ public class CommonActivityUtils {
      * @param callback         the asynchronous callback
      */
     public static void logout(Context context, List<MXSession> sessions, boolean clearCredentials, final SimpleApiCallback<Void> callback) {
+        Log.d(LOG_TAG, "## logout() : from " + context + ", " + sessions.size() + " session(s), clearCredentials " + clearCredentials);
         logout(context, sessions.iterator(), clearCredentials, callback);
     }
 
@@ -398,6 +399,7 @@ public class CommonActivityUtils {
         Matrix.getInstance(context).clearSessions(context, true, new SimpleApiCallback<Void>() {
             @Override
             public void onSuccess(Void info) {
+                Log.d(LOG_TAG, "## logout() : clearSessions succeeded");
                 // ensure that corrupted values are cleared
                 Matrix.getInstance(context).getLoginStorage().clear();
 
@@ -424,6 +426,8 @@ public class CommonActivityUtils {
                 }
             }
         });
+
+        Log.d(LOG_TAG, "## logout() : clearSessions in progress");
     }
 
     /**
