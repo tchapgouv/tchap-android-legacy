@@ -212,14 +212,6 @@
                         android:maxLines="1" />
 
                     <EditText
-                        android:id="@+id/creation_your_name"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/auth_user_name_placeholder"
-                        android:inputType="text"
-                        android:maxLines="1" />
-
-                    <EditText
                         android:id="@+id/creation_password1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
