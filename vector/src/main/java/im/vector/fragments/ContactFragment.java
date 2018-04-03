@@ -308,7 +308,7 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                     Contact dummyContact = new Contact("null");
                     if (null != user) {
                         // The user displayname is known thanks to the presence event.
-                        // It is unknown until we receive a presence for this user.
+                        // It is unknown until we receive a presence event for this user.
                         if (!TextUtils.isEmpty(user.displayname)) {
                             dummyContact.setDisplayName(user.displayname);
                         } else {
