@@ -93,7 +93,7 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
 
     // way to detect that the contacts list has been updated
     private int mContactsSnapshotSession = -1;
-    //private MXEventListener mEventsListener;
+    private MXEventListener mEventsListener;
 
     /*
      * *********************************************************************************************
@@ -120,7 +120,6 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
     public void onActivityCreated(final Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        /* Known contacts are hidden for the moment
         mEventsListener = new MXEventListener() {
 
             @Override
@@ -128,7 +127,6 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                 mAdapter.updateKnownContact(user);
             }
         };
-        */
 
         mPrimaryColor = ContextCompat.getColor(getActivity(), R.color.tab_people);
         mSecondaryColor = ContextCompat.getColor(getActivity(), R.color.tab_people_secondary);
@@ -143,18 +141,15 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
             CommonActivityUtils.checkPermissions(CommonActivityUtils.REQUEST_CODE_PERMISSION_MEMBERS_SEARCH, this);
         }
 
-        /* Known contacts are hidden for the moment
         initKnownContacts();
-         */
     }
 
     @Override
     public void onResume() {
         super.onResume();
 
-        /* Known contacts are hidden for the moment
         mSession.getDataHandler().addListener(mEventsListener);
-         */
+
         ContactsManager.getInstance().addListener(this);
 
         // @TODO List all the users with a direct chat,
@@ -176,11 +171,9 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
     public void onPause() {
         super.onPause();
 
-        /* Known contacts are hidden for the moment
         if (mSession.isAlive()) {
             mSession.getDataHandler().removeListener(mEventsListener);
         }
-        */
         ContactsManager.getInstance().removeListener(this);
 
         mRecycler.removeOnScrollListener(mScrollListener);
@@ -685,15 +678,7 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
 
             }
         }
-        //move this code outside
-        /*
-        //add participants from direct chats
-        List<ParticipantAdapterItem> myDirectContacts = getContactsFromDirectChats();
-        for (ParticipantAdapterItem myContact : myDirectContacts){
-            if (!DinsicUtils.participantAlreadyAdded(participants,myContact))
-                participants.add(myContact);
-        }
-        */
+
         return participants;
     }
 
