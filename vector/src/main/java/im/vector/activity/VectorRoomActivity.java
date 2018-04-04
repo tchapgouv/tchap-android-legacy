@@ -1624,8 +1624,12 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             } catch (Exception e) {
                 Log.i(LOG_TAG, "## onOptionsItemSelected(): ");
             }
-        } else if (id == R.id.ic_action_room_settings) {
+        } else if (id == R.id.ic_action_room_settings_people) {
             launchRoomDetails(VectorRoomDetailsActivity.PEOPLE_TAB_INDEX);
+        } else if (id == R.id.ic_action_room_settings_file) {
+            launchRoomDetails(VectorRoomDetailsActivity.FILE_TAB_INDEX);
+        } else if (id == R.id.ic_action_room_settings_settings) {
+            launchRoomDetails(VectorRoomDetailsActivity.SETTINGS_TAB_INDEX);
         } else if (id == R.id.ic_action_room_resend_unsent) {
             mVectorMessageListFragment.resendUnsentMessages();
             refreshNotificationsArea();
