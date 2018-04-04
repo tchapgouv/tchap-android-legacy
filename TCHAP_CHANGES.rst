@@ -1,3 +1,19 @@
+Changes in Tchap 0.1.3 (2018-04-04)
+===================================================
+ 
+Improvements:
+ * Update matrix-sdk.aar lib (build 1762).
+ * Factorization direct chat handling #77.
+ * The MXID is based on the 3PID #89
+ * Direct Chat Handling: Detect automatically the direct chats in which the user is invited by email #91
+ * Restore the user directory section in the contacts when a search session is in progress #92.
+ 
+Bug Fixes:
+ * Crash sometime when try to access public rooms #86
+ * Registration: Finalize correctly the account creation from email link #87
+ * Contacts: duplicate items may appear after inviting a contacts by email #88
+ * The contacts list is empty whereas the local contacts access is granted #90
+
 Changes in Tchap 0.1.2 (2018-03-22)
 ===================================================
  
