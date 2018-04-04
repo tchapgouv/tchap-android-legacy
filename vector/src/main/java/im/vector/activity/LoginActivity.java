@@ -2025,7 +2025,17 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
                     String emailAddress = currentEmail3PID.get(0).address;
                     if (null != emailAddress) {
                         String displayName = emailAddress.substring(0, emailAddress.lastIndexOf("@"));
-                        displayName = displayName.replace('.', ' ');
+                        String[] components = displayName.split("\\.");
+                        StringBuilder builder = new StringBuilder();
+                        for (String component : components) {
+                            String updatedComponent = component.substring(0, 1).toUpperCase() + component.substring(1);
+                            if (builder.toString().isEmpty()) {
+                                builder.append(updatedComponent);
+                            } else {
+                                builder.append(" " + updatedComponent);
+                            }
+                        }
+                        displayName = builder.toString();
 
                         if (!TextUtils.equals(session.getMyUser().displayname, displayName)) {
 
