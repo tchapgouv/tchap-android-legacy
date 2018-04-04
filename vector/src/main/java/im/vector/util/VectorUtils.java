@@ -260,9 +260,9 @@ public class VectorUtils {
                         } else {
                             displayName = context.getString(R.string.room_displayname_room_invite);
                         }
-                    } else if (room.isDirect() && member.getUserId().equals(myUserId)) {
+                    } else if (room.isDirect() && !leftMembers.isEmpty() && member.getUserId().equals(myUserId)) {
                         displayName = leftMembers.get(0).getName();
-                    } else {
+                    }  else {
                         displayName = context.getString(R.string.room_displayname_no_title);
                     }
                 } else {
