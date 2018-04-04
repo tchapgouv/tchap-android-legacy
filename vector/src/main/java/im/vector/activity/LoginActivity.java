@@ -50,8 +50,8 @@ import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
 import org.matrix.androidsdk.rest.client.LoginRestClient;
 import org.matrix.androidsdk.rest.client.ProfileRestClient;
-import org.matrix.androidsdk.rest.client.ThirdPidRestClient;
 import org.matrix.androidsdk.rest.model.MatrixError;
+import org.matrix.androidsdk.rest.model.pid.ThirdPartyIdentifier;
 import org.matrix.androidsdk.rest.model.pid.ThreePid;
 import org.matrix.androidsdk.rest.model.login.Credentials;
 import org.matrix.androidsdk.rest.model.login.LoginFlow;
@@ -115,7 +115,6 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
 
     // creation
     private static final String SAVED_CREATION_EMAIL_NAME = "SAVED_CREATION_EMAIL_NAME";
-    private static final String SAVED_CREATION_USER_NAME = "SAVED_CREATION_USER_NAME";
     private static final String SAVED_CREATION_PASSWORD1 = "SAVED_CREATION_PASSWORD1";
     private static final String SAVED_CREATION_PASSWORD2 = "SAVED_CREATION_PASSWORD2";
     private static final String SAVED_CREATION_REGISTRATION_RESPONSE = "SAVED_CREATION_REGISTRATION_RESPONSE";
@@ -166,9 +165,6 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
 
     // the creation user name
     private EditText mCreationEmailAddressTextView;
-
-    // the creation user name
-    private EditText mCreationUsernameTextView;
 
     // the password 1 name
     private EditText mCreationPassword1TextView;
@@ -382,7 +378,6 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
 
         // account creation
         mCreationEmailAddressTextView = findViewById(R.id.creation_your_email);
-        mCreationUsernameTextView = findViewById(R.id.creation_your_name);
         mCreationPassword1TextView = findViewById(R.id.creation_password1);
         mCreationPassword2TextView = findViewById(R.id.creation_password2);
 
@@ -622,7 +617,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
     }
 
     /**
-     * Some sessions have been registred, skip the login process.
+     * A session has just been created, display the splash screen.
      */
     private void goToSplash() {
         Log.d(LOG_TAG, "## gotoSplash(): Go to splash.");
@@ -1522,7 +1517,6 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
             mLoginPasswordTextView.setText(savedInstanceState.getString(SAVED_LOGIN_PASSWORD_ADDRESS));
 
             mCreationEmailAddressTextView.setText(savedInstanceState.getString(SAVED_CREATION_EMAIL_NAME));
-            mCreationUsernameTextView.setText(savedInstanceState.getString(SAVED_CREATION_USER_NAME));
             mCreationPassword1TextView.setText(savedInstanceState.getString(SAVED_CREATION_PASSWORD1));
             mCreationPassword2TextView.setText(savedInstanceState.getString(SAVED_CREATION_PASSWORD2));
 
@@ -1564,10 +1558,6 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
 
         if (!TextUtils.isEmpty(mCreationEmailAddressTextView.getText().toString().trim())) {
             savedInstanceState.putString(SAVED_CREATION_EMAIL_NAME, mCreationEmailAddressTextView.getText().toString().trim());
-        }
-
-        if (!TextUtils.isEmpty(mCreationUsernameTextView.getText().toString().trim())) {
-            savedInstanceState.putString(SAVED_CREATION_USER_NAME, mCreationUsernameTextView.getText().toString().trim());
         }
 
         if (!TextUtils.isEmpty(mCreationPassword1TextView.getText().toString().trim())) {
@@ -2009,6 +1999,77 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
         }
     }
 
+    /**
+     * The user display name has been updated.
+     * @TODO remove this method as soon as the server is able to handle correctly the displayname
+     *
+     * @param logMessage the message to log
+     */
+    private void onDisplayNameUpdateDone(final String logMessage) {
+        Log.d(LOG_TAG, "## onDisplayNameUpdateDone " + logMessage);
+        finish();
+    }
+
+    /**
+     * Force the user display name
+     * @TODO remove this method as soon as the server is able to handle correctly the displayname
+     */
+    private void forceDisplayNameUpdate() {
+        final MXSession session = Matrix.getInstance(this).getDefaultSession();
+        session.getMyUser().refreshThirdPartyIdentifiers(new SimpleApiCallback<Void>() {
+            @Override
+            public void onSuccess(Void info) {
+                List<ThirdPartyIdentifier> currentEmail3PID = session.getMyUser().getlinkedEmails();
+
+                if (!currentEmail3PID.isEmpty()) {
+                    String emailAddress = currentEmail3PID.get(0).address;
+                    if (null != emailAddress) {
+                        String displayName = emailAddress.substring(0, emailAddress.lastIndexOf("@"));
+                        String[] components = displayName.split("\\.");
+                        StringBuilder builder = new StringBuilder();
+                        for (String component : components) {
+                            String updatedComponent = component.substring(0, 1).toUpperCase() + component.substring(1);
+                            if (builder.toString().isEmpty()) {
+                                builder.append(updatedComponent);
+                            } else {
+                                builder.append(" " + updatedComponent);
+                            }
+                        }
+                        displayName = builder.toString();
+
+                        if (!TextUtils.equals(session.getMyUser().displayname, displayName)) {
+
+                            session.getMyUser().updateDisplayName(displayName, new ApiCallback<Void>() {
+                                @Override
+                                public void onSuccess(Void info) {
+                                    onDisplayNameUpdateDone("success");
+                                }
+
+                                @Override
+                                public void onNetworkError(Exception e) {
+                                    onDisplayNameUpdateDone(e.getLocalizedMessage());
+                                }
+
+                                @Override
+                                public void onMatrixError(MatrixError e) {
+                                    onDisplayNameUpdateDone(e.getLocalizedMessage());
+                                }
+
+                                @Override
+                                public void onUnexpectedError(Exception e) {
+                                    onDisplayNameUpdateDone(e.getLocalizedMessage());
+                                }
+                            });
+                            return;
+                        }
+                        onDisplayNameUpdateDone("no change required");
+                    }
+                }
+                onDisplayNameUpdateDone("getlinkedEmails failed");
+            }
+        });
+    }
+
     /*
     * *********************************************************************************************
     * Account creation - Listeners
@@ -2027,14 +2088,19 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             goToSplash();
-                            finish();
+                            // Patch: Force here the user display name as long as the server does not force it
+                            // @TODO  Remove the forceDisplayNameUpdate() method, and restore the finish() call.
+                            //finish();
+                            forceDisplayNameUpdate();
                         }
                     })
                     .show();
         } else {
-
             goToSplash();
-            finish();
+            // Patch: Force here the user display name as long as the server does not force it
+            // @TODO  Remove the forceDisplayNameUpdate() method, and restore the finish() call.
+            //finish();
+            forceDisplayNameUpdate();
         }
     }
 
@@ -2218,9 +2284,6 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
             mRegisterButton.setAlpha(1.0f);
         }
 
-        mCreationUsernameTextView.setEnabled(true);
-        mCreationUsernameTextView.setAlpha(1.0f);
-
         // Reset the registration flows
         mRegistrationResponse = null;
 
@@ -2252,12 +2315,6 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
 
                 mRegisterButton.setEnabled(true);
                 mRegisterButton.setAlpha(1.0f);
-
-                if (TextUtils.isEmpty(mCreationUsernameTextView.getText())) {
-                    mCreationUsernameTextView.setText(emailAddress.substring(0, emailAddress.lastIndexOf("@")));
-                }
-                mCreationUsernameTextView.setEnabled(true);
-                mCreationUsernameTextView.setAlpha(1.0f);
             }
 
             @Override
@@ -2294,7 +2351,9 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
 
         // parameters
         final String email = mCreationEmailAddressTextView.getText().toString().trim();
-        final String name = mCreationUsernameTextView.getText().toString().trim();
+        // Patch: As long as the server is not able to force the mxId from the 3pid, we force it on client side
+        // @TODO Remove the parameter "name" when the server will force the mxId from the 3pid.
+        final String name = email.replace('@', '.');
         final String password = mCreationPassword1TextView.getText().toString().trim();
         final String passwordCheck = mCreationPassword2TextView.getText().toString().trim();
 
