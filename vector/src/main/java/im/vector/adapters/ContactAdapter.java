@@ -42,6 +42,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import im.vector.R;
 import im.vector.VectorApp;
+import im.vector.activity.LoginActivity;
 import im.vector.contacts.ContactsManager;
 import im.vector.util.RoomUtils;
 import im.vector.util.VectorUtils;
@@ -92,7 +93,10 @@ public class ContactAdapter extends AbsAdapter {
         mKnownContactsSection.setIsHiddenWhenNoFilter(true);
 
         addSection(mLocalContactsSection);
-        //addSection(mKnownContactsSection);
+        if (!LoginActivity.isUserExternal(mSession)){
+            addSection(mKnownContactsSection);
+        }
+
     }
 
     /*
