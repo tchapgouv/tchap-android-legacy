@@ -1525,7 +1525,46 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
 
         if (null != room) {
             showWaitingView();
-            room.join(getForgetLeaveCallback(roomId, onSuccessCallback));
+
+            mSession.joinRoom(roomId, new ApiCallback<String>() {
+                @Override
+                public void onSuccess(String roomId) {
+                    stopWaitingView();
+
+                    HashMap<String, Object> params = new HashMap<>();
+
+                    params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
+                    params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
+
+                    // clear the activity stack to home activity
+                    Intent intent = new Intent(VectorHomeActivity.this, VectorHomeActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                    intent.putExtra(VectorHomeActivity.EXTRA_JUMP_TO_ROOM_PARAMS, params);
+                    VectorHomeActivity.this.startActivity(intent);
+                }
+
+                private void onError(String errorMessage) {
+                    Log.d(LOG_TAG, "re join failed " + errorMessage);
+                    CommonActivityUtils.displayToast(VectorHomeActivity.this, errorMessage);
+                    stopWaitingView();
+                }
+
+                @Override
+                public void onNetworkError(Exception e) {
+                    onError(e.getLocalizedMessage());
+                }
+
+                @Override
+                public void onMatrixError(MatrixError e) {
+                    onError(e.getLocalizedMessage());
+                }
+
+                @Override
+                public void onUnexpectedError(Exception e) {
+                    onError(e.getLocalizedMessage());
+                }
+            });
         }
     }
 
