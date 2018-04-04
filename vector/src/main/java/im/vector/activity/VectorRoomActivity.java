@@ -1,6 +1,7 @@
 /*
  * Copyright 2015 OpenMarket Ltd
  * Copyright 2017 Vector Creations Ltd
+ * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,13 +91,13 @@ import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.rest.model.message.Message;
 import org.matrix.androidsdk.rest.model.PowerLevels;
+import org.matrix.androidsdk.rest.model.pid.RoomThirdPartyInvite;
 import org.matrix.androidsdk.rest.model.publicroom.PublicRoom;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.util.JsonUtils;
 import org.matrix.androidsdk.util.Log;
 import org.matrix.androidsdk.util.ResourceUtils;
-import org.matrix.androidsdk.view.AutoScrollDownListView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -3475,6 +3476,18 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                             signUrl = roomEmailInvitation.signUrl;
                         }
 
+                        // Patch: Check in the current room state if a third party invite has been accepted by the tchap user.
+                        // Save this information in the room preview data before joining the room
+                        // because the room state will be flushed during this operation.
+                        // This information will be useful to consider or not the new joined room as a direct chat (see processDirectMessageRoom).
+                        RoomMember roomMember = room.getMember(mSession.getMyUserId());
+                        if (null != roomMember && null != roomMember.thirdPartyInvite && null == sRoomPreviewData.getRoomState()) {
+                            if (null != room.getLiveState().memberWithThirdPartyInviteToken(roomMember.thirdPartyInvite.signed.token)) {
+                                Log.d(LOG_TAG, "Save third party invites in the room preview.");
+                                sRoomPreviewData.setRoomState(room.getLiveState());
+                            }
+                        }
+
                         setProgressVisibility(View.VISIBLE);
 
                         room.joinWithThirdPartySigned(sRoomPreviewData.getRoomIdOrAlias(), signUrl, new ApiCallback<Void>() {
@@ -3559,25 +3572,52 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
      */
     private void processDirectMessageRoom() {
         Room room = sRoomPreviewData.getSession().getDataHandler().getRoom(sRoomPreviewData.getRoomId());
-        if ((null != room) && (room.isDirectChatInvitation())) {
+        if (null != room) {
             String myUserId = mSession.getMyUserId();
-            Collection<RoomMember> members = mRoom.getMembers();
+            Collection<RoomMember> members = room.getMembers();
 
             if (2 == members.size()) {
-                String participantUserId;
+                Boolean isDirectInvite = room.isDirectChatInvitation();
 
-                // test if room is already seen as "direct message"
-                if (!RoomUtils.isDirectChat(mSession, sRoomPreviewData.getRoomId())) {
-                    for (RoomMember member : members) {
-                        // search for the second participant
-                        if (!member.getUserId().equals(myUserId)) {
-                            participantUserId = member.getUserId();
-                            CommonActivityUtils.setToggleDirectMessageRoom(mSession, sRoomPreviewData.getRoomId(), participantUserId, this, mDirectMessageListener);
-                            break;
-                        }
+                if (!isDirectInvite) {
+                    // Consider here the 3rd party invites for which the is_direct flag is not available.
+                    Collection<RoomThirdPartyInvite> thirdPartyInvites = room.getLiveState().thirdPartyInvites();
+                    // Consider the case where only one invite has been observed.
+                    if (thirdPartyInvites.size() == 1) {
+                        Log.d(LOG_TAG, "## processDirectMessageRoom(): Consider the third party invite");
+                        RoomThirdPartyInvite invite = thirdPartyInvites.iterator().next();
+
+                        // Check whether the user has accepted this third party invite or not
+                        RoomMember roomMember = room.getLiveState().memberWithThirdPartyInviteToken(invite.token);
+                        if (null != roomMember && roomMember.getUserId().equals(myUserId)) {
+                            isDirectInvite = true;
+                        } else if (null != sRoomPreviewData.getRoomState()){
+                            // Most of the time the room state is not ready, the pagination is in progress
+                            // Consider here the room state saved in the room preview (before joining the room).
+                            roomMember = sRoomPreviewData.getRoomState().memberWithThirdPartyInviteToken(invite.token);
+                            if (null != roomMember && roomMember.getUserId().equals(myUserId)) {
+                                isDirectInvite = true;
+                            }
+;                        }
                     }
-                } else {
-                    Log.d(LOG_TAG, "## processDirectMessageRoom(): attempt to add an already direct message room");
+                }
+
+                if (isDirectInvite) {
+                    Log.d(LOG_TAG, "## processDirectMessageRoom(): this new joined room is direct");
+                    // test if room is already seen as "direct message"
+                    if (!RoomUtils.isDirectChat(mSession, sRoomPreviewData.getRoomId())) {
+                        // search for the second participant
+                        String participantUserId;
+                        for (RoomMember member : members) {
+                            if (!member.getUserId().equals(myUserId)) {
+                                participantUserId = member.getUserId();
+                                CommonActivityUtils.setToggleDirectMessageRoom(mSession, sRoomPreviewData.getRoomId(), participantUserId, this, mDirectMessageListener);
+                                break;
+                            }
+                        }
+                    } else {
+                        Log.d(LOG_TAG, "## processDirectMessageRoom(): attempt to add an already direct message room");
+                    }
                 }
             }
         }
