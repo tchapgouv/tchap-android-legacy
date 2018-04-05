@@ -3149,7 +3149,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
 
                             // display the both action buttons only when it makes sense
                             // i.e not a room preview
-                            boolean hideMembersButtons = (null == mRoom) || !TextUtils.isEmpty(mEventId) || (null != sRoomPreviewData);
+                            boolean hideMembersButtons = (null == mRoom) || !TextUtils.isEmpty(mEventId) || (null != sRoomPreviewData) || (RoomUtils.isDirectChat(mSession,mRoom.getRoomId()));
                             mActionBarHeaderActiveMembersListButton.setVisibility(hideMembersButtons ? View.GONE : View.VISIBLE);
                             // Hide the invite button for the direct chats (this option is disabled for them)
                             if (!hideMembersButtons && !RoomUtils.isDirectChat(mSession, mRoom.getRoomId())) {
@@ -3745,72 +3745,74 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
      * Assume he wants to update it.
      */
     private void onRoomTitleClick() {
-        LayoutInflater inflater = LayoutInflater.from(this);
+        if (null!= mRoom && !RoomUtils.isDirectChat(mSession,mRoom.getRoomId())) {
+            LayoutInflater inflater = LayoutInflater.from(this);
 
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
 
-        View dialogView = inflater.inflate(R.layout.dialog_text_edittext, null);
-        alertDialogBuilder.setView(dialogView);
+            View dialogView = inflater.inflate(R.layout.dialog_text_edittext, null);
+            alertDialogBuilder.setView(dialogView);
 
-        TextView titleText = dialogView.findViewById(R.id.dialog_title);
-        titleText.setText(getResources().getString(R.string.room_info_room_name));
+            TextView titleText = dialogView.findViewById(R.id.dialog_title);
+            titleText.setText(getResources().getString(R.string.room_info_room_name));
 
-        final EditText textInput = dialogView.findViewById(R.id.dialog_edit_text);
-        textInput.setText(mRoom.getLiveState().name);
+            final EditText textInput = dialogView.findViewById(R.id.dialog_edit_text);
+            textInput.setText(mRoom.getLiveState().name);
 
-        // set dialog message
-        alertDialogBuilder
-                .setCancelable(false)
-                .setPositiveButton(R.string.ok,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                setProgressVisibility(View.VISIBLE);
+            // set dialog message
+            alertDialogBuilder
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.ok,
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    setProgressVisibility(View.VISIBLE);
 
-                                mRoom.updateName(textInput.getText().toString(), new ApiCallback<Void>() {
+                                    mRoom.updateName(textInput.getText().toString(), new ApiCallback<Void>() {
 
-                                    private void onDone(String message) {
-                                        if (!TextUtils.isEmpty(message)) {
-                                            CommonActivityUtils.displayToast(VectorRoomActivity.this, message);
+                                        private void onDone(String message) {
+                                            if (!TextUtils.isEmpty(message)) {
+                                                CommonActivityUtils.displayToast(VectorRoomActivity.this, message);
+                                            }
+
+                                            setProgressVisibility(View.GONE);
+                                            updateActionBarTitleAndTopic();
                                         }
 
-                                        setProgressVisibility(View.GONE);
-                                        updateActionBarTitleAndTopic();
-                                    }
+                                        @Override
+                                        public void onSuccess(Void info) {
+                                            onDone(null);
+                                        }
 
-                                    @Override
-                                    public void onSuccess(Void info) {
-                                        onDone(null);
-                                    }
+                                        @Override
+                                        public void onNetworkError(Exception e) {
+                                            onDone(e.getLocalizedMessage());
+                                        }
 
-                                    @Override
-                                    public void onNetworkError(Exception e) {
-                                        onDone(e.getLocalizedMessage());
-                                    }
+                                        @Override
+                                        public void onMatrixError(MatrixError e) {
+                                            onDone(e.getLocalizedMessage());
+                                        }
 
-                                    @Override
-                                    public void onMatrixError(MatrixError e) {
-                                        onDone(e.getLocalizedMessage());
-                                    }
+                                        @Override
+                                        public void onUnexpectedError(Exception e) {
+                                            onDone(e.getLocalizedMessage());
+                                        }
+                                    });
+                                }
+                            })
+                    .setNegativeButton(R.string.cancel,
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                                }
+                            });
 
-                                    @Override
-                                    public void onUnexpectedError(Exception e) {
-                                        onDone(e.getLocalizedMessage());
-                                    }
-                                });
-                            }
-                        })
-                .setNegativeButton(R.string.cancel,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.cancel();
-                            }
-                        });
+            // create alert dialog
+            AlertDialog alertDialog = alertDialogBuilder.create();
 
-        // create alert dialog
-        AlertDialog alertDialog = alertDialogBuilder.create();
-
-        // show it
-        alertDialog.show();
+            // show it
+            alertDialog.show();
+        }
     }
 
     /**
@@ -3898,7 +3900,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                 @Override
                 public void onClick(View v) {
                     // sanity checks : reported by GA
-                    if ((null != mRoom) && (null != mRoom.getLiveState())) {
+                    if ((null != mRoom) && (null != mRoom.getLiveState()) && !RoomUtils.isDirectChat(mSession, mRoom.getRoomId())) {
                         if (CommonActivityUtils.isPowerLevelEnoughForAvatarUpdate(mRoom, mSession)) {
                             // need to check if the camera permission has been granted
                             if (CommonActivityUtils.checkPermissions(CommonActivityUtils.REQUEST_CODE_PERMISSION_ROOM_DETAILS, VectorRoomActivity.this)) {
