@@ -1272,6 +1272,10 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
 
             mMode = MODE_LOGIN;
             refreshDisplay();
+
+            mRegisterButton.setEnabled(true);
+            mRegisterButton.setAlpha(1.0f);
+
             return;
         }
 
