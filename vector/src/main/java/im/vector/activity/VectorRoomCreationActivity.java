@@ -308,11 +308,14 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
                                         // test if the member did not leave the room
                                         Collection<RoomMember> members = room.getActiveMembers();
 
-                                        for (RoomMember member : members) {
-                                            if (TextUtils.equals(member.getUserId(), aUserId)) {
-                                                Log.d(LOG_TAG, "## isDirectChatRoomAlreadyExist(): for user=" + aUserId + " for room id=" + roomId);
-                                                return room;
-                                            }
+                                        if (members.contains(aUserId)) {
+                                            // the other user is present in this room (join or invite)
+                                            Log.d(LOG_TAG, "## isDirectChatRoomAlreadyExist(): for user=" + aUserId + " for room id=" + roomId);
+                                            return room;
+                                        } else {
+                                            // the other member left this room
+                                            Log.d(LOG_TAG, "## isDirectChatRoomAlreadyExist(): user=" + aUserId + " left this room id=" + roomId);
+                                            return room;
                                         }
                                     }
                                 }
