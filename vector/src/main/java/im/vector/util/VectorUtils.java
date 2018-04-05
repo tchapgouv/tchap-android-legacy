@@ -260,7 +260,10 @@ public class VectorUtils {
                         } else {
                             displayName = context.getString(R.string.room_displayname_room_invite);
                         }
-                    } else if (room.isDirect() && !leftMembers.isEmpty() && member.getUserId().equals(myUserId)) {
+                    } else if (room.isDirect() && !leftMembers.isEmpty()) {
+                        // Here, we are in a direct chat room.
+                        // Also, we can use member.getName() instead of roomState.getMemberName()
+                        // because we don't need to disambiguate the displayname
                         displayName = leftMembers.get(0).getName();
                     } else {
                         displayName = context.getString(R.string.room_displayname_no_title);

@@ -694,11 +694,55 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
         mSendingMessagesLayout = findViewById(R.id.room_sending_message_layout);
         mSendImageView = findViewById(R.id.room_send_image_view);
         mSendButtonLayout = findViewById(R.id.room_send_layout);
+
+
         mSendButtonLayout.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View v) {
+
                 if (!TextUtils.isEmpty(mEditText.getText())) {
-                    sendTextMessage();
+
+                    // In the case of a direct chat, we check if the other member has left the room.
+                    // If so, re-invite before sending the message.
+                    if (mRoom.isDirect() && mRoom.getActiveMembers().size() == 1) {
+                        Collection<RoomMember> members = mRoom.getMembers();
+                        String leftMemberId = null;
+
+                        for (RoomMember member : members) {
+                            if (!member.getUserId().equals(mMyUserId)) {
+                                leftMemberId = member.getUserId();
+                                break;
+                            }
+                        }
+
+                        //
+                        if (null != leftMemberId) {
+                            mRoom.invite(leftMemberId, new ApiCallback<Void>() {
+                                @Override
+                                public void onSuccess(Void info) {
+                                    sendTextMessage();
+                                }
+
+                                @Override
+                                public void onNetworkError(Exception e) {
+                                    // TODO
+                                }
+
+                                @Override
+                                public void onMatrixError(MatrixError e) {
+                                    // TODO
+                                }
+
+                                @Override
+                                public void onUnexpectedError(Exception e) {
+                                    // TODO
+                                }
+                            });
+                        }
+                    } else {
+                        sendTextMessage();
+                    }
                 } else {
                     // hide the header room
                     enableActionBarHeader(HIDE_ACTION_BAR_HEADER);
@@ -3598,7 +3642,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                             if (null != roomMember && roomMember.getUserId().equals(myUserId)) {
                                 isDirectInvite = true;
                             }
-;                        }
+                        }
                     }
                 }
 
