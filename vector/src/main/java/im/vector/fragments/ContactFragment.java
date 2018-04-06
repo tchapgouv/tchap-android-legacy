@@ -51,6 +51,7 @@ import org.matrix.androidsdk.rest.model.search.SearchUsersResponse;
 import org.matrix.androidsdk.util.Log;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -296,10 +297,15 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
             for (String key : keysList) {
                 // Check whether this key is an actual user id
                 if (MXSession.isUserId(key)) {
+                    // Ignore the current user if he appears in the direct chat map
+                    if (key.equals(mSession.getMyUserId())) {
+                        continue;
+                    }
+
                     User user = mSession.getDataHandler().getUser(key);
-                    // Add a contact for this user
-                    Contact dummyContact = new Contact("null");
                     if (null != user) {
+                        // Add a contact for this user
+                        Contact dummyContact = new Contact("null");
                         // The user displayname is known thanks to the presence event.
                         // It is unknown until we receive a presence event for this user.
                         if (!TextUtils.isEmpty(user.displayname)) {
@@ -320,10 +326,11 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                                 }
                             }
                         }
+
+                        ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
+                        participant.mUserId = key;
+                        participants.add(participant);
                     }
-                    ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
-                    participant.mUserId = key;
-                    participants.add(participant);
                 }
                 else if (android.util.Patterns.EMAIL_ADDRESS.matcher(key).matches()) {
                     // Check whether this email corresponds to a user id
@@ -507,7 +514,8 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
 
             final String fPattern = mCurrentFilter;
 
-            mSession.searchUsers(mCurrentFilter, MAX_KNOWN_CONTACTS_FILTER_COUNT, new HashSet<String>(), new ApiCallback<SearchUsersResponse>() {
+            // Search in the user directories by hiding the current user
+            mSession.searchUsers(mCurrentFilter, MAX_KNOWN_CONTACTS_FILTER_COUNT, new HashSet<String>(Arrays.asList(mSession.getMyUserId())), new ApiCallback<SearchUsersResponse>() {
                 @Override
                 public void onSuccess(SearchUsersResponse searchUsersResponse) {
                     if (TextUtils.equals(fPattern, mCurrentFilter)) {
@@ -660,6 +668,10 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                             Contact.MXID mxid = PIDsRetriever.getInstance().getMXID(email);
 
                             if (null != mxid) {
+                                // Ignore the current user if he belongs to the local phone book.
+                                if (mxid.mMatrixId.equals(mSession.getMyUserId())) {
+                                    continue;
+                                }
                                 participant.mUserId = mxid.mMatrixId;
                             } else {
                                 participant.mUserId = email;
@@ -668,8 +680,10 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                                 findGovEmail = true;
                                 participants.add(participant);
                             }
-                            else if (!findGovEmail && candidatParticipant==null)
+                            else if (!findGovEmail && (candidatParticipant == null || null != mxid)) {
+                                // if no french gov is discovered yet, we store a candidate by prioritising those with mxId
                                 candidatParticipant = participant;
+                            }
                         }
                     }
                     if (!findGovEmail && candidatParticipant!=null)
