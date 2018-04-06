@@ -296,8 +296,10 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
                     if (!roomIdsList.isEmpty()) {
                         for (String roomId : roomIdsList) {
                             Room room = mSession.getDataHandler().getRoom(roomId, false);
+
                             // check if the room is already initialized
                             if ((null != room) && room.isReady() && !room.isLeaving()) {
+
                                 if (includeInvite || !room.isInvited()) {
                                     // dinsic: if the member is not already in matrix and just invited he's not active but
                                     // the room can be considered as ok
@@ -311,6 +313,9 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
                                         for (RoomMember member : members) {
                                             if (TextUtils.equals(member.getUserId(), aUserId)) {
                                                 Log.d(LOG_TAG, "## isDirectChatRoomAlreadyExist(): for user=" + aUserId + " for room id=" + roomId);
+                                                return room;
+                                            } else {
+                                                Log.d(LOG_TAG, "## isDirectChatRoomAlreadyExist(): user=" + aUserId + " left this room id=" + roomId);
                                                 return room;
                                             }
                                         }
