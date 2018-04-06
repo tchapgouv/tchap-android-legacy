@@ -390,6 +390,26 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                                 }
                             });
                         }
+                    } else if (!store.getDirectChatRoomsDict().get(key).isEmpty()) {
+                        // Build a display name from the email
+                        String displayName = key.substring(0, key.lastIndexOf("@"));
+                        String[] components = displayName.split("\\.");
+                        StringBuilder builder = new StringBuilder();
+                        for (String component : components) {
+                            String updatedComponent = component.substring(0, 1).toUpperCase() + component.substring(1);
+                            if (builder.toString().isEmpty()) {
+                                builder.append(updatedComponent);
+                            } else {
+                                builder.append(" " + updatedComponent);
+                            }
+                        }
+                        displayName = builder.toString();
+                        // Add a contact for this user
+                        Contact dummyContact = new Contact("null");
+                        dummyContact.setDisplayName(displayName);
+                        ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
+                        participant.mUserId = key;
+                        participants.add(participant);
                     }
                 }
             }
