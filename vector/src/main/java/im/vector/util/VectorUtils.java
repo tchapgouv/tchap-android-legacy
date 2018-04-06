@@ -224,13 +224,16 @@ public class VectorUtils {
             Collection<RoomMember> members = roomState.getDisplayableMembers();
             ArrayList<RoomMember> othersActiveMembers = new ArrayList<>();
             ArrayList<RoomMember> activeMembers = new ArrayList<>();
+            ArrayList<RoomMember> leftMembers = new ArrayList<>();
+
 
             for (RoomMember member : members) {
                 if (!TextUtils.equals(member.membership, RoomMember.MEMBERSHIP_LEAVE)) {
                     if (!TextUtils.equals(member.getUserId(), myUserId)) {
                         othersActiveMembers.add(member);
-                    }
-                    activeMembers.add(member);
+                    } activeMembers.add(member);
+                } else if (TextUtils.equals(member.membership, RoomMember.MEMBERSHIP_LEAVE)) {
+                    leftMembers.add(member);
                 }
             }
 
@@ -257,6 +260,11 @@ public class VectorUtils {
                         } else {
                             displayName = context.getString(R.string.room_displayname_room_invite);
                         }
+                    } else if (room.isDirect() && !leftMembers.isEmpty()) {
+                        // Here, we are in a direct chat room.
+                        // Also, we can use member.getName() instead of roomState.getMemberName()
+                        // because we don't need to disambiguate the displayname
+                        displayName = leftMembers.get(0).getName();
                     } else {
                         displayName = context.getString(R.string.room_displayname_no_title);
                     }
