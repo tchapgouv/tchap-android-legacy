@@ -15,10 +15,12 @@
  */
 package fr.gouv.tchap.sdk.rest.model;
 
+import java.io.Serializable;
+
 /**
  * Class to contain a Tchap platform configuration.
  */
-public class Platform {
+public class Platform implements Serializable {
     // The homeserver name.
     public String hs;
     // Tell whether the given 3pid has been invited to the platform or not.
