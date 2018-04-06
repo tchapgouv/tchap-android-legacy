@@ -1,3 +1,15 @@
+Changes in Tchap 0.1.4 (2018-04-06)
+===================================================
+ 
+Improvements:
+ * Hide the current user from the Contacts list #95
+ * Dinsic improve displayname (append the email domain) #99
+ 
+Bug Fixes:
+ * The email verification failed on device with background process limited #100
+ * Reactivate register button when click to login button #97
+ * Some contacts display a "null" display name #101
+
 Changes in Tchap 0.1.3 (2018-04-04)
 ===================================================
  
