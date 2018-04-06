@@ -302,34 +302,29 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                         continue;
                     }
 
-                    User user = mSession.getDataHandler().getUser(key);
-                    if (null != user) {
-                        // Add a contact for this user
-                        Contact dummyContact = new Contact("null");
-                        // The user displayname is known thanks to the presence event.
-                        // It is unknown until we receive a presence event for this user.
-                        if (!TextUtils.isEmpty(user.displayname)) {
-                            dummyContact.setDisplayName(user.displayname);
-                        } else {
-                            // Patch: we will try to retrieve his displayname from the room members information.
-                            List<String> roomIdsList = store.getDirectChatRoomsDict().get(key);
-                            if (roomIdsList != null && !roomIdsList.isEmpty()) {
-                                for (String roomId: roomIdsList) {
-                                    Room room = store.getRoom(roomId);
-                                    if (null != room) {
-                                        RoomMember roomMember = room.getMember(key);
-                                        if (null != roomMember && !TextUtils.isEmpty(roomMember.displayname)) {
-                                            dummyContact.setDisplayName(roomMember.displayname);
-                                            break;
-                                        }
-                                    }
+                    // Retrieve the user display name from the room members information.
+                    // By this way we check that the current user has joined at least one of the direct chats for this user.
+                    // The users for whom no direct is joined by the current user are ignored for the moment.
+                    // @TODO Keep displaying these users in the contacts list, the problem is to get their displayname
+                    // @NOTE The user displayname may be known thanks to the presence event. But
+                    // it is unknown until we receive a presence event for this user.
+                    List<String> roomIdsList = store.getDirectChatRoomsDict().get(key);
+                    if (roomIdsList != null && !roomIdsList.isEmpty()) {
+                        for (String roomId: roomIdsList) {
+                            Room room = store.getRoom(roomId);
+                            if (null != room) {
+                                RoomMember roomMember = room.getMember(key);
+                                if (null != roomMember && !TextUtils.isEmpty(roomMember.displayname)) {
+                                    // Add a contact for this user
+                                    Contact dummyContact = new Contact("null");
+                                    dummyContact.setDisplayName(roomMember.displayname);
+                                    ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
+                                    participant.mUserId = key;
+                                    participants.add(participant);
+                                    break;
                                 }
                             }
                         }
-
-                        ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
-                        participant.mUserId = key;
-                        participants.add(participant);
                     }
                 }
                 else if (android.util.Patterns.EMAIL_ADDRESS.matcher(key).matches()) {
