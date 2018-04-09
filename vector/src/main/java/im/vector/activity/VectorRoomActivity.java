@@ -803,7 +803,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                                 }
                             });
 
-                            // Click on the cancel button dismiss the popup ans don't allow to select a file to send
+                            // Click on the cancel button dismiss the popup and don't allow to select a file to send
                             // The left member isn't re-invite
                             builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                                 @Override
