@@ -184,6 +184,7 @@ public class VectorUtils {
     }
 
     /**
+     /**
      * Vector client formats the room display with a different manner than the SDK one.
      *
      * @param context the application context.
@@ -224,6 +225,7 @@ public class VectorUtils {
             Collection<RoomMember> members = roomState.getDisplayableMembers();
             ArrayList<RoomMember> othersActiveMembers = new ArrayList<>();
             ArrayList<RoomMember> activeMembers = new ArrayList<>();
+            ArrayList<RoomMember> leftMembers = new ArrayList<>();
 
             for (RoomMember member : members) {
                 if (!TextUtils.equals(member.membership, RoomMember.MEMBERSHIP_LEAVE)) {
@@ -231,6 +233,8 @@ public class VectorUtils {
                         othersActiveMembers.add(member);
                     }
                     activeMembers.add(member);
+                } else if (TextUtils.equals(member.membership, RoomMember.MEMBERSHIP_LEAVE)) {
+                    leftMembers.add(member);
                 }
             }
 
@@ -245,7 +249,7 @@ public class VectorUtils {
 
             String displayName;
 
-            if (othersActiveMembers.size() == 0) {
+            if (othersActiveMembers.isEmpty()) {
                 if (activeMembers.size() == 1) {
                     RoomMember member = activeMembers.get(0);
 
@@ -257,7 +261,11 @@ public class VectorUtils {
                         } else {
                             displayName = context.getString(R.string.room_displayname_room_invite);
                         }
-                    } else {
+                    } else if (room.isDirect() && !leftMembers.isEmpty()) {
+                        // Here we use member.getName() instead of roomState.getMemberName()
+                        // because we don't need to disambiguate the displayname
+                        displayName = leftMembers.get(0).getName();
+                    }  else {
                         displayName = context.getString(R.string.room_displayname_no_title);
                     }
                 } else {
