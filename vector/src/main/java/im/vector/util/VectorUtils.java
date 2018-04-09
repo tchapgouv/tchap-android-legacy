@@ -184,7 +184,6 @@ public class VectorUtils {
     }
 
     /**
-     /**
      * Vector client formats the room display with a different manner than the SDK one.
      *
      * @param context the application context.
@@ -251,17 +250,20 @@ public class VectorUtils {
 
             if (othersActiveMembers.isEmpty()) {
                 if (activeMembers.size() == 1) {
+                    // Here, the current user is the only member on the room
                     RoomMember member = activeMembers.get(0);
 
+                    // Consider first the case where the member is invited
                     if (TextUtils.equals(member.membership, RoomMember.MEMBERSHIP_INVITE)) {
-
                         if (!TextUtils.isEmpty(member.mSender)) {
                             // extract who invited us to the room
                             displayName = context.getString(R.string.room_displayname_invite_from, roomState.getMemberName(member.mSender));
                         } else {
                             displayName = context.getString(R.string.room_displayname_room_invite);
                         }
-                    } else if (room.isDirect() && !leftMembers.isEmpty()) {
+                    }
+                    // Dinsic : we keep the the display name even if the member has left the direct chat
+                    else if (room.isDirect() && !leftMembers.isEmpty()) {
                         // Here we use member.getName() instead of roomState.getMemberName()
                         // because we don't need to disambiguate the displayname
                         displayName = leftMembers.get(0).getName();
