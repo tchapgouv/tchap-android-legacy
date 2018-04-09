@@ -698,129 +698,110 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             @Override
             public void onClick(View v) {
 
+                // In the case of a direct chat, we check if the other member has left the room.
+                String leftMemberId = null;
+                String leftMemberName = null;
+                if (mRoom.isDirect() && mRoom.getActiveMembers().size() == 1) {
+                    Collection<RoomMember> members = mRoom.getMembers();
+
+                    for (RoomMember member : members) {
+                        if (!member.getUserId().equals(mMyUserId)) {
+                            leftMemberId = member.getUserId();
+                            leftMemberName = member.getName();
+                            break;
+                        }
+                    }
+                }
+
                 if (!TextUtils.isEmpty(mEditText.getText())) {
-
-                    // In the case of a direct chat, we check if the other member has left the room.
-                    // If so, re-invite before sending the message.
-                    if (mRoom.isDirect() && mRoom.getActiveMembers().size() == 1) {
-                        Collection<RoomMember> members = mRoom.getMembers();
-                        String leftMemberId = null;
-
-                        for (RoomMember member : members) {
-                            if (!member.getUserId().equals(mMyUserId)) {
-                                leftMemberId = member.getUserId();
-                                break;
+                    // If the other member has left the direct chat, we invite him again
+                    // and send the message on the invitation's onSuccess
+                    if (null != leftMemberId) {
+                        Log.d(LOG_TAG, "onSendClick: invite again " + leftMemberId);
+                        mRoom.invite(leftMemberId, new ApiCallback<Void>() {
+                            @Override
+                            public void onSuccess(Void info) {
+                                Log.d(LOG_TAG, "onSendClick: sendTextMessage");
+                                sendTextMessage();
                             }
-                        }
 
-                        // If the other member has left the direct chat, we invite him again
-                        // and send the message on the invitation's onSuccess
-                        if (null != leftMemberId) {
+                            @Override
+                            public void onNetworkError(Exception e) {
+                                Log.e(LOG_TAG, "onSendClick invite failed " + e.getMessage());
+                            }
 
-                            final String finalLeftMemberId = leftMemberId;
-                            mRoom.invite(leftMemberId, new ApiCallback<Void>() {
-                                @Override
-                                public void onSuccess(Void info) {
-                                    Log.e(LOG_TAG, "## invitation of the member who left is succeed for this leftmemberId " + finalLeftMemberId);
-                                    sendTextMessage();
-                                }
+                            @Override
+                            public void onMatrixError(MatrixError e) {
+                                Log.e(LOG_TAG, "onSendClick invite failed " + e.getMessage());
+                            }
 
-                                @Override
-                                public void onNetworkError(Exception e) {
-                                    Log.e(LOG_TAG, "## invite failed " + e.getMessage());
-                                }
-
-                                @Override
-                                public void onMatrixError(MatrixError e) {
-                                    Log.e(LOG_TAG, "## invite failed " + e.getMessage());
-
-                                }
-
-                                @Override
-                                public void onUnexpectedError(Exception e) {
-                                    Log.e(LOG_TAG, "## invite failed " + e.getMessage());
-                                }
-                            });
-                        }
+                            @Override
+                            public void onUnexpectedError(Exception e) {
+                                Log.e(LOG_TAG, "onSendClick invite failed " + e.getMessage());
+                            }
+                        });
                     } else {
                         sendTextMessage();
                     }
                 } else {
+                    // If the other member has left the direct chat, we prompt the user to invite him again
+                    // and select the file type on the invitation's onSuccess
+                    if (null != leftMemberId) {
 
-                    // In the case of a direct chat, we check if the other member has left the room.
-                    // If so, re-invite before selecting a file type to send
-                    if (mRoom.isDirect() && mRoom.getActiveMembers().size() == 1) {
-                        Collection<RoomMember> members = mRoom.getMembers();
-                        String leftMemberId = null;
-                        String leftMemberName = null;
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(VectorRoomActivity.this);
+                        builder.setMessage(getString(R.string.room_left_member_invite_prompt_msg, leftMemberName));
 
-                        for (RoomMember member : members) {
-                            if (!member.getUserId().equals(mMyUserId)) {
-                                leftMemberId = member.getUserId();
-                                leftMemberName = member.getName();
-                                break;
+                        final String finalLeftMemberId = leftMemberId;
+                        Log.d(LOG_TAG, "onSendClick: prompt to invite again " + leftMemberId);
+
+                        // Click on the ok button allow to re-invite the member who left the direct chat
+                        // and on the invitation success, the processus of file selection continue
+                        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                Log.d(LOG_TAG, "onSendClick: invite");
+                                mRoom.invite(finalLeftMemberId, new ApiCallback<Void>() {
+                                    @Override
+                                    public void onSuccess(Void info) {
+                                        Log.d(LOG_TAG, "onSendClick: sendTextMessage");
+                                        selectFileToSend();
+                                    }
+
+                                    @Override
+                                    public void onNetworkError(Exception e) {
+                                        Log.e(LOG_TAG, "onSendClick invite failed " + e.getMessage());
+                                    }
+
+                                    @Override
+                                    public void onMatrixError(MatrixError e) {
+                                        Log.e(LOG_TAG, "onSendClick invite failed " + e.getMessage());
+
+                                    }
+
+                                    @Override
+                                    public void onUnexpectedError(Exception e) {
+                                        Log.e(LOG_TAG, "onSendClick invite failed " + e.getMessage());
+                                    }
+                                });
                             }
-                        }
+                        });
 
-                        // If the other member has left the direct chat, we invite him again
-                        // and select the file type on the invitation's onSuccess
-                        if (null != leftMemberId) {
+                        // Click on the cancel button dismiss the popup and don't allow to select a file to send
+                        // The left member isn't re-invite
+                        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
 
-                            final AlertDialog.Builder builder = new AlertDialog.Builder(VectorRoomActivity.this);
+                            }
+                        });
 
-                            builder.setMessage(getString(R.string.room_left_member_invite_prompt_msg, leftMemberName));
-
-                            final String finalLeftMemberId = leftMemberId;
-
-                            // Click on the ok button allow to re-invite the member who left the direct chat
-                            // and on the invitation success, the processus of file selection continue
-                            builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    mRoom.invite(finalLeftMemberId, new ApiCallback<Void>() {
-                                        @Override
-                                        public void onSuccess(Void info) {
-                                            Log.e(LOG_TAG, "## invitation of the member who left is succeed for this leftmemberId " + finalLeftMemberId);
-                                            selectFileToSend();
-                                        }
-
-                                        @Override
-                                        public void onNetworkError(Exception e) {
-                                            Log.e(LOG_TAG, "## invite failed " + e.getMessage());
-                                        }
-
-                                        @Override
-                                        public void onMatrixError(MatrixError e) {
-                                            Log.e(LOG_TAG, "## invite failed " + e.getMessage());
-
-                                        }
-
-                                        @Override
-                                        public void onUnexpectedError(Exception e) {
-                                            Log.e(LOG_TAG, "## invite failed " + e.getMessage());
-                                        }
-                                    });
-                                }
-                            });
-
-                            // Click on the cancel button dismiss the popup and don't allow to select a file to send
-                            // The left member isn't re-invite
-                            builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-
-                                }
-                            });
-
-                            builder.show();
-                        }
+                        builder.show();
                     } else {
                         selectFileToSend();
                     }
                 }
             }
         });
-
 
         mEditText.addTextChangedListener(new TextWatcher() {
             @Override
