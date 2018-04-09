@@ -748,7 +748,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                 } else {
 
                     // In the case of a direct chat, we check if the other member has left the room.
-                    // If so, re-invite before sending the message.
+                    // If so, re-invite before selecting a file type to send
                     if (mRoom.isDirect() && mRoom.getActiveMembers().size() == 1) {
                         Collection<RoomMember> members = mRoom.getMembers();
                         String leftMemberId = null;
@@ -763,7 +763,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                         }
 
                         // If the other member has left the direct chat, we invite him again
-                        // and send the message on the invitation's onSuccess
+                        // and select the file type on the invitation's onSuccess
                         if (null != leftMemberId) {
 
                             final AlertDialog.Builder builder = new AlertDialog.Builder(VectorRoomActivity.this);
