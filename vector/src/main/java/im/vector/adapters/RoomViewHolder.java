@@ -1,5 +1,6 @@
 /*
  * Copyright 2017 Vector Creations Ltd
+ * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,8 +31,11 @@ import android.widget.TextView;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomSummary;
+import org.matrix.androidsdk.data.RoomTag;
 import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.util.Log;
+
+import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -82,6 +86,9 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
     @Nullable
     View vRoomMoreActionAnchor;
 
+    @BindView(R.id.room_pin_ic)
+    @Nullable
+    View vRoomPinFavorite;
 
     public RoomViewHolder(final View itemView) {
         super(itemView);
@@ -226,6 +233,18 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
                     }
                 }
             });
+        }
+
+        if (null != room) {
+            // Check first whether the room is pinned
+            final Set<String> tagsRoom = room.getAccountData().getKeys();
+            final boolean isPinnedRoom = tagsRoom != null && tagsRoom.contains(RoomTag.ROOM_TAG_FAVOURITE);
+
+            if (isPinnedRoom) {
+                vRoomPinFavorite.setVisibility(View.VISIBLE);
+            } else {
+                vRoomPinFavorite.setVisibility(View.GONE);
+            }
         }
     }
 }
