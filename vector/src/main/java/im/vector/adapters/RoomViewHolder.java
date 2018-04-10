@@ -235,13 +235,15 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
             });
         }
 
-        if (null != room) {
+        if (null != room && null != vRoomPinFavorite) {
             // Check first whether the room is pinned
             final Set<String> tagsRoom = room.getAccountData().getKeys();
             final boolean isPinnedRoom = tagsRoom != null && tagsRoom.contains(RoomTag.ROOM_TAG_FAVOURITE);
 
-            if (vRoomMoreActionClickArea != null && null != vRoomPinFavorite && isPinnedRoom) {
+            if (isPinnedRoom) {
                 vRoomPinFavorite.setVisibility(View.VISIBLE);
+            } else {
+                vRoomPinFavorite.setVisibility(View.GONE);
             }
         }
     }
