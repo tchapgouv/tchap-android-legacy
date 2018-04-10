@@ -38,6 +38,7 @@ import java.util.HashMap;
 import im.vector.R;
 import im.vector.VectorApp;
 import im.vector.activity.CommonActivityUtils;
+import im.vector.activity.LoginActivity;
 import im.vector.activity.VectorRoomActivity;
 
 public class SlashComandsParser {
@@ -229,8 +230,9 @@ public class SlashComandsParser {
                     }
                 }
             } else if (TextUtils.equals(firstPart, CMD_INVITE)) {
-                // Tchap limitation: /invite cmd is disabled in direct chat
-                if (!room.isDirect()) {
+                // Tchap limitation: /invite cmd is disabled in direct chats.
+                // This cmd is disabled if the current user belongs to the E-platform too.
+                if (!LoginActivity.isUserExternal(session) && !room.isDirect()) {
                     isIRCCmd = true;
 
                     if (messageParts.length >= 2) {
