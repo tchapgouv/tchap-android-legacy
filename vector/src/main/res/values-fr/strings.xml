@@ -287,7 +287,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="directory_searching_title">Recherche dans le répertoire…</string>
 
     <string name="room_settings_favourite">Favori</string>
-    <string name="room_settings_pin">Epingler</string>
+    <string name="room_settings_pin">Epingler la conversation</string>
     <string name="room_settings_de_prioritize">Passer en faible priorité</string>
     <string name="room_settings_direct_chat">Discussion directe</string>
     <string name="room_settings_leave_conversation">Quitter la conversation</string>
