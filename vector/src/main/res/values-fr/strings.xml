@@ -567,6 +567,7 @@ Les messages chiffrés ne seront pas visibles sur les clients qui n\'ont pas enc
 En êtes-vous sûr(e) ?</string>
 
     <string name="room_participants_invite_prompt_msg">Voulez-vous vraiment inviter %s à cette discussion ?</string>
+    <string name="room_left_member_invite_prompt_msg">Acceptez-vous de réinviter %s à cette discussion avant de sélectionner un fichier?</string>
 
     <string name="people_search_invite_by_id"><u>Inviter par identifiant</u></string>
 
