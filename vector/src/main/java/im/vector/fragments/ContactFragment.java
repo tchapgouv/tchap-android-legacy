@@ -221,7 +221,11 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                     listener.onFilterDone(count);
                 }
 
-                startRemoteKnownContactsSearch(newSearch);
+                // Search in the user directories except if the current user belongs to the E-platform.
+                if (!LoginActivity.isUserExternal(mSession)) {
+                    startRemoteKnownContactsSearch(newSearch);
+                }
+
             }
         });
     }
