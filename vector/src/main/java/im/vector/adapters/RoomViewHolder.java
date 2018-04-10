@@ -235,7 +235,7 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
             });
         }
 
-        if (null != room) {
+        if (null != room && null != vRoomPinFavorite) {
             // Check first whether the room is pinned
             final Set<String> tagsRoom = room.getAccountData().getKeys();
             final boolean isPinnedRoom = tagsRoom != null && tagsRoom.contains(RoomTag.ROOM_TAG_FAVOURITE);
