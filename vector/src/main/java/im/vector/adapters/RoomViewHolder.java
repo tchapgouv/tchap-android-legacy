@@ -240,10 +240,8 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
             final Set<String> tagsRoom = room.getAccountData().getKeys();
             final boolean isPinnedRoom = tagsRoom != null && tagsRoom.contains(RoomTag.ROOM_TAG_FAVOURITE);
 
-            if (isPinnedRoom) {
+            if (vRoomMoreActionClickArea != null && null != vRoomPinFavorite && isPinnedRoom) {
                 vRoomPinFavorite.setVisibility(View.VISIBLE);
-            } else {
-                vRoomPinFavorite.setVisibility(View.GONE);
             }
         }
     }

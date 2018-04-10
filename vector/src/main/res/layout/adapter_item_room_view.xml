@@ -71,6 +71,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/room_name"
             android:layout_marginTop="3dp"
+            android:layout_marginRight="25dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:textColor="?attr/default_text_light_color"
@@ -96,7 +97,8 @@
             android:layout_alignParentRight="true"
             android:layout_alignTop="@+id/room_message"
             android:layout_marginLeft="10dp"
-            android:src="@drawable/ic_pin" />
+            android:src="@drawable/ic_pin"
+            android:visibility="gone"/>
 
         <TextView
             android:id="@+id/room_update_date"
