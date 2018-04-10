@@ -1,5 +1,6 @@
 /* 
  * Copyright 2016 OpenMarket Ltd
+ * Copyright DINSIC 2018
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,8 +75,8 @@ public class SlashComandsParser {
     // <user-id> [reason]
     private static final String CMD_KICK_USER = "/kick";
 
-    // <display-name>
-    private static final String CMD_CHANGE_DISPLAY_NAME = "/nick";
+    // <display-name> This cmd is disabled in Tchap. The display name is fixed
+    //private static final String CMD_CHANGE_DISPLAY_NAME = "/nick";
 
     // <query>
     private static final String CMD_DDG = "/ddg";
@@ -157,17 +158,7 @@ public class SlashComandsParser {
 
             String firstPart = messageParts[0];
 
-            if (TextUtils.equals(firstPart, CMD_CHANGE_DISPLAY_NAME)) {
-                isIRCCmd = true;
-
-                String newDisplayname = textMessage.substring(CMD_CHANGE_DISPLAY_NAME.length()).trim();
-
-                if (newDisplayname.length() > 0) {
-                    MyUser myUser = session.getMyUser();
-
-                    myUser.updateDisplayName(newDisplayname, callback);
-                }
-            } else if (TextUtils.equals(firstPart, CMD_TOPIC)) {
+            if (TextUtils.equals(firstPart, CMD_TOPIC)) {
                 isIRCCmd = true;
 
                 String newTopîc = textMessage.substring(CMD_TOPIC.length()).trim();
@@ -238,10 +229,13 @@ public class SlashComandsParser {
                     }
                 }
             } else if (TextUtils.equals(firstPart, CMD_INVITE)) {
-                isIRCCmd = true;
+                // Tchap limitation: /invite cmd is disabled in direct chat
+                if (!room.isDirect()) {
+                    isIRCCmd = true;
 
-                if (messageParts.length >= 2) {
-                    room.invite(messageParts[1], callback);
+                    if (messageParts.length >= 2) {
+                        room.invite(messageParts[1], callback);
+                    }
                 }
             } else if (TextUtils.equals(firstPart, CMD_KICK_USER)) {
                 isIRCCmd = true;
