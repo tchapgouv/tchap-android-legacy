@@ -1,3 +1,16 @@
+Changes in Tchap 0.1.5 (2018-04-10)
+===================================================
+ 
+Improvements:
+ * Open the existing direct chat on contact selection even if the contact has left it #103
+ * Name a direct chat that has been left #103
+ * Direct chat: invite again left member on new message #104
+ * Conversations screen: re-enable favorites use (pinned rooms) #105
+ * Search in the user directories is disabled for the users of the E-platform #108
+ 
+Bug Fix:
+ * Update IRC command handling (disable /nick and control /invite) #106
+
 Changes in Tchap 0.1.4 (2018-04-06)
 ===================================================
  
