@@ -93,7 +93,9 @@ public class ContactAdapter extends AbsAdapter {
         mKnownContactsSection.setIsHiddenWhenNoFilter(true);
 
         addSection(mLocalContactsSection);
-        addSection(mKnownContactsSection);
+        if (!LoginActivity.isUserExternal(mSession)) {
+            addSection(mKnownContactsSection);
+        }
     }
 
     /*
