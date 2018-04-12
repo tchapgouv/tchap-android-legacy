@@ -36,11 +36,34 @@
             android:id="@+id/button_register"
             android:layout_width="94dp"
             android:layout_height="36dp"
-            android:layout_centerHorizontal="true"
+            android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
+            android:layout_marginRight="16dp"
             android:background="@android:color/white"
             android:text="@string/auth_register"
             android:textColor="@color/vector_green_color" />
+        <Button
+            android:id="@+id/button_go_login"
+            android:layout_width="150dp"
+            android:layout_height="36dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="16dp"
+            android:background="@android:color/white"
+            android:text="@string/go_login"
+            android:textColor="@color/vector_green_color"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/button_go_register"
+            android:layout_width="150dp"
+            android:layout_height="36dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:background="@android:color/white"
+            android:text="@string/go_register"
+            android:textColor="@color/vector_green_color"
+            android:visibility="gone" />
 
         <Button
             android:id="@+id/button_reset_password"
@@ -155,6 +178,19 @@
                         android:maxLines="1" />
                 </LinearLayout>
 
+                <LinearLayout
+                    android:id="@+id/start_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/start_message"
+                        android:textSize="24sp" />
+
+                </LinearLayout>
                 <LinearLayout
                     android:id="@+id/forget_password_inputs_layout"
                     android:layout_width="match_parent"

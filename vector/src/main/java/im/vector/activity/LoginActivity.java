@@ -105,6 +105,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
     private static final int MODE_FORGOT_PASSWORD = 3;
     private static final int MODE_FORGOT_PASSWORD_WAITING_VALIDATION = 4;
     private static final int MODE_ACCOUNT_CREATION_THREE_PID = 5;
+    private static final int MODE_START = 6;
 
     public static final String HOME_SERVER_URL_PREF = "home_server_url";
     public static final String IDENTITY_SERVER_URL_PREF = "identity_server_url";
@@ -139,7 +140,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
     private static final String SAVED_CONFIG_EMAIL = "SAVED_CONFIG_EMAIL";
 
     // activity mode
-    private int mMode = MODE_LOGIN;
+    private int mMode = MODE_START;
 
     // graphical items
     // login button
@@ -147,6 +148,9 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
 
     // create account button
     private Button mRegisterButton;
+
+    private Button mGoLoginButton;
+    private Button mGoRegisterButton;
 
     // forgot password button
     private Button mForgotPasswordButton;
@@ -409,6 +413,8 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
 
         mLoginButton = findViewById(R.id.button_login);
         mRegisterButton = findViewById(R.id.button_register);
+        mGoLoginButton = findViewById(R.id.button_go_login);
+        mGoRegisterButton = findViewById(R.id.button_go_register);
         mForgotPasswordButton = findViewById(R.id.button_reset_password);
         mForgotValidateEmailButton = findViewById(R.id.button_forgot_email_validate);
 
@@ -433,6 +439,21 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
 
         // account creation handler
         mRegisterButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onRegisterClick();
+            }
+        });
+
+        mGoLoginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onLoginClick();
+            }
+        });
+
+        // account creation handler
+        mGoRegisterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 onRegisterClick();
@@ -621,6 +642,16 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
     }
 
     /**
+     * Cancel the current mode to switch to the start one.
+     * It should restore the start UI
+     */
+    private void fallbackToStartMode() {
+        enableLoadingScreen(false);
+
+        mMode = MODE_START;
+        refreshDisplay();
+    }
+    /**
      * Cancel the current mode to switch to the registration one.
      * It should restore the registration UI
      */
@@ -642,7 +673,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
             Log.d(LOG_TAG, "KEYCODE_BACK pressed");
             if (MODE_ACCOUNT_CREATION == mMode) {
                 Log.d(LOG_TAG, "## cancel the registration mode");
-                fallbackToLoginMode();
+                fallbackToStartMode();
                 return true;
             } else if ((MODE_FORGOT_PASSWORD == mMode) || (MODE_FORGOT_PASSWORD_WAITING_VALIDATION == mMode)) {
                 Log.d(LOG_TAG, "## cancel the forgot password mode");
@@ -655,6 +686,10 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
                 mEmailAddress.setText("");
                 //mRegistrationPhoneNumberHandler.reset();
                 fallbackToRegistrationMode();
+                return true;
+            } else if (MODE_LOGIN == mMode) {
+                Log.d(LOG_TAG, "## cancel the login mode");
+                fallbackToStartMode();
                 return true;
             }
         }
@@ -1697,11 +1732,13 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
         View creationLayout = findViewById(R.id.creation_inputs_layout);
         View forgetPasswordLayout = findViewById(R.id.forget_password_inputs_layout);
         View threePidLayout = findViewById(R.id.three_pid_layout);
+        View startLayout = findViewById(R.id.start_layout);
 
         loginLayout.setVisibility((mMode == MODE_LOGIN) ? View.VISIBLE : View.GONE);
         creationLayout.setVisibility((mMode == MODE_ACCOUNT_CREATION) ? View.VISIBLE : View.GONE);
         forgetPasswordLayout.setVisibility((mMode == MODE_FORGOT_PASSWORD) ? View.VISIBLE : View.GONE);
         threePidLayout.setVisibility((mMode == MODE_ACCOUNT_CREATION_THREE_PID) ? View.VISIBLE : View.GONE);
+        startLayout.setVisibility((mMode == MODE_START) ? View.VISIBLE : View.GONE);
 
         boolean isLoginMode = mMode == MODE_LOGIN;
         boolean isForgetPasswordMode = (mMode == MODE_FORGOT_PASSWORD) || (mMode == MODE_FORGOT_PASSWORD_WAITING_VALIDATION);
@@ -1709,8 +1746,10 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
         mButtonsView.setVisibility(View.VISIBLE);
 
         mPasswordForgottenTxtView.setVisibility(isLoginMode ? View.VISIBLE : View.GONE);
-        mLoginButton.setVisibility(mMode == MODE_LOGIN || mMode == MODE_ACCOUNT_CREATION ? View.VISIBLE : View.GONE);
-        mRegisterButton.setVisibility(mMode == MODE_LOGIN || mMode == MODE_ACCOUNT_CREATION ? View.VISIBLE : View.GONE);
+        mLoginButton.setVisibility(mMode == MODE_LOGIN  ? View.VISIBLE : View.GONE);
+        mRegisterButton.setVisibility(mMode == MODE_ACCOUNT_CREATION ? View.VISIBLE : View.GONE);
+        mGoLoginButton.setVisibility(mMode == MODE_START ? View.VISIBLE : View.GONE);
+        mGoRegisterButton.setVisibility(mMode == MODE_START ? View.VISIBLE : View.GONE);
         mForgotPasswordButton.setVisibility(mMode == MODE_FORGOT_PASSWORD ? View.VISIBLE : View.GONE);
         mForgotValidateEmailButton.setVisibility(mMode == MODE_FORGOT_PASSWORD_WAITING_VALIDATION ? View.VISIBLE : View.GONE);
         mSubmitThreePidButton.setVisibility(mMode == MODE_ACCOUNT_CREATION_THREE_PID ? View.VISIBLE : View.GONE);
@@ -1754,8 +1793,10 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
 
         // forgot password mode
         // the register and the login buttons are hidden
-        mRegisterButton.setVisibility(isForgotPasswordMode ? View.GONE : View.VISIBLE);
-        mLoginButton.setVisibility(isForgotPasswordMode ? View.GONE : View.VISIBLE);
+        mRegisterButton.setVisibility((!isForgotPasswordMode && mMode == MODE_ACCOUNT_CREATION) ? View.VISIBLE : View.GONE);
+        mLoginButton.setVisibility((!isForgotPasswordMode && mMode == MODE_LOGIN) ? View.VISIBLE : View.GONE);
+        mGoRegisterButton.setVisibility(!(mMode == MODE_START) ? View.GONE : View.VISIBLE);
+        mGoLoginButton.setVisibility(!(mMode == MODE_START) ? View.GONE : View.VISIBLE);
 
         mForgotPasswordButton.setVisibility((mMode == MODE_FORGOT_PASSWORD) ? View.VISIBLE : View.GONE);
         mForgotPasswordButton.setAlpha(enabled ? CommonActivityUtils.UTILS_OPACITY_NONE : CommonActivityUtils.UTILS_OPACITY_HALF);

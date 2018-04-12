@@ -114,8 +114,10 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="option_send_files">Envoyer des fichiers</string>
     <string name="option_take_photo_video">Prendre une photo ou une vidéo</string>
 
-    <string name="auth_login">Se connecter</string>
-    <string name="auth_register">S\'inscrire</string>
+    <string name="auth_login">Je me connecte</string>
+    <string name="auth_register">Je m\'inscris</string>
+    <string name="go_login">J\'ai déjà un compte</string>
+    <string name="go_register">Je veux créer un compte</string>
     <string name="auth_submit">Valider</string>
     <string name="auth_skip">Ignorer</string>
     <string name="auth_send_reset_email">Envoyer l\'e-mail de réinitialisation</string>
@@ -495,7 +497,7 @@ Vous pouvez ajouter votre adresse e-mail à votre profil dans les paramètres.</
     <string name="auth_reset_password_success_message">Votre mot de passe a été réinitialisé.
 
 Vous avez été déconnecté de tous les appareils et ne recevrez plus de notifications. Pour réactiver les notifications, reconnectez-vous sur chaque appareil.</string>
-
+    <string name="start_message">Bienvenue sur Tchap, la messagerie instantanée de l\'Etat Français.\n\nQue voulez vous faire ?</string>
     <string name="login_error_must_start_http">L\'URL doit commencer par http[s]://</string>
     <string name="login_error_network_error">Impossible de se connecter : erreur réseau</string>
     <string name="login_error_unable_login">Impossible de se connecter</string>
