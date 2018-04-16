@@ -34,7 +34,9 @@ import android.os.Parcelable;
 import android.support.annotation.ColorInt;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.content.ContextCompat;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -50,8 +52,8 @@ import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
 import org.matrix.androidsdk.rest.client.LoginRestClient;
 import org.matrix.androidsdk.rest.client.ProfileRestClient;
-import org.matrix.androidsdk.rest.client.ThirdPidRestClient;
 import org.matrix.androidsdk.rest.model.MatrixError;
+import org.matrix.androidsdk.rest.model.pid.ThirdPartyIdentifier;
 import org.matrix.androidsdk.rest.model.pid.ThreePid;
 import org.matrix.androidsdk.rest.model.login.Credentials;
 import org.matrix.androidsdk.rest.model.login.LoginFlow;
@@ -115,10 +117,11 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
 
     // creation
     private static final String SAVED_CREATION_EMAIL_NAME = "SAVED_CREATION_EMAIL_NAME";
-    private static final String SAVED_CREATION_USER_NAME = "SAVED_CREATION_USER_NAME";
     private static final String SAVED_CREATION_PASSWORD1 = "SAVED_CREATION_PASSWORD1";
     private static final String SAVED_CREATION_PASSWORD2 = "SAVED_CREATION_PASSWORD2";
     private static final String SAVED_CREATION_REGISTRATION_RESPONSE = "SAVED_CREATION_REGISTRATION_RESPONSE";
+    private static final String SAVED_CREATION_EMAIL_THREEPID = "SAVED_CREATION_EMAIL_THREEPID";
+    private ThreePid mPendingEmailValidation;
 
     // forgot password
     private static final String SAVED_FORGOT_EMAIL_ADDRESS = "SAVED_FORGOT_EMAIL_ADDRESS";
@@ -132,6 +135,8 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
     private static final String SAVED_IS_SERVER_URL_EXPANDED = "SAVED_IS_SERVER_URL_EXPANDED";
     private static final String SAVED_HOME_SERVER_URL = "SAVED_HOME_SERVER_URL";
     private static final String SAVED_IDENTITY_SERVER_URL = "SAVED_IDENTITY_SERVER_URL";
+    private static final String SAVED_TCHAP_PLATFORM = "SAVED_TCHAP_PLATFORM";
+    private static final String SAVED_CONFIG_EMAIL = "SAVED_CONFIG_EMAIL";
 
     // activity mode
     private int mMode = MODE_LOGIN;
@@ -166,9 +171,6 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
 
     // the creation user name
     private EditText mCreationEmailAddressTextView;
-
-    // the creation user name
-    private EditText mCreationUsernameTextView;
 
     // the password 1 name
     private EditText mCreationPassword1TextView;
@@ -382,7 +384,6 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
 
         // account creation
         mCreationEmailAddressTextView = findViewById(R.id.creation_your_email);
-        mCreationUsernameTextView = findViewById(R.id.creation_your_name);
         mCreationPassword1TextView = findViewById(R.id.creation_password1);
         mCreationPassword2TextView = findViewById(R.id.creation_password2);
 
@@ -415,10 +416,6 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
 
         mMainLayout = findViewById(R.id.main_input_layout);
         mButtonsView = findViewById(R.id.login_actions_bar);
-
-        if (null != savedInstanceState) {
-            restoreSavedData(savedInstanceState);
-        }
 
         // trap the UI events
         mLoginMaskView.setOnClickListener(new View.OnClickListener() {
@@ -466,6 +463,10 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
             }
         });
 
+        if (null != savedInstanceState) {
+            restoreSavedData(savedInstanceState);
+        }
+
         refreshDisplay();
 
         // reset the badge counter
@@ -474,15 +475,48 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
         // set the handler used by the register to poll the server response
         mHandler = new Handler(getMainLooper());
 
-        // home server input validity: when focus changes
+        // Update tchap platform when the email value has potentially changed.
         mCreationEmailAddressTextView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus) {
-                    refreshRegistrationTchapPlatform();
+                    // Refresh only in case of change
+                    String emailAddress = mCreationEmailAddressTextView.getText().toString().trim();
+                    if (null == mCurrentEmail || (!TextUtils.isEmpty(emailAddress) && !emailAddress.equals(mCurrentEmail))) {
+                        refreshRegistrationTchapPlatform();
+                    }
                 }
             }
         });
-        refreshRegistrationTchapPlatform();
+
+        // Check whether the current tchap platform is still valid on email value changes
+        mCreationEmailAddressTextView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                String emailAddress = editable.toString().trim();
+
+                // Check whether the new text value is a valid email
+                if (!TextUtils.isEmpty(emailAddress) && android.util.Patterns.EMAIL_ADDRESS.matcher(emailAddress).matches()) {
+                    // Update the tchap platform (only if a current platform is already selected and the new email is different from the current one,
+                    // OR if a password has been set and the new email is different from the current one (if any))
+                    if ((null != mCurrentEmail && !emailAddress.equals(mCurrentEmail))
+                            || (mCreationPassword1TextView.getText().length() != 0 && (null == mCurrentEmail || !emailAddress.equals(mCurrentEmail)))) {
+                        refreshRegistrationTchapPlatform();
+                    }
+                } else {
+                    // The current email field is not valid
+                    // Reset the current platform and the potential registration flows (if any)
+                    resetRegistrationTchapPlatform();
+                }
+            }
+        });
 
         // Check whether the application has been resumed from an universal link
         Bundle receivedBundle = (null != intent) ? getIntent().getExtras() : null;
@@ -493,9 +527,42 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
             } else if (receivedBundle.containsKey(VectorRegistrationReceiver.EXTRA_EMAIL_VALIDATION_PARAMS)) {
                 Log.d(LOG_TAG, "## onCreate() Login activity started by email verification for registration");
                 if (processEmailValidationExtras(receivedBundle)) {
+                    // Reset the pending email validation if any.
+                    mPendingEmailValidation = null;
+
+                    // Finalize the email verification.
                     checkIfMailValidationPending();
                 }
             }
+        }
+
+        // Check whether an email validation was pending when the instance was saved.
+        if (null != mPendingEmailValidation) {
+            Log.d(LOG_TAG, "## onCreate() An email validation was pending");
+
+            // Sanity check
+            if (null != mRegistrationResponse && null != mTchapPlatform && null != mCurrentEmail) {
+                // retrieve the name and pwd from store data (we consider here that these inputs have been already checked)
+                // @TODO Remove the parameter "name" when the server will force the mxId from the 3pid.
+                String name = mCurrentEmail.replace('@', '.');
+                String password = savedInstanceState.getString(SAVED_CREATION_PASSWORD1);
+
+                Log.d(LOG_TAG, "## onCreate() Resume email validation");
+                // Resume the email validation polling
+                enableLoadingScreen(true);
+                RegistrationManager.getInstance().setSupportedRegistrationFlows(mRegistrationResponse);
+                RegistrationManager.getInstance().setHsConfig(getHsConfig());
+                RegistrationManager.getInstance().setAccountData(name, password);
+                RegistrationManager.getInstance().addEmailThreePid(mPendingEmailValidation);
+                RegistrationManager.getInstance().attemptRegistration(this, this);
+                onWaitingEmailValidation();
+            }
+        } else if (mMode == MODE_ACCOUNT_CREATION){
+            // Update the tchap platform if an email is available
+            refreshRegistrationTchapPlatform();
+        } else {
+            // Enable the action buttons by default
+            setActionButtonsEnabled(true);
         }
     }
 
@@ -566,6 +633,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
 
         mMode = MODE_ACCOUNT_CREATION;
         refreshDisplay();
+        refreshRegistrationTchapPlatform();
     }
 
     @Override
@@ -622,7 +690,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
     }
 
     /**
-     * Some sessions have been registred, skip the login process.
+     * A session has just been created, display the splash screen.
      */
     private void goToSplash() {
         Log.d(LOG_TAG, "## gotoSplash(): Go to splash.");
@@ -677,8 +745,6 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
             @Override
             public void onSuccess(Platform platform) {
                 Log.d(LOG_TAG, "## onForgotPasswordClick(): discoverTchapPlatform succeeds");
-                mTchapPlatform = platform;
-
                 final HomeServerConnectionConfig hsConfig = getHsConfig();
 
                 // it might be null if the identity / homeserver urls are invalids
@@ -1072,7 +1138,6 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
      */
     private void onRegistrationFlow(RegistrationFlowResponse registrationFlowResponse) {
         enableLoadingScreen(false);
-        setActionButtonsEnabled(true);
 
         mRegistrationResponse = registrationFlowResponse;
 
@@ -1277,6 +1342,9 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
 
             mMode = MODE_LOGIN;
             refreshDisplay();
+
+            // Enable the action buttons by default
+            setActionButtonsEnabled(true);
             return;
         }
 
@@ -1305,8 +1373,6 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
 
             @Override
             public void onSuccess(Platform platform) {
-                mTchapPlatform = platform;
-
                 final HomeServerConnectionConfig hsConfig = getHsConfig();
 
                 // it might be null if the identity / homeserver urls are invalids
@@ -1323,7 +1389,6 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
                         removeNetworkStateNotificationListener();
 
                         enableLoadingScreen(false);
-                        setActionButtonsEnabled(true);
                         boolean isSupported = true;
 
                         // supported only m.login.password by now
@@ -1423,7 +1488,6 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
         } catch (Exception e) {
             Toast.makeText(this, getString(R.string.login_error_invalid_home_server), Toast.LENGTH_SHORT).show();
             enableLoadingScreen(false);
-            setActionButtonsEnabled(true);
         }
     }
 
@@ -1455,7 +1519,6 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
 
                         if (mMode == MODE_LOGIN) {
                             enableLoadingScreen(false);
-                            setActionButtonsEnabled(true);
                             boolean isSupported = true;
 
                             // supported only m.login.password by now
@@ -1517,12 +1580,13 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
      * @param savedInstanceState the instance state
      */
     private void restoreSavedData(Bundle savedInstanceState) {
+
+        Log.d(LOG_TAG, "## restoreSavedData(): IN");
         if (null != savedInstanceState) {
             mLoginEmailTextView.setText(savedInstanceState.getString(SAVED_LOGIN_EMAIL_ADDRESS));
             mLoginPasswordTextView.setText(savedInstanceState.getString(SAVED_LOGIN_PASSWORD_ADDRESS));
 
             mCreationEmailAddressTextView.setText(savedInstanceState.getString(SAVED_CREATION_EMAIL_NAME));
-            mCreationUsernameTextView.setText(savedInstanceState.getString(SAVED_CREATION_USER_NAME));
             mCreationPassword1TextView.setText(savedInstanceState.getString(SAVED_CREATION_PASSWORD1));
             mCreationPassword2TextView.setText(savedInstanceState.getString(SAVED_CREATION_PASSWORD2));
 
@@ -1538,6 +1602,10 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
             if (savedInstanceState.containsKey(VectorUniversalLinkReceiver.EXTRA_UNIVERSAL_LINK_URI)) {
                 mUniversalLinkUri = savedInstanceState.getParcelable(VectorUniversalLinkReceiver.EXTRA_UNIVERSAL_LINK_URI);
             }
+
+            mPendingEmailValidation = (ThreePid)savedInstanceState.getSerializable(SAVED_CREATION_EMAIL_THREEPID);
+            mTchapPlatform = (Platform)savedInstanceState.getSerializable(SAVED_TCHAP_PLATFORM);
+            mCurrentEmail = savedInstanceState.getString(SAVED_CONFIG_EMAIL);
         }
     }
 
@@ -1545,7 +1613,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         Log.d(LOG_TAG, "## onRestoreInstanceState(): IN");
-        restoreSavedData(savedInstanceState);
+        // Data are restored during onCreate()
     }
 
     @Override
@@ -1564,10 +1632,6 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
 
         if (!TextUtils.isEmpty(mCreationEmailAddressTextView.getText().toString().trim())) {
             savedInstanceState.putString(SAVED_CREATION_EMAIL_NAME, mCreationEmailAddressTextView.getText().toString().trim());
-        }
-
-        if (!TextUtils.isEmpty(mCreationUsernameTextView.getText().toString().trim())) {
-            savedInstanceState.putString(SAVED_CREATION_USER_NAME, mCreationUsernameTextView.getText().toString().trim());
         }
 
         if (!TextUtils.isEmpty(mCreationPassword1TextView.getText().toString().trim())) {
@@ -1590,6 +1654,14 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
             savedInstanceState.putString(SAVED_FORGOT_PASSWORD2, mForgotPassword2TextView.getText().toString().trim());
         }
 
+        if (null != mTchapPlatform) {
+            savedInstanceState.putSerializable(SAVED_TCHAP_PLATFORM, mTchapPlatform);
+
+            if (null != mCurrentEmail) {
+                savedInstanceState.putString(SAVED_CONFIG_EMAIL, mCurrentEmail);
+            }
+        }
+
         if (null != mRegistrationResponse) {
             savedInstanceState.putSerializable(SAVED_CREATION_REGISTRATION_RESPONSE, mRegistrationResponse);
         }
@@ -1597,6 +1669,15 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
         // check if the application has been opened by click on an url
         if (null != mUniversalLinkUri) {
             savedInstanceState.putParcelable(VectorUniversalLinkReceiver.EXTRA_UNIVERSAL_LINK_URI, mUniversalLinkUri);
+        }
+
+        // check whether an email validation is in progress
+        if (null != mRegisterPollingRunnable) {
+            // Retrieve the current email three pid
+            ThreePid email3pid = RegistrationManager.getInstance().getEmailThreePid();
+            if (null != email3pid) {
+                savedInstanceState.putSerializable(SAVED_CREATION_EMAIL_THREEPID, email3pid);
+            }
         }
 
         savedInstanceState.putInt(SAVED_MODE, mMode);
@@ -1723,7 +1804,6 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
             Log.e(LOG_TAG, "getHsConfig fails " + e.getLocalizedMessage());
         }
 
-        RegistrationManager.getInstance().setHsConfig(mServerConfig);
         return mServerConfig;
     }
 
@@ -1895,7 +1975,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
 
         if (!TextUtils.isEmpty(email)) {
             // Communicate email to singleton (will be validated later on)
-            RegistrationManager.getInstance().addEmailThreePid(email);
+            RegistrationManager.getInstance().addEmailThreePid(new ThreePid(email, ThreePid.MEDIUM_EMAIL));
         }
 
         /*if (mRegistrationPhoneNumberHandler.getPhoneNumber() != null) {
@@ -2009,6 +2089,84 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
         }
     }
 
+    /**
+     * The user display name has been updated.
+     * @TODO remove this method as soon as the server is able to handle correctly the displayname
+     *
+     * @param logMessage the message to log
+     */
+    private void onDisplayNameUpdateDone(final String logMessage) {
+        Log.d(LOG_TAG, "## onDisplayNameUpdateDone " + logMessage);
+        finish();
+    }
+
+    /**
+     * Force the user display name
+     * @TODO remove this method as soon as the server is able to handle correctly the displayname
+     */
+    private void forceDisplayNameUpdate() {
+        final MXSession session = Matrix.getInstance(this).getDefaultSession();
+        session.getMyUser().refreshThirdPartyIdentifiers(new SimpleApiCallback<Void>() {
+            @Override
+            public void onSuccess(Void info) {
+                List<ThirdPartyIdentifier> currentEmail3PID = session.getMyUser().getlinkedEmails();
+
+                if (!currentEmail3PID.isEmpty()) {
+                    String emailAddress = currentEmail3PID.get(0).address;
+                    if (null != emailAddress) {
+                        String displayName = emailAddress.substring(0, emailAddress.lastIndexOf("@"));
+                        String[] components = displayName.split("\\.");
+                        StringBuilder builder = new StringBuilder();
+                        for (String component : components) {
+                            String updatedComponent = component.substring(0, 1).toUpperCase() + component.substring(1);
+                            if (builder.toString().isEmpty()) {
+                                builder.append(updatedComponent);
+                            } else {
+                                builder.append(" " + updatedComponent);
+                            }
+                        }
+                        displayName = builder.toString();
+
+                        // add first term of domain
+                        String[] components2 = emailAddress.split("@");
+                        if (components2.length>1) {
+                            String firstDomain = components2[1].substring(0,components2[1].indexOf("."));
+                            displayName += " ["+firstDomain+"]";
+                        }
+
+                        if (!TextUtils.equals(session.getMyUser().displayname, displayName)) {
+
+                            session.getMyUser().updateDisplayName(displayName, new ApiCallback<Void>() {
+                                @Override
+                                public void onSuccess(Void info) {
+                                    onDisplayNameUpdateDone("success");
+                                }
+
+                                @Override
+                                public void onNetworkError(Exception e) {
+                                    onDisplayNameUpdateDone(e.getLocalizedMessage());
+                                }
+
+                                @Override
+                                public void onMatrixError(MatrixError e) {
+                                    onDisplayNameUpdateDone(e.getLocalizedMessage());
+                                }
+
+                                @Override
+                                public void onUnexpectedError(Exception e) {
+                                    onDisplayNameUpdateDone(e.getLocalizedMessage());
+                                }
+                            });
+                            return;
+                        }
+                        onDisplayNameUpdateDone("no change required");
+                    }
+                }
+                onDisplayNameUpdateDone("getlinkedEmails failed");
+            }
+        });
+    }
+
     /*
     * *********************************************************************************************
     * Account creation - Listeners
@@ -2027,14 +2185,19 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             goToSplash();
-                            finish();
+                            // Patch: Force here the user display name as long as the server does not force it
+                            // @TODO  Remove the forceDisplayNameUpdate() method, and restore the finish() call.
+                            //finish();
+                            forceDisplayNameUpdate();
                         }
                     })
                     .show();
         } else {
-
             goToSplash();
-            finish();
+            // Patch: Force here the user display name as long as the server does not force it
+            // @TODO  Remove the forceDisplayNameUpdate() method, and restore the finish() call.
+            //finish();
+            forceDisplayNameUpdate();
         }
     }
 
@@ -2051,7 +2214,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
 
     @Override
     public void onWaitingEmailValidation() {
-        Log.d(LOG_TAG, "## onWaitingEmailValidation");
+        Log.d(LOG_TAG, "## onWaitingEmailValidation()");
 
         // Prompt the user to check his email
         hideMainLayoutAndToast(getResources().getString(R.string.auth_email_validation_message));
@@ -2061,7 +2224,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
         mRegisterPollingRunnable = new Runnable() {
             @Override
             public void run() {
-                Log.d(LOG_TAG, "## onWaitingEmailValidation attempt registration");
+                Log.d(LOG_TAG, "## onWaitingEmailValidation() attempt registration");
                 RegistrationManager.getInstance().attemptRegistration(LoginActivity.this, LoginActivity.this);
                 mHandler.postDelayed(mRegisterPollingRunnable, REGISTER_POLLING_PERIOD);
             }
@@ -2122,6 +2285,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
     */
     // DINSIC specific
     private Platform mTchapPlatform;
+    private String mCurrentEmail;
 
     /**
      * @return the home server Url according to current tchap platform.
@@ -2171,6 +2335,9 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
             @Override
             public void onSuccess(Platform platform) {
                 Log.d(LOG_TAG, "## discoverTchapPlatform succeeded (" + platform.hs + ", " + platform.invited +")");
+                mTchapPlatform = platform;
+                // Store the corresponding email to detect changes
+                mCurrentEmail = emailAddress;
                 callback.onSuccess(platform);
             }
 
@@ -2207,24 +2374,26 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
     }
 
     /**
+     * Registration: Reset the current configuration and disable the register button.
+     */
+    private void resetRegistrationTchapPlatform() {
+        // Disable the register button.
+        setActionButtonsEnabled(false);
+        // Reset the current platform and the registration flows (if any)
+        mCurrentEmail = null;
+        mTchapPlatform = null;
+        mRegistrationResponse = null;
+    }
+
+    /**
      * Registration: refresh the tchap platform from the email address
      */
     private void refreshRegistrationTchapPlatform() {
-        if (mMode == MODE_ACCOUNT_CREATION) {
-            mRegisterButton.setEnabled(false);
-            mRegisterButton.setAlpha(0.3f);
-        } else {
-            mRegisterButton.setEnabled(true);
-            mRegisterButton.setAlpha(1.0f);
-        }
+        // We consider here mMode == MODE_ACCOUNT_CREATION.
+        // Reset the current platform and the registration flows (if any)
+        resetRegistrationTchapPlatform();
 
-        mCreationUsernameTextView.setEnabled(true);
-        mCreationUsernameTextView.setAlpha(1.0f);
-
-        // Reset the registration flows
-        mRegistrationResponse = null;
-
-        final String emailAddress = mCreationEmailAddressTextView.getText().toString().trim();
+        String emailAddress = mCreationEmailAddressTextView.getText().toString().trim();
 
         // no email address ?
         if (TextUtils.isEmpty(emailAddress)) {
@@ -2242,22 +2411,15 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
         discoverTchapPlatform(emailAddress, new ApiCallback<Platform>() {
             private void onError(String errorMessage) {
                 enableLoadingScreen(false);
+                // Keep disable the register button
+                setActionButtonsEnabled(false);
+                // Notify the user.
                 Toast.makeText(LoginActivity.this, (null == errorMessage) ? getString(R.string.auth_invalid_email) : errorMessage, Toast.LENGTH_LONG).show();
             }
 
             @Override
             public void onSuccess(Platform platform) {
-                mTchapPlatform = platform;
                 enableLoadingScreen(false);
-
-                mRegisterButton.setEnabled(true);
-                mRegisterButton.setAlpha(1.0f);
-
-                if (TextUtils.isEmpty(mCreationUsernameTextView.getText())) {
-                    mCreationUsernameTextView.setText(emailAddress.substring(0, emailAddress.lastIndexOf("@")));
-                }
-                mCreationUsernameTextView.setEnabled(true);
-                mCreationUsernameTextView.setAlpha(1.0f);
             }
 
             @Override
@@ -2292,11 +2454,12 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
             return;
         }
 
-        // parameters
-        final String email = mCreationEmailAddressTextView.getText().toString().trim();
-        final String name = mCreationUsernameTextView.getText().toString().trim();
-        final String password = mCreationPassword1TextView.getText().toString().trim();
-        final String passwordCheck = mCreationPassword2TextView.getText().toString().trim();
+        // Handle parameters
+        // Patch: As long as the server is not able to force the mxId from the 3pid, we force it on client side
+        // @TODO Remove the parameter "name" when the server will force the mxId from the 3pid.
+        String name = mCurrentEmail.replace('@', '.');
+        String password = mCreationPassword1TextView.getText().toString().trim();
+        String passwordCheck = mCreationPassword2TextView.getText().toString().trim();
 
         if (TextUtils.isEmpty(name)) {
             Toast.makeText(getApplicationContext(), getString(R.string.auth_invalid_user_name), Toast.LENGTH_SHORT).show();
@@ -2323,7 +2486,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
                     Toast.makeText(LoginActivity.this, getString(R.string.auth_username_in_use), Toast.LENGTH_LONG).show();
                 } else {
                     RegistrationManager.getInstance().clearThreePid();
-                    RegistrationManager.getInstance().addEmailThreePid(email);
+                    RegistrationManager.getInstance().addEmailThreePid(new ThreePid(mCurrentEmail, ThreePid.MEDIUM_EMAIL));
 
                     mIsMailValidationPending = true;
                     checkRegistrationFlows(new SimpleApiCallback<Void>() {

@@ -3,6 +3,11 @@
 
     <group android:id="@+id/active_room_actions">
         <item
+            android:id="@+id/ic_action_select_pin"
+            android:icon="@drawable/ic_pin"
+            android:title="@string/room_settings_pin" />
+
+        <item
             android:id="@+id/ic_action_notifications_noisy"
             android:icon="@drawable/ic_material_done"
             android:title="@string/room_settings_all_messages_noisy" />

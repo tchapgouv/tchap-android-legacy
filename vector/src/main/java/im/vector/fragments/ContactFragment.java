@@ -51,6 +51,7 @@ import org.matrix.androidsdk.rest.model.search.SearchUsersResponse;
 import org.matrix.androidsdk.util.Log;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -93,7 +94,7 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
 
     // way to detect that the contacts list has been updated
     private int mContactsSnapshotSession = -1;
-    //private MXEventListener mEventsListener;
+    private MXEventListener mEventsListener;
 
     /*
      * *********************************************************************************************
@@ -120,7 +121,6 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
     public void onActivityCreated(final Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        /* Known contacts are hidden for the moment
         mEventsListener = new MXEventListener() {
 
             @Override
@@ -128,7 +128,6 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                 mAdapter.updateKnownContact(user);
             }
         };
-        */
 
         mPrimaryColor = ContextCompat.getColor(getActivity(), R.color.tab_people);
         mSecondaryColor = ContextCompat.getColor(getActivity(), R.color.tab_people_secondary);
@@ -143,18 +142,15 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
             CommonActivityUtils.checkPermissions(CommonActivityUtils.REQUEST_CODE_PERMISSION_MEMBERS_SEARCH, this);
         }
 
-        /* Known contacts are hidden for the moment
         initKnownContacts();
-         */
     }
 
     @Override
     public void onResume() {
         super.onResume();
 
-        /* Known contacts are hidden for the moment
         mSession.getDataHandler().addListener(mEventsListener);
-         */
+
         ContactsManager.getInstance().addListener(this);
 
         // @TODO List all the users with a direct chat,
@@ -176,11 +172,9 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
     public void onPause() {
         super.onPause();
 
-        /* Known contacts are hidden for the moment
         if (mSession.isAlive()) {
             mSession.getDataHandler().removeListener(mEventsListener);
         }
-        */
         ContactsManager.getInstance().removeListener(this);
 
         mRecycler.removeOnScrollListener(mScrollListener);
@@ -227,7 +221,11 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                     listener.onFilterDone(count);
                 }
 
-                startRemoteKnownContactsSearch(newSearch);
+                // Search in the user directories except if the current user belongs to the E-platform.
+                if (!LoginActivity.isUserExternal(mSession)) {
+                    startRemoteKnownContactsSearch(newSearch);
+                }
+
             }
         });
     }
@@ -303,34 +301,35 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
             for (String key : keysList) {
                 // Check whether this key is an actual user id
                 if (MXSession.isUserId(key)) {
-                    User user = mSession.getDataHandler().getUser(key);
-                    // Add a contact for this user
-                    Contact dummyContact = new Contact("null");
-                    if (null != user) {
-                        // The user displayname is known thanks to the presence event.
-                        // It is unknown until we receive a presence event for this user.
-                        if (!TextUtils.isEmpty(user.displayname)) {
-                            dummyContact.setDisplayName(user.displayname);
-                        } else {
-                            // Patch: we will try to retrieve his displayname from the room members information.
-                            List<String> roomIdsList = store.getDirectChatRoomsDict().get(key);
-                            if (roomIdsList != null && !roomIdsList.isEmpty()) {
-                                for (String roomId: roomIdsList) {
-                                    Room room = store.getRoom(roomId);
-                                    if (null != room) {
-                                        RoomMember roomMember = room.getMember(key);
-                                        if (null != roomMember && !TextUtils.isEmpty(roomMember.displayname)) {
-                                            dummyContact.setDisplayName(roomMember.displayname);
-                                            break;
-                                        }
-                                    }
+                    // Ignore the current user if he appears in the direct chat map
+                    if (key.equals(mSession.getMyUserId())) {
+                        continue;
+                    }
+
+                    // Retrieve the user display name from the room members information.
+                    // By this way we check that the current user has joined at least one of the direct chats for this user.
+                    // The users for whom no direct is joined by the current user are ignored for the moment.
+                    // @TODO Keep displaying these users in the contacts list, the problem is to get their displayname
+                    // @NOTE The user displayname may be known thanks to the presence event. But
+                    // it is unknown until we receive a presence event for this user.
+                    List<String> roomIdsList = store.getDirectChatRoomsDict().get(key);
+                    if (roomIdsList != null && !roomIdsList.isEmpty()) {
+                        for (String roomId: roomIdsList) {
+                            Room room = store.getRoom(roomId);
+                            if (null != room) {
+                                RoomMember roomMember = room.getMember(key);
+                                if (null != roomMember && !TextUtils.isEmpty(roomMember.displayname)) {
+                                    // Add a contact for this user
+                                    Contact dummyContact = new Contact("null");
+                                    dummyContact.setDisplayName(roomMember.displayname);
+                                    ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
+                                    participant.mUserId = key;
+                                    participants.add(participant);
+                                    break;
                                 }
                             }
                         }
                     }
-                    ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
-                    participant.mUserId = key;
-                    participants.add(participant);
                 }
                 else if (android.util.Patterns.EMAIL_ADDRESS.matcher(key).matches()) {
                     // Check whether this email corresponds to a user id
@@ -395,6 +394,26 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                                 }
                             });
                         }
+                    } else if (!store.getDirectChatRoomsDict().get(key).isEmpty()) {
+                        // Build a display name from the email
+                        String displayName = key.substring(0, key.lastIndexOf("@"));
+                        String[] components = displayName.split("\\.");
+                        StringBuilder builder = new StringBuilder();
+                        for (String component : components) {
+                            String updatedComponent = component.substring(0, 1).toUpperCase() + component.substring(1);
+                            if (builder.toString().isEmpty()) {
+                                builder.append(updatedComponent);
+                            } else {
+                                builder.append(" " + updatedComponent);
+                            }
+                        }
+                        displayName = builder.toString();
+                        // Add a contact for this user
+                        Contact dummyContact = new Contact("null");
+                        dummyContact.setDisplayName(displayName);
+                        ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
+                        participant.mUserId = key;
+                        participants.add(participant);
                     }
                 }
             }
@@ -514,7 +533,8 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
 
             final String fPattern = mCurrentFilter;
 
-            mSession.searchUsers(mCurrentFilter, MAX_KNOWN_CONTACTS_FILTER_COUNT, new HashSet<String>(), new ApiCallback<SearchUsersResponse>() {
+            // Search in the user directories by hiding the current user
+            mSession.searchUsers(mCurrentFilter, MAX_KNOWN_CONTACTS_FILTER_COUNT, new HashSet<String>(Arrays.asList(mSession.getMyUserId())), new ApiCallback<SearchUsersResponse>() {
                 @Override
                 public void onSuccess(SearchUsersResponse searchUsersResponse) {
                     if (TextUtils.equals(fPattern, mCurrentFilter)) {
@@ -667,6 +687,10 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                             Contact.MXID mxid = PIDsRetriever.getInstance().getMXID(email);
 
                             if (null != mxid) {
+                                // Ignore the current user if he belongs to the local phone book.
+                                if (mxid.mMatrixId.equals(mSession.getMyUserId())) {
+                                    continue;
+                                }
                                 participant.mUserId = mxid.mMatrixId;
                             } else {
                                 participant.mUserId = email;
@@ -675,8 +699,10 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                                 findGovEmail = true;
                                 participants.add(participant);
                             }
-                            else if (!findGovEmail && candidatParticipant==null)
+                            else if (!findGovEmail && (candidatParticipant == null || null != mxid)) {
+                                // if no french gov is discovered yet, we store a candidate by prioritising those with mxId
                                 candidatParticipant = participant;
+                            }
                         }
                     }
                     if (!findGovEmail && candidatParticipant!=null)
@@ -685,15 +711,7 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
 
             }
         }
-        //move this code outside
-        /*
-        //add participants from direct chats
-        List<ParticipantAdapterItem> myDirectContacts = getContactsFromDirectChats();
-        for (ParticipantAdapterItem myContact : myDirectContacts){
-            if (!DinsicUtils.participantAlreadyAdded(participants,myContact))
-                participants.add(myContact);
-        }
-        */
+
         return participants;
     }
 
