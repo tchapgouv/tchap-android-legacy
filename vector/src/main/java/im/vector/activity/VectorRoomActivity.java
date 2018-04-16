@@ -1696,7 +1696,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             mResendUnsentMenuItem = menu.findItem(R.id.ic_action_room_resend_unsent);
             mResendDeleteMenuItem = menu.findItem(R.id.ic_action_room_delete_unsent);
             mSearchInRoomMenuItem = menu.findItem(R.id.ic_action_search_in_room);
-            mUseMatrixAppsMenuItem = menu.findItem(R.id.ic_action_matrix_apps);
+            mUseMatrixAppsMenuItem = null; //will be reconnected later menu.findItem(R.id.ic_action_matrix_apps);
 
             RoomMember member = mRoom.getMember(mSession.getMyUserId());
 
@@ -1719,12 +1719,12 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
         if (id == android.R.id.home) {
             finish();
             return true;
-        } else if (id == R.id.ic_action_matrix_apps) {
+        }/* will be reconnected later  else if (id == R.id.ic_action_matrix_apps) {
             final Intent intent = new Intent(this, IntegrationManagerActivity.class);
             intent.putExtra(IntegrationManagerActivity.EXTRA_SESSION_ID, mMyUserId);
             intent.putExtra(IntegrationManagerActivity.EXTRA_ROOM_ID, mRoom.getRoomId());
             startActivity(intent);
-        } else if (id == R.id.ic_action_search_in_room) {
+        }*/ else if (id == R.id.ic_action_search_in_room) {
             try {
                 enableActionBarHeader(HIDE_ACTION_BAR_HEADER);
 
