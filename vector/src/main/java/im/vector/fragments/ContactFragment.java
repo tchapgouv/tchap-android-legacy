@@ -51,6 +51,7 @@ import org.matrix.androidsdk.rest.model.search.SearchUsersResponse;
 import org.matrix.androidsdk.util.Log;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -76,8 +77,6 @@ import im.vector.view.SimpleDividerItemDecoration;
 public class ContactFragment extends AbsHomeFragment implements ContactsManager.ContactsManagerListener, AbsHomeFragment.OnRoomChangedListener {
     private static final String LOG_TAG = ContactFragment.class.getSimpleName();
 
-    private static final String MATRIX_USER_ONLY_PREF_KEY = "MATRIX_USER_ONLY_PREF_KEY";
-
     private static final int MAX_KNOWN_CONTACTS_FILTER_COUNT = 50;
 
     @BindView(R.id.recyclerview)
@@ -85,8 +84,6 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
 
     @BindView(R.id.listView_spinner_views)
     View waitingView;
-
-    private CheckBox mMatrixUserOnlyCheckbox;
 
     private ContactAdapter mAdapter;
 
@@ -123,6 +120,7 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
     @Override
     public void onActivityCreated(final Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
         mEventsListener = new MXEventListener() {
 
             @Override
@@ -138,10 +136,6 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
 
         mOnRoomChangedListener = this;
 
-        // dont use Matrix filter
-        if (mMatrixUserOnlyCheckbox!= null)
-            mMatrixUserOnlyCheckbox.setChecked(PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean(MATRIX_USER_ONLY_PREF_KEY, false));
-
         mAdapter.onFilterDone(mCurrentFilter);
 
         if (!ContactsManager.getInstance().isContactBookAccessRequested()) {
@@ -154,17 +148,20 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
     @Override
     public void onResume() {
         super.onResume();
+
         mSession.getDataHandler().addListener(mEventsListener);
+
         ContactsManager.getInstance().addListener(this);
+
+        // @TODO List all the users with a direct chat,
+        // replace mDirectChats with a HashMap<String, String> to keep the mapping between
+        // these users and their DM
+        initDirectChatsData();
 
         // Local address book
         initContactsData();
 
-        // Direct chats
-        initDirectChatsData();
-
         initContactsViews();
-        initDirectChatsViews();//todo: to be removed
 
         mAdapter.setInvitation(mActivity.getRoomInvitations());
 
@@ -224,7 +221,11 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                     listener.onFilterDone(count);
                 }
 
-                startRemoteKnownContactsSearch(newSearch);
+                // Search in the user directories except if the current user belongs to the E-platform.
+                if (!LoginActivity.isUserExternal(mSession)) {
+                    startRemoteKnownContactsSearch(newSearch);
+                }
+
             }
         });
     }
@@ -274,79 +275,150 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
      */
 
     /**
-     * Fill the direct chats adapter with data
+     * Prepare the direct chat data
      */
     private void initDirectChatsData() {
-        if ((null == mSession) || (null == mSession.getDataHandler())) {
-            Log.e(LOG_TAG, "## initDirectChatsData() : null session");
-        }
-
-        final MXDataHandler dataHandler = mSession.getDataHandler();
-        final IMXStore store = dataHandler.getStore();
-        final List<String> directChatIds = dataHandler.getDirectChatRoomIdsList();
-
-        mDirectChats.clear();
-        if (directChatIds != null && !directChatIds.isEmpty()) {
-            for (String roomId : directChatIds) {
-                Room room = store.getRoom(roomId);
-
-                if ((null != room) && !room.isConferenceUserRoom()) {
-                    // it seems that the server syncs some left rooms
-                    if (null == room.getMember(mSession.getMyUserId())) {
-                        Log.e(LOG_TAG, "## initDirectChatsData(): invalid room " + room.getRoomId() + ", the user is not anymore member of it");
-                    } else {
-                        final Set<String> tags = room.getAccountData().getKeys();
-                        if ((null == tags) || !tags.contains(RoomTag.ROOM_TAG_LOW_PRIORITY)) {
-                            mDirectChats.add(dataHandler.getRoom(roomId));
-                        }
-                    }
-                }
-            }
-        }
+        // @TODO List here all the users with a direct chat (-> Remove getContactsFromDirectChats()),
+        // replace mDirectChats with a HashMap<String, String> to keep the mapping between
+        // these users and their DM
     }
+
     /* get contacts from direct chats */
     private List<ParticipantAdapterItem> getContactsFromDirectChats() {
         List<ParticipantAdapterItem> participants = new ArrayList<>();
 
         if ((null == mSession) || (null == mSession.getDataHandler())) {
             Log.e(LOG_TAG, "## getContactsFromDirectChats() : null session");
+            return participants;
         }
 
-        final MXDataHandler dataHandler = mSession.getDataHandler();
-        final IMXStore store = dataHandler.getStore();
-        final List<String> directChatIds = dataHandler.getDirectChatRoomIdsList();
+        IMXStore store = mSession.getDataHandler().getStore();
 
-        if (directChatIds != null && !directChatIds.isEmpty()) {
-            for (String roomId : directChatIds) {
-                Room room = store.getRoom(roomId);
+        if (null != store.getDirectChatRoomsDict()) {
+            // Retrieve all the keys of the direct chats HashMap (they correspond to the users with direct chats)
+            List<String> keysList = new ArrayList<>(store.getDirectChatRoomsDict().keySet());
 
-                if ((null != room) && !room.isConferenceUserRoom()) {
-                    // it seems that the server syncs some left rooms
-                    if (null == room.getMember(mSession.getMyUserId())) {
-                        Log.e(LOG_TAG, "## getContactsFromDirectChats(): invalid room " + room.getRoomId() + ", the user is not anymore member of it");
-                    } else {
-                        final Set<String> tags = room.getAccountData().getKeys();
-                        if ((null == tags) || !tags.contains(RoomTag.ROOM_TAG_LOW_PRIORITY)) {
-                            Collection<RoomMember> rMembers = dataHandler.getRoom(roomId).getLiveState().getDisplayableMembers();
-                            if (rMembers.size()==2) {
-                                for (RoomMember myMember : rMembers){
-                                    if (!myMember.getUserId().equals(mSession.getMyUserId())){
-                                        if (MXSession.isUserId(myMember.getUserId())) {
-                                            Contact dummyContact = new Contact("null");
-                                            dummyContact.setDisplayName(myMember.displayname);
-                                            ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
-                                            participant.mUserId = myMember.getUserId();
-                                            participants.add(participant);
-                                        }
+            for (String key : keysList) {
+                // Check whether this key is an actual user id
+                if (MXSession.isUserId(key)) {
+                    // Ignore the current user if he appears in the direct chat map
+                    if (key.equals(mSession.getMyUserId())) {
+                        continue;
+                    }
 
-                                    }
+                    // Retrieve the user display name from the room members information.
+                    // By this way we check that the current user has joined at least one of the direct chats for this user.
+                    // The users for whom no direct is joined by the current user are ignored for the moment.
+                    // @TODO Keep displaying these users in the contacts list, the problem is to get their displayname
+                    // @NOTE The user displayname may be known thanks to the presence event. But
+                    // it is unknown until we receive a presence event for this user.
+                    List<String> roomIdsList = store.getDirectChatRoomsDict().get(key);
+                    if (roomIdsList != null && !roomIdsList.isEmpty()) {
+                        for (String roomId: roomIdsList) {
+                            Room room = store.getRoom(roomId);
+                            if (null != room) {
+                                RoomMember roomMember = room.getMember(key);
+                                if (null != roomMember && !TextUtils.isEmpty(roomMember.displayname)) {
+                                    // Add a contact for this user
+                                    Contact dummyContact = new Contact("null");
+                                    dummyContact.setDisplayName(roomMember.displayname);
+                                    ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
+                                    participant.mUserId = key;
+                                    participants.add(participant);
+                                    break;
                                 }
                             }
                         }
                     }
                 }
+                else if (android.util.Patterns.EMAIL_ADDRESS.matcher(key).matches()) {
+                    // Check whether this email corresponds to a user id
+                    // @TODO Trigger a lookup3Pid request if the info is not available.
+                    final Contact.MXID contactMxId = PIDsRetriever.getInstance().getMXID(key);
+                    if (null != contactMxId && contactMxId.mMatrixId.length() > 0) {
+                        // @TODO Add MXSession API to update the HashMap in one run.
+                        List<String> roomIdsList = new ArrayList<>(store.getDirectChatRoomsDict().get(key));
+                        Log.d(LOG_TAG, "## getContactsFromDirectChats() update direct chat map " + roomIdsList + " " + key);
+                        for (final String roomId : roomIdsList) {
+                            Log.d(LOG_TAG, "## getContactsFromDirectChats() update direct chat map " + roomId);
+                            // Disable first the direct chat to set it on the right user id
+                            mSession.toggleDirectChatRoom(roomId, null, new ApiCallback<Void>() {
+                                @Override
+                                public void onSuccess(Void info) {
+                                    mSession.toggleDirectChatRoom(roomId, contactMxId.mMatrixId, new ApiCallback<Void>() {
+                                        @Override
+                                        public void onSuccess(Void info) {
+                                            Log.d(LOG_TAG, "## getContactsFromDirectChats() succeeded to update direct chat map ");
+                                            // Here we used the local data of the PIDsRetriever, so the contact will be added by local contacts list.
+                                            // @TODO if we support remote lookup to resolve the email, we have to add the resulting contact (but he may be already present)
+                                        }
+
+                                        private void onFails(final String errorMessage) {
+                                            Log.e(LOG_TAG, "## getContactsFromDirectChats() failed to update direct chat map " + errorMessage);
+                                        }
+
+                                        @Override
+                                        public void onNetworkError(Exception e) {
+                                            onFails(e.getLocalizedMessage());
+                                        }
+
+                                        @Override
+                                        public void onMatrixError(MatrixError e) {
+                                            onFails(e.getLocalizedMessage());
+                                        }
+
+                                        @Override
+                                        public void onUnexpectedError(Exception e) {
+                                            onFails(e.getLocalizedMessage());
+                                        }
+                                    });
+                                }
+
+                                private void onFails(final String errorMessage) {
+                                    Log.e(LOG_TAG, "## getContactsFromDirectChats() failed to update direct chat map " + errorMessage);
+                                }
+
+                                @Override
+                                public void onNetworkError(Exception e) {
+                                    onFails(e.getLocalizedMessage());
+                                }
+
+                                @Override
+                                public void onMatrixError(MatrixError e) {
+                                    onFails(e.getLocalizedMessage());
+                                }
+
+                                @Override
+                                public void onUnexpectedError(Exception e) {
+                                    onFails(e.getLocalizedMessage());
+                                }
+                            });
+                        }
+                    } else if (!store.getDirectChatRoomsDict().get(key).isEmpty()) {
+                        // Build a display name from the email
+                        String displayName = key.substring(0, key.lastIndexOf("@"));
+                        String[] components = displayName.split("\\.");
+                        StringBuilder builder = new StringBuilder();
+                        for (String component : components) {
+                            String updatedComponent = component.substring(0, 1).toUpperCase() + component.substring(1);
+                            if (builder.toString().isEmpty()) {
+                                builder.append(updatedComponent);
+                            } else {
+                                builder.append(" " + updatedComponent);
+                            }
+                        }
+                        displayName = builder.toString();
+                        // Add a contact for this user
+                        Contact dummyContact = new Contact("null");
+                        dummyContact.setDisplayName(displayName);
+                        ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
+                        participant.mUserId = key;
+                        participants.add(participant);
+                    }
+                }
             }
         }
+
         return participants;
     }
 
@@ -356,9 +428,10 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
     private void initContactsData() {
         ContactsManager.getInstance().retrievePids();
 
-        if (mContactsSnapshotSession == -1
-                || mContactsSnapshotSession != ContactsManager.getInstance().getLocalContactsSnapshotSession()
-                || !ContactsManager.getInstance().didPopulateLocalContacts()) {
+        if (!ContactsManager.getInstance().didPopulateLocalContacts()) {
+            Log.d(LOG_TAG, "## initContactsData() : The local contacts are not yet populated");
+            mLocalContacts.clear();
+        } else if (mContactsSnapshotSession == -1 || mContactsSnapshotSession != ContactsManager.getInstance().getLocalContactsSnapshotSession()) {
             // First time on the screen or contact data outdated
             mLocalContacts.clear();
             List<ParticipantAdapterItem> participants = new ArrayList<>(getContacts());
@@ -369,9 +442,8 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                     mLocalContacts.add(item);
                 }
             }
-        }
-        //clear contacts that come from directchats, i.e without contact id
-        else {
+        } else {
+            //clear contacts that come from directchats, i.e without contact id
             List<ParticipantAdapterItem> tobeRemoved = new ArrayList<>();
             for (ParticipantAdapterItem item : mLocalContacts) {
                 if (item.mContact.getContactId() == "null") {
@@ -382,6 +454,7 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                 mLocalContacts.remove(item);
             }
         }
+
         //add participants from direct chats
         List<ParticipantAdapterItem> myDirectContacts = getContactsFromDirectChats();
         for (ParticipantAdapterItem myContact : myDirectContacts){
@@ -460,7 +533,8 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
 
             final String fPattern = mCurrentFilter;
 
-            mSession.searchUsers(mCurrentFilter, MAX_KNOWN_CONTACTS_FILTER_COUNT, new HashSet<String>(), new ApiCallback<SearchUsersResponse>() {
+            // Search in the user directories by hiding the current user
+            mSession.searchUsers(mCurrentFilter, MAX_KNOWN_CONTACTS_FILTER_COUNT, new HashSet<String>(Arrays.asList(mSession.getMyUserId())), new ApiCallback<SearchUsersResponse>() {
                 @Override
                 public void onSuccess(SearchUsersResponse searchUsersResponse) {
                     if (TextUtils.equals(fPattern, mCurrentFilter)) {
@@ -613,6 +687,10 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                             Contact.MXID mxid = PIDsRetriever.getInstance().getMXID(email);
 
                             if (null != mxid) {
+                                // Ignore the current user if he belongs to the local phone book.
+                                if (mxid.mMatrixId.equals(mSession.getMyUserId())) {
+                                    continue;
+                                }
                                 participant.mUserId = mxid.mMatrixId;
                             } else {
                                 participant.mUserId = email;
@@ -621,8 +699,10 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                                 findGovEmail = true;
                                 participants.add(participant);
                             }
-                            else if (!findGovEmail && candidatParticipant==null)
+                            else if (!findGovEmail && (candidatParticipant == null || null != mxid)) {
+                                // if no french gov is discovered yet, we store a candidate by prioritising those with mxId
                                 candidatParticipant = participant;
+                            }
                         }
                     }
                     if (!findGovEmail && candidatParticipant!=null)
@@ -631,15 +711,7 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
 
             }
         }
-        //move this code outside
-        /*
-        //add participants from direct chats
-        List<ParticipantAdapterItem> myDirectContacts = getContactsFromDirectChats();
-        for (ParticipantAdapterItem myContact : myDirectContacts){
-            if (!DinsicUtils.participantAlreadyAdded(participants,myContact))
-                participants.add(myContact);
-        }
-        */
+
         return participants;
     }
 
@@ -655,19 +727,10 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
     }
 
     /**
-     * Init direct chats view with data and update its display
-     */
-    private void initDirectChatsViews() {
-        mAdapter.setRooms(mDirectChats);
-    }
-
-    /**
      * Init contacts views with data and update their display
      */
     private void initContactsViews() {
-        mAdapter.setLocalContacts(mMatrixUserOnlyCheckbox != null && mMatrixUserOnlyCheckbox.isChecked()
-                ? getMatrixUsers()
-                : mLocalContacts);
+        mAdapter.setLocalContacts(mLocalContacts);
     }
 
     /*

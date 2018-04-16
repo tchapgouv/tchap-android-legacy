@@ -224,6 +224,7 @@ public class VectorUtils {
             Collection<RoomMember> members = roomState.getDisplayableMembers();
             ArrayList<RoomMember> othersActiveMembers = new ArrayList<>();
             ArrayList<RoomMember> activeMembers = new ArrayList<>();
+            ArrayList<RoomMember> leftMembers = new ArrayList<>();
 
             for (RoomMember member : members) {
                 if (!TextUtils.equals(member.membership, RoomMember.MEMBERSHIP_LEAVE)) {
@@ -231,6 +232,8 @@ public class VectorUtils {
                         othersActiveMembers.add(member);
                     }
                     activeMembers.add(member);
+                } else if (TextUtils.equals(member.membership, RoomMember.MEMBERSHIP_LEAVE)) {
+                    leftMembers.add(member);
                 }
             }
 
@@ -245,19 +248,26 @@ public class VectorUtils {
 
             String displayName;
 
-            if (othersActiveMembers.size() == 0) {
+            if (othersActiveMembers.isEmpty()) {
                 if (activeMembers.size() == 1) {
+                    // Here, the current user is the only member on the room
                     RoomMember member = activeMembers.get(0);
 
+                    // Consider first the case where the member is invited
                     if (TextUtils.equals(member.membership, RoomMember.MEMBERSHIP_INVITE)) {
-
                         if (!TextUtils.isEmpty(member.mSender)) {
                             // extract who invited us to the room
                             displayName = context.getString(R.string.room_displayname_invite_from, roomState.getMemberName(member.mSender));
                         } else {
                             displayName = context.getString(R.string.room_displayname_room_invite);
                         }
-                    } else {
+                    }
+                    // Dinsic : we keep the the display name even if the member has left the direct chat
+                    else if (room.isDirect() && !leftMembers.isEmpty()) {
+                        // Here we use member.getName() instead of roomState.getMemberName()
+                        // because we don't need to disambiguate the displayname
+                        displayName = leftMembers.get(0).getName();
+                    }  else {
                         displayName = context.getString(R.string.room_displayname_no_title);
                     }
                 } else {

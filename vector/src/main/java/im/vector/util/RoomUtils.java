@@ -1,5 +1,6 @@
 /*
  * Copyright 2017 Vector Creations Ltd
+ * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -517,6 +518,11 @@ public class RoomUtils {
 
             MenuItem item;
 
+            if (!isFavorite) {
+                item = popup.getMenu().findItem(R.id.ic_action_select_pin);
+                item.setIcon(null);
+            }
+
             BingRulesManager.RoomNotificationState state = session.getDataHandler().getBingRulesManager().getRoomNotificationState(room.getRoomId());
 
             if (BingRulesManager.RoomNotificationState.ALL_MESSAGES_NOISY != state) {
@@ -555,6 +561,14 @@ public class RoomUtils {
                     @Override
                     public boolean onMenuItemClick(final MenuItem item) {
                         switch (item.getItemId()) {
+                            case R.id.ic_action_select_pin: {
+                                if (isFavorite) {
+                                    moreActionListener.moveToConversations(session, room.getRoomId());
+                                } else {
+                                    moreActionListener.moveToFavorites(session, room.getRoomId());
+                                }
+                                break;
+                            }
                             case R.id.ic_action_notifications_noisy:
                                 moreActionListener.onUpdateRoomNotificationsState(session, room.getRoomId(), BingRulesManager.RoomNotificationState.ALL_MESSAGES_NOISY);
                                 break;

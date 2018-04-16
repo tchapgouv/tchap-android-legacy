@@ -708,7 +708,7 @@ public class EventStreamService extends Service {
 
         if (mSessions != null) {
             for (MXSession session : mSessions) {
-                if (session.isAlive()) {
+                if (null != session && session.isAlive()) {
                     session.stopEventStream();
                     session.getDataHandler().removeListener(mEventsListener);
                     session.getDataHandler().getBingRulesManager().removeBingRulesUpdateListener(mBingRulesUpdatesListener);
