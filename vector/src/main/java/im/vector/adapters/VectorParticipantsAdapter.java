@@ -1,6 +1,7 @@
 /*
  * Copyright 2016 OpenMarket Ltd
  * Copyright 2017 Vector Creations Ltd
+ * Copyright DINSIC 2018
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,6 +60,7 @@ import im.vector.Matrix;
 import im.vector.R;
 import im.vector.VectorApp;
 import im.vector.activity.CommonActivityUtils;
+import im.vector.activity.LoginActivity;
 import im.vector.contacts.Contact;
 import im.vector.contacts.ContactsManager;
 import im.vector.contacts.PIDsRetriever;
@@ -437,6 +439,11 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                 mDisplayNamesList = null;
             }
             mLocalContactsSnapshotSession = ContactsManager.getInstance().getLocalContactsSnapshotSession();
+        }
+
+        // Search in the user directories is disabled for the users of the E-platform.
+        if (LoginActivity.isUserExternal(mSession)) {
+            return;
         }
 
         if (!TextUtils.isEmpty(mPattern)) {

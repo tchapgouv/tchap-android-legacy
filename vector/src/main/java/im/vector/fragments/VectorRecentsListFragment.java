@@ -164,6 +164,7 @@ public class VectorRecentsListFragment extends Fragment implements VectorRoomSum
         // should never happen but it happened once.
         if (null == mSession) {
             if (null != getActivity()) {
+                Log.e(LOG_TAG, "##onCreateView(): no session");
                 CommonActivityUtils.logout(getActivity());
             }
             return defaultView;

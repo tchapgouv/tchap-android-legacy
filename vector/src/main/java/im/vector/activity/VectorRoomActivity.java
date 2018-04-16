@@ -697,83 +697,111 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
         mSendButtonLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!TextUtils.isEmpty(mEditText.getText())) {
-                    sendTextMessage();
-                } else {
-                    // hide the header room
-                    enableActionBarHeader(HIDE_ACTION_BAR_HEADER);
 
-                    FragmentManager fm = getSupportFragmentManager();
-                    IconAndTextDialogFragment fragment = (IconAndTextDialogFragment) fm.findFragmentByTag(TAG_FRAGMENT_ATTACHMENTS_DIALOG);
+                // In the case of a direct chat, we check if the other member has left the room.
+                String leftMemberId = null;
+                String leftMemberName = null;
+                if (mRoom.isDirect() && mRoom.getActiveMembers().size() == 1) {
+                    Collection<RoomMember> members = mRoom.getMembers();
 
-                    if (fragment != null) {
-                        fragment.dismissAllowingStateLoss();
-                    }
-
-                    final Integer[] messages;
-                    final Integer[] icons;
-
-                    if (PreferencesManager.useNativeCamera(VectorRoomActivity.this)) {
-                        messages = new Integer[]{
-                                R.string.option_send_files,
-                                R.string.option_take_photo,
-                                R.string.option_take_video,
-                        };
-
-                        icons = new Integer[]{
-                                R.drawable.ic_material_file,
-                                R.drawable.ic_material_camera,
-                                R.drawable.ic_material_videocam
-                        };
-                    } else {
-                        messages = new Integer[]{
-                                R.string.option_send_files,
-                                R.string.option_take_photo_video
-                        };
-
-                        icons = new Integer[]{
-                                R.drawable.ic_material_file,  // R.string.option_send_files
-                                R.drawable.ic_material_camera, // R.string.option_take_photo
-                        };
-                    }
-
-                    fragment = IconAndTextDialogFragment.newInstance(icons, messages,
-                            ThemeUtils.getColor(VectorRoomActivity.this, R.attr.riot_primary_background_color),
-                            ThemeUtils.getColor(VectorRoomActivity.this, R.attr.riot_primary_text_color));
-                    fragment.setOnClickListener(new IconAndTextDialogFragment.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(IconAndTextDialogFragment dialogFragment, int position) {
-                            Integer selectedVal = messages[position];
-
-                            if (selectedVal == R.string.option_send_files) {
-                                VectorRoomActivity.this.launchFileSelectionIntent();
-                            } else if (selectedVal == R.string.option_take_photo_video) {
-                                if (CommonActivityUtils.checkPermissions(CommonActivityUtils.REQUEST_CODE_PERMISSION_TAKE_PHOTO, VectorRoomActivity.this)) {
-                                    launchCamera();
-                                } else {
-                                    mCameraPermissionAction = R.string.option_take_photo_video;
-                                }
-                            } else if (selectedVal == R.string.option_take_photo) {
-                                if (CommonActivityUtils.checkPermissions(CommonActivityUtils.REQUEST_CODE_PERMISSION_TAKE_PHOTO, VectorRoomActivity.this)) {
-                                    launchNativeCamera();
-                                } else {
-                                    mCameraPermissionAction = R.string.option_take_photo;
-                                }
-                            } else if (selectedVal == R.string.option_take_video) {
-                                if (CommonActivityUtils.checkPermissions(CommonActivityUtils.REQUEST_CODE_PERMISSION_TAKE_PHOTO, VectorRoomActivity.this)) {
-                                    launchNativeVideoRecorder();
-                                } else {
-                                    mCameraPermissionAction = R.string.option_take_video;
-                                }
-                            }
+                    for (RoomMember member : members) {
+                        if (!member.getUserId().equals(mMyUserId)) {
+                            leftMemberId = member.getUserId();
+                            leftMemberName = member.getName();
+                            break;
                         }
-                    });
+                    }
+                }
 
-                    fragment.show(fm, TAG_FRAGMENT_ATTACHMENTS_DIALOG);
+                if (!TextUtils.isEmpty(mEditText.getText())) {
+                    // If the other member has left the direct chat, we invite him again
+                    // and send the message on the invitation's onSuccess
+                    if (null != leftMemberId) {
+                        Log.d(LOG_TAG, "onSendClick: invite again " + leftMemberId);
+                        mRoom.invite(leftMemberId, new ApiCallback<Void>() {
+                            @Override
+                            public void onSuccess(Void info) {
+                                Log.d(LOG_TAG, "onSendClick: sendTextMessage");
+                                sendTextMessage();
+                            }
+
+                            @Override
+                            public void onNetworkError(Exception e) {
+                                Log.e(LOG_TAG, "onSendClick invite failed " + e.getMessage());
+                            }
+
+                            @Override
+                            public void onMatrixError(MatrixError e) {
+                                Log.e(LOG_TAG, "onSendClick invite failed " + e.getMessage());
+                            }
+
+                            @Override
+                            public void onUnexpectedError(Exception e) {
+                                Log.e(LOG_TAG, "onSendClick invite failed " + e.getMessage());
+                            }
+                        });
+                    } else {
+                        sendTextMessage();
+                    }
+                } else {
+                    // If the other member has left the direct chat, we prompt the user to invite him again
+                    // and select the file type on the invitation's onSuccess
+                    if (null != leftMemberId) {
+
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(VectorRoomActivity.this);
+                        builder.setMessage(getString(R.string.room_left_member_invite_prompt_msg, leftMemberName));
+
+                        final String finalLeftMemberId = leftMemberId;
+                        Log.d(LOG_TAG, "onSendClick: prompt to invite again " + leftMemberId);
+
+                        // Click on the ok button allow to re-invite the member who left the direct chat
+                        // and on the invitation success, the processus of file selection continue
+                        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                Log.d(LOG_TAG, "onSendClick: invite");
+                                mRoom.invite(finalLeftMemberId, new ApiCallback<Void>() {
+                                    @Override
+                                    public void onSuccess(Void info) {
+                                        Log.d(LOG_TAG, "onSendClick: sendTextMessage");
+                                        selectFileToSend();
+                                    }
+
+                                    @Override
+                                    public void onNetworkError(Exception e) {
+                                        Log.e(LOG_TAG, "onSendClick invite failed " + e.getMessage());
+                                    }
+
+                                    @Override
+                                    public void onMatrixError(MatrixError e) {
+                                        Log.e(LOG_TAG, "onSendClick invite failed " + e.getMessage());
+
+                                    }
+
+                                    @Override
+                                    public void onUnexpectedError(Exception e) {
+                                        Log.e(LOG_TAG, "onSendClick invite failed " + e.getMessage());
+                                    }
+                                });
+                            }
+                        });
+
+                        // Click on the cancel button dismiss the popup and don't allow to select a file to send
+                        // The left member isn't re-invite
+                        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+
+                            }
+                        });
+
+                        builder.show();
+                    } else {
+                        selectFileToSend();
+                    }
                 }
             }
         });
-
 
         mEditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -1405,6 +1433,88 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             }
         }
     }
+
+    //================================================================================
+    // Select a file to send into a room (file, image or video)
+    //================================================================================
+
+    /**
+     * This method allow to select a filetype (file, image, video) when the user click on the
+     * trombone icon.
+     */
+    private void selectFileToSend() {
+        // hide the header room
+        enableActionBarHeader(HIDE_ACTION_BAR_HEADER);
+
+        FragmentManager fm = getSupportFragmentManager();
+        IconAndTextDialogFragment fragment = (IconAndTextDialogFragment) fm.findFragmentByTag(TAG_FRAGMENT_ATTACHMENTS_DIALOG);
+
+        if (fragment != null) {
+            fragment.dismissAllowingStateLoss();
+        }
+
+        final Integer[] messages;
+        final Integer[] icons;
+
+        if (PreferencesManager.useNativeCamera(VectorRoomActivity.this)) {
+            messages = new Integer[]{
+                    R.string.option_send_files,
+                    R.string.option_take_photo,
+                    R.string.option_take_video,
+            };
+
+            icons = new Integer[]{
+                    R.drawable.ic_material_file,
+                    R.drawable.ic_material_camera,
+                    R.drawable.ic_material_videocam
+            };
+        } else {
+            messages = new Integer[]{
+                    R.string.option_send_files,
+                    R.string.option_take_photo_video
+            };
+
+            icons = new Integer[]{
+                    R.drawable.ic_material_file,  // R.string.option_send_files
+                    R.drawable.ic_material_camera, // R.string.option_take_photo
+            };
+        }
+
+        fragment = IconAndTextDialogFragment.newInstance(icons, messages,
+                ThemeUtils.getColor(VectorRoomActivity.this, R.attr.riot_primary_background_color),
+                ThemeUtils.getColor(VectorRoomActivity.this, R.attr.riot_primary_text_color));
+        fragment.setOnClickListener(new IconAndTextDialogFragment.OnItemClickListener() {
+            @Override
+            public void onItemClick(IconAndTextDialogFragment dialogFragment, int position) {
+                Integer selectedVal = messages[position];
+
+                if (selectedVal == R.string.option_send_files) {
+                    VectorRoomActivity.this.launchFileSelectionIntent();
+                } else if (selectedVal == R.string.option_take_photo_video) {
+                    if (CommonActivityUtils.checkPermissions(CommonActivityUtils.REQUEST_CODE_PERMISSION_TAKE_PHOTO, VectorRoomActivity.this)) {
+                        launchCamera();
+                    } else {
+                        mCameraPermissionAction = R.string.option_take_photo_video;
+                    }
+                } else if (selectedVal == R.string.option_take_photo) {
+                    if (CommonActivityUtils.checkPermissions(CommonActivityUtils.REQUEST_CODE_PERMISSION_TAKE_PHOTO, VectorRoomActivity.this)) {
+                        launchNativeCamera();
+                    } else {
+                        mCameraPermissionAction = R.string.option_take_photo;
+                    }
+                } else if (selectedVal == R.string.option_take_video) {
+                    if (CommonActivityUtils.checkPermissions(CommonActivityUtils.REQUEST_CODE_PERMISSION_TAKE_PHOTO, VectorRoomActivity.this)) {
+                        launchNativeVideoRecorder();
+                    } else {
+                        mCameraPermissionAction = R.string.option_take_video;
+                    }
+                }
+            }
+        });
+
+        fragment.show(fm, TAG_FRAGMENT_ATTACHMENTS_DIALOG);
+    }
+
 
     //================================================================================
     // IEventSendingListener

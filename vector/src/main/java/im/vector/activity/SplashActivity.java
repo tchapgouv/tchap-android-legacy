@@ -71,7 +71,7 @@ public class SplashActivity extends MXCActionBarActivity {
      * Close the splash screen if the stores are fully loaded.
      */
     private void onFinish() {
-        Log.e(LOG_TAG, "##onFinish() : start VectorHomeActivity");
+        Log.d(LOG_TAG, "##onFinish(): start VectorHomeActivity");
 
         if (!hasCorruptedStore()) {
             // Go to the home page
@@ -105,6 +105,7 @@ public class SplashActivity extends MXCActionBarActivity {
             startActivity(intent);
             SplashActivity.this.finish();
         } else {
+            Log.e(LOG_TAG, "##onFinish(): corrupted store");
             CommonActivityUtils.logout(this);
         }
 
