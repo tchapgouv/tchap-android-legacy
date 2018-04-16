@@ -75,7 +75,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="local_address_book_header">Contacts</string>
     <string name="matrix_only_filter">Contacts Matrix uniquement</string>
     <string name="no_conversation_placeholder">Aucune conversation</string>
-    <string name="no_contact_access_placeholder">Vous n\'avez pas autorisé Riot à accéder à vos contacts locaux</string>
+    <string name="no_contact_access_placeholder">Vous n\'avez pas autorisé Tchap à accéder à vos contacts locaux</string>
     <string name="no_result_placeholder">Aucun résultat</string>
     <string name="no_email">Email pas disponible</string>
 
@@ -289,9 +289,10 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="directory_searching_title">Recherche dans le répertoire…</string>
 
     <string name="room_settings_favourite">Favori</string>
+    <string name="room_settings_pin">Epingler la conversation</string>
     <string name="room_settings_de_prioritize">Passer en faible priorité</string>
     <string name="room_settings_direct_chat">Discussion directe</string>
-    <string name="room_settings_leave_conversation">Quitter la discussion</string>
+    <string name="room_settings_leave_conversation">Quitter la conversation</string>
     <string name="room_settings_forget">Oublier</string>
 
     <string name="room_sliding_menu_messages">Messages</string>
@@ -520,26 +521,26 @@ Veuillez nous excuser pour ce désagrément.</string>
     <string name="call_error_user_not_responding">Le correspondant n\'a pas décroché.</string>
     <string name="media_picker_both_capture_title">Prendre une photo ou une vidéo</string>
     <string name="permissions_rationale_popup_title">Information</string>
-    <string name="permissions_rationale_msg_storage">Riot a besoin d\'accéder à vos photos et vidéos pour envoyer et enregistrer des pièces jointes.
+    <string name="permissions_rationale_msg_storage">Tchap a besoin d\'accéder à vos photos et vidéos pour envoyer et enregistrer des pièces jointes.
 
 Veuillez autoriser l\'accès dans la prochaine fenêtre contextuelle pour pouvoir envoyer des fichiers depuis votre téléphone.</string>
-    <string name="permissions_rationale_msg_camera">Riot a besoin d\'accéder à votre appareil photo pour prendre des photos et passer des appels vidéo.</string>
+    <string name="permissions_rationale_msg_camera">Tchap a besoin d\'accéder à votre appareil photo pour prendre des photos et passer des appels vidéo.</string>
     <string name="permissions_rationale_msg_camera_explanation">
 
 Veuillez autoriser l\'accès dans la prochaine fenêtre contextuelle pour pouvoir effectuer l\'appel.</string>
-    <string name="permissions_rationale_msg_record_audio">Riot a besoin d\'accéder à votre microphone pour passer des appels audio.</string>
+    <string name="permissions_rationale_msg_record_audio">Tchap a besoin d\'accéder à votre microphone pour passer des appels audio.</string>
     <string name="permissions_rationale_msg_record_audio_explanation">
 
 Veuillez autoriser l\'accès dans la prochaine fenêtre contextuelle pour pouvoir effectuer l\'appel.</string>
-    <string name="permissions_rationale_msg_camera_and_audio">Riot a besoin d\'accéder à votre appareil photo et à votre microphone pour passer des appels vidéo.
+    <string name="permissions_rationale_msg_camera_and_audio">Tchap a besoin d\'accéder à votre appareil photo et à votre microphone pour passer des appels vidéo.
 
 Veuillez autoriser l\'accès dans les prochaines fenêtres contextuelles pour pouvoir effectuer l\'appel.</string>
-    <string name="permissions_rationale_msg_contacts">Riot a besoin d\'accéder aux contacts de votre carnet d\'adresses pour trouver d\'autres utilisateurs de Matrix avec leur numéro de téléphone et leur adresse e-mail.
+    <string name="permissions_rationale_msg_contacts">Tchap a besoin d\'accéder aux contacts de votre carnet d\'adresses pour trouver d\'autres utilisateurs de Matrix avec leur numéro de téléphone et leur adresse e-mail.
 
-Veuillez autoriser l\'accès dans la prochaine fenêtre contextuelle pour découvrir les utilisateurs du carnet d\'adresses joignables avec Riot.</string>
-    <string name="permissions_msg_contacts_warning_other_androids">Riot a besoin d\'accéder aux contacts de votre carnet d\'adresses pour trouver d\'autres utilisateurs de Matrix avec leur numéro de téléphone et leur adresse e-mail.
+Veuillez autoriser l\'accès dans la prochaine fenêtre contextuelle pour découvrir les utilisateurs du carnet d\'adresses joignables avec Tchap.</string>
+    <string name="permissions_msg_contacts_warning_other_androids">Tchap a besoin d\'accéder aux contacts de votre carnet d\'adresses pour trouver d\'autres utilisateurs de Matrix avec leur numéro de téléphone et leur adresse e-mail.
 
-Autorisez-vous Riot à accéder à vos contacts ?</string>
+Autorisez-vous Tchap à accéder à vos contacts ?</string>
 
     <string name="permissions_action_not_performed_missing_permissions">Désolé... L\'action n\'a pas été réalisée, faute d\'autorisations</string>
 
@@ -569,6 +570,7 @@ Les messages chiffrés ne seront pas visibles sur les clients qui n\'ont pas enc
 En êtes-vous sûr(e) ?</string>
 
     <string name="room_participants_invite_prompt_msg">Voulez-vous vraiment inviter %s à cette discussion ?</string>
+    <string name="room_left_member_invite_prompt_msg">Acceptez-vous de réinviter %s à cette discussion avant de sélectionner un fichier ?</string>
 
     <string name="people_search_invite_by_id"><u>Inviter par identifiant</u></string>
 
@@ -660,7 +662,7 @@ Les messages chiffrés ne seront pas visibles sur les clients qui n\'ont pas enc
     <string name="encryption_information_verify_device_warning2">Si elle correspond, appuyez sur le bouton Vérifier ci-dessous. Si ce n\'est pas le cas, quelqu\'un d\'autre intercepte cet appareil et vous devriez probablement le bloquer. À l\'avenir, ce processus de vérification sera plus évolué.</string>
     <string name="encryption_information_verify_key_match">Je confirme que les clés correspondent</string>
 
-    <string name="e2e_enabling_on_app_update">Riot prend désormais en charge le chiffrement de bout en bout, mais vous devez vous reconnecter pour l\'activer.
+    <string name="e2e_enabling_on_app_update">Tchap prend désormais en charge le chiffrement de bout en bout, mais vous devez vous reconnecter pour l\'activer.
 
 Vous pouvez le faire maintenant ou plus tard à partir des paramètres de l\'application.</string>
 
@@ -761,7 +763,7 @@ Appareils inconnus :</string>
 
     <string name="settings_analytics">Statistiques d\'utilisation</string>
     <string name="settings_opt_out_of_analytics">Ne pas envoyer de données</string>
-    <string name="settings_opt_out_of_analytics_summary">Riot collecte des données anonymes pour nous permettre d\'améliorer l\'application.</string>
+    <string name="settings_opt_out_of_analytics_summary">Tchap collecte des données anonymes pour nous permettre d\'améliorer l\'application.</string>
 
 
     <string name="settings_labs_native_camera">Utiliser la caméra native</string>
@@ -783,7 +785,7 @@ Appareils inconnus :</string>
 
     <string name="encrypted_message">Message chiffré</string>
 
-<string name="loading">Chargement…</string>
+    <string name="loading">Chargement…</string>
 
     <string name="title_activity_group_details">Informations sur la communauté</string>
 

@@ -392,6 +392,7 @@
     <string name="room_participants_power_level_prompt">You will not be able to undo this change as you are promoting the user to have the same power level as yourself.\nAre you sure?</string>
 
     <string name="room_participants_invite_prompt_msg">"Are you sure you want to invite %s to this chat?"</string>
+    <string name="room_left_member_invite_prompt_msg">Are you sure you want to invite %s to this chat before selecting a file?</string>
     <string name="room_participants_kick_prompt_msg">Are you sure that you want to kick this user from this chat?</string>
     <string name="room_participants_ban_prompt_msg">Are you sure that you want to ban this user from this chat?</string>
 
@@ -512,6 +513,7 @@
     <string name="directory_searching_title">Searching directory..</string>
 
     <!-- home room settings -->
+    <string name="room_settings_pin">Pin Conversation</string>
     <string name="room_settings_all_messages_noisy">All messages (noisy)</string>
     <string name="room_settings_all_messages">All messages</string>
     <string name="room_settings_mention_only">Mentions only</string>

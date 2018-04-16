@@ -31,13 +31,17 @@ import android.widget.Toast;
 
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
+import org.matrix.androidsdk.data.RoomTag;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.util.Log;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.LoginActivity;
@@ -327,5 +331,46 @@ public class DinsicUtils {
             }
         }
         return succeeded;
+    }
+
+    //=============================================================================================
+    // Handle Rooms
+    //=============================================================================================
+
+    /**
+     * Return the Dinsic rooms comparator. We display first the pinned rooms, then we sort them by date.
+     *
+     * @param session
+     * @param reverseOrder
+     * @return comparator
+     */
+    public static Comparator<Room> getRoomsComparator(final MXSession session, final boolean reverseOrder) {
+        return new Comparator<Room>() {
+            private Comparator<Room> mRoomsDateComparator;
+
+            // Retrieve the default room comparator by date
+            private Comparator<Room> getRoomsDateComparator() {
+                if (null == mRoomsDateComparator) {
+                    mRoomsDateComparator = RoomUtils.getRoomsDateComparator(session, reverseOrder);
+                }
+                return mRoomsDateComparator;
+            }
+
+            public int compare(Room room1, Room room2) {
+                // Check first whether some rooms are pinned
+                final Set<String> tagsRoom1 = room1.getAccountData().getKeys();
+                final boolean isPinnedRoom1 = tagsRoom1 != null && tagsRoom1.contains(RoomTag.ROOM_TAG_FAVOURITE);
+                final Set<String> tagsRoom2 = room2.getAccountData().getKeys();
+                final boolean isPinnedRoom2 = tagsRoom2 != null && tagsRoom2.contains(RoomTag.ROOM_TAG_FAVOURITE);
+
+                if (isPinnedRoom1 && !isPinnedRoom2) {
+                    return reverseOrder ? 1 : -1;
+                } else if (!isPinnedRoom1 && isPinnedRoom2) {
+                    return reverseOrder ? -1 : 1;
+                }
+                // Consider the last message date to sort them
+                return getRoomsDateComparator().compare(room1, room2);
+            }
+        };
     }
 }
