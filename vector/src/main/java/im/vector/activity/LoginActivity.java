@@ -2457,7 +2457,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
         // Handle parameters
         // Patch: As long as the server is not able to force the mxId from the 3pid, we force it on client side
         // @TODO Remove the parameter "name" when the server will force the mxId from the 3pid.
-        String name = mCurrentEmail.replace('@', '.');
+        String name = mCurrentEmail.replace('@', '-');
         String password = mCreationPassword1TextView.getText().toString().trim();
         String passwordCheck = mCreationPassword2TextView.getText().toString().trim();
 

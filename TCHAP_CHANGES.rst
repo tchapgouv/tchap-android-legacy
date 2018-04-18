@@ -1,3 +1,13 @@
+Changes in Tchap 0.1.6 (2018-04-18)
+===================================================
+ 
+Improvement:
+ * Update the tchap icons.
+ * Update the MXID based on the email.
+ 
+Bug Fix:
+ * Change splash screen #120
+ 
 Changes in Tchap 0.1.5 (2018-04-10)
 ===================================================
  
