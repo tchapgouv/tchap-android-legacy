@@ -25,7 +25,8 @@
 
     <string-array
         name="room_directory_servers" translatable="false" >
-        <item>matrix.org</item>
+        <item>i.tchap.gouv.fr</item>
+        <item>a.tchap.gouv.fr</item>
     </string-array>
 
     <string-array name="theme_codes">
