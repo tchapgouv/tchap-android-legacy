@@ -1,5 +1,6 @@
 /*
  * Copyright 2017 Vector Creations Ltd
+ * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,6 +64,9 @@ public class RoomDirectoryPickerActivity extends RiotAppCompatActivity implement
 
     private MXSession mSession;
     private RoomDirectoryAdapter mRoomDirectoryAdapter;
+
+    @BindView(R.id.room_directory_loading)
+    View waitingView;
 
      /*
      * *********************************************************************************************
