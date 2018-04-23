@@ -646,6 +646,14 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
      * It should restore the start UI
      */
     private void fallbackToStartMode() {
+        // display the main layout
+        mMainLayout.setVisibility(View.VISIBLE);
+
+        // cancel the registration flow
+        cancelEmailPolling();
+        mEmailValidationExtraParams = null;
+        mRegistrationResponse = null;
+        showMainLayout();
         enableLoadingScreen(false);
 
         mMode = MODE_START;
