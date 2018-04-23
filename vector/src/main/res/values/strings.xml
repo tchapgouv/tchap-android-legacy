@@ -174,6 +174,8 @@
     <!-- Authentication -->
     <string name="auth_login">Log in</string>
     <string name="auth_register">Register</string>
+    <string name="go_login">I already have an account</string>
+    <string name="go_register">I want to create an account</string>
     <string name="auth_submit">Submit</string>
     <string name="auth_skip">Skip</string>
     <string name="auth_send_reset_email">Send Reset Email</string>
@@ -219,6 +221,7 @@
     <string name="auth_reset_password_email_validation_message">An email has been sent to %s. Once you\'ve followed the link it contains, click below.</string>
     <string name="auth_reset_password_error_unauthorized">Failed to verify email address: make sure you clicked the link in the email</string>
     <string name="auth_reset_password_success_message">Your password has been reset.\n\nYou have been logged out of all devices and will no longer receive push notifications. To re-enable notifications, re-log in on each device.</string>
+    <string name="start_message">Welcome to Tchap</string>
 
     <!-- Login Screen -->
     <string name="login_error_must_start_http">URL must start with http[s]://</string>
