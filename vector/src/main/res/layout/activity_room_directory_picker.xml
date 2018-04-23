@@ -15,18 +15,4 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/toolbar" />
 
-    <RelativeLayout
-        android:id="@+id/room_directory_loading"
-        android:layout_below="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="?attr/waiting_background_color">
-
-        <ProgressBar
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:indeterminate="true" />
-    </RelativeLayout>
 </RelativeLayout>

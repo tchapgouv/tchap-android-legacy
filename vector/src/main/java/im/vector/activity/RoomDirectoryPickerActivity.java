@@ -64,9 +64,6 @@ public class RoomDirectoryPickerActivity extends RiotAppCompatActivity implement
     private MXSession mSession;
     private RoomDirectoryAdapter mRoomDirectoryAdapter;
 
-    @BindView(R.id.room_directory_loading)
-    View waitingView;
-
      /*
      * *********************************************************************************************
      * Static methods
