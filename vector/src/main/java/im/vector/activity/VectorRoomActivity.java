@@ -3052,7 +3052,10 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                             enableActionBarHeader(HIDE_ACTION_BAR_HEADER);
                         } else {
                             // wait the touch up to display the room settings page
-                            launchRoomDetails(VectorRoomDetailsActivity.SETTINGS_TAB_INDEX);
+                            // Tchap: Do not open the room settings page in case of a "dialogue" (direct chat), the room settings are not editable.
+                            if (null != mRoom && !RoomUtils.isDirectChat(mSession,mRoom.getRoomId())) {
+                                launchRoomDetails(VectorRoomDetailsActivity.SETTINGS_TAB_INDEX);
+                            }
                         }
                     }
                     return true;
@@ -3259,15 +3262,10 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
 
                             // display the both action buttons only when it makes sense
                             // i.e not a room preview
-                            boolean hideMembersButtons = (null == mRoom) || !TextUtils.isEmpty(mEventId) || (null != sRoomPreviewData);
+                            // Tchap: Hide them for the "dialogues" (direct chat) too.
+                            boolean hideMembersButtons = (null == mRoom) || !TextUtils.isEmpty(mEventId) || (null != sRoomPreviewData) || (RoomUtils.isDirectChat(mSession, mRoom.getRoomId()));
                             mActionBarHeaderActiveMembersListButton.setVisibility(hideMembersButtons ? View.GONE : View.VISIBLE);
-                            // Hide the invite button for the direct chats (this option is disabled for them)
-                            if (!hideMembersButtons && !RoomUtils.isDirectChat(mSession, mRoom.getRoomId())) {
-                                mActionBarHeaderActiveMembersInviteButton.setVisibility(View.VISIBLE);
-                            } else {
-                                mActionBarHeaderActiveMembersInviteButton.setVisibility(View.GONE);
-                            }
-
+                            mActionBarHeaderActiveMembersInviteButton.setVisibility(hideMembersButtons ? View.GONE : View.VISIBLE);
                         } else {
                             mActionBarHeaderActiveMembersLayout.setVisibility(View.GONE);
                         }
@@ -4000,6 +3998,11 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
      * Add click management on expanded header
      */
     private void addRoomHeaderClickListeners() {
+        // Tchap: Do not define the listeners in case of a "dialogue" (direct chat), the room name and the avatar are not editable.
+        if (null != mRoom && RoomUtils.isDirectChat(mSession,mRoom.getRoomId())) {
+            return;
+        }
+
         // tap on the expanded room avatar
         View roomAvatarView = findViewById(R.id.room_avatar);
 
