@@ -40,6 +40,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import im.vector.R;
+import im.vector.activity.LoginActivity;
 import im.vector.util.DinsicUtils;
 import im.vector.util.RoomUtils;
 import im.vector.util.VectorUtils;
@@ -77,8 +78,11 @@ public class RoomAdapter extends AbsAdapter {
                 TYPE_HEADER_PUBLIC_ROOM, TYPE_PUBLIC_ROOM, new ArrayList<PublicRoom>(), null);
         mPublicRoomsSection.setEmptyViewPlaceholder(context.getString(R.string.no_public_room_placeholder), context.getString(R.string.no_result_placeholder));
 
+        // External users can not access to public rooms
+        if (!LoginActivity.isUserExternal(mSession)) {
+            addSection(mPublicRoomsSection);
+        }
         addSection(mRoomsSection);
-        addSection(mPublicRoomsSection);
     }
 
     /*
