@@ -1,5 +1,6 @@
 /*
  * Copyright 2017 Vector Creations Ltd
+ * Copyright 2018 New Vector Ltd
  * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,9 +47,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import fr.gouv.tchap.activity.TchapLoginActivity;
+
 import im.vector.Matrix;
 import im.vector.R;
 import im.vector.adapters.RoomDirectoryAdapter;
@@ -64,9 +64,6 @@ public class RoomDirectoryPickerActivity extends RiotAppCompatActivity implement
 
     private MXSession mSession;
     private RoomDirectoryAdapter mRoomDirectoryAdapter;
-
-    @BindView(R.id.room_directory_loading)
-    View waitingView;
 
      /*
      * *********************************************************************************************
@@ -92,7 +89,8 @@ public class RoomDirectoryPickerActivity extends RiotAppCompatActivity implement
 
         setTitle(R.string.select_room_directory);
         setContentView(R.layout.activity_room_directory_picker);
-        ButterKnife.bind(this);
+
+        waitingView = findViewById(R.id.room_directory_loading);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         if (toolbar != null) {
@@ -161,13 +159,13 @@ public class RoomDirectoryPickerActivity extends RiotAppCompatActivity implement
 
                 int insertionIndex = 0;
                 // Add user's HS
-                list.add(insertionIndex++, RoomDirectoryData.getIncludeAllServers(null, userHSName));
+                list.add(insertionIndex++, RoomDirectoryData.createIncludingAllNetworks(null, userHSName));
 
                 // Add custom directory servers
                 for (String hsName : hsNamesList) {
                     if (!TextUtils.equals(userHSName, hsName)) {
                         // Use the server name as a default display name
-                        list.add(insertionIndex++, RoomDirectoryData.getIncludeAllServers(hsName, hsName));
+                        list.add(insertionIndex++, RoomDirectoryData.createIncludingAllNetworks(hsName, hsName));
                     }
                 }
 
