@@ -3052,7 +3052,10 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                             enableActionBarHeader(HIDE_ACTION_BAR_HEADER);
                         } else {
                             // wait the touch up to display the room settings page
-                            launchRoomDetails(VectorRoomDetailsActivity.SETTINGS_TAB_INDEX);
+                            // Tchap: Do not open the room settings page in case of a "dialogue" (direct chat), the room settings are not editable.
+                            if (null != mRoom && !RoomUtils.isDirectChat(mSession,mRoom.getRoomId())) {
+                                launchRoomDetails(VectorRoomDetailsActivity.SETTINGS_TAB_INDEX);
+                            }
                         }
                     }
                     return true;
@@ -3259,15 +3262,10 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
 
                             // display the both action buttons only when it makes sense
                             // i.e not a room preview
-                            boolean hideMembersButtons = (null == mRoom) || !TextUtils.isEmpty(mEventId) || (null != sRoomPreviewData) || (RoomUtils.isDirectChat(mSession,mRoom.getRoomId()));
+                            // Tchap: Hide them for the "dialogues" (direct chat) too.
+                            boolean hideMembersButtons = (null == mRoom) || !TextUtils.isEmpty(mEventId) || (null != sRoomPreviewData) || (RoomUtils.isDirectChat(mSession, mRoom.getRoomId()));
                             mActionBarHeaderActiveMembersListButton.setVisibility(hideMembersButtons ? View.GONE : View.VISIBLE);
-                            // Hide the invite button for the direct chats (this option is disabled for them)
-                            if (!hideMembersButtons && !RoomUtils.isDirectChat(mSession, mRoom.getRoomId())) {
-                                mActionBarHeaderActiveMembersInviteButton.setVisibility(View.VISIBLE);
-                            } else {
-                                mActionBarHeaderActiveMembersInviteButton.setVisibility(View.GONE);
-                            }
-
+                            mActionBarHeaderActiveMembersInviteButton.setVisibility(hideMembersButtons ? View.GONE : View.VISIBLE);
                         } else {
                             mActionBarHeaderActiveMembersLayout.setVisibility(View.GONE);
                         }
@@ -3855,74 +3853,72 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
      * Assume he wants to update it.
      */
     private void onRoomTitleClick() {
-        if (null!= mRoom && !RoomUtils.isDirectChat(mSession,mRoom.getRoomId())) {
-            LayoutInflater inflater = LayoutInflater.from(this);
+        LayoutInflater inflater = LayoutInflater.from(this);
 
-            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
 
-            View dialogView = inflater.inflate(R.layout.dialog_text_edittext, null);
-            alertDialogBuilder.setView(dialogView);
+        View dialogView = inflater.inflate(R.layout.dialog_text_edittext, null);
+        alertDialogBuilder.setView(dialogView);
 
-            TextView titleText = dialogView.findViewById(R.id.dialog_title);
-            titleText.setText(getResources().getString(R.string.room_info_room_name));
+        TextView titleText = dialogView.findViewById(R.id.dialog_title);
+        titleText.setText(getResources().getString(R.string.room_info_room_name));
 
-            final EditText textInput = dialogView.findViewById(R.id.dialog_edit_text);
-            textInput.setText(mRoom.getLiveState().name);
+        final EditText textInput = dialogView.findViewById(R.id.dialog_edit_text);
+        textInput.setText(mRoom.getLiveState().name);
 
-            // set dialog message
-            alertDialogBuilder
-                    .setCancelable(false)
-                    .setPositiveButton(R.string.ok,
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    setProgressVisibility(View.VISIBLE);
+        // set dialog message
+        alertDialogBuilder
+                .setCancelable(false)
+                .setPositiveButton(R.string.ok,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                setProgressVisibility(View.VISIBLE);
 
-                                    mRoom.updateName(textInput.getText().toString(), new ApiCallback<Void>() {
+                                mRoom.updateName(textInput.getText().toString(), new ApiCallback<Void>() {
 
-                                        private void onDone(String message) {
-                                            if (!TextUtils.isEmpty(message)) {
-                                                CommonActivityUtils.displayToast(VectorRoomActivity.this, message);
-                                            }
-
-                                            setProgressVisibility(View.GONE);
-                                            updateActionBarTitleAndTopic();
+                                    private void onDone(String message) {
+                                        if (!TextUtils.isEmpty(message)) {
+                                            CommonActivityUtils.displayToast(VectorRoomActivity.this, message);
                                         }
 
-                                        @Override
-                                        public void onSuccess(Void info) {
-                                            onDone(null);
-                                        }
+                                        setProgressVisibility(View.GONE);
+                                        updateActionBarTitleAndTopic();
+                                    }
 
-                                        @Override
-                                        public void onNetworkError(Exception e) {
-                                            onDone(e.getLocalizedMessage());
-                                        }
+                                    @Override
+                                    public void onSuccess(Void info) {
+                                        onDone(null);
+                                    }
 
-                                        @Override
-                                        public void onMatrixError(MatrixError e) {
-                                            onDone(e.getLocalizedMessage());
-                                        }
+                                    @Override
+                                    public void onNetworkError(Exception e) {
+                                        onDone(e.getLocalizedMessage());
+                                    }
 
-                                        @Override
-                                        public void onUnexpectedError(Exception e) {
-                                            onDone(e.getLocalizedMessage());
-                                        }
-                                    });
-                                }
-                            })
-                    .setNegativeButton(R.string.cancel,
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    dialog.cancel();
-                                }
-                            });
+                                    @Override
+                                    public void onMatrixError(MatrixError e) {
+                                        onDone(e.getLocalizedMessage());
+                                    }
 
-            // create alert dialog
-            AlertDialog alertDialog = alertDialogBuilder.create();
+                                    @Override
+                                    public void onUnexpectedError(Exception e) {
+                                        onDone(e.getLocalizedMessage());
+                                    }
+                                });
+                            }
+                        })
+                .setNegativeButton(R.string.cancel,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
 
-            // show it
-            alertDialog.show();
-        }
+        // create alert dialog
+        AlertDialog alertDialog = alertDialogBuilder.create();
+
+        // show it
+        alertDialog.show();
     }
 
     /**
@@ -4002,6 +3998,11 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
      * Add click management on expanded header
      */
     private void addRoomHeaderClickListeners() {
+        // Tchap: Do not define the listeners in case of a "dialogue" (direct chat), the room name and the avatar are not editable.
+        if (null != mRoom && RoomUtils.isDirectChat(mSession,mRoom.getRoomId())) {
+            return;
+        }
+
         // tap on the expanded room avatar
         View roomAvatarView = findViewById(R.id.room_avatar);
 
@@ -4010,7 +4011,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                 @Override
                 public void onClick(View v) {
                     // sanity checks : reported by GA
-                    if ((null != mRoom) && (null != mRoom.getLiveState()) && !RoomUtils.isDirectChat(mSession, mRoom.getRoomId())) {
+                    if ((null != mRoom) && (null != mRoom.getLiveState())) {
                         if (CommonActivityUtils.isPowerLevelEnoughForAvatarUpdate(mRoom, mSession)) {
                             // need to check if the camera permission has been granted
                             if (CommonActivityUtils.checkPermissions(CommonActivityUtils.REQUEST_CODE_PERMISSION_ROOM_DETAILS, VectorRoomActivity.this)) {
