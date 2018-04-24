@@ -62,7 +62,7 @@ public class RoomDirectoryData implements Serializable {
      * @return a new instance
      */
     public static RoomDirectoryData getIncludeAllServers(String serverName, String serverDisplayName) {
-        return new RoomDirectoryData(serverName, serverName, null, null, true);
+        return new RoomDirectoryData(serverName, serverDisplayName, null, null, true);
     }
 
     /**

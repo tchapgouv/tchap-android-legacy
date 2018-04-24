@@ -23,7 +23,7 @@
     <string name="room_settings_read_history_entry_value_members_only_invited" translatable="false">invited</string>
     <string name="room_settings_read_history_entry_value_members_only_joined" translatable="false">joined</string>
 
-    <!-- Default list of federated sever names -->
+    <!-- Default list of federated server names -->
     <string-array
         name="room_directory_servers" translatable="false" >
         <item>i.tchap.gouv.fr</item>
