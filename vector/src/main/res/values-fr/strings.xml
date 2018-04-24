@@ -80,9 +80,9 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="no_email">Email pas disponible</string>
 
     <string name="rooms_header">Conversations</string>
-    <string name="rooms_directory_header">Répertoire de salons</string>
+    <string name="rooms_directory_header">Répertoire des discussions</string>
     <string name="no_room_placeholder">Aucune conversation</string>
-    <string name="no_public_room_placeholder">Aucun salon public disponible</string>
+    <string name="no_public_room_placeholder">Aucune discussion publique disponible</string>
     <string name="title_activity_room">Conversation</string>
     <string name="redact">Effacer</string>
     <string name="send_anyway">Envoyer quand même</string>
@@ -454,7 +454,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="encryption_information_unblock">Supprimer de la liste noire</string>
 
     <string name="encryption_information_verify_device">Vérifier l\'appareil</string>
-    <string name="select_room_directory">Sélectionner un répertoire de salons</string>
+    <string name="select_room_directory">Sélectionner un répertoire de discussions</string>
     <string name="directory_server_placeholder">URL du serveur d\'accueil</string>
     <string name="directory_server_all_rooms_on_server">Tous les salons sur le serveur %s</string>
     <string name="directory_server_native_rooms">Tous les salons natifs sur %s</string>
@@ -617,7 +617,7 @@ Pour continuer, veuillez saisir votre mot de passe.</string>
     <string name="room_settings_room_photo">Vignette du salon</string>
     <string name="room_settings_tag_pref_dialog_title">Étiqueté :</string>
     <string name="room_settings_category_access_visibility_title">Accès et visibilité</string>
-    <string name="room_settings_directory_visibility">Lister ce salon dans le répertoire des salons</string>
+    <string name="room_settings_directory_visibility">Lister ce salon dans le répertoire des discussions</string>
     <string name="room_settings_room_read_history_rules_pref_dialog_title">Qui peut lire l\'historique ?</string>
     <string name="room_settings_room_access_rules_pref_dialog_title">Qui peut accéder à ce salon ?</string>
 
@@ -674,7 +674,7 @@ Nous vous recommandons d\'effectuer le processus de vérification pour chaque ap
 Appareils inconnus :</string>
 
     <string name="directory_server_fail_to_retrieve_server">Le serveur est peut-être indisponible ou surchargé</string>
-    <string name="directory_server_type_homeserver">Saisir un serveur d\'accueil pour lister ses salons publics</string>
+    <string name="directory_server_type_homeserver">Saisir un serveur d\'accueil pour lister ses discussions publiques</string>
 
     <string name="settings_user_interface">Interface utilisateur</string>
     <string name="settings_interface_language">Langue de l\'interface</string>
