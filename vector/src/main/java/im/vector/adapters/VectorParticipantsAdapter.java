@@ -62,7 +62,7 @@ import fr.gouv.tchap.activity.TchapLoginActivity;
 import im.vector.contacts.Contact;
 import im.vector.contacts.ContactsManager;
 import im.vector.contacts.PIDsRetriever;
-import im.vector.util.DinsicUtils;
+import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.util.VectorUtils;
 
 

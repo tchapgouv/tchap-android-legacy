@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package im.vector.util;
+package fr.gouv.tchap.util;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -51,6 +51,7 @@ import im.vector.activity.VectorRoomCreationActivity;
 import im.vector.adapters.ParticipantAdapterItem;
 import im.vector.contacts.Contact;
 import im.vector.contacts.ContactsManager;
+import im.vector.util.RoomUtils;
 
 /**
  * Created by cloud on 1/22/18.

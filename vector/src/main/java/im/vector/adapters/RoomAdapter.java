@@ -41,7 +41,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import im.vector.R;
 import fr.gouv.tchap.activity.TchapLoginActivity;
-import im.vector.util.DinsicUtils;
+import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.util.VectorUtils;
 
 public class RoomAdapter extends AbsAdapter {
