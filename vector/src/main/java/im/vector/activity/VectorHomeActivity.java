@@ -109,7 +109,7 @@ import im.vector.PublicRoomsManager;
 import im.vector.R;
 import im.vector.VectorApp;
 import im.vector.fragments.AbsHomeFragment;
-import im.vector.fragments.ContactFragment;
+import fr.gouv.tchap.fragments.ContactFragment;
 import im.vector.fragments.RoomsFragment;
 import im.vector.receiver.VectorUniversalLinkReceiver;
 import im.vector.services.EventStreamService;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package im.vector.fragments;
+package fr.gouv.tchap.fragments;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -56,10 +56,11 @@ import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
 import fr.gouv.tchap.activity.TchapLoginActivity;
 import im.vector.adapters.ParticipantAdapterItem;
-import im.vector.adapters.ContactAdapter;
+import fr.gouv.tchap.adapters.ContactAdapter;
 import im.vector.contacts.Contact;
 import im.vector.contacts.ContactsManager;
 import im.vector.contacts.PIDsRetriever;
+import im.vector.fragments.AbsHomeFragment;
 import im.vector.util.DinsicUtils;
 import im.vector.util.VectorUtils;
 import im.vector.view.EmptyViewItemDecoration;
