@@ -49,6 +49,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import fr.gouv.tchap.activity.TchapLoginActivity;
 import im.vector.Matrix;
 import im.vector.R;
 import im.vector.adapters.ParticipantAdapterItem;
@@ -240,7 +241,7 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
         inviteByIdTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(LoginActivity.isUserExternal(mSession)) {
+                if(TchapLoginActivity.isUserExternal(mSession)) {
                     DinsicUtils.alertSimpleMsg(VectorRoomInviteMembersActivity.this, getString(R.string.action_forbidden));
                 } else {
                     displayInviteByUserId();
@@ -252,7 +253,7 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
         createRoomView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(!LoginActivity.isUserExternal(mSession)) {
+                if(!TchapLoginActivity.isUserExternal(mSession)) {
                     createNewRoom();
                 } else {
                     DinsicUtils.alertSimpleMsg(VectorRoomInviteMembersActivity.this, getString(R.string.room_creation_forbidden));

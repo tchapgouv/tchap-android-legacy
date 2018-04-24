@@ -22,7 +22,6 @@ import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Looper;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DividerItemDecoration;
@@ -32,14 +31,10 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.Filter;
-import android.widget.Toast;
 
-import org.matrix.androidsdk.MXDataHandler;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
-import org.matrix.androidsdk.data.RoomTag;
 import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.listeners.MXEventListener;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
@@ -53,17 +48,13 @@ import org.matrix.androidsdk.util.Log;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import butterknife.BindView;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
-import im.vector.activity.LoginActivity;
-import im.vector.activity.VectorRoomActivity;
-import im.vector.activity.VectorRoomCreationActivity;
+import fr.gouv.tchap.activity.TchapLoginActivity;
 import im.vector.adapters.ParticipantAdapterItem;
 import im.vector.adapters.ContactAdapter;
 import im.vector.contacts.Contact;
@@ -222,7 +213,7 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                 }
 
                 // Search in the user directories except if the current user belongs to the E-platform.
-                if (!LoginActivity.isUserExternal(mSession)) {
+                if (!TchapLoginActivity.isUserExternal(mSession)) {
                     startRemoteKnownContactsSearch(newSearch);
                 }
 
@@ -606,7 +597,7 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                     msg = getString(R.string.room_invite_gov_people);
 
                 if (!DinsicUtils.openDirectChat(mActivity, item.mUserId, mSession, false)) {
-                    if (LoginActivity.isUserExternal(mSession)) {
+                    if (TchapLoginActivity.isUserExternal(mSession)) {
                         DinsicUtils.alertSimpleMsg(getActivity(), getString(R.string.room_creation_forbidden));
                     } else {
                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());

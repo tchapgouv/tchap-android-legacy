@@ -100,7 +100,7 @@
 
         <!-- activities list starts here -->
         <activity
-            android:name="im.vector.activity.LoginActivity"
+            android:name="fr.gouv.tchap.activity.TchapLoginActivity"
             android:configChanges="orientation|screenSize"
             android:theme="@style/LoginAppTheme"
             android:windowSoftInputMode="stateHidden|adjustResize">

@@ -102,15 +102,13 @@ import java.util.TimerTask;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import fr.gouv.tchap.activity.TchapLoginActivity;
 import im.vector.Matrix;
 import im.vector.MyPresenceManager;
 import im.vector.PublicRoomsManager;
 import im.vector.R;
 import im.vector.VectorApp;
 import im.vector.fragments.AbsHomeFragment;
-import im.vector.fragments.FavouritesFragment;
-import im.vector.fragments.GroupsFragment;
-import im.vector.fragments.HomeFragment;
 import im.vector.fragments.ContactFragment;
 import im.vector.fragments.RoomsFragment;
 import im.vector.receiver.VectorUniversalLinkReceiver;
@@ -1127,7 +1125,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         // ignore any action if there is a pending one
         if (!isWaitingViewVisible()) {
             // the FAB action is temporarily blocked for external users to prevent them from creating direct chat
-            if(LoginActivity.isUserExternal(mSession)) {
+            if(TchapLoginActivity.isUserExternal(mSession)) {
                 DinsicUtils.alertSimpleMsg(this, getString(R.string.action_forbidden));
             } else {
                 invitePeopleToNewRoom();

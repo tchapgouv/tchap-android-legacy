@@ -71,7 +71,7 @@ public class VectorUniversalLinkActivity extends RiotBaseActivity {
                     if (null != session) {
                         Log.d(LOG_TAG, "## onCreate(): logout the current sessions, before finalizing an account creation based on an email validation");
 
-                        // This logout is asynchronous, pursue the action in the callback to have the LoginActivity in a "no credentials state".
+                        // This logout is asynchronous, pursue the action in the callback to have the TchapLoginActivity in a "no credentials state".
                         intentAction = null;
                         final Intent myBroadcastIntent = new Intent(this, VectorRegistrationReceiver.class);
                         myBroadcastIntent.setAction(VectorRegistrationReceiver.BROADCAST_ACTION_REGISTRATION);

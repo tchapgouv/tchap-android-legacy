@@ -48,6 +48,7 @@ import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import fr.gouv.tchap.activity.TchapLoginActivity;
 import im.vector.Matrix;
 import im.vector.R;
 import im.vector.adapters.RoomDirectoryAdapter;
@@ -282,7 +283,7 @@ public class RoomDirectoryPickerActivity extends RiotAppCompatActivity implement
 
         // sanity check
         // External users can not access to room directory
-        if (!LoginActivity.isUserExternal(mSession)) {
+        if (!TchapLoginActivity.isUserExternal(mSession)) {
             refreshDirectoryServersList();
         }
     }

@@ -44,7 +44,7 @@ import java.util.Set;
 
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
-import im.vector.activity.LoginActivity;
+import fr.gouv.tchap.activity.TchapLoginActivity;
 import im.vector.activity.RiotAppCompatActivity;
 import im.vector.activity.VectorRoomActivity;
 import im.vector.activity.VectorRoomCreationActivity;
@@ -322,7 +322,7 @@ public class DinsicUtils {
         } else if (canCreate){
             // direct message flow
             //it will be more open on next sprints ...
-            if (!LoginActivity.isUserExternal(session)) {
+            if (!TchapLoginActivity.isUserExternal(session)) {
                 succeeded = true;
                 activity.showWaitingView();
                 session.createDirectMessageRoom(participantId, prepareDirectChatCallBack);

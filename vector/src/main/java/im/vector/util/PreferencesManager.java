@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Set;
 
 import im.vector.R;
-import im.vector.activity.LoginActivity;
+import fr.gouv.tchap.activity.TchapLoginActivity;
 
 public class PreferencesManager {
 
@@ -181,8 +181,8 @@ public class PreferencesManager {
         Set<String> keysToKeep = new HashSet<>(mKeysToKeepAfterLogout);
 
         // home server url
-        keysToKeep.add(LoginActivity.HOME_SERVER_URL_PREF);
-        keysToKeep.add(LoginActivity.IDENTITY_SERVER_URL_PREF);
+        keysToKeep.add(TchapLoginActivity.HOME_SERVER_URL_PREF);
+        keysToKeep.add(TchapLoginActivity.IDENTITY_SERVER_URL_PREF);
 
         // theme
         keysToKeep.add(ThemeUtils.APPLICATION_THEME_KEY);

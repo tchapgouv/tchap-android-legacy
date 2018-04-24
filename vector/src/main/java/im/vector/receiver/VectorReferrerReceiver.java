@@ -19,21 +19,13 @@ package im.vector.receiver;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.preference.TwoStatePreference;
 import android.text.TextUtils;
 
 import org.matrix.androidsdk.util.Log;
 
 import java.net.URLDecoder;
-
-import im.vector.VectorApp;
-import im.vector.activity.CommonActivityUtils;
-import im.vector.activity.LoginActivity;
-import im.vector.util.PreferencesManager;
 
 public class VectorReferrerReceiver extends BroadcastReceiver {
     private static final String LOG_TAG = VectorReferrerReceiver.class.getSimpleName();
@@ -100,18 +92,18 @@ public class VectorReferrerReceiver extends BroadcastReceiver {
                 SharedPreferences.Editor editor = preferences.edit();
 
                 if (!TextUtils.isEmpty(hs)) {
-                    editor.putString(LoginActivity.HOME_SERVER_URL_PREF, hs);
+                    editor.putString(TchapLoginActivity.HOME_SERVER_URL_PREF, hs);
                 }
 
                 if (!TextUtils.isEmpty(is)) {
-                    editor.putString(LoginActivity.IDENTITY_SERVER_URL_PREF, is);
+                    editor.putString(TchapLoginActivity.IDENTITY_SERVER_URL_PREF, is);
                 }
 
                 editor.commit();
 
-                if ((null != VectorApp.getCurrentActivity()) && (VectorApp.getCurrentActivity() instanceof LoginActivity)) {
+                if ((null != VectorApp.getCurrentActivity()) && (VectorApp.getCurrentActivity() instanceof TchapLoginActivity)) {
                     Log.d(LOG_TAG, "## onReceive() : warn loginactivity");
-                    ((LoginActivity)VectorApp.getCurrentActivity()).onServerUrlsUpdate();
+                    ((TchapLoginActivity)VectorApp.getCurrentActivity()).onServerUrlsUpdate();
                 }
             }*/
         }
