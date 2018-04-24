@@ -78,11 +78,12 @@ public class RoomAdapter extends AbsAdapter {
                 TYPE_HEADER_PUBLIC_ROOM, TYPE_PUBLIC_ROOM, new ArrayList<PublicRoom>(), null);
         mPublicRoomsSection.setEmptyViewPlaceholder(context.getString(R.string.no_public_room_placeholder), context.getString(R.string.no_result_placeholder));
 
+        addSection(mRoomsSection);
+
         // External users can not access to public rooms
         if (!LoginActivity.isUserExternal(mSession)) {
             addSection(mPublicRoomsSection);
         }
-        addSection(mRoomsSection);
     }
 
     /*
