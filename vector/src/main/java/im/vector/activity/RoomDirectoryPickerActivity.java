@@ -26,7 +26,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-
 import org.matrix.androidsdk.util.Log;
 
 import android.view.LayoutInflater;
@@ -156,20 +155,20 @@ public class RoomDirectoryPickerActivity extends RiotAppCompatActivity implement
             private void onDone(List<RoomDirectoryData> list) {
                 stopWaitingView();
                 String userHSName = mSession.getMyUserId().substring(mSession.getMyUserId().indexOf(":") + 1);
-                String userHSUrl = mSession.getHomeServerConfig().getHomeserverUri().getHost();
 
-                List<String> hsUrlsList = Arrays.asList(getResources().getStringArray(R.array.room_directory_servers));
+                List<String> hsNamesList = Arrays.asList(getResources().getStringArray(R.array.room_directory_servers));
 
                 int insertionIndex = 0;
-                    // Add user's HS
-                    list.add(insertionIndex++, RoomDirectoryData.getIncludeAllServers(mSession, userHSUrl, userHSName));
+                // Add user's HS
+                list.add(insertionIndex++, RoomDirectoryData.getIncludeAllServers(null, userHSName));
 
-                    // Add custom directory servers
-                    for (String hsURL : hsUrlsList) {
-                        if (!TextUtils.equals(userHSUrl, (getResources().getString(R.string.matrix_url_prefix) + hsURL))) {
-                            list.add(insertionIndex++, RoomDirectoryData.getIncludeAllServers(mSession, hsURL, hsURL));
-                        }
+                // Add custom directory servers
+                for (String hsName : hsNamesList) {
+                    if (!TextUtils.equals(userHSName, hsName)) {
+                        // Use the server name as a default display name
+                        list.add(insertionIndex++, RoomDirectoryData.getIncludeAllServers(hsName, hsName));
                     }
+                }
 
                 mRoomDirectoryAdapter.updateDirectoryServersList(list);
             }
