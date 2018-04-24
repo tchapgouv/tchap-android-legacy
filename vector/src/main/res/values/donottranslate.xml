@@ -12,6 +12,7 @@
 
     <!-- Server url prefix -->
     <string name="server_url_prefix" translatable="false">https://matrix.</string>
+    <string name="matrix_url_prefix" translatable="false">matrix.</string>
 
     <!-- empty means to use the active HS url -->
     <!-- set a valid URL like "https://matrix.org" to use a custom one -->

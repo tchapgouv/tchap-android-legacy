@@ -161,21 +161,15 @@ public class RoomDirectoryPickerActivity extends RiotAppCompatActivity implement
                 List<String> hsUrlsList = Arrays.asList(getResources().getStringArray(R.array.room_directory_servers));
 
                 int insertionIndex = 0;
-
-                // sanity check
-                // External users can not access to room directory
-                if (!LoginActivity.isUserExternal(mSession)) {
                     // Add user's HS
                     list.add(insertionIndex++, RoomDirectoryData.getIncludeAllServers(mSession, userHSUrl, userHSName));
 
                     // Add custom directory servers
                     for (String hsURL : hsUrlsList) {
-
-                        if (!TextUtils.equals(userHSUrl, "matrix." + hsURL)) {
+                        if (!TextUtils.equals(userHSUrl, (getResources().getString(R.string.matrix_url_prefix) + hsURL))) {
                             list.add(insertionIndex++, RoomDirectoryData.getIncludeAllServers(mSession, hsURL, hsURL));
                         }
                     }
-                }
 
                 mRoomDirectoryAdapter.updateDirectoryServersList(list);
             }
@@ -287,7 +281,11 @@ public class RoomDirectoryPickerActivity extends RiotAppCompatActivity implement
         mRoomDirectoryAdapter = new RoomDirectoryAdapter(new ArrayList<RoomDirectoryData>(), this);
         roomDirectoryRecyclerView.setAdapter(mRoomDirectoryAdapter);
 
-        refreshDirectoryServersList();
+        // sanity check
+        // External users can not access to room directory
+        if (!LoginActivity.isUserExternal(mSession)) {
+            refreshDirectoryServersList();
+        }
     }
 
     /*
