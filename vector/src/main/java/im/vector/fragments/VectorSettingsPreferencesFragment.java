@@ -64,6 +64,7 @@ import com.google.i18n.phonenumbers.Phonenumber;
 
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.crypto.data.MXDeviceInfo;
+import org.matrix.androidsdk.data.MyUser;
 import org.matrix.androidsdk.data.Pusher;
 import org.matrix.androidsdk.data.RoomMediaMessage;
 import org.matrix.androidsdk.db.MXMediasCache;
@@ -160,6 +161,17 @@ public class VectorSettingsPreferencesFragment extends PreferenceFragment implem
             refreshPreferences();
             refreshDisplay();
         }
+
+        @Override
+        public void onAccountInfoUpdate(MyUser myUser) {
+            // refresh the settings value
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(VectorApp.getInstance().getApplicationContext());
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString(PreferencesManager.SETTINGS_DISPLAY_NAME_PREFERENCE_KEY, myUser.displayname);
+            editor.commit();
+
+            refreshDisplay();
+        }
     };
 
     private View mLoadingView;
@@ -248,8 +260,8 @@ public class VectorSettingsPreferencesFragment extends PreferenceFragment implem
         });
 
         // display name
-        EditTextPreference displaynamePref = (EditTextPreference) findPreference(PreferencesManager.SETTINGS_DISPLAY_NAME_PREFERENCE_KEY);
-        displaynamePref.setSummary(mSession.getMyUser().displayname);
+        EditTextPreference displayNamePref = (EditTextPreference) findPreference(PreferencesManager.SETTINGS_DISPLAY_NAME_PREFERENCE_KEY);
+        displayNamePref.setSummary(mSession.getMyUser().displayname);
 
         // Password
         EditTextPreference passwordPreference = (EditTextPreference) findPreference(PreferencesManager.SETTINGS_CHANGE_PASSWORD_PREFERENCE_KEY);
@@ -982,10 +994,8 @@ public class VectorSettingsPreferencesFragment extends PreferenceFragment implem
         avatarPreference.setEnabled(isConnected);
 
         // refresh the display name
-        final EditTextPreference displaynamePref = (EditTextPreference) preferenceManager.findPreference(PreferencesManager.SETTINGS_DISPLAY_NAME_PREFERENCE_KEY);
-        displaynamePref.setSummary(mSession.getMyUser().displayname);
-        displaynamePref.setText(mSession.getMyUser().displayname);
-        displaynamePref.setEnabled(isConnected);
+        EditTextPreference displayNamePref = (EditTextPreference) preferenceManager.findPreference(PreferencesManager.SETTINGS_DISPLAY_NAME_PREFERENCE_KEY);
+        displayNamePref.setSummary(mSession.getMyUser().displayname);
 
         // change password
         final EditTextPreference changePasswordPref = (EditTextPreference) preferenceManager.findPreference(PreferencesManager.SETTINGS_CHANGE_PASSWORD_PREFERENCE_KEY);
