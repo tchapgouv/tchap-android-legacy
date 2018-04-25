@@ -247,7 +247,8 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
             }
         });
 
-        View createRoomView = findViewById(R.id.create_new_room);
+        //TODO move this code in HomeFragment (on Floating Action Button)
+       /*
         createRoomView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -257,7 +258,7 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
                     DinsicUtils.alertSimpleMsg(VectorRoomInviteMembersActivity.this, getString(R.string.room_creation_forbidden));
                 }
             }
-        });
+        });*/
 
         // Check permission to access contacts
         CommonActivityUtils.checkPermissions(CommonActivityUtils.REQUEST_CODE_PERMISSION_MEMBERS_SEARCH, this);
