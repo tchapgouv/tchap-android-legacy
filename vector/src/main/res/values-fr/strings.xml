@@ -196,6 +196,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="room_preview_try_join_an_unknown_room_default">une conversation</string>
     <string name="room_creation_title">Nouvelle discussion</string>
     <string name="room_creation_add_member">Ajouter un membre</string>
+    <string name="room_creation_invite_members">Inviter des contacts</string>
     <string name="room_title_one_member">1 membre</string>
     <string name="room_e2e_alert_title">Attention !</string>
     <string name="room_creation_forbidden">Vous n\'êtes pas autorisé à créer cette conversation</string>

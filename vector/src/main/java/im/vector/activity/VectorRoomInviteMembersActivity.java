@@ -247,18 +247,6 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
             }
         });
 
-        View createRoomView = findViewById(R.id.create_new_room);
-        createRoomView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(!TchapLoginActivity.isUserExternal(mSession)) {
-                    createNewRoom();
-                } else {
-                    DinsicUtils.alertSimpleMsg(VectorRoomInviteMembersActivity.this, getString(R.string.room_creation_forbidden));
-                }
-            }
-        });
-
         // Check permission to access contacts
         CommonActivityUtils.checkPermissions(CommonActivityUtils.REQUEST_CODE_PERMISSION_MEMBERS_SEARCH, this);
     }
@@ -511,57 +499,6 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-            }
-        });
-    }
-
-    /**
-     * Handle new room creation
-     */
-    private  void createNewRoom() {
-        hideKeyboard();
-        showWaitingView();
-        mSession.createRoom(new SimpleApiCallback<String>(VectorRoomInviteMembersActivity.this) {
-            @Override
-            public void onSuccess(final String roomId) {
-                waitingView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        stopWaitingView();
-                        HashMap<String, Object> params = new HashMap<>();
-                        params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
-                        params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
-                        params.put(VectorRoomActivity.EXTRA_EXPAND_ROOM_HEADER, true);
-                        CommonActivityUtils.goToRoomPage(VectorRoomInviteMembersActivity.this, mSession, params);
-                    }
-                });
-            }
-
-            private void onError(final String message) {
-                waitingView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (null != message) {
-                            Toast.makeText(VectorRoomInviteMembersActivity.this, message, Toast.LENGTH_LONG).show();
-                        }
-                        stopWaitingView();
-                    }
-                });
-            }
-
-            @Override
-            public void onNetworkError(Exception e) {
-                onError(e.getLocalizedMessage());
-            }
-
-            @Override
-            public void onMatrixError(final MatrixError e) {
-                onError(e.getLocalizedMessage());
-            }
-
-            @Override
-            public void onUnexpectedError(final Exception e) {
-                onError(e.getLocalizedMessage());
             }
         });
     }

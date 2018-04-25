@@ -241,6 +241,9 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     private List<Room> mDirectChatInvitations;
     private List<Room> mRoomInvitations;
 
+    // floating action button dialog
+    private AlertDialog mFabDialog;
+
      /*
      * *********************************************************************************************
      * Static methods
@@ -730,6 +733,12 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
             }
         }
 
+        if (mFabDialog != null) {
+            // Prevent leak after orientation changed
+            mFabDialog.dismiss();
+            mFabDialog = null;
+        }
+
         removeBadgeEventsListener();
     }
 
@@ -1187,13 +1196,28 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
 
     private void onFloatingButtonClick() {
         // ignore any action if there is a pending one
-        if (!isWaitingViewVisible()) {
-            // the FAB action is temporarily blocked for external users to prevent them from creating direct chat
-            if(TchapLoginActivity.isUserExternal(mSession)) {
-                DinsicUtils.alertSimpleMsg(this, getString(R.string.action_forbidden));
-            } else {
-                invitePeopleToNewRoom();
-            }
+        if (!TchapLoginActivity.isUserExternal(mSession)) {
+            CharSequence items[] = new CharSequence[]{getString(R.string.start_new_chat), getString(R.string.room_creation_title), getString(R.string.room_creation_invite_members)};
+            mFabDialog = new AlertDialog.Builder(this)
+                    .setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface d, int n) {
+                            d.cancel();
+                            if (0 == n) {
+                                invitePeopleToNewRoom();
+                            } else if (1 == n) {
+                                createNewRoom();
+                            } else {
+                                // TODO sp3-11
+                                invitePeopleToNewRoom();
+                            }
+                        }
+                    })
+                    .setNegativeButton(R.string.cancel, null)
+                    .show();
+        } else {
+            // the FAB action is temporarily blocked for external users to prevent them from creating direct, new discussion or invite people
+            DinsicUtils.alertSimpleMsg(VectorHomeActivity.this, getString(R.string.action_forbidden));
         }
     }
 
@@ -1275,9 +1299,10 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     }
 
     /**
-     * Create a room and open the dedicated activity
+     * Handle new room creation
      */
-    private void createRoom() {
+    private  void createNewRoom() {
+        hideKeyboard();
         showWaitingView();
         mSession.createRoom(new SimpleApiCallback<String>(VectorHomeActivity.this) {
             @Override
@@ -1286,7 +1311,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                     @Override
                     public void run() {
                         stopWaitingView();
-
                         HashMap<String, Object> params = new HashMap<>();
                         params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
                         params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
@@ -1323,104 +1347,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 onError(e.getLocalizedMessage());
             }
         });
-    }
-
-    /**
-     * Offer to join a room by alias or Id
-     */
-    private void joinARoom() {
-        LayoutInflater inflater = LayoutInflater.from(this);
-
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-        View dialogView = inflater.inflate(R.layout.dialog_join_room_by_id, null);
-        alertDialogBuilder.setView(dialogView);
-
-        final EditText textInput = dialogView.findViewById(R.id.join_room_edit_text);
-        textInput.setTextColor(ThemeUtils.getColor(this, R.attr.riot_primary_text_color));
-
-        // set dialog message
-        alertDialogBuilder
-                .setCancelable(false)
-                .setPositiveButton(R.string.join,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                showWaitingView();
-
-                                String text = textInput.getText().toString().trim();
-
-                                mSession.joinRoom(text, new ApiCallback<String>() {
-                                    @Override
-                                    public void onSuccess(String roomId) {
-                                        stopWaitingView();
-
-                                        HashMap<String, Object> params = new HashMap<>();
-                                        params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
-                                        params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
-                                        CommonActivityUtils.goToRoomPage(VectorHomeActivity.this, mSession, params);
-                                    }
-
-                                    private void onError(final String message) {
-                                        waitingView.post(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                if (null != message) {
-                                                    Toast.makeText(VectorHomeActivity.this, message, Toast.LENGTH_LONG).show();
-                                                }
-                                                stopWaitingView();
-                                            }
-                                        });
-                                    }
-
-                                    @Override
-                                    public void onNetworkError(Exception e) {
-                                        onError(e.getLocalizedMessage());
-                                    }
-
-                                    @Override
-                                    public void onMatrixError(final MatrixError e) {
-                                        onError(e.getLocalizedMessage());
-                                    }
-
-                                    @Override
-                                    public void onUnexpectedError(final Exception e) {
-                                        onError(e.getLocalizedMessage());
-                                    }
-                                });
-                            }
-                        })
-                .setNegativeButton(R.string.cancel,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.cancel();
-                            }
-                        });
-
-        // create alert dialog
-        AlertDialog alertDialog = alertDialogBuilder.create();
-
-        // show it
-        alertDialog.show();
-
-        final Button joinButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-
-        if (null != joinButton) {
-            joinButton.setEnabled(false);
-            textInput.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                }
-
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    String text = textInput.getText().toString().trim();
-                    joinButton.setEnabled(MXSession.isRoomId(text) || MXSession.isRoomAlias(text));
-                }
-
-                @Override
-                public void afterTextChanged(Editable s) {
-                }
-            });
-        }
     }
 
     /*
