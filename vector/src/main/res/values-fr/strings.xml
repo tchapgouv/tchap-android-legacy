@@ -80,9 +80,9 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="no_email">Email pas disponible</string>
 
     <string name="rooms_header">Conversations</string>
-    <string name="rooms_directory_header">Répertoire de salons</string>
+    <string name="rooms_directory_header">Répertoire des discussions</string>
     <string name="no_room_placeholder">Aucune conversation</string>
-    <string name="no_public_room_placeholder">Aucun salon public disponible</string>
+    <string name="no_public_room_placeholder">Aucune discussion publique disponible</string>
     <string name="title_activity_room">Conversation</string>
     <string name="redact">Effacer</string>
     <string name="send_anyway">Envoyer quand même</string>
@@ -114,8 +114,10 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="option_send_files">Envoyer des fichiers</string>
     <string name="option_take_photo_video">Prendre une photo ou une vidéo</string>
 
-    <string name="auth_login">Se connecter</string>
-    <string name="auth_register">S\'inscrire</string>
+    <string name="auth_login">Je me connecte</string>
+    <string name="auth_register">Je m\'inscris</string>
+    <string name="go_login">J\'ai déjà un compte</string>
+    <string name="go_register">Je n\'ai pas de compte</string>
     <string name="auth_submit">Valider</string>
     <string name="auth_skip">Ignorer</string>
     <string name="auth_send_reset_email">Envoyer l\'e-mail de réinitialisation</string>
@@ -249,7 +251,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="ssl_remain_offline">Ignorer</string>
     <string name="ssl_fingerprint_example">00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</string>
 
-    <string name="room_details_title">Information sur le salon</string>
+    <string name="room_details_title">Information sur la discussion</string>
     <string name="room_details_people">Participants</string>
     <string name="room_details_files">Fichiers</string>
     <string name="room_details_settings">Paramètres</string>
@@ -452,7 +454,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="encryption_information_unblock">Supprimer de la liste noire</string>
 
     <string name="encryption_information_verify_device">Vérifier l\'appareil</string>
-    <string name="select_room_directory">Sélectionner un répertoire de salons</string>
+    <string name="select_room_directory">Sélectionner un répertoire de discussions</string>
     <string name="directory_server_placeholder">URL du serveur d\'accueil</string>
     <string name="directory_server_all_rooms_on_server">Tous les salons sur le serveur %s</string>
     <string name="directory_server_native_rooms">Tous les salons natifs sur %s</string>
@@ -496,7 +498,7 @@ Vous pouvez ajouter votre adresse e-mail à votre profil dans les paramètres.</
     <string name="auth_reset_password_success_message">Votre mot de passe a été réinitialisé.
 
 Vous avez été déconnecté de tous les appareils et ne recevrez plus de notifications. Pour réactiver les notifications, reconnectez-vous sur chaque appareil.</string>
-
+    <string name="start_message">Bienvenue sur Tchap</string>
     <string name="login_error_must_start_http">L\'URL doit commencer par http[s]://</string>
     <string name="login_error_network_error">Impossible de se connecter : erreur réseau</string>
     <string name="login_error_unable_login">Impossible de se connecter</string>
@@ -615,7 +617,7 @@ Pour continuer, veuillez saisir votre mot de passe.</string>
     <string name="room_settings_room_photo">Vignette du salon</string>
     <string name="room_settings_tag_pref_dialog_title">Étiqueté :</string>
     <string name="room_settings_category_access_visibility_title">Accès et visibilité</string>
-    <string name="room_settings_directory_visibility">Lister ce salon dans le répertoire des salons</string>
+    <string name="room_settings_directory_visibility">Lister ce salon dans le répertoire des discussions</string>
     <string name="room_settings_room_read_history_rules_pref_dialog_title">Qui peut lire l\'historique ?</string>
     <string name="room_settings_room_access_rules_pref_dialog_title">Qui peut accéder à ce salon ?</string>
 
@@ -672,7 +674,7 @@ Nous vous recommandons d\'effectuer le processus de vérification pour chaque ap
 Appareils inconnus :</string>
 
     <string name="directory_server_fail_to_retrieve_server">Le serveur est peut-être indisponible ou surchargé</string>
-    <string name="directory_server_type_homeserver">Saisir un serveur d\'accueil pour lister ses salons publics</string>
+    <string name="directory_server_type_homeserver">Saisir un serveur d\'accueil pour lister ses discussions publiques</string>
 
     <string name="settings_user_interface">Interface utilisateur</string>
     <string name="settings_interface_language">Langue de l\'interface</string>
@@ -909,4 +911,31 @@ Appareils inconnus :</string>
     // Widget Integration Manager
     <string name="avatar">Avatar</string>
 
-</resources>
+<plurals name="membership_changes">
+	<item quantity="one">Un changement de statut</item>
+	<item quantity="other">%d changements de statut</item>
+</plurals>
+
+    <string name="open_chat_header">Développer l\'entête</string>
+    <string name="receipt_avatar">Réception de l\'avatar</string>
+    <string name="settings_notification_privacy">Confidentialité des notifications</string>
+    <string name="settings_notification_privacy_warning">Tchap fonctionne en arrière-plan pour que le contenu du message de notification reste privé. Vous pouvez désactiver cette option pour réduire l\'utilisation de la batterie.</string>
+    <string name="settings_notification_privacy_normal">Normal</string>
+    <string name="settings_notification_privacy_power_saving">Options d\'économie d\'énergie</string>
+    <string name="settings_notification_privacy_low_detail">Notifications avec peu de détails</string>
+    <string name="settings_notification_privacy_reduced">Confidentialité réduite</string>
+    <string name="settings_notification_privacy_need_permission">L\'application a besoin de la permission de fonctionner en arrière-plan</string>
+    <string name="settings_notification_privacy_no_permission">L\'application <b>n\'</b>a <b>pas</b> besoin de la permission pour fonctionner en arrière-plan</string>
+    <string name="settings_notification_privacy_gcm">• Les notifications sont envoyées via Google Cloud Messaging</string>
+    <string name="settings_notification_privacy_metadata">• Les notifications ne contiennent que des métadonnées</string>
+    <string name="settings_notification_privacy_secure_message_content">• Le contenu du message de notification est <b>issu directement du serveur d\'accueil Matrix</b></string>
+    <string name="settings_notification_privacy_nosecure_message_content">• Les notifications contiennent <b>des métadonnées et des messages</b></string>
+    <string name="settings_notification_privacy_message_content_not_shown">• Les notifications <b>n\'afficheront pas le contenu des messages</b></string>
+
+    <string name="startup_notification_privacy_title">Confidentialité des notifications</string>
+    <string name="startup_notification_privacy_message">Tchap peut fonctionner en arrière-plan pour gérer vos notifications de façon sécurisée et confidentielle (cela peut affecter l\'utilisation de la batterie).</string>
+    <string name="startup_notification_privacy_button_grant">Donner la permission</string>
+    <string name="startup_notification_privacy_button_other">Choisir une autre option</string>
+
+    <string name="notice_avatar">Avatar de l\'annonce</string>
+    </resources>

@@ -41,7 +41,8 @@ import im.vector.activity.HistoricalRoomsActivity;
 import im.vector.activity.LanguagePickerActivity;
 import im.vector.activity.LockScreenActivity;
 import im.vector.activity.LoggingOutActivity;
-import im.vector.activity.LoginActivity;
+import fr.gouv.tchap.activity.TchapLoginActivity;
+import im.vector.activity.NotificationPrivacyActivity;
 import im.vector.activity.PhoneNumberAdditionActivity;
 import im.vector.activity.PhoneNumberVerificationActivity;
 import im.vector.activity.RoomDirectoryPickerActivity;
@@ -142,8 +143,10 @@ public class ThemeUtils {
                 activity.setTheme(R.style.HomeActivityTheme_Dark);
             } else if (activity instanceof LanguagePickerActivity) {
                 activity.setTheme(R.style.CountryPickerTheme_Dark);
-            } else if (activity instanceof LoginActivity) {
+            } else if (activity instanceof TchapLoginActivity) {
                 activity.setTheme(R.style.LoginAppTheme_Dark);
+            } else if (activity instanceof NotificationPrivacyActivity) {
+                activity.setTheme(R.style.CountryPickerTheme_Dark);
             } else if (activity instanceof PhoneNumberAdditionActivity) {
                 activity.setTheme(R.style.AppTheme_NoActionBar_Dark);
             } else if (activity instanceof PhoneNumberVerificationActivity) {
@@ -200,8 +203,10 @@ public class ThemeUtils {
                 activity.setTheme(R.style.HomeActivityTheme_Black);
             } else if (activity instanceof LanguagePickerActivity) {
                 activity.setTheme(R.style.CountryPickerTheme_Black);
-            } else if (activity instanceof LoginActivity) {
+            } else if (activity instanceof TchapLoginActivity) {
                 activity.setTheme(R.style.LoginAppTheme_Black);
+            } else if (activity instanceof NotificationPrivacyActivity) {
+                activity.setTheme(R.style.CountryPickerTheme_Black);
             } else if (activity instanceof PhoneNumberAdditionActivity) {
                 activity.setTheme(R.style.AppTheme_NoActionBar_Black);
             } else if (activity instanceof PhoneNumberVerificationActivity) {

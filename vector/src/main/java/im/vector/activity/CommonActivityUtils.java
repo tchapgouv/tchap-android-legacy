@@ -89,6 +89,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import fr.gouv.tchap.activity.TchapLoginActivity;
 import im.vector.Matrix;
 import im.vector.MyPresenceManager;
 import im.vector.R;
@@ -322,7 +323,7 @@ public class CommonActivityUtils {
             editor.putBoolean(RESTART_IN_PROGRESS_KEY, true);
             editor.commit();
 
-            PendingIntent mPendingIntent = PendingIntent.getActivity(activity, 314159, new Intent(activity, LoginActivity.class), PendingIntent.FLAG_CANCEL_CURRENT);
+            PendingIntent mPendingIntent = PendingIntent.getActivity(activity, 314159, new Intent(activity, TchapLoginActivity.class), PendingIntent.FLAG_CANCEL_CURRENT);
 
             // so restart the application after 100ms
             AlarmManager mgr = (AlarmManager) activity.getSystemService(Context.ALARM_SERVICE);
@@ -416,10 +417,10 @@ public class CommonActivityUtils {
                     Activity activeActivity = VectorApp.getCurrentActivity();
                     if (null != activeActivity) {
                         // go to login page
-                        activeActivity.startActivity(new Intent(activeActivity, LoginActivity.class));
+                        activeActivity.startActivity(new Intent(activeActivity, TchapLoginActivity.class));
                         activeActivity.finish();
                     } else {
-                        Intent intent = new Intent(context, LoginActivity.class);
+                        Intent intent = new Intent(context, TchapLoginActivity.class);
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         context.startActivity(intent);
                     }
@@ -603,7 +604,7 @@ public class CommonActivityUtils {
             }
 
             if (null != EventStreamService.getInstance()) {
-                EventStreamService.getInstance().refreshStatusNotification();
+                EventStreamService.getInstance().refreshForegroundNotification();
             }
         }
     }

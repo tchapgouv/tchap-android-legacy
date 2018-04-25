@@ -22,7 +22,7 @@ import android.text.TextUtils;
 import java.util.Comparator;
 import java.util.List;
 
-class KnownContactsAdapterSection extends AdapterSection<ParticipantAdapterItem> {
+public class KnownContactsAdapterSection extends AdapterSection<ParticipantAdapterItem> {
 
     // Tells if the search result is limited
     private boolean mIsLimited;

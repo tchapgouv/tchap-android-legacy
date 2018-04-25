@@ -25,7 +25,6 @@ import org.matrix.androidsdk.util.Log;
 import android.widget.Toast;
 
 import org.matrix.androidsdk.MXSession;
-import org.matrix.androidsdk.data.MyUser;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomState;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
@@ -38,7 +37,7 @@ import java.util.HashMap;
 import im.vector.R;
 import im.vector.VectorApp;
 import im.vector.activity.CommonActivityUtils;
-import im.vector.activity.LoginActivity;
+import fr.gouv.tchap.activity.TchapLoginActivity;
 import im.vector.activity.VectorRoomActivity;
 
 public class SlashComandsParser {
@@ -232,7 +231,7 @@ public class SlashComandsParser {
             } else if (TextUtils.equals(firstPart, CMD_INVITE)) {
                 // Tchap limitation: /invite cmd is disabled in direct chats.
                 // This cmd is disabled if the current user belongs to the E-platform too.
-                if (!LoginActivity.isUserExternal(session) && !room.isDirect()) {
+                if (!TchapLoginActivity.isUserExternal(session) && !room.isDirect()) {
                     isIRCCmd = true;
 
                     if (messageParts.length >= 2) {

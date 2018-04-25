@@ -491,7 +491,7 @@ public class RoomsFragment extends AbsHomeFragment implements AbsHomeFragment.On
                 return;
             }
             eventsRestClient.getPublicRoomsCount(
-                    mSelectedRoomDirectory.getServerUrl(),
+                    mSelectedRoomDirectory.getHomeServer(),
                     mSelectedRoomDirectory.getThirdPartyInstanceId(),
                     mSelectedRoomDirectory.isIncludedAllNetworks(),
                     new ApiCallback<Integer>() {
@@ -534,7 +534,7 @@ public class RoomsFragment extends AbsHomeFragment implements AbsHomeFragment.On
             return;
         }
 
-        PublicRoomsManager.getInstance().startPublicRoomsSearch(mSelectedRoomDirectory.getServerUrl(),
+        PublicRoomsManager.getInstance().startPublicRoomsSearch(mSelectedRoomDirectory.getHomeServer(),
                 mSelectedRoomDirectory.getThirdPartyInstanceId(),
                 mSelectedRoomDirectory.isIncludedAllNetworks(),
                 mCurrentFilter, new ApiCallback<List<PublicRoom>>() {

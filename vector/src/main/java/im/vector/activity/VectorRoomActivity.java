@@ -2,6 +2,7 @@
  * Copyright 2015 OpenMarket Ltd
  * Copyright 2017 Vector Creations Ltd
  * Copyright 2018 DINSIC
+ * Copyright 2018 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -562,6 +563,8 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
 
         setContentView(R.layout.activity_vector_room);
 
+        waitingView = findViewById(R.id.main_progress_layout);
+
         if (CommonActivityUtils.shouldRestartApp(this)) {
             Log.e(LOG_TAG, "onCreate : Restart the application.");
             CommonActivityUtils.restartApp(this);
@@ -575,7 +578,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             return;
         }
 
-        mSession = MXCActionBarActivity.getSession(this, intent);
+        mSession = getSession(intent);
 
         if ((mSession == null) || !mSession.isAlive()) {
             Log.e(LOG_TAG, "No MXSession.");
@@ -1027,12 +1030,12 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
-                                setProgressVisibility(View.VISIBLE);
+                                showWaitingView();
 
                                 WidgetsManager.getSharedInstance().closeWidget(mSession, mRoom, widget.getWidgetId(), new ApiCallback<Void>() {
                                     @Override
                                     public void onSuccess(Void info) {
-                                        setProgressVisibility(View.GONE);
+                                        stopWaitingView();
                                     }
 
                                     private void onError(String errorMessage) {
@@ -1132,12 +1135,12 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
 
             @Override
             public void onCloseWidgetClick(Widget widget) {
-                setProgressVisibility(View.VISIBLE);
+                showWaitingView();
 
                 WidgetsManager.getSharedInstance().closeWidget(mSession, mRoom, widget.getWidgetId(), new ApiCallback<Void>() {
                     @Override
                     public void onSuccess(Void info) {
-                        setProgressVisibility(View.GONE);
+                        stopWaitingView();
                     }
 
                     private void onError(String errorMessage) {
@@ -1696,7 +1699,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             mResendUnsentMenuItem = menu.findItem(R.id.ic_action_room_resend_unsent);
             mResendDeleteMenuItem = menu.findItem(R.id.ic_action_room_delete_unsent);
             mSearchInRoomMenuItem = menu.findItem(R.id.ic_action_search_in_room);
-            mUseMatrixAppsMenuItem = menu.findItem(R.id.ic_action_matrix_apps);
+            mUseMatrixAppsMenuItem = null; //will be reconnected later menu.findItem(R.id.ic_action_matrix_apps);
 
             RoomMember member = mRoom.getMember(mSession.getMyUserId());
 
@@ -1719,12 +1722,12 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
         if (id == android.R.id.home) {
             finish();
             return true;
-        } else if (id == R.id.ic_action_matrix_apps) {
+        }/* will be reconnected later  else if (id == R.id.ic_action_matrix_apps) {
             final Intent intent = new Intent(this, IntegrationManagerActivity.class);
             intent.putExtra(IntegrationManagerActivity.EXTRA_SESSION_ID, mMyUserId);
             intent.putExtra(IntegrationManagerActivity.EXTRA_ROOM_ID, mRoom.getRoomId());
             startActivity(intent);
-        } else if (id == R.id.ic_action_search_in_room) {
+        }*/ else if (id == R.id.ic_action_search_in_room) {
             try {
                 enableActionBarHeader(HIDE_ACTION_BAR_HEADER);
 
@@ -1735,8 +1738,12 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             } catch (Exception e) {
                 Log.i(LOG_TAG, "## onOptionsItemSelected(): ");
             }
-        } else if (id == R.id.ic_action_room_settings) {
+        } else if (id == R.id.ic_action_room_settings_people) {
             launchRoomDetails(VectorRoomDetailsActivity.PEOPLE_TAB_INDEX);
+        } else if (id == R.id.ic_action_room_settings_file) {
+            launchRoomDetails(VectorRoomDetailsActivity.FILE_TAB_INDEX);
+        } else if (id == R.id.ic_action_room_settings_settings) {
+            launchRoomDetails(VectorRoomDetailsActivity.SETTINGS_TAB_INDEX);
         } else if (id == R.id.ic_action_room_resend_unsent) {
             mVectorMessageListFragment.resendUnsentMessages();
             refreshNotificationsArea();
@@ -1753,7 +1760,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
-                                setProgressVisibility(View.VISIBLE);
+                                showWaitingView();
 
                                 mRoom.leave(new ApiCallback<Void>() {
                                     @Override
@@ -1764,7 +1771,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                                     }
 
                                     private void onError(String errorMessage) {
-                                        setProgressVisibility(View.GONE);
+                                        stopWaitingView();
                                         Log.e(LOG_TAG, "Cannot leave the room " + mRoom.getRoomId() + " : " + errorMessage);
                                     }
 
@@ -1932,12 +1939,12 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
      */
     private void startJitsiCall(final boolean aIsVideoCall) {
         enableActionBarHeader(HIDE_ACTION_BAR_HEADER);
-        setProgressVisibility(View.VISIBLE);
+        showWaitingView();
 
         WidgetsManager.getSharedInstance().createJitsiWidget(mSession, mRoom, aIsVideoCall, new ApiCallback<Widget>() {
             @Override
             public void onSuccess(Widget widget) {
-                setProgressVisibility(View.GONE);
+                stopWaitingView();
 
                 final Intent intent = new Intent(VectorRoomActivity.this, JitsiCallActivity.class);
                 intent.putExtra(JitsiCallActivity.EXTRA_WIDGET_ID, widget);
@@ -1945,7 +1952,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             }
 
             private void onError(String errorMessage) {
-                setProgressVisibility(View.GONE);
+                stopWaitingView();
                 CommonActivityUtils.displayToast(VectorRoomActivity.this, errorMessage);
             }
 
@@ -1980,7 +1987,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
         }
 
         enableActionBarHeader(HIDE_ACTION_BAR_HEADER);
-        setProgressVisibility(View.VISIBLE);
+        showWaitingView();
 
         // create the call object
         mSession.mCallsManager.createCallInRoom(mRoom.getRoomId(), aIsVideoCall, new ApiCallback<IMXCall>() {
@@ -1990,7 +1997,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                 VectorRoomActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        setProgressVisibility(View.GONE);
+                        stopWaitingView();
 
                         final Intent intent = new Intent(VectorRoomActivity.this, VectorCallViewActivity.class);
 
@@ -2011,7 +2018,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                 VectorRoomActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        setProgressVisibility(View.GONE);
+                        stopWaitingView();
                         Activity activity = VectorRoomActivity.this;
                         CommonActivityUtils.displayToastOnUiThread(activity, activity.getString(R.string.cannot_start_call) + " (" + errorMessage + ")");
                     }
@@ -2031,7 +2038,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                 if (e instanceof MXCryptoError) {
                     MXCryptoError cryptoError = (MXCryptoError) e;
                     if (MXCryptoError.UNKNOWN_DEVICES_CODE.equals(cryptoError.errcode)) {
-                        setProgressVisibility(View.GONE);
+                        stopWaitingView();
                         CommonActivityUtils.displayUnknownDevicesDialog(mSession, VectorRoomActivity.this, (MXUsersDevicesMap<MXDeviceInfo>) cryptoError.mExceptionData, new VectorUnknownDevicesFragment.IUnknownDevicesSendAnywayListener() {
                             @Override
                             public void onSendAnyway() {
@@ -2322,19 +2329,6 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
     //================================================================================
     // Actions
     //================================================================================
-
-    /**
-     * Update the spinner visibility.
-     *
-     * @param visibility the visibility.
-     */
-    public void setProgressVisibility(int visibility) {
-        View progressLayout = findViewById(R.id.main_progress_layout);
-
-        if ((null != progressLayout) && (progressLayout.getVisibility() != visibility)) {
-            progressLayout.setVisibility(visibility);
-        }
-    }
 
     /**
      * Launch the room details activity with a selected tab.
@@ -3052,7 +3046,10 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                             enableActionBarHeader(HIDE_ACTION_BAR_HEADER);
                         } else {
                             // wait the touch up to display the room settings page
-                            launchRoomDetails(VectorRoomDetailsActivity.SETTINGS_TAB_INDEX);
+                            // Tchap: Do not open the room settings page in case of a "dialogue" (direct chat), the room settings are not editable.
+                            if (null != mRoom && !RoomUtils.isDirectChat(mSession,mRoom.getRoomId())) {
+                                launchRoomDetails(VectorRoomDetailsActivity.SETTINGS_TAB_INDEX);
+                            }
                         }
                     }
                     return true;
@@ -3259,15 +3256,10 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
 
                             // display the both action buttons only when it makes sense
                             // i.e not a room preview
-                            boolean hideMembersButtons = (null == mRoom) || !TextUtils.isEmpty(mEventId) || (null != sRoomPreviewData);
+                            // Tchap: Hide them for the "dialogues" (direct chat) too.
+                            boolean hideMembersButtons = (null == mRoom) || !TextUtils.isEmpty(mEventId) || (null != sRoomPreviewData) || (RoomUtils.isDirectChat(mSession, mRoom.getRoomId()));
                             mActionBarHeaderActiveMembersListButton.setVisibility(hideMembersButtons ? View.GONE : View.VISIBLE);
-                            // Hide the invite button for the direct chats (this option is disabled for them)
-                            if (!hideMembersButtons && !RoomUtils.isDirectChat(mSession, mRoom.getRoomId())) {
-                                mActionBarHeaderActiveMembersInviteButton.setVisibility(View.VISIBLE);
-                            } else {
-                                mActionBarHeaderActiveMembersInviteButton.setVisibility(View.GONE);
-                            }
-
+                            mActionBarHeaderActiveMembersInviteButton.setVisibility(hideMembersButtons ? View.GONE : View.VISIBLE);
                         } else {
                             mActionBarHeaderActiveMembersLayout.setVisibility(View.GONE);
                         }
@@ -3374,11 +3366,11 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             joinButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    setProgressVisibility(View.VISIBLE);
+                    showWaitingView();
                     mSession.joinRoom(mRoom.getRoomId(), new ApiCallback<String>() {
                         @Override
                         public void onSuccess(String roomId) {
-                            setProgressVisibility(View.GONE);
+                            stopWaitingView();
 
                             HashMap<String, Object> params = new HashMap<>();
 
@@ -3396,7 +3388,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                         private void onError(String errorMessage) {
                             Log.d(LOG_TAG, "re join failed " + errorMessage);
                             CommonActivityUtils.displayToast(VectorRoomActivity.this, errorMessage);
-                            setProgressVisibility(View.GONE);
+                            stopWaitingView();
                         }
 
                         @Override
@@ -3433,7 +3425,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                     private void onError(String errorMessage) {
                         Log.d(LOG_TAG, "forget failed " + errorMessage);
                         CommonActivityUtils.displayToast(VectorRoomActivity.this, errorMessage);
-                        setProgressVisibility(View.GONE);
+                        stopWaitingView();
                     }
 
                     @Override
@@ -3515,7 +3507,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                     public void onClick(View v) {
                         Log.d(LOG_TAG, "The user clicked on decline.");
 
-                        setProgressVisibility(View.VISIBLE);
+                        showWaitingView();
 
                         mRoom.leave(new ApiCallback<Void>() {
                             @Override
@@ -3527,7 +3519,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                             private void onError(String errorMessage) {
                                 Log.d(LOG_TAG, "The invitation rejection failed " + errorMessage);
                                 CommonActivityUtils.displayToast(VectorRoomActivity.this, errorMessage);
-                                setProgressVisibility(View.GONE);
+                                stopWaitingView();
                             }
 
                             @Override
@@ -3598,7 +3590,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                             }
                         }
 
-                        setProgressVisibility(View.VISIBLE);
+                        showWaitingView();
 
                         room.joinWithThirdPartySigned(sRoomPreviewData.getRoomIdOrAlias(), signUrl, new ApiCallback<Void>() {
                             @Override
@@ -3608,7 +3600,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
 
                             private void onError(String errorMessage) {
                                 CommonActivityUtils.displayToast(VectorRoomActivity.this, errorMessage);
-                                setProgressVisibility(View.GONE);
+                                stopWaitingView();
                             }
 
                             @Override
@@ -3746,7 +3738,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
         final List<String> userIds = (List<String>) aData.getSerializableExtra(VectorRoomInviteMembersActivity.EXTRA_OUT_SELECTED_USER_IDS);
 
         if ((null != userIds) && (userIds.size() > 0)) {
-            setProgressVisibility(View.VISIBLE);
+            showWaitingView();
 
             mRoom.invite(userIds, new ApiCallback<Void>() {
 
@@ -3754,7 +3746,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                     if (!TextUtils.isEmpty(errorMessage)) {
                         CommonActivityUtils.displayToast(VectorRoomActivity.this, errorMessage);
                     }
-                    setProgressVisibility(View.GONE);
+                    stopWaitingView();
                 }
 
                 @Override
@@ -3794,7 +3786,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
         Uri thumbnailUri = VectorUtils.getThumbnailUriFromIntent(this, aData, mSession.getMediasCache());
 
         if (null != thumbnailUri) {
-            setProgressVisibility(View.VISIBLE);
+            showWaitingView();
 
             // save the bitmap URL on the server
             ResourceUtils.Resource resource = ResourceUtils.openResource(this, thumbnailUri, null);
@@ -3818,7 +3810,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                                             CommonActivityUtils.displayToast(VectorRoomActivity.this, message);
                                         }
 
-                                        setProgressVisibility(View.GONE);
+                                        stopWaitingView();
                                         updateRoomHeaderAvatar();
                                     }
 
@@ -3874,7 +3866,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                 .setPositiveButton(R.string.ok,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                setProgressVisibility(View.VISIBLE);
+                                showWaitingView();
 
                                 mRoom.updateName(textInput.getText().toString(), new ApiCallback<Void>() {
 
@@ -3883,7 +3875,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                                             CommonActivityUtils.displayToast(VectorRoomActivity.this, message);
                                         }
 
-                                        setProgressVisibility(View.GONE);
+                                        stopWaitingView();
                                         updateActionBarTitleAndTopic();
                                     }
 
@@ -3947,7 +3939,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                 .setPositiveButton(R.string.ok,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                setProgressVisibility(View.VISIBLE);
+                                showWaitingView();
 
                                 mRoom.updateTopic(textInput.getText().toString(), new ApiCallback<Void>() {
 
@@ -3956,7 +3948,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                                             CommonActivityUtils.displayToast(VectorRoomActivity.this, message);
                                         }
 
-                                        setProgressVisibility(View.GONE);
+                                        stopWaitingView();
                                         updateActionBarTitleAndTopic();
                                     }
 
@@ -4000,6 +3992,11 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
      * Add click management on expanded header
      */
     private void addRoomHeaderClickListeners() {
+        // Tchap: Do not define the listeners in case of a "dialogue" (direct chat), the room name and the avatar are not editable.
+        if (null != mRoom && RoomUtils.isDirectChat(mSession,mRoom.getRoomId())) {
+            return;
+        }
+
         // tap on the expanded room avatar
         View roomAvatarView = findViewById(R.id.room_avatar);
 
