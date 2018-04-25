@@ -54,6 +54,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="disable">Désactiver</string>
     <string name="action_edit_contact_form">Editer le contact</string>
     <string name="action_forbidden">Vous n\'êtes pas autorisé à réaliser cette action</string>
+    <string name="action_not_available_yet">Cette action n\'est pas encore disponible</string>
 
     <string name="dialog_title_confirmation">Confirmation</string>
     <string name="dialog_title_warning">Attention</string>

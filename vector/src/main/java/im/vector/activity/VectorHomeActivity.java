@@ -469,7 +469,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
      */
     private void showFloatingActionButton() {
 //No more favourite action
-                mFloatingActionButton.show();
+        mFloatingActionButton.show();
 
     }
 
@@ -1207,8 +1207,9 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                             } else if (1 == n) {
                                 createNewRoom();
                             } else {
-                                // TODO sp3-11
-                                invitePeopleToNewRoom();
+                                // TODO sp3-11 invite only non Tchap users
+                                DinsicUtils.alertSimpleMsg(VectorHomeActivity.this, getString(R.string.action_not_available_yet));
+                                //invitePeopleToNewRoom();
                             }
                         }
                     })
@@ -2084,7 +2085,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
             if (id == R.id.bottom_action_favourites) {
                 mBadgeViewByIndex.get(id).updateText((roomCount > 0) ? "\u2022" : "", status);
             } else {*/
-                mBadgeViewByIndex.get(id).updateCounter(roomCount, status);
+            mBadgeViewByIndex.get(id).updateCounter(roomCount, status);
             //}
         }
     }
