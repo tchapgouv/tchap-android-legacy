@@ -13,8 +13,7 @@
 
         </im.vector.preference.UserAvatarPreference>
 
-        <EditTextPreference
-            android:focusable="true"
+        <im.vector.preference.VectorCustomActionEditTextPreference
             android:key="SETTINGS_DISPLAY_NAME_PREFERENCE_KEY"
             android:summary="@string/settings_display_name"
             android:title="@string/settings_display_name" />
