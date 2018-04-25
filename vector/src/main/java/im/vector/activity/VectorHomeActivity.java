@@ -35,7 +35,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.internal.BottomNavigationItemView;
 import android.support.design.internal.BottomNavigationMenuView;
@@ -55,7 +54,6 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.TypedValue;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -1217,7 +1215,8 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                     .setNegativeButton(R.string.cancel, null)
                     .show();
         } else {
-            // the FAB action is temporarily blocked for external users to prevent them from creating direct, new discussion or invite people
+            // the FAB action is temporarily blocked for external users to prevent them from
+            // creating a new direct chat, a new discussion or invite people to Tchap
             DinsicUtils.alertSimpleMsg(VectorHomeActivity.this, getString(R.string.action_forbidden));
         }
     }
