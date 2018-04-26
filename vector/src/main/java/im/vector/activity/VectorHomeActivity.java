@@ -468,7 +468,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
      * Display the TAB if it is required
      */
     private void showFloatingActionButton() {
-//No more favourite action
         mFloatingActionButton.show();
 
     }
@@ -1195,30 +1194,32 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
 
     private void onFloatingButtonClick() {
         // ignore any action if there is a pending one
-        if (!TchapLoginActivity.isUserExternal(mSession)) {
-            CharSequence items[] = new CharSequence[]{getString(R.string.start_new_chat), getString(R.string.room_creation_title), getString(R.string.room_creation_invite_members)};
-            mFabDialog = new AlertDialog.Builder(this)
-                    .setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface d, int n) {
-                            d.cancel();
-                            if (0 == n) {
-                                invitePeopleToNewRoom();
-                            } else if (1 == n) {
-                                createNewRoom();
-                            } else {
-                                // TODO sp3-11 invite only non Tchap users
-                                DinsicUtils.alertSimpleMsg(VectorHomeActivity.this, getString(R.string.action_not_available_yet));
-                                //invitePeopleToNewRoom();
+        if (!isWaitingViewVisible()) {
+            if (!TchapLoginActivity.isUserExternal(mSession)) {
+                CharSequence items[] = new CharSequence[]{getString(R.string.start_new_chat), getString(R.string.room_creation_title), getString(R.string.room_creation_invite_members)};
+                mFabDialog = new AlertDialog.Builder(this)
+                        .setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface d, int n) {
+                                d.cancel();
+                                if (0 == n) {
+                                    invitePeopleToNewRoom();
+                                } else if (1 == n) {
+                                    createNewRoom();
+                                } else {
+                                    // TODO sp3-11 invite only non Tchap users
+                                    DinsicUtils.alertSimpleMsg(VectorHomeActivity.this, getString(R.string.action_not_available_yet));
+                                    //invitePeopleToNewRoom();
+                                }
                             }
-                        }
-                    })
-                    .setNegativeButton(R.string.cancel, null)
-                    .show();
-        } else {
-            // the FAB action is temporarily blocked for external users to prevent them from
-            // creating a new direct chat, a new discussion or invite people to Tchap
-            DinsicUtils.alertSimpleMsg(VectorHomeActivity.this, getString(R.string.action_forbidden));
+                        })
+                        .setNegativeButton(R.string.cancel, null)
+                        .show();
+            } else {
+                // the FAB action is temporarily blocked for external users to prevent them from
+                // creating a new direct chat, a new discussion or invite people to Tchap
+                DinsicUtils.alertSimpleMsg(VectorHomeActivity.this, getString(R.string.action_forbidden));
+            }
         }
     }
 

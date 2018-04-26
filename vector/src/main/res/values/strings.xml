@@ -341,6 +341,7 @@
     <!-- Chat creation -->
     <string name="room_creation_title">New Chat</string>
     <string name="room_creation_add_member">Add member</string>
+    <string name="room_creation_invite_members">Invite contacts</string>
     <plurals name="room_header_active_members_count">
         <item quantity="one">1 active members</item>
         <item quantity="other">%d active members</item>
