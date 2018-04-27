@@ -148,7 +148,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     // add an extra to precise the type of mode we want to open the VectorRoomCreationActivity
     public static final String EXTRA_ROOM_CREATION_ACTIVITY_MODE = "VectorHomeActivity.EXTRA_ROOM_CREATION_ACTIVITY_MODE";
     public enum RoomCreationModes {
-        DIRECT_CHAT, DISCUSSION, ALL_CONTACTS, TCHAP_USERS_ONLY, NO_TCHAP_USERS;
+        DIRECT_CHAT, DISCUSSION;
     }
 
     // there are two ways to open an external link
@@ -1209,16 +1209,19 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                             public void onClick(DialogInterface d, int n) {
                                 d.cancel();
                                 if (0 == n) {
-                                    // Invite only Tchap users to a new direct chat
+                                    // Create a new direct chat
+                                    // We can add only one people to the chat
                                     // In this case, the click on the contact send the invitation
-                                    // case DIRECT_CHAT
+                                    // Multiselection mode isn't required
                                     createNewChat(RoomCreationModes.DIRECT_CHAT);
                                 } else if (1 == n) {
+                                    // Create an empty room
                                     createNewRoom();
                                 } else {
-                                    // Invite one or more no tchap users
-                                    // Multiselection mode is requested
-                                    // case DISCUSSION
+                                    // Create a new discussion
+                                    // Invite one or more users
+                                    // If only one contact is selected, it will be a direct chat
+                                    // Multiselection mode is required
                                     // TODO sp3-11 invite only non Tchap users
                                     //DinsicUtils.alertSimpleMsg(VectorHomeActivity.this, getString(R.string.action_not_available_yet));
                                     createNewChat(RoomCreationModes.DISCUSSION);

@@ -60,14 +60,8 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
     // participants list
     private static final String PARTICIPANTS_LIST = "PARTICIPANTS_LIST";
 
-    // Current case
-    private static final int INVITE_ALL_USER_REQUEST_CODE = 111;
-    // In the case of a creation of a direct chat, no multi-selection mode
-    private static final int INVITE_TCHAP_USER_REQUEST_CODE = 222;
-    // In the case of an invite no tchap users, multi-selection mode is necessary
-    private static final int INVITE_NO_TCHAP_USER_REQUEST_CODE = 333;
-
-    private  boolean isMultiSelectionMode;
+    //
+    private static final int INVITE_USER_REQUEST_CODE = 456;
 
     // UI items
     private VectorRoomCreationAdapter mAdapter;
@@ -136,7 +130,7 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 // the first one is "add a member"
                 if (0 == position) {
-                    launchInviteMembersActivity(VectorHomeActivity.RoomCreationModes.DISCUSSION , INVITE_ALL_USER_REQUEST_CODE);
+                    launchInviteMembersActivity(VectorHomeActivity.RoomCreationModes.DISCUSSION , INVITE_USER_REQUEST_CODE);
                 }
             }
         });
@@ -169,10 +163,10 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
 
             switch (mode) {
                 case DIRECT_CHAT:
-                    launchInviteMembersActivity(VectorHomeActivity.RoomCreationModes.DIRECT_CHAT, INVITE_ALL_USER_REQUEST_CODE);
+                    launchInviteMembersActivity(VectorHomeActivity.RoomCreationModes.DIRECT_CHAT, INVITE_USER_REQUEST_CODE);
                     break;
                 case DISCUSSION:
-                    launchInviteMembersActivity(VectorHomeActivity.RoomCreationModes.DISCUSSION, INVITE_ALL_USER_REQUEST_CODE);
+                    launchInviteMembersActivity(VectorHomeActivity.RoomCreationModes.DISCUSSION, INVITE_USER_REQUEST_CODE);
                     break;
             }
         }
@@ -206,7 +200,7 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         switch (requestCode) {
-            case INVITE_ALL_USER_REQUEST_CODE:
+            case INVITE_USER_REQUEST_CODE:
                 if (resultCode == Activity.RESULT_OK) {
                     List<ParticipantAdapterItem> items = (List<ParticipantAdapterItem>) data.getSerializableExtra(VectorRoomInviteMembersActivity.EXTRA_OUT_SELECTED_PARTICIPANT_ITEMS);
                     mParticipants.addAll(items);

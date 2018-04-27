@@ -55,6 +55,7 @@ import butterknife.BindView;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
 import fr.gouv.tchap.activity.TchapLoginActivity;
+import im.vector.activity.RiotAppCompatActivity;
 import im.vector.adapters.ParticipantAdapterItem;
 import fr.gouv.tchap.adapters.ContactAdapter;
 import im.vector.contacts.Contact;
@@ -254,7 +255,7 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
 
             @Override
             public void onSelectItem(ParticipantAdapterItem contact, int position) {
-                onContactSelected(contact);
+                DinsicUtils.onContactSelected((RiotAppCompatActivity) getActivity(), mSession, contact);
             }
         }, this, this);
         mRecycler.setAdapter(mAdapter);
@@ -571,85 +572,6 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                     onError(e.getMessage());
                 }
             });
-        }
-    }
-
-    /*
-     * *********************************************************************************************
-     * User action management
-     * *********************************************************************************************
-     */
-
-    /**
-     * Handle the click on a local or known contact
-     *
-     * @param item
-     */
-    private void onContactSelected(final ParticipantAdapterItem item) {
-        if (item.mIsValid) {
-
-            // Tell if contact is tchap user
-            if (MXSession.isUserId(item.mUserId)) {// || DinsicUtils.isFromFrenchGov(item.mContact.getEmails()))
-                // The contact is a Tchap user
-                if (DinsicUtils.openDirectChat(mActivity, item.mUserId, mSession, false)) {
-                    // If a direct chat already exist with him, open it
-                    DinsicUtils.openDirectChat(mActivity, item.mUserId, mSession, true);
-                } else {
-                    // If it's a Tchap user without a direct chat with him
-                    // Display a popup to confirm the creation of a new direct chat with him
-                    String msg = getString(R.string.start_new_chat_prompt_msg, item.mDisplayName);
-                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-                    alertDialogBuilder.setMessage(msg);
-
-                    // set dialog message
-                    alertDialogBuilder
-                            .setCancelable(false)
-                            .setPositiveButton(R.string.ok,
-                                    new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int id) {
-                                            DinsicUtils.openDirectChat(mActivity, item.mUserId, mSession, true);
-                                        }
-                                    })
-                            .setNegativeButton(R.string.cancel, null);
-
-                    // create alert dialog
-                    AlertDialog alertDialog = alertDialogBuilder.create();
-                    // show it
-                    alertDialog.show();
-                }
-            } else {
-                // The contact isn't a Tchap user
-                String msg = getString(R.string.room_invite_non_gov_people);
-                if (DinsicUtils.isFromFrenchGov(item.mContact.getEmails()))
-                    msg = getString(R.string.room_invite_gov_people);
-
-                if (!DinsicUtils.openDirectChat(mActivity, item.mUserId, mSession, false)) {
-                    if (TchapLoginActivity.isUserExternal(mSession)) {
-                        DinsicUtils.alertSimpleMsg(getActivity(), getString(R.string.room_creation_forbidden));
-                    } else {
-                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-                        alertDialogBuilder.setMessage(msg);
-
-                        // set dialog message
-                        alertDialogBuilder
-                                .setCancelable(false)
-                                .setPositiveButton(R.string.ok,
-                                        new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int id) {
-                                                DinsicUtils.openDirectChat(mActivity, item.mUserId, mSession, true);
-                                            }
-                                        })
-                                .setNegativeButton(R.string.cancel, null);
-
-                        // create alert dialog
-                        AlertDialog alertDialog = alertDialogBuilder.create();
-                        // show it
-                        alertDialog.show();
-                    }
-                }
-            }
-        } else {// tell the user that the email must be filled. Propose to fill it
-            DinsicUtils.editContact(mActivity, this.getContext(), item);
         }
     }
 

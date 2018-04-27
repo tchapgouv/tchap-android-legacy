@@ -157,7 +157,7 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vector_invite_members);
-        
+
         if (CommonActivityUtils.shouldRestartApp(this)) {
             Log.e(LOG_TAG, "Restart the application.");
             CommonActivityUtils.restartApp(this);
@@ -171,8 +171,17 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
 
         Intent intent = getIntent();
 
+        // Get extras of intent
         if (intent.hasExtra(EXTRA_MATRIX_ID)) {
             mMatrixId = intent.getStringExtra(EXTRA_MATRIX_ID);
+        }
+
+        if (intent.hasExtra(EXTRA_HIDDEN_PARTICIPANT_ITEMS)) {
+            mHiddenParticipantItems = (List<ParticipantAdapterItem>) intent.getSerializableExtra(EXTRA_HIDDEN_PARTICIPANT_ITEMS);
+        }
+
+        if (getIntent().hasExtra(VectorHomeActivity.EXTRA_ROOM_CREATION_ACTIVITY_MODE)) {
+            mode = (VectorHomeActivity.RoomCreationModes) getIntent().getSerializableExtra(VectorHomeActivity.EXTRA_ROOM_CREATION_ACTIVITY_MODE);
         }
 
         // get current session
@@ -181,15 +190,6 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
         if ((null == mSession) || !mSession.isAlive()) {
             finish();
             return;
-        }
-
-        if (intent.hasExtra(EXTRA_HIDDEN_PARTICIPANT_ITEMS)) {
-            mHiddenParticipantItems = (List<ParticipantAdapterItem>) intent.getSerializableExtra(EXTRA_HIDDEN_PARTICIPANT_ITEMS);
-        }
-
-        // Get extras of intent
-        if (getIntent().hasExtra(VectorHomeActivity.EXTRA_ROOM_CREATION_ACTIVITY_MODE)) {
-            mode = (VectorHomeActivity.RoomCreationModes) getIntent().getSerializableExtra(VectorHomeActivity.EXTRA_ROOM_CREATION_ACTIVITY_MODE);
         }
 
         String roomId = intent.getStringExtra(EXTRA_ROOM_ID);
@@ -225,81 +225,18 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
                 boolean ret = false;
                 final Object item = mAdapter.getChild(groupPosition, childPosition);
 
-                if (mode.equals(VectorHomeActivity.RoomCreationModes.DIRECT_CHAT)) {
-                    if (item instanceof ParticipantAdapterItem) {
-                        final ParticipantAdapterItem participant = (ParticipantAdapterItem) mAdapter.getChild(groupPosition, childPosition);
-                        // Tell if contact is tchap user
-                        if (MXSession.isUserId(participant.mUserId)) {// || DinsicUtils.isFromFrenchGov(item.mContact.getEmails()))
-                            // The contact is a Tchap user
-                            if (DinsicUtils.openDirectChat(VectorRoomInviteMembersActivity.this, participant.mUserId, mSession, false)) {
-                                // If a direct chat already exist with him, open it
-                                DinsicUtils.openDirectChat(VectorRoomInviteMembersActivity.this, participant.mUserId, mSession, true);
-                            } else {
-                                // If it's a Tchap user without a direct chat with him
-                                // Display a popup to confirm the creation of a new direct chat with him
-                                String msg = getString(R.string.start_new_chat_prompt_msg, participant.mDisplayName);
-                                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(VectorRoomInviteMembersActivity.this);
-                                alertDialogBuilder.setMessage(msg);
+                if (item instanceof ParticipantAdapterItem) {
+                    if (null != mode) {
+                        if (mode.equals(VectorHomeActivity.RoomCreationModes.DIRECT_CHAT)) {
 
-                                // set dialog message
-                                alertDialogBuilder
-                                        .setCancelable(false)
-                                        .setPositiveButton(R.string.ok,
-                                                new DialogInterface.OnClickListener() {
-                                                    public void onClick(DialogInterface dialog, int id) {
-                                                        DinsicUtils.openDirectChat(VectorRoomInviteMembersActivity.this, participant.mUserId, mSession, true);
-                                                    }
-                                                })
-                                        .setNegativeButton(R.string.cancel, null);
+                            final ParticipantAdapterItem participant = (ParticipantAdapterItem) mAdapter.getChild(groupPosition, childPosition);
+                            DinsicUtils.onContactSelected(VectorRoomInviteMembersActivity.this, mSession, participant);
 
-                                // create alert dialog
-                                AlertDialog alertDialog = alertDialogBuilder.create();
-                                // show it
-                                alertDialog.show();
-                            }
-                        } else {
-                            // The contact isn't a Tchap user
-                            String msg = getString(R.string.room_invite_non_gov_people);
-                            if (DinsicUtils.isFromFrenchGov(participant.mContact.getEmails()))
-                                msg = getString(R.string.room_invite_gov_people);
-
-                            if (!DinsicUtils.openDirectChat(VectorRoomInviteMembersActivity.this, participant.mUserId, mSession, false)) {
-                                if (TchapLoginActivity.isUserExternal(mSession)) {
-                                    DinsicUtils.alertSimpleMsg(VectorRoomInviteMembersActivity.this, getString(R.string.room_creation_forbidden));
-                                } else {
-                                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(VectorRoomInviteMembersActivity.this);
-                                    alertDialogBuilder.setMessage(msg);
-
-                                    // set dialog message
-                                    alertDialogBuilder
-                                            .setCancelable(false)
-                                            .setPositiveButton(R.string.ok,
-                                                    new DialogInterface.OnClickListener() {
-                                                        public void onClick(DialogInterface dialog, int id) {
-                                                            DinsicUtils.openDirectChat(VectorRoomInviteMembersActivity.this, participant.mUserId, mSession, true);
-                                                        }
-                                                    })
-                                            .setNegativeButton(R.string.cancel, null);
-
-                                    // create alert dialog
-                                    AlertDialog alertDialog = alertDialogBuilder.create();
-                                    // show it
-                                    alertDialog.show();
-                                }
-                            }
+                        } else if (mode.equals(VectorHomeActivity.RoomCreationModes.DISCUSSION)) {
+                            addParticipantToListToInvite((ParticipantAdapterItem) item);
                         }
-                    } else {// tell the user that the email must be filled. Propose to fill it
-                        DinsicUtils.editContact(VectorRoomInviteMembersActivity.this, VectorRoomInviteMembersActivity.this, (ParticipantAdapterItem) item);
-
-                    }
-                } else if (mode.equals(VectorHomeActivity.RoomCreationModes.DISCUSSION)) {
-
-                    final ParticipantAdapterItem participantAdapterItem = (ParticipantAdapterItem) item;
-                    if (((ParticipantAdapterItem) item).mIsValid) {
-                        finish(new ArrayList<>(Arrays.asList(participantAdapterItem)));
-                        ret = true;
                     } else {
-                        DinsicUtils.editContact(VectorRoomInviteMembersActivity.this, getApplicationContext(), (ParticipantAdapterItem) item);
+                        addParticipantToListToInvite((ParticipantAdapterItem) item);
                     }
                 }
                 return ret;
@@ -487,6 +424,22 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
             intent.putExtra(EXTRA_OUT_SELECTED_PARTICIPANT_ITEMS, participantAdapterItems);
             setResult(RESULT_OK, intent);
             finish();
+        }
+    }
+
+    /**
+     * Add selected contacts to a list to invite them
+     *
+     * @param item the selected participants
+     */
+    private void addParticipantToListToInvite(ParticipantAdapterItem item) {
+        boolean ret = false;
+        ParticipantAdapterItem participantAdapterItem = item;
+        if (item.mIsValid) {
+            finish(new ArrayList<>(Arrays.asList(participantAdapterItem)));
+            ret = true;
+        } else {
+            DinsicUtils.editContact(VectorRoomInviteMembersActivity.this, getApplicationContext(), item);
         }
     }
 
