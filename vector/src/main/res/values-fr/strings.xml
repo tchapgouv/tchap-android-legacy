@@ -107,7 +107,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="users">utilisateurs</string>
     <string name="search">Rechercher</string>
 
-    <string name="start_new_chat">Nouvelle discussion</string>
+    <string name="start_new_chat">Nouveau dialogue</string>
     <string name="start_voice_call">Nouvel appel vocal</string>
     <string name="start_video_call">Nouvel appel vidéo</string>
 
@@ -281,7 +281,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="room_recents_conversations">DISCUSSIONS</string>
     <string name="room_recents_low_priority">PRIORITÉ BASSE</string>
     <string name="room_recents_invites">INVITATIONS</string>
-    <string name="room_recents_start_chat">Créer une discussion</string>
+    <string name="room_recents_start_chat">Créer un dialogue</string>
     <string name="room_recents_create_room">Créer une discussion</string>
     <string name="room_recents_join_room">Rejoindre la discussion</string>
     <string name="room_recents_join_room_title">Rejoindre une discussion</string>
@@ -549,7 +549,7 @@ Autorisez-vous Tchap à accéder à vos contacts ?</string>
     <string name="room_preview_invitation_format">%s vous a invité à rejoindre cette discussion</string>
     <string name="room_preview_unlinked_email_warning">Cette invitation a été envoyée à %s, qui n\'est pas associé à ce compte.
 Vous pouvez vous identifier avec un compte différent ou ajouter cette adresse e-mail à votre compte.</string>
-    <string name="room_preview_try_join_an_unknown_room">Vous essayez d\'accéder à %s. Souhaitez-vous rejoindre la discussion pour participer à la discussion ?</string>
+    <string name="room_preview_try_join_an_unknown_room">Vous essayez d\'accéder à %s. Souhaitez-vous rejoindre la discussion pour y participer ?</string>
     <string name="room_preview_room_interactions_disabled">Ceci est un aperçu de la discussion. Vous ne pouvez pas interagir.</string>
 
     <string name="room_e2e_alert_message">Le chiffrement de bout en bout est en version bêta et peut ne pas être fiable.
