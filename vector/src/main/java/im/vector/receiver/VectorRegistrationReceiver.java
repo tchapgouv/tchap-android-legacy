@@ -26,13 +26,10 @@ import android.text.TextUtils;
 import org.matrix.androidsdk.util.Log;
 
 import java.net.URLDecoder;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Set;
 
-import im.vector.R;
-import im.vector.activity.LoginActivity;
+import fr.gouv.tchap.activity.TchapLoginActivity;
 
 @SuppressLint("LongLogTag")
 public class VectorRegistrationReceiver extends BroadcastReceiver {
@@ -86,7 +83,7 @@ public class VectorRegistrationReceiver extends BroadcastReceiver {
                     HashMap<String, String> mailRegParams = parseMailRegistrationLink(aContext, intentUri);
 
                     // build Login intent
-                    Intent intent = new Intent(aContext, LoginActivity.class);
+                    Intent intent = new Intent(aContext, TchapLoginActivity.class);
                     intent.putExtra(EXTRA_EMAIL_VALIDATION_PARAMS, mailRegParams);
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                     aContext.startActivity(intent);

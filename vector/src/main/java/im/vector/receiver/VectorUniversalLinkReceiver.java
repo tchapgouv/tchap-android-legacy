@@ -45,7 +45,7 @@ import java.util.TimerTask;
 import im.vector.Matrix;
 import im.vector.VectorApp;
 import im.vector.activity.CommonActivityUtils;
-import im.vector.activity.LoginActivity;
+import fr.gouv.tchap.activity.TchapLoginActivity;
 import im.vector.activity.VectorGroupDetailsActivity;
 import im.vector.activity.VectorHomeActivity;
 import im.vector.activity.VectorMemberDetailsActivity;
@@ -70,7 +70,7 @@ public class VectorUniversalLinkReceiver extends BroadcastReceiver {
 
     // sender activities
     public static final String HOME_SENDER_ID = VectorHomeActivity.class.getSimpleName();
-    //public static final String LOGIN_SENDER_ID = LoginActivity.class.getSimpleName();
+    //public static final String LOGIN_SENDER_ID = TchapLoginActivity.class.getSimpleName();
     //public static final String SPLASH_SENDER_ID = SplashActivity.class.getSimpleName();
 
     // the supported paths
@@ -119,7 +119,7 @@ public class VectorUniversalLinkReceiver extends BroadcastReceiver {
             Log.e(LOG_TAG, "## onReceive() Warning - Unable to proceed URL link: Session is null");
 
             // No user is logged => no session. Just forward request to the login activity
-            Intent intent = new Intent(aContext, LoginActivity.class);
+            Intent intent = new Intent(aContext, TchapLoginActivity.class);
             intent.putExtra(EXTRA_UNIVERSAL_LINK_URI, aIntent.getData());
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
             aContext.startActivity(intent);
@@ -172,7 +172,7 @@ public class VectorUniversalLinkReceiver extends BroadcastReceiver {
                         // Start the login activity and wait for BROADCAST_ACTION_UNIVERSAL_LINK_RESUME.
                         // Once the login process flow is complete, BROADCAST_ACTION_UNIVERSAL_LINK_RESUME is
                         // sent back to resume the URL link processing.
-                        Intent intent = new Intent(aContext, LoginActivity.class);
+                        Intent intent = new Intent(aContext, TchapLoginActivity.class);
                         intent.putExtra(EXTRA_UNIVERSAL_LINK_URI, aIntent.getData());
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         aContext.startActivity(intent);

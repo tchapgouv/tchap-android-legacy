@@ -39,7 +39,6 @@ import im.vector.VectorApp;
 import im.vector.contacts.Contact;
 import im.vector.contacts.PIDsRetriever;
 import im.vector.util.VectorUtils;
-import im.vector.util.DinsicUtils;
 
 // Class representing a room participant.
 public class ParticipantAdapterItem implements java.io.Serializable {
