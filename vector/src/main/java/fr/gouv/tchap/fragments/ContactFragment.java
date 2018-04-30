@@ -803,7 +803,7 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
 
     @Override
     public void onPIDsUpdate() {
-        // Retriece only Tchap user contacts
+        // Retrieve only Tchap user contacts
         // For all contacts use getContacts() method
         final List<ParticipantAdapterItem> newContactList = getOnlyTchapUserContacts();
         //add participants from direct chats
