@@ -397,7 +397,9 @@
     <string name="room_participants_ban_prompt_msg">Are you sure that you want to ban this user from this chat?</string>
 
     <!-- invitation -->
-    <string name="people_search_invite_by_id"><u>Invite by ID</u></string>
+    <string name="people_search_invite_by_id"><u>Invite by email</u></string>
+    <string name="people_search_invite_validation">Validate the selection</string>
+
     <string name="people_search_local_contacts">LOCAL CONTACTS (%d)</string>
     <string name="people_search_user_directory">USER DIRECTORY (%s)</string>
     <string name="people_search_filter_text">Matrix users only</string>

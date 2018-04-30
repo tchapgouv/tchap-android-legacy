@@ -247,7 +247,20 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
             }
         });
 
-        View createRoomView = findViewById(R.id.create_new_room);
+        View validateInvitePeopleSelection = findViewById(R.id.validate_invite_peoples_selection);
+        validateInvitePeopleSelection.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+               // TODO Handle multi selection mode
+                /*if(!TchapLoginActivity.isUserExternal(mSession)) {
+                    createNewRoom();
+                } else {
+                    DinsicUtils.alertSimpleMsg(VectorRoomInviteMembersActivity.this, getString(R.string.room_creation_forbidden));
+                }*/
+            }
+        });
+
+        /*View createRoomView = findViewById(R.id.create_new_room);
         createRoomView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -257,7 +270,7 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
                     DinsicUtils.alertSimpleMsg(VectorRoomInviteMembersActivity.this, getString(R.string.room_creation_forbidden));
                 }
             }
-        });
+        });*/
 
         // Check permission to access contacts
         CommonActivityUtils.checkPermissions(CommonActivityUtils.REQUEST_CODE_PERMISSION_MEMBERS_SEARCH, this);

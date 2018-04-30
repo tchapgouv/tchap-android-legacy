@@ -1035,12 +1035,8 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
         //change alpha mgmt for tchap
         // convertView.setAlpha(participant.mIsValid ? 1f : 0.5f);
 
-        // the checkbox is not managed here
-        final CheckBox checkBox = convertView.findViewById(R.id.filtered_list_checkbox);
-        checkBox.setVisibility(View.GONE);
-
-        final View addParticipantImageView = convertView.findViewById(R.id.filtered_list_add_button);
-        addParticipantImageView.setVisibility(mWithAddIcon ? View.VISIBLE : View.GONE);
+        final View addParticipantImageView = convertView.findViewById(R.id.filtered_list_checkbox);
+        addParticipantImageView.setVisibility(View.VISIBLE);
 
         return convertView;
     }

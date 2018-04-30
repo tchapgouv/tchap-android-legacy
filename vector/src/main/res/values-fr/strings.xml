@@ -572,7 +572,8 @@ En êtes-vous sûr(e) ?</string>
     <string name="room_participants_invite_prompt_msg">Voulez-vous vraiment inviter %s à cette discussion ?</string>
     <string name="room_left_member_invite_prompt_msg">Acceptez-vous de réinviter %s à cette discussion avant de sélectionner un fichier ?</string>
 
-    <string name="people_search_invite_by_id"><u>Inviter par identifiant</u></string>
+    <string name="people_search_invite_by_id">Inviter par email</string>
+    <string name="people_search_invite_validation">Valider la sélection</string>
 
     <string name="people_search_invite_by_id_dialog_description">Entrez une ou plusieurs adresses e-mail ou identifiants Matrix</string>
     <string name="room_one_user_is_typing">%s écrit…</string>

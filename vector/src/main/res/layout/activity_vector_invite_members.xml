@@ -3,44 +3,44 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/search_invite_by_id"
-        style="@style/ListHeader"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        android:text="@string/people_search_invite_by_id"
-        android:textAllCaps="false"
-        android:textSize="16sp" />
+
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/header_create_room"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/search_invite_by_id"
-        android:background="?attr/list_header_background_color"
-        android:orientation="vertical"
-        android:layout_marginBottom="10dp">
+        android:orientation="horizontal"
+        android:layout_marginBottom="15dp">
 
-        <RelativeLayout
-            android:id="@+id/people_header_sub_layout"
+        <Button
+            android:id="@+id/search_invite_by_id"
             android:layout_width="match_parent"
-            android:layout_height="20dp"
-            android:layout_marginBottom="11dp"
-            android:layout_marginTop="11dp">
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="5dp"
+            android:text="@string/people_search_invite_by_id"
+            android:background="@drawable/button_custom"
+            android:textColor="@color/riot_primary_background_color_light"
+            android:fontFamily="sans-serif-medium"
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            android:elevation="3dp"/>
 
-                <TextView
-                    android:id="@+id/create_new_room"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_marginLeft="16dp"
-                    android:fontFamily="sans-serif-medium"
-                    android:text="@string/room_recents_create_room"
-                    android:textColor="?attr/riot_primary_text_color"
-                    android:textSize="14sp"
-                    android:textAllCaps="true"/>
-        </RelativeLayout>
+        <Button
+            android:id="@+id/validate_invite_peoples_selection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="5dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/people_search_invite_validation"
+            android:textColor="@color/riot_primary_background_color_light"
+            android:background="@drawable/button_custom"
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            android:elevation="3dp"/>
 
     </LinearLayout>
 
