@@ -445,7 +445,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         }
 
         final View selectedMenu;
-        //default is people view
+        //default is room view
         if (savedInstanceState != null) {
             selectedMenu = mBottomNavigationView.findViewById(savedInstanceState.getInt(CURRENT_MENU_ID, R.id.bottom_action_rooms));
         } else {
