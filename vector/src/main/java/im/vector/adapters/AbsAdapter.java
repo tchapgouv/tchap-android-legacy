@@ -48,15 +48,15 @@ import im.vector.view.SectionView;
 public abstract class AbsAdapter extends AbsFilterableAdapter {
     private static final String LOG_TAG = AbsAdapter.class.getSimpleName();
 
-    static final int TYPE_HEADER_DEFAULT = -1;
+    protected static final int TYPE_HEADER_DEFAULT = -1;
 
-    static final int TYPE_ROOM_INVITATION = -2;
+    protected static final int TYPE_ROOM_INVITATION = -2;
 
-    static final int TYPE_ROOM = -3;
+    protected static final int TYPE_ROOM = -3;
 
-    static final int TYPE_GROUP = -4;
+    protected static final int TYPE_GROUP = -4;
 
-    static final int TYPE_GROUP_INVITATION = -5;
+    protected static final int TYPE_GROUP_INVITATION = -5;
 
     // Helper handling the sticky view for each section
     private StickySectionHelper mStickySectionHelper;
@@ -73,7 +73,7 @@ public abstract class AbsAdapter extends AbsFilterableAdapter {
      * *********************************************************************************************
      */
 
-    AbsAdapter(final Context context, final RoomInvitationListener invitationListener, final MoreRoomActionListener moreActionListener) {
+    protected AbsAdapter(final Context context, final RoomInvitationListener invitationListener, final MoreRoomActionListener moreActionListener) {
         super(context, invitationListener, moreActionListener);
 
         registerAdapterDataObserver(new AdapterDataObserver());
@@ -267,7 +267,7 @@ public abstract class AbsAdapter extends AbsFilterableAdapter {
      * @param position
      * @return item at the given position
      */
-    Object getItemForPosition(final int position) {
+    protected Object getItemForPosition(final int position) {
         for (int i = 0; i < mSections.size(); i++) {
             Pair<Integer, AdapterSection> section = mSections.get(i);
             if (position > section.first) {
@@ -285,7 +285,7 @@ public abstract class AbsAdapter extends AbsFilterableAdapter {
      *
      * @param section
      */
-    void addSection(AdapterSection section) {
+    protected void addSection(AdapterSection section) {
         addSection(section, -1);
     }
 
@@ -312,7 +312,7 @@ public abstract class AbsAdapter extends AbsFilterableAdapter {
     /**
      * Notify that sections have changed and must be updated internally
      */
-    void updateSections() {
+    protected void updateSections() {
         List<AdapterSection> list = getSections();
         mSections.clear();
         for (AdapterSection section : list) {
@@ -347,7 +347,7 @@ public abstract class AbsAdapter extends AbsFilterableAdapter {
      *
      * @return
      */
-    List<Pair<Integer, AdapterSection>> getSectionsArray() {
+    protected List<Pair<Integer, AdapterSection>> getSectionsArray() {
         return new ArrayList<>(mSections);
     }
 
@@ -357,7 +357,7 @@ public abstract class AbsAdapter extends AbsFilterableAdapter {
      * @param section
      * @return section header position
      */
-    int getSectionHeaderPosition(final AdapterSection section) {
+    protected int getSectionHeaderPosition(final AdapterSection section) {
         for (Pair<Integer, AdapterSection> adapterSection : mSections) {
             if (adapterSection.second == section) {
                 return adapterSection.first;
@@ -373,7 +373,7 @@ public abstract class AbsAdapter extends AbsFilterableAdapter {
      * @param filterPattern
      * @return nb of items matching the filter
      */
-    int filterRoomSection(final AdapterSection<Room> section, final String filterPattern) {
+    protected int filterRoomSection(final AdapterSection<Room> section, final String filterPattern) {
         if (null != section) {
             if (!TextUtils.isEmpty(filterPattern)) {
                 List<Room> filteredRoom = RoomUtils.getFilteredRooms(mContext, mSession, section.getItems(), filterPattern);
@@ -420,12 +420,12 @@ public abstract class AbsAdapter extends AbsFilterableAdapter {
 
         private AdapterSection mSection;
 
-        HeaderViewHolder(View itemView) {
+        public HeaderViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
 
-        void populateViews(AdapterSection item) {
+        public void populateViews(AdapterSection item) {
             mSection = item;
             vSectionTitle.setText(item != null ? item.getTitle() : null);
         }

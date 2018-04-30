@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package im.vector.adapters;
+package fr.gouv.tchap.adapters;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -42,7 +42,12 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import im.vector.R;
 import im.vector.VectorApp;
-import im.vector.activity.LoginActivity;
+import fr.gouv.tchap.activity.TchapLoginActivity;
+import im.vector.adapters.AbsAdapter;
+import im.vector.adapters.AdapterSection;
+import im.vector.adapters.KnownContactsAdapterSection;
+import im.vector.adapters.ParticipantAdapterItem;
+import im.vector.adapters.RoomViewHolder;
 import im.vector.contacts.ContactsManager;
 import im.vector.util.RoomUtils;
 import im.vector.util.VectorUtils;
@@ -93,7 +98,7 @@ public class ContactAdapter extends AbsAdapter {
         mKnownContactsSection.setIsHiddenWhenNoFilter(true);
 
         addSection(mLocalContactsSection);
-        if (!LoginActivity.isUserExternal(mSession)) {
+        if (!TchapLoginActivity.isUserExternal(mSession)) {
             addSection(mKnownContactsSection);
         }
     }

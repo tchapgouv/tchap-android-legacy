@@ -1,6 +1,7 @@
 /*
  * Copyright 2014 OpenMarket Ltd
  * Copyright 2017 Vector Creations Ltd
+ * Copyright 2018 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +34,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.internal.BottomNavigationItemView;
 import android.support.design.internal.BottomNavigationMenuView;
@@ -102,22 +104,22 @@ import java.util.TimerTask;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import fr.gouv.tchap.activity.TchapLoginActivity;
 import im.vector.Matrix;
 import im.vector.MyPresenceManager;
 import im.vector.PublicRoomsManager;
 import im.vector.R;
 import im.vector.VectorApp;
 import im.vector.fragments.AbsHomeFragment;
-import im.vector.fragments.FavouritesFragment;
-import im.vector.fragments.GroupsFragment;
-import im.vector.fragments.HomeFragment;
-import im.vector.fragments.ContactFragment;
+import fr.gouv.tchap.fragments.ContactFragment;
 import im.vector.fragments.RoomsFragment;
+import im.vector.gcm.GcmRegistrationManager;
 import im.vector.receiver.VectorUniversalLinkReceiver;
 import im.vector.services.EventStreamService;
 import im.vector.util.BugReporter;
 import im.vector.util.CallsManager;
-import im.vector.util.DinsicUtils;
+import fr.gouv.tchap.util.DinsicUtils;
+import im.vector.util.PreferencesManager;
 import im.vector.util.RoomUtils;
 import im.vector.util.ThemeUtils;
 import im.vector.util.VectorUtils;
@@ -574,6 +576,66 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         displayCryptoCorruption();
 
         addBadgeEventsListener();
+
+        checkNotificationPrivacySetting();
+    }
+
+    /**
+     * Ask the user to choose a notification privacy policy.
+     */
+    private void checkNotificationPrivacySetting() {
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            // The "Run in background" permission exists from android 6
+            return;
+        }
+
+        final GcmRegistrationManager gcmMgr = Matrix.getInstance(VectorHomeActivity.this).getSharedGCMRegistrationManager();
+
+        if (!gcmMgr.useGCM()) {
+            // f-droid does not need the permission.
+            // It is still using the technique of sticky "Listen for events" notification
+            return;
+        }
+
+        // ask user what notification privacy they want. Ask it once
+        if (!PreferencesManager.didAskUserToIgnoreBatteryOptimizations(this)) {
+            PreferencesManager.setDidAskUserToIgnoreBatteryOptimizations(this, true);
+
+            // by default, use GCM and low detail notifications
+            gcmMgr.setNotificationPrivacy(GcmRegistrationManager.NotificationPrivacy.LOW_DETAIL);
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(R.string.startup_notification_privacy_title);
+            builder.setMessage(R.string.startup_notification_privacy_message);
+
+            builder.setPositiveButton(R.string.startup_notification_privacy_button_grant, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                    Log.d(LOG_TAG, "checkNotificationPrivacySetting: user wants to grant the IgnoreBatteryOptimizations permission");
+
+                    // use NotificationPrivacyActivity in case we need to display the IgnoreBatteryOptimizations
+                    // grant permission dialog
+                    NotificationPrivacyActivity.setNotificationPrivacy(VectorHomeActivity.this,
+                            GcmRegistrationManager.NotificationPrivacy.NORMAL);
+                }
+            });
+
+            builder.setNegativeButton(R.string.startup_notification_privacy_button_other, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                    Log.d(LOG_TAG, "checkNotificationPrivacySetting: user opens notification policy setting screen");
+
+                    // open the notification policy setting screen
+                    startActivity(NotificationPrivacyActivity.getIntent(VectorHomeActivity.this));
+                }
+            });
+
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
     }
 
     @Override
@@ -1127,7 +1189,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         // ignore any action if there is a pending one
         if (!isWaitingViewVisible()) {
             // the FAB action is temporarily blocked for external users to prevent them from creating direct chat
-            if(LoginActivity.isUserExternal(mSession)) {
+            if(TchapLoginActivity.isUserExternal(mSession)) {
                 DinsicUtils.alertSimpleMsg(this, getString(R.string.action_forbidden));
             } else {
                 invitePeopleToNewRoom();

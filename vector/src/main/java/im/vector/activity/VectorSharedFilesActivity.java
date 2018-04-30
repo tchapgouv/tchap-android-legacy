@@ -28,6 +28,7 @@ import org.matrix.androidsdk.util.ContentUtils;
 import java.io.File;
 import java.util.ArrayList;
 
+import fr.gouv.tchap.activity.TchapLoginActivity;
 import im.vector.Matrix;
 
 /**
@@ -75,7 +76,7 @@ public class VectorSharedFilesActivity extends RiotBaseActivity {
                     Log.d(LOG_TAG, "onCreate : go to login screen");
 
                     // don't know what to do, go to the login screen
-                    Intent loginIntent = new Intent(this, LoginActivity.class);
+                    Intent loginIntent = new Intent(this, TchapLoginActivity.class);
                     startActivity(loginIntent);
                 }
             } else {

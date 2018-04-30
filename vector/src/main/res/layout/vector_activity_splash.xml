@@ -13,12 +13,12 @@
         android:scaleType="fitXY"
         android:visibility="visible"/>
 
-    <ImageView
+    <!-- ImageView
         android:id="@+id/splash_logo_image_view"
         android:src="@drawable/tchap_splash_logo"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:adjustViewBounds="true"
         android:scaleType="fitXY"
-        android:visibility="visible"/>
+        android:visibility="visible"/-->
 </RelativeLayout>
