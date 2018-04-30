@@ -13,9 +13,15 @@
         android:descendantFocusability="beforeDescendants"
         android:focusableInTouchMode="true">
 
+        <android.support.design.widget.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/Ahome_toolbar"
+            android:elevation="0dp">
         <android.support.v7.widget.Toolbar
             android:id="@+id/home_toolbar"
             style="@style/VectorToolbarStyle"
+
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -26,13 +32,25 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
         </android.support.v7.widget.Toolbar>
-
+        </android.support.design.widget.AppBarLayout>
+        <android.support.design.widget.BottomNavigationView
+            android:id="@+id/bottom_navigation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/Ahome_toolbar"
+            android:layout_marginTop="0dp"
+            android:layout_marginLeft="0dp"
+            android:background="?attr/primary_color"
+            app:itemBackground="?attr/primary_color"
+            app:itemIconTint="@color/home_bottom_nav_view_tint"
+            app:itemTextColor="@color/home_bottom_nav_view_tint"
+            app:menu="@menu/bottom_navigation_main"/>
         <ProgressBar
             android:id="@+id/home_recents_sync_in_progress"
             style="@style/Widget.AppCompat.ProgressBar.Horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/home_toolbar"
+            android:layout_below="@id/bottom_navigation"
             android:background="@color/vector_green_color"
             android:indeterminate="true"
             android:visibility="gone" />
@@ -44,12 +62,12 @@
             android:layout_below="@id/home_recents_sync_in_progress"
             android:visibility="gone" />
 
+
         <!-- The main content view -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@+id/bottom_navigation"
-            android:layout_below="@+id/listView_pending_callview"
+            android:layout_below="@+id/bottom_navigation"
             tools:context="org.matrix.vector.activity.VectorHomeActivity">
 
             <FrameLayout
@@ -87,16 +105,7 @@
             </FrameLayout>
         </RelativeLayout>
 
-        <android.support.design.widget.BottomNavigationView
-            android:id="@+id/bottom_navigation"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:background="?attr/riot_primary_background_color"
-            app:itemBackground="?attr/riot_primary_background_color"
-            app:itemIconTint="@color/home_bottom_nav_view_tint"
-            app:itemTextColor="@color/home_bottom_nav_view_tint"
-            app:menu="@menu/bottom_navigation_main" />
+
     </RelativeLayout>
 
     <android.support.design.widget.NavigationView
