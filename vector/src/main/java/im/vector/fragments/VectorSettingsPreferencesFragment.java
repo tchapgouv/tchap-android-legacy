@@ -2,6 +2,7 @@
  * Copyright 2016 OpenMarket Ltd
  * Copyright 2017 Vector Creations Ltd
  * Copyright 2018 New Vector Ltd
+ * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +44,6 @@ import android.provider.Settings;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.content.ContextCompat;
 import android.text.Editable;
-import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -259,6 +259,11 @@ public class VectorSettingsPreferencesFragment extends PreferenceFragment implem
             }
         });
 
+        // display name
+        EditTextPreference displayNamePref = (EditTextPreference) findPreference(PreferencesManager.SETTINGS_DISPLAY_NAME_PREFERENCE_KEY);
+        displayNamePref.setSummary(mSession.getMyUser().displayname);
+
+        // Password
         EditTextPreference passwordPreference = (EditTextPreference) findPreference(PreferencesManager.SETTINGS_CHANGE_PASSWORD_PREFERENCE_KEY);
         passwordPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -268,6 +273,7 @@ public class VectorSettingsPreferencesFragment extends PreferenceFragment implem
             }
         });
 
+        // Notifications Ring Tone
         EditTextPreference notificationRingTonePreference = (EditTextPreference) findPreference(PreferencesManager.SETTINGS_NOTIFICATION_RINGTONE_SELECTION_PREFERENCE_KEY);
         notificationRingTonePreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -284,6 +290,7 @@ public class VectorSettingsPreferencesFragment extends PreferenceFragment implem
         });
         refreshNotificationRingTone();
 
+        // Notification privacy
         EditTextPreference notificationPrivacyPreference = (EditTextPreference) findPreference(PreferencesManager.SETTINGS_NOTIFICATION_PRIVACY_PREFERENCE_KEY);
         if (notificationPrivacyPreference != null) {
             notificationPrivacyPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -503,17 +510,6 @@ public class VectorSettingsPreferencesFragment extends PreferenceFragment implem
                 }
             });
         }
-
-        // display name
-        final EditTextPreference displaynamePref = (EditTextPreference) findPreference(PreferencesManager.SETTINGS_DISPLAY_NAME_PREFERENCE_KEY);
-        displaynamePref.setSummary(mSession.getMyUser().displayname);
-        displaynamePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                onDisplayNameClick((null == newValue) ? null : ((String) newValue).trim());
-                return false;
-            }
-        });
 
         final VectorSwitchPreference urlPreviewPreference = (VectorSwitchPreference)findPreference(PreferencesManager.SETTINGS_SHOW_URL_PREVIEW_KEY);
         urlPreviewPreference.setChecked(mSession.isURLPreviewEnabled());
@@ -998,10 +994,8 @@ public class VectorSettingsPreferencesFragment extends PreferenceFragment implem
         avatarPreference.setEnabled(isConnected);
 
         // refresh the display name
-        final EditTextPreference displaynamePref = (EditTextPreference) preferenceManager.findPreference(PreferencesManager.SETTINGS_DISPLAY_NAME_PREFERENCE_KEY);
-        displaynamePref.setSummary(mSession.getMyUser().displayname);
-        displaynamePref.setText(mSession.getMyUser().displayname);
-        displaynamePref.setEnabled(isConnected);
+        EditTextPreference displayNamePref = (EditTextPreference) preferenceManager.findPreference(PreferencesManager.SETTINGS_DISPLAY_NAME_PREFERENCE_KEY);
+        displayNamePref.setSummary(mSession.getMyUser().displayname);
 
         // change password
         final EditTextPreference changePasswordPref = (EditTextPreference) preferenceManager.findPreference(PreferencesManager.SETTINGS_CHANGE_PASSWORD_PREFERENCE_KEY);
@@ -1304,45 +1298,6 @@ public class VectorSettingsPreferencesFragment extends PreferenceFragment implem
                         Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT).show();
                     }
                     onDone();
-                }
-            });
-        }
-    }
-
-    /**
-     * Update the displayname.
-     */
-    private void onDisplayNameClick(final String value) {
-        if (!TextUtils.equals(mSession.getMyUser().displayname, value)) {
-            displayLoadingView();
-
-            mSession.getMyUser().updateDisplayName(value, new ApiCallback<Void>() {
-                @Override
-                public void onSuccess(Void info) {
-                    // refresh the settings value
-                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                    SharedPreferences.Editor editor = preferences.edit();
-                    editor.putString(PreferencesManager.SETTINGS_DISPLAY_NAME_PREFERENCE_KEY, value);
-                    editor.commit();
-
-                    onCommonDone(null);
-
-                    refreshDisplay();
-                }
-
-                @Override
-                public void onNetworkError(Exception e) {
-                    onCommonDone(e.getLocalizedMessage());
-                }
-
-                @Override
-                public void onMatrixError(MatrixError e) {
-                    onCommonDone(e.getLocalizedMessage());
-                }
-
-                @Override
-                public void onUnexpectedError(Exception e) {
-                    onCommonDone(e.getLocalizedMessage());
                 }
             });
         }
