@@ -16,9 +16,9 @@
 package fr.gouv.tchap.sdk.rest.api;
 
 import fr.gouv.tchap.sdk.rest.model.Platform;
-import retrofit.Callback;
-import retrofit.http.GET;
-import retrofit.http.Query;
+import retrofit2.Call;
+import retrofit2.http.GET;
+import retrofit2.http.Query;
 
 public interface TchapApi {
 
@@ -27,9 +27,8 @@ public interface TchapApi {
      *
      * @param address  the address.
      * @param medium   the medium.
-     * @param callback the asynchronous callback called with the response
      */
-    @GET("/info")
-    void info(@Query("address") String address,
-              @Query("medium") String medium, Callback<Platform> callback);
+    @GET("info")
+    Call<Platform> info(@Query("address") String address,
+                        @Query("medium") String medium);
 }
