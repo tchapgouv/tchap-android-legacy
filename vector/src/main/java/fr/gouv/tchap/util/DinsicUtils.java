@@ -405,8 +405,8 @@ public class DinsicUtils {
                     }
                 }
             }
-        } else {// tell the user that the email must be filled. Propose to fill it
-            DinsicUtils.editContact(activity, activity, item);
+        } else { // tell the user that the email must be filled. Propose to fill it
+            DinsicUtils.editContact(activity, activity, selectedContact);
         }
     }
 
