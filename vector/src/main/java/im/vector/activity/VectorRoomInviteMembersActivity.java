@@ -235,7 +235,7 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
             }
         });
 
-        View inviteByIdTextView = findViewById(R.id.search_invite_by_email);
+        View inviteByIdTextView = findViewById(R.id.search_invite_by_id);
         inviteByIdTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -438,7 +438,7 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
         View dialogLayout = getLayoutInflater().inflate(R.layout.dialog_invite_by_email, null);
 
         final AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-        dialog.setTitle(R.string.people_search_invite_by_email_dialog_title);
+        dialog.setTitle(R.string.people_search_invite_by_id_dialog_title);
         dialog.setView(dialogLayout);
 
         final VectorAutoCompleteTextView inviteTextView = dialogLayout.findViewById(R.id.invite_by_email_edit_text);

@@ -4,12 +4,12 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/search_invite_by_email"
+        android:id="@+id/search_invite_by_id"
         style="@style/ListHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
-        android:text="@string/people_search_invite_by_email"
+        android:text="@string/people_search_invite_by_id"
         android:textAllCaps="false"
         android:textSize="16sp" />
 
@@ -17,7 +17,7 @@
         android:id="@+id/header_create_room"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/search_invite_by_email"
+        android:layout_below="@+id/search_invite_by_id"
         android:background="?attr/list_header_background_color"
         android:orientation="vertical"
         android:layout_marginBottom="10dp">

@@ -12,7 +12,7 @@
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:layout_marginTop="10dp"
-        android:text="@string/people_search_invite_by_email_dialog_description" />
+        android:text="@string/people_search_invite_by_id_dialog_description" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -25,6 +25,6 @@
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_marginTop="10dp"
-            android:hint="@string/people_search_invite_by_email_dialog_hint" />
+            android:hint="@string/people_search_invite_by_id_dialog_hint" />
     </ScrollView>
 </LinearLayout>
