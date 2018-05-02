@@ -1,5 +1,6 @@
 /*
  * Copyright 2017 Vector Creations Ltd
+ * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +48,6 @@ public class RoomInvitationViewHolder extends RoomViewHolder {
             public void onClick(View v) {
                 if (null != invitationListener) {
                     invitationListener.onJoinRoom(session, room.getRoomId());
-                    //jp todo invitationListener.onPreviewRoom(session, room.getRoomId());
                 }
             }
         });

@@ -1,5 +1,6 @@
 /*
  * Copyright 2015 OpenMarket Ltd
+ * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +62,7 @@ import im.vector.util.VectorUtils;
  */
 public class VectorRoomSummaryAdapter extends BaseExpandableListAdapter {
     public interface RoomEventListener {
-        void onPreviewRoom(MXSession session, String roomId);
+        void onJoinRoom(MXSession session, String roomId);
 
         void onRejectInvitation(MXSession session, String roomId);
 
@@ -823,7 +824,7 @@ public class VectorRoomSummaryAdapter extends BaseExpandableListAdapter {
                 @Override
                 public void onClick(View v) {
                     if (null != mListener) {
-                       //jp todo  mListener.onPreviewRoom(mMxSession, fRoomId);
+                       mListener.onJoinRoom(mMxSession, fRoomId);
                     }
                 }
             });

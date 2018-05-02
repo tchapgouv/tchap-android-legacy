@@ -2,6 +2,7 @@
  * Copyright 2014 OpenMarket Ltd
  * Copyright 2017 Vector Creations Ltd
  * Copyright 2018 New Vector Ltd
+ * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1457,7 +1458,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 // check if the room exists
                 // the user conference rooms are not displayed.
                 if (room != null && !room.isConferenceUserRoom() && room.isInvited()) {
-                    if (room.isDirectChatInvitation()) {
+                    if (room.isDirectChatInvitation() || room.isDirect()) {
                         mDirectChatInvitations.add(room);
                     } else {
                         mRoomInvitations.add(room);
@@ -1489,7 +1490,8 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         return roomInvites;
     }
 
-    public void onPreviewRoom(MXSession session, String roomId) {
+    // Tchap: The room preview is disabled, this option is replaced by "join the room".
+    public void onJoinRoom(MXSession session, String roomId) {
         String roomAlias = null;
 
         Room room = session.getDataHandler().getRoom(roomId);
@@ -1498,7 +1500,33 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         }
 
         final RoomPreviewData roomPreviewData = new RoomPreviewData(mSession, roomId, null, roomAlias, null);
-        CommonActivityUtils.previewRoom(this, roomPreviewData);
+        showWaitingView();
+        DinsicUtils.joinRoom(roomPreviewData, new ApiCallback<Void>() {
+            @Override
+            public void onSuccess(Void info) {
+                DinsicUtils.onNewJoinedRoom(VectorHomeActivity.this, roomPreviewData);
+            }
+
+            private void onError(String errorMessage) {
+                CommonActivityUtils.displayToast(VectorHomeActivity.this, errorMessage);
+                stopWaitingView();
+            }
+
+            @Override
+            public void onNetworkError(Exception e) {
+                onError(e.getLocalizedMessage());
+            }
+
+            @Override
+            public void onMatrixError(MatrixError e) {
+                onError(e.getLocalizedMessage());
+            }
+
+            @Override
+            public void onUnexpectedError(Exception e) {
+                onError(e.getLocalizedMessage());
+            }
+        });
     }
 
     /**
@@ -1579,54 +1607,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         if (null != room) {
             showWaitingView();
             room.leave(getForgetLeaveCallback(roomId, onSuccessCallback));
-        }
-    }
-
-    public void onJoinRoom(final String roomId, final SimpleApiCallback<Void> onSuccessCallback) {
-        Room room = mSession.getDataHandler().getRoom(roomId);
-
-        if (null != room) {
-            showWaitingView();
-
-            mSession.joinRoom(roomId, new ApiCallback<String>() {
-                @Override
-                public void onSuccess(String roomId) {
-                    stopWaitingView();
-
-                    HashMap<String, Object> params = new HashMap<>();
-
-                    params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
-                    params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
-
-                    // clear the activity stack to home activity
-                    Intent intent = new Intent(VectorHomeActivity.this, VectorHomeActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-
-                    intent.putExtra(VectorHomeActivity.EXTRA_JUMP_TO_ROOM_PARAMS, params);
-                    VectorHomeActivity.this.startActivity(intent);
-                }
-
-                private void onError(String errorMessage) {
-                    Log.d(LOG_TAG, "re join failed " + errorMessage);
-                    CommonActivityUtils.displayToast(VectorHomeActivity.this, errorMessage);
-                    stopWaitingView();
-                }
-
-                @Override
-                public void onNetworkError(Exception e) {
-                    onError(e.getLocalizedMessage());
-                }
-
-                @Override
-                public void onMatrixError(MatrixError e) {
-                    onError(e.getLocalizedMessage());
-                }
-
-                @Override
-                public void onUnexpectedError(Exception e) {
-                    onError(e.getLocalizedMessage());
-                }
-            });
         }
     }
 
