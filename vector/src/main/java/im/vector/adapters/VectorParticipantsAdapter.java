@@ -262,8 +262,8 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                             if (DinsicUtils.isFromFrenchGov(email)) {
                                 findGovEmail = true;
                                 if (mUsedMemberUserIds != null && !mUsedMemberUserIds.contains(participant.mUserId)) {
-                                        DinsicUtils.removeParticipantIfExist(list,participant);
-                                        list.add(participant);
+                                    DinsicUtils.removeParticipantIfExist(list,participant);
+                                    list.add(participant);
                                 }
                             }
                             else if (!findGovEmail && candidatParticipant==null)
@@ -272,8 +272,8 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                     }
                     if (!findGovEmail && candidatParticipant!=null)
                         if (mUsedMemberUserIds != null && !mUsedMemberUserIds.contains(candidatParticipant.mUserId)) {
-                                DinsicUtils.removeParticipantIfExist(list,candidatParticipant);
-                                list.add(candidatParticipant);
+                            DinsicUtils.removeParticipantIfExist(list,candidatParticipant);
+                            list.add(candidatParticipant);
                         }
 
                 }
