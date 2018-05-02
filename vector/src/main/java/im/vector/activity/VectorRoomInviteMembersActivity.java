@@ -455,7 +455,6 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
 
         final VectorAutoCompleteTextView inviteTextView = dialogLayout.findViewById(R.id.invite_by_id_edit_text);
         inviteTextView.initAutoCompletion(mSession);
-        inviteTextView.setProvideMatrixIdOnly(true);
 
         dialog.setPositiveButton(R.string.invite, new DialogInterface.OnClickListener() {
             @Override
@@ -482,17 +481,16 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
                 public void onClick(View v) {
                     String text = inviteTextView.getText().toString();
                     ArrayList<ParticipantAdapterItem> items = new ArrayList<>();
-                    List<Pattern> patterns = Arrays.asList(MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER, android.util.Patterns.EMAIL_ADDRESS);
 
-                    for (Pattern pattern : patterns) {
-                        Matcher matcher = pattern.matcher(text);
-                        while (matcher.find()) {
-                            try {
-                                String userId = text.substring(matcher.start(0), matcher.end(0));
-                                items.add(new ParticipantAdapterItem(userId, null, userId, true));
-                            } catch (Exception e) {
-                                Log.e(LOG_TAG, "## displayInviteByUserId() " + e.getMessage());
-                            }
+                    Pattern pattern = android.util.Patterns.EMAIL_ADDRESS;
+                    Matcher matcher = pattern.matcher(text);
+
+                    while (matcher.find()) {
+                        try {
+                            String userEmail = text.substring(matcher.start(0), matcher.end(0));
+                            items.add(new ParticipantAdapterItem(userEmail, null, userEmail, true));
+                        } catch (Exception e) {
+                            Log.e(LOG_TAG, "## displayInviteByUserEmail() " + e.getMessage());
                         }
                     }
 
