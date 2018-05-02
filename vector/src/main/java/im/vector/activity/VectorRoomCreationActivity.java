@@ -63,13 +63,18 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
     //
     private static final int INVITE_USER_REQUEST_CODE = 456;
 
+    // add an extra to precise the type of mode we want to open the VectorRoomCreationActivity
+    public static final String EXTRA_ROOM_CREATION_ACTIVITY_MODE = "EXTRA_ROOM_CREATION_ACTIVITY_MODE";
+
+    public enum RoomCreationModes { DIRECT_CHAT, DISCUSSION; }
+
     // UI items
     private VectorRoomCreationAdapter mAdapter;
 
     // the search is displayed at first call
     private boolean mIsFirstResume = true;
 
-    private VectorHomeActivity.RoomCreationModes mode = null;
+    private RoomCreationModes mode = null;
 
     // displayed participants
     private ArrayList<ParticipantAdapterItem> mParticipants = new ArrayList<>();
@@ -89,8 +94,8 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
         Intent intent = getIntent();
 
         // Get extras of intent
-        if (getIntent().hasExtra(VectorHomeActivity.EXTRA_ROOM_CREATION_ACTIVITY_MODE)) {
-            mode = (VectorHomeActivity.RoomCreationModes) getIntent().getSerializableExtra(VectorHomeActivity.EXTRA_ROOM_CREATION_ACTIVITY_MODE);
+        if (getIntent().hasExtra(EXTRA_ROOM_CREATION_ACTIVITY_MODE)) {
+            mode = (RoomCreationModes) getIntent().getSerializableExtra(EXTRA_ROOM_CREATION_ACTIVITY_MODE);
         }
 
         mSession = getSession(intent);
@@ -130,7 +135,7 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 // the first one is "add a member"
                 if (0 == position) {
-                    launchInviteMembersActivity(VectorHomeActivity.RoomCreationModes.DISCUSSION , INVITE_USER_REQUEST_CODE);
+                    launchInviteMembersActivity(RoomCreationModes.DISCUSSION , INVITE_USER_REQUEST_CODE);
                 }
             }
         });
@@ -141,12 +146,12 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
      *
      * @param requestCode correspond to the room creation mode
      */
-    public void launchInviteMembersActivity(VectorHomeActivity.RoomCreationModes mode, int requestCode) {
+    public void launchInviteMembersActivity(RoomCreationModes mode, int requestCode) {
         Intent intent = new Intent(VectorRoomCreationActivity.this, VectorRoomInviteMembersActivity.class);
         intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
         intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_HIDDEN_PARTICIPANT_ITEMS, mParticipants);
-        intent.putExtra(VectorHomeActivity.EXTRA_ROOM_CREATION_ACTIVITY_MODE, mode);
-        if (mode.equals(VectorHomeActivity.RoomCreationModes.DIRECT_CHAT)) {
+        intent.putExtra(EXTRA_ROOM_CREATION_ACTIVITY_MODE, mode);
+        if (mode.equals(RoomCreationModes.DIRECT_CHAT)) {
             VectorRoomCreationActivity.this.startActivity(intent);
         } else {
             VectorRoomCreationActivity.this.startActivityForResult(intent, requestCode);
@@ -163,10 +168,10 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
 
             switch (mode) {
                 case DIRECT_CHAT:
-                    launchInviteMembersActivity(VectorHomeActivity.RoomCreationModes.DIRECT_CHAT, INVITE_USER_REQUEST_CODE);
+                    launchInviteMembersActivity(RoomCreationModes.DIRECT_CHAT, INVITE_USER_REQUEST_CODE);
                     break;
                 case DISCUSSION:
-                    launchInviteMembersActivity(VectorHomeActivity.RoomCreationModes.DISCUSSION, INVITE_USER_REQUEST_CODE);
+                    launchInviteMembersActivity(RoomCreationModes.DISCUSSION, INVITE_USER_REQUEST_CODE);
                     break;
             }
         }

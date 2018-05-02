@@ -16,8 +16,6 @@
 
 package fr.gouv.tchap.fragments;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -255,7 +253,7 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
 
             @Override
             public void onSelectItem(ParticipantAdapterItem contact, int position) {
-                DinsicUtils.onContactSelected((RiotAppCompatActivity) getActivity(), mSession, contact);
+                DinsicUtils.startDialogue((RiotAppCompatActivity) getActivity(), mSession, contact);
             }
         }, this, this);
         mRecycler.setAdapter(mAdapter);

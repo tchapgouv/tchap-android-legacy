@@ -94,7 +94,7 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
     // tell if a confirmation dialog must be displayed to validate the user ids list
     private boolean mAddConfirmationDialog;
 
-    private VectorHomeActivity.RoomCreationModes mode = null;
+    private VectorRoomCreationActivity.RoomCreationModes mode = null;
 
     // retrieve a matrix Id from an email
     private final ContactsManager.ContactsManagerListener mContactsListener = new ContactsManager.ContactsManagerListener() {
@@ -180,8 +180,8 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
             mHiddenParticipantItems = (List<ParticipantAdapterItem>) intent.getSerializableExtra(EXTRA_HIDDEN_PARTICIPANT_ITEMS);
         }
 
-        if (getIntent().hasExtra(VectorHomeActivity.EXTRA_ROOM_CREATION_ACTIVITY_MODE)) {
-            mode = (VectorHomeActivity.RoomCreationModes) getIntent().getSerializableExtra(VectorHomeActivity.EXTRA_ROOM_CREATION_ACTIVITY_MODE);
+        if (getIntent().hasExtra(VectorRoomCreationActivity.EXTRA_ROOM_CREATION_ACTIVITY_MODE)) {
+            mode = (VectorRoomCreationActivity.RoomCreationModes) getIntent().getSerializableExtra(VectorRoomCreationActivity.EXTRA_ROOM_CREATION_ACTIVITY_MODE);
         }
 
         // get current session
@@ -227,12 +227,12 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
 
                 if (item instanceof ParticipantAdapterItem) {
                     if (null != mode) {
-                        if (mode.equals(VectorHomeActivity.RoomCreationModes.DIRECT_CHAT)) {
+                        if (mode.equals(VectorRoomCreationActivity.RoomCreationModes.DIRECT_CHAT)) {
 
                             final ParticipantAdapterItem participant = (ParticipantAdapterItem) mAdapter.getChild(groupPosition, childPosition);
-                            DinsicUtils.onContactSelected(VectorRoomInviteMembersActivity.this, mSession, participant);
+                            DinsicUtils.startDialogue(VectorRoomInviteMembersActivity.this, mSession, participant);
 
-                        } else if (mode.equals(VectorHomeActivity.RoomCreationModes.DISCUSSION)) {
+                        } else if (mode.equals(VectorRoomCreationActivity.RoomCreationModes.DISCUSSION)) {
                             addParticipantToListToInvite((ParticipantAdapterItem) item);
                         }
                     } else {

@@ -336,25 +336,25 @@ public class DinsicUtils {
     }
 
     /**
-     * Handle the click on a contact in the case of a direct chat
+     * Prepare a dialogue with a selected contact.
      *
-     * @param activity  current activity
-     * @param session   current session
-     * @param item      item of the list of the contacts
+     * @param activity  the current activity
+     * @param session   the current session
+     * @param selectedContact the selected contact
      */
-    public static void onContactSelected(final RiotAppCompatActivity activity, final MXSession session, final ParticipantAdapterItem item) {
-        if (item.mIsValid) {
+    public static void startDialogue(final RiotAppCompatActivity activity, final MXSession session, final ParticipantAdapterItem selectedContact) {
+        if (selectedContact.mIsValid) {
 
             // Tell if contact is tchap user
-            if (MXSession.isUserId(item.mUserId)) {// || DinsicUtils.isFromFrenchGov(item.mContact.getEmails()))
+            if (MXSession.isUserId(selectedContact.mUserId)) { // || DinsicUtils.isFromFrenchGov(item.mContact.getEmails()))
                 // The contact is a Tchap user
-                if (DinsicUtils.openDirectChat(activity, item.mUserId, session, false)) {
+                if (DinsicUtils.openDirectChat(activity, selectedContact.mUserId, session, false)) {
                     // If a direct chat already exist with him, open it
-                    DinsicUtils.openDirectChat(activity, item.mUserId, session, true);
+                    DinsicUtils.openDirectChat(activity, selectedContact.mUserId, session, true);
                 } else {
                     // If it's a Tchap user without a direct chat with him
                     // Display a popup to confirm the creation of a new direct chat with him
-                    String msg = activity.getResources().getString(R.string.start_new_chat_prompt_msg, item.mDisplayName);
+                    String msg = activity.getResources().getString(R.string.start_new_chat_prompt_msg, selectedContact.mDisplayName);
                     AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
                     alertDialogBuilder.setMessage(msg);
 
@@ -364,7 +364,7 @@ public class DinsicUtils {
                             .setPositiveButton(R.string.ok,
                                     new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int id) {
-                                            DinsicUtils.openDirectChat(activity, item.mUserId, session, true);
+                                            DinsicUtils.openDirectChat(activity, selectedContact.mUserId, session, true);
                                         }
                                     })
                             .setNegativeButton(R.string.cancel, null);
@@ -377,10 +377,10 @@ public class DinsicUtils {
             } else {
                 // The contact isn't a Tchap user
                 String msg = activity.getResources().getString(R.string.room_invite_non_gov_people);
-                if (DinsicUtils.isFromFrenchGov(item.mContact.getEmails()))
+                if (DinsicUtils.isFromFrenchGov(selectedContact.mContact.getEmails()))
                     msg = activity.getResources().getString(R.string.room_invite_gov_people);
 
-                if (!DinsicUtils.openDirectChat(activity, item.mUserId, session, false)) {
+                if (!DinsicUtils.openDirectChat(activity, selectedContact.mUserId, session, false)) {
                     if (TchapLoginActivity.isUserExternal(session)) {
                         DinsicUtils.alertSimpleMsg(activity, activity.getResources().getString(R.string.room_creation_forbidden));
                     } else {
@@ -393,7 +393,7 @@ public class DinsicUtils {
                                 .setPositiveButton(R.string.ok,
                                         new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int id) {
-                                                DinsicUtils.openDirectChat(activity, item.mUserId, session, true);
+                                                DinsicUtils.openDirectChat(activity, selectedContact.mUserId, session, true);
                                             }
                                         })
                                 .setNegativeButton(R.string.cancel, null);

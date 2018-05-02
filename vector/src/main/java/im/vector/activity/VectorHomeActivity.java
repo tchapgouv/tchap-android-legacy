@@ -145,12 +145,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     // jump to a group details sheet
     public static final String EXTRA_GROUP_ID = "VectorHomeActivity.EXTRA_GROUP_ID";
 
-    // add an extra to precise the type of mode we want to open the VectorRoomCreationActivity
-    public static final String EXTRA_ROOM_CREATION_ACTIVITY_MODE = "VectorHomeActivity.EXTRA_ROOM_CREATION_ACTIVITY_MODE";
-    public enum RoomCreationModes {
-        DIRECT_CHAT, DISCUSSION;
-    }
-
     // there are two ways to open an external link
     // 1- EXTRA_UNIVERSAL_LINK_URI : the link is opened as soon there is an event check processed (application is launched when clicking on the URI link)
     // 2- EXTRA_JUMP_TO_UNIVERSAL_LINK : do not wait that an event chunk is processed.
@@ -1213,7 +1207,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                                     // We can add only one people to the chat
                                     // In this case, the click on the contact send the invitation
                                     // Multiselection mode isn't required
-                                    createNewChat(RoomCreationModes.DIRECT_CHAT);
+                                    createNewChat(VectorRoomCreationActivity.RoomCreationModes.DIRECT_CHAT);
                                 } else if (1 == n) {
                                     // Create an empty room
                                     createNewRoom();
@@ -1224,7 +1218,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                                     // Multiselection mode is required
                                     // TODO sp3-11 invite only non Tchap users
                                     //DinsicUtils.alertSimpleMsg(VectorHomeActivity.this, getString(R.string.action_not_available_yet));
-                                    createNewChat(RoomCreationModes.DISCUSSION);
+                                    createNewChat(VectorRoomCreationActivity.RoomCreationModes.DISCUSSION);
                                 }
                             }
                         })
@@ -1309,10 +1303,10 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     /**
      * Open the room creation with inviting people.
      */
-    private void createNewChat(RoomCreationModes mode) {
+    private void createNewChat(VectorRoomCreationActivity.RoomCreationModes mode) {
         final Intent settingsIntent = new Intent(VectorHomeActivity.this, VectorRoomCreationActivity.class);
         settingsIntent.putExtra(MXCActionBarActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
-        settingsIntent.putExtra(VectorHomeActivity.EXTRA_ROOM_CREATION_ACTIVITY_MODE, mode);
+        settingsIntent.putExtra(VectorRoomCreationActivity.EXTRA_ROOM_CREATION_ACTIVITY_MODE, mode);
         startActivity(settingsIntent);
     }
 
