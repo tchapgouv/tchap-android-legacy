@@ -229,8 +229,8 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="room_participants_action_devices_list">Afficher la liste des appareils</string>
     <string name="people_search_local_contacts">CONTACTS LOCAUX (%d)</string>
     <string name="people_search_filter_text">Utilisateurs Matrix uniquement</string>
-    <string name="people_search_invite_by_id_dialog_title">Inviter un utilisateur par identifiant</string>
-    <string name="people_search_invite_by_id_dialog_hint">E-mail ou ID Matrix</string>
+    <string name="people_search_invite_by_email_dialog_title">Inviter un utilisateur par email</string>
+    <string name="people_search_invite_by_email_dialog_hint">Email</string>
     <string name="people_invalid_warning_msg">Pour inviter un contact un email est requis</string>
     <string name="people_edit_contact_warning_msg">Accès à la fiche contact impossible</string>
     <string name="room_invite_non_gov_people">Voulez-vous vraiment inviter un partenaire extérieur dans Tchap (un mail lui sera envoyé) ?</string>
@@ -565,16 +565,16 @@ Les messages chiffrés ne seront pas visibles sur les clients qui n\'ont pas enc
     <string name="room_participants_idle">Inactif</string>
     <string name="room_participants_action_ignore">Masquer tous les messages de cet utilisateur</string>
     <string name="room_participants_action_unignore">Afficher tous les messages de cet utilisateur</string>
-    <string name="room_participants_invite_search_another_user">Identifiant, nom ou adresse e-mail</string>
+    <string name="room_participants_invite_search_another_user">Identifiant, nom ou email</string>
     <string name="room_participants_power_level_prompt">Vous ne pourrez pas annuler cette modification car vous promouvez l\'utilisateur au même rang que le vôtre.
 En êtes-vous sûr(e) ?</string>
 
     <string name="room_participants_invite_prompt_msg">Voulez-vous vraiment inviter %s à cette discussion ?</string>
     <string name="room_left_member_invite_prompt_msg">Acceptez-vous de réinviter %s à cette discussion avant de sélectionner un fichier ?</string>
 
-    <string name="people_search_invite_by_id"><u>Inviter par identifiant</u></string>
+    <string name="people_search_invite_by_email"><u>Inviter par email</u></string>
 
-    <string name="people_search_invite_by_id_dialog_description">Entrez une ou plusieurs adresses e-mail ou identifiants Matrix</string>
+    <string name="people_search_invite_by_email_dialog_description">Entrez une ou plusieurs adresses email</string>
     <string name="room_one_user_is_typing">%s écrit…</string>
     <string name="room_two_users_are_typing">%1$s et %2$s écrivent…</string>
     <string name="room_many_users_are_typing">%1$s, %2$s et d\'autres écrivent…</string>

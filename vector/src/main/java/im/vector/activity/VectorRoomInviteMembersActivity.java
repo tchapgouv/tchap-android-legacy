@@ -158,7 +158,7 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vector_invite_members);
-        
+
         if (CommonActivityUtils.shouldRestartApp(this)) {
             Log.e(LOG_TAG, "Restart the application.");
             CommonActivityUtils.restartApp(this);
@@ -235,7 +235,7 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
             }
         });
 
-        View inviteByIdTextView = findViewById(R.id.search_invite_by_id);
+        View inviteByIdTextView = findViewById(R.id.search_invite_by_email);
         inviteByIdTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -243,18 +243,6 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
                     DinsicUtils.alertSimpleMsg(VectorRoomInviteMembersActivity.this, getString(R.string.action_forbidden));
                 } else {
                     displayInviteByUserId();
-                }
-            }
-        });
-
-        View createRoomView = findViewById(R.id.create_new_room);
-        createRoomView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(!TchapLoginActivity.isUserExternal(mSession)) {
-                    createNewRoom();
-                } else {
-                    DinsicUtils.alertSimpleMsg(VectorRoomInviteMembersActivity.this, getString(R.string.room_creation_forbidden));
                 }
             }
         });
@@ -435,15 +423,14 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
      * Display the invitation dialog.
      */
     private void displayInviteByUserId() {
-        View dialogLayout = getLayoutInflater().inflate(R.layout.dialog_invite_by_id, null);
+        View dialogLayout = getLayoutInflater().inflate(R.layout.dialog_invite_by_email, null);
 
         final AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-        dialog.setTitle(R.string.people_search_invite_by_id_dialog_title);
+        dialog.setTitle(R.string.people_search_invite_by_email_dialog_title);
         dialog.setView(dialogLayout);
 
-        final VectorAutoCompleteTextView inviteTextView = dialogLayout.findViewById(R.id.invite_by_id_edit_text);
+        final VectorAutoCompleteTextView inviteTextView = dialogLayout.findViewById(R.id.invite_by_email_edit_text);
         inviteTextView.initAutoCompletion(mSession);
-        inviteTextView.setProvideMatrixIdOnly(true);
 
         dialog.setPositiveButton(R.string.invite, new DialogInterface.OnClickListener() {
             @Override
@@ -470,17 +457,16 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
                 public void onClick(View v) {
                     String text = inviteTextView.getText().toString();
                     ArrayList<ParticipantAdapterItem> items = new ArrayList<>();
-                    List<Pattern> patterns = Arrays.asList(MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER, android.util.Patterns.EMAIL_ADDRESS);
 
-                    for (Pattern pattern : patterns) {
-                        Matcher matcher = pattern.matcher(text);
-                        while (matcher.find()) {
-                            try {
-                                String userId = text.substring(matcher.start(0), matcher.end(0));
-                                items.add(new ParticipantAdapterItem(userId, null, userId, true));
-                            } catch (Exception e) {
-                                Log.e(LOG_TAG, "## displayInviteByUserId() " + e.getMessage());
-                            }
+                    Pattern pattern = android.util.Patterns.EMAIL_ADDRESS;
+                    Matcher matcher = pattern.matcher(text);
+
+                    while (matcher.find()) {
+                        try {
+                            String userEmail = text.substring(matcher.start(0), matcher.end(0));
+                            items.add(new ParticipantAdapterItem(userEmail, null, userEmail, true));
+                        } catch (Exception e) {
+                            Log.e(LOG_TAG, "## displayInviteByUserEmail() " + e.getMessage());
                         }
                     }
 

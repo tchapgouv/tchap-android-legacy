@@ -12,19 +12,19 @@
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:layout_marginTop="10dp"
-        android:text="@string/people_search_invite_by_id_dialog_description" />
+        android:text="@string/people_search_invite_by_email_dialog_description" />
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <im.vector.view.VectorAutoCompleteTextView
-            android:id="@+id/invite_by_id_edit_text"
+            android:id="@+id/invite_by_email_edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_marginTop="10dp"
-            android:hint="@string/people_search_invite_by_id_dialog_hint" />
+            android:hint="@string/people_search_invite_by_email_dialog_hint" />
     </ScrollView>
 </LinearLayout>

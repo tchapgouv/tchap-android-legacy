@@ -397,17 +397,16 @@
     <string name="room_participants_ban_prompt_msg">Are you sure that you want to ban this user from this chat?</string>
 
     <!-- invitation -->
-    <string name="people_search_invite_by_id"><u>Invite by ID</u></string>
+    <string name="people_search_invite_by_email"><u>Invite par email</u></string>
     <string name="people_search_local_contacts">LOCAL CONTACTS (%d)</string>
     <string name="people_search_user_directory">USER DIRECTORY (%s)</string>
     <string name="people_search_filter_text">Matrix users only</string>
 
-    <string name="people_search_invite_by_id_dialog_title">Invite user by ID</string>
-    <string name="people_search_invite_by_id_dialog_description">Please enter one or more email address or Matrix ID</string>
-    <string name="people_search_invite_by_id_dialog_hint">Email or Matrix ID</string>
+    <string name="people_search_invite_by_email_dialog_title">Invite user by email</string>
+    <string name="people_search_invite_by_email_dialog_description">Please enter one or more email address</string>
+    <string name="people_search_invite_by_email_dialog_hint">Email</string>
     <string name="people_invalid_warning_msg">Email required to invite a contact</string>
     <string name="people_edit_contact_warning_msg">Contact access impossible</string>
-
 
     <string name="room_invite_non_gov_people">Do you really want to make him enter on Tchap ? </string>
     <string name="room_invite_gov_people">Do you want to invite him ? </string>
