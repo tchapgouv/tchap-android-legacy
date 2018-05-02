@@ -341,6 +341,7 @@
     <!-- Chat creation -->
     <string name="room_creation_title">New Chat</string>
     <string name="room_creation_add_member">Add member</string>
+    <string name="room_creation_invite_members">Invite contacts</string>
     <plurals name="room_header_active_members_count">
         <item quantity="one">1 active members</item>
         <item quantity="other">%d active members</item>
@@ -353,6 +354,7 @@
     <string name="room_e2e_alert_title">Warning!</string>
     <string name="room_e2e_alert_message">End-to-end encryption is in beta and may not be reliable.\n\nYou should not yet trust it to secure data.\n\nDevices will not yet be able to decrypt history from before they joined the room.\n\nEncrypted messages will not be visible on clients that do not yet implement encryption.</string>
     <string name="room_creation_forbidden">You are not authorized to create a room</string>
+    <string name="action_not_available_yet">This action is not available yet</string>
     <!--  Time -->
     <string name="format_time_s">s</string>
     <string name="format_time_m">m</string>

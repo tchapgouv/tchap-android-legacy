@@ -1,6 +1,7 @@
 /*
  * Copyright 2014 OpenMarket Ltd
  * Copyright 2018 New Vector Ltd
+ * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,13 +31,10 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ExpandableListView;
-import android.widget.Toast;
 
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.listeners.MXEventListener;
-import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
 import org.matrix.androidsdk.rest.model.Event;
-import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.util.Log;
@@ -44,7 +42,6 @@ import org.matrix.androidsdk.util.Log;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -96,6 +93,8 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
 
     // tell if a confirmation dialog must be displayed to validate the user ids list
     private boolean mAddConfirmationDialog;
+
+    private VectorRoomCreationActivity.RoomCreationModes mode = null;
 
     // retrieve a matrix Id from an email
     private final ContactsManager.ContactsManagerListener mContactsListener = new ContactsManager.ContactsManagerListener() {
@@ -172,8 +171,17 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
 
         Intent intent = getIntent();
 
+        // Get extras of intent
         if (intent.hasExtra(EXTRA_MATRIX_ID)) {
             mMatrixId = intent.getStringExtra(EXTRA_MATRIX_ID);
+        }
+
+        if (intent.hasExtra(EXTRA_HIDDEN_PARTICIPANT_ITEMS)) {
+            mHiddenParticipantItems = (List<ParticipantAdapterItem>) intent.getSerializableExtra(EXTRA_HIDDEN_PARTICIPANT_ITEMS);
+        }
+
+        if (getIntent().hasExtra(VectorRoomCreationActivity.EXTRA_ROOM_CREATION_ACTIVITY_MODE)) {
+            mode = (VectorRoomCreationActivity.RoomCreationModes) getIntent().getSerializableExtra(VectorRoomCreationActivity.EXTRA_ROOM_CREATION_ACTIVITY_MODE);
         }
 
         // get current session
@@ -182,10 +190,6 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
         if ((null == mSession) || !mSession.isAlive()) {
             finish();
             return;
-        }
-
-        if (intent.hasExtra(EXTRA_HIDDEN_PARTICIPANT_ITEMS)) {
-            mHiddenParticipantItems = (List<ParticipantAdapterItem>) intent.getSerializableExtra(EXTRA_HIDDEN_PARTICIPANT_ITEMS);
         }
 
         String roomId = intent.getStringExtra(EXTRA_ROOM_ID);
@@ -222,13 +226,17 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
                 final Object item = mAdapter.getChild(groupPosition, childPosition);
 
                 if (item instanceof ParticipantAdapterItem) {
-                    final ParticipantAdapterItem participantAdapterItem = (ParticipantAdapterItem) item;
-                    if (((ParticipantAdapterItem) item).mIsValid) {
-                        finish(new ArrayList<>(Arrays.asList(participantAdapterItem)));
-                        ret = true;
-                    }
-                    else {
-                        DinsicUtils.editContact(VectorRoomInviteMembersActivity.this,getApplicationContext(),(ParticipantAdapterItem) item);
+                    if (null != mode) {
+                        if (mode.equals(VectorRoomCreationActivity.RoomCreationModes.DIRECT_CHAT)) {
+
+                            final ParticipantAdapterItem participant = (ParticipantAdapterItem) mAdapter.getChild(groupPosition, childPosition);
+                            DinsicUtils.startDialogue(VectorRoomInviteMembersActivity.this, mSession, participant);
+
+                        } else if (mode.equals(VectorRoomCreationActivity.RoomCreationModes.DISCUSSION)) {
+                            addParticipantToListToInvite((ParticipantAdapterItem) item);
+                        }
+                    } else {
+                        addParticipantToListToInvite((ParticipantAdapterItem) item);
                     }
                 }
                 return ret;
@@ -243,18 +251,6 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
                     DinsicUtils.alertSimpleMsg(VectorRoomInviteMembersActivity.this, getString(R.string.action_forbidden));
                 } else {
                     displayInviteByUserId();
-                }
-            }
-        });
-
-        View createRoomView = findViewById(R.id.create_new_room);
-        createRoomView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(!TchapLoginActivity.isUserExternal(mSession)) {
-                    createNewRoom();
-                } else {
-                    DinsicUtils.alertSimpleMsg(VectorRoomInviteMembersActivity.this, getString(R.string.room_creation_forbidden));
                 }
             }
         });
@@ -432,6 +428,22 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
     }
 
     /**
+     * Add selected contacts to a list to invite them
+     *
+     * @param item the selected participants
+     */
+    private void addParticipantToListToInvite(ParticipantAdapterItem item) {
+        boolean ret = false;
+        ParticipantAdapterItem participantAdapterItem = item;
+        if (item.mIsValid) {
+            finish(new ArrayList<>(Arrays.asList(participantAdapterItem)));
+            ret = true;
+        } else {
+            DinsicUtils.editContact(VectorRoomInviteMembersActivity.this, getApplicationContext(), item);
+        }
+    }
+
+    /**
      * Display the invitation dialog.
      */
     private void displayInviteByUserId() {
@@ -509,57 +521,6 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-            }
-        });
-    }
-
-    /**
-     * Handle new room creation
-     */
-    private  void createNewRoom() {
-        hideKeyboard();
-        showWaitingView();
-        mSession.createRoom(new SimpleApiCallback<String>(VectorRoomInviteMembersActivity.this) {
-            @Override
-            public void onSuccess(final String roomId) {
-                waitingView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        stopWaitingView();
-                        HashMap<String, Object> params = new HashMap<>();
-                        params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
-                        params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
-                        params.put(VectorRoomActivity.EXTRA_EXPAND_ROOM_HEADER, true);
-                        CommonActivityUtils.goToRoomPage(VectorRoomInviteMembersActivity.this, mSession, params);
-                    }
-                });
-            }
-
-            private void onError(final String message) {
-                waitingView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (null != message) {
-                            Toast.makeText(VectorRoomInviteMembersActivity.this, message, Toast.LENGTH_LONG).show();
-                        }
-                        stopWaitingView();
-                    }
-                });
-            }
-
-            @Override
-            public void onNetworkError(Exception e) {
-                onError(e.getLocalizedMessage());
-            }
-
-            @Override
-            public void onMatrixError(final MatrixError e) {
-                onError(e.getLocalizedMessage());
-            }
-
-            @Override
-            public void onUnexpectedError(final Exception e) {
-                onError(e.getLocalizedMessage());
             }
         });
     }
