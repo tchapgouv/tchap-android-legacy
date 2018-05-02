@@ -3551,12 +3551,13 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                         DinsicUtils.joinRoom(sRoomPreviewData, new ApiCallback<Void>() {
                             @Override
                             public void onSuccess(Void info) {
+                                stopWaitingView();
                                 onJoined();
                             }
 
                             private void onError(String errorMessage) {
-                                CommonActivityUtils.displayToast(VectorRoomActivity.this, errorMessage);
                                 stopWaitingView();
+                                CommonActivityUtils.displayToast(VectorRoomActivity.this, errorMessage);
                             }
 
                             @Override

@@ -684,12 +684,13 @@ public class VectorRecentsListFragment extends Fragment implements VectorRoomSum
         DinsicUtils.joinRoom(roomPreviewData, new ApiCallback<Void>() {
             @Override
             public void onSuccess(Void info) {
+                hideWaitingView();
                 DinsicUtils.onNewJoinedRoom(getActivity(), roomPreviewData);
             }
 
             private void onError(String errorMessage) {
-                CommonActivityUtils.displayToast(getActivity(), errorMessage);
                 hideWaitingView();
+                CommonActivityUtils.displayToast(getActivity(), errorMessage);
             }
 
             @Override

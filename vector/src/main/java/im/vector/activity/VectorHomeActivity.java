@@ -1441,12 +1441,13 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         DinsicUtils.joinRoom(roomPreviewData, new ApiCallback<Void>() {
             @Override
             public void onSuccess(Void info) {
+                stopWaitingView();
                 DinsicUtils.onNewJoinedRoom(VectorHomeActivity.this, roomPreviewData);
             }
 
             private void onError(String errorMessage) {
-                CommonActivityUtils.displayToast(VectorHomeActivity.this, errorMessage);
                 stopWaitingView();
+                CommonActivityUtils.displayToast(VectorHomeActivity.this, errorMessage);
             }
 
             @Override
