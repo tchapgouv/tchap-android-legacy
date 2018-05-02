@@ -19,7 +19,7 @@
         android:layout_height="wrap_content">
 
         <im.vector.view.VectorAutoCompleteTextView
-            android:id="@+id/invite_by_email_edit_text"
+            android:id="@+id/invite_by_id_edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"

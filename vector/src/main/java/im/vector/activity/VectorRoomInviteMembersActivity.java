@@ -435,13 +435,13 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
      * Display the invitation dialog.
      */
     private void displayInviteByUserId() {
-        View dialogLayout = getLayoutInflater().inflate(R.layout.dialog_invite_by_email, null);
+        View dialogLayout = getLayoutInflater().inflate(R.layout.dialog_invite_by_id, null);
 
         final AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle(R.string.people_search_invite_by_id_dialog_title);
         dialog.setView(dialogLayout);
 
-        final VectorAutoCompleteTextView inviteTextView = dialogLayout.findViewById(R.id.invite_by_email_edit_text);
+        final VectorAutoCompleteTextView inviteTextView = dialogLayout.findViewById(R.id.invite_by_id_edit_text);
         inviteTextView.initAutoCompletion(mSession);
 
         dialog.setPositiveButton(R.string.invite, new DialogInterface.OnClickListener() {
