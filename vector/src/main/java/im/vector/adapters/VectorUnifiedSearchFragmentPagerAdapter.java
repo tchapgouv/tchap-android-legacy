@@ -1,6 +1,7 @@
 /*
  * Copyright 2017 OpenMarket Ltd
  * Copyright 2017 Vector Creations Ltd
+ * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +33,7 @@ import org.matrix.androidsdk.fragments.MatrixMessageListFragment;
 import im.vector.PublicRoomsManager;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
+import im.vector.activity.VectorRoomInviteMembersActivity;
 import im.vector.fragments.VectorSearchMessagesListFragment;
 import im.vector.fragments.VectorSearchPeopleListFragment;
 import im.vector.fragments.VectorSearchRoomsFilesListFragment;
@@ -46,6 +48,9 @@ public class VectorUnifiedSearchFragmentPagerAdapter extends FragmentPagerAdapte
     private final MXSession mSession;
     private final String mRoomId;
 
+    // This enum is used to filter the display of the contacts
+    private VectorRoomInviteMembersActivity.ContactsFilter mContactsFilter;
+
     // position + (title res id , fragment)
     private final SparseArrayCompat<Pair<Integer, Fragment>> mFragmentsData;
 
@@ -57,11 +62,12 @@ public class VectorUnifiedSearchFragmentPagerAdapter extends FragmentPagerAdapte
      * @param session the session
      * @param roomId  the room id
      */
-    public VectorUnifiedSearchFragmentPagerAdapter(FragmentManager fm, Context context, MXSession session, String roomId) {
+    public VectorUnifiedSearchFragmentPagerAdapter(FragmentManager fm, Context context, MXSession session, String roomId, VectorRoomInviteMembersActivity.ContactsFilter contactsFilter) {
         super(fm);
         mContext = context;
         mSession = session;
         mRoomId = roomId;
+        mContactsFilter = contactsFilter;
 
         mFragmentsData = new SparseArrayCompat<>();
 
@@ -106,7 +112,17 @@ public class VectorUnifiedSearchFragmentPagerAdapter extends FragmentPagerAdapte
                     break;
                 }
                 case R.string.tab_title_search_people: {
-                    fragment = VectorSearchPeopleListFragment.newInstance(mSession.getMyUserId(), R.layout.fragment_vector_search_people_list);
+                    switch (mContactsFilter) {
+                        case ALL:
+                            fragment = VectorSearchPeopleListFragment.newInstance(mSession.getMyUserId(), R.layout.fragment_vector_search_people_list, VectorRoomInviteMembersActivity.ContactsFilter.ALL);
+                            break;
+                        case TCHAP_ONLY:
+                            fragment = VectorSearchPeopleListFragment.newInstance(mSession.getMyUserId(), R.layout.fragment_vector_search_people_list, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY);
+                            break;
+                        case NO_TCHAP_ONLY:
+                            fragment = VectorSearchPeopleListFragment.newInstance(mSession.getMyUserId(), R.layout.fragment_vector_search_people_list, VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY);
+                            break;
+                    }
                     break;
                 }
                 case R.string.tab_title_search_files: {

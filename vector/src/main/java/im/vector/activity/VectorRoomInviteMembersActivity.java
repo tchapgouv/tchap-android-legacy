@@ -79,6 +79,13 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
     // the selected participants list
     public static final String EXTRA_OUT_SELECTED_PARTICIPANT_ITEMS = "VectorInviteMembersActivity.EXTRA_OUT_SELECTED_PARTICIPANT_ITEMS";
 
+    // This enum is used to filter the display of the contacts
+    public enum ContactsFilter { ALL, TCHAP_ONLY, NO_TCHAP_ONLY }
+    private ContactsFilter contactsFilter = null;
+
+    // This enum is used to select a mode for room creation (DIRECT_CHAT or DISCUSSION)
+    private VectorRoomCreationActivity.RoomCreationModes mode = null;
+
     // account data
     private String mMatrixId;
 
@@ -93,8 +100,6 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
 
     // tell if a confirmation dialog must be displayed to validate the user ids list
     private boolean mAddConfirmationDialog;
-
-    private VectorRoomCreationActivity.RoomCreationModes mode = null;
 
     // retrieve a matrix Id from an email
     private final ContactsManager.ContactsManagerListener mContactsListener = new ContactsManager.ContactsManagerListener() {
@@ -181,7 +186,11 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
         }
 
         if (getIntent().hasExtra(VectorRoomCreationActivity.EXTRA_ROOM_CREATION_ACTIVITY_MODE)) {
-            mode = (VectorRoomCreationActivity.RoomCreationModes) getIntent().getSerializableExtra(VectorRoomCreationActivity.EXTRA_ROOM_CREATION_ACTIVITY_MODE);
+            mode = (VectorRoomCreationActivity.RoomCreationModes) intent.getSerializableExtra(VectorRoomCreationActivity.EXTRA_ROOM_CREATION_ACTIVITY_MODE);
+        }
+
+        if (getIntent().hasExtra(VectorRoomCreationActivity.EXTRA_INVITE_CONTACTS_FILTER)) {
+            contactsFilter = (ContactsFilter) intent.getSerializableExtra(VectorRoomCreationActivity.EXTRA_INVITE_CONTACTS_FILTER);
         }
 
         // get current session
@@ -212,11 +221,30 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
         // the chevron is managed in the header view
         mListView.setGroupIndicator(null);
 
-        mAdapter = new VectorParticipantsAdapter(this,
-                R.layout.adapter_item_vector_add_participants,
-                R.layout.adapter_item_vector_people_header,
-                mSession, roomId, true);
+        // This enum, contactsFilter, is used to filter the display of the contacts
+        switch (contactsFilter) {
+            case ALL:
+                mAdapter = new VectorParticipantsAdapter(this,
+                        R.layout.adapter_item_vector_add_participants,
+                        R.layout.adapter_item_vector_people_header,
+                        mSession, roomId, true, ContactsFilter.ALL);
+                break;
+            case TCHAP_ONLY:
+                mAdapter = new VectorParticipantsAdapter(this,
+                        R.layout.adapter_item_vector_add_participants,
+                        R.layout.adapter_item_vector_people_header,
+                        mSession, roomId, true, ContactsFilter.TCHAP_ONLY);
+                break;
+            case NO_TCHAP_ONLY:
+                mAdapter = new VectorParticipantsAdapter(this,
+                        R.layout.adapter_item_vector_add_participants,
+                        R.layout.adapter_item_vector_people_header,
+                        mSession, roomId, true, ContactsFilter.NO_TCHAP_ONLY);
+                break;
+        }
+
         mAdapter.setHiddenParticipantItems(mHiddenParticipantItems);
+
         mListView.setAdapter(mAdapter);
 
         mListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
@@ -230,7 +258,7 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
                         if (mode.equals(VectorRoomCreationActivity.RoomCreationModes.DIRECT_CHAT)) {
 
                             final ParticipantAdapterItem participant = (ParticipantAdapterItem) mAdapter.getChild(groupPosition, childPosition);
-                            DinsicUtils.startDialogue(VectorRoomInviteMembersActivity.this, mSession, participant);
+                            DinsicUtils.startDialog(VectorRoomInviteMembersActivity.this, mSession, participant);
 
                         } else if (mode.equals(VectorRoomCreationActivity.RoomCreationModes.DISCUSSION)) {
                             addParticipantToListToInvite((ParticipantAdapterItem) item);

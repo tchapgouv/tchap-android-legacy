@@ -1,6 +1,7 @@
 /*
  * Copyright 2016 OpenMarket Ltd
  * Copyright 2018 New Vector Ltd
+ * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,6 +71,8 @@ public class VectorUnifiedSearchActivity extends VectorBaseSearchActivity implem
 
     private int mPosition;
 
+    private VectorRoomInviteMembersActivity.ContactsFilter mContactsFilter = null;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -104,9 +107,20 @@ public class VectorUnifiedSearchActivity extends VectorBaseSearchActivity implem
 
         if (null != getIntent()) {
             mRoomId = getIntent().getStringExtra(EXTRA_ROOM_ID);
+            mContactsFilter = (VectorRoomInviteMembersActivity.ContactsFilter) getIntent().getSerializableExtra(VectorRoomCreationActivity.EXTRA_INVITE_CONTACTS_FILTER);
         }
 
-        mPagerAdapter = new VectorUnifiedSearchFragmentPagerAdapter(getSupportFragmentManager(), this, session, mRoomId);
+        switch (mContactsFilter) {
+            case ALL:
+                mPagerAdapter = new VectorUnifiedSearchFragmentPagerAdapter(getSupportFragmentManager(), this, session, mRoomId, VectorRoomInviteMembersActivity.ContactsFilter.ALL);
+                break;
+            case TCHAP_ONLY:
+                mPagerAdapter = new VectorUnifiedSearchFragmentPagerAdapter(getSupportFragmentManager(), this, session, mRoomId, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY);
+                break;
+            case NO_TCHAP_ONLY:
+                mPagerAdapter = new VectorUnifiedSearchFragmentPagerAdapter(getSupportFragmentManager(), this, session, mRoomId, VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY);
+                break;
+        }
 
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         mViewPager = findViewById(R.id.search_view_pager);
