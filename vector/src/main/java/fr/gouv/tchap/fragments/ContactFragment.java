@@ -16,8 +16,6 @@
 
 package fr.gouv.tchap.fragments;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -55,6 +53,7 @@ import butterknife.BindView;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
 import fr.gouv.tchap.activity.TchapLoginActivity;
+import im.vector.activity.RiotAppCompatActivity;
 import im.vector.adapters.ParticipantAdapterItem;
 import fr.gouv.tchap.adapters.ContactAdapter;
 import im.vector.contacts.Contact;
@@ -254,7 +253,7 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
 
             @Override
             public void onSelectItem(ParticipantAdapterItem contact, int position) {
-                onContactSelected(contact);
+                DinsicUtils.startDialogue((RiotAppCompatActivity) getActivity(), mSession, contact);
             }
         }, this, this);
         mRecycler.setAdapter(mAdapter);
@@ -416,6 +415,7 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
 
     /**
      * Fill the local address book and known contacts adapters with data
+     * Display the Tchap users only
      */
     private void initContactsData() {
         ContactsManager.getInstance().retrievePids();
@@ -426,7 +426,9 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
         } else if (mContactsSnapshotSession == -1 || mContactsSnapshotSession != ContactsManager.getInstance().getLocalContactsSnapshotSession()) {
             // First time on the screen or contact data outdated
             mLocalContacts.clear();
-            List<ParticipantAdapterItem> participants = new ArrayList<>(getContacts());
+            // Retrieve only the Tchap user contacts by getOnlyTchapUserContacts() method
+            // For all contacts use getContacts() method
+            List<ParticipantAdapterItem> participants = new ArrayList<>(getOnlyTchapUserContacts());
 
             // Build lists
             for (ParticipantAdapterItem item : participants) {
@@ -453,7 +455,6 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
             if (!DinsicUtils.participantAlreadyAdded(mLocalContacts,myContact))
                 mLocalContacts.add(myContact);
         }
-
     }
 
     /**
@@ -576,69 +577,16 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
 
     /*
      * *********************************************************************************************
-     * User action management
-     * *********************************************************************************************
-     */
-
-    /**
-     * Handle the click on a local or known contact
-     *
-     * @param item
-     */
-    private void onContactSelected(final ParticipantAdapterItem item) {
-        if (item.mIsValid) {
-
-            // tell if contact is tchap user
-            if (MXSession.isUserId(item.mUserId))// || DinsicUtils.isFromFrenchGov(item.mContact.getEmails()))
-                DinsicUtils.openDirectChat(mActivity, item.mUserId, mSession, true);
-            else {
-                //don't have to ask the question if a room already exists
-                String msg = getString(R.string.room_invite_non_gov_people);
-                if (DinsicUtils.isFromFrenchGov(item.mContact.getEmails()))
-                    msg = getString(R.string.room_invite_gov_people);
-
-                if (!DinsicUtils.openDirectChat(mActivity, item.mUserId, mSession, false)) {
-                    if (TchapLoginActivity.isUserExternal(mSession)) {
-                        DinsicUtils.alertSimpleMsg(getActivity(), getString(R.string.room_creation_forbidden));
-                    } else {
-                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-                        alertDialogBuilder.setMessage(msg);
-
-                        // set dialog message
-                        alertDialogBuilder
-                                .setCancelable(false)
-                                .setPositiveButton(R.string.ok,
-                                        new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int id) {
-                                                DinsicUtils.openDirectChat(mActivity, item.mUserId, mSession, true);
-                                            }
-                                        })
-                                .setNegativeButton(R.string.cancel, null);
-
-                        // create alert dialog
-                        AlertDialog alertDialog = alertDialogBuilder.create();
-                        // show it
-                        alertDialog.show();
-                    }
-                }
-            }
-        } else{// tell the user that the email must be filled. Propose to fill it
-            DinsicUtils.editContact(mActivity, this.getContext(), item);
-        }
-    }
-
-    /*
-     * *********************************************************************************************
      * Utils
      * *********************************************************************************************
      */
 
     /**
-     * Retrieve the contacts
+     * Retrieve the contacts using Tchap app
      *
      * @return
      */
-    private List<ParticipantAdapterItem> getContacts() {
+    private List<ParticipantAdapterItem> getOnlyTchapUserContacts() {
         List<ParticipantAdapterItem> participants = new ArrayList<>();
 
         Collection<Contact> contacts = ContactsManager.getInstance().getLocalContactsSnapshot();
@@ -646,27 +594,10 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
 
         if (null != contacts) {
             for (Contact contact : contacts) {
-                // injecter les contacts sans emails
-                //------------------------------------
-                if (contact.getEmails().size()==0){
-                    Contact dummyContact = new Contact(contact.getContactId());
-                    dummyContact.setDisplayName(contact.getDisplayName());
-                    dummyContact.addEmailAdress(getString(R.string.no_email));
-                    dummyContact.setThumbnailUri(contact.getThumbnailUri());
-                    //dummyContact.
-
-                    ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
-
-                    participant.mUserId = "null";
-                    participant.mIsValid = false;
-                    participants.add(participant);
-
-
-                }
-                else {
                     //select just one email, in priority the french gov email
                     boolean findGovEmail = false;
                     ParticipantAdapterItem candidatParticipant=null;
+
                     for (String email : contact.getEmails()) {
                         if (!TextUtils.isEmpty(email) && !ParticipantAdapterItem.isBlackedListed(email)) {
                             Contact dummyContact = new Contact(email);
@@ -690,25 +621,94 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                             if (DinsicUtils.isFromFrenchGov(email)) {
                                 findGovEmail = true;
                                 participants.add(participant);
-                            }
-                            else if (!findGovEmail && (candidatParticipant == null || null != mxid)) {
+                            } else if (!findGovEmail && (candidatParticipant == null || null != mxid)) {
                                 // if no french gov is discovered yet, we store a candidate by prioritising those with mxId
                                 candidatParticipant = participant;
                             }
                         }
                     }
-                    if (!findGovEmail && candidatParticipant!=null)
+
+                    if (!findGovEmail && candidatParticipant != null && MXSession.isUserId(candidatParticipant.mUserId))
                         participants.add(candidatParticipant);
+                }
+            }
+        return participants;
+    }
+
+    /**
+     * Retrieve the contacts
+     *
+     * @return
+     */
+    /*private List<ParticipantAdapterItem> getContacts() {
+        List<ParticipantAdapterItem> participants = new ArrayList<>();
+
+        Collection<Contact> contacts = ContactsManager.getInstance().getLocalContactsSnapshot();
+        mContactsSnapshotSession = ContactsManager.getInstance().getLocalContactsSnapshotSession();
+
+        if (null != contacts) {
+            for (Contact contact : contacts) {
+                // injecter les contacts sans emails
+                //------------------------------------
+                if (contact.getEmails().size() == 0){
+                    Contact dummyContact = new Contact(contact.getContactId());
+                    dummyContact.setDisplayName(contact.getDisplayName());
+                    dummyContact.addEmailAdress(getString(R.string.no_email));
+                    dummyContact.setThumbnailUri(contact.getThumbnailUri());
+
+                    ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
+
+                    participant.mUserId = "null";
+                    participant.mIsValid = false;
+                    participants.add(participant);
+                }
+                else {
+                    //select just one email, in priority the french gov email
+                    boolean findGovEmail = false;
+                    ParticipantAdapterItem candidatParticipant=null;
+
+                        for (String email : contact.getEmails()) {
+                            if (!TextUtils.isEmpty(email) && !ParticipantAdapterItem.isBlackedListed(email)) {
+                                Contact dummyContact = new Contact(email);
+                                dummyContact.setDisplayName(contact.getDisplayName());
+                                dummyContact.addEmailAdress(email);
+                                dummyContact.setThumbnailUri(contact.getThumbnailUri());
+
+                                ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
+
+                                Contact.MXID mxid = PIDsRetriever.getInstance().getMXID(email);
+
+                                if (null != mxid) {
+                                    // Ignore the current user if he belongs to the local phone book.
+                                    if (mxid.mMatrixId.equals(mSession.getMyUserId())) {
+                                        continue;
+                                    }
+                                    participant.mUserId = mxid.mMatrixId;
+                                } else {
+                                    participant.mUserId = email;
+                                }
+                                if (DinsicUtils.isFromFrenchGov(email)) {
+                                    findGovEmail = true;
+                                    participants.add(participant);
+                                } else if (!findGovEmail && (candidatParticipant == null || null != mxid)) {
+                                    // if no french gov is discovered yet, we store a candidate by prioritising those with mxId
+                                    candidatParticipant = participant;
+                                }
+                            }
+                        }
+
+                        if (!findGovEmail && candidatParticipant != null && MXSession.isUserId(candidatParticipant.mUserId))
+                            participants.add(candidatParticipant);
                 }
 
             }
         }
 
         return participants;
-    }
+    }*/
 
 
-    private List<ParticipantAdapterItem> getMatrixUsers() {
+    /*private List<ParticipantAdapterItem> getMatrixUsers() {
         List<ParticipantAdapterItem> matrixUsers = new ArrayList<>();
         for (ParticipantAdapterItem item : mLocalContacts) {
             if (!item.mContact.getMatrixIdMediums().isEmpty()) {
@@ -716,7 +716,7 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
             }
         }
         return matrixUsers;
-    }
+    }*/
 
     /**
      * Init contacts views with data and update their display
@@ -749,7 +749,9 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
 
     @Override
     public void onPIDsUpdate() {
-        final List<ParticipantAdapterItem> newContactList = getContacts();
+        // Retrieve only Tchap user contacts
+        // For all contacts use getContacts() method
+        final List<ParticipantAdapterItem> newContactList = getOnlyTchapUserContacts();
         //add participants from direct chats
         List<ParticipantAdapterItem> myDirectContacts = getContactsFromDirectChats();
         for (ParticipantAdapterItem myContact : myDirectContacts){

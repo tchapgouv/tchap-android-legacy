@@ -196,10 +196,10 @@ public class ContactAdapter extends AbsAdapter {
         // updates the placeholder according to the local contacts permissions
         mLocalContactsSection.setEmptyViewPlaceholder(!ContactsManager.getInstance().isContactBookAccessAllowed() ? mNoContactAccessPlaceholder : mNoResultPlaceholder);
 
-         List<ParticipantAdapterItem> myContacts = new ArrayList<>();
+        List<ParticipantAdapterItem> myContacts = new ArrayList<>();
         for ( ParticipantAdapterItem item : localContacts) {
-          // when contact invitation will be introduced this line will be ok  if (MXSession.isUserId(item.mUserId)){
-                myContacts.add(item);
+            // when contact invitation will be introduced this line will be ok  if (MXSession.isUserId(item.mUserId)){
+            myContacts.add(item);
             //}
         }
         mLocalContactsSection.setItems(myContacts, mCurrentFilterPattern);

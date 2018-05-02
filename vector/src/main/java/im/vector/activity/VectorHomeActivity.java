@@ -35,7 +35,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.internal.BottomNavigationItemView;
 import android.support.design.internal.BottomNavigationMenuView;
@@ -55,7 +54,6 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.TypedValue;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -241,6 +239,9 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
 
     private List<Room> mDirectChatInvitations;
     private List<Room> mRoomInvitations;
+
+    // floating action button dialog
+    private AlertDialog mFabDialog;
 
      /*
      * *********************************************************************************************
@@ -467,8 +468,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
      * Display the TAB if it is required
      */
     private void showFloatingActionButton() {
-//No more favourite action
-                mFloatingActionButton.show();
+        mFloatingActionButton.show();
 
     }
 
@@ -729,6 +729,12 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 mFloatingActionButtonTimer.cancel();
                 mFloatingActionButtonTimer = null;
             }
+        }
+
+        if (mFabDialog != null) {
+            // Prevent leak after orientation changed
+            mFabDialog.dismiss();
+            mFabDialog = null;
         }
 
         removeBadgeEventsListener();
@@ -1189,11 +1195,39 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     private void onFloatingButtonClick() {
         // ignore any action if there is a pending one
         if (!isWaitingViewVisible()) {
-            // the FAB action is temporarily blocked for external users to prevent them from creating direct chat
-            if(TchapLoginActivity.isUserExternal(mSession)) {
-                DinsicUtils.alertSimpleMsg(this, getString(R.string.action_forbidden));
+            if (!TchapLoginActivity.isUserExternal(mSession)) {
+                CharSequence items[] = new CharSequence[]{getString(R.string.start_new_chat), getString(R.string.room_creation_title), getString(R.string.room_creation_invite_members)};
+                mFabDialog = new AlertDialog.Builder(this)
+                        .setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface d, int n) {
+                                d.cancel();
+                                if (0 == n) {
+                                    // Create a new direct chat
+                                    // We can add only one people to the chat
+                                    // In this case, the click on the contact send the invitation
+                                    // Multiselection mode isn't required
+                                    createNewChat(VectorRoomCreationActivity.RoomCreationModes.DIRECT_CHAT);
+                                } else if (1 == n) {
+                                    // Create an empty room
+                                    createNewRoom();
+                                } else {
+                                    // Create a new discussion
+                                    // Invite one or more users
+                                    // If only one contact is selected, it will be a direct chat
+                                    // Multiselection mode is required
+                                    // TODO sp3-11 invite only non Tchap users
+                                    //DinsicUtils.alertSimpleMsg(VectorHomeActivity.this, getString(R.string.action_not_available_yet));
+                                    createNewChat(VectorRoomCreationActivity.RoomCreationModes.DISCUSSION);
+                                }
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel, null)
+                        .show();
             } else {
-                invitePeopleToNewRoom();
+                // the FAB action is temporarily blocked for external users to prevent them from
+                // creating a new direct chat, a new discussion or invite people to Tchap
+                DinsicUtils.alertSimpleMsg(VectorHomeActivity.this, getString(R.string.action_forbidden));
             }
         }
     }
@@ -1269,16 +1303,18 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     /**
      * Open the room creation with inviting people.
      */
-    private void invitePeopleToNewRoom() {
+    private void createNewChat(VectorRoomCreationActivity.RoomCreationModes mode) {
         final Intent settingsIntent = new Intent(VectorHomeActivity.this, VectorRoomCreationActivity.class);
         settingsIntent.putExtra(MXCActionBarActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
+        settingsIntent.putExtra(VectorRoomCreationActivity.EXTRA_ROOM_CREATION_ACTIVITY_MODE, mode);
         startActivity(settingsIntent);
     }
 
     /**
-     * Create a room and open the dedicated activity
+     * Handle new room creation
      */
-    private void createRoom() {
+    private  void createNewRoom() {
+        hideKeyboard();
         showWaitingView();
         mSession.createRoom(new SimpleApiCallback<String>(VectorHomeActivity.this) {
             @Override
@@ -1287,7 +1323,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                     @Override
                     public void run() {
                         stopWaitingView();
-
                         HashMap<String, Object> params = new HashMap<>();
                         params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
                         params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
@@ -1324,104 +1359,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 onError(e.getLocalizedMessage());
             }
         });
-    }
-
-    /**
-     * Offer to join a room by alias or Id
-     */
-    private void joinARoom() {
-        LayoutInflater inflater = LayoutInflater.from(this);
-
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-        View dialogView = inflater.inflate(R.layout.dialog_join_room_by_id, null);
-        alertDialogBuilder.setView(dialogView);
-
-        final EditText textInput = dialogView.findViewById(R.id.join_room_edit_text);
-        textInput.setTextColor(ThemeUtils.getColor(this, R.attr.riot_primary_text_color));
-
-        // set dialog message
-        alertDialogBuilder
-                .setCancelable(false)
-                .setPositiveButton(R.string.join,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                showWaitingView();
-
-                                String text = textInput.getText().toString().trim();
-
-                                mSession.joinRoom(text, new ApiCallback<String>() {
-                                    @Override
-                                    public void onSuccess(String roomId) {
-                                        stopWaitingView();
-
-                                        HashMap<String, Object> params = new HashMap<>();
-                                        params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
-                                        params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
-                                        CommonActivityUtils.goToRoomPage(VectorHomeActivity.this, mSession, params);
-                                    }
-
-                                    private void onError(final String message) {
-                                        waitingView.post(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                if (null != message) {
-                                                    Toast.makeText(VectorHomeActivity.this, message, Toast.LENGTH_LONG).show();
-                                                }
-                                                stopWaitingView();
-                                            }
-                                        });
-                                    }
-
-                                    @Override
-                                    public void onNetworkError(Exception e) {
-                                        onError(e.getLocalizedMessage());
-                                    }
-
-                                    @Override
-                                    public void onMatrixError(final MatrixError e) {
-                                        onError(e.getLocalizedMessage());
-                                    }
-
-                                    @Override
-                                    public void onUnexpectedError(final Exception e) {
-                                        onError(e.getLocalizedMessage());
-                                    }
-                                });
-                            }
-                        })
-                .setNegativeButton(R.string.cancel,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.cancel();
-                            }
-                        });
-
-        // create alert dialog
-        AlertDialog alertDialog = alertDialogBuilder.create();
-
-        // show it
-        alertDialog.show();
-
-        final Button joinButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-
-        if (null != joinButton) {
-            joinButton.setEnabled(false);
-            textInput.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                }
-
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    String text = textInput.getText().toString().trim();
-                    joinButton.setEnabled(MXSession.isRoomId(text) || MXSession.isRoomAlias(text));
-                }
-
-                @Override
-                public void afterTextChanged(Editable s) {
-                }
-            });
-        }
     }
 
     /*
@@ -2186,7 +2123,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
             if (id == R.id.bottom_action_favourites) {
                 mBadgeViewByIndex.get(id).updateText((roomCount > 0) ? "\u2022" : "", status);
             } else {*/
-                mBadgeViewByIndex.get(id).updateCounter(roomCount, status);
+            mBadgeViewByIndex.get(id).updateCounter(roomCount, status);
             //}
         }
     }
