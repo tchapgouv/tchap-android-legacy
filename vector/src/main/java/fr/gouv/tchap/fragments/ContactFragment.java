@@ -253,7 +253,7 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
 
             @Override
             public void onSelectItem(ParticipantAdapterItem contact, int position) {
-                DinsicUtils.startDialog((RiotAppCompatActivity) getActivity(), mSession, contact);
+                DinsicUtils.startDirectChat((RiotAppCompatActivity) getActivity(), mSession, contact);
             }
         }, this, this);
         mRecycler.setAdapter(mAdapter);

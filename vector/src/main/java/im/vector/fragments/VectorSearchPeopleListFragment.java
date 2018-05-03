@@ -1,6 +1,5 @@
 /*
  * Copyright 2016 OpenMarket Ltd
- * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,12 +50,6 @@ public class VectorSearchPeopleListFragment extends Fragment {
 
     private static final String ARG_MATRIX_ID = "VectorSearchPeopleListFragment.ARG_MATRIX_ID";
     private static final String ARG_LAYOUT_ID = "VectorSearchPeopleListFragment.ARG_LAYOUT_ID";
-
-    // add an argument to precise the type of filter we want to display the contacts
-    public static final String ARG_INVITE_CONTACTS_FILTER = "ARG_INVITE_CONTACTS_FILTER";
-
-    // This enum is used to filter the display of the contacts
-    private VectorRoomInviteMembersActivity.ContactsFilter contactsFilter = null;
 
     // the session
     private MXSession mSession;
@@ -136,12 +129,11 @@ public class VectorSearchPeopleListFragment extends Fragment {
      * @param matrixId the matrix id
      * @return a VectorSearchPeopleListFragment instance
      */
-    public static VectorSearchPeopleListFragment newInstance(String matrixId, int layoutResId, VectorRoomInviteMembersActivity.ContactsFilter contactsFilter) {
+    public static VectorSearchPeopleListFragment newInstance(String matrixId, int layoutResId) {
         VectorSearchPeopleListFragment fragment = new VectorSearchPeopleListFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_LAYOUT_ID, layoutResId);
         args.putString(ARG_MATRIX_ID, matrixId);
-        args.putSerializable(ARG_INVITE_CONTACTS_FILTER, contactsFilter);
         fragment.setArguments(args);
         return fragment;
     }
@@ -152,7 +144,6 @@ public class VectorSearchPeopleListFragment extends Fragment {
         Bundle args = getArguments();
 
         String matrixId = args.getString(ARG_MATRIX_ID);
-        contactsFilter = (VectorRoomInviteMembersActivity.ContactsFilter) args.getSerializable(ARG_INVITE_CONTACTS_FILTER);
         mSession = Matrix.getInstance(getActivity()).getSession(matrixId);
 
         if ((null == mSession) || !mSession.isAlive()) {
@@ -164,26 +155,10 @@ public class VectorSearchPeopleListFragment extends Fragment {
         // the chevron is managed in the header view
         mPeopleListView.setGroupIndicator(null);
 
-        switch (contactsFilter) {
-            case ALL:
-                mAdapter = new VectorParticipantsAdapter(getContext(),
-                        R.layout.adapter_item_vector_add_participants,
-                        R.layout.adapter_item_vector_people_header,
-                        mSession, null, true, VectorRoomInviteMembersActivity.ContactsFilter.ALL);
-                break;
-            case TCHAP_ONLY:
-                mAdapter = new VectorParticipantsAdapter(getContext(),
-                        R.layout.adapter_item_vector_add_participants,
-                        R.layout.adapter_item_vector_people_header,
-                        mSession, null, true, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY);
-                break;
-            case NO_TCHAP_ONLY:
-                mAdapter = new VectorParticipantsAdapter(getContext(),
-                        R.layout.adapter_item_vector_add_participants,
-                        R.layout.adapter_item_vector_people_header,
-                        mSession, null, true, VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY);
-                break;
-        }
+        mAdapter = new VectorParticipantsAdapter(getContext(),
+                R.layout.adapter_item_vector_add_participants,
+                R.layout.adapter_item_vector_people_header,
+                mSession, null, true, VectorRoomInviteMembersActivity.ContactsFilter.ALL);
 
         mPeopleListView.setAdapter(mAdapter);
 

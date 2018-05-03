@@ -338,8 +338,10 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
         fillUsedMembersList();
 
         List<ParticipantAdapterItem> participants = new ArrayList<>();
-        // Add all known matrix users
-        participants.addAll(VectorUtils.listKnownParticipants(mSession).values());
+        if (VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY != mContactsFilter) {
+            // Add all known matrix users
+            participants.addAll(VectorUtils.listKnownParticipants(mSession).values());
+        }
         // Add phone contacts which have an email address
         addContacts(participants);
 
@@ -462,7 +464,10 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
         }
 
         // Search in the user directories is disabled for the users of the E-platform.
-        if (TchapLoginActivity.isUserExternal(mSession)) {
+        // Search is processed only if the VectorRoomInviteMembersActivity is NOT in a NO_TCHAP_ONLY mode
+        // In NO_TCHAP_ONLY mode, we don't want to display the Tchap users on the search result
+        if (TchapLoginActivity.isUserExternal(mSession) || mContactsFilter == VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY) {
+            searchAccountKnownContacts(theFirstEntry, new ArrayList<ParticipantAdapterItem>(), true, searchListener);
             return;
         }
 
