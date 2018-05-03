@@ -84,10 +84,10 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
 
     // This enum is used to filter the display of the contacts
     public enum ContactsFilter { ALL, TCHAP_ONLY, NO_TCHAP_ONLY }
-    private ContactsFilter contactsFilter = null;
+    private ContactsFilter mContactsFilter = ContactsFilter.ALL;
 
     // This enum is used to select a mode for room creation
-    private VectorRoomCreationActivity.RoomCreationModes mMode = null;
+    private VectorRoomCreationActivity.RoomCreationModes mMode = VectorRoomCreationActivity.RoomCreationModes.DISCUSSION;
 
     // account data
     private String mMatrixId;
@@ -193,7 +193,7 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
         }
 
         if (getIntent().hasExtra(EXTRA_INVITE_CONTACTS_FILTER)) {
-            contactsFilter = (ContactsFilter) intent.getSerializableExtra(EXTRA_INVITE_CONTACTS_FILTER);
+            mContactsFilter = (ContactsFilter) intent.getSerializableExtra(EXTRA_INVITE_CONTACTS_FILTER);
         }
 
         // get current session
@@ -227,7 +227,7 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
         mAdapter = new VectorParticipantsAdapter(this,
                 R.layout.adapter_item_vector_add_participants,
                 R.layout.adapter_item_vector_people_header,
-                mSession, roomId, true, contactsFilter);
+                mSession, roomId, true, mContactsFilter);
 
         mAdapter.setHiddenParticipantItems(mHiddenParticipantItems);
 
