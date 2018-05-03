@@ -70,7 +70,6 @@ import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.MXCActionBarActivity;
 import im.vector.activity.VectorMemberDetailsActivity;
-import im.vector.activity.VectorRoomCreationActivity;
 import im.vector.activity.VectorRoomInviteMembersActivity;
 import im.vector.adapters.ParticipantAdapterItem;
 import im.vector.adapters.VectorRoomDetailsMembersAdapter;
@@ -774,7 +773,6 @@ public class VectorRoomDetailsMembersFragment extends Fragment {
                 intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
                 intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_ROOM_ID, mRoom.getRoomId());
                 intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_ADD_CONFIRMATION_DIALOG, true);
-                intent.putExtra(VectorRoomCreationActivity.EXTRA_ROOM_CREATION_ACTIVITY_MODE, VectorRoomCreationActivity.RoomCreationModes.DISCUSSION);
                 intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_INVITE_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.ALL);
                 getActivity().startActivityForResult(intent, INVITE_USER_REQUEST_CODE);
             }

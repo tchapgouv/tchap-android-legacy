@@ -32,7 +32,6 @@ import org.matrix.androidsdk.fragments.MatrixMessageListFragment;
 import im.vector.PublicRoomsManager;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
-import im.vector.activity.VectorRoomInviteMembersActivity;
 import im.vector.fragments.VectorSearchMessagesListFragment;
 import im.vector.fragments.VectorSearchPeopleListFragment;
 import im.vector.fragments.VectorSearchRoomsFilesListFragment;
@@ -46,9 +45,6 @@ public class VectorUnifiedSearchFragmentPagerAdapter extends FragmentPagerAdapte
     private final Context mContext;
     private final MXSession mSession;
     private final String mRoomId;
-
-    // This enum is used to filter the display of the contacts
-    private VectorRoomInviteMembersActivity.ContactsFilter mContactsFilter;
 
     // position + (title res id , fragment)
     private final SparseArrayCompat<Pair<Integer, Fragment>> mFragmentsData;

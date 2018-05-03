@@ -660,7 +660,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
             // search in rooms content
             case R.id.ic_action_global_search:
                 final Intent searchIntent = new Intent(this, VectorUnifiedSearchActivity.class);
-                searchIntent.putExtra(VectorRoomInviteMembersActivity.EXTRA_INVITE_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.ALL);
 
                 if (R.id.bottom_action_people == mCurrentMenuId) {
                     searchIntent.putExtra(VectorUnifiedSearchActivity.EXTRA_TAB_INDEX, VectorUnifiedSearchActivity.SEARCH_PEOPLE_TAB_POSITION);
