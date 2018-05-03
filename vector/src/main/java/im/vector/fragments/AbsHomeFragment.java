@@ -1,6 +1,7 @@
 /*
  * Copyright 2017 Vector Creations Ltd
  * Copyright 2018 New Vector Ltd
+ * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -167,9 +168,9 @@ public abstract class AbsHomeFragment extends Fragment implements AbsAdapter.Roo
      */
 
     @Override
-    public void onPreviewRoom(MXSession session, String roomId) {
-        Log.i(LOG_TAG, "onPreviewRoom " + roomId);
-        mActivity.onPreviewRoom(session, roomId);
+    public void onJoinRoom(MXSession session, String roomId) {
+        Log.i(LOG_TAG, "onJoinRoom " + roomId);
+        mActivity.onJoinRoom(session, roomId);
     }
 
     @Override

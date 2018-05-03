@@ -1395,7 +1395,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 // check if the room exists
                 // the user conference rooms are not displayed.
                 if (room != null && !room.isConferenceUserRoom() && room.isInvited()) {
-                    if (room.isDirectChatInvitation()) {
+                    if (room.isDirectChatInvitation() || room.isDirect()) {
                         mDirectChatInvitations.add(room);
                     } else {
                         mRoomInvitations.add(room);
@@ -1427,7 +1427,8 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         return roomInvites;
     }
 
-    public void onPreviewRoom(MXSession session, String roomId) {
+    // Tchap: The room preview is disabled, this option is replaced by "join the room".
+    public void onJoinRoom(MXSession session, String roomId) {
         String roomAlias = null;
 
         Room room = session.getDataHandler().getRoom(roomId);
@@ -1436,7 +1437,34 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         }
 
         final RoomPreviewData roomPreviewData = new RoomPreviewData(mSession, roomId, null, roomAlias, null);
-        CommonActivityUtils.previewRoom(this, roomPreviewData);
+        showWaitingView();
+        DinsicUtils.joinRoom(roomPreviewData, new ApiCallback<Void>() {
+            @Override
+            public void onSuccess(Void info) {
+                stopWaitingView();
+                DinsicUtils.onNewJoinedRoom(VectorHomeActivity.this, roomPreviewData);
+            }
+
+            private void onError(String errorMessage) {
+                stopWaitingView();
+                CommonActivityUtils.displayToast(VectorHomeActivity.this, errorMessage);
+            }
+
+            @Override
+            public void onNetworkError(Exception e) {
+                onError(e.getLocalizedMessage());
+            }
+
+            @Override
+            public void onMatrixError(MatrixError e) {
+                onError(e.getLocalizedMessage());
+            }
+
+            @Override
+            public void onUnexpectedError(Exception e) {
+                onError(e.getLocalizedMessage());
+            }
+        });
     }
 
     /**

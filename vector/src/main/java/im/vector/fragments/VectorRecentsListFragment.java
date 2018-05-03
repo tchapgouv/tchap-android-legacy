@@ -1,6 +1,7 @@
 /*
  * Copyright 2016 OpenMarket Ltd
  * Copyright 2017 Vector Creations Ltd
+ * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +53,7 @@ import org.matrix.androidsdk.util.Log;
 import java.util.HashMap;
 import java.util.List;
 
+import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.Matrix;
 import im.vector.PublicRoomsManager;
 import im.vector.R;
@@ -668,7 +670,8 @@ public class VectorRecentsListFragment extends Fragment implements VectorRoomSum
     }
 
     @Override
-    public void onPreviewRoom(MXSession session, String roomId) {
+    // Tchap: The room preview is disabled, this option is replaced by "join the room".
+    public void onJoinRoom(MXSession session, String roomId) {
         String roomAlias = null;
 
         Room room = session.getDataHandler().getRoom(roomId);
@@ -677,7 +680,34 @@ public class VectorRecentsListFragment extends Fragment implements VectorRoomSum
         }
 
         final RoomPreviewData roomPreviewData = new RoomPreviewData(mSession, roomId, null, roomAlias, null);
-        CommonActivityUtils.previewRoom(getActivity(), roomPreviewData);
+        showWaitingView();
+        DinsicUtils.joinRoom(roomPreviewData, new ApiCallback<Void>() {
+            @Override
+            public void onSuccess(Void info) {
+                hideWaitingView();
+                DinsicUtils.onNewJoinedRoom(getActivity(), roomPreviewData);
+            }
+
+            private void onError(String errorMessage) {
+                hideWaitingView();
+                CommonActivityUtils.displayToast(getActivity(), errorMessage);
+            }
+
+            @Override
+            public void onNetworkError(Exception e) {
+                onError(e.getLocalizedMessage());
+            }
+
+            @Override
+            public void onMatrixError(MatrixError e) {
+                onError(e.getLocalizedMessage());
+            }
+
+            @Override
+            public void onUnexpectedError(Exception e) {
+                onError(e.getLocalizedMessage());
+            }
+        });
     }
 
     @Override
