@@ -934,10 +934,10 @@ Appareils inconnus :</string>
     <string name="settings_notification_privacy_nosecure_message_content">• Les notifications contiennent <b>des métadonnées et des messages</b></string>
     <string name="settings_notification_privacy_message_content_not_shown">• Les notifications <b>n\'afficheront pas le contenu des messages</b></string>
 
-    <string name="startup_notification_privacy_title">Confidentialité des notifications</string>
-    <string name="startup_notification_privacy_message">Tchap peut fonctionner en arrière-plan pour gérer vos notifications de façon sécurisée et confidentielle (cela peut affecter l\'utilisation de la batterie).</string>
-    <string name="startup_notification_privacy_button_grant">Donner la permission</string>
-    <string name="startup_notification_privacy_button_other">Choisir une autre option</string>
+    <string name="startup_notification_privacy_title">Gestion de la batterie</string>
+    <string name="startup_notification_privacy_message">Pour une meilleure gestion de vos notifications, Tchap reste actif en arriere plan, et utilise donc un peu votre batterie.\nSi ce fonctionnement vous convient, <b>répondez oui lorsque le système vous demande l\'autorisation de laisser Tchap en arriere-plan.</b>\nDans le cas inverse, vous pouvez choisir une option de fonctionnement moins consommatrice.</string>
+    <string name="startup_notification_privacy_button_grant">Ce fonctionnement me convient</string>
+    <string name="startup_notification_privacy_button_other">Je choisis une autre option</string>
 
     <string name="notice_avatar">Avatar de l\'annonce</string>
 
