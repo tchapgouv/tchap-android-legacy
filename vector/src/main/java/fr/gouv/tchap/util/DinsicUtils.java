@@ -228,7 +228,6 @@ public class DinsicUtils {
         }
 
         return find;
-
     }
 
     public static void alertSimpleMsg(FragmentActivity activity, String msg){
@@ -342,13 +341,13 @@ public class DinsicUtils {
     }
 
     /**
-     * Prepare a dialogue with a selected contact.
+     * Prepare a direct chat with a selected contact.
      *
      * @param activity  the current activity
      * @param session   the current session
      * @param selectedContact the selected contact
      */
-    public static void startDialogue(final RiotAppCompatActivity activity, final MXSession session, final ParticipantAdapterItem selectedContact) {
+    public static void startDirectChat(final RiotAppCompatActivity activity, final MXSession session, final ParticipantAdapterItem selectedContact) {
         if (selectedContact.mIsValid) {
 
             // Tell if contact is tchap user

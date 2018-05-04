@@ -38,11 +38,13 @@ import im.vector.Matrix;
 import im.vector.R;
 import im.vector.activity.VectorBaseSearchActivity;
 import im.vector.activity.VectorMemberDetailsActivity;
+import im.vector.activity.VectorRoomInviteMembersActivity;
 import im.vector.adapters.ParticipantAdapterItem;
 import im.vector.adapters.VectorParticipantsAdapter;
 import im.vector.contacts.Contact;
 import im.vector.contacts.ContactsManager;
 import im.vector.util.VectorUtils;
+
 
 public class VectorSearchPeopleListFragment extends Fragment {
 
@@ -128,19 +130,18 @@ public class VectorSearchPeopleListFragment extends Fragment {
      * @return a VectorSearchPeopleListFragment instance
      */
     public static VectorSearchPeopleListFragment newInstance(String matrixId, int layoutResId) {
-        VectorSearchPeopleListFragment f = new VectorSearchPeopleListFragment();
+        VectorSearchPeopleListFragment fragment = new VectorSearchPeopleListFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_LAYOUT_ID, layoutResId);
         args.putString(ARG_MATRIX_ID, matrixId);
-        f.setArguments(args);
-        return f;
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         Bundle args = getArguments();
-
 
         String matrixId = args.getString(ARG_MATRIX_ID);
         mSession = Matrix.getInstance(getActivity()).getSession(matrixId);
@@ -153,10 +154,12 @@ public class VectorSearchPeopleListFragment extends Fragment {
         mPeopleListView = (ExpandableListView) v.findViewById(R.id.search_people_list);
         // the chevron is managed in the header view
         mPeopleListView.setGroupIndicator(null);
-        mAdapter = new VectorParticipantsAdapter(getActivity(),
+
+        mAdapter = new VectorParticipantsAdapter(getContext(),
                 R.layout.adapter_item_vector_add_participants,
                 R.layout.adapter_item_vector_people_header,
-                mSession, null, false);
+                mSession, null, true, VectorRoomInviteMembersActivity.ContactsFilter.ALL);
+
         mPeopleListView.setAdapter(mAdapter);
 
         mPeopleListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {

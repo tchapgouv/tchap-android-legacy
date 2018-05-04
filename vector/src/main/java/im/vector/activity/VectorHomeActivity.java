@@ -1218,7 +1218,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                                     // Multiselection mode is required
                                     // TODO sp3-11 invite only non Tchap users
                                     //DinsicUtils.alertSimpleMsg(VectorHomeActivity.this, getString(R.string.action_not_available_yet));
-                                    createNewChat(VectorRoomCreationActivity.RoomCreationModes.DISCUSSION);
+                                    createNewChat(VectorRoomCreationActivity.RoomCreationModes.INVITE);
                                 }
                             }
                         })
