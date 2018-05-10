@@ -29,6 +29,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
+import android.graphics.Typeface;
+import android.graphics.drawable.AdaptiveIconDrawable;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -41,6 +45,7 @@ import android.support.design.internal.BottomNavigationMenuView;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.TabLayout;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -53,6 +58,9 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.SpannableString;
+import android.text.Spannable;
+import android.text.style.ImageSpan;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -175,6 +183,10 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     // Key used to restore the proper fragment after orientation change
     private static final String CURRENT_MENU_ID = "CURRENT_MENU_ID";
 
+    private static final int TAB_POSITION_CONVERSATION=0;
+    private static final int TAB_POSITION_CONTACT=1;
+
+
     // switch to a room activity
     private Map<String, Object> mAutomaticallyOpenedRoomParams = null;
 
@@ -207,6 +219,9 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     @BindView(R.id.bottom_navigation)
     BottomNavigationView mBottomNavigationView;
 
+    @BindView(R.id.tab_layout)
+    TabLayout mTopNavigationView;
+
     // calls
     @BindView(R.id.listView_pending_callview)
     VectorPendingCallView mVectorPendingCallView;
@@ -231,8 +246,8 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
 
     private FragmentManager mFragmentManager;
 
-    // The current item selected (bottom navigation)
-    private int mCurrentMenuId;
+    // The current item selected (top navigation)
+    private int mCurrentMenuId=-1;
 
     // the current displayed fragment
     private String mCurrentFragmentTag;
@@ -447,14 +462,17 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         }
 
         final View selectedMenu;
-        //default is room view
+        final TabLayout.Tab myTab;
+        int myPosition = TAB_POSITION_CONVERSATION;
         if (savedInstanceState != null) {
-            selectedMenu = mBottomNavigationView.findViewById(savedInstanceState.getInt(CURRENT_MENU_ID, R.id.bottom_action_rooms));
-        } else {
-            selectedMenu = mBottomNavigationView.findViewById(R.id.bottom_action_rooms);
+            if (savedInstanceState.getInt(CURRENT_MENU_ID, TAB_POSITION_CONVERSATION)!= TAB_POSITION_CONVERSATION) {
+                myPosition = TAB_POSITION_CONTACT;
+            }
+
         }
-        if (selectedMenu != null) {
-            selectedMenu.performClick();
+        myTab = mTopNavigationView.getTabAt(myPosition);
+        if (myTab != null) {
+            updateSelectedFragment(myTab);
         }
 
         // initialize the public rooms list
@@ -579,7 +597,29 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         addBadgeEventsListener();
 
         checkNotificationPrivacySetting();
+
+        setSelectedTabStyle();
     }
+
+    /**
+     * Manage bold typeface on tab items
+     */
+    private void setSelectedTabStyle() {
+        for (int menuIndex = 0; menuIndex < mTopNavigationView.getTabCount(); menuIndex++) {
+            LinearLayout customTab = (LinearLayout) mTopNavigationView.getTabAt(menuIndex).getCustomView();
+            TextView myText = (TextView)customTab.getChildAt(0);
+            if (null != myText) {
+                if (menuIndex == mTopNavigationView.getSelectedTabPosition()) {
+                    myText.setTypeface(null, Typeface.BOLD);
+                }
+                else {
+                    myText.setTypeface(null, Typeface.NORMAL);
+                }
+            }
+        }
+
+    }
+
 
     /**
      * Ask the user to choose a notification privacy policy.
@@ -661,7 +701,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
             case R.id.ic_action_global_search:
                 final Intent searchIntent = new Intent(this, VectorUnifiedSearchActivity.class);
 
-                if (R.id.bottom_action_people == mCurrentMenuId) {
+                if (TAB_POSITION_CONTACT == mCurrentMenuId) {
                     searchIntent.putExtra(VectorUnifiedSearchActivity.EXTRA_TAB_INDEX, VectorUnifiedSearchActivity.SEARCH_PEOPLE_TAB_POSITION);
                 }
 
@@ -813,12 +853,39 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         // Toolbar
         setSupportActionBar(mToolbar);
 
-        // Bottom navigation view
-        mBottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+        //load tab items of tab layout
+        LinearLayout headerView = (LinearLayout) LayoutInflater.from(this).inflate(R.layout.tab_icon, null);
+        LinearLayout customTabConversations = headerView.findViewById(R.id.tab_icon_conversations);
+        LinearLayout customTabContacts = headerView.findViewById(R.id.tab_icon_contacts);
+        mTopNavigationView.getTabAt(TAB_POSITION_CONVERSATION).setCustomView(customTabConversations);
+        mTopNavigationView.getTabAt(TAB_POSITION_CONTACT).setCustomView(customTabContacts);
+
+
+        mTopNavigationView.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                updateSelectedFragment(item);
-                return true;
+            public void onTabSelected(TabLayout.Tab tab) {
+                //make tab selected bold
+                for (int menuIndex = 0; menuIndex < mTopNavigationView.getTabCount(); menuIndex++) {
+                        LinearLayout customTab = (LinearLayout) mTopNavigationView.getTabAt(menuIndex).getCustomView();
+                        TextView myText = (TextView)customTab.getChildAt(0);
+                        if (null != myText) {
+                            if (menuIndex == tab.getPosition()) {
+                                myText.setTypeface(null, Typeface.BOLD);
+                            }
+                            else {
+                                myText.setTypeface(null, Typeface.NORMAL);
+                            }
+                        }
+                }
+                updateSelectedFragment(tab);
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
             }
         });
     }
@@ -828,14 +895,18 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
      *
      * @param item menu item selected by the user
      */
-    private void updateSelectedFragment(final MenuItem item) {
-        if (mCurrentMenuId == item.getItemId()) {
+    private void updateSelectedFragment(final TabLayout.Tab item) {
+        int position = item.getPosition();
+//        int itemId = R.id.bottom_action_people;
+//        if (position == TAB_POSITION_CONVERSATION)
+//            itemId = R.id.bottom_action_rooms;
+        if (mCurrentMenuId == position) {
             return;
         }
 
         Fragment fragment = null;
 
-        switch (item.getItemId()) {
+        switch (position) {
             //no more home nor favourite
             /*
             case R.id.bottom_action_home:
@@ -857,7 +928,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 mSearchView.setQueryHint(getString(R.string.home_filter_placeholder_favorites));
                 break;
                 */
-            case R.id.bottom_action_people:
+            case TAB_POSITION_CONTACT:
                 Log.d(LOG_TAG, "onNavigationItemSelected PEOPLE");
                 fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_PEOPLE);
                 if (fragment == null) {
@@ -866,7 +937,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 mCurrentFragmentTag = TAG_FRAGMENT_PEOPLE;
                 mSearchView.setQueryHint(getString(R.string.home_filter_placeholder_people));
                 break;
-            case R.id.bottom_action_rooms:
+            case TAB_POSITION_CONVERSATION:
                 Log.d(LOG_TAG, "onNavigationItemSelected ROOMS");
                 fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_ROOMS);
                 if (fragment == null) {
@@ -896,7 +967,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         // clear waiting view
         stopWaitingView();
 
-        mCurrentMenuId = item.getItemId();
+        mCurrentMenuId = position;
 
         showFloatingActionButton();
 
@@ -931,10 +1002,11 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                     secondaryColor, android.graphics.PorterDuff.Mode.SRC_IN);
         }
         mFloatingActionButton.setRippleColor(secondaryColor);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        //keep the default staus bar color
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setStatusBarColor(secondaryColor);
         }
-
+        */
         // Set color of toolbar search view
         EditText edit = mSearchView.findViewById(android.support.v7.appcompat.R.id.search_src_text);
         edit.setTextColor(ThemeUtils.getColor(this, R.attr.primary_text_color));
@@ -1079,10 +1151,10 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_FAVOURITES);
                 break;
                 */
-            case R.id.bottom_action_people:
+            case TAB_POSITION_CONTACT:
                 fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_PEOPLE);
                 break;
-            case R.id.bottom_action_rooms:
+            case TAB_POSITION_CONVERSATION:
                 fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_ROOMS);
                 break;
             /*case R.id.bottom_action_groups:
@@ -1411,10 +1483,10 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
 
         List<Room> roomInvites = new ArrayList<>();
         switch (mCurrentMenuId) {
-            case R.id.bottom_action_people:
+            case TAB_POSITION_CONTACT:
                 roomInvites.addAll(mDirectChatInvitations);
                 break;
-            case R.id.bottom_action_rooms:
+            case TAB_POSITION_CONVERSATION:
                 roomInvites.addAll(mRoomInvitations);
                 break;
             default:
@@ -1963,47 +2035,19 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     @SuppressLint("RestrictedApi")
     private void addUnreadBadges() {
         final float scale = getResources().getDisplayMetrics().density;
-        int badgeOffsetX = (int) (18 * scale + 0.5f);
         int badgeOffsetY = (int) (7 * scale + 0.5f);
 
-        removeMenuShiftMode();
 
-        int largeTextHeight = getResources().getDimensionPixelSize(android.support.design.R.dimen.design_bottom_navigation_active_text_size);
-
-        for (int menuIndex = 0; menuIndex < mBottomNavigationView.getMenu().size(); menuIndex++) {
+        for (int menuIndex = 0; menuIndex < mTopNavigationView.getTabCount(); menuIndex++) {
             try {
-                int itemId = mBottomNavigationView.getMenu().getItem(menuIndex).getItemId();
-                BottomNavigationItemView navigationItemView = mBottomNavigationView.findViewById(itemId);
+                LinearLayout customTab = (LinearLayout) mTopNavigationView.getTabAt(menuIndex).getCustomView();
 
+                UnreadCounterBadgeView badgeView = new UnreadCounterBadgeView(customTab.getContext());
+                 FrameLayout.LayoutParams badgeLayoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+                badgeLayoutParams.setMargins(0, -badgeOffsetY, 0, 0);//, iconViewLayoutParams.rightMargin, iconViewLayoutParams.bottomMargin);
+                customTab.addView(badgeView,badgeLayoutParams);
+                mBadgeViewByIndex.put(menuIndex, badgeView);
 
-                navigationItemView.setShiftingMode(false);
-
-                Field marginField = navigationItemView.getClass().getDeclaredField("mDefaultMargin");
-                marginField.setAccessible(true);
-                marginField.setInt(navigationItemView, marginField.getInt(navigationItemView) + (largeTextHeight / 2));
-                marginField.setAccessible(false);
-
-                Field shiftAmountField = navigationItemView.getClass().getDeclaredField("mShiftAmount");
-                shiftAmountField.setAccessible(true);
-                shiftAmountField.setInt(navigationItemView, 0);
-                shiftAmountField.setAccessible(false);
-
-                navigationItemView.setChecked(navigationItemView.getItemData().isChecked());
-
-                View iconView = navigationItemView.findViewById(R.id.icon);
-
-                if (iconView.getParent() instanceof FrameLayout) {
-                    UnreadCounterBadgeView badgeView = new UnreadCounterBadgeView(iconView.getContext());
-
-                    // compute the new position
-                    FrameLayout.LayoutParams iconViewLayoutParams = (FrameLayout.LayoutParams) iconView.getLayoutParams();
-                    FrameLayout.LayoutParams badgeLayoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-                    badgeLayoutParams.setMargins(iconViewLayoutParams.leftMargin + badgeOffsetX, iconViewLayoutParams.topMargin - badgeOffsetY, iconViewLayoutParams.rightMargin, iconViewLayoutParams.bottomMargin);
-                    badgeLayoutParams.gravity = iconViewLayoutParams.gravity;
-
-                    ((FrameLayout) iconView.getParent()).addView(badgeView, badgeLayoutParams);
-                    mBadgeViewByIndex.put(itemId, badgeView);
-                }
             } catch (Exception e) {
                 Log.e(LOG_TAG, "## addUnreadBadges failed " + e.getMessage());
             }
@@ -2063,7 +2107,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                     filteredRoomIdsSet.add(room.getRoomId());
                 }
             } else */
-            if (id == R.id.bottom_action_people) {
+            if (id == TAB_POSITION_CONTACT) {
                 //badge in bottom_people only for invitation
 
                 // Add direct chat invitations
@@ -2079,7 +2123,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                     filteredRoomIdsSet.remove(room.getRoomId());
                 }
 
-            } else if (id == R.id.bottom_action_rooms) {
+            } else if (id == TAB_POSITION_CONVERSATION) {
                 HashSet<String> lowPriorityRoomIds = new HashSet<>(mSession.roomIdsWithTag(RoomTag.ROOM_TAG_LOW_PRIORITY));
 
                 for (Room room : roomSummaryByRoom.keySet()) {
@@ -2116,9 +2160,10 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                     }
                 }
             }
-
-            int status = (0 != highlightCount) ? UnreadCounterBadgeView.HIGHLIGHTED :
-                    ((0 != roomCount) ? UnreadCounterBadgeView.NOTIFIED : UnreadCounterBadgeView.DEFAULT);
+            //always highligted
+            int status = UnreadCounterBadgeView.HIGHLIGHTED;
+//            int status = (0 != highlightCount) ? UnreadCounterBadgeView.HIGHLIGHTED :
+//                    ((0 != roomCount) ? UnreadCounterBadgeView.NOTIFIED : UnreadCounterBadgeView.DEFAULT);
             //no more favourite
             /*
             if (id == R.id.bottom_action_favourites) {

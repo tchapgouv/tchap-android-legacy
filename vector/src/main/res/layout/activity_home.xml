@@ -13,14 +13,11 @@
         android:descendantFocusability="beforeDescendants"
         android:focusableInTouchMode="true">
 
-        <android.support.design.widget.AppBarLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/Ahome_toolbar"
-            android:elevation="0dp">
+
         <android.support.v7.widget.Toolbar
             android:id="@+id/home_toolbar"
-            style="@style/VectorToolbarStyle"
+
+            android:elevation="0dp"
 
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -32,12 +29,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
         </android.support.v7.widget.Toolbar>
-        </android.support.design.widget.AppBarLayout>
+
         <android.support.design.widget.BottomNavigationView
             android:id="@+id/bottom_navigation"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/Ahome_toolbar"
+            android:layout_height="0dp"
+            android:layout_below="@+id/home_toolbar"
             android:layout_marginTop="0dp"
             android:layout_marginLeft="0dp"
             android:background="?attr/primary_color"
@@ -45,12 +42,42 @@
             app:itemIconTint="@color/home_bottom_nav_view_tint"
             app:itemTextColor="@color/home_bottom_nav_view_tint"
             app:menu="@menu/bottom_navigation_main"/>
+
+
+        <android.support.design.widget.TabLayout
+            android:id="@+id/tab_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/bottom_navigation"
+            android:background="?attr/vector_tabbar_background"
+            android:theme="@style/AppTheme.NoActionBar"
+            app:tabGravity="fill"
+            app:tabMode="fixed"
+            app:tabMaxWidth="0dp"
+            app:tabTextAppearance="@style/Vector.Toolbar.Title">
+
+            <android.support.design.widget.TabItem
+                android:id="@+id/tab_item_conversations"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="dummy" />
+
+            <android.support.design.widget.TabItem
+                android:id="@+id/tab_item_contacts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="dummy" />
+
+        </android.support.design.widget.TabLayout>
+
+
         <ProgressBar
             android:id="@+id/home_recents_sync_in_progress"
             style="@style/Widget.AppCompat.ProgressBar.Horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/bottom_navigation"
+            android:layout_below="@id/tab_layout"
             android:background="@color/vector_green_color"
             android:indeterminate="true"
             android:visibility="gone" />
@@ -67,7 +94,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/bottom_navigation"
+            android:layout_below="@+id/tab_layout"
             tools:context="org.matrix.vector.activity.VectorHomeActivity">
 
             <FrameLayout
