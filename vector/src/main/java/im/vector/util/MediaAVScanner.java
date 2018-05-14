@@ -22,30 +22,38 @@ import android.text.TextUtils;
 
 import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.model.crypto.EncryptedFileInfo;
-import org.matrix.androidsdk.util.ContentUtils;
-import org.matrix.androidsdk.util.Log;
+import io.realm.Realm;
+import io.realm.RealmList;
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.HashMap;
-
-public class MediaAVScanner {
+public class MediaAVScanner extends RealmObject {
 
     private static final String LOG_TAG = MediaAVScanner.class.getSimpleName();
 
     public enum ScanStatus { UNKNOWN, IN_PROGRESS, TRUSTED, INFECTED }
 
-    private static final String FILENAME = "MediaAVScannerCache";
+    class MediaAntivirusMap extends RealmObject {
+        private String url;
+        private ScanStatus scanStatus;
 
-    final String MEDIAAVSCANNER_STORE_FOLDER = "MediaAVScannerStore";
+        private String getUrl() {return url;}
+        private void setUrl(String url)  {this.url = url;}
 
-    private HashMap<String, ScanStatus> mMediaAVScanByUrl = null;
+        private ScanStatus getScanStatus() { return scanStatus;}
+        private void setScanStatus(ScanStatus scanStatus) {this.scanStatus = scanStatus;}
+
+    }
+
+    @PrimaryKey
     private String mUserId = null;
-    private File mMediaAVScannerDirectory = null;
-    private File mMediaAVScannerFile = null;
+    private RealmList<MediaAntivirusMap> mMediaAvScanByUrl = null;
+
+    public RealmList getMediaAVScanByUrl() { return mMediaAvScanByUrl; }
+
+    // Initialization and configuration of realm are done in VectorApp class
+    // Get a Realm instance for this thread
+    Realm realm = Realm.getDefaultInstance(); // opens "MediaAVScannerCache.realm"
 
     /**
      * Constructor
@@ -57,139 +65,87 @@ public class MediaAVScanner {
     }
 
     /**
-     * Clear the cached scan results.
+     * Clear the Realm cached scan results.
      */
-    public void clearCache() {
-        ContentUtils.deleteDirectory(mMediaAVScannerDirectory);
-        mMediaAVScanByUrl = null;
-
-        // TODO cancel pending scans.
-    }
-
-    /**
-     * Open the scanner cache file.
-     *
-     * @param context the context.
-     */
-    private void openMediaAVScannerDict(Context context) {
-
-        // already checked
-        if (null != mMediaAVScanByUrl) {
-            return;
-        }
-
-        mMediaAVScanByUrl = new HashMap<>();
+    public void clearRealmCache() {
 
         try {
-            mMediaAVScannerDirectory = new File(context.getApplicationContext().getFilesDir(), MEDIAAVSCANNER_STORE_FOLDER);
-            mMediaAVScannerDirectory = new File(mMediaAVScannerDirectory, mUserId);
-
-            mMediaAVScannerFile = new File(mMediaAVScannerDirectory, FILENAME.hashCode() + "");
-
-            if (!mMediaAVScannerDirectory.exists()) {
-
-                // create dir tree
-                mMediaAVScannerDirectory.mkdirs();
-            }
-
-            if (mMediaAVScannerFile.exists()) {
-                FileInputStream fis = new FileInputStream(mMediaAVScannerFile);
-                ObjectInputStream ois = new ObjectInputStream(fis);
-                mMediaAVScanByUrl = (HashMap) ois.readObject();
-                ois.close();
-                fis.close();
-            }
-        } catch (Exception e) {
-            Log.e(LOG_TAG, "## openMediaAVScannerDict failed " + e.getMessage());
+            // The method deleteAll() doesn't require all Realm instances closed.
+            // It will just delete all the objects in the Realm without clearing the schemas.
+            realm.beginTransaction();
+            realm.deleteAll();
+            realm.commitTransaction();
+        } finally {
+            realm.close();
         }
+
+        mMediaAvScanByUrl = null;
     }
 
     /**
      * Get the current scan status for a media.
      * Trigger a scan if it is not already done.
      *
-     * @param context   the context.
      * @param url       the media url.
      * @param callback  optional async response handler.
      * @return the current scan status.
      */
-    public ScanStatus scanEncryptedMedia(Context context, String url, @Nullable ApiCallback<Void> callback) {
-        if (null == mMediaAVScanByUrl) {
-            openMediaAVScannerDict(context);
-        }
+    public ScanStatus scanMedia(String url, @Nullable ApiCallback<Void> callback) {
 
         if (TextUtils.isEmpty(url)) {
             return ScanStatus.UNKNOWN;
         }
 
-        if (mMediaAVScanByUrl.containsKey(url)) {
-            return mMediaAVScanByUrl.get(url);
+        ScanStatus scanStatus = (ScanStatus) this.getMediaAVScanByUrl().where().equalTo("url", url).findFirst();
+
+        if (null == scanStatus) {
+            return ScanStatus.UNKNOWN;
+        } else {
+            return ScanStatus.IN_PROGRESS;
         }
 
         // TODO trigger the scan, use the callback on result if any
 
-        return ScanStatus.IN_PROGRESS;
     }
 
     /**
      * Get the current scan status for an encrypted media.
      * Trigger a scan if it is not already done.
      *
-     * @param context the context.
      * @param mediaInfo  the encrypted media information.
      * @param callback   optional async response handler.
      * @return the current scan status.
      */
-    public ScanStatus scanEncryptedMedia(Context context, EncryptedFileInfo mediaInfo, @Nullable ApiCallback<Void> callback) {
-        if (null == mMediaAVScanByUrl) {
-            openMediaAVScannerDict(context);
-        }
-
+    public ScanStatus scanEncryptedMedia(EncryptedFileInfo mediaInfo, @Nullable ApiCallback<Void> callback) {
         if (TextUtils.isEmpty(mediaInfo.url)) {
             return ScanStatus.UNKNOWN;
         }
 
-        if (mMediaAVScanByUrl.containsKey(mediaInfo.url)) {
-            return mMediaAVScanByUrl.get(mediaInfo.url);
+        ScanStatus scanStatus = (ScanStatus) this.getMediaAVScanByUrl().where().equalTo("url", mediaInfo.url).findFirst();
+
+        if (null == scanStatus) {
+            return ScanStatus.UNKNOWN;
+        } else {
+            return ScanStatus.IN_PROGRESS;
         }
 
         // TODO trigger the scan, use the callback on result if any
-
-        return ScanStatus.IN_PROGRESS;
-    }
-
-    /**
-     * Store the scanner dictionary.
-     *
-     * @param context the context.
-     */
-    private void saveMediaAVScannerDict(Context context) {
-        try {
-            FileOutputStream fos = new FileOutputStream(mMediaAVScannerFile);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(mMediaAVScanByUrl);
-            oos.close();
-            fos.close();
-        } catch (Exception e) {
-            Log.e(LOG_TAG, "## saveMediaAVScannerDict() failed " + e.getMessage());
-        }
     }
 
     /**
      * Update the media scan status for a dedicated url.
      *
-     * @param context the context.
      * @param url  the media url.
      * @param scanStatus the current scan status.
      */
-    public void updateMediaAVScannerDict(Context context, String url, ScanStatus scanStatus) {
-        if (null == mMediaAVScanByUrl) {
-            openMediaAVScannerDict(context);
-        }
+    public void updateMediaAvScannerDict(String url, ScanStatus scanStatus) {
 
         if (!TextUtils.isEmpty(url)) {
-            mMediaAVScanByUrl.put(url, scanStatus);
-            saveMediaAVScannerDict(context);
+            realm.beginTransaction();;
+            MediaAntivirusMap mediaAntivirusMap = realm.createObject(MediaAntivirusMap.class);
+            mediaAntivirusMap.setUrl(url);
+            mediaAntivirusMap.setScanStatus(scanStatus);
+            realm.commitTransaction();
         }
     }
 }

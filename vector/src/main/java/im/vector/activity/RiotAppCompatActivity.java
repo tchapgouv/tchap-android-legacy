@@ -18,10 +18,14 @@
 package im.vector.activity;
 
 import android.content.Context;
+import android.os.Bundle;
+import android.os.PersistableBundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import im.vector.VectorApp;
+import io.realm.Realm;
 
 public class RiotAppCompatActivity extends AppCompatActivity {
 

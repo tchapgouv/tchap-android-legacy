@@ -83,6 +83,8 @@ import im.vector.util.PreferencesManager;
 import im.vector.util.RageShake;
 import im.vector.util.ThemeUtils;
 import im.vector.util.VectorMarkdownParser;
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
 
 /**
  * The main application injection point
@@ -190,6 +192,14 @@ public class VectorApp extends MultiDexApplication {
     public void onCreate() {
         Log.d(LOG_TAG, "onCreate");
         super.onCreate();
+
+        // Initialize Realm (just once per application)
+        Realm.init(this);
+
+        // The RealmConfiguration is created using the builder pattern.
+        // The Realm file name is "mediaAVScannerCache.realm" in Context.getFilesDir();
+        RealmConfiguration config = new RealmConfiguration.Builder().name("MediaAVScannerCache.realm").build();
+        Realm.setDefaultConfiguration(config);
 
         instance = this;
         mCallsManager = new CallsManager(this);
