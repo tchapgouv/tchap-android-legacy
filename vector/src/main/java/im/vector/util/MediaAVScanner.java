@@ -101,7 +101,7 @@ public class MediaAVScanner extends RealmObject {
         if (null == scanStatus) {
             return ScanStatus.UNKNOWN;
         } else {
-            return ScanStatus.IN_PROGRESS;
+            return scanStatus;
         }
 
         // TODO trigger the scan, use the callback on result if any
@@ -126,7 +126,7 @@ public class MediaAVScanner extends RealmObject {
         if (null == scanStatus) {
             return ScanStatus.UNKNOWN;
         } else {
-            return ScanStatus.IN_PROGRESS;
+            return scanStatus;
         }
 
         // TODO trigger the scan, use the callback on result if any
