@@ -33,7 +33,7 @@ public class MediaAVScanner extends RealmObject {
     public enum ScanStatus { UNKNOWN, IN_PROGRESS, TRUSTED, INFECTED }
 
     // The HashMap type is not supported by Realm.
-    // So we have to go through an intermediate object to create a RealmList
+    // So we have to use an intermediate  RealmObject to create a RealmList
     class MediaAntivirusMap extends RealmObject {
         private String url;
         private ScanStatus scanStatus;
@@ -93,6 +93,9 @@ public class MediaAVScanner extends RealmObject {
      * @return the current scan status.
      */
     public ScanStatus scanMedia(String url, @Nullable ApiCallback<Void> callback) {
+        if (null == mMediaAvScanByUrl) {
+            mMediaAvScanByUrl = new RealmList<>();
+        }
 
         if (TextUtils.isEmpty(url)) {
             return ScanStatus.UNKNOWN;
@@ -119,6 +122,10 @@ public class MediaAVScanner extends RealmObject {
      * @return the current scan status.
      */
     public ScanStatus scanEncryptedMedia(EncryptedFileInfo mediaInfo, @Nullable ApiCallback<Void> callback) {
+        if (null == mMediaAvScanByUrl) {
+            mMediaAvScanByUrl = new RealmList<>();
+        }
+
         if (TextUtils.isEmpty(mediaInfo.url)) {
             return ScanStatus.UNKNOWN;
         }
