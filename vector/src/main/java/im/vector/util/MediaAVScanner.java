@@ -16,7 +16,6 @@
 
 package im.vector.util;
 
-import android.content.Context;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
@@ -33,6 +32,8 @@ public class MediaAVScanner extends RealmObject {
 
     public enum ScanStatus { UNKNOWN, IN_PROGRESS, TRUSTED, INFECTED }
 
+    // The HashMap type is not supported by Realm.
+    // So we have to go through an intermediate object to create a RealmList
     class MediaAntivirusMap extends RealmObject {
         private String url;
         private ScanStatus scanStatus;
@@ -63,6 +64,7 @@ public class MediaAVScanner extends RealmObject {
     public MediaAVScanner(String userId) {
         mUserId = userId;
     }
+
 
     /**
      * Clear the Realm cached scan results.
@@ -135,7 +137,7 @@ public class MediaAVScanner extends RealmObject {
     /**
      * Update the media scan status for a dedicated url.
      *
-     * @param url  the media url.
+     * @param url        the media url.
      * @param scanStatus the current scan status.
      */
     public void updateMediaAvScannerDict(String url, ScanStatus scanStatus) {
