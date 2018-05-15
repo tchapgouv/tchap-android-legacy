@@ -21,6 +21,7 @@ import android.text.TextUtils;
 
 import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.model.crypto.EncryptedFileInfo;
+
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmObject;
@@ -103,11 +104,11 @@ public class MediaAVScanner extends RealmObject {
 
         ScanStatus scanStatus = (ScanStatus) this.getMediaAVScanByUrl().where().equalTo("url", url).findFirst();
 
-        if (null == scanStatus) {
-            return ScanStatus.UNKNOWN;
-        } else {
+        if (null != scanStatus) {
             return scanStatus;
         }
+
+        return ScanStatus.IN_PROGRESS;
 
         // TODO trigger the scan, use the callback on result if any
 
@@ -132,11 +133,11 @@ public class MediaAVScanner extends RealmObject {
 
         ScanStatus scanStatus = (ScanStatus) this.getMediaAVScanByUrl().where().equalTo("url", mediaInfo.url).findFirst();
 
-        if (null == scanStatus) {
-            return ScanStatus.UNKNOWN;
-        } else {
+        if (null != scanStatus) {
             return scanStatus;
         }
+
+        return ScanStatus.IN_PROGRESS;
 
         // TODO trigger the scan, use the callback on result if any
     }
