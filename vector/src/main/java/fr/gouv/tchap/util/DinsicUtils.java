@@ -23,9 +23,10 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.ContactsContract;
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
@@ -60,10 +61,6 @@ import im.vector.adapters.ParticipantAdapterItem;
 import im.vector.contacts.Contact;
 import im.vector.contacts.ContactsManager;
 import im.vector.util.RoomUtils;
-
-/**
- * Created by cloud on 1/22/18.
- */
 
 public class DinsicUtils {
     private static final String LOG_TAG = "DinsicUtils";
@@ -275,7 +272,7 @@ public class DinsicUtils {
         ApiCallback<String> prepareDirectChatCallBack = new ApiCallback<String>() {
             @Override
             public void onSuccess(final String roomId) {
-                activity.stopWaitingView();
+                activity.hideWaitingView();
 
                 HashMap<String, Object> params = new HashMap<>();
                 params.put(VectorRoomActivity.EXTRA_MATRIX_ID, session.getMyUserId());
@@ -287,13 +284,13 @@ public class DinsicUtils {
             }
 
             private void onError(final String message) {
-                activity.waitingView.post(new Runnable() {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
                         if (null != message) {
                             Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
                         }
-                        activity.stopWaitingView();
+                        activity.hideWaitingView();
                     }
                 });
             }

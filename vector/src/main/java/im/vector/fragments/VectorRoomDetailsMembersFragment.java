@@ -77,7 +77,7 @@ import im.vector.util.RoomUtils;
 import im.vector.util.ThemeUtils;
 import im.vector.util.VectorUtils;
 
-public class VectorRoomDetailsMembersFragment extends Fragment {
+public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
     private static final String LOG_TAG = VectorRoomDetailsMembersFragment.class.getSimpleName();
 
     // activity request codes

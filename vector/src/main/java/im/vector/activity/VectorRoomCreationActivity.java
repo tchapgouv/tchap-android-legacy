@@ -69,6 +69,7 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
     private RoomCreationModes mMode = RoomCreationModes.DISCUSSION;
 
     // UI items
+    private ListView membersListView;
     private VectorRoomCreationAdapter mAdapter;
 
     // the search is displayed at first call
@@ -105,8 +106,8 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
         }
 
         // get the UI items
-        waitingView = findViewById(R.id.room_creation_spinner_views);
-        ListView membersListView = findViewById(R.id.room_creation_members_list_view);
+        setWaitingView(findViewById(R.id.room_creation_spinner_views));
+        membersListView = findViewById(R.id.room_creation_members_list_view);
         mAdapter = new VectorRoomCreationAdapter(this, R.layout.adapter_item_vector_creation_add_member, R.layout.adapter_item_vector_add_participants, mSession);
 
         // init the content
@@ -444,13 +445,13 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
             }
 
             private void onError(final String message) {
-                waitingView.post(new Runnable() {
+                membersListView.post(new Runnable() {
                     @Override
                     public void run() {
                         if (null != message) {
                             Toast.makeText(VectorRoomCreationActivity.this, message, Toast.LENGTH_LONG).show();
                         }
-                        stopWaitingView();
+                        hideWaitingView();
                     }
                 });
             }

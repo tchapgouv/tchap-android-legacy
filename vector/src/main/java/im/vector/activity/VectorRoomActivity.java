@@ -540,7 +540,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
 
         setContentView(R.layout.activity_vector_room);
 
-        waitingView = findViewById(R.id.main_progress_layout);
+        setWaitingView(findViewById(R.id.main_progress_layout));
 
         if (CommonActivityUtils.shouldRestartApp(this)) {
             Log.e(LOG_TAG, "onCreate : Restart the application.");
@@ -1012,10 +1012,11 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                                 WidgetsManager.getSharedInstance().closeWidget(mSession, mRoom, widget.getWidgetId(), new ApiCallback<Void>() {
                                     @Override
                                     public void onSuccess(Void info) {
-                                        stopWaitingView();
+                                        hideWaitingView();
                                     }
 
                                     private void onError(String errorMessage) {
+                                        hideWaitingView();
                                         CommonActivityUtils.displayToast(VectorRoomActivity.this, errorMessage);
                                     }
 
@@ -1117,10 +1118,11 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                 WidgetsManager.getSharedInstance().closeWidget(mSession, mRoom, widget.getWidgetId(), new ApiCallback<Void>() {
                     @Override
                     public void onSuccess(Void info) {
-                        stopWaitingView();
+                        hideWaitingView();
                     }
 
                     private void onError(String errorMessage) {
+                        hideWaitingView();
                         CommonActivityUtils.displayToast(VectorRoomActivity.this, errorMessage);
                     }
 
@@ -1748,7 +1750,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                                     }
 
                                     private void onError(String errorMessage) {
-                                        stopWaitingView();
+                                        hideWaitingView();
                                         Log.e(LOG_TAG, "Cannot leave the room " + mRoom.getRoomId() + " : " + errorMessage);
                                     }
 
@@ -1921,7 +1923,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
         WidgetsManager.getSharedInstance().createJitsiWidget(mSession, mRoom, aIsVideoCall, new ApiCallback<Widget>() {
             @Override
             public void onSuccess(Widget widget) {
-                stopWaitingView();
+                hideWaitingView();
 
                 final Intent intent = new Intent(VectorRoomActivity.this, JitsiCallActivity.class);
                 intent.putExtra(JitsiCallActivity.EXTRA_WIDGET_ID, widget);
@@ -1929,7 +1931,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             }
 
             private void onError(String errorMessage) {
-                stopWaitingView();
+                hideWaitingView();
                 CommonActivityUtils.displayToast(VectorRoomActivity.this, errorMessage);
             }
 
@@ -1974,7 +1976,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                 VectorRoomActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        stopWaitingView();
+                        hideWaitingView();
 
                         final Intent intent = new Intent(VectorRoomActivity.this, VectorCallViewActivity.class);
 
@@ -1995,7 +1997,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                 VectorRoomActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        stopWaitingView();
+                        hideWaitingView();
                         Activity activity = VectorRoomActivity.this;
                         CommonActivityUtils.displayToastOnUiThread(activity, activity.getString(R.string.cannot_start_call) + " (" + errorMessage + ")");
                     }
@@ -2015,7 +2017,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                 if (e instanceof MXCryptoError) {
                     MXCryptoError cryptoError = (MXCryptoError) e;
                     if (MXCryptoError.UNKNOWN_DEVICES_CODE.equals(cryptoError.errcode)) {
-                        stopWaitingView();
+                        hideWaitingView();
                         CommonActivityUtils.displayUnknownDevicesDialog(mSession, VectorRoomActivity.this, (MXUsersDevicesMap<MXDeviceInfo>) cryptoError.mExceptionData, new VectorUnknownDevicesFragment.IUnknownDevicesSendAnywayListener() {
                             @Override
                             public void onSendAnyway() {
@@ -3348,7 +3350,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                     mSession.joinRoom(mRoom.getRoomId(), new ApiCallback<String>() {
                         @Override
                         public void onSuccess(String roomId) {
-                            stopWaitingView();
+                            hideWaitingView();
 
                             HashMap<String, Object> params = new HashMap<>();
 
@@ -3366,7 +3368,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                         private void onError(String errorMessage) {
                             Log.d(LOG_TAG, "re join failed " + errorMessage);
                             CommonActivityUtils.displayToast(VectorRoomActivity.this, errorMessage);
-                            stopWaitingView();
+                            hideWaitingView();
                         }
 
                         @Override
@@ -3403,7 +3405,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                     private void onError(String errorMessage) {
                         Log.d(LOG_TAG, "forget failed " + errorMessage);
                         CommonActivityUtils.displayToast(VectorRoomActivity.this, errorMessage);
-                        stopWaitingView();
+                        hideWaitingView();
                     }
 
                     @Override
@@ -3497,7 +3499,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                             private void onError(String errorMessage) {
                                 Log.d(LOG_TAG, "The invitation rejection failed " + errorMessage);
                                 CommonActivityUtils.displayToast(VectorRoomActivity.this, errorMessage);
-                                stopWaitingView();
+                                hideWaitingView();
                             }
 
                             @Override
@@ -3552,13 +3554,13 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                         DinsicUtils.joinRoom(sRoomPreviewData, new ApiCallback<Void>() {
                             @Override
                             public void onSuccess(Void info) {
-                                stopWaitingView();
+                                hideWaitingView();
                                 onJoined();
                             }
 
                             private void onError(String errorMessage) {
-                                stopWaitingView();
                                 CommonActivityUtils.displayToast(VectorRoomActivity.this, errorMessage);
+                                hideWaitingView();
                             }
 
                             @Override
@@ -3630,7 +3632,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                     if (!TextUtils.isEmpty(errorMessage)) {
                         CommonActivityUtils.displayToast(VectorRoomActivity.this, errorMessage);
                     }
-                    stopWaitingView();
+                    hideWaitingView();
                 }
 
                 @Override
@@ -3694,7 +3696,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                                             CommonActivityUtils.displayToast(VectorRoomActivity.this, message);
                                         }
 
-                                        stopWaitingView();
+                                        hideWaitingView();
                                         updateRoomHeaderAvatar();
                                     }
 
@@ -3759,7 +3761,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                                             CommonActivityUtils.displayToast(VectorRoomActivity.this, message);
                                         }
 
-                                        stopWaitingView();
+                                        hideWaitingView();
                                         updateActionBarTitleAndTopic();
                                     }
 
@@ -3832,7 +3834,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                                             CommonActivityUtils.displayToast(VectorRoomActivity.this, message);
                                         }
 
-                                        stopWaitingView();
+                                        hideWaitingView();
                                         updateActionBarTitleAndTopic();
                                     }
 
