@@ -1,6 +1,7 @@
 /*
  * Copyright 2014 OpenMarket Ltd
  * Copyright 2017 Vector Creations Ltd
+ * Copyright 2018 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -84,7 +85,6 @@ import im.vector.util.RageShake;
 import im.vector.util.ThemeUtils;
 import im.vector.util.VectorMarkdownParser;
 import io.realm.Realm;
-import io.realm.RealmConfiguration;
 
 /**
  * The main application injection point
@@ -195,11 +195,6 @@ public class VectorApp extends MultiDexApplication {
 
         // Initialize Realm (just once per application)
         Realm.init(this);
-
-        // The RealmConfiguration is created using the builder pattern.
-        // The Realm file name is "mediaAVScannerCache.realm" in Context.getFilesDir();
-        RealmConfiguration config = new RealmConfiguration.Builder().name("MediaAVScannerCache.realm").build();
-        Realm.setDefaultConfiguration(config);
 
         instance = this;
         mCallsManager = new CallsManager(this);

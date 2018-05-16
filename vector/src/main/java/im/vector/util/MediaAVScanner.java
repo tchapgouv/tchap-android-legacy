@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 DINSIC
+ * Copyright 2018 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,44 +18,18 @@ package im.vector.util;
 
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
-
+import android.util.Log;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.model.crypto.EncryptedFileInfo;
-
+import im.vector.activity.RiotAppCompatActivity;
 import io.realm.Realm;
-import io.realm.RealmList;
-import io.realm.RealmObject;
-import io.realm.annotations.PrimaryKey;
+import io.realm.RealmResults;
 
-public class MediaAVScanner extends RealmObject {
+public class MediaAVScanner extends RiotAppCompatActivity {
 
     private static final String LOG_TAG = MediaAVScanner.class.getSimpleName();
 
-    public enum ScanStatus { UNKNOWN, IN_PROGRESS, TRUSTED, INFECTED }
-
-    // The HashMap type is not supported by Realm.
-    // So we have to use an intermediate  RealmObject to create a RealmList
-    class MediaAntivirusMap extends RealmObject {
-        private String url;
-        private ScanStatus scanStatus;
-
-        private String getUrl() {return url;}
-        private void setUrl(String url)  {this.url = url;}
-
-        private ScanStatus getScanStatus() { return scanStatus;}
-        private void setScanStatus(ScanStatus scanStatus) {this.scanStatus = scanStatus;}
-
-    }
-
-    @PrimaryKey
     private String mUserId = null;
-    private RealmList<MediaAntivirusMap> mMediaAvScanByUrl = null;
-
-    public RealmList getMediaAVScanByUrl() { return mMediaAvScanByUrl; }
-
-    // Initialization and configuration of realm are done in VectorApp class
-    // Get a Realm instance for this thread
-    Realm realm = Realm.getDefaultInstance(); // opens "MediaAVScannerCache.realm"
 
     /**
      * Constructor
@@ -67,22 +41,47 @@ public class MediaAVScanner extends RealmObject {
     }
 
 
-    /**
-     * Clear the Realm cached scan results.
-     */
-    public void clearRealmCache() {
+    public MediaAntivirusScanStatus.ScanStatus getMediaAvScanByUrl(String url) {
 
-        try {
-            // The method deleteAll() doesn't require all Realm instances closed.
-            // It will just delete all the objects in the Realm without clearing the schemas.
-            realm.beginTransaction();
-            realm.deleteAll();
-            realm.commitTransaction();
-        } finally {
-            realm.close();
+        MediaAntivirusScanStatus mediaAntivirusScanStatus;
+        MediaAntivirusScanStatus.ScanStatus scanStatus = MediaAntivirusScanStatus.ScanStatus.UNKNOWN;
+
+        if (null != url && !TextUtils.isEmpty(url)) {
+            try {
+                mediaAntivirusScanStatus = realm.where(MediaAntivirusScanStatus.class).equalTo("url", url).findFirst();
+                if (null != mediaAntivirusScanStatus) {
+                    scanStatus = mediaAntivirusScanStatus.getScanStatus();
+                }
+            } finally {
+                realm.close();
+            }
         }
+        return scanStatus;
 
-        mMediaAvScanByUrl = null;
+    }
+
+    /**
+     * Clear the Realm cached media scan results.
+     */
+    public void clearAntivirusScanResultsCache() {
+
+        realm.executeTransactionAsync(new Realm.Transaction() {
+            @Override
+            public void execute(Realm bgRealm) {
+                RealmResults<MediaAntivirusScanStatus> results = realm.where(MediaAntivirusScanStatus.class).findAll();
+                results.deleteAllFromRealm();
+            }
+        }, new Realm.Transaction.OnSuccess() {
+            @Override
+            public void onSuccess() {
+                realm.close();
+            }
+        }, new Realm.Transaction.OnError() {
+            @Override
+            public void onError(Throwable error) {
+                Log.e(LOG_TAG, "## clearAntivirusScanResultsCache : Realm transaction failed");
+            }
+        });
     }
 
     /**
@@ -93,22 +92,19 @@ public class MediaAVScanner extends RealmObject {
      * @param callback  optional async response handler.
      * @return the current scan status.
      */
-    public ScanStatus scanMedia(String url, @Nullable ApiCallback<Void> callback) {
-        if (null == mMediaAvScanByUrl) {
-            mMediaAvScanByUrl = new RealmList<>();
-        }
+    public MediaAntivirusScanStatus.ScanStatus scanMedia(String url, @Nullable ApiCallback<Void> callback) {
 
         if (TextUtils.isEmpty(url)) {
-            return ScanStatus.UNKNOWN;
+            return MediaAntivirusScanStatus.ScanStatus.UNKNOWN;
         }
 
-        ScanStatus scanStatus = (ScanStatus) this.getMediaAVScanByUrl().where().equalTo("url", url).findFirst();
+        getMediaAvScanByUrl(url);
 
-        if (null != scanStatus) {
-            return scanStatus;
+        if (null != getMediaAvScanByUrl(url)) {
+            return getMediaAvScanByUrl(url);
         }
 
-        return ScanStatus.IN_PROGRESS;
+        return MediaAntivirusScanStatus.ScanStatus.IN_PROGRESS;
 
         // TODO trigger the scan, use the callback on result if any
 
@@ -122,22 +118,19 @@ public class MediaAVScanner extends RealmObject {
      * @param callback   optional async response handler.
      * @return the current scan status.
      */
-    public ScanStatus scanEncryptedMedia(EncryptedFileInfo mediaInfo, @Nullable ApiCallback<Void> callback) {
-        if (null == mMediaAvScanByUrl) {
-            mMediaAvScanByUrl = new RealmList<>();
-        }
+    public MediaAntivirusScanStatus.ScanStatus scanEncryptedMedia(EncryptedFileInfo mediaInfo, @Nullable ApiCallback<Void> callback) {
 
         if (TextUtils.isEmpty(mediaInfo.url)) {
-            return ScanStatus.UNKNOWN;
+            return MediaAntivirusScanStatus.ScanStatus.UNKNOWN;
         }
 
-        ScanStatus scanStatus = (ScanStatus) this.getMediaAVScanByUrl().where().equalTo("url", mediaInfo.url).findFirst();
+        getMediaAvScanByUrl(mediaInfo.url);
 
-        if (null != scanStatus) {
-            return scanStatus;
+        if (null != getMediaAvScanByUrl(mediaInfo.url)) {
+            return getMediaAvScanByUrl(mediaInfo.url);
         }
 
-        return ScanStatus.IN_PROGRESS;
+        return MediaAntivirusScanStatus.ScanStatus.IN_PROGRESS;
 
         // TODO trigger the scan, use the callback on result if any
     }
@@ -148,14 +141,27 @@ public class MediaAVScanner extends RealmObject {
      * @param url        the media url.
      * @param scanStatus the current scan status.
      */
-    public void updateMediaAvScannerDict(String url, ScanStatus scanStatus) {
+    public void updateMediaAvScannerDict(final String url, final MediaAntivirusScanStatus.ScanStatus scanStatus) {
 
-        if (!TextUtils.isEmpty(url)) {
-            realm.beginTransaction();;
-            MediaAntivirusMap mediaAntivirusMap = realm.createObject(MediaAntivirusMap.class);
-            mediaAntivirusMap.setUrl(url);
-            mediaAntivirusMap.setScanStatus(scanStatus);
-            realm.commitTransaction();
+        if (null != url && !TextUtils.isEmpty(url)) {
+            realm.executeTransactionAsync(new Realm.Transaction() {
+                @Override
+                public void execute(Realm bgRealm) {
+                    MediaAntivirusScanStatus mediaAntivirusScanStatus = realm.createObject(MediaAntivirusScanStatus.class);
+                    mediaAntivirusScanStatus.setUrl(url);
+                    mediaAntivirusScanStatus.setScanStatus(scanStatus);
+                }
+            }, new Realm.Transaction.OnSuccess() {
+                @Override
+                public void onSuccess() {
+                    realm.close();
+                }
+            }, new Realm.Transaction.OnError() {
+                @Override
+                public void onError(Throwable error) {
+                    Log.e(LOG_TAG, "## updateMediaAvScannerDict : Realm transaction failed");
+                }
+            });
         }
     }
 }
