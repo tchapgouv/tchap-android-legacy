@@ -1,5 +1,6 @@
 /*
  * Copyright 2015 OpenMarket Ltd
+ * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +62,7 @@ import im.vector.util.VectorUtils;
  */
 public class VectorRoomSummaryAdapter extends BaseExpandableListAdapter {
     public interface RoomEventListener {
-        void onPreviewRoom(MXSession session, String roomId);
+        void onJoinRoom(MXSession session, String roomId);
 
         void onRejectInvitation(MXSession session, String roomId);
 
@@ -683,7 +684,7 @@ public class VectorRoomSummaryAdapter extends BaseExpandableListAdapter {
         View encryptedIcon = convertView.findViewById(R.id.room_avatar_encrypted_icon);
 
         View invitationView = convertView.findViewById(R.id.recents_groups_invitation_group);
-        Button preViewButton = convertView.findViewById(R.id.recents_invite_preview_button);
+        Button joinButton = convertView.findViewById(R.id.recents_invite_join_button);
         Button rejectButton = convertView.findViewById(R.id.recents_invite_reject_button);
 
         View showMoreView = convertView.findViewById(R.id.roomSummaryAdapter_show_more_layout);
@@ -819,11 +820,11 @@ public class VectorRoomSummaryAdapter extends BaseExpandableListAdapter {
         if (isInvited) {
             actionClickArea.setVisibility(View.GONE);
 
-            preViewButton.setOnClickListener(new View.OnClickListener() {
+            joinButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (null != mListener) {
-                        mListener.onPreviewRoom(mMxSession, fRoomId);
+                       mListener.onJoinRoom(mMxSession, fRoomId);
                     }
                 }
             });

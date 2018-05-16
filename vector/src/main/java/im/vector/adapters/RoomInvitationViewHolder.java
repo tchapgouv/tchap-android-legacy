@@ -1,5 +1,6 @@
 /*
  * Copyright 2017 Vector Creations Ltd
+ * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,8 +32,8 @@ public class RoomInvitationViewHolder extends RoomViewHolder {
     @BindView(R.id.recents_invite_reject_button)
     Button vRejectButton;
 
-    @BindView(R.id.recents_invite_preview_button)
-    Button vPreViewButton;
+    @BindView(R.id.recents_invite_join_button)
+    Button vJoinButton;
 
     RoomInvitationViewHolder(View itemView) {
         super(itemView);
@@ -42,11 +43,11 @@ public class RoomInvitationViewHolder extends RoomViewHolder {
                        final AbsAdapter.RoomInvitationListener invitationListener, final AbsAdapter.MoreRoomActionListener moreRoomActionListener) {
         super.populateViews(context, session, room, room.isDirectChatInvitation(), true, moreRoomActionListener);
 
-        vPreViewButton.setOnClickListener(new View.OnClickListener() {
+        vJoinButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (null != invitationListener) {
-                    invitationListener.onPreviewRoom(session, room.getRoomId());
+                    invitationListener.onJoinRoom(session, room.getRoomId());
                 }
             }
         });
