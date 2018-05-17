@@ -35,7 +35,7 @@ public class MediaScanManager {
      * @param realm instance of mediaScanDao.
      */
     public void MediaScanManager(Realm realm) {
-        MediaScanDao mediaScanDao = this.mMediaScanDao;
+        MediaScanDao mediaScanDao = mMediaScanDao;
     }
 
     /**
