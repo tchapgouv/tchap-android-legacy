@@ -21,12 +21,22 @@ import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.model.crypto.EncryptedFileInfo;
 
 import fr.gouv.tchap.model.MediaScan;
+import io.realm.Realm;
 
 public class MediaScanManager {
 
     private static final String LOG_TAG = MediaScanManager.class.getSimpleName();
 
     MediaScanDao mMediaScanDao;
+
+    /**
+     * Constructor
+     *
+     * @param realm instance of mediaScanDao.
+     */
+    public void MediaScanManager(Realm realm) {
+        MediaScanDao mediaScanDao = this.mMediaScanDao;
+    }
 
     /**
      * Get the current scan result on a media (including antivirus status).
@@ -76,7 +86,7 @@ public class MediaScanManager {
      * Clear the Realm media scan results.
      * This action will delete the table MediaScan in the Realm database.
      */
-    public void clearAntiVirusScanResults(@Nullable ApiCallback<Void> callback) {
+    public void clearAntiVirusScanResults() {
         mMediaScanDao.clearAntiVirusScanResults();
         // TODO trigger the scan, use the callback on result if any
     }

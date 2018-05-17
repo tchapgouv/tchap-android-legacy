@@ -38,7 +38,7 @@ public class MediaScanDao {
     /**
      * Get the media scan object for a dedicated url.
      *
-     * @param url   the media url, must not been null.
+     * @param url   the media url, must not be null.
      * @return the current media scan object.
      */
     /* package */ MediaScan getMediaScan(String url) {
@@ -47,10 +47,10 @@ public class MediaScanDao {
 
         mediaScan = mRealm.where(MediaScan.class).equalTo("url", url).findFirst();
 
-            if (null == mediaScan) {
-                // Create the realm object MediaScan
-                mediaScan = mRealm.createObject(MediaScan.class, url);
-            }
+        if (null == mediaScan) {
+            // Create the realm object MediaScan
+            mediaScan = mRealm.createObject(MediaScan.class, url);
+        }
 
         return mediaScan;
     }
@@ -58,7 +58,7 @@ public class MediaScanDao {
     /**
      * Update the media scan antivirus status for a dedicated url.
      *
-     * @param url                 the media url, must not been null.
+     * @param url                 the media url, must not be null.
      * @param antiVirusScanStatus the current antivirus scan status.
      */
     /* package */ void updateMediaAntiVirusScanStatus(final String url, final MediaScan.AntiVirusScanStatus antiVirusScanStatus) {

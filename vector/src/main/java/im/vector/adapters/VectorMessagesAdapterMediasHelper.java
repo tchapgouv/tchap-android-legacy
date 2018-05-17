@@ -187,7 +187,6 @@ class VectorMessagesAdapterMediasHelper {
      * @param message     the image / video message
      * @param position    the message position
      */
-    // TODO Antivirus scan
     void managePendingImageVideoDownload(final View convertView, final Event event, final Message message, final int position) {
         int maxImageWidth = mMaxImageWidth;
         int maxImageHeight = mMaxImageHeight;
