@@ -19,18 +19,18 @@ package fr.gouv.tchap.model;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
-public class MediaAntivirusScanStatus extends RealmObject {
+public class MediaScan extends RealmObject {
 
-    public enum ScanStatus { UNKNOWN, IN_PROGRESS, TRUSTED, INFECTED }
+    public enum AntiVirusScanStatus { UNKNOWN, IN_PROGRESS, TRUSTED, INFECTED }
 
     @PrimaryKey
     private String url;
-    private ScanStatus scanStatus = ScanStatus.UNKNOWN;
+    private AntiVirusScanStatus antiVirusScanStatus = AntiVirusScanStatus.UNKNOWN;
 
     public String getUrl() { return  url; }
     public void setUrl(String url) { this.url = url; }
 
-    public ScanStatus getScanStatus() { return scanStatus; }
-    public void setScanStatus(ScanStatus scanStatus) { this.scanStatus = scanStatus; }
+    public AntiVirusScanStatus getAntiVirusScanStatus() { return antiVirusScanStatus; }
+    public void setAntiVirusScanStatus(AntiVirusScanStatus antiVirusScanStatus) { this.antiVirusScanStatus = antiVirusScanStatus; }
 
 }

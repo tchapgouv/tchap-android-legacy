@@ -85,6 +85,8 @@ import im.vector.util.RageShake;
 import im.vector.util.ThemeUtils;
 import im.vector.util.VectorMarkdownParser;
 import io.realm.Realm;
+import io.realm.RealmAsyncTask;
+import io.realm.RealmConfiguration;
 
 /**
  * The main application injection point
@@ -194,7 +196,11 @@ public class VectorApp extends MultiDexApplication {
         super.onCreate();
 
         // Initialize Realm (just once per application)
+        // TODO add the migration option in builder
+        // TODO add a RealmMigration class in order to handle the migration when schema version will upgrade (ex: clear MediaScan db)
         Realm.init(this);
+        RealmConfiguration config = new RealmConfiguration.Builder().schemaVersion(0).build();
+        Realm.setDefaultConfiguration(config);
 
         instance = this;
         mCallsManager = new CallsManager(this);
