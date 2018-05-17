@@ -188,7 +188,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
     private MatrixLinkMovementMethod mLinkMovementMethod;
 
     private final VectorMessagesAdapterMediasHelper mMediasHelper;
-    final VectorMessagesAdapterHelper mHelper;
+    private final VectorMessagesAdapterHelper mHelper;
 
     private final Set<String> mHiddenEventIds = new HashSet<>();
 
@@ -1276,7 +1276,11 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             Event event = row.getEvent();
             Message message = null;
 
+            // TODO Media Scan Status : scanStatus = ScanStatus.UnKNOWN
+
             int waterMarkResourceId = -1;
+
+            // TODO switch case
 
             if (type == ROW_TYPE_IMAGE) {
 
@@ -1318,9 +1322,11 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             if (null != message) {
                 mHelper.hideStickerDescription(convertView);
 
+                // TODO Antivirus scan ?
                 // download management
                 mMediasHelper.managePendingImageVideoDownload(convertView, event, message, position);
 
+                // TODO Antivirus scan ?
                 // upload management
                 mMediasHelper.managePendingImageVideoUpload(convertView, event, message);
             }
@@ -1508,6 +1514,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             }
             imageTypeView.setBackgroundColor(Color.TRANSPARENT);
 
+            // TODO Antivirus Scan
             mMediasHelper.managePendingFileDownload(convertView, event, fileMessage, position);
             mMediasHelper.managePendingUpload(convertView, event, ROW_TYPE_FILE, fileMessage.url);
 
@@ -2415,6 +2422,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                 menu.findItem(R.id.ic_action_vector_share).setVisible(!mIsRoomEncrypted);
                 menu.findItem(R.id.ic_action_vector_forward).setVisible(true);
 
+                // TODO Antivirus scan
                 // save the media in the downloads directory
                 if (Message.MSGTYPE_IMAGE.equals(message.msgtype) || Message.MSGTYPE_VIDEO.equals(message.msgtype) || Message.MSGTYPE_FILE.equals(message.msgtype)) {
                     menu.findItem(R.id.ic_action_vector_save).setVisible(true);

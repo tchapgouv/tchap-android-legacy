@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package im.vector.util;
+package fr.gouv.tchap.model;
 
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 public class MediaAntivirusScanStatus extends RealmObject {
 
     public enum ScanStatus { UNKNOWN, IN_PROGRESS, TRUSTED, INFECTED }
 
+    @PrimaryKey
     private String url;
     private ScanStatus scanStatus = ScanStatus.UNKNOWN;
 

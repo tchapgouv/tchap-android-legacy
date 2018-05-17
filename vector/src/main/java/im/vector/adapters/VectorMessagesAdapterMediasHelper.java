@@ -31,7 +31,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.gson.JsonElement;
 
@@ -188,6 +187,7 @@ class VectorMessagesAdapterMediasHelper {
      * @param message     the image / video message
      * @param position    the message position
      */
+    // TODO Antivirus scan
     void managePendingImageVideoDownload(final View convertView, final Event event, final Message message, final int position) {
         int maxImageWidth = mMaxImageWidth;
         int maxImageHeight = mMaxImageHeight;

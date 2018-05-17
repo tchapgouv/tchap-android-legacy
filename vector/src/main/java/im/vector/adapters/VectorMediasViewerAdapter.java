@@ -70,6 +70,7 @@ import java.util.List;
 /**
  * An images slider
  */
+// TODO Antivirus scan
 public class VectorMediasViewerAdapter extends PagerAdapter {
     private static final String LOG_TAG = VectorMediasViewerAdapter.class.getSimpleName();
 
@@ -127,6 +128,7 @@ public class VectorMediasViewerAdapter extends PagerAdapter {
                 @Override
                 public void run() {
                     if (mHighResMediaIndex.indexOf(position) < 0) {
+                        // TODO Antivirus scan
                         downloadHighResMedia(view, position);
                     } else if (position == mAutoPlayItemAt) {
                         final SlidableMediaInfo mediaInfo = mMediasMessagesList.get(position);

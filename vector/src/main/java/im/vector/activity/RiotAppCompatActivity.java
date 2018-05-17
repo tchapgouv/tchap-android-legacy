@@ -18,6 +18,9 @@
 package im.vector.activity;
 
 import android.content.Context;
+import android.os.Bundle;
+import android.os.PersistableBundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
@@ -31,13 +34,16 @@ public class RiotAppCompatActivity extends AppCompatActivity {
         super.attachBaseContext(VectorApp.getLocalisedContext(base));
     }
 
-    //==============================================================================================
-    // Create only one instance of Realm for the application
-    //==============================================================================================
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState, @Nullable PersistableBundle persistentState) {
+        super.onCreate(savedInstanceState, persistentState);
 
-    // Initialization of realm are done in VectorApp class
-    // Get a Realm instance for the application
-    public Realm realm = Realm.getDefaultInstance(); // opens the file named "default.realm"
+        // Initialization of realm are done in VectorApp class
+        // Get a Realm instance for the application
+        Realm realm = Realm.getDefaultInstance(); // opens the file named "default.realm"
+    }
+
+
 
     //==============================================================================================
     // Handle loading view (also called wainting view or spinner view
