@@ -31,8 +31,8 @@ public class MediaScanDao {
      *
      * @param realm instance of realm.
      */
-    public void MediaScanDao(Realm realm) {
-        mRealm = realm;
+    public MediaScanDao(Realm realm) {
+
     }
 
     /**

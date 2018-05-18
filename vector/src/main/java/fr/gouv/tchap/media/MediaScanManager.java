@@ -35,7 +35,7 @@ public class MediaScanManager {
      * @param realm instance of mediaScanDao.
      */
     public void MediaScanManager(Realm realm) {
-        MediaScanDao mediaScanDao = mMediaScanDao;
+        mMediaScanDao = new MediaScanDao(realm);
     }
 
     /**
@@ -88,8 +88,6 @@ public class MediaScanManager {
      */
     public void clearAntiVirusScanResults() {
         mMediaScanDao.clearAntiVirusScanResults();
-        // TODO trigger the scan, use the callback on result if any
     }
-
 }
 
