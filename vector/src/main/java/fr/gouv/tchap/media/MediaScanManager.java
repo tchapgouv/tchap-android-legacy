@@ -34,7 +34,7 @@ public class MediaScanManager {
      *
      * @param realm instance of mediaScanDao.
      */
-    public void MediaScanManager(Realm realm) {
+    public MediaScanManager(Realm realm) {
         mMediaScanDao = new MediaScanDao(realm);
     }
 
@@ -50,7 +50,7 @@ public class MediaScanManager {
 
         MediaScan mediaScan = mMediaScanDao.getMediaScan(url);
 
-        if (null != callback && MediaScan.AntiVirusScanStatus.UNKNOWN != mediaScan.getAntiVirusScanStatus()) {
+        if (null != callback && AntiVirusScanStatus.UNKNOWN != mediaScan.getAntiVirusScanStatus()) {
 
             // TODO trigger the scan, use the callback on result if any
             // TODO update the ScanAntiVirusScanStatus to IN_PROGRESS
@@ -72,7 +72,7 @@ public class MediaScanManager {
 
         MediaScan mediaScan = mMediaScanDao.getMediaScan(mediaInfo.url);
 
-        if (null != callback && MediaScan.AntiVirusScanStatus.UNKNOWN != mediaScan.getAntiVirusScanStatus()) {
+        if (null != callback && AntiVirusScanStatus.UNKNOWN != mediaScan.getAntiVirusScanStatus()) {
 
             // TODO trigger the scan, use the callback on result if any
             // TODO update the AntiVirusScanStatus to IN_PROGRESS

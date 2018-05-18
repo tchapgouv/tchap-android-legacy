@@ -188,7 +188,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
     private MatrixLinkMovementMethod mLinkMovementMethod;
 
     private final VectorMessagesAdapterMediasHelper mMediasHelper;
-    private final VectorMessagesAdapterHelper mHelper;
+    final protected VectorMessagesAdapterHelper mHelper;
 
     private final Set<String> mHiddenEventIds = new HashSet<>();
 

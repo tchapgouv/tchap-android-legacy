@@ -32,7 +32,7 @@ public class MediaScanDao {
      * @param realm instance of realm.
      */
     public MediaScanDao(Realm realm) {
-
+        mRealm = realm;
     }
 
     /**
@@ -61,7 +61,7 @@ public class MediaScanDao {
      * @param url                 the media url, must not be null.
      * @param antiVirusScanStatus the current antivirus scan status.
      */
-    /* package */ void updateMediaAntiVirusScanStatus(final String url, final MediaScan.AntiVirusScanStatus antiVirusScanStatus) {
+    /* package */ void updateMediaAntiVirusScanStatus(final String url, final AntiVirusScanStatus antiVirusScanStatus) {
 
         mRealm.executeTransactionAsync(new Realm.Transaction() {
             @Override
