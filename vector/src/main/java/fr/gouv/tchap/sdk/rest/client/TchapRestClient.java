@@ -18,12 +18,10 @@ package fr.gouv.tchap.sdk.rest.client;
 import org.matrix.androidsdk.HomeServerConnectionConfig;
 import org.matrix.androidsdk.RestClient;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
+import org.matrix.androidsdk.rest.callback.DefaultRetrofit2CallbackWrapper;
 
 import fr.gouv.tchap.sdk.rest.api.TchapApi;
 import fr.gouv.tchap.sdk.rest.model.Platform;
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
 
 
 public class TchapRestClient extends RestClient<TchapApi> {
@@ -42,20 +40,6 @@ public class TchapRestClient extends RestClient<TchapApi> {
      * @param callback the callback
      */
     public void info(String address, String medium, final ApiCallback<Platform> callback) {
-        try {
-            mApi.info(address, medium, new Callback<Platform>() {
-                @Override
-                public void success(Platform platform, Response response) {
-                    callback.onSuccess(platform);
-                }
-
-                @Override
-                public void failure(RetrofitError error) {
-                    callback.onUnexpectedError(error);
-                }
-            });
-        }  catch (Throwable t) {
-            callback.onUnexpectedError(new Exception(t));
-        }
+        mApi.info(address, medium).enqueue(new DefaultRetrofit2CallbackWrapper<>(callback));
     }
 }
