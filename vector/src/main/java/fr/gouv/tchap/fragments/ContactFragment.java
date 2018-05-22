@@ -1,4 +1,5 @@
 /*
+ * Copyright 2018 New Vector Ltd
  * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -253,7 +254,7 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
 
             @Override
             public void onSelectItem(ParticipantAdapterItem contact, int position) {
-                DinsicUtils.startDialogue((RiotAppCompatActivity) getActivity(), mSession, contact);
+                DinsicUtils.startDirectChat((RiotAppCompatActivity) getActivity(), mSession, contact);
             }
         }, this, this);
         mRecycler.setAdapter(mAdapter);

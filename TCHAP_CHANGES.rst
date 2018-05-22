@@ -1,3 +1,26 @@
+Changes in Tchap 0.1.7 (2018-05-04)
+===================================================
+ 
+Improvements:
+ * matrix_sdk_version: 0.9.3 (5d401a1)
+ * Change register/login sequence #112
+ * Eliminate the preview step #113
+ * Limitations on direct chat #114
+ * Change room menu items #115
+ * The rooms directories are not available for the E-users #125
+ * Update room terminology #130
+ * Change the room creation options #131
+ * Contacts List: hide the non-tchap users #132
+ * Contacts picker: the button "inviter des contacts" is renamed "inviter par email"
+ * Remove the option "créer un salon" from the contacts picker #133
+ * The user is not allowed to change his display name #134
+ * Room directories: show the known federated directories #135
+ * Start tchap on the room screen PR #144
+ * Improve room summary PR #145
+ 
+Bug Fix:
+ * Can't acces room directory #82
+
 Changes in Tchap 0.1.6 (2018-04-18)
 ===================================================
  

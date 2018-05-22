@@ -79,6 +79,16 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
     // the selected participants list
     public static final String EXTRA_OUT_SELECTED_PARTICIPANT_ITEMS = "VectorInviteMembersActivity.EXTRA_OUT_SELECTED_PARTICIPANT_ITEMS";
 
+    // add an extra to precise the type of filter we want to display contacts
+    public static final String EXTRA_INVITE_CONTACTS_FILTER = "EXTRA_INVITE_CONTACTS_FILTER";
+
+    // This enum is used to filter the display of the contacts
+    public enum ContactsFilter { ALL, TCHAP_ONLY, NO_TCHAP_ONLY }
+    private ContactsFilter mContactsFilter = ContactsFilter.ALL;
+
+    // This enum is used to select a mode for room creation
+    private VectorRoomCreationActivity.RoomCreationModes mMode = VectorRoomCreationActivity.RoomCreationModes.DISCUSSION;
+
     // account data
     private String mMatrixId;
 
@@ -93,8 +103,6 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
 
     // tell if a confirmation dialog must be displayed to validate the user ids list
     private boolean mAddConfirmationDialog;
-
-    private VectorRoomCreationActivity.RoomCreationModes mode = null;
 
     // retrieve a matrix Id from an email
     private final ContactsManager.ContactsManagerListener mContactsListener = new ContactsManager.ContactsManagerListener() {
@@ -181,7 +189,11 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
         }
 
         if (getIntent().hasExtra(VectorRoomCreationActivity.EXTRA_ROOM_CREATION_ACTIVITY_MODE)) {
-            mode = (VectorRoomCreationActivity.RoomCreationModes) getIntent().getSerializableExtra(VectorRoomCreationActivity.EXTRA_ROOM_CREATION_ACTIVITY_MODE);
+            mMode = (VectorRoomCreationActivity.RoomCreationModes) intent.getSerializableExtra(VectorRoomCreationActivity.EXTRA_ROOM_CREATION_ACTIVITY_MODE);
+        }
+
+        if (getIntent().hasExtra(EXTRA_INVITE_CONTACTS_FILTER)) {
+            mContactsFilter = (ContactsFilter) intent.getSerializableExtra(EXTRA_INVITE_CONTACTS_FILTER);
         }
 
         // get current session
@@ -206,7 +218,7 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
             mPatternToSearchEditText.setHint(R.string.room_participants_invite_search_another_user);
         }
 
-        waitingView = findViewById(R.id.search_in_progress_view);
+        setWaitingView(findViewById(R.id.search_in_progress_view));
 
         mListView = findViewById(R.id.room_details_members_list);
         // the chevron is managed in the header view
@@ -215,8 +227,10 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
         mAdapter = new VectorParticipantsAdapter(this,
                 R.layout.adapter_item_vector_add_participants,
                 R.layout.adapter_item_vector_people_header,
-                mSession, roomId, true);
+                mSession, roomId, true, mContactsFilter);
+
         mAdapter.setHiddenParticipantItems(mHiddenParticipantItems);
+
         mListView.setAdapter(mAdapter);
 
         mListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
@@ -226,15 +240,11 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
                 final Object item = mAdapter.getChild(groupPosition, childPosition);
 
                 if (item instanceof ParticipantAdapterItem) {
-                    if (null != mode) {
-                        if (mode.equals(VectorRoomCreationActivity.RoomCreationModes.DIRECT_CHAT)) {
+                    if (null != mMode && mMode == VectorRoomCreationActivity.RoomCreationModes.DIRECT_CHAT) {
 
-                            final ParticipantAdapterItem participant = (ParticipantAdapterItem) mAdapter.getChild(groupPosition, childPosition);
-                            DinsicUtils.startDialogue(VectorRoomInviteMembersActivity.this, mSession, participant);
+                        final ParticipantAdapterItem participant = (ParticipantAdapterItem) mAdapter.getChild(groupPosition, childPosition);
+                        DinsicUtils.startDirectChat(VectorRoomInviteMembersActivity.this, mSession, participant);
 
-                        } else if (mode.equals(VectorRoomCreationActivity.RoomCreationModes.DISCUSSION)) {
-                            addParticipantToListToInvite((ParticipantAdapterItem) item);
-                        }
                     } else {
                         addParticipantToListToInvite((ParticipantAdapterItem) item);
                     }
@@ -315,7 +325,7 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
                 mListView.post(new Runnable() {
                     @Override
                     public void run() {
-                        stopWaitingView();
+                        hideWaitingView();
                     }
                 });
             }
@@ -454,7 +464,8 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
         dialog.setView(dialogLayout);
 
         final VectorAutoCompleteTextView inviteTextView = dialogLayout.findViewById(R.id.invite_by_id_edit_text);
-        inviteTextView.initAutoCompletion(mSession);
+        // Tchap : only email is accepted so disable autocompletion
+        // inviteTextView.initAutoCompletion(mSession);
 
         dialog.setPositiveButton(R.string.invite, new DialogInterface.OnClickListener() {
             @Override

@@ -1,6 +1,6 @@
 /*
  * Copyright 2016 OpenMarket Ltd
- * Copyright 2018 DINSIC
+ * Copyright 2018 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ import im.vector.receiver.VectorUniversalLinkReceiver;
  * Dummy activity used to dispatch the vector URL links.
  */
 @SuppressLint("LongLogTag")
-public class VectorUniversalLinkActivity extends RiotBaseActivity {
+public class VectorUniversalLinkActivity extends RiotAppCompatActivity {
     private static final String LOG_TAG = VectorUniversalLinkActivity.class.getSimpleName();
 
     @Override
@@ -63,7 +63,8 @@ public class VectorUniversalLinkActivity extends RiotBaseActivity {
 
                 // We consider here an email validation
                 Uri intentUri = getIntent().getData();
-                HashMap<String, String> mailRegParams = VectorRegistrationReceiver.parseMailRegistrationLink(getApplicationContext(), intentUri);
+
+                HashMap<String, String> mailRegParams = VectorRegistrationReceiver.parseMailRegistrationLink(intentUri);
 
                 // Assume it is a new account creation when there is a next link, or when no session is already available.
                 MXSession session = Matrix.getInstance(this).getDefaultSession();
