@@ -69,6 +69,7 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import fr.gouv.tchap.realm.VectorRealmMigration;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.JitsiCallActivity;
 import im.vector.activity.VectorCallViewActivity;
@@ -195,10 +196,8 @@ public class VectorApp extends MultiDexApplication {
         super.onCreate();
 
         // Initialize Realm (just once per application)
-        // TODO add the migration option in builder
-        // TODO add a RealmMigration class in order to handle the migration when schema version will upgrade (ex: clear MediaScan db)
         Realm.init(this);
-        RealmConfiguration config = new RealmConfiguration.Builder().schemaVersion(0).build();
+        RealmConfiguration config = new RealmConfiguration.Builder().schemaVersion(0).migration(new VectorRealmMigration()).build();
         Realm.setDefaultConfiguration(config);
 
         instance = this;
