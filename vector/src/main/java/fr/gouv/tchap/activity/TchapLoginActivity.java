@@ -1,4 +1,5 @@
 /*
+ * Copyright 2018 New Vector Ltd
  * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -110,9 +111,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     private static final int MODE_FORGOT_PASSWORD_WAITING_VALIDATION = 4;
     private static final int MODE_ACCOUNT_CREATION_THREE_PID = 5;
     private static final int MODE_START = 6;
-
-    public static final String HOME_SERVER_URL_PREF = "home_server_url";
-    public static final String IDENTITY_SERVER_URL_PREF = "identity_server_url";
 
     // saved parameters index
 
@@ -426,13 +424,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
         mMainLayout = findViewById(R.id.main_input_layout);
         mButtonsView = findViewById(R.id.login_actions_bar);
-
-        // trap the UI events
-        mLoginMaskView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-            }
-        });
 
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -2153,73 +2144,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         finish();
     }
 
-    /**
-     * Force the user display name
-     * @TODO remove this method as soon as the server is able to handle correctly the displayname
-     */
-    private void forceDisplayNameUpdate() {
-        final MXSession session = Matrix.getInstance(this).getDefaultSession();
-        session.getMyUser().refreshThirdPartyIdentifiers(new SimpleApiCallback<Void>() {
-            @Override
-            public void onSuccess(Void info) {
-                List<ThirdPartyIdentifier> currentEmail3PID = session.getMyUser().getlinkedEmails();
-
-                if (!currentEmail3PID.isEmpty()) {
-                    String emailAddress = currentEmail3PID.get(0).address;
-                    if (null != emailAddress) {
-                        String displayName = emailAddress.substring(0, emailAddress.lastIndexOf("@"));
-                        String[] components = displayName.split("\\.");
-                        StringBuilder builder = new StringBuilder();
-                        for (String component : components) {
-                            String updatedComponent = component.substring(0, 1).toUpperCase() + component.substring(1);
-                            if (builder.toString().isEmpty()) {
-                                builder.append(updatedComponent);
-                            } else {
-                                builder.append(" " + updatedComponent);
-                            }
-                        }
-                        displayName = builder.toString();
-
-                        // add first term of domain
-                        String[] components2 = emailAddress.split("@");
-                        if (components2.length>1) {
-                            String firstDomain = components2[1].substring(0,components2[1].indexOf("."));
-                            displayName += " ["+firstDomain+"]";
-                        }
-
-                        if (!TextUtils.equals(session.getMyUser().displayname, displayName)) {
-
-                            session.getMyUser().updateDisplayName(displayName, new ApiCallback<Void>() {
-                                @Override
-                                public void onSuccess(Void info) {
-                                    onDisplayNameUpdateDone("success");
-                                }
-
-                                @Override
-                                public void onNetworkError(Exception e) {
-                                    onDisplayNameUpdateDone(e.getLocalizedMessage());
-                                }
-
-                                @Override
-                                public void onMatrixError(MatrixError e) {
-                                    onDisplayNameUpdateDone(e.getLocalizedMessage());
-                                }
-
-                                @Override
-                                public void onUnexpectedError(Exception e) {
-                                    onDisplayNameUpdateDone(e.getLocalizedMessage());
-                                }
-                            });
-                            return;
-                        }
-                        onDisplayNameUpdateDone("no change required");
-                    }
-                }
-                onDisplayNameUpdateDone("getlinkedEmails failed");
-            }
-        });
-    }
-
     /*
     * *********************************************************************************************
     * Account creation - Listeners
@@ -2238,19 +2162,13 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             goToSplash();
-                            // Patch: Force here the user display name as long as the server does not force it
-                            // @TODO  Remove the forceDisplayNameUpdate() method, and restore the finish() call.
-                            //finish();
-                            forceDisplayNameUpdate();
+                            finish();
                         }
                     })
                     .show();
         } else {
             goToSplash();
-            // Patch: Force here the user display name as long as the server does not force it
-            // @TODO  Remove the forceDisplayNameUpdate() method, and restore the finish() call.
-            //finish();
-            forceDisplayNameUpdate();
+            finish();
         }
     }
 
@@ -2508,16 +2426,10 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         }
 
         // Handle parameters
-        // Patch: As long as the server is not able to force the mxId from the 3pid, we force it on client side
-        // @TODO Remove the parameter "name" when the server will force the mxId from the 3pid.
-        String name = mCurrentEmail.replace('@', '-');
         String password = mCreationPassword1TextView.getText().toString().trim();
         String passwordCheck = mCreationPassword2TextView.getText().toString().trim();
 
-        if (TextUtils.isEmpty(name)) {
-            Toast.makeText(getApplicationContext(), getString(R.string.auth_invalid_user_name), Toast.LENGTH_SHORT).show();
-            return;
-        } else if (TextUtils.isEmpty(password)) {
+        if (TextUtils.isEmpty(password)) {
             Toast.makeText(getApplicationContext(), getString(R.string.auth_missing_password), Toast.LENGTH_SHORT).show();
             return;
         } else if (password.length() < 6) {
@@ -2530,25 +2442,17 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
         enableLoadingScreen(true);
         RegistrationManager.getInstance().setHsConfig(getHsConfig());
-        RegistrationManager.getInstance().setAccountData(name, password);
-        RegistrationManager.getInstance().checkUsernameAvailability(this, new RegistrationManager.UsernameValidityListener() {
-            @Override
-            public void onUsernameAvailabilityChecked(boolean isAvailable) {
-                if (!isAvailable) {
-                    enableLoadingScreen(false);
-                    Toast.makeText(TchapLoginActivity.this, getString(R.string.auth_username_in_use), Toast.LENGTH_LONG).show();
-                } else {
-                    RegistrationManager.getInstance().clearThreePid();
-                    RegistrationManager.getInstance().addEmailThreePid(new ThreePid(mCurrentEmail, ThreePid.MEDIUM_EMAIL));
+        // The username is forced by the Tchap server, we don't send it anymore.
+        RegistrationManager.getInstance().setAccountData(null, password);
 
-                    mIsMailValidationPending = true;
-                    checkRegistrationFlows(new SimpleApiCallback<Void>() {
-                        @Override
-                        public void onSuccess(Void info) {
-                            RegistrationManager.getInstance().attemptRegistration(TchapLoginActivity.this, TchapLoginActivity.this);
-                        }
-                    });
-                }
+        RegistrationManager.getInstance().clearThreePid();
+        RegistrationManager.getInstance().addEmailThreePid(new ThreePid(mCurrentEmail, ThreePid.MEDIUM_EMAIL));
+        mIsMailValidationPending = true;
+        
+        checkRegistrationFlows(new SimpleApiCallback<Void>() {
+            @Override
+            public void onSuccess(Void info) {
+                RegistrationManager.getInstance().attemptRegistration(TchapLoginActivity.this, TchapLoginActivity.this);
             }
         });
     }

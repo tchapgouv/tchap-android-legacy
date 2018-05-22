@@ -1,6 +1,6 @@
 /*
  * Copyright 2017 Vector Creations Ltd
- * Copyright 2018 DINSIC
+ * Copyright 2018 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -201,10 +201,13 @@ public class RegistrationManager {
             // Trigger a fake registration (without password) to know whether the user name is available or not.
             RegistrationParams params = new RegistrationParams();
             params.username = mUsername;
+
             register(context, params, new InternalRegistrationListener() {
                 @Override
                 public void onRegistrationSuccess() {
                     // The registration could not succeed without password.
+                    // Keep calling listener (the error case) as a fallback,
+                    listener.onUsernameAvailabilityChecked(false);
                 }
 
                 @Override
@@ -256,7 +259,7 @@ public class RegistrationManager {
                                 // The session id for the email validation has just been received.
                                 // We trigger here a new registration request without delay to attach the current username
                                 // and the pwd to the registration session.
-                                RegistrationManager.getInstance().attemptRegistration(context, listener);
+                                attemptRegistration(context, listener);
 
                                 // Notify the listener to wait for the email validation
                                 listener.onWaitingEmailValidation();

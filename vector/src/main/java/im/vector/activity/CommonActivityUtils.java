@@ -44,6 +44,7 @@ import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.annotation.AttrRes;
 import android.support.annotation.ColorInt;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -1261,23 +1262,23 @@ public class CommonActivityUtils {
 
     /**
      * Set a room as a direct chat room.<br>
-     * In case of success the corresponding room is displayed.
      *
      * @param aSession           session
      * @param aRoomId            room ID
      * @param aParticipantUserId the direct chat invitee user ID
-     * @param fromActivity       calling activity
      * @param callback           async response handler
      */
-    public static void setToggleDirectMessageRoom(final MXSession aSession, final String aRoomId, String aParticipantUserId, final Activity fromActivity, final ApiCallback<Void> callback) {
+    public static void setToggleDirectMessageRoom(final MXSession aSession, final String aRoomId, String aParticipantUserId, @Nullable final ApiCallback<Void> callback) {
 
-        if ((null == aSession) || (null == fromActivity) || TextUtils.isEmpty(aRoomId)) {
+        if ((null == aSession) || TextUtils.isEmpty(aRoomId)) {
             Log.d(LOG_TAG, "## setToggleDirectMessageRoom(): failure - invalid input parameters");
         } else {
             aSession.toggleDirectChatRoom(aRoomId, aParticipantUserId, new ApiCallback<Void>() {
                 @Override
                 public void onSuccess(Void info) {
-                    callback.onSuccess(null);
+                    if (null != callback) {
+                        callback.onSuccess(null);
+                    }
                 }
 
                 @Override

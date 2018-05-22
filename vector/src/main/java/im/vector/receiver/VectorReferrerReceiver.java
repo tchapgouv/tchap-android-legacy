@@ -27,6 +27,10 @@ import org.matrix.androidsdk.util.Log;
 
 import java.net.URLDecoder;
 
+import im.vector.VectorApp;
+import im.vector.activity.LoginActivity;
+import im.vector.repositories.ServerUrlsRepository;
+
 public class VectorReferrerReceiver extends BroadcastReceiver {
     private static final String LOG_TAG = VectorReferrerReceiver.class.getSimpleName();
 
@@ -55,8 +59,8 @@ public class VectorReferrerReceiver extends BroadcastReceiver {
                 return;
             }
 
-            String hs = null;
-            String is = null;
+            String hs = "";
+            String is = "";
 
             try {
                 String referrer = (String) extras.get(KEY_REFERRER);
@@ -85,25 +89,13 @@ public class VectorReferrerReceiver extends BroadcastReceiver {
             Log.d(LOG_TAG, "## onReceive() : HS " + hs);
             Log.d(LOG_TAG, "## onReceive() : IS " + is);
 
-
             // INSTALL_REFERRER_ACTION is not enabled in tchap
             /*if (!TextUtils.isEmpty(hs) || !TextUtils.isEmpty(is)) {
-                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-                SharedPreferences.Editor editor = preferences.edit();
+                ServerUrlsRepository.INSTANCE.setDefaultUrlsFromReferrer(context, hs, is);
 
-                if (!TextUtils.isEmpty(hs)) {
-                    editor.putString(TchapLoginActivity.HOME_SERVER_URL_PREF, hs);
-                }
-
-                if (!TextUtils.isEmpty(is)) {
-                    editor.putString(TchapLoginActivity.IDENTITY_SERVER_URL_PREF, is);
-                }
-
-                editor.commit();
-
-                if ((null != VectorApp.getCurrentActivity()) && (VectorApp.getCurrentActivity() instanceof TchapLoginActivity)) {
+                if ((null != VectorApp.getCurrentActivity()) && (VectorApp.getCurrentActivity() instanceof LoginActivity)) {
                     Log.d(LOG_TAG, "## onReceive() : warn loginactivity");
-                    ((TchapLoginActivity)VectorApp.getCurrentActivity()).onServerUrlsUpdate();
+                    ((LoginActivity)VectorApp.getCurrentActivity()).onServerUrlsUpdateFromReferrer();
                 }
             }*/
         }
