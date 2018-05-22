@@ -63,7 +63,8 @@ public class VectorUniversalLinkActivity extends RiotAppCompatActivity {
 
                 // We consider here an email validation
                 Uri intentUri = getIntent().getData();
-                HashMap<String, String> mailRegParams = VectorRegistrationReceiver.parseMailRegistrationLink(getApplicationContext(), intentUri);
+
+                HashMap<String, String> mailRegParams = VectorRegistrationReceiver.parseMailRegistrationLink(intentUri);
 
                 // Assume it is a new account creation when there is a next link, or when no session is already available.
                 MXSession session = Matrix.getInstance(this).getDefaultSession();
