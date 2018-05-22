@@ -22,6 +22,7 @@ import io.realm.RealmMigration;
 public class VectorRealmMigration implements RealmMigration {
     @Override
     public void migrate(DynamicRealm realm, long oldVersion, long newVersion) {
-        // TODO clear RealmObject MediaScan.class when the version schema is upgraded
+
+        // Handle here any new realm version
     }
 }

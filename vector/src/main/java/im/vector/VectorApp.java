@@ -196,8 +196,6 @@ public class VectorApp extends MultiDexApplication {
         super.onCreate();
 
         // Initialize Realm (just once per application)
-        // TODO add the migration option in builder
-        // TODO add a RealmMigration class in order to handle the migration when schema version will upgrade (ex: clear MediaScan db)
         Realm.init(this);
         RealmConfiguration config = new RealmConfiguration.Builder().schemaVersion(0).migration(new VectorRealmMigration()).build();
         Realm.setDefaultConfiguration(config);
