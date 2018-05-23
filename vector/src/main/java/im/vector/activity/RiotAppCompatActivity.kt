@@ -49,8 +49,8 @@ abstract class RiotAppCompatActivity : AppCompatActivity() {
     }
 
     @CallSuper
-    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
-        super.onCreate(savedInstanceState, persistentState)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
         // Initialization of realm are done in VectorApp class
         // Get a Realm instance for the application
