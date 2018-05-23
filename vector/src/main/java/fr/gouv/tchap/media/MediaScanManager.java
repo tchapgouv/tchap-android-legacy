@@ -17,7 +17,6 @@
 package fr.gouv.tchap.media;
 
 import android.support.annotation.Nullable;
-import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.model.crypto.EncryptedFileInfo;
 
 import fr.gouv.tchap.model.MediaScan;
@@ -26,6 +25,13 @@ import io.realm.Realm;
 public class MediaScanManager {
 
     private static final String LOG_TAG = MediaScanManager.class.getSimpleName();
+
+    public interface MediaScanManagerListener {
+        /**
+         * Called when a media scan has been updated.
+         */
+        void onMediaScanChange(MediaScan mediaScan);
+    }
 
     MediaScanDao mMediaScanDao;
 
@@ -39,20 +45,20 @@ public class MediaScanManager {
     }
 
     /**
-     * Get the current scan result on a media (including antivirus status).
-     * Trigger an antivirus scan if it is not already done and if a callback is provided.
+     * Get the current scan result of a media (including antivirus status).
+     * Trigger an antivirus scan if it is not already done, and if a listener is provided.
      *
      * @param url       the media url.
-     * @param callback  optional async response handler.
-     * @return the current scan status for a dedicated media.
+     * @param listener  optional listener on the media scan update.
+     * @return the current scan result of the media.
      */
-    public MediaScan scanMedia(String url, @Nullable ApiCallback<Void> callback) {
+    public MediaScan scanMedia(String url, @Nullable MediaScanManagerListener listener) {
 
         MediaScan mediaScan = mMediaScanDao.getMediaScan(url);
 
-        if (null != callback && AntiVirusScanStatus.UNKNOWN != mediaScan.getAntiVirusScanStatus()) {
+        if (null != listener && AntiVirusScanStatus.UNKNOWN == mediaScan.getAntiVirusScanStatus()) {
 
-            // TODO trigger the scan, use the callback on result if any
+            // TODO trigger the scan, call the listener on result if any
             // TODO update the ScanAntiVirusScanStatus to IN_PROGRESS
             // TODO Case Error, return the updated AntiVirusScanStatus to UNKNOWN
         }
@@ -61,20 +67,20 @@ public class MediaScanManager {
     }
 
     /**
-     * Get the current scan result on an encrypted media (including antivirus status).
-     * Trigger an antivirus scan if it is not already done and if a callback is provided.
+     * Get the current scan result of an encrypted media (including antivirus status).
+     * Trigger an antivirus scan if it is not already done, and if a listener is provided.
      *
      * @param mediaInfo  the encrypted media information.
-     * @param callback   optional async response handler.
-     * @return the current scan result for a dedicated encrypted media.
+     * @param listener  optional listener on the media scan update.
+     * @return the current scan result of the encrypted media..
      */
-    public MediaScan scanMedia(EncryptedFileInfo mediaInfo, @Nullable ApiCallback<Void> callback) {
+    public MediaScan scanMedia(EncryptedFileInfo mediaInfo, @Nullable MediaScanManagerListener listener) {
 
         MediaScan mediaScan = mMediaScanDao.getMediaScan(mediaInfo.url);
 
-        if (null != callback && AntiVirusScanStatus.UNKNOWN != mediaScan.getAntiVirusScanStatus()) {
+        if (null != listener && AntiVirusScanStatus.UNKNOWN == mediaScan.getAntiVirusScanStatus()) {
 
-            // TODO trigger the scan, use the callback on result if any
+            // TODO trigger the scan, call the listener on result if any
             // TODO update the AntiVirusScanStatus to IN_PROGRESS
             // TODO Case Error, return the updated AntiVirusScanStatus to UNKNOWN
         }

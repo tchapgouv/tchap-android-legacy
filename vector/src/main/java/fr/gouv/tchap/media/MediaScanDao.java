@@ -16,6 +16,8 @@
 
 package fr.gouv.tchap.media;
 
+import android.support.annotation.NonNull;
+
 import fr.gouv.tchap.model.MediaScan;
 import io.realm.Realm;
 
@@ -39,20 +41,11 @@ public class MediaScanDao {
      * Get the media scan object for a dedicated url.
      *
      * @param url   the media url, must not be null.
-     * @return the current media scan object.
+     * @return the media scan object for this url from the database (will be created if necessary).
      */
-    /* package */ MediaScan getMediaScan(String url) {
+    /* package */ MediaScan getMediaScan(@NonNull String url) {
 
-        MediaScan mediaScan = null;
-
-        mediaScan = mRealm.where(MediaScan.class).equalTo("url", url).findFirst();
-
-        if (null == mediaScan) {
-            // Create the realm object MediaScan
-            mediaScan = mRealm.createObject(MediaScan.class, url);
-        }
-
-        return mediaScan;
+        return getMediaScan(mRealm, url);
     }
 
     /**
@@ -61,18 +54,12 @@ public class MediaScanDao {
      * @param url                 the media url, must not be null.
      * @param antiVirusScanStatus the current antivirus scan status.
      */
-    /* package */ void updateMediaAntiVirusScanStatus(final String url, final AntiVirusScanStatus antiVirusScanStatus) {
+    /* package */ void updateMediaAntiVirusScanStatus(@NonNull final String url, final AntiVirusScanStatus antiVirusScanStatus) {
 
         mRealm.executeTransactionAsync(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                MediaScan mediaScan = realm.where(MediaScan.class).equalTo("url", url).findFirst();
-
-                if (null == mediaScan) {
-                    // Create the realm object MediaAntivirusScanStatus
-                    mediaScan = realm.createObject(MediaScan.class, url);
-                }
-
+                MediaScan mediaScan = getMediaScan(realm, url);
                 mediaScan.setAntiVirusScanStatus(antiVirusScanStatus);
             }
         });
@@ -90,6 +77,29 @@ public class MediaScanDao {
                 realm.delete(MediaScan.class);
             }
         });
+    }
+
+    /**
+     * Get the media scan object for a dedicated url from the provided realm instance.
+     *
+     * @param realm instance of realm.
+     * @param url   the media url, must not be null.
+     * @return the current media scan object (will be created if necessary).
+     */
+    private MediaScan getMediaScan(Realm realm, @NonNull String url) {
+
+        MediaScan mediaScan = null;
+
+        mediaScan = realm.where(MediaScan.class)
+                .equalTo("url", url)
+                .findFirst();
+
+        if (null == mediaScan) {
+            // Create the realm object MediaScan
+            mediaScan = realm.createObject(MediaScan.class, url);
+        }
+
+        return mediaScan;
     }
 }
 

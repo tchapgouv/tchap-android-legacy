@@ -199,7 +199,10 @@ public class VectorApp extends MultiDexApplication {
 
         // Initialize Realm (just once per application)
         Realm.init(this);
-        RealmConfiguration config = new RealmConfiguration.Builder().schemaVersion(0).migration(new VectorRealmMigration()).build();
+        RealmConfiguration config = new RealmConfiguration.Builder()
+                .schemaVersion(0)
+                .migration(new VectorRealmMigration())
+                .build();
         Realm.setDefaultConfiguration(config);
 
         if (BuildConfig.DEBUG) {
