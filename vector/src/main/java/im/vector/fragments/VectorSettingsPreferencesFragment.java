@@ -439,6 +439,7 @@ public class VectorSettingsPreferencesFragment extends PreferenceFragment implem
         }
 
         // clear medias cache
+        // TODO Antivirus scan ? clearAntivirus ScanResultsCache ?
         final EditTextPreference clearMediaCachePreference = (EditTextPreference) findPreference(PreferencesManager.SETTINGS_CLEAR_MEDIA_CACHE_PREFERENCE_KEY);
 
         if (null != clearMediaCachePreference) {

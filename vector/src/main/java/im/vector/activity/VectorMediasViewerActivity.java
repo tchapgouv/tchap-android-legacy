@@ -224,6 +224,7 @@ public class VectorMediasViewerActivity extends MXCActionBarActivity {
         final SlidableMediaInfo mediaInfo = mMediasList.get(position);
 
         // check if the media has already been downloaded
+        // TODO Antivirus scan ?
         if (mediasCache.isMediaCached(mediaInfo.mMediaUrl, mediaInfo.mMimeType)) {
             mediasCache.createTmpMediaFile(mediaInfo.mMediaUrl, mediaInfo.mMimeType, mediaInfo.mEncryptedFileInfo, new SimpleApiCallback<File>() {
                 @Override

@@ -86,6 +86,7 @@ public class VectorSearchRoomsFilesListFragment extends VectorSearchMessagesList
 
                 Message message = JsonUtils.toMessage(event.getContent());
 
+                // TODO Antivirus scan
                 // video and images are displayed inside a medias slider.
                 if (Message.MSGTYPE_IMAGE.equals(message.msgtype) || (Message.MSGTYPE_VIDEO.equals(message.msgtype))) {
                     ArrayList<SlidableMediaInfo> mediaMessagesList = listSlidableMessages();

@@ -1,6 +1,7 @@
 /*
  * Copyright 2014 OpenMarket Ltd
  * Copyright 2017 Vector Creations Ltd
+ * Copyright 2018 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,6 +71,7 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import fr.gouv.tchap.realm.VectorRealmMigration;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.JitsiCallActivity;
 import im.vector.activity.VectorCallViewActivity;
@@ -85,6 +87,8 @@ import im.vector.util.PreferencesManager;
 import im.vector.util.RageShake;
 import im.vector.util.ThemeUtils;
 import im.vector.util.VectorMarkdownParser;
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
 
 /**
  * The main application injection point
@@ -192,6 +196,14 @@ public class VectorApp extends MultiDexApplication {
     public void onCreate() {
         Log.d(LOG_TAG, "onCreate");
         super.onCreate();
+
+        // Initialize Realm (just once per application)
+        Realm.init(this);
+        RealmConfiguration config = new RealmConfiguration.Builder()
+                .schemaVersion(0)
+                .migration(new VectorRealmMigration())
+                .build();
+        Realm.setDefaultConfiguration(config);
 
         if (BuildConfig.DEBUG) {
             Stetho.initializeWithDefaults(this);

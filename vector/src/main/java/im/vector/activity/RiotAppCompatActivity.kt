@@ -18,6 +18,8 @@
 package im.vector.activity
 
 import android.content.Context
+import android.os.Bundle
+import android.os.PersistableBundle
 import android.support.annotation.CallSuper
 import android.support.v7.app.AppCompatActivity
 import android.view.View
@@ -26,10 +28,14 @@ import androidx.core.view.isVisible
 import im.vector.VectorApp
 import org.matrix.androidsdk.util.Log
 
+import io.realm.Realm
+
 /**
  * Parent class for all Activities in Vector application
  */
 abstract class RiotAppCompatActivity : AppCompatActivity() {
+
+    lateinit var realm: Realm
 
     override fun attachBaseContext(base: Context) {
         super.attachBaseContext(VectorApp.getLocalisedContext(base))
@@ -41,6 +47,23 @@ abstract class RiotAppCompatActivity : AppCompatActivity() {
 
         Log.event(Log.EventTag.NAVIGATION, "onResume Activity " + this.javaClass.simpleName)
     }
+
+    @CallSuper
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        // Initialization of realm are done in VectorApp class
+        // Get a Realm instance for the application
+        realm = Realm.getDefaultInstance() // opens the file named "default.realm"
+    }
+
+    @CallSuper
+    override fun onDestroy() {
+        super.onDestroy()
+
+        realm.close()
+    }
+
 
     //==============================================================================================
     // Handle loading view (also called waiting view or spinner view)

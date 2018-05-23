@@ -778,6 +778,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
         // Santize file name in case `m.body` contains a path.
         final String trimmedFileName = new File(filename).getName();
 
+        // TODO Antivirus scan
         MXMediasCache mediasCache = Matrix.getInstance(getActivity()).getMediasCache();
         // check if the media has already been downloaded
         if (mediasCache.isMediaCached(mediaUrl, mediaMimeType)) {
