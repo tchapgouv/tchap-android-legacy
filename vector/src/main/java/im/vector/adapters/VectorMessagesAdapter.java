@@ -68,6 +68,7 @@ import org.matrix.androidsdk.rest.model.message.Message;
 import org.matrix.androidsdk.rest.model.PowerLevels;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.message.StickerMessage;
+import org.matrix.androidsdk.rest.model.message.VideoMessage;
 import org.matrix.androidsdk.util.EventDisplay;
 import org.matrix.androidsdk.util.JsonUtils;
 import org.matrix.androidsdk.util.Log;
@@ -89,6 +90,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import fr.gouv.tchap.media.AntiVirusScanStatus;
+import fr.gouv.tchap.media.MediaScanManager;
 import im.vector.R;
 import im.vector.VectorApp;
 import im.vector.activity.CommonActivityUtils;
@@ -192,6 +195,9 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
     private String mReadReceiptEventId;
 
     private MatrixLinkMovementMethod mLinkMovementMethod;
+
+    // AntiVirus scan manager return the scan status of a media
+    private MediaScanManager mMediaScanManager;
 
     private final VectorMessagesAdapterMediasHelper mMediasHelper;
     final protected VectorMessagesAdapterHelper mHelper;
@@ -1365,10 +1371,16 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             convertView = mLayoutInflater.inflate(mRowTypeToLayoutId.get(type), parent, false);
         }
 
+        // Initialize the message layout display
+        mHelper.initializeLayoutsDisplay(convertView);
+
         try {
             MessageRow row = getItem(position);
             Event event = row.getEvent();
             Message message = null;
+            String url = null;
+            String thumbnailUrl = null;
+            String fileName = null;
 
             // TODO Media Scan Status : scanStatus = ScanStatus.UnKNOWN
 
@@ -1383,16 +1395,26 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                 if ("image/gif".equals(imageMessage.getMimeType())) {
                     waterMarkResourceId = R.drawable.filetype_gif;
                 }
+                url = imageMessage.getUrl();
+                thumbnailUrl = imageMessage.getThumbnailUrl();
+                fileName = imageMessage.body;
                 message = imageMessage;
 
             } else if (type == ROW_TYPE_VIDEO) {
 
-                message = JsonUtils.toVideoMessage(event.getContent());
+                VideoMessage videoMessage = JsonUtils.toVideoMessage(event.getContent());
                 waterMarkResourceId = R.drawable.filetype_video;
+                url = videoMessage.getUrl();
+                thumbnailUrl = videoMessage.getThumbnailUrl();
+                fileName = videoMessage.body;
+                message = videoMessage;
 
             } else if (type == ROW_TYPE_STICKER) {
 
                 StickerMessage stickerMessage = JsonUtils.toStickerMessage(event.getContent());
+                url = stickerMessage.getUrl();
+                thumbnailUrl = stickerMessage.getThumbnailUrl();
+                fileName = stickerMessage.body;
                 message = stickerMessage;
             }
 
@@ -1413,16 +1435,44 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                 imageTypeView.setVisibility(View.GONE);
             }
 
+            ImageView imageView = convertView.findViewById(R.id.messagesAdapter_image);
+
             if (null != message) {
-                mHelper.hideStickerDescription(convertView);
+                String antiVirusScanStatus = AntiVirusScanStatus.IN_PROGRESS.toString();
+                //MediaScan mediaScan = mMediaScanManager.scanMedia(url, null);
+                //antiVirusScanStatus = mediaScan.getAntiVirusScanStatus();
 
-                // TODO Antivirus scan ?
-                // download management
-                mMediasHelper.managePendingImageVideoDownload(convertView, event, message, position);
+                if (antiVirusScanStatus.equalsIgnoreCase(AntiVirusScanStatus.TRUSTED.toString())) {
+                    // Here the media is trusted.
 
-                // TODO Antivirus scan ?
-                // upload management
-                mMediasHelper.managePendingImageVideoUpload(convertView, event, message);
+                    // download management
+                    mMediasHelper.managePendingImageVideoDownload(convertView, event, message, position);
+                    // upload management
+                    mMediasHelper.managePendingImageVideoUpload(convertView, event, message);
+
+                    // Enable click on media only if it is trusted
+                    addContentViewListeners(convertView, imageView, position, type);
+                } else {
+
+                    // If the antivirus scan status of the image isn't ok
+                    // Don't display the image and display a placeholder icon according to the scan status
+                    int drawable = R.drawable.media_scan_status_placeholder_unknown;
+
+                    if (antiVirusScanStatus.equalsIgnoreCase(String.valueOf(AntiVirusScanStatus.IN_PROGRESS))) {
+                        drawable = R.drawable.media_scan_status_placeholder_inprogress;
+                    } else if (antiVirusScanStatus.equalsIgnoreCase(String.valueOf(AntiVirusScanStatus.INFECTED))) {
+                        drawable = R.drawable.media_scan_status_placeholder_infected;
+                    }
+
+                    imageView.setImageResource(drawable);
+
+                    View fileNameLayout = convertView.findViewById(R.id.image_video_name_layout);
+                    fileNameLayout.setVisibility(View.VISIBLE);
+                    TextView textViewfileName = convertView.findViewById(R.id.tv_image_video_name);
+                    if (null != fileName) {
+                        textViewfileName.setText(fileName);
+                    }
+                }
             }
 
             // dimmed when the message is not sent
@@ -1430,9 +1480,6 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             imageLayout.setAlpha(event.isSent() ? 1.0f : 0.5f);
 
             this.manageSubView(position, convertView, imageLayout, type);
-
-            ImageView imageView = convertView.findViewById(R.id.messagesAdapter_image);
-            addContentViewListeners(convertView, imageView, position, type);
         } catch (Exception e) {
             Log.e(LOG_TAG, "## getImageVideoView() failed : " + e.getMessage());
         }

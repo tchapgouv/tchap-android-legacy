@@ -603,15 +603,35 @@ class VectorMessagesAdapterHelper {
     }
 
     /**
-     * Hide the sticker description view
+     * Hide the progress layout and the sticker's description
      *
-     * @param convertView base view
+     * @param convertView   base view
      */
-    public void hideStickerDescription(View convertView) {
+    public void initializeLayoutsDisplay(View convertView) {
+        View downloadProgressLayout = convertView.findViewById(R.id.content_download_progress_layout);
+        View uploadProgressLayout = convertView.findViewById(R.id.content_upload_progress_layout);
+        View progressBar = convertView.findViewById(R.id.upload_event_spinner);
         View stickerDescription = convertView.findViewById(R.id.message_adapter_sticker_layout);
+        View imageVideoName = convertView.findViewById(R.id.image_video_name_layout);
+
+        if (null != uploadProgressLayout) {
+            uploadProgressLayout.setVisibility(View.GONE);
+        }
+
+        if (null != downloadProgressLayout) {
+            downloadProgressLayout.setVisibility(View.GONE);
+        }
+
+        if (null != progressBar) {
+            progressBar.setVisibility(View.GONE);
+        }
 
         if (null != stickerDescription) {
             stickerDescription.setVisibility(View.GONE);
+        }
+
+        if (null != imageVideoName) {
+            imageVideoName.setVisibility(View.GONE);
         }
     }
 
