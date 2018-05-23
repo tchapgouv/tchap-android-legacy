@@ -205,6 +205,7 @@
         android:title="@string/settings_background_sync">
 
         <im.vector.preference.VectorSwitchPreference
+            android:defaultValue="true"
             android:key="SETTINGS_START_ON_BOOT_PREFERENCE_KEY"
             android:title="@string/settings_start_on_boot" />
 
