@@ -1391,35 +1391,33 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             String fileName = null;
             int waterMarkResourceId = -1;
 
-            // TODO switch case
-            if (type == ROW_TYPE_IMAGE) {
+            switch (type) {
+                case ROW_TYPE_IMAGE:
+                    ImageMessage imageMessage = JsonUtils.toImageMessage(event.getContent());
 
-                ImageMessage imageMessage = JsonUtils.toImageMessage(event.getContent());
-
-                if ("image/gif".equals(imageMessage.getMimeType())) {
-                    waterMarkResourceId = R.drawable.filetype_gif;
-                }
-                url = imageMessage.getUrl();
-                thumbnailUrl = imageMessage.getThumbnailUrl();
-                fileName = imageMessage.body;
-                message = imageMessage;
-
-            } else if (type == ROW_TYPE_VIDEO) {
-
-                VideoMessage videoMessage = JsonUtils.toVideoMessage(event.getContent());
-                waterMarkResourceId = R.drawable.filetype_video;
-                url = videoMessage.getUrl();
-                thumbnailUrl = videoMessage.getThumbnailUrl();
-                fileName = videoMessage.body;
-                message = videoMessage;
-
-            } else if (type == ROW_TYPE_STICKER) {
-
-                StickerMessage stickerMessage = JsonUtils.toStickerMessage(event.getContent());
-                url = stickerMessage.getUrl();
-                thumbnailUrl = stickerMessage.getThumbnailUrl();
-                fileName = stickerMessage.body;
-                message = stickerMessage;
+                    if ("image/gif".equals(imageMessage.getMimeType())) {
+                        waterMarkResourceId = R.drawable.filetype_gif;
+                    }
+                    url = imageMessage.getUrl();
+                    thumbnailUrl = imageMessage.getThumbnailUrl();
+                    fileName = imageMessage.body;
+                    message = imageMessage;
+                    break;
+                case ROW_TYPE_VIDEO:
+                    VideoMessage videoMessage = JsonUtils.toVideoMessage(event.getContent());
+                    waterMarkResourceId = R.drawable.filetype_video;
+                    url = videoMessage.getUrl();
+                    thumbnailUrl = videoMessage.getThumbnailUrl();
+                    fileName = videoMessage.body;
+                    message = videoMessage;
+                    break;
+                case ROW_TYPE_STICKER:
+                    StickerMessage stickerMessage = JsonUtils.toStickerMessage(event.getContent());
+                    url = stickerMessage.getUrl();
+                    thumbnailUrl = stickerMessage.getThumbnailUrl();
+                    fileName = stickerMessage.body;
+                    message = stickerMessage;
+                    break;
             }
 
             // Display a type watermark
@@ -1449,39 +1447,33 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                 }
 
                 switch (antiVirusScanStatus) {
-                    case IN_PROGRESS: {
+                    case IN_PROGRESS:
                         scanDrawable = R.drawable.media_scan_status_placeholder_inprogress;
                         break;
-                    }
-                    case TRUSTED: {
+                    case TRUSTED:
                         // Check the thumbnail url (if any)
                         if (null != thumbnailUrl) {
                             MediaScan mediaScan = mMediaScanManager.scanMedia(thumbnailUrl, null);
                             antiVirusScanStatus = mediaScan.getAntiVirusScanStatus();
 
                             switch (antiVirusScanStatus) {
-                                case IN_PROGRESS: {
+                                case IN_PROGRESS:
                                     scanDrawable = R.drawable.media_scan_status_placeholder_inprogress;
                                     break;
-                                }
-                                case TRUSTED: {
+                                case TRUSTED:
                                     isTrusted = true;
                                     break;
-                                }
-                                case INFECTED: {
+                                case INFECTED:
                                     scanDrawable = R.drawable.media_scan_status_placeholder_infected;
                                     break;
-                                }
                             }
                         } else {
                             isTrusted = true;
                         }
                         break;
-                    }
-                    case INFECTED: {
+                    case INFECTED:
                         scanDrawable = R.drawable.media_scan_status_placeholder_infected;
                         break;
-                    }
                 }
 
                 if (isTrusted) {
