@@ -210,8 +210,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     Toolbar mToolbar;
     @BindView(R.id.drawer_layout)
     DrawerLayout mDrawerLayout;
-    @BindView(R.id.bottom_navigation)
-    BottomNavigationView mBottomNavigationView;
 
     @BindView(R.id.tab_layout)
     TabLayout mTopNavigationView;
@@ -859,18 +857,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 //make tab selected bold
-                for (int menuIndex = 0; menuIndex < mTopNavigationView.getTabCount(); menuIndex++) {
-                        LinearLayout customTab = (LinearLayout) mTopNavigationView.getTabAt(menuIndex).getCustomView();
-                        TextView myText = (TextView)customTab.getChildAt(0);
-                        if (null != myText) {
-                            if (menuIndex == tab.getPosition()) {
-                                myText.setTypeface(null, Typeface.BOLD);
-                            }
-                            else {
-                                myText.setTypeface(null, Typeface.NORMAL);
-                            }
-                        }
-                }
+                setSelectedTabStyle();
                 updateSelectedFragment(tab);
             }
 
@@ -891,9 +878,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
      */
     private void updateSelectedFragment(final TabLayout.Tab item) {
         int position = item.getPosition();
-//        int itemId = R.id.bottom_action_people;
-//        if (position == TAB_POSITION_CONVERSATION)
-//            itemId = R.id.bottom_action_rooms;
         if (mCurrentMenuId == position) {
             return;
         }
@@ -2000,28 +1984,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         mSession.getDataHandler().removeListener(mBadgeEventsListener);
     }
 
-    /**
-     * Remove the BottomNavigationView menu shift
-     */
-    private void removeMenuShiftMode() {
-        int childCount = mBottomNavigationView.getChildCount();
-
-        for (int i = 0; i < childCount; i++) {
-            if (mBottomNavigationView.getChildAt(i) instanceof BottomNavigationMenuView) {
-                BottomNavigationMenuView bottomNavigationMenuView = (BottomNavigationMenuView) mBottomNavigationView.getChildAt(i);
-
-                try {
-                    Field shiftingMode = bottomNavigationMenuView.getClass().getDeclaredField("mShiftingMode");
-                    shiftingMode.setAccessible(true);
-                    shiftingMode.setBoolean(bottomNavigationMenuView, false);
-                    shiftingMode.setAccessible(false);
-
-                } catch (Exception e) {
-                    Log.e(LOG_TAG, "## removeMenuShiftMode failed " + e.getMessage());
-                }
-            }
-        }
-    }
 
     /**
      * Add the unread messages badges.
