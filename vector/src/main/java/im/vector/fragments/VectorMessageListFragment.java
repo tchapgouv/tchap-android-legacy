@@ -71,10 +71,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import fr.gouv.tchap.media.MediaScanManager;
 import im.vector.Matrix;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.MXCActionBarActivity;
+import im.vector.activity.RiotAppCompatActivity;
 import im.vector.activity.VectorHomeActivity;
 import im.vector.activity.VectorMediasViewerActivity;
 import im.vector.activity.VectorMemberDetailsActivity;
@@ -259,7 +261,15 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
 
     @Override
     public AbstractMessagesAdapter createMessagesAdapter() {
-        return new VectorMessagesAdapter(mSession, getActivity(), getMXMediasCache());
+        Activity activity = getActivity();
+        VectorMessagesAdapter vectorMessagesAdapter = new VectorMessagesAdapter(mSession, activity, getMXMediasCache());
+
+        if (activity instanceof RiotAppCompatActivity) {
+            RiotAppCompatActivity riotAppCompatActivity = (RiotAppCompatActivity) activity;
+            vectorMessagesAdapter.setMediaScanManager(new MediaScanManager(riotAppCompatActivity.realm));
+        }
+
+        return vectorMessagesAdapter;
     }
 
     /**

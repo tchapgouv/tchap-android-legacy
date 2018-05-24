@@ -92,6 +92,7 @@ import java.util.regex.Pattern;
 
 import fr.gouv.tchap.media.AntiVirusScanStatus;
 import fr.gouv.tchap.media.MediaScanManager;
+import fr.gouv.tchap.model.MediaScan;
 import im.vector.R;
 import im.vector.VectorApp;
 import im.vector.activity.CommonActivityUtils;
@@ -430,6 +431,13 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
      * Items getter / setter
      * *********************************************************************************************
      */
+
+    /**
+     * Set the media scan manager
+     */
+    public void setMediaScanManager(MediaScanManager mediaScanManager) {
+        mMediaScanManager = mediaScanManager;
+    }
 
     /**
      * Tests if the row can be inserted in a merge row.
@@ -1381,13 +1389,9 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             String url = null;
             String thumbnailUrl = null;
             String fileName = null;
-
-            // TODO Media Scan Status : scanStatus = ScanStatus.UnKNOWN
-
             int waterMarkResourceId = -1;
 
             // TODO switch case
-
             if (type == ROW_TYPE_IMAGE) {
 
                 ImageMessage imageMessage = JsonUtils.toImageMessage(event.getContent());
@@ -1418,16 +1422,13 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                 message = stickerMessage;
             }
 
-            // display a type watermark
+            // Display a type watermark
             final ImageView imageTypeView = convertView.findViewById(R.id.messagesAdapter_image_type);
-
             if (null == imageTypeView) {
                 Log.e(LOG_TAG, "getImageVideoView : invalid layout");
                 return convertView;
             }
-
             imageTypeView.setBackgroundColor(Color.TRANSPARENT);
-
             if (waterMarkResourceId > 0) {
                 imageTypeView.setImageBitmap(BitmapFactory.decodeResource(getContext().getResources(), waterMarkResourceId));
                 imageTypeView.setVisibility(View.VISIBLE);
@@ -1435,16 +1436,55 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                 imageTypeView.setVisibility(View.GONE);
             }
 
-            ImageView imageView = convertView.findViewById(R.id.messagesAdapter_image);
+            if (null != url) {
+                ImageView imageView = convertView.findViewById(R.id.messagesAdapter_image);
 
-            if (null != message) {
-                String antiVirusScanStatus = AntiVirusScanStatus.IN_PROGRESS.toString();
-                //MediaScan mediaScan = mMediaScanManager.scanMedia(url, null);
-                //antiVirusScanStatus = mediaScan.getAntiVirusScanStatus();
+                // Retrieve the scan result of the media
+                boolean isTrusted = false;
+                AntiVirusScanStatus antiVirusScanStatus = AntiVirusScanStatus.UNKNOWN;
+                int scanDrawable = R.drawable.media_scan_status_placeholder_unknown;
+                if (null != mMediaScanManager) {
+                    MediaScan mediaScan = mMediaScanManager.scanMedia(url, null);
+                    antiVirusScanStatus = mediaScan.getAntiVirusScanStatus();
+                }
 
-                if (antiVirusScanStatus.equalsIgnoreCase(AntiVirusScanStatus.TRUSTED.toString())) {
-                    // Here the media is trusted.
+                switch (antiVirusScanStatus) {
+                    case IN_PROGRESS: {
+                        scanDrawable = R.drawable.media_scan_status_placeholder_inprogress;
+                        break;
+                    }
+                    case TRUSTED: {
+                        // Check the thumbnail url (if any)
+                        if (null != thumbnailUrl) {
+                            MediaScan mediaScan = mMediaScanManager.scanMedia(thumbnailUrl, null);
+                            antiVirusScanStatus = mediaScan.getAntiVirusScanStatus();
 
+                            switch (antiVirusScanStatus) {
+                                case IN_PROGRESS: {
+                                    scanDrawable = R.drawable.media_scan_status_placeholder_inprogress;
+                                    break;
+                                }
+                                case TRUSTED: {
+                                    isTrusted = true;
+                                    break;
+                                }
+                                case INFECTED: {
+                                    scanDrawable = R.drawable.media_scan_status_placeholder_infected;
+                                    break;
+                                }
+                            }
+                        } else {
+                            isTrusted = true;
+                        }
+                        break;
+                    }
+                    case INFECTED: {
+                        scanDrawable = R.drawable.media_scan_status_placeholder_infected;
+                        break;
+                    }
+                }
+
+                if (isTrusted) {
                     // download management
                     mMediasHelper.managePendingImageVideoDownload(convertView, event, message, position);
                     // upload management
@@ -1453,24 +1493,15 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                     // Enable click on media only if it is trusted
                     addContentViewListeners(convertView, imageView, position, type);
                 } else {
-
-                    // If the antivirus scan status of the image isn't ok
+                    // If the media scan result is not available or if the media is infected,
                     // Don't display the image and display a placeholder icon according to the scan status
-                    int drawable = R.drawable.media_scan_status_placeholder_unknown;
+                    imageView.setImageResource(scanDrawable);
 
-                    if (antiVirusScanStatus.equalsIgnoreCase(String.valueOf(AntiVirusScanStatus.IN_PROGRESS))) {
-                        drawable = R.drawable.media_scan_status_placeholder_inprogress;
-                    } else if (antiVirusScanStatus.equalsIgnoreCase(String.valueOf(AntiVirusScanStatus.INFECTED))) {
-                        drawable = R.drawable.media_scan_status_placeholder_infected;
-                    }
-
-                    imageView.setImageResource(drawable);
-
-                    View fileNameLayout = convertView.findViewById(R.id.image_video_name_layout);
-                    fileNameLayout.setVisibility(View.VISIBLE);
-                    TextView textViewfileName = convertView.findViewById(R.id.tv_image_video_name);
                     if (null != fileName) {
-                        textViewfileName.setText(fileName);
+                        View fileNameLayout = convertView.findViewById(R.id.image_video_name_layout);
+                        fileNameLayout.setVisibility(View.VISIBLE);
+                        TextView textViewFileName = convertView.findViewById(R.id.tv_image_video_name);
+                        textViewFileName.setText(fileName);
                     }
                 }
             }
