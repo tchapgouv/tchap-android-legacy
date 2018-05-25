@@ -104,6 +104,7 @@ import java.util.TimerTask;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import fr.gouv.tchap.activity.TchapLoginActivity;
+import fr.gouv.tchap.activity.TchapRoomCreationActivity;
 import im.vector.Matrix;
 import im.vector.MyPresenceManager;
 import im.vector.PublicRoomsManager;
@@ -1210,7 +1211,8 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                                     createNewChat(VectorRoomCreationActivity.RoomCreationModes.DIRECT_CHAT);
                                 } else if (1 == n) {
                                     // Create an empty room
-                                    createNewRoom();
+                                    final Intent intent = new Intent(VectorHomeActivity.this, TchapRoomCreationActivity.class);
+                                    VectorHomeActivity.this.startActivity(intent);
                                 } else {
                                     // Create a new discussion
                                     // Invite one or more users
