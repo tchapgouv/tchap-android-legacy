@@ -1490,6 +1490,9 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                     // Don't display the image and display a placeholder icon according to the scan status
                     imageView.setImageResource(scanDrawable);
 
+                    // Remove all potential click listeners on the image view
+                    imageView.setOnClickListener(null);
+
                     if (null != fileName) {
                         View fileNameLayout = convertView.findViewById(R.id.image_video_name_layout);
                         fileNameLayout.setVisibility(View.VISIBLE);
