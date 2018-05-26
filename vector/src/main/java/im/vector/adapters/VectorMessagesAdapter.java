@@ -1441,8 +1441,9 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                 boolean isTrusted = false;
                 AntiVirusScanStatus antiVirusScanStatus = AntiVirusScanStatus.UNKNOWN;
                 int scanDrawable = R.drawable.media_scan_status_placeholder_unknown;
+
                 if (null != mMediaScanManager) {
-                    MediaScan mediaScan = mMediaScanManager.scanMedia(url, null);
+                    MediaScan mediaScan = mMediaScanManager.scanMedia(url);
                     antiVirusScanStatus = mediaScan.getAntiVirusScanStatus();
                 }
 
@@ -1453,7 +1454,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                     case TRUSTED:
                         // Check the thumbnail url (if any)
                         if (null != thumbnailUrl) {
-                            MediaScan mediaScan = mMediaScanManager.scanMedia(thumbnailUrl, null);
+                            MediaScan mediaScan = mMediaScanManager.scanMedia(thumbnailUrl);
                             antiVirusScanStatus = mediaScan.getAntiVirusScanStatus();
 
                             switch (antiVirusScanStatus) {
