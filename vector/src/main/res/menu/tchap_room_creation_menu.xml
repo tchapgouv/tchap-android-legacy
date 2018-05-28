@@ -1,11 +1,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="org.matrix.vector.activity.RoomActivity">
+    tools:context="fr.gouv.tchap.activity.TchapRoomCreationActivity" >
 
-    <item android:id="@+id/ic_action_create_room"
+    <item
+        android:id="@+id/action_create_new_room"
         android:title="@string/create"
-        android:text="@string/create"
-        android:iconTint="@color/riot_primary_background_color_light"
-        app:showAsAction="always" />
+        android:icon="@drawable/ic_material_done_white"
+        app:showAsAction="always"
+        android:orderInCategory="0"/>
+
 </menu>

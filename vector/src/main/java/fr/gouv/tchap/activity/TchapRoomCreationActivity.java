@@ -16,6 +16,8 @@
 
 package fr.gouv.tchap.activity;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -33,6 +35,8 @@ import java.util.HashMap;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
+import im.vector.Matrix;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.MXCActionBarActivity;
@@ -53,22 +57,22 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
     private MXSession mSession;
 
-    private MenuItem mCreateRoomButton;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tchap_room_creation);
         ButterKnife.bind(this);
 
+        setWaitingView(findViewById(R.id.room_creation_spinner_views));
+
+        mSession = Matrix.getInstance(this).getDefaultSession();
+
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.tchap_room_creation_menu, menu);
-
         CommonActivityUtils.tintMenuIcons(menu, ThemeUtils.getColor(this, R.attr.icon_tint_on_dark_action_bar_color));
-        mCreateRoomButton = menu.findItem(R.id.action_create_room);
 
         return true;
     }
@@ -79,23 +83,36 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
             case android.R.id.home:
                 finish();
                 return true;
-            case R.id.action_create_room:
+            case R.id.action_create_new_room:
                 createNewRoom();
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
+    @OnClick(R.id.switch_public_private_rooms)
+    void actionNotAvailable() {
+
+        switchPublicPrivateRoom.setChecked(false);
+
+        new AlertDialog.Builder(this)
+                .setMessage(R.string.action_not_available_yet)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .show();
+    }
 
     @Override
     protected void onResume() {
         super.onResume();
 
     }
-    /**
-     * Handle new room creation
-     */
-    private  void createNewRoom() {
+
+    public void createNewRoom() {
         showWaitingView();
         mSession.createRoom(new SimpleApiCallback<String>(TchapRoomCreationActivity.this) {
             @Override
@@ -144,7 +161,4 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
             }
         });
     }
-
-
-
 }
