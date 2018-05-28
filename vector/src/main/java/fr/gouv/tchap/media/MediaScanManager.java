@@ -25,6 +25,7 @@ import org.matrix.androidsdk.rest.model.crypto.EncryptedFileInfo;
 import java.util.List;
 
 import fr.gouv.tchap.model.MediaScan;
+import im.vector.util.SlidableMediaInfo;
 import io.realm.Realm;
 
 public class MediaScanManager {
@@ -161,6 +162,30 @@ public class MediaScanManager {
         }
 
         return false;
+    }
+
+    /**
+     * Check whether all the urls of a media description have been checked and trusted.
+     *
+     * @param mediaInfo
+     * @return true if the media description contains trusted urls.
+     */
+    public boolean isTrustedSlidableMediaInfo(SlidableMediaInfo mediaInfo) {
+        boolean isTrusted = false;
+        if (null != mediaInfo.mMediaUrl) {
+            // Check whether the media is trusted
+            MediaScan mediaScan = scanMedia(mediaInfo.mMediaUrl);
+            if (mediaScan.getAntiVirusScanStatus() == AntiVirusScanStatus.TRUSTED) {
+                // Check the thumbnail url (if any)
+                if (null != mediaInfo.mThumbnailUrl) {
+                    mediaScan = scanMedia(mediaInfo.mThumbnailUrl);
+                    isTrusted = (mediaScan.getAntiVirusScanStatus() == AntiVirusScanStatus.TRUSTED);
+                } else {
+                    isTrusted = true;
+                }
+            }
+        }
+        return isTrusted;
     }
 }
 

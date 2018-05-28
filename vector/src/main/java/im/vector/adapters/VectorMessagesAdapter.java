@@ -2553,7 +2553,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
         }
 
         // Check whether the event contains an unchecked or untrusted url.
-        boolean isUncheckedOrUntrustedMediaEvent = mMediaScanManager.isUncheckedOrUntrustedMediaEvent(event);
+        boolean isUncheckedOrUntrustedMediaEvent = (null == mMediaScanManager || mMediaScanManager.isUncheckedOrUntrustedMediaEvent(event));
 
         menu.findItem(R.id.ic_action_view_source).setVisible(true);
         menu.findItem(R.id.ic_action_view_decrypted_source).setVisible(event.isEncrypted() && (null != event.getClearEvent()));

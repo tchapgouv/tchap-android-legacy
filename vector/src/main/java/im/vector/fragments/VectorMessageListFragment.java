@@ -824,7 +824,6 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
         // Santize file name in case `m.body` contains a path.
         final String trimmedFileName = new File(filename).getName();
 
-        // TODO Antivirus scan
         MXMediasCache mediasCache = Matrix.getInstance(getActivity()).getMediasCache();
         // check if the media has already been downloaded
         if (mediasCache.isMediaCached(mediaUrl, mediaMimeType)) {
@@ -1001,39 +1000,10 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
                 info.mEncryptedFileInfo = videoMessage.file;
             }
 
-            if (null != info && null != info.mMediaUrl) {
-                // Check whether the media is trusted
-                boolean isTrusted = false;
-                AntiVirusScanStatus antiVirusScanStatus = AntiVirusScanStatus.UNKNOWN;
-
-                if (null != mMediaScanManager) {
-                    MediaScan mediaScan = mMediaScanManager.scanMedia(info.mMediaUrl);
-                    antiVirusScanStatus = mediaScan.getAntiVirusScanStatus();
-                }
-
-                switch (antiVirusScanStatus) {
-                    case TRUSTED:
-                        // Check the thumbnail url (if any)
-                        if (null != info.mThumbnailUrl) {
-                            MediaScan mediaScan = mMediaScanManager.scanMedia(info.mThumbnailUrl);
-                            antiVirusScanStatus = mediaScan.getAntiVirusScanStatus();
-
-                            switch (antiVirusScanStatus) {
-                                case TRUSTED:
-                                    isTrusted = true;
-                                    break;
-                            }
-                        } else {
-                            isTrusted = true;
-                        }
-                        break;
-                }
-
-                if (isTrusted) {
-                    res.add(info);
-                }
+            // Check whether the media is trusted
+            if (null != info && null != mMediaScanManager && mMediaScanManager.isTrustedSlidableMediaInfo(info)) {
+                res.add(info);
             }
-
         }
 
         return res;
