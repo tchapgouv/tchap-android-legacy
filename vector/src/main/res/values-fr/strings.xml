@@ -73,7 +73,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="low_priority_header">Priorité basse</string>
 
     <string name="direct_chats_header">Dialogues</string>
-    <string name="local_address_book_header">Contacts</string>
+    <string name="local_address_book_header">Contacts Tchap</string>
     <string name="matrix_only_filter">Contacts Matrix uniquement</string>
     <string name="no_conversation_placeholder">Aucun dialogue</string>
     <string name="no_contact_access_placeholder">Vous n\'avez pas autorisé Tchap à accéder à vos contacts locaux</string>

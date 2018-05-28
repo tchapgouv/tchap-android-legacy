@@ -15,7 +15,7 @@
         android:layout_centerInParent="true"
         android:fontFamily="sans-serif-light"
         android:textColor="@android:color/white"
-        android:textSize="12sp"
+        android:textSize="10sp"
         android:textStyle="bold"
         tools:text="99"/>
 </RelativeLayout>
