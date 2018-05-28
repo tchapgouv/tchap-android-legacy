@@ -23,6 +23,9 @@ android {
         versionCode rootProject.ext.versionCodeProp
         versionName rootProject.ext.versionNameProp
 
+        // Use Vector drawables
+        vectorDrawables.useSupportLibrary = true
+
         // custom values
         resValue "string", "bug_report_url",  "https://riot.im/bugreports/submit"
 
