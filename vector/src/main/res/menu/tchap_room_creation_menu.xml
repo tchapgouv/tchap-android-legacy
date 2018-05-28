@@ -9,5 +9,4 @@
         android:icon="@drawable/ic_material_done_white"
         app:showAsAction="always"
         android:orderInCategory="0"/>
-
 </menu>

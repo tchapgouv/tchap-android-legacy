@@ -836,7 +836,7 @@ Appareils inconnus :</string>
     <string name="tchap_room_creation_title">Discussion</string>
     <string name="tchap_room_creation_avatar">Ajouter une photo</string>
     <string name="tchap_room_creation_name">Nommer la discussion</string>
-    <string name="tchap_room_creation_public">Ceci est une discussion privée</string>
+    <string name="tchap_room_creation_public">Rendre cette discussion privée</string>
     <string name="tchap_room_creation_public_private_info">Une discussion publique peut être rejoint par n\'importe quel membre de la communauté Tchap sous condition qu\'il soit accepté.</string>
 
     // group details
