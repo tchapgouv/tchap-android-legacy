@@ -20,9 +20,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
+import android.widget.Button;;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import org.matrix.androidsdk.MXSession;
@@ -49,8 +48,8 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     @BindView(R.id.et_room_name)
     View etRoomName;
 
-    @BindView(R.id.check_public_private_rooms)
-    CheckBox checkBoxPublicPrivateRoom;
+    @BindView(R.id.switch_public_private_rooms)
+    Switch switchPublicPrivateRoom;
 
     private MXSession mSession;
 
