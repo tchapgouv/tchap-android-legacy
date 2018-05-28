@@ -112,9 +112,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     private static final int MODE_ACCOUNT_CREATION_THREE_PID = 5;
     private static final int MODE_START = 6;
 
-    public static final String HOME_SERVER_URL_PREF = "home_server_url";
-    public static final String IDENTITY_SERVER_URL_PREF = "identity_server_url";
-
     // saved parameters index
 
     // login
@@ -427,13 +424,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
         mMainLayout = findViewById(R.id.main_input_layout);
         mButtonsView = findViewById(R.id.login_actions_bar);
-
-        // trap the UI events
-        mLoginMaskView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-            }
-        });
 
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override

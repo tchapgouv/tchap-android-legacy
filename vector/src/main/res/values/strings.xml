@@ -880,7 +880,7 @@
         <item quantity="other">%d active widgets</item>
     </plurals>
 
-    // Widget Integration Manager
+    <!-- Widget Integration Manager -->
     <string name="widget_integration_unable_to_create">Unable to create widget.</string>
     <string name="widget_integration_failed_to_send_request">Failed to send request.</string>
     <string name="widget_integration_positive_power_level">Power level must be positive integer.</string>
@@ -893,29 +893,29 @@
     <string name="room_add_matrix_apps">Add Matrix apps</string>
     <string name="settings_labs_native_camera">Use native camera</string>
 
-    // share keys
+    <!-- share keys -->
     <string name="you_added_a_new_device">You added a new device \'%s\', which is requesting encryption keys.</string>
     <string name="your_unverified_device_requesting">Your unverified device  \'%s\' is requesting encryption keys.</string>
     <string name="start_verification">Start verification</string>
     <string name="share_without_verifying">Share without verifying</string>
     <string name="ignore_request">Ignore request</string>
 
-    // conference call
+    <!-- conference call -->
     <string name="conference_call_warning_title">Warning!</string>
     <string name="conference_call_warning_message">Conference calling is in development and may not be reliable.</string>
 
-    // slash commands
+    <!-- slash commands -->
     <string name="command_error">Command error</string>
     <string name="unrecognized_command">Unrecognized command: %s</string>
 
-    // notification statuses
+    <!-- notification statuses -->
     <string name="notification_off">Off</string>
     <string name="notification_on">On</string>
     <string name="notification_noisy">Noisy</string>
 
     <string name="encrypted_message">Encrypted message</string>
 
-    // groups creation
+    <!-- groups creation -->
     <string name="create">Create</string>
     <string name="create_community">Create Community</string>
     <string name="community_name">Community name</string>
@@ -923,7 +923,7 @@
     <string name="community_id">Community Id</string>
     <string name="community_id_hint">example</string>
 
-    // group details
+    <!-- group details -->
     <string name="group_details_home">Home</string>
     <string name="group_details_people">People</string>
     <string name="group_details_rooms">Rooms</string>
@@ -963,5 +963,8 @@
     <string name="notice_room_topic_removed">%1$s removed the room topic</string>
     <string name="notice_room_third_party_invite">%1$s sent an invitation to %2$s to join the room</string>
     <string name="room_error_join_failed_empty_room">It is not currently possible to re-join an empty room.</string>
+
+    <string name="tab_rooms_title">ROOMS</string>
+    <string name="tab_contacts_title">CONTACTS</string>
 
 </resources>

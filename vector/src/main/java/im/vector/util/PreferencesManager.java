@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Set;
 
 import im.vector.R;
-import fr.gouv.tchap.activity.TchapLoginActivity;
+import im.vector.repositories.ServerUrlsRepository;
 
 public class PreferencesManager {
 
@@ -185,9 +185,9 @@ public class PreferencesManager {
     public static void clearPreferences(Context context) {
         Set<String> keysToKeep = new HashSet<>(mKeysToKeepAfterLogout);
 
-        // home server url
-        keysToKeep.add(TchapLoginActivity.HOME_SERVER_URL_PREF);
-        keysToKeep.add(TchapLoginActivity.IDENTITY_SERVER_URL_PREF);
+        // home server urls
+        keysToKeep.add(ServerUrlsRepository.HOME_SERVER_URL_PREF);
+        keysToKeep.add(ServerUrlsRepository.IDENTITY_SERVER_URL_PREF);
 
         // theme
         keysToKeep.add(ThemeUtils.APPLICATION_THEME_KEY);
@@ -427,7 +427,7 @@ public class PreferencesManager {
      * @return true if the application must be started on boot (defaultValue = true)
      */
     public static boolean autoStartOnBoot(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_START_ON_BOOT_PREFERENCE_KEY, false);
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_START_ON_BOOT_PREFERENCE_KEY, true);
     }
 
     /**
