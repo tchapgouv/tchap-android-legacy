@@ -71,6 +71,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import fr.gouv.tchap.media.AntiVirusScanStatus;
 import fr.gouv.tchap.media.MediaScanManager;
 import fr.gouv.tchap.model.MediaScan;
 import im.vector.Matrix;
@@ -106,7 +107,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
     private IListFragmentEventListener mHostActivityListener;
 
     // Media scan manager
-    private MediaScanManager mMediaScanManager;
+    protected MediaScanManager mMediaScanManager;
 
     // onMediaAction actions
     // private static final int ACTION_VECTOR_SHARE = R.id.ic_action_vector_share;
@@ -967,7 +968,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
     }
 
     /**
-     * @return the image and video messages list
+     * @return the list of the trusted images and videos
      */
     ArrayList<SlidableMediaInfo> listSlidableMessages() {
         ArrayList<SlidableMediaInfo> res = new ArrayList<>();
@@ -975,32 +976,64 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
         for (int position = 0; position < mAdapter.getCount(); position++) {
             MessageRow row = mAdapter.getItem(position);
             Message message = JsonUtils.toMessage(row.getEvent().getContent());
+            SlidableMediaInfo info = null;
 
             if (Message.MSGTYPE_IMAGE.equals(message.msgtype)) {
-
                 ImageMessage imageMessage = (ImageMessage) message;
-                SlidableMediaInfo info = new SlidableMediaInfo();
+                info = new SlidableMediaInfo();
                 info.mMessageType = Message.MSGTYPE_IMAGE;
                 info.mFileName = imageMessage.body;
                 info.mMediaUrl = imageMessage.getUrl();
+                info.mThumbnailUrl = imageMessage.getThumbnailUrl();
                 info.mRotationAngle = imageMessage.getRotation();
                 info.mOrientation = imageMessage.getOrientation();
                 info.mMimeType = imageMessage.getMimeType();
                 info.mEncryptedFileInfo = imageMessage.file;
-                res.add(info);
 
             } else if (Message.MSGTYPE_VIDEO.equals(message.msgtype)) {
-
                 VideoMessage videoMessage = (VideoMessage) message;
-                SlidableMediaInfo info = new SlidableMediaInfo();
+                info = new SlidableMediaInfo();
                 info.mMessageType = Message.MSGTYPE_VIDEO;
                 info.mFileName = videoMessage.body;
                 info.mMediaUrl = videoMessage.getUrl();
                 info.mThumbnailUrl = (null != videoMessage.info) ? videoMessage.info.thumbnail_url : null;
                 info.mMimeType = videoMessage.getMimeType();
                 info.mEncryptedFileInfo = videoMessage.file;
-                res.add(info);
             }
+
+            if (null != info && null != info.mMediaUrl) {
+                // Check whether the media is trusted
+                boolean isTrusted = false;
+                AntiVirusScanStatus antiVirusScanStatus = AntiVirusScanStatus.UNKNOWN;
+
+                if (null != mMediaScanManager) {
+                    MediaScan mediaScan = mMediaScanManager.scanMedia(info.mMediaUrl);
+                    antiVirusScanStatus = mediaScan.getAntiVirusScanStatus();
+                }
+
+                switch (antiVirusScanStatus) {
+                    case TRUSTED:
+                        // Check the thumbnail url (if any)
+                        if (null != info.mThumbnailUrl) {
+                            MediaScan mediaScan = mMediaScanManager.scanMedia(info.mThumbnailUrl);
+                            antiVirusScanStatus = mediaScan.getAntiVirusScanStatus();
+
+                            switch (antiVirusScanStatus) {
+                                case TRUSTED:
+                                    isTrusted = true;
+                                    break;
+                            }
+                        } else {
+                            isTrusted = true;
+                        }
+                        break;
+                }
+
+                if (isTrusted) {
+                    res.add(info);
+                }
+            }
+
         }
 
         return res;
@@ -1052,6 +1085,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
     @Override
     public void onContentClick(int position) {
         try {
+            // CAUTION: We consider here that the clicked media is trusted (check on his scan result is achieved before displaying it, and enabling click on it).
             MessageRow row = mAdapter.getItem(position);
             Event event = row.getEvent();
 
@@ -1067,6 +1101,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
 
             // video and images are displayed inside a medias slider.
             if (Message.MSGTYPE_IMAGE.equals(message.msgtype) || (Message.MSGTYPE_VIDEO.equals(message.msgtype))) {
+                // Retrieve the trusted slidable medias
                 ArrayList<SlidableMediaInfo> mediaMessagesList = listSlidableMessages();
                 int listPosition = getMediaMessagePosition(mediaMessagesList, message);
 

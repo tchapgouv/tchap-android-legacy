@@ -1,6 +1,7 @@
 /*
  * Copyright 2016 OpenMarket Ltd
  * Copyright 2017 Vector Creations Ltd
+ * Copyright 2018 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,11 +29,15 @@ import org.matrix.androidsdk.adapters.MessageRow;
 import org.matrix.androidsdk.adapters.AbstractMessagesAdapter;
 import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.rest.model.message.FileMessage;
+import org.matrix.androidsdk.rest.model.message.ImageMessage;
 import org.matrix.androidsdk.rest.model.message.Message;
+import org.matrix.androidsdk.rest.model.message.VideoMessage;
 import org.matrix.androidsdk.util.JsonUtils;
 
 import java.util.ArrayList;
 
+import fr.gouv.tchap.media.AntiVirusScanStatus;
+import fr.gouv.tchap.model.MediaScan;
 import im.vector.activity.VectorMediasViewerActivity;
 import im.vector.adapters.VectorMessagesAdapter;
 import im.vector.adapters.VectorSearchFilesListAdapter;
@@ -63,7 +68,12 @@ public class VectorSearchRoomsFilesListFragment extends VectorSearchMessagesList
     @Override
     public AbstractMessagesAdapter createMessagesAdapter() {
         mIsMediaSearch = true;
-        return new VectorSearchFilesListAdapter(mSession, getActivity(), (null == mRoomId), getMXMediasCache());
+        VectorSearchFilesListAdapter vectorSearchFilesListAdapter = new VectorSearchFilesListAdapter(mSession, getActivity(), (null == mRoomId), getMXMediasCache());
+        // Add the current media scan manager if any
+        if (null != mMediaScanManager) {
+            vectorSearchFilesListAdapter.setMediaScanManager(mMediaScanManager);
+        }
+        return vectorSearchFilesListAdapter;
     }
 
     @Override
@@ -73,6 +83,8 @@ public class VectorSearchRoomsFilesListFragment extends VectorSearchMessagesList
         mMessageListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // CAUTION: We have to check here the scan result for the clicked media, because the click listener is enabled on the whole list view.
+                // and the untrusted media are not removed from the search result for the moment.
                 MessageRow row = mAdapter.getItem(position);
                 Event event = row.getEvent();
 
@@ -86,28 +98,76 @@ public class VectorSearchRoomsFilesListFragment extends VectorSearchMessagesList
 
                 Message message = JsonUtils.toMessage(event.getContent());
 
-                // TODO Antivirus scan
-                // video and images are displayed inside a medias slider.
+                // Video and images are displayed inside a medias slider.
                 if (Message.MSGTYPE_IMAGE.equals(message.msgtype) || (Message.MSGTYPE_VIDEO.equals(message.msgtype))) {
-                    ArrayList<SlidableMediaInfo> mediaMessagesList = listSlidableMessages();
-                    int listPosition = getMediaMessagePosition(mediaMessagesList, message);
+                    // Check whether the media is trusted
+                    boolean isTrusted = false;
+                    String url = null;
+                    String thumbnailUrl = null;
 
-                    if (listPosition >= 0) {
-                        Intent viewImageIntent = new Intent(getActivity(), VectorMediasViewerActivity.class);
+                    if (Message.MSGTYPE_IMAGE.equals(message.msgtype)) {
+                        ImageMessage imageMessage = JsonUtils.toImageMessage(event.getContent());
+                        url = imageMessage.getUrl();
+                        thumbnailUrl = imageMessage.getThumbnailUrl();
+                    } else {
+                        VideoMessage videoMessage = JsonUtils.toVideoMessage(event.getContent());
+                        url = videoMessage.getUrl();
+                        thumbnailUrl = videoMessage.getThumbnailUrl();
+                    }
 
-                        viewImageIntent.putExtra(VectorMediasViewerActivity.EXTRA_MATRIX_ID, mSession.getCredentials().userId);
-                        viewImageIntent.putExtra(VectorMediasViewerActivity.KEY_THUMBNAIL_WIDTH, mAdapter.getMaxThumbnailWidth());
-                        viewImageIntent.putExtra(VectorMediasViewerActivity.KEY_THUMBNAIL_HEIGHT, mAdapter.getMaxThumbnailHeight());
-                        viewImageIntent.putExtra(VectorMediasViewerActivity.KEY_INFO_LIST, mediaMessagesList);
-                        viewImageIntent.putExtra(VectorMediasViewerActivity.KEY_INFO_LIST_INDEX, listPosition);
+                    if (null != url) {
+                        AntiVirusScanStatus antiVirusScanStatus = AntiVirusScanStatus.UNKNOWN;
 
-                        getActivity().startActivity(viewImageIntent);
+                        if (null != mMediaScanManager) {
+                            MediaScan mediaScan = mMediaScanManager.scanMedia(url);
+                            antiVirusScanStatus = mediaScan.getAntiVirusScanStatus();
+                        }
+
+                        switch (antiVirusScanStatus) {
+                            case TRUSTED:
+                                // Check the thumbnail url (if any)
+                                if (null != thumbnailUrl) {
+                                    MediaScan mediaScan = mMediaScanManager.scanMedia(thumbnailUrl);
+                                    antiVirusScanStatus = mediaScan.getAntiVirusScanStatus();
+                                    switch (antiVirusScanStatus) {
+                                        case TRUSTED:
+                                            isTrusted = true;
+                                            break;
+                                    }
+                                } else {
+                                    isTrusted = true;
+                                }
+                                break;
+                        }
+                    }
+
+                    if (isTrusted) {
+                        // Retrieve the trusted slidable medias
+                        ArrayList<SlidableMediaInfo> mediaMessagesList = listSlidableMessages();
+                        int listPosition = getMediaMessagePosition(mediaMessagesList, message);
+
+                        if (listPosition >= 0) {
+                            Intent viewImageIntent = new Intent(getActivity(), VectorMediasViewerActivity.class);
+
+                            viewImageIntent.putExtra(VectorMediasViewerActivity.EXTRA_MATRIX_ID, mSession.getCredentials().userId);
+                            viewImageIntent.putExtra(VectorMediasViewerActivity.KEY_THUMBNAIL_WIDTH, mAdapter.getMaxThumbnailWidth());
+                            viewImageIntent.putExtra(VectorMediasViewerActivity.KEY_THUMBNAIL_HEIGHT, mAdapter.getMaxThumbnailHeight());
+                            viewImageIntent.putExtra(VectorMediasViewerActivity.KEY_INFO_LIST, mediaMessagesList);
+                            viewImageIntent.putExtra(VectorMediasViewerActivity.KEY_INFO_LIST_INDEX, listPosition);
+
+                            getActivity().startActivity(viewImageIntent);
+                        }
                     }
                 } else if (Message.MSGTYPE_FILE.equals(message.msgtype)) {
                     FileMessage fileMessage = JsonUtils.toFileMessage(event.getContent());
+                    String url = fileMessage.getUrl();
 
-                    if (null != fileMessage.getUrl()) {
-                        onMediaAction(ACTION_VECTOR_OPEN, fileMessage.getUrl(), fileMessage.getMimeType(), fileMessage.body, fileMessage.file);
+                    // Check whether the media is trusted
+                    MediaScan mediaScan = mMediaScanManager.scanMedia(url);
+                    AntiVirusScanStatus antiVirusScanStatus = mediaScan.getAntiVirusScanStatus();
+
+                    if (null != url && antiVirusScanStatus == AntiVirusScanStatus.TRUSTED) {
+                        onMediaAction(ACTION_VECTOR_OPEN, url, fileMessage.getMimeType(), fileMessage.body, fileMessage.file);
                     }
                 }
             }
