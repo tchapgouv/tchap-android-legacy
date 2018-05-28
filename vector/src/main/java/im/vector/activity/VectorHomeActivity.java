@@ -989,6 +989,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         EditText edit = mSearchView.findViewById(android.support.v7.appcompat.R.id.search_src_text);
         edit.setTextColor(ThemeUtils.getColor(this, R.attr.primary_text_color));
         edit.setHintTextColor(ThemeUtils.getColor(this, R.attr.primary_hint_text_color));
+        edit.setTextSize(15);
     }
 
     /**
