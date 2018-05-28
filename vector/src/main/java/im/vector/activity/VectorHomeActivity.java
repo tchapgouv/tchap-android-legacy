@@ -106,6 +106,7 @@ import java.util.TimerTask;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import fr.gouv.tchap.activity.TchapLoginActivity;
+import fr.gouv.tchap.activity.TchapRoomCreationActivity;
 import im.vector.Matrix;
 import im.vector.MyPresenceManager;
 import im.vector.PublicRoomsManager;
@@ -1259,8 +1260,9 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                                     // Multiselection mode isn't required
                                     createNewChat(VectorRoomCreationActivity.RoomCreationModes.DIRECT_CHAT);
                                 } else if (1 == n) {
-                                    // Create an empty room
-                                    createNewRoom();
+                                    // Launch the new screen to create an empty room
+                                    final Intent intent = new Intent(VectorHomeActivity.this, TchapRoomCreationActivity.class);
+                                    VectorHomeActivity.this.startActivity(intent);
                                 } else {
                                     // Create a new discussion
                                     // Invite one or more users
@@ -1358,58 +1360,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         settingsIntent.putExtra(MXCActionBarActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
         settingsIntent.putExtra(VectorRoomCreationActivity.EXTRA_ROOM_CREATION_ACTIVITY_MODE, mode);
         startActivity(settingsIntent);
-    }
-
-    /**
-     * Handle new room creation
-     */
-    private  void createNewRoom() {
-        hideKeyboard();
-        showWaitingView();
-        mSession.createRoom(new SimpleApiCallback<String>(VectorHomeActivity.this) {
-            @Override
-            public void onSuccess(final String roomId) {
-                waitingView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        hideWaitingView();
-
-                        HashMap<String, Object> params = new HashMap<>();
-                        params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
-                        params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
-                        params.put(VectorRoomActivity.EXTRA_EXPAND_ROOM_HEADER, true);
-                        CommonActivityUtils.goToRoomPage(VectorHomeActivity.this, mSession, params);
-                    }
-                });
-            }
-
-            private void onError(final String message) {
-                waitingView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (null != message) {
-                            Toast.makeText(VectorHomeActivity.this, message, Toast.LENGTH_LONG).show();
-                        }
-                        hideWaitingView();
-                    }
-                });
-            }
-
-            @Override
-            public void onNetworkError(Exception e) {
-                onError(e.getLocalizedMessage());
-            }
-
-            @Override
-            public void onMatrixError(final MatrixError e) {
-                onError(e.getLocalizedMessage());
-            }
-
-            @Override
-            public void onUnexpectedError(final Exception e) {
-                onError(e.getLocalizedMessage());
-            }
-        });
     }
 
     /*
