@@ -833,7 +833,7 @@ Appareils inconnus :</string>
     <string name="community_id_hint">Exemple</string>
 
     // tchap room creation
-    <string name="tchap_room_creation_title">Nouveau salon</string>
+    <string name="tchap_room_creation_title">Salon</string>
     <string name="tchap_room_creation_avatar">Ajouter \n une photo</string>
     <string name="tchap_room_creation_name">Nommer le salon</string>
     <string name="tchap_room_creation_public">Rendre ce salon privé</string>
