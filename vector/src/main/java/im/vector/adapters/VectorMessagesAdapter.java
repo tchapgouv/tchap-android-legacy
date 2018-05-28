@@ -2552,11 +2552,14 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             menu.getItem(i).setVisible(false);
         }
 
+        // Check whether the event contains an unchecked or untrusted url.
+        boolean isUncheckedOrUntrustedMediaEvent = mMediaScanManager.isUncheckedOrUntrustedMediaEvent(event);
+
         menu.findItem(R.id.ic_action_view_source).setVisible(true);
         menu.findItem(R.id.ic_action_view_decrypted_source).setVisible(event.isEncrypted() && (null != event.getClearEvent()));
-        menu.findItem(R.id.ic_action_vector_permalink).setVisible(true);
+        menu.findItem(R.id.ic_action_vector_permalink).setVisible(!isUncheckedOrUntrustedMediaEvent);
 
-        if (!TextUtils.isEmpty(textMsg)) {
+        if (!TextUtils.isEmpty(textMsg) && !isUncheckedOrUntrustedMediaEvent) {
             menu.findItem(R.id.ic_action_vector_copy).setVisible(true);
             menu.findItem(R.id.ic_action_vector_quote).setVisible(true);
         }
@@ -2597,14 +2600,13 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
 
             menu.findItem(R.id.ic_action_vector_redact_message).setVisible(canBeRedacted);
 
-            if (Event.EVENT_TYPE_MESSAGE.equals(event.getType())) {
+            if (Event.EVENT_TYPE_MESSAGE.equals(event.getType()) && !isUncheckedOrUntrustedMediaEvent) {
                 Message message = JsonUtils.toMessage(event.getContentAsJsonObject());
 
                 // share / forward the message
                 menu.findItem(R.id.ic_action_vector_share).setVisible(!mIsRoomEncrypted);
                 menu.findItem(R.id.ic_action_vector_forward).setVisible(true);
 
-                // TODO Antivirus scan
                 // save the media in the downloads directory
                 if (Message.MSGTYPE_IMAGE.equals(message.msgtype) || Message.MSGTYPE_VIDEO.equals(message.msgtype) || Message.MSGTYPE_FILE.equals(message.msgtype)) {
                     menu.findItem(R.id.ic_action_vector_save).setVisible(true);
@@ -2613,12 +2615,6 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                 // offer to report a message content
                 menu.findItem(R.id.ic_action_vector_report).setVisible(!mIsPreviewMode && !TextUtils.equals(event.sender, mSession.getMyUserId()));
             }
-
-            if (Event.EVENT_TYPE_STICKER.equals((event.getType()))) {
-                menu.findItem(R.id.ic_action_vector_redact_message).setVisible(true);
-                menu.findItem(R.id.ic_action_vector_permalink).setVisible(true);
-            }
-
         }
 
         // e2e

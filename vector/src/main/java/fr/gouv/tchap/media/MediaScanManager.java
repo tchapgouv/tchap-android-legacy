@@ -19,7 +19,10 @@ package fr.gouv.tchap.media;
 import android.os.Handler;
 import android.os.Looper;
 
+import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.rest.model.crypto.EncryptedFileInfo;
+
+import java.util.List;
 
 import fr.gouv.tchap.model.MediaScan;
 import io.realm.Realm;
@@ -139,6 +142,25 @@ public class MediaScanManager {
      */
     public void clearAntiVirusScanResults() {
         mMediaScanDao.clearAntiVirusScanResults();
+    }
+
+    /**
+     * Check whether an event contains some unchecked or untrusted urls.
+     *
+     * @param event
+     * @return true if the event contains at least one unchecked or untrusted url.
+     */
+    public boolean isUncheckedOrUntrustedMediaEvent(Event event) {
+        List<String> urls = event.getMediaUrls();
+
+        for (String url : urls) {
+            MediaScan mediaScan = scanMedia(url);
+            if (mediaScan.getAntiVirusScanStatus() != AntiVirusScanStatus.TRUSTED) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
 
