@@ -9,7 +9,8 @@
         <item name="waiting_background_color">#AAAAAAAA</item>
 
         <!-- primary dark color (status bar) -->
-        <item name="primary_dark_color">@color/vector_tchap_primary_color</item>
+        <!-- item name="primary_dark_color">@color/vector_tchap_primary_color</item-->
+        <item name="primary_dark_color">@color/riot_primary_background_color_black</item>
 
         <!-- application bar background color -->
         <item name="primary_color">@color/primary_color_light</item>

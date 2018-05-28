@@ -45,7 +45,7 @@
     <color name="tab_bar_unselected_background_color_dark">@color/primary_color_dark</color>
 
     <!-- Text Colors -->
-    <color name="primary_hint_text_color_light">@color/vector_tchap_primary_color_light</color>
+    <color name="primary_hint_text_color_light">@color/vector_silver_color</color>
     <color name="primary_hint_text_color_dark">@color/vector_tchap_primary_color</color>
 
     <color name="riot_primary_text_color_light">#FF3C3C3C</color>

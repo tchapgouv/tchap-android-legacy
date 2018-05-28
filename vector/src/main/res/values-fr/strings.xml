@@ -73,7 +73,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="low_priority_header">Priorité basse</string>
 
     <string name="direct_chats_header">Dialogues</string>
-    <string name="local_address_book_header">Contacts</string>
+    <string name="local_address_book_header">Contacts Tchap</string>
     <string name="matrix_only_filter">Contacts Matrix uniquement</string>
     <string name="no_conversation_placeholder">Aucun dialogue</string>
     <string name="no_contact_access_placeholder">Vous n\'avez pas autorisé Tchap à accéder à vos contacts locaux</string>
@@ -952,5 +952,8 @@ Appareils inconnus :</string>
     <string name="notice_room_topic_removed">%1$s a supprimé le sujet de la discussion</string>
     <string name="notice_room_third_party_invite">%1$s a envoyé une invitation à %2$s pour rejoindre la discussion</string>
     <string name="room_error_join_failed_empty_room">Il est impossible pour le moment de revenir dans une discussion vide.</string>
+
+    <string name="tab_rooms_title">CONVERSATIONS</string>
+    <string name="tab_contacts_title">CONTACTS</string>
 
     </resources>
