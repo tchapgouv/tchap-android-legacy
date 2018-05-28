@@ -68,6 +68,7 @@ import org.matrix.androidsdk.rest.model.message.Message;
 import org.matrix.androidsdk.rest.model.PowerLevels;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.message.StickerMessage;
+import org.matrix.androidsdk.rest.model.message.VideoMessage;
 import org.matrix.androidsdk.util.EventDisplay;
 import org.matrix.androidsdk.util.JsonUtils;
 import org.matrix.androidsdk.util.Log;
@@ -89,6 +90,9 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import fr.gouv.tchap.media.AntiVirusScanStatus;
+import fr.gouv.tchap.media.MediaScanManager;
+import fr.gouv.tchap.model.MediaScan;
 import im.vector.R;
 import im.vector.VectorApp;
 import im.vector.activity.CommonActivityUtils;
@@ -192,6 +196,9 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
     private String mReadReceiptEventId;
 
     private MatrixLinkMovementMethod mLinkMovementMethod;
+
+    // AntiVirus scan manager return the scan status of a media
+    private MediaScanManager mMediaScanManager;
 
     private final VectorMessagesAdapterMediasHelper mMediasHelper;
     final protected VectorMessagesAdapterHelper mHelper;
@@ -424,6 +431,13 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
      * Items getter / setter
      * *********************************************************************************************
      */
+
+    /**
+     * Set the media scan manager
+     */
+    public void setMediaScanManager(MediaScanManager mediaScanManager) {
+        mMediaScanManager = mediaScanManager;
+    }
 
     /**
      * Tests if the row can be inserted in a merge row.
@@ -1365,47 +1379,54 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             convertView = mLayoutInflater.inflate(mRowTypeToLayoutId.get(type), parent, false);
         }
 
+        // Initialize the message layout display
+        mHelper.initializeLayoutsDisplay(convertView);
+
         try {
             MessageRow row = getItem(position);
             Event event = row.getEvent();
             Message message = null;
-
-            // TODO Media Scan Status : scanStatus = ScanStatus.UnKNOWN
-
+            String url = null;
+            String thumbnailUrl = null;
+            String fileName = null;
             int waterMarkResourceId = -1;
 
-            // TODO switch case
+            switch (type) {
+                case ROW_TYPE_IMAGE:
+                    ImageMessage imageMessage = JsonUtils.toImageMessage(event.getContent());
 
-            if (type == ROW_TYPE_IMAGE) {
-
-                ImageMessage imageMessage = JsonUtils.toImageMessage(event.getContent());
-
-                if ("image/gif".equals(imageMessage.getMimeType())) {
-                    waterMarkResourceId = R.drawable.filetype_gif;
-                }
-                message = imageMessage;
-
-            } else if (type == ROW_TYPE_VIDEO) {
-
-                message = JsonUtils.toVideoMessage(event.getContent());
-                waterMarkResourceId = R.drawable.filetype_video;
-
-            } else if (type == ROW_TYPE_STICKER) {
-
-                StickerMessage stickerMessage = JsonUtils.toStickerMessage(event.getContent());
-                message = stickerMessage;
+                    if ("image/gif".equals(imageMessage.getMimeType())) {
+                        waterMarkResourceId = R.drawable.filetype_gif;
+                    }
+                    url = imageMessage.getUrl();
+                    thumbnailUrl = imageMessage.getThumbnailUrl();
+                    fileName = imageMessage.body;
+                    message = imageMessage;
+                    break;
+                case ROW_TYPE_VIDEO:
+                    VideoMessage videoMessage = JsonUtils.toVideoMessage(event.getContent());
+                    waterMarkResourceId = R.drawable.filetype_video;
+                    url = videoMessage.getUrl();
+                    thumbnailUrl = videoMessage.getThumbnailUrl();
+                    fileName = videoMessage.body;
+                    message = videoMessage;
+                    break;
+                case ROW_TYPE_STICKER:
+                    StickerMessage stickerMessage = JsonUtils.toStickerMessage(event.getContent());
+                    url = stickerMessage.getUrl();
+                    thumbnailUrl = stickerMessage.getThumbnailUrl();
+                    fileName = stickerMessage.body;
+                    message = stickerMessage;
+                    break;
             }
 
-            // display a type watermark
+            // Display a type watermark
             final ImageView imageTypeView = convertView.findViewById(R.id.messagesAdapter_image_type);
-
             if (null == imageTypeView) {
                 Log.e(LOG_TAG, "getImageVideoView : invalid layout");
                 return convertView;
             }
-
             imageTypeView.setBackgroundColor(Color.TRANSPARENT);
-
             if (waterMarkResourceId > 0) {
                 imageTypeView.setImageBitmap(BitmapFactory.decodeResource(getContext().getResources(), waterMarkResourceId));
                 imageTypeView.setVisibility(View.VISIBLE);
@@ -1413,16 +1434,72 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                 imageTypeView.setVisibility(View.GONE);
             }
 
-            if (null != message) {
-                mHelper.hideStickerDescription(convertView);
+            if (null != url) {
+                ImageView imageView = convertView.findViewById(R.id.messagesAdapter_image);
 
-                // TODO Antivirus scan ?
-                // download management
-                mMediasHelper.managePendingImageVideoDownload(convertView, event, message, position);
+                // Retrieve the scan result of the media
+                boolean isTrusted = false;
+                AntiVirusScanStatus antiVirusScanStatus = AntiVirusScanStatus.UNKNOWN;
+                int scanDrawable = R.drawable.media_scan_status_placeholder_unknown;
 
-                // TODO Antivirus scan ?
-                // upload management
-                mMediasHelper.managePendingImageVideoUpload(convertView, event, message);
+                if (null != mMediaScanManager) {
+                    MediaScan mediaScan = mMediaScanManager.scanMedia(url);
+                    antiVirusScanStatus = mediaScan.getAntiVirusScanStatus();
+                }
+
+                switch (antiVirusScanStatus) {
+                    case IN_PROGRESS:
+                        scanDrawable = R.drawable.media_scan_status_placeholder_inprogress;
+                        break;
+                    case TRUSTED:
+                        // Check the thumbnail url (if any)
+                        if (null != thumbnailUrl) {
+                            MediaScan mediaScan = mMediaScanManager.scanMedia(thumbnailUrl);
+                            antiVirusScanStatus = mediaScan.getAntiVirusScanStatus();
+
+                            switch (antiVirusScanStatus) {
+                                case IN_PROGRESS:
+                                    scanDrawable = R.drawable.media_scan_status_placeholder_inprogress;
+                                    break;
+                                case TRUSTED:
+                                    isTrusted = true;
+                                    break;
+                                case INFECTED:
+                                    scanDrawable = R.drawable.media_scan_status_placeholder_infected;
+                                    break;
+                            }
+                        } else {
+                            isTrusted = true;
+                        }
+                        break;
+                    case INFECTED:
+                        scanDrawable = R.drawable.media_scan_status_placeholder_infected;
+                        break;
+                }
+
+                if (isTrusted) {
+                    // download management
+                    mMediasHelper.managePendingImageVideoDownload(convertView, event, message, position);
+                    // upload management
+                    mMediasHelper.managePendingImageVideoUpload(convertView, event, message);
+
+                    // Enable click on media only if it is trusted
+                    addContentViewListeners(convertView, imageView, position, type);
+                } else {
+                    // If the media scan result is not available or if the media is infected,
+                    // Don't display the image and display a placeholder icon according to the scan status
+                    imageView.setImageResource(scanDrawable);
+
+                    // Remove all potential click listeners on the image view
+                    imageView.setOnClickListener(null);
+
+                    if (null != fileName) {
+                        View fileNameLayout = convertView.findViewById(R.id.image_video_name_layout);
+                        fileNameLayout.setVisibility(View.VISIBLE);
+                        TextView textViewFileName = convertView.findViewById(R.id.tv_image_video_name);
+                        textViewFileName.setText(fileName);
+                    }
+                }
             }
 
             // dimmed when the message is not sent
@@ -1430,9 +1507,6 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             imageLayout.setAlpha(event.isSent() ? 1.0f : 0.5f);
 
             this.manageSubView(position, convertView, imageLayout, type);
-
-            ImageView imageView = convertView.findViewById(R.id.messagesAdapter_image);
-            addContentViewListeners(convertView, imageView, position, type);
         } catch (Exception e) {
             Log.e(LOG_TAG, "## getImageVideoView() failed : " + e.getMessage());
         }

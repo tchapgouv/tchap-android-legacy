@@ -56,7 +56,7 @@ public class MediaScanDao {
      */
     /* package */ void updateMediaAntiVirusScanStatus(@NonNull final String url, final AntiVirusScanStatus antiVirusScanStatus) {
 
-        mRealm.executeTransactionAsync(new Realm.Transaction() {
+        mRealm.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
                 MediaScan mediaScan = getMediaScan(realm, url);
@@ -71,7 +71,7 @@ public class MediaScanDao {
      */
     /* package */ void clearAntiVirusScanResults() {
 
-        mRealm.executeTransactionAsync(new Realm.Transaction() {
+        mRealm.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
                 realm.delete(MediaScan.class);
@@ -96,7 +96,13 @@ public class MediaScanDao {
 
         if (null == mediaScan) {
             // Create the realm object MediaScan
-            mediaScan = realm.createObject(MediaScan.class, url);
+            if (realm.isInTransaction()) {
+                mediaScan = realm.createObject(MediaScan.class, url);
+            } else {
+                realm.beginTransaction();
+                mediaScan = realm.createObject(MediaScan.class, url);
+                realm.commitTransaction();
+            }
         }
 
         return mediaScan;

@@ -16,7 +16,9 @@
 
 package fr.gouv.tchap.media;
 
-import android.support.annotation.Nullable;
+import android.os.Handler;
+import android.os.Looper;
+
 import org.matrix.androidsdk.rest.model.crypto.EncryptedFileInfo;
 
 import fr.gouv.tchap.model.MediaScan;
@@ -26,6 +28,7 @@ public class MediaScanManager {
 
     private static final String LOG_TAG = MediaScanManager.class.getSimpleName();
 
+    // Media scan listener
     public interface MediaScanManagerListener {
         /**
          * Called when a media scan has been updated.
@@ -33,6 +36,9 @@ public class MediaScanManager {
         void onMediaScanChange(MediaScan mediaScan);
     }
 
+    private MediaScanManagerListener mListener;
+
+    // The Data Access Object (DAO)
     MediaScanDao mMediaScanDao;
 
     /**
@@ -45,44 +51,83 @@ public class MediaScanManager {
     }
 
     /**
+     * Set the listener to be notified on each media scan update handled by this manager
+     *
+     * @param listener the listener
+     */
+    public void setListener(MediaScanManagerListener listener) {
+        mListener = listener;
+    }
+
+    /**
      * Get the current scan result of a media (including antivirus status).
-     * Trigger an antivirus scan if it is not already done, and if a listener is provided.
+     * Trigger an antivirus scan if it is not already done.
      *
      * @param url       the media url.
-     * @param listener  optional listener on the media scan update.
      * @return the current scan result of the media.
      */
-    public MediaScan scanMedia(String url, @Nullable MediaScanManagerListener listener) {
+    public MediaScan scanMedia(String url) {
 
-        MediaScan mediaScan = mMediaScanDao.getMediaScan(url);
+        // Use the fake scanMedia for encrypted media until the server api is ready
+        EncryptedFileInfo mediaInfo = new EncryptedFileInfo();
+        mediaInfo.url = url;
+        return scanMedia(mediaInfo);
 
-        if (null != listener && AntiVirusScanStatus.UNKNOWN == mediaScan.getAntiVirusScanStatus()) {
+        /*MediaScan mediaScan = mMediaScanDao.getMediaScan(url);
 
-            // TODO trigger the scan, call the listener on result if any
+        if (AntiVirusScanStatus.UNKNOWN == mediaScan.getAntiVirusScanStatus()) {
+
+            // TODO trigger the scan, call the listener on result
             // TODO update the ScanAntiVirusScanStatus to IN_PROGRESS
             // TODO Case Error, return the updated AntiVirusScanStatus to UNKNOWN
         }
 
-        return mediaScan;
+        return mediaScan;*/
     }
 
     /**
      * Get the current scan result of an encrypted media (including antivirus status).
-     * Trigger an antivirus scan if it is not already done, and if a listener is provided.
+     * Trigger an antivirus scan if it is not already done.
      *
      * @param mediaInfo  the encrypted media information.
-     * @param listener  optional listener on the media scan update.
      * @return the current scan result of the encrypted media..
      */
-    public MediaScan scanMedia(EncryptedFileInfo mediaInfo, @Nullable MediaScanManagerListener listener) {
+    public MediaScan scanMedia(final EncryptedFileInfo mediaInfo) {
 
         MediaScan mediaScan = mMediaScanDao.getMediaScan(mediaInfo.url);
 
-        if (null != listener && AntiVirusScanStatus.UNKNOWN == mediaScan.getAntiVirusScanStatus()) {
+        if (AntiVirusScanStatus.UNKNOWN == mediaScan.getAntiVirusScanStatus()) {
 
-            // TODO trigger the scan, call the listener on result if any
-            // TODO update the AntiVirusScanStatus to IN_PROGRESS
-            // TODO Case Error, return the updated AntiVirusScanStatus to UNKNOWN
+            // Trigger the antivirus scan, update the current scan status in the database
+            mMediaScanDao.updateMediaAntiVirusScanStatus(mediaInfo.url, AntiVirusScanStatus.IN_PROGRESS);
+            mediaScan = mMediaScanDao.getMediaScan(mediaInfo.url);
+
+            // Dummy scan
+            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                @Override
+                public void run() {
+
+                    // Fake status according to the end of the url
+                    char tmp = mediaInfo.url.toLowerCase().charAt(mediaInfo.url.length()- 1);
+                    AntiVirusScanStatus status = AntiVirusScanStatus.UNKNOWN;
+                    if (tmp < 'l') {
+                        // Trusted
+                        status = AntiVirusScanStatus.TRUSTED;
+                    } else if (tmp < 't') {
+                        // Infected
+                        status = AntiVirusScanStatus.INFECTED;
+                    } else {
+                        // Failure
+                        //status = AntiVirusScanStatus.UNKNOWN;
+                    }
+                    mMediaScanDao.updateMediaAntiVirusScanStatus(mediaInfo.url, status);
+
+                    // Call the listener if any
+                    if (null != mListener) {
+                        mListener.onMediaScanChange(mMediaScanDao.getMediaScan(mediaInfo.url));
+                    }
+                }
+            }, 2000);
         }
 
         return mediaScan;

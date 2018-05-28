@@ -71,10 +71,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import fr.gouv.tchap.media.MediaScanManager;
+import fr.gouv.tchap.model.MediaScan;
 import im.vector.Matrix;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.MXCActionBarActivity;
+import im.vector.activity.RiotAppCompatActivity;
 import im.vector.activity.VectorHomeActivity;
 import im.vector.activity.VectorMediasViewerActivity;
 import im.vector.activity.VectorMemberDetailsActivity;
@@ -101,6 +104,9 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
     private static final String TAG_FRAGMENT_USER_GROUPS_DIALOG = "TAG_FRAGMENT_USER_GROUPS_DIALOG";
 
     private IListFragmentEventListener mHostActivityListener;
+
+    // Media scan manager
+    private MediaScanManager mMediaScanManager;
 
     // onMediaAction actions
     // private static final int ACTION_VECTOR_SHARE = R.id.ic_action_vector_share;
@@ -181,25 +187,56 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
     }
 
     /**
-     * Called when a fragment is first attached to its activity.
-     * {@link #onCreate(Bundle)} will be called after this.
+     * Called when the fragment's activity has been created and this
+     * fragment's view hierarchy instantiated.  It can be used to do final
+     * initialization once these pieces are in place, such as retrieving
+     * views or restoring state.  It is also useful for fragments that use
+     * {@link #setRetainInstance(boolean)} to retain their instance,
+     * as this callback tells the fragment when it is fully associated with
+     * the new activity instance.  This is called after {@link #onCreateView}
+     * and before {@link #onViewStateRestored(Bundle)}.
      *
-     * @param aHostActivity parent activity
+     * @param savedInstanceState If the fragment is being re-created from
+     * a previous saved state, this is the state.
      */
     @Override
-    public void onAttach(Activity aHostActivity) {
-        super.onAttach(aHostActivity);
+    public void onActivityCreated(final Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        Activity hostActivity = getActivity();
         try {
-            mHostActivityListener = (IListFragmentEventListener) aHostActivity;
+            mHostActivityListener = (IListFragmentEventListener) hostActivity;
         } catch (ClassCastException e) {
             // if host activity does not provide the implementation, just ignore it
-            Log.w(LOG_TAG, "## onAttach(): host activity does not implement IListFragmentEventListener " + aHostActivity);
+            Log.w(LOG_TAG, "## onAttach(): host activity does not implement IListFragmentEventListener " + hostActivity);
             mHostActivityListener = null;
         }
 
-        mBackProgressView = aHostActivity.findViewById(R.id.loading_room_paginate_back_progress);
-        mForwardProgressView = aHostActivity.findViewById(R.id.loading_room_paginate_forward_progress);
-        mMainProgressView = aHostActivity.findViewById(R.id.main_progress_layout);
+        mBackProgressView = hostActivity.findViewById(R.id.loading_room_paginate_back_progress);
+        mForwardProgressView = hostActivity.findViewById(R.id.loading_room_paginate_forward_progress);
+        mMainProgressView = hostActivity.findViewById(R.id.main_progress_layout);
+
+        // Prepare media scan manager
+        if (hostActivity instanceof RiotAppCompatActivity) {
+            RiotAppCompatActivity riotAppCompatActivity = (RiotAppCompatActivity) hostActivity;
+            mMediaScanManager = new MediaScanManager(riotAppCompatActivity.realm);
+
+            mMediaScanManager.setListener(new MediaScanManager.MediaScanManagerListener() {
+                @Override
+                public void onMediaScanChange(MediaScan mediaScan) {
+                    // Check if the fragment is added to its Activity before
+                    if (isAdded() && null != mAdapter) {
+                        // Refresh display
+                        mAdapter.notifyDataSetChanged();
+                    }
+                }
+            });
+
+            // Update the adapter if any
+            if (null != mAdapter && (mAdapter instanceof VectorMessagesAdapter)) {
+                ((VectorMessagesAdapter)mAdapter).setMediaScanManager(mMediaScanManager);
+            }
+        }
     }
 
     @Override
@@ -245,6 +282,8 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
         mBackProgressView = null;
         mForwardProgressView = null;
         mMainProgressView = null;
+
+        mMediaScanManager = null;
     }
 
     @Override
@@ -259,7 +298,13 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
 
     @Override
     public AbstractMessagesAdapter createMessagesAdapter() {
-        return new VectorMessagesAdapter(mSession, getActivity(), getMXMediasCache());
+        VectorMessagesAdapter vectorMessagesAdapter = new VectorMessagesAdapter(mSession, getActivity(), getMXMediasCache());
+        // Add the current media scan manager if any
+        if (null != mMediaScanManager) {
+            vectorMessagesAdapter.setMediaScanManager(mMediaScanManager);
+        }
+
+        return vectorMessagesAdapter;
     }
 
     /**
