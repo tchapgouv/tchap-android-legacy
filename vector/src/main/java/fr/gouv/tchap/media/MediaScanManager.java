@@ -111,18 +111,17 @@ public class MediaScanManager {
                 @Override
                 public void run() {
 
-                    // Fake status according to the end of the url
-                    char tmp = mediaInfo.url.toLowerCase().charAt(mediaInfo.url.length()- 1);
+                    // Fake status according to the url
                     AntiVirusScanStatus status = AntiVirusScanStatus.UNKNOWN;
-                    if (tmp < 'l') {
+                    if (mediaInfo.url.contains("i.tchap")) {
                         // Trusted
                         status = AntiVirusScanStatus.TRUSTED;
-                    } else if (tmp < 't') {
+                    } else if (mediaInfo.url.contains("/e.tchap")) {
                         // Infected
                         status = AntiVirusScanStatus.INFECTED;
                     } else {
-                        // Failure
-                        //status = AntiVirusScanStatus.UNKNOWN;
+                        // No change
+                        return;
                     }
                     mMediaScanDao.updateMediaAntiVirusScanStatus(mediaInfo.url, status);
 

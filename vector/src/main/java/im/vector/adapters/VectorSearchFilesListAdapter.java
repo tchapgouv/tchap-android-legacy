@@ -192,7 +192,7 @@ public class VectorSearchFilesListAdapter extends VectorMessagesAdapter {
                 }
             } else {
                 // If the media scan result is not available or if the media is infected,
-                // Don't display the image and display a placeholder icon according to the scan status
+                // Don't display the thumbnail and display a placeholder icon according to the scan status
                 thumbnailView.setImageResource(scanDrawable);
             }
         }
