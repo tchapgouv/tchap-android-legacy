@@ -1,6 +1,7 @@
 /*
  * Copyright 2016 OpenMarket Ltd
  * Copyright 2017 Vector Creations Ltd
+ * Copyright 2018 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,7 +64,12 @@ public class VectorSearchRoomsFilesListFragment extends VectorSearchMessagesList
     @Override
     public AbstractMessagesAdapter createMessagesAdapter() {
         mIsMediaSearch = true;
-        return new VectorSearchFilesListAdapter(mSession, getActivity(), (null == mRoomId), getMXMediasCache());
+        VectorSearchFilesListAdapter vectorSearchFilesListAdapter = new VectorSearchFilesListAdapter(mSession, getActivity(), (null == mRoomId), getMXMediasCache());
+        // Add the current media scan manager if any
+        if (null != mMediaScanManager) {
+            vectorSearchFilesListAdapter.setMediaScanManager(mMediaScanManager);
+        }
+        return vectorSearchFilesListAdapter;
     }
 
     @Override
@@ -73,6 +79,8 @@ public class VectorSearchRoomsFilesListFragment extends VectorSearchMessagesList
         mMessageListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // CAUTION: We have to check here whether the clicked media is trusted, because the click listener is enabled on the whole list view.
+                // and the untrusted media are not removed from the search result for the moment.
                 MessageRow row = mAdapter.getItem(position);
                 Event event = row.getEvent();
 
@@ -84,11 +92,16 @@ public class VectorSearchRoomsFilesListFragment extends VectorSearchMessagesList
                     return;
                 }
 
+                if (null == mMediaScanManager || mMediaScanManager.isUncheckedOrUntrustedMediaEvent(event)) {
+                    // Ignore click on unchecked or untrusted media
+                    return;
+                }
+
                 Message message = JsonUtils.toMessage(event.getContent());
 
-                // TODO Antivirus scan
-                // video and images are displayed inside a medias slider.
+                // Video and images are displayed inside a medias slider.
                 if (Message.MSGTYPE_IMAGE.equals(message.msgtype) || (Message.MSGTYPE_VIDEO.equals(message.msgtype))) {
+                    // Retrieve the trusted slidable medias
                     ArrayList<SlidableMediaInfo> mediaMessagesList = listSlidableMessages();
                     int listPosition = getMediaMessagePosition(mediaMessagesList, message);
 
@@ -105,9 +118,10 @@ public class VectorSearchRoomsFilesListFragment extends VectorSearchMessagesList
                     }
                 } else if (Message.MSGTYPE_FILE.equals(message.msgtype)) {
                     FileMessage fileMessage = JsonUtils.toFileMessage(event.getContent());
+                    String url = fileMessage.getUrl();
 
-                    if (null != fileMessage.getUrl()) {
-                        onMediaAction(ACTION_VECTOR_OPEN, fileMessage.getUrl(), fileMessage.getMimeType(), fileMessage.body, fileMessage.file);
+                    if (null != url) {
+                        onMediaAction(ACTION_VECTOR_OPEN, url, fileMessage.getMimeType(), fileMessage.body, fileMessage.file);
                     }
                 }
             }

@@ -1,5 +1,6 @@
 /*
  * Copyright 2015 OpenMarket Ltd
+ * Copyright 2018 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,6 +55,7 @@ import org.matrix.androidsdk.util.ImageUtils;
 import org.matrix.androidsdk.util.JsonUtils;
 import org.matrix.androidsdk.view.PieFractionView;
 
+import fr.gouv.tchap.media.MediaScanManager;
 import im.vector.R;
 
 import org.matrix.androidsdk.db.MXMediasCache;
@@ -70,7 +72,6 @@ import java.util.List;
 /**
  * An images slider
  */
-// TODO Antivirus scan
 public class VectorMediasViewerAdapter extends PagerAdapter {
     private static final String LOG_TAG = VectorMediasViewerAdapter.class.getSimpleName();
 
@@ -90,6 +91,10 @@ public class VectorMediasViewerAdapter extends PagerAdapter {
     private final MXSession mSession;
 
     private int mAutoPlayItemAt = -1;
+
+    // We are not supposed to process unchecked or untrusted media in this viewer.
+    // We add here a media scan manager to apply some sanity checks.
+    protected MediaScanManager mMediaScanManager;
 
     public VectorMediasViewerAdapter(Context context, MXSession session, MXMediasCache mediasCache, List<SlidableMediaInfo> mediaMessagesList, int maxImageWidth, int maxImageHeight) {
         this.mContext = context;
@@ -128,7 +133,6 @@ public class VectorMediasViewerAdapter extends PagerAdapter {
                 @Override
                 public void run() {
                     if (mHighResMediaIndex.indexOf(position) < 0) {
-                        // TODO Antivirus scan
                         downloadHighResMedia(view, position);
                     } else if (position == mAutoPlayItemAt) {
                         final SlidableMediaInfo mediaInfo = mMediasMessagesList.get(position);
@@ -155,6 +159,13 @@ public class VectorMediasViewerAdapter extends PagerAdapter {
     }
 
     /**
+     * Set the media scan manager
+     */
+    public void setMediaScanManager(MediaScanManager mediaScanManager) {
+        mMediaScanManager = mediaScanManager;
+    }
+
+    /**
      * @param position the position of the item to play.
      */
     public void autoPlayItemAt(int position) {
@@ -169,6 +180,12 @@ public class VectorMediasViewerAdapter extends PagerAdapter {
      */
     private void downloadHighResMedia(final View view, final int position) {
         SlidableMediaInfo imageInfo = mMediasMessagesList.get(position);
+
+        // Sanity check: check whether the media is still trusted
+        if (null == imageInfo || null == mMediaScanManager || !mMediaScanManager.isTrustedSlidableMediaInfo(imageInfo)) {
+            Log.e(LOG_TAG, "## downloadHighResMedia : the media is unchecked or untrusted " + imageInfo.mMediaUrl);
+            return;
+        }
 
         // image
         if (imageInfo.mMessageType.equals(Message.MSGTYPE_IMAGE)) {
@@ -428,6 +445,12 @@ public class VectorMediasViewerAdapter extends PagerAdapter {
         final SlidableMediaInfo mediaInfo = mMediasMessagesList.get(position);
         String mediaUrl = mediaInfo.mMediaUrl;
 
+        // Sanity check: check whether the media is still trusted
+        if (null == mediaInfo || null == mMediaScanManager || !mMediaScanManager.isTrustedSlidableMediaInfo(mediaInfo)) {
+            Log.e(LOG_TAG, "## instantiateItem : the media is unchecked or untrusted " + mediaUrl);
+            return view;
+        }
+
         if (mediaInfo.mMessageType.equals(Message.MSGTYPE_IMAGE)) {
             imageWebView.setVisibility(View.VISIBLE);
             imageWebView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
@@ -624,6 +647,12 @@ public class VectorMediasViewerAdapter extends PagerAdapter {
      */
     private void downloadMedia() {
         final SlidableMediaInfo mediaInfo = mMediasMessagesList.get(mLatestPrimaryItemPosition);
+
+        // Sanity check: check whether the media is still trusted
+        if (null == mediaInfo || null == mMediaScanManager || !mMediaScanManager.isTrustedSlidableMediaInfo(mediaInfo)) {
+            Log.e(LOG_TAG, "## onAction : the media is unchecked or untrusted " + mediaInfo.mMediaUrl);
+            return;
+        }
 
         if (mMediasCache.isMediaCached(mediaInfo.mMediaUrl, mediaInfo.mMimeType)) {
             mMediasCache.createTmpMediaFile(mediaInfo.mMediaUrl, mediaInfo.mMimeType, mediaInfo.mEncryptedFileInfo, new SimpleApiCallback<File>() {

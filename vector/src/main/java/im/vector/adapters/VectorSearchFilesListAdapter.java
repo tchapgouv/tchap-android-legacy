@@ -1,6 +1,7 @@
 /*
  * Copyright 2015 OpenMarket Ltd
  * Copyright 2017 Vector Creations Ltd
+ * Copyright 2018 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +38,8 @@ import org.matrix.androidsdk.rest.model.message.Message;
 import org.matrix.androidsdk.rest.model.message.VideoMessage;
 import org.matrix.androidsdk.util.JsonUtils;
 
+import fr.gouv.tchap.media.AntiVirusScanStatus;
+import fr.gouv.tchap.model.MediaScan;
 import im.vector.R;
 import im.vector.util.VectorUtils;
 
@@ -76,6 +79,7 @@ public class VectorSearchFilesListAdapter extends VectorMessagesAdapter {
         Message message = JsonUtils.toMessage(event.getContent());
 
         // common info
+        String url = null;
         String thumbUrl = null;
         Long mediaSize = null;
         int avatarId = R.drawable.filetype_attachment;
@@ -83,10 +87,10 @@ public class VectorSearchFilesListAdapter extends VectorMessagesAdapter {
 
         if (Message.MSGTYPE_IMAGE.equals(message.msgtype)) {
             ImageMessage imageMessage = JsonUtils.toImageMessage(event.getContent());
+            url = imageMessage.getUrl();
             thumbUrl = imageMessage.getThumbnailUrl();
-
             if (null == thumbUrl) {
-                thumbUrl = imageMessage.getUrl();
+                thumbUrl = url;
             }
 
             if (null != imageMessage.info) {
@@ -104,7 +108,7 @@ public class VectorSearchFilesListAdapter extends VectorMessagesAdapter {
             }
         } else if (Message.MSGTYPE_VIDEO.equals(message.msgtype)) {
             VideoMessage videoMessage = JsonUtils.toVideoMessage(event.getContent());
-
+            url = videoMessage.getUrl();
             thumbUrl = videoMessage.getThumbnailUrl();
 
             if (null != videoMessage.info) {
@@ -119,7 +123,7 @@ public class VectorSearchFilesListAdapter extends VectorMessagesAdapter {
 
         } else if (Message.MSGTYPE_FILE.equals(message.msgtype) || Message.MSGTYPE_AUDIO.equals(message.msgtype)) {
             FileMessage fileMessage = JsonUtils.toFileMessage(event.getContent());
-
+            url = fileMessage.getUrl();
             if (null != fileMessage.info) {
                 mediaSize = fileMessage.info.size;
             }
@@ -129,17 +133,67 @@ public class VectorSearchFilesListAdapter extends VectorMessagesAdapter {
 
         // thumbnail
         ImageView thumbnailView = convertView.findViewById(R.id.file_search_thumbnail);
+        thumbnailView.setImageResource(R.drawable.media_scan_status_placeholder_unknown);
 
-        // default avatar
-        thumbnailView.setImageResource(avatarId);
+        // Check whether the media is trusted
+        if (null != url)
+        {
+            boolean isTrusted = false;
+            AntiVirusScanStatus antiVirusScanStatus = AntiVirusScanStatus.UNKNOWN;
+            int scanDrawable = R.drawable.media_scan_status_placeholder_unknown;
 
-        if (null != thumbUrl) {
-            // detect if the media is encrypted
-            if (null == encryptedFileInfo) {
-                int size = getContext().getResources().getDimensionPixelSize(R.dimen.member_list_avatar_size);
-                mSession.getMediasCache().loadAvatarThumbnail(mSession.getHomeServerConfig(), thumbnailView, thumbUrl, size);
+            if (null != mMediaScanManager) {
+                MediaScan mediaScan = mMediaScanManager.scanMedia(url);
+                antiVirusScanStatus = mediaScan.getAntiVirusScanStatus();
+            }
+
+            switch (antiVirusScanStatus) {
+                case IN_PROGRESS:
+                    scanDrawable = R.drawable.media_scan_status_placeholder_inprogress;
+                    break;
+                case TRUSTED:
+                    // Check the thumbnail url (if any)
+                    if (null != thumbUrl) {
+                        MediaScan mediaScan = mMediaScanManager.scanMedia(thumbUrl);
+                        antiVirusScanStatus = mediaScan.getAntiVirusScanStatus();
+
+                        switch (antiVirusScanStatus) {
+                            case IN_PROGRESS:
+                                scanDrawable = R.drawable.media_scan_status_placeholder_inprogress;
+                                break;
+                            case TRUSTED:
+                                isTrusted = true;
+                                break;
+                            case INFECTED:
+                                scanDrawable = R.drawable.media_scan_status_placeholder_infected;
+                                break;
+                        }
+                    } else {
+                        isTrusted = true;
+                    }
+                    break;
+                case INFECTED:
+                    scanDrawable = R.drawable.media_scan_status_placeholder_infected;
+                    break;
+            }
+
+            if (isTrusted) {
+                // Set the default media avatar
+                thumbnailView.setImageResource(avatarId);
+
+                if (null != thumbUrl) {
+                    // detect if the media is encrypted
+                    if (null == encryptedFileInfo) {
+                        int size = getContext().getResources().getDimensionPixelSize(R.dimen.member_list_avatar_size);
+                        mSession.getMediasCache().loadAvatarThumbnail(mSession.getHomeServerConfig(), thumbnailView, thumbUrl, size);
+                    } else {
+                        mSession.getMediasCache().loadBitmap(mSession.getHomeServerConfig(), thumbnailView, thumbUrl, 0, ExifInterface.ORIENTATION_UNDEFINED, null, encryptedFileInfo);
+                    }
+                }
             } else {
-                mSession.getMediasCache().loadBitmap(mSession.getHomeServerConfig(), thumbnailView, thumbUrl, 0, ExifInterface.ORIENTATION_UNDEFINED, null, encryptedFileInfo);
+                // If the media scan result is not available or if the media is infected,
+                // Don't display the thumbnail and display a placeholder icon according to the scan status
+                thumbnailView.setImageResource(scanDrawable);
             }
         }
 

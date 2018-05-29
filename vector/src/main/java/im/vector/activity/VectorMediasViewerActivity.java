@@ -1,5 +1,6 @@
 /*
  * Copyright 2014 OpenMarket Ltd
+ * Copyright 2018 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +39,8 @@ import org.matrix.androidsdk.util.Log;
 import java.io.File;
 import java.util.List;
 
+import fr.gouv.tchap.media.MediaScanManager;
+import fr.gouv.tchap.model.MediaScan;
 import im.vector.Matrix;
 import im.vector.R;
 import im.vector.VectorApp;
@@ -62,6 +65,10 @@ public class VectorMediasViewerActivity extends MXCActionBarActivity {
 
     // session
     private MXSession mSession;
+
+    // We are not supposed to process unchecked (or untrusted) media in this activity.
+    // We add here a media scan manager to apply some sanity checks.
+    protected MediaScanManager mMediaScanManager;
 
     // the pager
     private ViewPager mViewPager;
@@ -142,11 +149,22 @@ public class VectorMediasViewerActivity extends MXCActionBarActivity {
         }
 
         mMediasList = (List<SlidableMediaInfo>) intent.getSerializableExtra(KEY_INFO_LIST);
-
         if ((null == mMediasList) || (0 == mMediasList.size())) {
             finish();
             return;
         }
+
+        // Prepare a media scan manager even if all the provided media are supposed to be already trusted.
+        mMediaScanManager = new MediaScanManager(realm);
+        mMediaScanManager.setListener(new MediaScanManager.MediaScanManagerListener() {
+            @Override
+            public void onMediaScanChange(MediaScan mediaScan) {
+                // Refresh display
+                if (null != mAdapter) {
+                    mAdapter.notifyDataSetChanged();
+                }
+            }
+        });
 
         setContentView(R.layout.activity_vector_medias_viewer);
         mViewPager = findViewById(R.id.view_pager);
@@ -156,6 +174,7 @@ public class VectorMediasViewerActivity extends MXCActionBarActivity {
         int maxImageHeight = intent.getIntExtra(VectorMediasViewerActivity.KEY_THUMBNAIL_HEIGHT, 0);
 
         mAdapter = new VectorMediasViewerAdapter(this, mSession, mSession.getMediasCache(), mMediasList, maxImageWidth, maxImageHeight);
+        mAdapter.setMediaScanManager(mMediaScanManager);
         mViewPager.setAdapter(mAdapter);
         mViewPager.setPageTransformer(true, new DepthPageTransformer());
         mAdapter.autoPlayItemAt(position);
@@ -223,8 +242,13 @@ public class VectorMediasViewerActivity extends MXCActionBarActivity {
         MXMediasCache mediasCache = Matrix.getInstance(this).getMediasCache();
         final SlidableMediaInfo mediaInfo = mMediasList.get(position);
 
+        // Sanity check: check whether the media is still trusted
+        if (null == mediaInfo || null == mMediaScanManager || !mMediaScanManager.isTrustedSlidableMediaInfo(mediaInfo)) {
+            Log.e(LOG_TAG, "## onAction : the media is unchecked or untrusted " + mediaInfo.mMediaUrl);
+            return;
+        }
+
         // check if the media has already been downloaded
-        // TODO Antivirus scan ?
         if (mediasCache.isMediaCached(mediaInfo.mMediaUrl, mediaInfo.mMimeType)) {
             mediasCache.createTmpMediaFile(mediaInfo.mMediaUrl, mediaInfo.mMimeType, mediaInfo.mEncryptedFileInfo, new SimpleApiCallback<File>() {
                 @Override

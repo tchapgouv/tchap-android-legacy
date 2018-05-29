@@ -19,9 +19,13 @@ package fr.gouv.tchap.media;
 import android.os.Handler;
 import android.os.Looper;
 
+import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.rest.model.crypto.EncryptedFileInfo;
 
+import java.util.List;
+
 import fr.gouv.tchap.model.MediaScan;
+import im.vector.util.SlidableMediaInfo;
 import io.realm.Realm;
 
 public class MediaScanManager {
@@ -107,18 +111,17 @@ public class MediaScanManager {
                 @Override
                 public void run() {
 
-                    // Fake status according to the end of the url
-                    char tmp = mediaInfo.url.toLowerCase().charAt(mediaInfo.url.length()- 1);
+                    // Fake status according to the url
                     AntiVirusScanStatus status = AntiVirusScanStatus.UNKNOWN;
-                    if (tmp < 'l') {
+                    if (mediaInfo.url.contains("i.tchap")) {
                         // Trusted
                         status = AntiVirusScanStatus.TRUSTED;
-                    } else if (tmp < 't') {
+                    } else if (mediaInfo.url.contains("/e.tchap")) {
                         // Infected
                         status = AntiVirusScanStatus.INFECTED;
                     } else {
-                        // Failure
-                        //status = AntiVirusScanStatus.UNKNOWN;
+                        // No change
+                        return;
                     }
                     mMediaScanDao.updateMediaAntiVirusScanStatus(mediaInfo.url, status);
 
@@ -139,6 +142,49 @@ public class MediaScanManager {
      */
     public void clearAntiVirusScanResults() {
         mMediaScanDao.clearAntiVirusScanResults();
+    }
+
+    /**
+     * Check whether an event contains some unchecked or untrusted urls.
+     *
+     * @param event
+     * @return true if the event contains at least one unchecked or untrusted url.
+     */
+    public boolean isUncheckedOrUntrustedMediaEvent(Event event) {
+        List<String> urls = event.getMediaUrls();
+
+        for (String url : urls) {
+            MediaScan mediaScan = scanMedia(url);
+            if (mediaScan.getAntiVirusScanStatus() != AntiVirusScanStatus.TRUSTED) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check whether all the urls of a media description have been checked and trusted.
+     *
+     * @param mediaInfo
+     * @return true if the media description contains trusted urls.
+     */
+    public boolean isTrustedSlidableMediaInfo(SlidableMediaInfo mediaInfo) {
+        boolean isTrusted = false;
+        if (null != mediaInfo.mMediaUrl) {
+            // Check whether the media is trusted
+            MediaScan mediaScan = scanMedia(mediaInfo.mMediaUrl);
+            if (mediaScan.getAntiVirusScanStatus() == AntiVirusScanStatus.TRUSTED) {
+                // Check the thumbnail url (if any)
+                if (null != mediaInfo.mThumbnailUrl) {
+                    mediaScan = scanMedia(mediaInfo.mThumbnailUrl);
+                    isTrusted = (mediaScan.getAntiVirusScanStatus() == AntiVirusScanStatus.TRUSTED);
+                } else {
+                    isTrusted = true;
+                }
+            }
+        }
+        return isTrusted;
     }
 }
 
