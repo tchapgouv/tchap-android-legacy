@@ -19,9 +19,9 @@ package fr.gouv.tchap.activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.design.widget.TextInputEditText;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;;
 import android.widget.Switch;
 import android.widget.Toast;
@@ -36,6 +36,7 @@ import java.util.HashMap;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.OnTextChanged;
 import im.vector.Matrix;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
@@ -50,12 +51,16 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     Button btnAddAvatar;
 
     @BindView(R.id.et_room_name)
-    View etRoomName;
+    TextInputEditText etRoomName;
 
     @BindView(R.id.switch_public_private_rooms)
     Switch switchPublicPrivateRoom;
 
+    private MenuItem validateRoomCreation;
     private MXSession mSession;
+
+    private String roomName;
+    private boolean hasRoomName = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,14 +71,16 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         setWaitingView(findViewById(R.id.room_creation_spinner_views));
 
         mSession = Matrix.getInstance(this).getDefaultSession();
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.tchap_room_creation_menu, menu);
         CommonActivityUtils.tintMenuIcons(menu, ThemeUtils.getColor(this, R.attr.icon_tint_on_dark_action_bar_color));
-
         return true;
     }
 
@@ -88,6 +95,22 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.tchap_room_creation_menu, menu);
+        MenuItem item = menu.findItem(R.id.action_create_new_room);
+
+        if (hasRoomName) {
+            item.setEnabled(true);
+            item.getIcon().setAlpha(255);
+        } else {
+            item.setEnabled(false);
+            item.getIcon().setAlpha(130);
+        }
+
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @OnClick(R.id.switch_public_private_rooms)
@@ -106,13 +129,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                 .show();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-    }
-
-    public void createNewRoom() {
+    private void createNewRoom() {
         showWaitingView();
         mSession.createRoom(new SimpleApiCallback<String>(TchapRoomCreationActivity.this) {
             @Override
@@ -128,6 +145,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                         params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
                         params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
                         params.put(VectorRoomActivity.EXTRA_EXPAND_ROOM_HEADER, true);
+                        params.put(VectorRoomActivity.EXTRA_DEFAULT_NAME, roomName);
                         CommonActivityUtils.goToRoomPage(TchapRoomCreationActivity.this, mSession, params);
                     }
                 });
@@ -160,5 +178,19 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                 onError(e.getLocalizedMessage());
             }
         });
+    }
+
+    @OnTextChanged(R.id.et_room_name)
+    protected void onTextChanged(CharSequence text) {
+        roomName = text.toString().trim();
+
+        if (!roomName.isEmpty()) {
+            hasRoomName = true;
+        } else {
+            hasRoomName = false;
+        }
+
+        invalidateOptionsMenu();
+        Log.i(LOG_TAG, "room name:" + roomName);
     }
 }

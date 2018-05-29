@@ -1206,10 +1206,10 @@ public class CommonActivityUtils {
                                                    Room room = finalSession.getDataHandler().getRoom((String) params.get(VectorRoomActivity.EXTRA_ROOM_ID));
 
                                                    if ((null != room) && room.isInvited()) {
-                                                       String displayName = VectorUtils.getRoomDisplayName(fromActivity, finalSession, room);
+                                                       String roomName = (String) params.get(VectorRoomActivity.EXTRA_DEFAULT_NAME);
 
-                                                       if (null != displayName) {
-                                                           intent.putExtra(VectorRoomActivity.EXTRA_DEFAULT_NAME, displayName);
+                                                       if (null != roomName) {
+                                                           intent.putExtra(VectorRoomActivity.EXTRA_DEFAULT_NAME, roomName);
                                                        }
                                                    }
                                                }

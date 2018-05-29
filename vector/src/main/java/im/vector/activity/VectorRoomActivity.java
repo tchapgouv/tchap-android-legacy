@@ -65,7 +65,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.call.IMXCall;
@@ -92,7 +91,6 @@ import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.rest.model.message.Message;
 import org.matrix.androidsdk.rest.model.PowerLevels;
-import org.matrix.androidsdk.rest.model.pid.RoomThirdPartyInvite;
 import org.matrix.androidsdk.rest.model.publicroom.PublicRoom;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.User;
@@ -631,6 +629,10 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             notificationsManager.cancelAll();
         }
 
+        // Add a room name
+        mRoom = mSession.getDataHandler().getRoom(roomId, false);
+        addRoomName();
+
         if (mIsUnreadPreviewMode) {
             Log.d(LOG_TAG, "Displaying " + roomId + " in unread preview mode");
         } else if (!TextUtils.isEmpty(mEventId) || (null != sRoomPreviewData)) {
@@ -919,8 +921,6 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
         mMyUserId = mSession.getCredentials().userId;
 
         CommonActivityUtils.resumeEventStream(this);
-
-        mRoom = mSession.getDataHandler().getRoom(roomId, false);
 
         FragmentManager fm = getSupportFragmentManager();
         mVectorMessageListFragment = (VectorMessageListFragment) fm.findFragmentByTag(TAG_FRAGMENT_MATRIX_MESSAGE_LIST);
@@ -3044,11 +3044,10 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
      */
     private void setTitle() {
         String titleToApply = mDefaultRoomName;
-        if ((null != mSession) && (null != mRoom)) {
-            titleToApply = VectorUtils.getRoomDisplayName(this, mSession, mRoom);
+        if (null != mSession && null != mRoom) {
 
             if (TextUtils.isEmpty(titleToApply)) {
-                titleToApply = mDefaultRoomName;
+                titleToApply = VectorUtils.getRoomDisplayName(this, mSession, mRoom);
             }
 
             // in context mode, add search to the title.
@@ -3070,6 +3069,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
         if (null != mActionBarHeaderRoomName) {
             mActionBarHeaderRoomName.setText(titleToApply);
         }
+
     }
 
     /**
@@ -4016,6 +4016,22 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             }
         }
     }
+
+    /**
+     * Action when add a room name on room creation.
+     */
+    private void addRoomName() {
+        // sanity check
+        if ((null == mRoom) || (null == mSession)  || (null == mDefaultRoomName)) {
+            return;
+        }
+
+        // update only, if values is not empty
+        if (!mDefaultRoomName.isEmpty()) {
+            showWaitingView();
+
+            Log.d(LOG_TAG, "##addRoomName to " + mDefaultRoomName);
+            mRoom.updateName(mDefaultRoomName, null);
+        }
+    }
 }
-
-
