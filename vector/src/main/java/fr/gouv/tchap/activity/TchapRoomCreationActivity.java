@@ -56,7 +56,6 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     @BindView(R.id.switch_public_private_rooms)
     Switch switchPublicPrivateRoom;
 
-    private MenuItem validateRoomCreation;
     private MXSession mSession;
 
     private String roomName;
