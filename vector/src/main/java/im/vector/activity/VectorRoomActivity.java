@@ -3069,7 +3069,6 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
         if (null != mActionBarHeaderRoomName) {
             mActionBarHeaderRoomName.setText(titleToApply);
         }
-
     }
 
     /**
@@ -3150,8 +3149,6 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             strBuilder.removeSpan(span);
         }
     }
-
-
 
     /**
      * Tell if the user can send a message in this room.
