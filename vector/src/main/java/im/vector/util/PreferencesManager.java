@@ -112,7 +112,6 @@ public class PreferencesManager {
 
     private static final String SETTINGS_PIN_UNREAD_MESSAGES_PREFERENCE_KEY = "SETTINGS_PIN_UNREAD_MESSAGES_PREFERENCE_KEY";
     private static final String SETTINGS_PIN_MISSED_NOTIFICATIONS_PREFERENCE_KEY = "SETTINGS_PIN_MISSED_NOTIFICATIONS_PREFERENCE_KEY";
-    private static final String SETTINGS_DISABLE_PIWIK_SETTINGS_PREFERENCE_KEY = "SETTINGS_DISABLE_PIWIK_SETTINGS_PREFERENCE_KEY";
 
     public static final String SETTINGS_DATA_SAVE_MODE_PREFERENCE_KEY = "SETTINGS_DATA_SAVE_MODE_PREFERENCE_KEY";
     public static final String SETTINGS_START_ON_BOOT_PREFERENCE_KEY = "SETTINGS_START_ON_BOOT_PREFERENCE_KEY";
@@ -132,11 +131,17 @@ public class PreferencesManager {
 
     private static final String SETTINGS_VIBRATE_ON_MENTION_KEY = "SETTINGS_VIBRATE_ON_MENTION_KEY";
 
+    // Analytics keys (Piwik, Matomo, etc.)
+    public static final String SETTINGS_USE_ANALYTICS_KEY = "SETTINGS_USE_ANALYTICS_KEY";
+
     public static final String SETTINGS_USE_RAGE_SHAKE_KEY = "SETTINGS_USE_RAGE_SHAKE_KEY";
 
     private static final String SETTINGS_DISPLAY_ALL_EVENTS_KEY = "SETTINGS_DISPLAY_ALL_EVENTS_KEY";
 
     private static final String DID_ASK_TO_IGNORE_BATTERY_OPTIMIZATIONS_KEY = "DID_ASK_TO_IGNORE_BATTERY_OPTIMIZATIONS_KEY";
+    private static final String DID_ASK_TO_USE_ANALYTICS_TRACKING_KEY = "DID_ASK_TO_USE_ANALYTICS_TRACKING_KEY";
+
+    public static final String SETTINGS_DEACTIVATE_ACCOUNT_KEY = "SETTINGS_DEACTIVATE_ACCOUNT_KEY";
 
     private static final int MEDIA_SAVING_3_DAYS = 0;
     private static final int MEDIA_SAVING_1_WEEK = 1;
@@ -205,7 +210,7 @@ public class PreferencesManager {
             editor.remove(key);
         }
 
-        editor.commit();
+        editor.apply();
     }
 
     /**
@@ -224,10 +229,10 @@ public class PreferencesManager {
      * @param context the context
      */
     public static void setDidAskUserToIgnoreBatteryOptimizations(Context context, boolean asked) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putBoolean(DID_ASK_TO_IGNORE_BATTERY_OPTIMIZATIONS_KEY, asked);
-        editor.commit();
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(DID_ASK_TO_IGNORE_BATTERY_OPTIMIZATIONS_KEY, asked)
+                .apply();
     }
 
     /**
@@ -297,8 +302,7 @@ public class PreferencesManager {
      * @param uri     the new notification ringtone
      */
     public static void setNotificationRingTone(Context context, Uri uri) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = preferences.edit();
+        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
 
         String value = "";
 
@@ -314,7 +318,7 @@ public class PreferencesManager {
         }
 
         editor.putString(SETTINGS_NOTIFICATION_RINGTONE_PREFERENCE_KEY, value);
-        editor.commit();
+        editor.apply();
     }
 
     /**
@@ -437,10 +441,10 @@ public class PreferencesManager {
      * @param value   true to start the application on boot
      */
     public static void setAutoStartOnBoot(Context context, boolean value) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putBoolean(SETTINGS_START_ON_BOOT_PREFERENCE_KEY, value);
-        editor.commit();
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(SETTINGS_START_ON_BOOT_PREFERENCE_KEY, value)
+                .apply();
     }
 
     /**
@@ -474,10 +478,10 @@ public class PreferencesManager {
      * @param index   the selected period index
      */
     public static void setSelectedMediasSavingPeriod(Context context, int index) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putInt(SETTINGS_MEDIA_SAVING_PERIOD_SELECTED_KEY, index);
-        editor.commit();
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putInt(SETTINGS_MEDIA_SAVING_PERIOD_SELECTED_KEY, index)
+                .apply();
     }
 
     /**
@@ -549,10 +553,10 @@ public class PreferencesManager {
      * @param isEnabled true to enable the markdown
      */
     public static void setMarkdownEnabled(Context context, boolean isEnabled) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putBoolean(SETTINGS_DISABLE_MARKDOWN_KEY, !isEnabled);
-        editor.commit();
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(SETTINGS_DISABLE_MARKDOWN_KEY, !isEnabled)
+                .apply();
     }
 
     /**
@@ -606,17 +610,6 @@ public class PreferencesManager {
     }
 
     /**
-     * Tells if Piwik can be used
-     *
-     * @param context the context
-     * @return true to use it
-     */
-    public static boolean trackWithPiwik(Context context) {
-        return !PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_DISABLE_PIWIK_SETTINGS_PREFERENCE_KEY,
-                context.getResources().getBoolean(R.bool.default_settings_disable_analytics));
-    }
-
-    /**
      * Tells if the phone must vibrate when mentioning
      *
      * @param context the context
@@ -624,6 +617,51 @@ public class PreferencesManager {
      */
     public static boolean vibrateWhenMentioning(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_VIBRATE_ON_MENTION_KEY, false);
+    }
+
+    /**
+     * Tells if a dialog has been displayed to ask to use the analytics tracking (piwik, matomo, etc.).
+     *
+     * @param context the context
+     * @return true if a dialog has been displayed to ask to use the analytics tracking
+     */
+    public static boolean didAskToUseAnalytics(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(DID_ASK_TO_USE_ANALYTICS_TRACKING_KEY, false);
+    }
+
+    /**
+     * To call if the user has been asked for analytics tracking.
+     *
+     * @param context   the context
+     */
+    public static void setDidAskToUseAnalytics(Context context) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(DID_ASK_TO_USE_ANALYTICS_TRACKING_KEY, true)
+                .apply();
+    }
+
+    /**
+     * Tells if the analytics tracking is authorized (piwik, matomo, etc.).
+     *
+     * @param context the context
+     * @return true if the analytics tracking is authorized
+     */
+    public static boolean useAnalytics(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_USE_ANALYTICS_KEY, false);
+    }
+
+    /**
+     * Enable or disable the analytics tracking.
+     *
+     * @param context   the context
+     * @param useAnalytics true to enable the analytics tracking
+     */
+    public static void setUseAnalytics(Context context, boolean useAnalytics) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(SETTINGS_USE_ANALYTICS_KEY, useAnalytics)
+                .apply();
     }
 
     /**
@@ -643,10 +681,10 @@ public class PreferencesManager {
      * @param isEnabled true to enable the rage shake
      */
     public static void setUseRageshake(Context context, boolean isEnabled) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putBoolean(SETTINGS_USE_RAGE_SHAKE_KEY, isEnabled);
-        editor.commit();
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(SETTINGS_USE_RAGE_SHAKE_KEY, isEnabled)
+                .apply();
     }
 
     /**
