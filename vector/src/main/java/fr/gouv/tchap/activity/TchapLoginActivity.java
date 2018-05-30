@@ -112,9 +112,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     private static final int MODE_ACCOUNT_CREATION_THREE_PID = 5;
     private static final int MODE_START = 6;
 
-    public static final String HOME_SERVER_URL_PREF = "home_server_url";
-    public static final String IDENTITY_SERVER_URL_PREF = "identity_server_url";
-
     // saved parameters index
 
     // login
@@ -346,16 +343,17 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public int getLayoutRes() {
+        return R.layout.activity_tchap_login;
+    }
+
+    @Override
+    public void initUiAndData() {
         if (null == getIntent()) {
             Log.d(LOG_TAG, "## onCreate(): IN with no intent");
         } else {
             Log.d(LOG_TAG, "## onCreate(): IN with flags " + Integer.toHexString(getIntent().getFlags()));
         }
-
-        super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.activity_tchap_login);
 
         // warn that the application has started.
         CommonActivityUtils.onApplicationStarted(this);
@@ -428,13 +426,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         mMainLayout = findViewById(R.id.main_input_layout);
         mButtonsView = findViewById(R.id.login_actions_bar);
 
-        // trap the UI events
-        mLoginMaskView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-            }
-        });
-
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -489,8 +480,8 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             }
         });
 
-        if (null != savedInstanceState) {
-            restoreSavedData(savedInstanceState);
+        if (!isFirstCreation()) {
+            restoreSavedData(getSavedInstanceState());
         }
 
         refreshDisplay();
@@ -569,16 +560,14 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             // Sanity check
             if (null != mRegistrationResponse && null != mTchapPlatform && null != mCurrentEmail) {
                 // retrieve the name and pwd from store data (we consider here that these inputs have been already checked)
-                // @TODO Remove the parameter "name" when the server will force the mxId from the 3pid.
-                String name = mCurrentEmail.replace('@', '.');
-                String password = savedInstanceState.getString(SAVED_CREATION_PASSWORD1);
+                String password = getSavedInstanceState().getString(SAVED_CREATION_PASSWORD1);
 
                 Log.d(LOG_TAG, "## onCreate() Resume email validation");
                 // Resume the email validation polling
                 enableLoadingScreen(true);
                 RegistrationManager.getInstance().setSupportedRegistrationFlows(mRegistrationResponse);
                 RegistrationManager.getInstance().setHsConfig(getHsConfig());
-                RegistrationManager.getInstance().setAccountData(name, password);
+                RegistrationManager.getInstance().setAccountData(null, password);
                 RegistrationManager.getInstance().addEmailThreePid(mPendingEmailValidation);
                 RegistrationManager.getInstance().attemptRegistration(this, this);
                 onWaitingEmailValidation();
@@ -1655,13 +1644,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             mTchapPlatform = (Platform)savedInstanceState.getSerializable(SAVED_TCHAP_PLATFORM);
             mCurrentEmail = savedInstanceState.getString(SAVED_CONFIG_EMAIL);
         }
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        Log.d(LOG_TAG, "## onRestoreInstanceState(): IN");
-        // Data are restored during onCreate()
     }
 
     @Override

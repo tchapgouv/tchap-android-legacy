@@ -29,6 +29,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -36,11 +37,11 @@ import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.support.design.internal.BottomNavigationItemView;
 import android.support.design.internal.BottomNavigationMenuView;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.TabLayout;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -59,6 +60,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.view.LayoutInflater;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -102,7 +104,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import fr.gouv.tchap.activity.TchapLoginActivity;
 import im.vector.Matrix;
 import im.vector.MyPresenceManager;
@@ -175,6 +176,10 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     // Key used to restore the proper fragment after orientation change
     private static final String CURRENT_MENU_ID = "CURRENT_MENU_ID";
 
+    private static final int TAB_POSITION_CONVERSATION=0;
+    private static final int TAB_POSITION_CONTACT=1;
+
+
     // switch to a room activity
     private Map<String, Object> mAutomaticallyOpenedRoomParams = null;
 
@@ -204,8 +209,9 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     Toolbar mToolbar;
     @BindView(R.id.drawer_layout)
     DrawerLayout mDrawerLayout;
-    @BindView(R.id.bottom_navigation)
-    BottomNavigationView mBottomNavigationView;
+
+    @BindView(R.id.tab_layout)
+    TabLayout mTopNavigationView;
 
     // calls
     @BindView(R.id.listView_pending_callview)
@@ -225,14 +231,14 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     private final BroadcastReceiver mBrdRcvStopWaitingView = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            stopWaitingView();
+            hideWaitingView();
         }
     };
 
     private FragmentManager mFragmentManager;
 
-    // The current item selected (bottom navigation)
-    private int mCurrentMenuId;
+    // The current item selected (top navigation)
+    private int mCurrentMenuId=-1;
 
     // the current displayed fragment
     private String mCurrentFragmentTag;
@@ -243,7 +249,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     // floating action button dialog
     private AlertDialog mFabDialog;
 
-     /*
+    /*
      * *********************************************************************************************
      * Static methods
      * *********************************************************************************************
@@ -263,12 +269,12 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
      */
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public int getLayoutRes() {
+        return R.layout.activity_home;
+    }
 
-        setContentView(R.layout.activity_home);
-        ButterKnife.bind(this);
-
+    @Override
+    public void initUiAndData() {
         mFragmentManager = getSupportFragmentManager();
 
         if (CommonActivityUtils.shouldRestartApp(this)) {
@@ -302,10 +308,16 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
             editor.commit();
         }
 
+        // Remove Analytics tracking until Tchap defines its own instance
+        // Check whether the user has agreed to the use of analytics tracking
+        /*if (!PreferencesManager.didAskToUseAnalytics(this)) {
+            promptForAnalyticsTracking();
+        }*/
+
         // process intent parameters
         final Intent intent = getIntent();
 
-        if (null != savedInstanceState) {
+        if (!isFirstCreation()) {
             // fix issue #1276
             // if there is a saved instance, it means that onSaveInstanceState has been called.
             // theses parameters must only be used once.
@@ -334,7 +346,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
             if (intent.getBooleanExtra(EXTRA_WAITING_VIEW_STATUS, WAITING_VIEW_STOP)) {
                 showWaitingView();
             } else {
-                stopWaitingView();
+                hideWaitingView();
             }
             intent.removeExtra(EXTRA_WAITING_VIEW_STATUS);
 
@@ -447,14 +459,16 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         }
 
         final View selectedMenu;
-        //default is room view
-        if (savedInstanceState != null) {
-            selectedMenu = mBottomNavigationView.findViewById(savedInstanceState.getInt(CURRENT_MENU_ID, R.id.bottom_action_rooms));
-        } else {
-            selectedMenu = mBottomNavigationView.findViewById(R.id.bottom_action_rooms);
+        final TabLayout.Tab myTab;
+        int myPosition = TAB_POSITION_CONVERSATION;
+        if (!isFirstCreation()) {
+            if (getSavedInstanceState().getInt(CURRENT_MENU_ID, TAB_POSITION_CONVERSATION)!= TAB_POSITION_CONVERSATION) {
+                myPosition = TAB_POSITION_CONTACT;
+            }
         }
-        if (selectedMenu != null) {
-            selectedMenu.performClick();
+        myTab = mTopNavigationView.getTabAt(myPosition);
+        if (myTab != null) {
+            updateSelectedFragment(myTab);
         }
 
         // initialize the public rooms list
@@ -579,7 +593,29 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         addBadgeEventsListener();
 
         checkNotificationPrivacySetting();
+
+        setSelectedTabStyle();
     }
+
+    /**
+     * Manage bold typeface on tab items
+     */
+    private void setSelectedTabStyle() {
+        for (int menuIndex = 0; menuIndex < mTopNavigationView.getTabCount(); menuIndex++) {
+            LinearLayout customTab = (LinearLayout) mTopNavigationView.getTabAt(menuIndex).getCustomView();
+            TextView myText = (TextView)customTab.getChildAt(0);
+            if (null != myText) {
+                if (menuIndex == mTopNavigationView.getSelectedTabPosition()) {
+                    myText.setTypeface(null, Typeface.BOLD);
+                }
+                else {
+                    myText.setTypeface(null, Typeface.NORMAL);
+                }
+            }
+        }
+
+    }
+
 
     /**
      * Ask the user to choose a notification privacy policy.
@@ -639,6 +675,32 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         }
     }
 
+    /**
+     * Display a dialog to let the user chooses if he would like to use analytics tracking
+     */
+    private void promptForAnalyticsTracking() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.settings_opt_in_of_analytics_prompt);
+        builder.setPositiveButton(R.string.settings_opt_in_of_analytics_ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        setAnalyticsAuthorization(true);
+                    }
+                })
+                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        setAnalyticsAuthorization(false);
+                    }
+                })
+                .show();
+    }
+
+    private void setAnalyticsAuthorization(boolean useAnalytics) {
+        PreferencesManager.setUseAnalytics(this, useAnalytics);
+        PreferencesManager.setDidAskToUseAnalytics(this);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // the application is in a weird state
@@ -661,7 +723,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
             case R.id.ic_action_global_search:
                 final Intent searchIntent = new Intent(this, VectorUnifiedSearchActivity.class);
 
-                if (R.id.bottom_action_people == mCurrentMenuId) {
+                if (TAB_POSITION_CONTACT == mCurrentMenuId) {
                     searchIntent.putExtra(VectorUnifiedSearchActivity.EXTRA_TAB_INDEX, VectorUnifiedSearchActivity.SEARCH_PEOPLE_TAB_POSITION);
                 }
 
@@ -713,7 +775,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         super.onPause();
 
         // Unregister Broadcast receiver
-        stopWaitingView();
+        hideWaitingView();
         try {
             unregisterReceiver(mBrdRcvStopWaitingView);
         } catch (Exception e) {
@@ -782,7 +844,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         if (intent.getBooleanExtra(EXTRA_WAITING_VIEW_STATUS, VectorHomeActivity.WAITING_VIEW_STOP)) {
             showWaitingView();
         } else {
-            stopWaitingView();
+            hideWaitingView();
         }
         intent.removeExtra(EXTRA_WAITING_VIEW_STATUS);
 
@@ -813,12 +875,28 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         // Toolbar
         setSupportActionBar(mToolbar);
 
-        // Bottom navigation view
-        mBottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+        //load tab items of tab layout
+        LinearLayout headerView = (LinearLayout) LayoutInflater.from(this).inflate(R.layout.tab_icon, null);
+        LinearLayout customTabConversations = headerView.findViewById(R.id.tab_icon_conversations);
+        LinearLayout customTabContacts = headerView.findViewById(R.id.tab_icon_contacts);
+        mTopNavigationView.getTabAt(TAB_POSITION_CONVERSATION).setCustomView(customTabConversations);
+        mTopNavigationView.getTabAt(TAB_POSITION_CONTACT).setCustomView(customTabContacts);
+
+
+        mTopNavigationView.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                updateSelectedFragment(item);
-                return true;
+            public void onTabSelected(TabLayout.Tab tab) {
+                //make tab selected bold
+                setSelectedTabStyle();
+                updateSelectedFragment(tab);
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
             }
         });
     }
@@ -828,14 +906,15 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
      *
      * @param item menu item selected by the user
      */
-    private void updateSelectedFragment(final MenuItem item) {
-        if (mCurrentMenuId == item.getItemId()) {
+    private void updateSelectedFragment(final TabLayout.Tab item) {
+        int position = item.getPosition();
+        if (mCurrentMenuId == position) {
             return;
         }
 
         Fragment fragment = null;
 
-        switch (item.getItemId()) {
+        switch (position) {
             //no more home nor favourite
             /*
             case R.id.bottom_action_home:
@@ -857,7 +936,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 mSearchView.setQueryHint(getString(R.string.home_filter_placeholder_favorites));
                 break;
                 */
-            case R.id.bottom_action_people:
+            case TAB_POSITION_CONTACT:
                 Log.d(LOG_TAG, "onNavigationItemSelected PEOPLE");
                 fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_PEOPLE);
                 if (fragment == null) {
@@ -866,7 +945,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 mCurrentFragmentTag = TAG_FRAGMENT_PEOPLE;
                 mSearchView.setQueryHint(getString(R.string.home_filter_placeholder_people));
                 break;
-            case R.id.bottom_action_rooms:
+            case TAB_POSITION_CONVERSATION:
                 Log.d(LOG_TAG, "onNavigationItemSelected ROOMS");
                 fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_ROOMS);
                 if (fragment == null) {
@@ -893,10 +972,10 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
             }
         }
 
-        // clear waiting view
-        stopWaitingView();
+        // hide waiting view
+        hideWaitingView();
 
-        mCurrentMenuId = item.getItemId();
+        mCurrentMenuId = position;
 
         showFloatingActionButton();
 
@@ -931,14 +1010,16 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                     secondaryColor, android.graphics.PorterDuff.Mode.SRC_IN);
         }
         mFloatingActionButton.setRippleColor(secondaryColor);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        //keep the default staus bar color
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setStatusBarColor(secondaryColor);
         }
-
+        */
         // Set color of toolbar search view
         EditText edit = mSearchView.findViewById(android.support.v7.appcompat.R.id.search_src_text);
         edit.setTextColor(ThemeUtils.getColor(this, R.attr.primary_text_color));
         edit.setHintTextColor(ThemeUtils.getColor(this, R.attr.primary_hint_text_color));
+        edit.setTextSize(15);
     }
 
     /**
@@ -1079,10 +1160,10 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_FAVOURITES);
                 break;
                 */
-            case R.id.bottom_action_people:
+            case TAB_POSITION_CONTACT:
                 fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_PEOPLE);
                 break;
-            case R.id.bottom_action_rooms:
+            case TAB_POSITION_CONVERSATION:
                 fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_ROOMS);
                 break;
             /*case R.id.bottom_action_groups:
@@ -1139,7 +1220,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                         .setPositiveButton(R.string.ok,
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int id) {
-                                        CommonActivityUtils.logout(VectorApp.getCurrentActivity(), true);
+                                        CommonActivityUtils.logout(VectorApp.getCurrentActivity());
                                     }
                                 });
                 // create alert dialog
@@ -1322,7 +1403,8 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 waitingView.post(new Runnable() {
                     @Override
                     public void run() {
-                        stopWaitingView();
+                        hideWaitingView();
+
                         HashMap<String, Object> params = new HashMap<>();
                         params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
                         params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
@@ -1339,7 +1421,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                         if (null != message) {
                             Toast.makeText(VectorHomeActivity.this, message, Toast.LENGTH_LONG).show();
                         }
-                        stopWaitingView();
+                        hideWaitingView();
                     }
                 });
             }
@@ -1351,7 +1433,11 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
 
             @Override
             public void onMatrixError(final MatrixError e) {
-                onError(e.getLocalizedMessage());
+                if (MatrixError.M_CONSENT_NOT_GIVEN.equals(e.errcode)) {
+                    getConsentNotGivenHelper().displayDialog(e);
+                } else {
+                    onError(e.getLocalizedMessage());
+                }
             }
 
             @Override
@@ -1411,10 +1497,10 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
 
         List<Room> roomInvites = new ArrayList<>();
         switch (mCurrentMenuId) {
-            case R.id.bottom_action_people:
+            case TAB_POSITION_CONTACT:
                 roomInvites.addAll(mDirectChatInvitations);
                 break;
-            case R.id.bottom_action_rooms:
+            case TAB_POSITION_CONVERSATION:
                 roomInvites.addAll(mRoomInvitations);
                 break;
             default:
@@ -1441,12 +1527,12 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         DinsicUtils.joinRoom(roomPreviewData, new ApiCallback<Void>() {
             @Override
             public void onSuccess(Void info) {
-                stopWaitingView();
+                hideWaitingView();
                 DinsicUtils.onNewJoinedRoom(VectorHomeActivity.this, roomPreviewData);
             }
 
             private void onError(String errorMessage) {
-                stopWaitingView();
+                hideWaitingView();
                 CommonActivityUtils.displayToast(VectorHomeActivity.this, errorMessage);
             }
 
@@ -1470,7 +1556,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     /**
      * Create the room forget / leave callback
      *
-     * @param roomId the room id
+     * @param roomId            the room id
      * @param onSuccessCallback the success callback
      * @return the asynchronous callback
      */
@@ -1483,7 +1569,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                     public void run() {
                         // clear any pending notification for this room
                         EventStreamService.cancelNotificationsForRoomId(mSession.getMyUserId(), roomId);
-                        stopWaitingView();
+                        hideWaitingView();
 
                         if (null != onSuccessCallback) {
                             onSuccessCallback.onSuccess(null);
@@ -1496,7 +1582,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        stopWaitingView();
+                        hideWaitingView();
                         Toast.makeText(VectorHomeActivity.this, message, Toast.LENGTH_LONG).show();
                     }
                 });
@@ -1521,7 +1607,8 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
 
     /**
      * Trigger the room forget
-     * @param roomId the room id
+     *
+     * @param roomId            the room id
      * @param onSuccessCallback the success asynchronous callback
      */
     public void onForgetRoom(final String roomId, final SimpleApiCallback<Void> onSuccessCallback) {
@@ -1536,7 +1623,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     /**
      * Trigger the room leave / invitation reject.
      *
-     * @param roomId the room id
+     * @param roomId            the room id
      * @param onSuccessCallback the success asynchronous callback
      */
     public void onRejectInvitation(final String roomId, final SimpleApiCallback<Void> onSuccessCallback) {
@@ -1597,7 +1684,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
 
                 CommonActivityUtils.exportKeys(mSession, passPhrase1EditText.getText().toString(), new ApiCallback<String>() {
                     private void onDone(String message) {
-                        stopWaitingView();
+                        hideWaitingView();
                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(VectorHomeActivity.this);
                         alertDialogBuilder.setMessage(message);
 
@@ -1683,7 +1770,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                         break;
                     }
 
-                    case R.id.sliding_menu_exit : {
+                    case R.id.sliding_menu_exit: {
                         if (null != EventStreamService.getInstance()) {
                             EventStreamService.getInstance().stopNow();
                         }
@@ -1934,28 +2021,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         mSession.getDataHandler().removeListener(mBadgeEventsListener);
     }
 
-    /**
-     * Remove the BottomNavigationView menu shift
-     */
-    private void removeMenuShiftMode() {
-        int childCount = mBottomNavigationView.getChildCount();
-
-        for (int i = 0; i < childCount; i++) {
-            if (mBottomNavigationView.getChildAt(i) instanceof BottomNavigationMenuView) {
-                BottomNavigationMenuView bottomNavigationMenuView = (BottomNavigationMenuView) mBottomNavigationView.getChildAt(i);
-
-                try {
-                    Field shiftingMode = bottomNavigationMenuView.getClass().getDeclaredField("mShiftingMode");
-                    shiftingMode.setAccessible(true);
-                    shiftingMode.setBoolean(bottomNavigationMenuView, false);
-                    shiftingMode.setAccessible(false);
-
-                } catch (Exception e) {
-                    Log.e(LOG_TAG, "## removeMenuShiftMode failed " + e.getMessage());
-                }
-            }
-        }
-    }
 
     /**
      * Add the unread messages badges.
@@ -1963,47 +2028,19 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     @SuppressLint("RestrictedApi")
     private void addUnreadBadges() {
         final float scale = getResources().getDisplayMetrics().density;
-        int badgeOffsetX = (int) (18 * scale + 0.5f);
         int badgeOffsetY = (int) (7 * scale + 0.5f);
 
-        removeMenuShiftMode();
 
-        int largeTextHeight = getResources().getDimensionPixelSize(android.support.design.R.dimen.design_bottom_navigation_active_text_size);
-
-        for (int menuIndex = 0; menuIndex < mBottomNavigationView.getMenu().size(); menuIndex++) {
+        for (int menuIndex = 0; menuIndex < mTopNavigationView.getTabCount(); menuIndex++) {
             try {
-                int itemId = mBottomNavigationView.getMenu().getItem(menuIndex).getItemId();
-                BottomNavigationItemView navigationItemView = mBottomNavigationView.findViewById(itemId);
+                LinearLayout customTab = (LinearLayout) mTopNavigationView.getTabAt(menuIndex).getCustomView();
 
+                UnreadCounterBadgeView badgeView = new UnreadCounterBadgeView(customTab.getContext());
+                 FrameLayout.LayoutParams badgeLayoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+                badgeLayoutParams.setMargins(0, -badgeOffsetY, 0, 0);//, iconViewLayoutParams.rightMargin, iconViewLayoutParams.bottomMargin);
+                customTab.addView(badgeView,badgeLayoutParams);
+                mBadgeViewByIndex.put(menuIndex, badgeView);
 
-                navigationItemView.setShiftingMode(false);
-
-                Field marginField = navigationItemView.getClass().getDeclaredField("mDefaultMargin");
-                marginField.setAccessible(true);
-                marginField.setInt(navigationItemView, marginField.getInt(navigationItemView) + (largeTextHeight / 2));
-                marginField.setAccessible(false);
-
-                Field shiftAmountField = navigationItemView.getClass().getDeclaredField("mShiftAmount");
-                shiftAmountField.setAccessible(true);
-                shiftAmountField.setInt(navigationItemView, 0);
-                shiftAmountField.setAccessible(false);
-
-                navigationItemView.setChecked(navigationItemView.getItemData().isChecked());
-
-                View iconView = navigationItemView.findViewById(R.id.icon);
-
-                if (iconView.getParent() instanceof FrameLayout) {
-                    UnreadCounterBadgeView badgeView = new UnreadCounterBadgeView(iconView.getContext());
-
-                    // compute the new position
-                    FrameLayout.LayoutParams iconViewLayoutParams = (FrameLayout.LayoutParams) iconView.getLayoutParams();
-                    FrameLayout.LayoutParams badgeLayoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-                    badgeLayoutParams.setMargins(iconViewLayoutParams.leftMargin + badgeOffsetX, iconViewLayoutParams.topMargin - badgeOffsetY, iconViewLayoutParams.rightMargin, iconViewLayoutParams.bottomMargin);
-                    badgeLayoutParams.gravity = iconViewLayoutParams.gravity;
-
-                    ((FrameLayout) iconView.getParent()).addView(badgeView, badgeLayoutParams);
-                    mBadgeViewByIndex.put(itemId, badgeView);
-                }
             } catch (Exception e) {
                 Log.e(LOG_TAG, "## addUnreadBadges failed " + e.getMessage());
             }
@@ -2063,7 +2100,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                     filteredRoomIdsSet.add(room.getRoomId());
                 }
             } else */
-            if (id == R.id.bottom_action_people) {
+            if (id == TAB_POSITION_CONTACT) {
                 //badge in bottom_people only for invitation
 
                 // Add direct chat invitations
@@ -2079,7 +2116,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                     filteredRoomIdsSet.remove(room.getRoomId());
                 }
 
-            } else if (id == R.id.bottom_action_rooms) {
+            } else if (id == TAB_POSITION_CONVERSATION) {
                 HashSet<String> lowPriorityRoomIds = new HashSet<>(mSession.roomIdsWithTag(RoomTag.ROOM_TAG_LOW_PRIORITY));
 
                 for (Room room : roomSummaryByRoom.keySet()) {
@@ -2116,9 +2153,10 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                     }
                 }
             }
-
-            int status = (0 != highlightCount) ? UnreadCounterBadgeView.HIGHLIGHTED :
-                    ((0 != roomCount) ? UnreadCounterBadgeView.NOTIFIED : UnreadCounterBadgeView.DEFAULT);
+            //always highligted
+            int status = UnreadCounterBadgeView.HIGHLIGHTED;
+//            int status = (0 != highlightCount) ? UnreadCounterBadgeView.HIGHLIGHTED :
+//                    ((0 != roomCount) ? UnreadCounterBadgeView.NOTIFIED : UnreadCounterBadgeView.DEFAULT);
             //no more favourite
             /*
             if (id == R.id.bottom_action_favourites) {
@@ -2154,7 +2192,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
-                                CommonActivityUtils.logout(VectorHomeActivity.this, true);
+                                CommonActivityUtils.logout(VectorHomeActivity.this);
                             }
                         })
                         .setNegativeButton(R.string.later, new DialogInterface.OnClickListener() {

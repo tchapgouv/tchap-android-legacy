@@ -48,13 +48,17 @@ import im.vector.receiver.VectorUniversalLinkReceiver;
  * Dummy activity used to dispatch the vector URL links.
  */
 @SuppressLint("LongLogTag")
-public class VectorUniversalLinkActivity extends RiotBaseActivity {
+public class VectorUniversalLinkActivity extends RiotAppCompatActivity {
     private static final String LOG_TAG = VectorUniversalLinkActivity.class.getSimpleName();
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public int getLayoutRes() {
+        // display a spinner while binding the email
+        return R.layout.activity_vector_universal_link_activity;
+    }
 
+    @Override
+    public void initUiAndData() {
         String intentAction = VectorUniversalLinkReceiver.BROADCAST_ACTION_UNIVERSAL_LINK;
 
         try {
@@ -63,14 +67,14 @@ public class VectorUniversalLinkActivity extends RiotBaseActivity {
 
                 // We consider here an email validation
                 Uri intentUri = getIntent().getData();
-                HashMap<String, String> mailRegParams = VectorRegistrationReceiver.parseMailRegistrationLink(getApplicationContext(), intentUri);
+
+                HashMap<String, String> mailRegParams = VectorRegistrationReceiver.parseMailRegistrationLink(intentUri);
 
                 // Assume it is a new account creation when there is a next link, or when no session is already available.
                 MXSession session = Matrix.getInstance(this).getDefaultSession();
                 if (mailRegParams.containsKey(VectorRegistrationReceiver.KEY_MAIL_VALIDATION_NEXT_LINK) || (null == session)) {
                     if (null != session) {
                         Log.d(LOG_TAG, "## onCreate(): logout the current sessions, before finalizing an account creation based on an email validation");
-
                         // This logout is asynchronous, pursue the action in the callback to have the TchapLoginActivity in a "no credentials state".
                         intentAction = null;
                         final Intent myBroadcastIntent = new Intent(this, VectorRegistrationReceiver.class);
@@ -90,8 +94,6 @@ public class VectorUniversalLinkActivity extends RiotBaseActivity {
                     }
                 } else {
                     intentAction = null;
-                    // display a spinner while binding the email
-                    setContentView(R.layout.activity_vector_universal_link_activity);
                     emailBinding(intentUri, mailRegParams);
                 }
             } else {

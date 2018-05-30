@@ -69,6 +69,7 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
     private RoomCreationModes mMode = RoomCreationModes.DISCUSSION;
 
     // UI items
+    private ListView membersListView;
     private VectorRoomCreationAdapter mAdapter;
 
     // the search is displayed at first call
@@ -78,11 +79,12 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
     private ArrayList<ParticipantAdapterItem> mParticipants = new ArrayList<>();
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public int getLayoutRes() {
+        return R.layout.activity_vector_room_creation;
+    }
 
-        setContentView(R.layout.activity_vector_room_creation);
-
+    @Override
+    public void initUiAndData() {
         if (CommonActivityUtils.shouldRestartApp(this)) {
             Log.e(LOG_TAG, "onCreate : Restart the application.");
             CommonActivityUtils.restartApp(this);
@@ -105,14 +107,14 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
         }
 
         // get the UI items
-        waitingView = findViewById(R.id.room_creation_spinner_views);
-        ListView membersListView = findViewById(R.id.room_creation_members_list_view);
+        setWaitingView(findViewById(R.id.room_creation_spinner_views));
+        membersListView = findViewById(R.id.room_creation_members_list_view);
         mAdapter = new VectorRoomCreationAdapter(this, R.layout.adapter_item_vector_creation_add_member, R.layout.adapter_item_vector_add_participants, mSession);
 
         // init the content
-        if ((null != savedInstanceState) && savedInstanceState.containsKey(PARTICIPANTS_LIST)) {
+        if (!isFirstCreation() && getSavedInstanceState().containsKey(PARTICIPANTS_LIST)) {
             mParticipants.clear();
-            mParticipants = new ArrayList<>((List<ParticipantAdapterItem>) savedInstanceState.getSerializable(PARTICIPANTS_LIST));
+            mParticipants = new ArrayList<>((List<ParticipantAdapterItem>) getSavedInstanceState().getSerializable(PARTICIPANTS_LIST));
         } else {
             mParticipants.add(new ParticipantAdapterItem(mSession.getMyUser()));
         }
@@ -444,13 +446,13 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
             }
 
             private void onError(final String message) {
-                waitingView.post(new Runnable() {
+                membersListView.post(new Runnable() {
                     @Override
                     public void run() {
                         if (null != message) {
                             Toast.makeText(VectorRoomCreationActivity.this, message, Toast.LENGTH_LONG).show();
                         }
-                        stopWaitingView();
+                        hideWaitingView();
                     }
                 });
             }

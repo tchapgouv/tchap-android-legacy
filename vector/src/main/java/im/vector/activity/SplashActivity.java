@@ -1,6 +1,7 @@
 /*
  * Copyright 2014 OpenMarket Ltd
  * Copyright 2017 Vector Creations Ltd
+ * Copyright 2018 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +21,14 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 
-import org.matrix.androidsdk.util.Log;
-
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.listeners.IMXEventListener;
 import org.matrix.androidsdk.listeners.MXEventListener;
+import org.matrix.androidsdk.util.Log;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 
 import im.vector.ErrorListener;
 import im.vector.Matrix;
@@ -33,10 +37,6 @@ import im.vector.VectorApp;
 import im.vector.gcm.GcmRegistrationManager;
 import im.vector.receiver.VectorUniversalLinkReceiver;
 import im.vector.services.EventStreamService;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 
 /**
  * SplashActivity displays a splash while loading and inittializing the client.
@@ -108,18 +108,16 @@ public class SplashActivity extends MXCActionBarActivity {
             Log.e(LOG_TAG, "##onFinish(): corrupted store");
             CommonActivityUtils.logout(this);
         }
-
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public int getLayoutRes() {
+        return R.layout.vector_activity_splash;
+    }
+
+    @Override
+    public void initUiAndData() {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
-        Log.d(LOG_TAG, "onCreate");
-
-        setContentView(R.layout.vector_activity_splash);
-
         Collection<MXSession> sessions = Matrix.getInstance(getApplicationContext()).getSessions();
 
         if (sessions == null) {

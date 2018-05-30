@@ -162,9 +162,13 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
     };
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_vector_invite_members);
+    public int getLayoutRes() {
+        return R.layout.activity_vector_invite_members;
+    }
+
+    @Override
+    public void initUiAndData() {
+        super.initUiAndData();
 
         if (CommonActivityUtils.shouldRestartApp(this)) {
             Log.e(LOG_TAG, "Restart the application.");
@@ -218,7 +222,7 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
             mPatternToSearchEditText.setHint(R.string.room_participants_invite_search_another_user);
         }
 
-        waitingView = findViewById(R.id.search_in_progress_view);
+        setWaitingView(findViewById(R.id.search_in_progress_view));
 
         mListView = findViewById(R.id.room_details_members_list);
         // the chevron is managed in the header view
@@ -325,7 +329,7 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
                 mListView.post(new Runnable() {
                     @Override
                     public void run() {
-                        stopWaitingView();
+                        hideWaitingView();
                     }
                 });
             }
