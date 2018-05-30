@@ -20,6 +20,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;;
@@ -28,6 +29,7 @@ import android.widget.Toast;
 
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
+import org.matrix.androidsdk.rest.model.CreateRoomParams;
 import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.util.Log;
 
@@ -45,6 +47,7 @@ import im.vector.activity.VectorRoomActivity;
 import im.vector.util.ThemeUtils;
 
 public class TchapRoomCreationActivity extends MXCActionBarActivity {
+
     private static final String LOG_TAG = TchapRoomCreationActivity.class.getSimpleName();
 
     @BindView(R.id.btn_add_room_creation_avatar)
@@ -57,9 +60,9 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     Switch switchPublicPrivateRoom;
 
     private MXSession mSession;
-
-    private String roomName;
-    private boolean hasRoomName = false;
+    private String mRoomName;
+    private boolean isRoomNamePending = false;
+    private CreateRoomParams mRoomParams = new CreateRoomParams();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +73,9 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         setWaitingView(findViewById(R.id.room_creation_spinner_views));
 
         mSession = Matrix.getInstance(this).getDefaultSession();
+
+        CreateRoomParams mRoomParams = new CreateRoomParams();
+        mRoomParams.name = !TextUtils.isEmpty(mRoomName)?mRoomName:null;
     }
 
     @Override
@@ -101,7 +107,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         getMenuInflater().inflate(R.menu.tchap_room_creation_menu, menu);
         MenuItem item = menu.findItem(R.id.action_create_new_room);
 
-        if (hasRoomName) {
+        if (isRoomNamePending) {
             item.setEnabled(true);
             item.getIcon().setAlpha(255);
         } else {
@@ -128,11 +134,27 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                 .show();
     }
 
+    @OnTextChanged(R.id.et_room_name)
+    protected void onTextChanged(CharSequence text) {
+        mRoomName = text.toString().trim();
+        mRoomParams.name = mRoomName;
+
+        if (null != mRoomParams.name && !mRoomParams.name.isEmpty()) {
+            isRoomNamePending = true;
+        } else {
+            isRoomNamePending = false;
+        }
+
+        invalidateOptionsMenu();
+        Log.i(LOG_TAG, "room name:" + mRoomName);
+    }
+
     private void createNewRoom() {
         showWaitingView();
-        mSession.createRoom(new SimpleApiCallback<String>(TchapRoomCreationActivity.this) {
+        mSession.createRoom(mRoomParams, new SimpleApiCallback<String>(TchapRoomCreationActivity.this) {
             @Override
             public void onSuccess(final String roomId) {
+
                 getWaitingView().post(new Runnable() {
                     @Override
                     public void run() {
@@ -144,7 +166,6 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                         params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
                         params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
                         params.put(VectorRoomActivity.EXTRA_EXPAND_ROOM_HEADER, true);
-                        params.put(VectorRoomActivity.EXTRA_DEFAULT_NAME, roomName);
                         CommonActivityUtils.goToRoomPage(TchapRoomCreationActivity.this, mSession, params);
                     }
                 });
@@ -177,19 +198,5 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                 onError(e.getLocalizedMessage());
             }
         });
-    }
-
-    @OnTextChanged(R.id.et_room_name)
-    protected void onTextChanged(CharSequence text) {
-        roomName = text.toString().trim();
-
-        if (!roomName.isEmpty()) {
-            hasRoomName = true;
-        } else {
-            hasRoomName = false;
-        }
-
-        invalidateOptionsMenu();
-        Log.i(LOG_TAG, "room name:" + roomName);
     }
 }
