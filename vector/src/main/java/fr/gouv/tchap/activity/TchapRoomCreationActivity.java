@@ -28,6 +28,7 @@ import android.widget.Switch;
 import android.widget.Toast;
 
 import org.matrix.androidsdk.MXSession;
+import org.matrix.androidsdk.data.RoomState;
 import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
 import org.matrix.androidsdk.rest.model.CreateRoomParams;
 import org.matrix.androidsdk.rest.model.MatrixError;
@@ -60,8 +61,6 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     Switch switchPublicPrivateRoom;
 
     private MXSession mSession;
-    private String mRoomName;
-    private boolean isRoomNamePending = false;
     private CreateRoomParams mRoomParams = new CreateRoomParams();
 
     @Override
@@ -75,7 +74,8 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         mSession = Matrix.getInstance(this).getDefaultSession();
 
         CreateRoomParams mRoomParams = new CreateRoomParams();
-        mRoomParams.name = !TextUtils.isEmpty(mRoomName)?mRoomName:null;
+        mRoomParams.visibility = RoomState.DIRECTORY_VISIBILITY_PRIVATE;
+        mRoomParams.preset = CreateRoomParams.PRESET_PRIVATE_CHAT;
     }
 
     @Override
@@ -107,7 +107,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         getMenuInflater().inflate(R.menu.tchap_room_creation_menu, menu);
         MenuItem item = menu.findItem(R.id.action_create_new_room);
 
-        if (isRoomNamePending) {
+        if (null != mRoomParams.name) {
             item.setEnabled(true);
             item.getIcon().setAlpha(255);
         } else {
@@ -136,17 +136,16 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
     @OnTextChanged(R.id.et_room_name)
     protected void onTextChanged(CharSequence text) {
-        mRoomName = text.toString().trim();
-        mRoomParams.name = mRoomName;
+        String roomName = text.toString().trim();
 
-        if (null != mRoomParams.name && !mRoomParams.name.isEmpty()) {
-            isRoomNamePending = true;
+        if (!roomName.isEmpty()) {
+            mRoomParams.name = roomName;
         } else {
-            isRoomNamePending = false;
+            mRoomParams.name = null;
         }
 
         invalidateOptionsMenu();
-        Log.i(LOG_TAG, "room name:" + mRoomName);
+        Log.i(LOG_TAG, "room name:" + mRoomParams.name);
     }
 
     private void createNewRoom() {
