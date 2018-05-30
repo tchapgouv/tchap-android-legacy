@@ -19,15 +19,18 @@ package fr.gouv.tchap.activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.design.widget.TextInputEditText;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;;
 import android.widget.Switch;
 import android.widget.Toast;
 
 import org.matrix.androidsdk.MXSession;
+import org.matrix.androidsdk.data.RoomState;
 import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
+import org.matrix.androidsdk.rest.model.CreateRoomParams;
 import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.util.Log;
 
@@ -36,6 +39,7 @@ import java.util.HashMap;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.OnTextChanged;
 import im.vector.Matrix;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
@@ -44,18 +48,20 @@ import im.vector.activity.VectorRoomActivity;
 import im.vector.util.ThemeUtils;
 
 public class TchapRoomCreationActivity extends MXCActionBarActivity {
+
     private static final String LOG_TAG = TchapRoomCreationActivity.class.getSimpleName();
 
     @BindView(R.id.btn_add_room_creation_avatar)
     Button btnAddAvatar;
 
     @BindView(R.id.et_room_name)
-    View etRoomName;
+    TextInputEditText etRoomName;
 
     @BindView(R.id.switch_public_private_rooms)
     Switch switchPublicPrivateRoom;
 
     private MXSession mSession;
+    private CreateRoomParams mRoomParams = new CreateRoomParams();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,13 +73,19 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
         mSession = Matrix.getInstance(this).getDefaultSession();
 
+        CreateRoomParams mRoomParams = new CreateRoomParams();
+        mRoomParams.visibility = RoomState.DIRECTORY_VISIBILITY_PRIVATE;
+        mRoomParams.preset = CreateRoomParams.PRESET_PRIVATE_CHAT;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.tchap_room_creation_menu, menu);
         CommonActivityUtils.tintMenuIcons(menu, ThemeUtils.getColor(this, R.attr.icon_tint_on_dark_action_bar_color));
-
         return true;
     }
 
@@ -88,6 +100,22 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.tchap_room_creation_menu, menu);
+        MenuItem item = menu.findItem(R.id.action_create_new_room);
+
+        if (null != mRoomParams.name) {
+            item.setEnabled(true);
+            item.getIcon().setAlpha(255);
+        } else {
+            item.setEnabled(false);
+            item.getIcon().setAlpha(130);
+        }
+
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @OnClick(R.id.switch_public_private_rooms)
@@ -106,17 +134,26 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                 .show();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
+    @OnTextChanged(R.id.et_room_name)
+    protected void onTextChanged(CharSequence text) {
+        String roomName = text.toString().trim();
 
+        if (!roomName.isEmpty()) {
+            mRoomParams.name = roomName;
+        } else {
+            mRoomParams.name = null;
+        }
+
+        invalidateOptionsMenu();
+        Log.i(LOG_TAG, "room name:" + mRoomParams.name);
     }
 
-    public void createNewRoom() {
+    private void createNewRoom() {
         showWaitingView();
-        mSession.createRoom(new SimpleApiCallback<String>(TchapRoomCreationActivity.this) {
+        mSession.createRoom(mRoomParams, new SimpleApiCallback<String>(TchapRoomCreationActivity.this) {
             @Override
             public void onSuccess(final String roomId) {
+
                 getWaitingView().post(new Runnable() {
                     @Override
                     public void run() {
