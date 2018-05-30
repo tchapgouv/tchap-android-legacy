@@ -828,8 +828,9 @@ public class VectorSettingsPreferencesFragment extends PreferenceFragment implem
             }
         });
 
+        // Remove Analytics tracking until Tchap defines its own instance
         // Analytics tracking managment
-        final CheckBoxPreference useAnalyticsModePref = (CheckBoxPreference) findPreference(PreferencesManager.SETTINGS_USE_ANALYTICS_KEY);
+        /*final CheckBoxPreference useAnalyticsModePref = (CheckBoxPreference) findPreference(PreferencesManager.SETTINGS_USE_ANALYTICS_KEY);
 
         // On if the analytics tracking is activated
         useAnalyticsModePref.setChecked(PreferencesManager.useAnalytics(appContext));
@@ -840,7 +841,7 @@ public class VectorSettingsPreferencesFragment extends PreferenceFragment implem
                 PreferencesManager.setUseAnalytics(appContext, (boolean) newValue);
                 return true;
             }
-        });
+        });*/
         
         // Rageshake Managment
         final CheckBoxPreference useRageShakeModePref = (CheckBoxPreference) findPreference(PreferencesManager.SETTINGS_USE_RAGE_SHAKE_KEY);

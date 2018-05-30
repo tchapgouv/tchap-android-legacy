@@ -308,11 +308,11 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
             editor.commit();
         }
 
+        // Remove Analytics tracking until Tchap defines its own instance
         // Check whether the user has agreed to the use of analytics tracking
-
-        if (!PreferencesManager.didAskToUseAnalytics(this)) {
+        /*if (!PreferencesManager.didAskToUseAnalytics(this)) {
             promptForAnalyticsTracking();
-        }
+        }*/
 
         // process intent parameters
         final Intent intent = getIntent();

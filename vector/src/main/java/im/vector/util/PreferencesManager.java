@@ -648,7 +648,10 @@ public class PreferencesManager {
      * @return true if the analytics tracking is authorized
      */
     public static boolean useAnalytics(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_USE_ANALYTICS_KEY, false);
+        // Disable Analytics tracking until Tchap defines its own instance
+        // Ignore the current value if any
+        // return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_USE_ANALYTICS_KEY, false);
+        return false;
     }
 
     /**
