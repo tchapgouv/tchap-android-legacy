@@ -837,7 +837,7 @@ Appareils inconnus :</string>
     <string name="tchap_room_creation_title">Salon</string>
     <string name="tchap_room_creation_avatar">Ajouter \n une photo</string>
     <string name="tchap_room_creation_name">Nommer le salon</string>
-    <string name="tchap_room_creation_public">Rendre ce salon privé</string>
+    <string name="tchap_room_creation_public">Rendre ce salon public</string>
     <string name="tchap_room_creation_public_private_info">Un salon public peut être rejoint par n\'importe quel membre de la communauté Tchap sous condition qu\'il soit accepté.</string>
 
     // group details
