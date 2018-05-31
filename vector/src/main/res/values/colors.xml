@@ -10,6 +10,12 @@
     <color name="vector_tchap_secondary_color">#4D3F7E</color>
     <color name="vector_tchap_primary_color_light">#4D3F7E</color>
     <color name="vector_tchap_secondary_color_light">#4D3F7E</color>
+    <color name="vector_tchap_text_color_light">#124a9d</color>
+    <color name="vector_tchap_text_color_dark">#162d58</color>
+    <color name="vector_tchap_text_color_dark_grey">#858585</color>
+    <color name="vector_tchap_text_color_light_grey">#949494</color>
+    <color name="vector_tchap_hexagon_color_dark_grey">#979797</color>
+    <color name="vector_tchap_hexagon_background_color_dark_grey">#ECECEC</color>
 
     <!-- home activity tab bar color -->
     <color name="tab_home">@color/vector_green_color</color>
