@@ -167,7 +167,6 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
         } else {
             VectorRoomCreationActivity.this.startActivityForResult(intent, requestCode);
         }
-
     }
 
     @Override
