@@ -16,12 +16,15 @@
 
 package im.vector.fragments
 
+
+import android.content.Context
 import android.os.Bundle
 import android.support.annotation.CallSuper
 import android.support.v4.app.Fragment
 import android.view.View
 import butterknife.ButterKnife
 import butterknife.Unbinder
+import im.vector.activity.RiotAppCompatActivity
 import org.matrix.androidsdk.util.Log
 
 
@@ -32,6 +35,12 @@ open class VectorBaseFragment : Fragment() {
 
     // Butterknife unbinder
     private var mUnBinder: Unbinder? = null
+
+    protected var riotActivity: RiotAppCompatActivity? = null
+
+    /* ==========================================================================================
+     * Life cycle
+     * ========================================================================================== */
 
     @CallSuper
     override fun onResume() {
@@ -51,5 +60,17 @@ open class VectorBaseFragment : Fragment() {
         super.onDestroyView()
         mUnBinder?.unbind()
         mUnBinder = null
+    }
+
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
+
+        riotActivity = context as RiotAppCompatActivity
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+
+        riotActivity = null
     }
 }

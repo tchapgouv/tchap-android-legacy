@@ -89,11 +89,12 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     private CreateRoomParams mRoomParams = new CreateRoomParams();
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_tchap_room_creation);
-        ButterKnife.bind(this);
+    public int getLayoutRes() {
+        return R.layout.activity_tchap_room_creation;
+    }
 
+    @Override
+    public void initUiAndData() {
         setWaitingView(findViewById(R.id.room_creation_spinner_views));
 
         mSession = Matrix.getInstance(this).getDefaultSession();

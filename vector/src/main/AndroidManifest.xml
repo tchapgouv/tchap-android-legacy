@@ -166,6 +166,9 @@
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
+            android:name=".activity.DeactivateAccountActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
             android:name=".activity.VectorRoomCreationActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/room_creation_title"
@@ -249,7 +252,11 @@
         <activity
             android:name=".activity.IntegrationManagerActivity"
             android:configChanges="orientation|screenSize"
-            android:theme="@style/AppTheme.NoActionBar.FullScreen" />
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".activity.StickerPickerActivity"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activity.VectorMediasPickerActivity"
             android:label="@string/media_picker_both_capture_title"
@@ -401,6 +408,9 @@
             android:configChanges="orientation|screenSize"
             android:label="@string/settings_notification_privacy"
             android:theme="@style/CountryPickerTheme" />
+        <activity
+            android:name=".activity.SimpleWebViewActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
 
         <!-- broadcast receiver -->
         <receiver

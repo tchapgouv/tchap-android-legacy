@@ -25,15 +25,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
-import android.preference.PreferenceManager;
 import android.support.annotation.ColorInt;
+import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.content.ContextCompat;
@@ -58,10 +57,10 @@ import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
 import org.matrix.androidsdk.rest.client.LoginRestClient;
 import org.matrix.androidsdk.rest.client.ProfileRestClient;
 import org.matrix.androidsdk.rest.model.MatrixError;
-import org.matrix.androidsdk.rest.model.pid.ThreePid;
 import org.matrix.androidsdk.rest.model.login.Credentials;
 import org.matrix.androidsdk.rest.model.login.LoginFlow;
 import org.matrix.androidsdk.rest.model.login.RegistrationFlowResponse;
+import org.matrix.androidsdk.rest.model.pid.ThreePid;
 import org.matrix.androidsdk.ssl.CertUtil;
 import org.matrix.androidsdk.ssl.Fingerprint;
 import org.matrix.androidsdk.ssl.UnrecognizedCertificateException;
@@ -119,6 +118,8 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
     private static final String SAVED_CREATION_PASSWORD1 = "SAVED_CREATION_PASSWORD1";
     private static final String SAVED_CREATION_PASSWORD2 = "SAVED_CREATION_PASSWORD2";
     private static final String SAVED_CREATION_REGISTRATION_RESPONSE = "SAVED_CREATION_REGISTRATION_RESPONSE";
+    private static final String SAVED_CREATION_EMAIL_THREEPID = "SAVED_CREATION_EMAIL_THREEPID";
+    private ThreePid mPendingEmailValidation;
 
     // forgot password
     private static final String SAVED_FORGOT_EMAIL_ADDRESS = "SAVED_FORGOT_EMAIL_ADDRESS";
@@ -336,16 +337,17 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public int getLayoutRes() {
+        return R.layout.activity_vector_login;
+    }
+
+    @Override
+    public void initUiAndData() {
         if (null == getIntent()) {
             Log.d(LOG_TAG, "## onCreate(): IN with no intent");
         } else {
             Log.d(LOG_TAG, "## onCreate(): IN with flags " + Integer.toHexString(getIntent().getFlags()));
         }
-
-        super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.activity_vector_login);
 
         // warn that the application has started.
         CommonActivityUtils.onApplicationStarted(this);
@@ -419,11 +421,11 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
         mMainLayout = findViewById(R.id.main_input_layout);
         mButtonsView = findViewById(R.id.login_actions_bar);
 
-        if (null != savedInstanceState) {
-            restoreSavedData(savedInstanceState);
-        } else {
+        if (isFirstCreation()) {
             mHomeServerText.setText(ServerUrlsRepository.INSTANCE.getLastHomeServerUrl(this));
             mIdentityServerText.setText(ServerUrlsRepository.INSTANCE.getLastIdentityServerUrl(this));
+        } else {
+            restoreSavedData(getSavedInstanceState());
         }
 
         // If home server url or identity server url are not the default ones, check the mUseCustomHomeServersCheckbox
@@ -599,8 +601,34 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
             } else if (receivedBundle.containsKey(VectorRegistrationReceiver.EXTRA_EMAIL_VALIDATION_PARAMS)) {
                 Log.d(LOG_TAG, "## onCreate() Login activity started by email verification for registration");
                 if (processEmailValidationExtras(receivedBundle)) {
+                    // Reset the pending email validation if any.
+                    mPendingEmailValidation = null;
+
+                    // Finalize the email verification.
                     checkIfMailValidationPending();
                 }
+            }
+        }
+
+        // Check whether an email validation was pending when the instance was saved.
+        if (null != mPendingEmailValidation) {
+            Log.d(LOG_TAG, "## onCreate() An email validation was pending");
+
+            // Sanity check
+            HomeServerConnectionConfig hsConfig = getHsConfig();
+            if (null != mRegistrationResponse && null != hsConfig && !isFirstCreation()) {
+                // retrieve the name and pwd from store data (we consider here that these inputs have been already checked)
+                String name = getSavedInstanceState().getString(SAVED_CREATION_USER_NAME);
+                String password = getSavedInstanceState().getString(SAVED_CREATION_PASSWORD1);
+
+                Log.d(LOG_TAG, "## onCreate() Resume email validation");
+                // Resume the email validation polling
+                enableLoadingScreen(true);
+                RegistrationManager.getInstance().setSupportedRegistrationFlows(mRegistrationResponse);
+                RegistrationManager.getInstance().setAccountData(name, password);
+                RegistrationManager.getInstance().addEmailThreePid(mPendingEmailValidation);
+                RegistrationManager.getInstance().attemptRegistration(this, this);
+                onWaitingEmailValidation();
             }
         }
     }
@@ -1760,38 +1788,33 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
      *
      * @param savedInstanceState the instance state
      */
-    private void restoreSavedData(Bundle savedInstanceState) {
-        if (null != savedInstanceState) {
-            mLoginEmailTextView.setText(savedInstanceState.getString(SAVED_LOGIN_EMAIL_ADDRESS));
-            mLoginPasswordTextView.setText(savedInstanceState.getString(SAVED_LOGIN_PASSWORD_ADDRESS));
-            mUseCustomHomeServersCheckbox.setChecked(savedInstanceState.getBoolean(SAVED_IS_SERVER_URL_EXPANDED));
-            mHomeServerText.setText(savedInstanceState.getString(SAVED_HOME_SERVER_URL));
-            mIdentityServerText.setText(savedInstanceState.getString(SAVED_IDENTITY_SERVER_URL));
+    private void restoreSavedData(@NonNull Bundle savedInstanceState) {
+        Log.d(LOG_TAG, "## restoreSavedData(): IN");
 
-            mCreationUsernameTextView.setText(savedInstanceState.getString(SAVED_CREATION_USER_NAME));
-            mCreationPassword1TextView.setText(savedInstanceState.getString(SAVED_CREATION_PASSWORD1));
-            mCreationPassword2TextView.setText(savedInstanceState.getString(SAVED_CREATION_PASSWORD2));
+        mLoginEmailTextView.setText(savedInstanceState.getString(SAVED_LOGIN_EMAIL_ADDRESS));
+        mLoginPasswordTextView.setText(savedInstanceState.getString(SAVED_LOGIN_PASSWORD_ADDRESS));
+        mUseCustomHomeServersCheckbox.setChecked(savedInstanceState.getBoolean(SAVED_IS_SERVER_URL_EXPANDED));
+        mHomeServerText.setText(savedInstanceState.getString(SAVED_HOME_SERVER_URL));
+        mIdentityServerText.setText(savedInstanceState.getString(SAVED_IDENTITY_SERVER_URL));
 
-            mForgotEmailTextView.setText(savedInstanceState.getString(SAVED_FORGOT_EMAIL_ADDRESS));
-            mForgotPassword1TextView.setText(savedInstanceState.getString(SAVED_FORGOT_PASSWORD1));
-            mForgotPassword2TextView.setText(savedInstanceState.getString(SAVED_FORGOT_PASSWORD2));
+        mCreationUsernameTextView.setText(savedInstanceState.getString(SAVED_CREATION_USER_NAME));
+        mCreationPassword1TextView.setText(savedInstanceState.getString(SAVED_CREATION_PASSWORD1));
+        mCreationPassword2TextView.setText(savedInstanceState.getString(SAVED_CREATION_PASSWORD2));
 
-            mRegistrationResponse = (RegistrationFlowResponse) savedInstanceState.getSerializable(SAVED_CREATION_REGISTRATION_RESPONSE);
+        mForgotEmailTextView.setText(savedInstanceState.getString(SAVED_FORGOT_EMAIL_ADDRESS));
+        mForgotPassword1TextView.setText(savedInstanceState.getString(SAVED_FORGOT_PASSWORD1));
+        mForgotPassword2TextView.setText(savedInstanceState.getString(SAVED_FORGOT_PASSWORD2));
 
-            mMode = savedInstanceState.getInt(SAVED_MODE, MODE_LOGIN);
+        mRegistrationResponse = (RegistrationFlowResponse) savedInstanceState.getSerializable(SAVED_CREATION_REGISTRATION_RESPONSE);
 
-            // check if the application has been opened by click on an url
-            if (savedInstanceState.containsKey(VectorUniversalLinkReceiver.EXTRA_UNIVERSAL_LINK_URI)) {
-                mUniversalLinkUri = savedInstanceState.getParcelable(VectorUniversalLinkReceiver.EXTRA_UNIVERSAL_LINK_URI);
-            }
+        mMode = savedInstanceState.getInt(SAVED_MODE, MODE_LOGIN);
+
+        // check if the application has been opened by click on an url
+        if (savedInstanceState.containsKey(VectorUniversalLinkReceiver.EXTRA_UNIVERSAL_LINK_URI)) {
+            mUniversalLinkUri = savedInstanceState.getParcelable(VectorUniversalLinkReceiver.EXTRA_UNIVERSAL_LINK_URI);
         }
-    }
 
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        Log.d(LOG_TAG, "## onRestoreInstanceState(): IN");
-        restoreSavedData(savedInstanceState);
+        mPendingEmailValidation = (ThreePid) savedInstanceState.getSerializable(SAVED_CREATION_EMAIL_THREEPID);
     }
 
     @Override
@@ -1849,6 +1872,15 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
         // check if the application has been opened by click on an url
         if (null != mUniversalLinkUri) {
             savedInstanceState.putParcelable(VectorUniversalLinkReceiver.EXTRA_UNIVERSAL_LINK_URI, mUniversalLinkUri);
+        }
+
+        // check whether an email validation is in progress
+        if (null != mRegisterPollingRunnable) {
+            // Retrieve the current email three pid
+            ThreePid email3pid = RegistrationManager.getInstance().getEmailThreePid();
+            if (null != email3pid) {
+                savedInstanceState.putSerializable(SAVED_CREATION_EMAIL_THREEPID, email3pid);
+            }
         }
 
         savedInstanceState.putInt(SAVED_MODE, mMode);
@@ -2181,8 +2213,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
 
         if (!TextUtils.isEmpty(email)) {
             // Communicate email to singleton (will be validated later on)
-            // Tchap: addEmailThreePid API has been modified
-            //RegistrationManager.getInstance().addEmailThreePid(email);
+            RegistrationManager.getInstance().addEmailThreePid(new ThreePid(email, ThreePid.MEDIUM_EMAIL));
         }
 
         if (mRegistrationPhoneNumberHandler.getPhoneNumber() != null) {
@@ -2290,6 +2321,7 @@ public class LoginActivity extends MXCActionBarActivity implements RegistrationM
      * Cancel the polling for email validation
      */
     private void cancelEmailPolling() {
+        mPendingEmailValidation = null;
         if (mHandler != null && mRegisterPollingRunnable != null) {
             mHandler.removeCallbacks(mRegisterPollingRunnable);
         }
