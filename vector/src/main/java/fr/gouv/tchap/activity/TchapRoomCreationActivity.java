@@ -23,7 +23,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
-import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -45,7 +44,6 @@ import org.matrix.androidsdk.util.ResourceUtils;
 
 import java.util.HashMap;
 
-import butterknife.ButterKnife;
 import butterknife.BindView;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
@@ -302,28 +300,8 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
                 @Override
                 public void onUploadError(String uploadId, int serverResponseCode, final String serverErrorMessage) {
-                    hideWaitingView();
                     Log.e(LOG_TAG, "Fail to upload the avatar");
-                    new AlertDialog.Builder(TchapRoomCreationActivity.this)
-                            .setMessage(R.string.settings_error_message_saving_avatar_on_server)
-                            .setPositiveButton(R.string.resend, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    // Try again
-                                    uploadRoomAvatar(roomId, thumbnailUri);
-                                    dialog.dismiss();
-                                }
-                            })
-                            .setNegativeButton(R.string.auth_skip, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    // Despite the error sending the avatar to the server,
-                                    // the user chooses to ignore the problem and continue the process of creating the room
-                                    openRoom(roomId);
-                                    dialog.dismiss();
-                                }
-                            })
-                            .show();
+                    promptRoomAvatarError(roomId, thumbnailUri, null);
                 }
 
                 @Override
@@ -341,7 +319,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
      * @param roomId        the room id.
      * @param contentUri    the uri of the avatar image.
      */
-    private void updateRoomAvatar(final String roomId, String contentUri) {
+    private void updateRoomAvatar(final String roomId, final String contentUri) {
         showWaitingView();
         Log.d(LOG_TAG, "The avatar has been uploaded, update the room avatar");
         mSession.getDataHandler().getRoom(roomId).updateAvatarUrl(contentUri, new ApiCallback<Void>() {
@@ -355,7 +333,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                 if (null != this) {
                     Log.e(LOG_TAG, "## updateAvatarUrl() failed " + message);
                     Toast.makeText(TchapRoomCreationActivity.this, message, Toast.LENGTH_SHORT).show();
-                    hideWaitingView();
+                    promptRoomAvatarError(roomId, null, contentUri);
                 }
             }
 
@@ -389,5 +367,33 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
         params.put(VectorRoomActivity.EXTRA_EXPAND_ROOM_HEADER, true);
         CommonActivityUtils.goToRoomPage(TchapRoomCreationActivity.this, mSession, params);
+    }
+
+    private void promptRoomAvatarError(final String roomId, final Uri thumbnailUri, final String contentUri) {
+        hideWaitingView();
+        new AlertDialog.Builder(TchapRoomCreationActivity.this)
+                .setMessage(R.string.settings_error_message_saving_avatar_on_server)
+                .setPositiveButton(R.string.resend, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Try again
+                        if (null == contentUri) {
+                            uploadRoomAvatar(roomId, thumbnailUri);
+                        } else {
+                            updateRoomAvatar(roomId, contentUri);
+                        }
+                        dialog.dismiss();
+                    }
+                })
+                .setNegativeButton(R.string.auth_skip, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Despite an error in the treatment of the avatar image
+                        // the user chooses to ignore the problem and continue the process of creating the room
+                        openRoom(roomId);
+                        dialog.dismiss();
+                    }
+                })
+                .show();
     }
 }

@@ -462,10 +462,10 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="directory_server_native_rooms">Toutes les discussions natives sur %s</string>
     <string name="historical_placeholder">Rechercher dans l\'historique</string>
 
-<plurals name="public_room_nb_users">
-	<item quantity="one">%d utilisateur</item>
-	<item quantity="other">%d utilisateurs</item>
-</plurals>
+    <plurals name="public_room_nb_users">
+        <item quantity="one">%d utilisateur</item>
+        <item quantity="other">%d utilisateurs</item>
+    </plurals>
 
     <string name="send_bug_report_description">Veuillez décrire l\'erreur. Qu\'avez-vous fait ? Quel était le comportement attendu ? Que s\'est-il réellement passé ?</string>
     <string name="send_bug_report_logs_description">Afin de diagnostiquer les problèmes, les journaux de ce client seront envoyés avec ce rapport d\'erreur. Si vous préférez envoyer le texte ci-dessus uniquement, veuillez décochez :</string>
@@ -716,7 +716,7 @@ Appareils inconnus :</string>
     <string name="larger">Très grande</string>
     <string name="largest">La plus grande</string>
     <string name="huge">Énorme</string>
-<string name="light_theme">Thème clair</string>
+    <string name="light_theme">Thème clair</string>
     <string name="dark_theme">Thème sombre</string>
     <string name="black_them">Thème noir</string>
 
@@ -758,7 +758,7 @@ Appareils inconnus :</string>
     <string name="share_without_verifying">Partager sans vérifier</string>
     <string name="ignore_request">Ignorer la demande</string>
 
-<string name="notification_noisy_notifications">Notifications sonores</string>
+    <string name="notification_noisy_notifications">Notifications sonores</string>
     <string name="notification_silent_notifications">Notifications muettes</string>
 
     <string name="option_take_photo">Prendre une photo</string>
@@ -862,29 +862,29 @@ Appareils inconnus :</string>
     <string name="reason_colon">Motif : %1$s</string>
     <string name="rejoin">Rejoindre</string>
     <string name="forget_room">Abandonner la discussion</string>
-<string name="settings_flair">Badge</string>
+    <string name="settings_flair">Badge</string>
 
     <string name="send_bug_report_rage_shake">Secouer avec frustration pour signaler un bug</string>
 
     <string name="actions">Actions</string>
     <string name="room_sync_in_progress">Synchronisation…</string>
     <plurals name="room_header_active_members_count">
-	<item quantity="one">Un membre actif</item>
-	<item quantity="other">%d membres actifs</item>
-</plurals>
+        <item quantity="one">Un membre actif</item>
+        <item quantity="other">%d membres actifs</item>
+    </plurals>
     <plurals name="room_title_members">
-	<item quantity="one">Un membre</item>
-	<item quantity="other">%d membres</item>
-</plurals>
+        <item quantity="one">Un membre</item>
+        <item quantity="other">%d membres</item>
+    </plurals>
     <plurals name="room_new_messages_notification">
-	<item quantity="one">Un nouveau message</item>
-	<item quantity="other">%d nouveaux messages</item>
-</plurals>
+        <item quantity="one">Un nouveau message</item>
+        <item quantity="other">%d nouveaux messages</item>
+    </plurals>
 
     <string name="room_displayname_many_members">%1$s et %2$s</string>
     <plurals name="others">
-	<item quantity="one">Un autre</item>
-	<item quantity="other">%d autres</item>
+        <item quantity="one">Un autre</item>
+        <item quantity="other">%d autres</item>
     </plurals>
 
     <string name="list_members">Liste les membres</string>
@@ -912,17 +912,17 @@ Appareils inconnus :</string>
     <string name="notification_unread_notified_messages_in_room">%1$s dans %2$s"</string>
 
     <plurals name="active_widgets">
-	<item quantity="one">Un gadget actif</item>
-	<item quantity="other">%d gadgets actifs</item>
-</plurals>
+        <item quantity="one">Un gadget actif</item>
+        <item quantity="other">%d gadgets actifs</item>
+    </plurals>
 
     // Widget Integration Manager
     <string name="avatar">Avatar</string>
 
-<plurals name="membership_changes">
-	<item quantity="one">Un changement de statut</item>
-	<item quantity="other">%d changements de statut</item>
-</plurals>
+    <plurals name="membership_changes">
+        <item quantity="one">Un changement de statut</item>
+        <item quantity="other">%d changements de statut</item>
+    </plurals>
 
     <string name="open_chat_header">Développer l\'entête</string>
     <string name="receipt_avatar">Réception de l\'avatar</string>
@@ -962,4 +962,4 @@ Appareils inconnus :</string>
     <string name="tab_rooms_title">CONVERSATIONS</string>
     <string name="tab_contacts_title">CONTACTS</string>
 
-    </resources>
+</resources>

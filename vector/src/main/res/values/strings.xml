@@ -617,6 +617,7 @@
     <string name="settings_12_24_timestamps">Show timestamps in 12 hour format (e.g. 2:30pm)</string>
     <string name="settings_hide_join_leave_messages">Hide join/leave messages (invites/kicks/bans unaffected)</string>
     <string name="settings_hide_avatar_display_name_changes_messages">Hide avatar and display name changes</string>
+    <string name="settings_error_message_saving_avatar_on_server">Saving the avatar of the room failed.\nWhat would you like to do?</string>
     <string name="settings_disable_markdown">Disable markdown formatting when sending</string>
     <string name="settings_vibrate_on_mention">Vibrate when mentioning</string>
 
