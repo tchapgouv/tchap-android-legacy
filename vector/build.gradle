@@ -24,6 +24,9 @@ android {
         versionCode rootProject.ext.versionCodeProp
         versionName rootProject.ext.versionNameProp
 
+        // Use Vector drawables
+        vectorDrawables.useSupportLibrary = true
+
         // custom values
         resValue "string", "bug_report_url",  "https://riot.im/bugreports/submit"
 
@@ -165,6 +168,9 @@ dependencies {
     implementation 'com.android.support:recyclerview-v7:27.1.1'
     implementation 'com.jakewharton:butterknife:8.5.1'
     kapt 'com.jakewharton:butterknife-compiler:8.5.1'
+
+    // UI
+    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
 
     // Network
     implementation 'com.squareup.retrofit2:retrofit:2.4.0'

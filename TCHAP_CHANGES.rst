@@ -1,3 +1,16 @@
+Changes in Tchap 0.1.8 (2018-05-30)
+===================================================
+ 
+Improvements:
+ * Update matrix-sdk lib: build 1796 - Revision: 8732182a9c43adca7d6e372ea2f6f0375e6fa49f
+ * Enable Kotlin, and upgrade gradle and build tools PR #158
+ * Update okhttp to version 3.10 and retrofit to version 2.4 PR #158
+ * Replace the bottom bar by a top bar #154
+ * Remove Analytics tracking until Tchap defines its own Piwik/Matomo instance PR #167
+ 
+Bug Fix:
+ * adjust color and size of search hint PR #161
+
 Changes in Tchap 0.1.7 (2018-05-04)
 ===================================================
  

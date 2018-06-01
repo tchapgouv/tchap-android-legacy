@@ -104,8 +104,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import fr.gouv.tchap.activity.TchapLoginActivity;
+import fr.gouv.tchap.activity.TchapRoomCreationActivity;
 import im.vector.Matrix;
 import im.vector.MyPresenceManager;
 import im.vector.PublicRoomsManager;
@@ -250,7 +250,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     // floating action button dialog
     private AlertDialog mFabDialog;
 
-     /*
+    /*
      * *********************************************************************************************
      * Static methods
      * *********************************************************************************************
@@ -270,12 +270,12 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
      */
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public int getLayoutRes() {
+        return R.layout.activity_home;
+    }
 
-        setContentView(R.layout.activity_home);
-        ButterKnife.bind(this);
-
+    @Override
+    public void initUiAndData() {
         mFragmentManager = getSupportFragmentManager();
 
         if (CommonActivityUtils.shouldRestartApp(this)) {
@@ -309,10 +309,16 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
             editor.commit();
         }
 
+        // Remove Analytics tracking until Tchap defines its own instance
+        // Check whether the user has agreed to the use of analytics tracking
+        /*if (!PreferencesManager.didAskToUseAnalytics(this)) {
+            promptForAnalyticsTracking();
+        }*/
+
         // process intent parameters
         final Intent intent = getIntent();
 
-        if (null != savedInstanceState) {
+        if (!isFirstCreation()) {
             // fix issue #1276
             // if there is a saved instance, it means that onSaveInstanceState has been called.
             // theses parameters must only be used once.
@@ -456,11 +462,10 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         final View selectedMenu;
         final TabLayout.Tab myTab;
         int myPosition = TAB_POSITION_CONVERSATION;
-        if (savedInstanceState != null) {
-            if (savedInstanceState.getInt(CURRENT_MENU_ID, TAB_POSITION_CONVERSATION)!= TAB_POSITION_CONVERSATION) {
+        if (!isFirstCreation()) {
+            if (getSavedInstanceState().getInt(CURRENT_MENU_ID, TAB_POSITION_CONVERSATION)!= TAB_POSITION_CONVERSATION) {
                 myPosition = TAB_POSITION_CONTACT;
             }
-
         }
         myTab = mTopNavigationView.getTabAt(myPosition);
         if (myTab != null) {
@@ -669,6 +674,32 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
             AlertDialog dialog = builder.create();
             dialog.show();
         }
+    }
+
+    /**
+     * Display a dialog to let the user chooses if he would like to use analytics tracking
+     */
+    private void promptForAnalyticsTracking() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.settings_opt_in_of_analytics_prompt);
+        builder.setPositiveButton(R.string.settings_opt_in_of_analytics_ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        setAnalyticsAuthorization(true);
+                    }
+                })
+                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        setAnalyticsAuthorization(false);
+                    }
+                })
+                .show();
+    }
+
+    private void setAnalyticsAuthorization(boolean useAnalytics) {
+        PreferencesManager.setUseAnalytics(this, useAnalytics);
+        PreferencesManager.setDidAskToUseAnalytics(this);
     }
 
     @Override
@@ -1190,7 +1221,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                         .setPositiveButton(R.string.ok,
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int id) {
-                                        CommonActivityUtils.logout(VectorApp.getCurrentActivity(), true);
+                                        CommonActivityUtils.logout(VectorApp.getCurrentActivity());
                                     }
                                 });
                 // create alert dialog
@@ -1260,8 +1291,9 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                                     // Multiselection mode isn't required
                                     createNewChat(VectorRoomCreationActivity.RoomCreationModes.DIRECT_CHAT);
                                 } else if (1 == n) {
-                                    // Create an empty room
-                                    createNewRoom();
+                                    // Launch the new screen to create an empty room
+                                    final Intent intent = new Intent(VectorHomeActivity.this, TchapRoomCreationActivity.class);
+                                    VectorHomeActivity.this.startActivity(intent);
                                 } else {
                                     // Create a new discussion
                                     // Invite one or more users
@@ -1359,58 +1391,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         settingsIntent.putExtra(MXCActionBarActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
         settingsIntent.putExtra(VectorRoomCreationActivity.EXTRA_ROOM_CREATION_ACTIVITY_MODE, mode);
         startActivity(settingsIntent);
-    }
-
-    /**
-     * Handle new room creation
-     */
-    private  void createNewRoom() {
-        hideKeyboard();
-        showWaitingView();
-        mSession.createRoom(new SimpleApiCallback<String>(VectorHomeActivity.this) {
-            @Override
-            public void onSuccess(final String roomId) {
-                waitingView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        hideWaitingView();
-
-                        HashMap<String, Object> params = new HashMap<>();
-                        params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
-                        params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
-                        params.put(VectorRoomActivity.EXTRA_EXPAND_ROOM_HEADER, true);
-                        CommonActivityUtils.goToRoomPage(VectorHomeActivity.this, mSession, params);
-                    }
-                });
-            }
-
-            private void onError(final String message) {
-                waitingView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (null != message) {
-                            Toast.makeText(VectorHomeActivity.this, message, Toast.LENGTH_LONG).show();
-                        }
-                        hideWaitingView();
-                    }
-                });
-            }
-
-            @Override
-            public void onNetworkError(Exception e) {
-                onError(e.getLocalizedMessage());
-            }
-
-            @Override
-            public void onMatrixError(final MatrixError e) {
-                onError(e.getLocalizedMessage());
-            }
-
-            @Override
-            public void onUnexpectedError(final Exception e) {
-                onError(e.getLocalizedMessage());
-            }
-        });
     }
 
     /*
@@ -1522,7 +1502,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     /**
      * Create the room forget / leave callback
      *
-     * @param roomId the room id
+     * @param roomId            the room id
      * @param onSuccessCallback the success callback
      * @return the asynchronous callback
      */
@@ -1573,7 +1553,8 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
 
     /**
      * Trigger the room forget
-     * @param roomId the room id
+     *
+     * @param roomId            the room id
      * @param onSuccessCallback the success asynchronous callback
      */
     public void onForgetRoom(final String roomId, final SimpleApiCallback<Void> onSuccessCallback) {
@@ -1588,7 +1569,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     /**
      * Trigger the room leave / invitation reject.
      *
-     * @param roomId the room id
+     * @param roomId            the room id
      * @param onSuccessCallback the success asynchronous callback
      */
     public void onRejectInvitation(final String roomId, final SimpleApiCallback<Void> onSuccessCallback) {
@@ -1735,7 +1716,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                         break;
                     }
 
-                    case R.id.sliding_menu_exit : {
+                    case R.id.sliding_menu_exit: {
                         if (null != EventStreamService.getInstance()) {
                             EventStreamService.getInstance().stopNow();
                         }
@@ -2157,7 +2138,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
-                                CommonActivityUtils.logout(VectorHomeActivity.this, true);
+                                CommonActivityUtils.logout(VectorHomeActivity.this);
                             }
                         })
                         .setNegativeButton(R.string.later, new DialogInterface.OnClickListener() {

@@ -17,7 +17,7 @@
     <!-- for android 4.1.* devices, reported by GA -->
     <uses-permission android:name="android.permission.GET_TASKS" />
 
-    <!-- videocall permissions-->
+    <!-- videocall permissions -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
@@ -28,32 +28,29 @@
     <!-- shared files from external application -->
     <uses-permission android:name="android.permission.MANAGE_DOCUMENTS" tools:ignore="ProtectedPermissions"/>
 
-    <!-- to be able to turn on display when a notification is received-->
+    <!-- to be able to turn on display when a notification is received -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <!-- start the background sync on boot -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <!-- disable the battery optimisation on some devices to let the background sync works -->
-    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
-    <!-- videocall feature-->
+    <!-- videocall feature -->
     <!-- android.permission.CAMERA defines android.hardware.camera -->
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false"
         tools:replace="required" />
-
     <uses-feature
         android:name="android.hardware.camera.any"
         android:required="false"
-        tools:replace="required"/>
-
+        tools:replace="required" />
     <uses-feature
         android:name="android.hardware.camera.autofocus"
         android:required="false"
         tools:replace="required" />
-
     <uses-feature
         android:glEsVersion="0x00020000"
         android:required="false"
@@ -113,6 +110,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="fr.gouv.tchap.activity.TchapRoomCreationActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/tchap_room_creation_title"
+            android:launchMode="singleTop"
+            android:parentActivityName=".activity.VectorHomeActivity"
+            android:windowSoftInputMode="adjustResize">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="im.vector.activity.VectorHomeActivity" />
+        </activity>
         <activity
             android:name=".activity.AccountCreationActivity"
             android:configChanges="orientation|screenSize"
@@ -128,7 +135,7 @@
         <activity
             android:name=".activity.SplashActivity"
             android:configChanges="orientation|screenSize"
-            android:theme="@style/AppTheme.NoActionBar.FullScreen"/>
+            android:theme="@style/AppTheme.NoActionBar.FullScreen" />
         <activity
             android:name=".activity.LoggingOutActivity"
             android:configChanges="orientation|screenSize"
@@ -152,6 +159,9 @@
             android:label="@string/title_activity_room"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden|adjustResize" />
+        <activity
+            android:name=".activity.DeactivateAccountActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activity.VectorRoomCreationActivity"
             android:configChanges="orientation|screenSize"
@@ -236,7 +246,11 @@
         <activity
             android:name=".activity.IntegrationManagerActivity"
             android:configChanges="orientation|screenSize"
-            android:theme="@style/AppTheme.NoActionBar.FullScreen" />
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".activity.StickerPickerActivity"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activity.VectorMediasPickerActivity"
             android:label="@string/media_picker_both_capture_title"
@@ -294,7 +308,7 @@
             android:label="@string/title_activity_group_details"
             android:launchMode="singleTop"
             android:theme="@style/GroupAppTheme"
-            android:windowSoftInputMode="adjustResize"></activity>
+            android:windowSoftInputMode="adjustResize" />
         <activity android:name=".activity.VectorUniversalLinkActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -387,8 +401,10 @@
             android:name=".activity.NotificationPrivacyActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/settings_notification_privacy"
-            android:theme="@style/CountryPickerTheme" >
-        </activity>
+            android:theme="@style/CountryPickerTheme" />
+        <activity
+            android:name=".activity.SimpleWebViewActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
 
         <!-- broadcast receiver -->
         <receiver
@@ -439,7 +455,6 @@
                 <!-- mail validation -->
                 <data android:pathPrefix="/_matrix/" />
             </intent-filter>
-
             <intent-filter>
                 <action android:name="im.vector.receiver.BROADCAST_ACTION_REGISTRATION" />
 
@@ -449,7 +464,6 @@
                 <!-- mail validation -->
                 <data android:pathPrefix="/_matrix/" />
             </intent-filter>
-
             <intent-filter>
                 <action android:name="im.vector.receiver.BROADCAST_ACTION_REGISTRATION" />
 
@@ -466,10 +480,10 @@
                 <action android:name="android.intent.action.ACTION_USER_UNLOCKED" />
             </intent-filter>
         </receiver>
-
         <receiver android:name=".receiver.DismissNotificationReceiver" />
 
-        <!-- Disable INSTALL_REFERRER on tchap
+        <!--
+        Disable INSTALL_REFERRER on tchap
         <receiver
             android:name=".receiver.VectorReferrerReceiver"
             android:enabled="true"
@@ -480,7 +494,7 @@
         </receiver>
         -->
 
-        <!-- Shared items  -->
+        <!-- Shared items -->
         <activity
             android:name=".activity.VectorSharedFilesActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar">
@@ -489,7 +503,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="*/*" />
             </intent-filter>
-
             <intent-filter>
                 <action android:name="android.intent.action.SEND_MULTIPLE" />
                 <category android:name="android.intent.category.DEFAULT" />

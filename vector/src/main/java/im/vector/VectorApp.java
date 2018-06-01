@@ -315,6 +315,7 @@ public class VectorApp extends MultiDexApplication {
                 Log.d(LOG_TAG, "onActivityPaused " + activity);
                 mLocalesByActivity.put(activity.toString(), getActivityLocaleStatus(activity));
                 setCurrentActivity(null);
+                onAppPause();
             }
 
             @Override
@@ -1278,7 +1279,7 @@ public class VectorApp extends MultiDexApplication {
      * @param activity the new activity
      */
     private void onNewScreen(Activity activity) {
-        if (PreferencesManager.trackWithPiwik(this)) {
+        if (PreferencesManager.useAnalytics(this)) {
             Tracker tracker = getPiwikTracker();
             if (null != tracker) {
                 try {
@@ -1296,7 +1297,7 @@ public class VectorApp extends MultiDexApplication {
      * The application is paused.
      */
     private void onAppPause() {
-        if (PreferencesManager.trackWithPiwik(this)) {
+        if (PreferencesManager.useAnalytics(this)) {
             Tracker tracker = getPiwikTracker();
             if (null != tracker) {
                 try {
