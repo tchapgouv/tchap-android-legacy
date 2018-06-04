@@ -155,7 +155,7 @@ public class SectionView extends RelativeLayout {
      * @return height of the title
      */
     public int getStickyHeaderHeight() {
-        return getChildAt(mSubView != null ? 1 : 0).getMeasuredHeight();
+        return 0;// getChildAt(mSubView != null ? 1 : 0).getMeasuredHeight();
     }
 
     /**

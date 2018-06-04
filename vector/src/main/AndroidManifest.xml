@@ -120,6 +120,16 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="im.vector.activity.VectorHomeActivity" />
         </activity>
+        <activity android:name="fr.gouv.tchap.activity.TchapPublicRoomSelectionActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/tchap_room_creation_title"
+            android:launchMode="singleTop"
+            android:parentActivityName=".activity.VectorHomeActivity"
+            android:windowSoftInputMode="adjustResize">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="im.vector.activity.VectorHomeActivity" />
+        </activity>
         <activity
             android:name=".activity.AccountCreationActivity"
             android:configChanges="orientation|screenSize"

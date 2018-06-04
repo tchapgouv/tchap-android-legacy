@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package im.vector.adapters;
+package fr.gouv.tchap.adapters;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -31,28 +31,36 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.matrix.androidsdk.data.Room;
+import org.matrix.androidsdk.rest.model.group.GroupUser;
 import org.matrix.androidsdk.rest.model.publicroom.PublicRoom;
 import org.matrix.androidsdk.util.Log;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import im.vector.R;
 import fr.gouv.tchap.activity.TchapLoginActivity;
 import fr.gouv.tchap.util.DinsicUtils;
+import im.vector.R;
+import im.vector.adapters.AbsAdapter;
+import im.vector.adapters.AdapterSection;
+import im.vector.adapters.PublicRoomsAdapterSection;
+import im.vector.adapters.RoomViewHolder;
+import im.vector.util.StickySectionHelper;
 import im.vector.util.VectorUtils;
 
-public class RoomAdapter extends AbsAdapter {
+public class PublicRoomAdapter extends AbsAdapter {
 
-    private static final String LOG_TAG = RoomAdapter.class.getSimpleName();
+    private static final String LOG_TAG = PublicRoomAdapter.class.getSimpleName();
 
     private static final int TYPE_HEADER_PUBLIC_ROOM = 0;
 
     private static final int TYPE_PUBLIC_ROOM = 1;
 
-    private final AdapterSection<Room> mRoomsSection;
+//    private final AdapterSection<Room> mRoomsSection;
     private final PublicRoomsAdapterSection mPublicRoomsSection;
 
     private final OnSelectItemListener mListener;
@@ -63,22 +71,27 @@ public class RoomAdapter extends AbsAdapter {
      * *********************************************************************************************
      */
 
-    public RoomAdapter(final Context context, final OnSelectItemListener listener, final RoomInvitationListener invitationListener, final MoreRoomActionListener moreActionListener) {
+    public PublicRoomAdapter(final Context context, final OnSelectItemListener listener, final RoomInvitationListener invitationListener, final MoreRoomActionListener moreActionListener) {
         super(context, invitationListener, moreActionListener);
 
         mListener = listener;
 
-        mRoomsSection = new AdapterSection<>(context, context.getString(R.string.rooms_header), -1,
-                R.layout.adapter_item_room_view, TYPE_HEADER_DEFAULT, TYPE_ROOM, new ArrayList<Room>(), DinsicUtils.getRoomsComparator(mSession, false));
-        mRoomsSection.setEmptyViewPlaceholder(context.getString(R.string.no_room_placeholder), context.getString(R.string.no_result_placeholder));
 
         mPublicRoomsSection = new PublicRoomsAdapterSection(context, context.getString(R.string.rooms_directory_header),
-                R.layout.adapter_public_room_sticky_header_subview, R.layout.adapter_item_public_room_view,
+                -1, R.layout.adapter_item_public_room_view,
                 TYPE_HEADER_PUBLIC_ROOM, TYPE_PUBLIC_ROOM, new ArrayList<PublicRoom>(), null);
         mPublicRoomsSection.setEmptyViewPlaceholder(context.getString(R.string.no_public_room_placeholder), context.getString(R.string.no_result_placeholder));
 
-        addSection(mRoomsSection);
+        // External users can not access to public rooms
+        if (!TchapLoginActivity.isUserExternal(mSession)) {
+            addSection(mPublicRoomsSection);
+        }
+    }
 
+    //no sticker on public room
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+       int i=0;
     }
 
     /*
@@ -100,9 +113,6 @@ public class RoomAdapter extends AbsAdapter {
             return new HeaderViewHolder(itemView);
         } else {
             switch (viewType) {
-                case TYPE_ROOM:
-                    itemView = inflater.inflate(R.layout.adapter_item_room_view, viewGroup, false);
-                    return new RoomViewHolder(itemView);
                 case TYPE_PUBLIC_ROOM:
                     itemView = inflater.inflate(R.layout.adapter_item_public_room_view, viewGroup, false);
                     return new PublicRoomViewHolder(itemView);
@@ -124,17 +134,6 @@ public class RoomAdapter extends AbsAdapter {
                     }
                 }
                 break;
-            case TYPE_ROOM:
-                final RoomViewHolder roomViewHolder = (RoomViewHolder) viewHolder;
-                final Room room = (Room) getItemForPosition(position);
-                roomViewHolder.populateViews(mContext, mSession, room, false, false, mMoreRoomActionListener);
-                roomViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mListener.onSelectItem(room, -1);
-                    }
-                });
-                break;
             case TYPE_PUBLIC_ROOM:
                 final PublicRoomViewHolder publicRoomViewHolder = (PublicRoomViewHolder) viewHolder;
                 final PublicRoom publicRoom = (PublicRoom) getItemForPosition(position);
@@ -147,7 +146,7 @@ public class RoomAdapter extends AbsAdapter {
     protected int applyFilter(String pattern) {
         int nbResults = 0;
 
-        nbResults += filterRoomSection(mRoomsSection, pattern);
+        //nbResults += filterRoomSection(mRoomsSection, pattern);
 
         // The public rooms search is done by a server request.
         // The result is also paginated so it make no sense to be done in the adapter
@@ -161,13 +160,6 @@ public class RoomAdapter extends AbsAdapter {
      * *********************************************************************************************
      */
 
-    public void setRooms(final List<Room> rooms) {
-        mRoomsSection.setItems(rooms, mCurrentFilterPattern);
-        if (!TextUtils.isEmpty(mCurrentFilterPattern)) {
-            filterRoomSection(mRoomsSection, String.valueOf(mCurrentFilterPattern));
-        }
-        updateSections();
-    }
 
     public void setPublicRooms(final List<PublicRoom> publicRooms) {
         mPublicRoomsSection.setItems(publicRooms, mCurrentFilterPattern);
@@ -193,9 +185,16 @@ public class RoomAdapter extends AbsAdapter {
 
         newPublicRooms.addAll(mPublicRoomsSection.getItems());
         newPublicRooms.addAll(publicRooms);
+        Collections.sort(newPublicRooms, mComparator);
         mPublicRoomsSection.setItems(newPublicRooms, mCurrentFilterPattern);
         updateSections();
     }
+    private static final Comparator<PublicRoom> mComparator = new Comparator<PublicRoom>() {
+        @Override
+        public int compare(PublicRoom lhs, PublicRoom rhs) {
+            return rhs.numJoinedMembers - lhs.numJoinedMembers;
+        }
+    };
 
     /*
      * *********************************************************************************************

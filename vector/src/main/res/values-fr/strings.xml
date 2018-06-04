@@ -287,6 +287,8 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="room_recents_create_room">Créer une discussion</string>
     <string name="room_recents_join_room">Rejoindre la discussion</string>
     <string name="room_recents_join_room_title">Rejoindre une discussion</string>
+    <string name="room_join_public_room_title">Rejoindre un salon public</string>
+    <string name="room_join_public_room_alt_title">Rejoindre un salon</string>
     <string name="directory_search_results_title">Parcourir le répertoire</string>
     <string name="directory_searching_title">Recherche dans le répertoire…</string>
 
