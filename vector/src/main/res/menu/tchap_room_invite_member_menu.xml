@@ -4,8 +4,8 @@
     tools:context="fr.gouv.tchap.activity.TchapRoomCreationActivity" >
 
     <item
-        android:id="@+id/action_next"
-        android:title="@string/tchap_room_creation_next"
+        android:id="@+id/action_invite_members"
+        android:title="@string/tchap_room_invite_member_action"
         android:textAllCaps="false"
         app:showAsAction="always"
         android:orderInCategory="0"/>

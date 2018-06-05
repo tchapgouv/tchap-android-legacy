@@ -43,7 +43,6 @@ import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.util.Log;
 import org.matrix.androidsdk.util.ResourceUtils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -63,7 +62,6 @@ import im.vector.activity.VectorMediasPickerActivity;
 import im.vector.activity.VectorRoomActivity;
 import im.vector.activity.VectorRoomCreationActivity;
 import im.vector.activity.VectorRoomInviteMembersActivity;
-import im.vector.adapters.ParticipantAdapterItem;
 import im.vector.util.ThemeUtils;
 import im.vector.util.VectorUtils;
 
@@ -92,8 +90,6 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     private MXSession mSession;
     private Uri mThumbnailUri = null;
     private CreateRoomParams mRoomParams = new CreateRoomParams();
-    // displayed participants
-    private ArrayList<ParticipantAdapterItem> mParticipants = new ArrayList<>();
 
     @Override
     public int getLayoutRes() {
@@ -123,11 +119,8 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
             case android.R.id.home:
                 finish();
                 return true;
-            case R.id.action_create_new_room:
+            case R.id.action_next:
                 inviteMembers(REQ_CODE_ADD_PARTICIPANTS);
-
-                // Deactivate the validate icon to avoid multiple rooms creation.
-                disableRoomCreationIcon(item);
 
                 // Hide the keyboard to see the waiting view while the room is being created.
                 hideKeyboard();
@@ -141,7 +134,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.tchap_room_creation_menu, menu);
-        MenuItem item = menu.findItem(R.id.action_create_new_room);
+        MenuItem item = menu.findItem(R.id.action_next);
 
         if (null != mRoomParams.name) {
             enableRoomCreationIcon(item);
@@ -154,12 +147,10 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
     private void enableRoomCreationIcon(MenuItem item) {
         item.setEnabled(true);
-        item.getIcon().setAlpha(255);
     }
 
     private void disableRoomCreationIcon(MenuItem item) {
         item.setEnabled(false);
-        item.getIcon().setAlpha(130);
     }
 
     private void hideKeyboard() {
@@ -204,36 +195,26 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     }
 
     /**
-     * Process the result of the room avatar picture.
+     * Process the result of the startActivityForResult()
      *
      * @param requestCode the request id.
      * @param resultCode  the request status code.
-     * @param data        the result data.
+     * @param intent      the result data.
      */
     @Override
-    public void onActivityResult(int requestCode, int resultCode, final Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+    public void onActivityResult(int requestCode, int resultCode, final Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
 
         switch (requestCode) {
             case REQ_CODE_UPDATE_ROOM_AVATAR:
-                onActivityResultRoomAvatarUpdate(resultCode, data);
+                onActivityResultRoomAvatarUpdate(resultCode, intent);
                 break;
             case REQ_CODE_ADD_PARTICIPANTS:
                 if (resultCode == Activity.RESULT_OK) {
-                    List<ParticipantAdapterItem> items = (List<ParticipantAdapterItem>) data.getSerializableExtra(VectorRoomInviteMembersActivity.EXTRA_OUT_SELECTED_PARTICIPANT_ITEMS);
-                    mParticipants.addAll(items);
-
-                    List<String> ids = new ArrayList<>();
-                    for(ParticipantAdapterItem item : mParticipants) {
-                        if (null != item.mUserId) {
-                            ids.add(item.mUserId);
-                        }
-                    }
-                    mRoomParams.addParticipantIds(mSession.getHomeServerConfig(), ids);
+                    showWaitingView();
+                    List<String> participants = intent.getStringArrayListExtra(VectorRoomInviteMembersActivity.EXTRA_OUT_SELECTED_USER_IDS);
+                    mRoomParams.addParticipantIds(mSession.getHomeServerConfig(), participants);
                     createNewRoom();
-                } else if (1 == mParticipants.size()) {
-                    // the user cancels the first user selection so assume he wants to cancel the room creation.
-                    this.finish();
                 }
                 break;
         }
@@ -273,14 +254,15 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
      * The room name is mandatory.
      */
     private void createNewRoom() {
-        showWaitingView();
         mSession.createRoom(mRoomParams, new SimpleApiCallback<String>(TchapRoomCreationActivity.this) {
             @Override
             public void onSuccess(final String roomId) {
                 if (null != mThumbnailUri) {
                     // save the bitmap URL on the server
+                    hideWaitingView();
                     uploadRoomAvatar(roomId, mThumbnailUri);
                 } else {
+                    hideWaitingView();
                     openRoom(roomId);
                 }
             }
@@ -456,7 +438,6 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     private void inviteMembers(int requestCode) {
         Intent intent = new Intent(TchapRoomCreationActivity.this, VectorRoomInviteMembersActivity.class);
         intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
-        intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_HIDDEN_PARTICIPANT_ITEMS, mParticipants);
         intent.putExtra(VectorRoomCreationActivity.EXTRA_ROOM_CREATION_ACTIVITY_MODE, VectorRoomCreationActivity.RoomCreationModes.DISCUSSION);
         intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_INVITE_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY);
         startActivityForResult(intent, requestCode);

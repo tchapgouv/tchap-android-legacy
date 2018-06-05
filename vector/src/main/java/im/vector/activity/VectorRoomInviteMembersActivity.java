@@ -19,18 +19,21 @@
 package im.vector.activity;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ExpandableListView;
+import android.widget.SearchView;
 
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.listeners.MXEventListener;
@@ -40,14 +43,12 @@ import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.util.Log;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import fr.gouv.tchap.activity.TchapLoginActivity;
 import im.vector.Matrix;
 import im.vector.R;
 import im.vector.adapters.ParticipantAdapterItem;
@@ -55,13 +56,14 @@ import im.vector.adapters.VectorParticipantsAdapter;
 import im.vector.contacts.Contact;
 import im.vector.contacts.ContactsManager;
 import fr.gouv.tchap.util.DinsicUtils;
+import im.vector.util.ThemeUtils;
 import im.vector.util.VectorUtils;
 import im.vector.view.VectorAutoCompleteTextView;
 
 /**
  * This class provides a way to search other user to invite them in a dedicated room
  */
-public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
+public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implements SearchView.OnQueryTextListener {
     private static final String LOG_TAG = VectorRoomInviteMembersActivity.class.getSimpleName();
 
     // room identifier
@@ -93,6 +95,7 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
     private String mMatrixId;
 
     // main UI items
+    private SearchView mSearchView;
     private ExpandableListView mListView;
 
     // participants list
@@ -103,6 +106,9 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
 
     // tell if a confirmation dialog must be displayed to validate the user ids list
     private boolean mAddConfirmationDialog;
+
+    // The list of userId to invite for the room creation
+    ArrayList<String> userIdsToInvite = new ArrayList<>();
 
     // retrieve a matrix Id from an email
     private final ContactsManager.ContactsManagerListener mContactsListener = new ContactsManager.ContactsManagerListener() {
@@ -162,6 +168,30 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
     };
 
     @Override
+    public boolean onQueryTextSubmit(String query) {
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        String pattern = mSearchView.getQuery().toString();
+
+        mAdapter.setSearchedPattern(pattern, null, new VectorParticipantsAdapter.OnParticipantsSearchListener() {
+            @Override
+            public void onSearchEnd(final int count) {
+                mListView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        hideWaitingView();
+                    }
+                });
+            }
+        });
+
+        return false;
+    }
+
+    @Override
     public int getLayoutRes() {
         return R.layout.activity_vector_invite_members;
     }
@@ -180,6 +210,14 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
             Log.d(LOG_TAG, "onCreate : Going to splash screen");
             return;
         }
+
+        // Initialize search view
+        mSearchView = findViewById(R.id.external_search_view);
+        mSearchView.setOnQueryTextListener(this);
+
+        // Check if no view has focus:
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(mSearchView.getApplicationWindowToken(), 0);
 
         Intent intent = getIntent();
 
@@ -216,12 +254,7 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
 
         // tell if a confirmation dialog must be displayed.
         mAddConfirmationDialog = intent.getBooleanExtra(EXTRA_ADD_CONFIRMATION_DIALOG, false);
-
-        // the user defines a
-        if (null != mPatternToSearchEditText) {
-            mPatternToSearchEditText.setHint(R.string.room_participants_invite_search_another_user);
-        }
-
+        
         setWaitingView(findViewById(R.id.search_in_progress_view));
 
         mListView = findViewById(R.id.room_details_members_list);
@@ -244,20 +277,21 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
                 final Object item = mAdapter.getChild(groupPosition, childPosition);
 
                 if (item instanceof ParticipantAdapterItem) {
+                    final ParticipantAdapterItem participantItem = (ParticipantAdapterItem) mAdapter.getChild(groupPosition, childPosition);
                     if (null != mMode && mMode == VectorRoomCreationActivity.RoomCreationModes.DIRECT_CHAT) {
-
-                        final ParticipantAdapterItem participant = (ParticipantAdapterItem) mAdapter.getChild(groupPosition, childPosition);
-                        DinsicUtils.startDirectChat(VectorRoomInviteMembersActivity.this, mSession, participant);
-
+                        DinsicUtils.startDirectChat(VectorRoomInviteMembersActivity.this, mSession, participantItem);
                     } else {
-                        addParticipantToListToInvite((ParticipantAdapterItem) item);
+                        updateParticipantListToInvite(participantItem);
+                        mAdapter.mCurrentSelectedUsers = userIdsToInvite;
+                        mAdapter.notifyDataSetChanged();
+                        invalidateOptionsMenu();
                     }
                 }
                 return ret;
             }
         });
 
-        View inviteByIdTextView = findViewById(R.id.search_invite_by_id);
+        /*View inviteByIdTextView = findViewById(R.id.search_invite_by_id);
         inviteByIdTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -267,17 +301,65 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
                     displayInviteByUserId();
                 }
             }
-        });
+        });*/
 
         // Check permission to access contacts
         CommonActivityUtils.checkPermissions(CommonActivityUtils.REQUEST_CODE_PERMISSION_MEMBERS_SEARCH, this);
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        CommonActivityUtils.tintMenuIcons(menu, ThemeUtils.getColor(this, R.attr.icon_tint_on_dark_action_bar_color));
+        // Hide the keyboard to see the waiting view while the room is being created.
+        hideKeyboard();
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+            case R.id.action_invite_members:
+                // Return the list of the members ids selected to invite for the room creation
+                Intent intent = new Intent();
+                intent.putExtra(EXTRA_OUT_SELECTED_USER_IDS, userIdsToInvite);
+                setResult(RESULT_OK, intent);
+                finish();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.tchap_room_invite_member_menu, menu);
+        MenuItem item = menu.findItem(R.id.action_invite_members);
+
+        if (userIdsToInvite.isEmpty()) {
+            item.setEnabled(false);
+        } else {
+            item.setEnabled(true);
+        }
+
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+
+    @Override
     protected void onResume() {
         super.onResume();
         mSession.getDataHandler().addListener(mEventsListener);
         ContactsManager.getInstance().addListener(mContactsListener);
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                onPatternUpdate(false);
+            }
+        });
     }
 
     @Override
@@ -306,9 +388,8 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
     /**
      * The search pattern has been updated
      */
-    @Override
     protected void onPatternUpdate(boolean isTypingUpdate) {
-        String pattern = mPatternToSearchEditText.getText().toString();
+        String pattern = "";
 
         // display a spinner while the other room members are listed
         if (!mAdapter.isKnownMembersInitialized()) {
@@ -442,15 +523,21 @@ public class VectorRoomInviteMembersActivity extends VectorBaseSearchActivity {
     }
 
     /**
-     * Add selected contacts to a list to invite them
+     * Add or remove selected contacts to a list to invite them
      *
      * @param item the selected participants
      */
-    private void addParticipantToListToInvite(ParticipantAdapterItem item) {
+    private void updateParticipantListToInvite(ParticipantAdapterItem item) {
         boolean ret = false;
         ParticipantAdapterItem participantAdapterItem = item;
         if (item.mIsValid) {
-            finish(new ArrayList<>(Arrays.asList(participantAdapterItem)));
+            if (!userIdsToInvite.contains(participantAdapterItem.mUserId)) {
+                userIdsToInvite.add(participantAdapterItem.mUserId);
+                participantAdapterItem.mIsSelectedToInvite = true;
+            } else {
+                userIdsToInvite.remove(participantAdapterItem.mUserId);
+                participantAdapterItem.mIsSelectedToInvite = false;
+            }
             ret = true;
         } else {
             DinsicUtils.editContact(VectorRoomInviteMembersActivity.this, getApplicationContext(), item);

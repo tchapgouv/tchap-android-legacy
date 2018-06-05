@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="74dp"
     android:orientation="horizontal">
@@ -63,12 +64,32 @@
                 android:visibility="gone" />
         </RelativeLayout>
 
+        <FrameLayout
+            android:id="@+id/ly_icon_check_invite"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="7dp"
+            android:layout_centerVertical="true">
+
+        <ImageView
+            android:id="@+id/icon_check_invite_member"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/tchap_ic_selected_contact"
+            android:visibility="gone"
+            tools:visibility="visible" />
+        </FrameLayout>
+
         <im.vector.view.VectorCircularImageView
             android:id="@+id/filtered_list_avatar"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="16dp" />
+            android:layout_toRightOf="@id/ly_icon_check_invite"
+            tools:background="@color/vector_fuchsia_color" />
 
         <ImageView
             android:id="@+id/filtered_list_matrix_user"
@@ -79,7 +100,8 @@
             android:layout_marginRight="-7dp"
             android:layout_marginTop="-7dp"
             android:src="@drawable/logo_tchap_color"
-            android:visibility="gone" />
+            android:visibility="gone"
+            tools:visibility="visible" />
 
         <ImageView
             android:id="@+id/filtered_list_avatar_badge"
@@ -90,7 +112,8 @@
             android:layout_marginRight="-7dp"
             android:layout_marginTop="-7dp"
             android:src="@drawable/admin_icon"
-            android:visibility="gone" />
+            android:visibility="gone"
+            tools:visibility="visible" />
 
         <!-- keep singleLine="true" because maxLines="1" truncation is not the expected one.-->
         <TextView
@@ -100,7 +123,6 @@
             android:layout_alignTop="@id/filtered_list_avatar"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
-            android:layout_toLeftOf="@id/filtered_list_actions_list"
             android:layout_toRightOf="@id/filtered_list_avatar"
             android:singleLine="true"
             android:text="A member name"
@@ -115,9 +137,8 @@
             android:layout_alignBottom="@id/filtered_list_avatar"
             android:layout_alignLeft="@id/filtered_list_name"
             android:layout_marginRight="16dp"
-            android:layout_toLeftOf="@id/filtered_list_actions_list"
-            android:maxLines="1"
             android:ellipsize="end"
+            android:maxLines="1"
             android:text="A member status"
             android:textColor="?attr/default_text_light_color"
             android:textSize="14sp" />

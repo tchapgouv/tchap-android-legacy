@@ -42,12 +42,11 @@
                         android:id="@+id/tv_add_avatar_image"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_alignTop="@+id/hexagon_mask_view"
-                        android:layout_alignLeft="@+id/hexagon_mask_view"
-                        android:layout_alignRight="@+id/hexagon_mask_view"
-                        android:layout_alignBottom="@+id/hexagon_mask_view"
+                        android:layout_centerVertical="true"
+                        android:layout_centerHorizontal="true"
                         android:gravity="center"
                         android:layout_margin="1dp"
+                        android:paddingTop="5dp"
                         android:paddingBottom="5dp"
                         android:textAllCaps="false"
                         android:textSize="12sp"
@@ -93,8 +92,9 @@
                     android:layout_weight="1"
                     android:text="@string/tchap_room_creation_public"
                     android:textSize="15sp"
+                    android:paddingBottom="3dp"
                     android:textColor="@color/vector_tchap_text_color_dark"
-                    tools:text="Rendre ce salon privé"/>
+                    tools:text="Rendre ce salon public"/>
 
                 <Switch
                     android:id="@+id/switch_public_private_rooms"
@@ -107,7 +107,7 @@
                 android:id="@+id/tv_public_private_room_description"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12.8dp"
+                android:layout_marginTop="13dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="7dp"
                 android:text="@string/tchap_room_creation_public_private_info"

@@ -2057,11 +2057,14 @@ public class CommonActivityUtils {
         for (int i = 0; i < menu.size(); ++i) {
             MenuItem item = menu.getItem(i);
             Drawable drawable = item.getIcon();
+            CharSequence title = item.getTitle();
+
             if (drawable != null) {
                 Drawable wrapped = DrawableCompat.wrap(drawable);
                 drawable.mutate();
                 DrawableCompat.setTint(wrapped, color);
                 item.setIcon(drawable);
+                item.setTitle(title);
             }
         }
     }
