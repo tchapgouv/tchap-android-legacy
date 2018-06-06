@@ -947,6 +947,9 @@
     <string name="tchap_room_invite_member_title">Add to the room</string>
     <string name="tchap_room_invite_member_action">Add</string>
 
+    // tchap new strings
+    <string name="tchap_invite_contacts_to_tchap">Invite contacts in Tchap</string>
+
     <!-- group details -->
     <string name="group_details_home">Home</string>
     <string name="group_details_people">People</string>

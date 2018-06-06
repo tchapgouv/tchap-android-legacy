@@ -112,6 +112,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
     // - email address when mContactsFilter = ContactsFilter.NO_TCHAP_ONLY
     // - both in the other cases
     ArrayList<String> userIdsToInvite = new ArrayList<>();
+    ArrayList<ParticipantAdapterItem> participantsItemToInvite = new ArrayList<>();
 
     // retrieve a matrix Id from an email
     private final ContactsManager.ContactsManagerListener mContactsListener = new ContactsManager.ContactsManagerListener() {
@@ -314,6 +315,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                 // Return the list of the members ids selected to invite for the room creation
                 Intent intent = new Intent();
                 intent.putExtra(EXTRA_OUT_SELECTED_USER_IDS, userIdsToInvite);
+                intent.putExtra(EXTRA_OUT_SELECTED_PARTICIPANT_ITEMS, participantsItemToInvite);
                 setResult(RESULT_OK, intent);
                 finish();
                 return true;
@@ -514,11 +516,13 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         boolean ret = false;
         ParticipantAdapterItem participantAdapterItem = item;
         if (item.mIsValid) {
-            if (!userIdsToInvite.contains(participantAdapterItem.mUserId)) {
+            if (!userIdsToInvite.contains(participantAdapterItem.mUserId) && !participantsItemToInvite.contains(participantAdapterItem)) {
                 userIdsToInvite.add(participantAdapterItem.mUserId);
+                participantsItemToInvite.add(participantAdapterItem);
                 participantAdapterItem.mIsSelectedToInvite = true;
             } else {
                 userIdsToInvite.remove(participantAdapterItem.mUserId);
+                participantsItemToInvite.add(participantAdapterItem);
                 participantAdapterItem.mIsSelectedToInvite = false;
             }
             ret = true;
