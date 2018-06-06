@@ -324,7 +324,7 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                     }
                 }
                 else if (android.util.Patterns.EMAIL_ADDRESS.matcher(key).matches()) {
-                    // Check whether this email corresponds to a user id
+                    // Check whether this email corresponds to an actual user id, else ignore it.
                     // @TODO Trigger a lookup3Pid request if the info is not available.
                     final Contact.MXID contactMxId = PIDsRetriever.getInstance().getMXID(key);
                     if (null != contactMxId && contactMxId.mMatrixId.length() > 0) {
@@ -386,26 +386,6 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                                 }
                             });
                         }
-                    } else if (!store.getDirectChatRoomsDict().get(key).isEmpty()) {
-                        // Build a display name from the email
-                        String displayName = key.substring(0, key.lastIndexOf("@"));
-                        String[] components = displayName.split("\\.");
-                        StringBuilder builder = new StringBuilder();
-                        for (String component : components) {
-                            String updatedComponent = component.substring(0, 1).toUpperCase() + component.substring(1);
-                            if (builder.toString().isEmpty()) {
-                                builder.append(updatedComponent);
-                            } else {
-                                builder.append(" " + updatedComponent);
-                            }
-                        }
-                        displayName = builder.toString();
-                        // Add a contact for this user
-                        Contact dummyContact = new Contact("null");
-                        dummyContact.setDisplayName(displayName);
-                        ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
-                        participant.mUserId = key;
-                        participants.add(participant);
                     }
                 }
             }
@@ -595,19 +575,10 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
 
         if (null != contacts) {
             for (Contact contact : contacts) {
-                    //select just one email, in priority the french gov email
-                    boolean findGovEmail = false;
-                    ParticipantAdapterItem candidatParticipant=null;
-
+                    // In case of several emails, we create a contact for each email linked to a Tchap account.
                     for (String email : contact.getEmails()) {
                         if (!TextUtils.isEmpty(email) && !ParticipantAdapterItem.isBlackedListed(email)) {
-                            Contact dummyContact = new Contact(email);
-                            dummyContact.setDisplayName(contact.getDisplayName());
-                            dummyContact.addEmailAdress(email);
-                            dummyContact.setThumbnailUri(contact.getThumbnailUri());
-
-                            ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
-
+                            // Check whether a Tchap account is linked to this email.
                             Contact.MXID mxid = PIDsRetriever.getInstance().getMXID(email);
 
                             if (null != mxid) {
@@ -615,24 +586,21 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                                 if (mxid.mMatrixId.equals(mSession.getMyUserId())) {
                                     continue;
                                 }
+
+                                // Create a contact for this Tchap user
+                                Contact dummyContact = new Contact(email);
+                                dummyContact.setDisplayName(contact.getDisplayName());
+                                dummyContact.addEmailAdress(email);
+                                dummyContact.setThumbnailUri(contact.getThumbnailUri());
+                                ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
                                 participant.mUserId = mxid.mMatrixId;
-                            } else {
-                                participant.mUserId = email;
-                            }
-                            if (DinsicUtils.isFromFrenchGov(email)) {
-                                findGovEmail = true;
                                 participants.add(participant);
-                            } else if (!findGovEmail && (candidatParticipant == null || null != mxid)) {
-                                // if no french gov is discovered yet, we store a candidate by prioritising those with mxId
-                                candidatParticipant = participant;
                             }
                         }
                     }
-
-                    if (!findGovEmail && candidatParticipant != null && MXSession.isUserId(candidatParticipant.mUserId))
-                        participants.add(candidatParticipant);
                 }
             }
+
         return participants;
     }
 
