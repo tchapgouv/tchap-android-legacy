@@ -56,7 +56,6 @@ import im.vector.adapters.VectorParticipantsAdapter;
 import im.vector.contacts.Contact;
 import im.vector.contacts.ContactsManager;
 import fr.gouv.tchap.util.DinsicUtils;
-import im.vector.util.ThemeUtils;
 import im.vector.util.VectorUtils;
 import im.vector.view.VectorAutoCompleteTextView;
 
@@ -107,7 +106,11 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
     // tell if a confirmation dialog must be displayed to validate the user ids list
     private boolean mAddConfirmationDialog;
 
-    // The list of userId to invite for the room creation
+    // The list of the identifiers of the current selected contacts
+    // The type of these identifiers depends on the mContactsFilter:
+    // - matrix id when mContactsFilter = ContactsFilter.TCHAP_ONLY
+    // - email address when mContactsFilter = ContactsFilter.NO_TCHAP_ONLY
+    // - both in the other cases
     ArrayList<String> userIdsToInvite = new ArrayList<>();
 
     // retrieve a matrix Id from an email
@@ -175,19 +178,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
     @Override
     public boolean onQueryTextChange(String newText) {
         String pattern = mSearchView.getQuery().toString();
-
-        mAdapter.setSearchedPattern(pattern, null, new VectorParticipantsAdapter.OnParticipantsSearchListener() {
-            @Override
-            public void onSearchEnd(final int count) {
-                mListView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        hideWaitingView();
-                    }
-                });
-            }
-        });
-
+        onPatternUpdate(true);
         return false;
     }
 
@@ -254,7 +245,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
 
         // tell if a confirmation dialog must be displayed.
         mAddConfirmationDialog = intent.getBooleanExtra(EXTRA_ADD_CONFIRMATION_DIALOG, false);
-        
+
         setWaitingView(findViewById(R.id.search_in_progress_view));
 
         mListView = findViewById(R.id.room_details_members_list);
@@ -277,7 +268,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                 final Object item = mAdapter.getChild(groupPosition, childPosition);
 
                 if (item instanceof ParticipantAdapterItem) {
-                    final ParticipantAdapterItem participantItem = (ParticipantAdapterItem) mAdapter.getChild(groupPosition, childPosition);
+                    final ParticipantAdapterItem participantItem = (ParticipantAdapterItem) item;
                     if (null != mMode && mMode == VectorRoomCreationActivity.RoomCreationModes.DIRECT_CHAT) {
                         DinsicUtils.startDirectChat(VectorRoomInviteMembersActivity.this, mSession, participantItem);
                     } else {
@@ -309,8 +300,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        CommonActivityUtils.tintMenuIcons(menu, ThemeUtils.getColor(this, R.attr.icon_tint_on_dark_action_bar_color));
-        // Hide the keyboard to see the waiting view while the room is being created.
+        getMenuInflater().inflate(R.menu.tchap_room_invite_member_menu, menu);
         hideKeyboard();
         return true;
     }
@@ -335,18 +325,12 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.tchap_room_invite_member_menu, menu);
         MenuItem item = menu.findItem(R.id.action_invite_members);
 
-        if (userIdsToInvite.isEmpty()) {
-            item.setEnabled(false);
-        } else {
-            item.setEnabled(true);
-        }
+        item.setEnabled(!userIdsToInvite.isEmpty());
 
         return super.onPrepareOptionsMenu(menu);
     }
-
 
     @Override
     protected void onResume() {
@@ -389,7 +373,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
      * The search pattern has been updated
      */
     protected void onPatternUpdate(boolean isTypingUpdate) {
-        String pattern = "";
+        String pattern = mSearchView.getQuery().toString();
 
         // display a spinner while the other room members are listed
         if (!mAdapter.isKnownMembersInitialized()) {

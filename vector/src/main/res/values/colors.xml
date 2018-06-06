@@ -3,7 +3,6 @@
 
     <!-- main app colors -->
     <color name="vector_green_color">#4D3F7E</color>
-    <color name="vector_white_color">#ffffff</color>
     <color name="vector_fuchsia_color">#ff0064</color>
     <color name="vector_silver_color">#FFC7C7C7</color>
     <color name="vector_dark_grey_color">#FF999999</color>
@@ -19,6 +18,7 @@
     <color name="vector_tchap_hexagon_background_color_dark_grey">#ECECEC</color>
     <color name="tchap_search_bar">#90dee5f1</color>
     <color name="tchap_search_bar_text">#7d7d7d</color>
+    <color name="tchap_action_bar_text_color">#ffffff</color>
 
     <!-- home activity tab bar color -->
     <color name="tab_home">@color/vector_green_color</color>

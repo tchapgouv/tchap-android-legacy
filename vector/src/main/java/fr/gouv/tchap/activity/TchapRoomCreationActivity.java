@@ -62,7 +62,6 @@ import im.vector.activity.VectorMediasPickerActivity;
 import im.vector.activity.VectorRoomActivity;
 import im.vector.activity.VectorRoomCreationActivity;
 import im.vector.activity.VectorRoomInviteMembersActivity;
-import im.vector.util.ThemeUtils;
 import im.vector.util.VectorUtils;
 
 public class TchapRoomCreationActivity extends MXCActionBarActivity {
@@ -109,7 +108,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        CommonActivityUtils.tintMenuIcons(menu, ThemeUtils.getColor(this, R.attr.icon_tint_on_dark_action_bar_color));
+        getMenuInflater().inflate(R.menu.tchap_room_creation_menu, menu);
         return true;
     }
 
@@ -121,8 +120,6 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                 return true;
             case R.id.action_next:
                 inviteMembers(REQ_CODE_ADD_PARTICIPANTS);
-
-                // Hide the keyboard to see the waiting view while the room is being created.
                 hideKeyboard();
 
                 return true;
@@ -133,24 +130,11 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.tchap_room_creation_menu, menu);
         MenuItem item = menu.findItem(R.id.action_next);
 
-        if (null != mRoomParams.name) {
-            enableRoomCreationIcon(item);
-        } else {
-            disableRoomCreationIcon(item);
-        }
+        item.setEnabled(null != mRoomParams.name);
 
         return super.onPrepareOptionsMenu(menu);
-    }
-
-    private void enableRoomCreationIcon(MenuItem item) {
-        item.setEnabled(true);
-    }
-
-    private void disableRoomCreationIcon(MenuItem item) {
-        item.setEnabled(false);
     }
 
     private void hideKeyboard() {
@@ -254,6 +238,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
      * The room name is mandatory.
      */
     private void createNewRoom() {
+        invalidateOptionsMenu();
         mSession.createRoom(mRoomParams, new SimpleApiCallback<String>(TchapRoomCreationActivity.this) {
             @Override
             public void onSuccess(final String roomId) {
