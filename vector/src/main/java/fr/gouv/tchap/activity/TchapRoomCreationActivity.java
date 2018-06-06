@@ -132,7 +132,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem item = menu.findItem(R.id.action_next);
 
-        item.setEnabled(null != mRoomParams.name);
+        item.setEnabled(null != mRoomParams.name && !isWaitingViewVisible());
 
         return super.onPrepareOptionsMenu(menu);
     }
@@ -195,7 +195,11 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                 break;
             case REQ_CODE_ADD_PARTICIPANTS:
                 if (resultCode == Activity.RESULT_OK) {
+                    // We have retrieved the list of members to invite from RoomInviteMembersActivity.
+                    // This list can not be empty because the add button for the members selection is only activated if at least 1 member is selected.
+                    // This list contains only matrixIds because the RoomInviteMembersActivity was opened in TCHAP_ONLY mode.
                     showWaitingView();
+                    invalidateOptionsMenu();
                     List<String> participants = intent.getStringArrayListExtra(VectorRoomInviteMembersActivity.EXTRA_OUT_SELECTED_USER_IDS);
                     mRoomParams.addParticipantIds(mSession.getHomeServerConfig(), participants);
                     createNewRoom();
@@ -238,7 +242,6 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
      * The room name is mandatory.
      */
     private void createNewRoom() {
-        invalidateOptionsMenu();
         mSession.createRoom(mRoomParams, new SimpleApiCallback<String>(TchapRoomCreationActivity.this) {
             @Override
             public void onSuccess(final String roomId) {

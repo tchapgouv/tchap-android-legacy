@@ -177,7 +177,6 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
 
     @Override
     public boolean onQueryTextChange(String newText) {
-        String pattern = mSearchView.getQuery().toString();
         onPatternUpdate(true);
         return false;
     }
