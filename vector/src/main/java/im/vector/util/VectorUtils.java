@@ -304,7 +304,7 @@ public class VectorUtils {
     // avatars cache
     static final private LruCache<String, Bitmap> mAvatarImageByKeyDict = new LruCache<>(20 * 1024 * 1024);
     // the avatars background color
-    static final private ArrayList<Integer> mColorList = new ArrayList<>(Arrays.asList(0xff4D3F7E, 0xff4D3F7E, 0xff4D3F7E));
+    static final private ArrayList<Integer> mColorList = new ArrayList<>(Arrays.asList(0xff8b8999, 0xff8b8999, 0xff8b8999));
 
     /**
      * Provides the avatar background color from a text.

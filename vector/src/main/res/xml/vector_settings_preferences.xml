@@ -93,12 +93,13 @@
             android:key="SETTINGS_VIBRATE_ON_MENTION_KEY"
             android:title="@string/settings_vibrate_on_mention" />
 
+        <!-- Themes selection option is disable for Tchap
         <ListPreference
             android:entries="@array/theme_description"
             android:entryValues="@array/theme_codes"
             android:key="APPLICATION_THEME_KEY"
             android:summary="%s"
-            android:title="@string/settings_theme" />
+            android:title="@string/settings_theme" />-->
 
     </PreferenceCategory>
 
