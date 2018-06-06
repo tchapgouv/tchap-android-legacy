@@ -1,6 +1,7 @@
 /*
  * Copyright 2016 OpenMarket Ltd
  * Copyright 2017 Vector Creations Ltd
+ * Copyright 2018 New Vector Ltd
  * Copyright DINSIC 2018
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -107,6 +108,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
     private List<ParticipantAdapterItem> mContactsParticipants = null;
     private Set<String> mUsedMemberUserIds = null;
     private List<String> mDisplayNamesList = null;
+    public List<String> mCurrentSelectedUsers = null;
     private String mPattern = "";
 
     private List<ParticipantAdapterItem> mItemsToHide = new ArrayList<>();
@@ -484,7 +486,9 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
 
                         if (null != searchUsersResponse.results) {
                             for (User user : searchUsersResponse.results) {
-                                participantItemList.add(new ParticipantAdapterItem(user));
+                                ParticipantAdapterItem participant = new ParticipantAdapterItem(user);
+                                participant.mIsSelectedToInvite = mCurrentSelectedUsers.contains(participant.mUserId);
+                                participantItemList.add(participant);
                             }
                         }
 
@@ -1068,6 +1072,9 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
 
         final View addParticipantImageView = convertView.findViewById(R.id.filtered_list_add_button);
         addParticipantImageView.setVisibility(mWithAddIcon ? View.VISIBLE : View.GONE);
+
+        final ImageView iconCheck = convertView.findViewById(R.id.icon_check_invite_member);
+        iconCheck.setVisibility(participant.mIsSelectedToInvite ? View.VISIBLE : View.GONE);
 
         return convertView;
     }

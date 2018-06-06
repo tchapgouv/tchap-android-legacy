@@ -16,6 +16,9 @@
     <color name="vector_tchap_text_color_light_grey">#949494</color>
     <color name="vector_tchap_hexagon_color_dark_grey">#979797</color>
     <color name="vector_tchap_hexagon_background_color_dark_grey">#ECECEC</color>
+    <color name="tchap_search_bar">#90dee5f1</color>
+    <color name="tchap_search_bar_text">#7d7d7d</color>
+    <color name="tchap_action_bar_text_color">#ffffff</color>
 
     <!-- home activity tab bar color -->
     <color name="tab_home">@color/vector_green_color</color>

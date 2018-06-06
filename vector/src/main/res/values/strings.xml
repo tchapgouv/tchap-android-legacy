@@ -937,6 +937,16 @@
     <string name="community_id">Community Id</string>
     <string name="community_id_hint">example</string>
 
+    // tchap room creation
+    <string name="tchap_room_creation_title">New room</string>
+    <string name="tchap_room_creation_next">Next</string>
+    <string name="tchap_room_creation_avatar">Add an avatar</string>
+    <string name="tchap_room_creation_name">Name this room</string>
+    <string name="tchap_room_creation_public">Make this room public</string>
+    <string name="tchap_room_creation_public_private_info">A public room can be joined by any member of the Tchap community provided that has been accepted.</string>
+    <string name="tchap_room_invite_member_title">Add to the room</string>
+    <string name="tchap_room_invite_member_action">Add</string>
+
     <!-- group details -->
     <string name="group_details_home">Home</string>
     <string name="group_details_people">People</string>

@@ -3,30 +3,33 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/search_invite_by_id"
-        style="@style/ListHeader"
+    <SearchView
+        android:id="@+id/external_search_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        android:text="@string/people_search_invite_by_id"
-        android:textAllCaps="false"
-        android:textSize="16sp" />
+        android:layout_height="40dp"
+        style="@style/SearchViewMembers"
+        android:iconifiedByDefault="false"
+        android:queryHint="@string/search"
+        android:background="@drawable/tchap_search_bar_style"
+        android:gravity="center"
+        android:layout_margin="10dp"
+        android:clickable="true">
+    </SearchView>
 
     <ExpandableListView
         android:id="@+id/room_details_members_list"
-        android:layout_below="@+id/search_invite_by_id"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@+id/external_search_view"
         android:divider="@android:color/transparent"
         android:dividerHeight="1px" />
 
     <RelativeLayout
-        android:id="@+id/search_in_progress_view"
+        android:id="@+id/search_progress_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="?attr/waiting_background_color"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <ProgressBar
             android:layout_width="40dp"
