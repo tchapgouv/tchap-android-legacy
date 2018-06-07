@@ -221,6 +221,9 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     @BindView(R.id.search_view)
     SearchView mSearchView;
 
+    @BindView(R.id.ly_invite_contacts_to_tchap)
+    View mInviteContactLayout;
+
     private boolean mStorePermissionCheck = false;
 
     // a shared files intent is waiting the store init
@@ -456,7 +459,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
             }
         }
 
-        final View selectedMenu;
         final TabLayout.Tab myTab;
         int myPosition = TAB_POSITION_CONVERSATION;
         if (!isFirstCreation()) {
@@ -942,6 +944,17 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 }
                 mCurrentFragmentTag = TAG_FRAGMENT_PEOPLE;
                 mSearchView.setQueryHint(getString(R.string.home_filter_placeholder_people));
+
+                mInviteContactLayout.setVisibility(View.VISIBLE);
+
+                mInviteContactLayout.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // We launch a VectorRoomCreationActivity activity to invite
+                        // some non-tchap contacts by using their email
+                        createNewChat(VectorRoomCreationActivity.RoomCreationModes.INVITE);
+                    }
+                });
                 break;
             case TAB_POSITION_CONVERSATION:
                 Log.d(LOG_TAG, "onNavigationItemSelected ROOMS");
@@ -951,6 +964,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 }
                 mCurrentFragmentTag = TAG_FRAGMENT_ROOMS;
                 mSearchView.setQueryHint(getString(R.string.home_filter_placeholder_rooms));
+                mInviteContactLayout.setVisibility(View.GONE);
                 break;
             /*case R.id.bottom_action_groups:
                 Log.d(LOG_TAG, "onNavigationItemSelected GROUPS");
@@ -1275,7 +1289,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         // ignore any action if there is a pending one
         if (!isWaitingViewVisible()) {
             if (!TchapLoginActivity.isUserExternal(mSession)) {
-                CharSequence items[] = new CharSequence[]{getString(R.string.start_new_chat), getString(R.string.room_creation_title), getString(R.string.room_creation_invite_members)};
+                CharSequence items[] = new CharSequence[]{getString(R.string.start_new_chat), getString(R.string.room_creation_title)};
                 mFabDialog = new AlertDialog.Builder(this)
                         .setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
                             @Override
@@ -1291,14 +1305,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                                     // Launch the new screen to create an empty room
                                     final Intent intent = new Intent(VectorHomeActivity.this, TchapRoomCreationActivity.class);
                                     VectorHomeActivity.this.startActivity(intent);
-                                } else {
-                                    // Create a new discussion
-                                    // Invite one or more users
-                                    // If only one contact is selected, it will be a direct chat
-                                    // Multiselection mode is required
-                                    // TODO sp3-11 invite only non Tchap users
-                                    //DinsicUtils.alertSimpleMsg(VectorHomeActivity.this, getString(R.string.action_not_available_yet));
-                                    createNewChat(VectorRoomCreationActivity.RoomCreationModes.INVITE);
                                 }
                             }
                         })

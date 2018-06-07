@@ -83,10 +83,39 @@
             android:layout_below="@+id/tab_layout"
             tools:context="org.matrix.vector.activity.VectorHomeActivity">
 
+            <RelativeLayout
+                android:id="@+id/ly_invite_contacts_to_tchap"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginLeft="24dp"
+                android:clickable="true"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <ImageView
+                    android:id="@+id/icon_add_contacts_to_tchap"
+                    android:layout_width="41dp"
+                    android:layout_height="41dp"
+                    android:layout_marginTop="10dp"
+                    android:src="@drawable/tchap_ic_add_contact" />
+
+                <TextView
+                    android:id="@+id/tv_invite_contacts_to_tchap"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_toRightOf="@+id/icon_add_contacts_to_tchap"
+                    android:text="@string/tchap_invite_contacts_to_tchap"
+                    android:textColor="@color/vector_tchap_text_color_light"
+                    android:textSize="16sp" />
+            </RelativeLayout>
+
             <FrameLayout
                 android:id="@+id/fragment_container"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_below="@+id/ly_invite_contacts_to_tchap"
                 android:background="?attr/riot_primary_background_color" />
 
             <android.support.design.widget.FloatingActionButton
