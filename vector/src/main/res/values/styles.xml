@@ -68,6 +68,10 @@
         <item name="textAllCaps">false</item>
     </style>
 
+    <style name="AppTheme.Widget.ActionButton" parent="@style/Widget.AppCompat.ActionButton">
+        <item name="android:textAllCaps">false</item>
+    </style>
+
     <!-- custom action bar -->
     <style name="Vector.Styled.ActionBar" parent="@style/Widget.AppCompat.Light.ActionBar">
         <item name="android:background">?attr/primary_color</item>

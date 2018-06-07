@@ -19,6 +19,7 @@
 
 package im.vector.adapters;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
@@ -30,7 +31,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
-import android.widget.CheckBox;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -94,6 +94,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
     // layout info
     private final Context mContext;
     private final LayoutInflater mLayoutInflater;
+    private Activity mActivity;
 
     // account info
     private final MXSession mSession;
@@ -134,6 +135,9 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
     // Set to true when we need to display the "+" icon
     private final boolean mWithAddIcon;
 
+    // Set to true when we need to display the "edit_pen" icon
+    private final boolean mWithEditIcon;
+
     // tell if the known contacts list is limited
     private boolean mKnownContactsLimited;
 
@@ -148,24 +152,26 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
      * If a room id is defined, the adapter is in edition mode : the user can add / remove dynamically members or leave the room.
      * If there is none, the room is in creation mode : the user can add/remove members to create a new room.
      *
+     * @param activity               the activity.
      * @param context                the context.
      * @param cellLayoutResourceId   the cell layout.
      * @param headerLayoutResourceId the header layout
      * @param session                the session.
      * @param roomId                 the room id.
      * @param withAddIcon            whether we need to display the "+" icon
+     * @param withEditIcon           whether we need to display the "edit_pen" icon
      */
-    public VectorParticipantsAdapter(Context context, int cellLayoutResourceId, int headerLayoutResourceId, MXSession session, String roomId, boolean withAddIcon, VectorRoomInviteMembersActivity.ContactsFilter contactsFilter) {
+    public VectorParticipantsAdapter(Activity activity,Context context, int cellLayoutResourceId, int headerLayoutResourceId, MXSession session, String roomId, boolean withAddIcon, boolean withEditIcon, VectorRoomInviteMembersActivity.ContactsFilter contactsFilter) {
+        mActivity = activity;
         mContext = context;
-
         mLayoutInflater = LayoutInflater.from(context);
         mCellLayoutResourceId = cellLayoutResourceId;
         mHeaderLayoutResourceId = headerLayoutResourceId;
         mSession = session;
         mRoomId = roomId;
         mWithAddIcon = withAddIcon;
+        mWithEditIcon = withEditIcon;
         mContactsFilter = contactsFilter;
-
         mSortMethod = ParticipantAdapterItem.getComparator(session);
     }
 
@@ -993,8 +999,8 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
         // retrieve the ui items
         final ImageView thumbView = convertView.findViewById(R.id.filtered_list_avatar);
         final TextView nameTextView = convertView.findViewById(R.id.filtered_list_name);
-        final TextView statusTextView = convertView.findViewById(R.id.filtered_list_status);
-        final ImageView matrixUserBadge = convertView.findViewById(R.id.filtered_list_matrix_user);
+        final TextView statusTextView = convertView.findViewById(R.id.filtered_list_email);
+        //final ImageView matrixUserBadge = convertView.findViewById(R.id.filtered_list_matrix_user);
 
         // Contacts not in priority are seen different
         if (!participant.isViewedInPriority()){
@@ -1002,14 +1008,14 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
             //thumbView.setAlpha( 0.5f);
             nameTextView.setTypeface(null, Typeface.ITALIC);
         }
-        else{
+        else {
             //thumbView.clearColorFilter();
             nameTextView.setTypeface(null, Typeface.BOLD);
         }
 
         // reported by GA
         // it should never happen but it happened...
-        if ((null == thumbView) || (null == nameTextView) || (null == statusTextView) || (null == matrixUserBadge)) {
+        if ((null == thumbView) || (null == nameTextView) || (null == statusTextView) /*|| (null == matrixUserBadge)*/) {
             Log.e(LOG_TAG, "## getChildView() : some ui items are null");
             return convertView;
         }
@@ -1050,7 +1056,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
         // the contact defines a matrix user but there is no way to get more information (presence, avatar)
         if (participant.mContact != null) {
             boolean isMatrixUserId = MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(participant.mUserId).matches();
-            matrixUserBadge.setVisibility(isMatrixUserId ? View.VISIBLE : View.GONE);
+            //matrixUserBadge.setVisibility(isMatrixUserId ? View.VISIBLE : View.GONE);
 
             if (participant.mContact.getEmails().size() > 0) {
                 statusTextView.setText(participant.mContact.getEmails().get(0));
@@ -1059,7 +1065,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
             }
         } else {
             statusTextView.setText(status);
-            matrixUserBadge.setVisibility(View.GONE);
+            //matrixUserBadge.setVisibility(View.GONE);
         }
 
         // Add alpha if cannot be invited
@@ -1067,11 +1073,21 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
         // convertView.setAlpha(participant.mIsValid ? 1f : 0.5f);
 
         // the checkbox is not managed here
-        final CheckBox checkBox = convertView.findViewById(R.id.filtered_list_checkbox);
+        /*final CheckBox checkBox = convertView.findViewById(R.id.filtered_list_checkbox);
         checkBox.setVisibility(View.GONE);
 
-        final View addParticipantImageView = convertView.findViewById(R.id.filtered_list_add_button);
-        addParticipantImageView.setVisibility(mWithAddIcon ? View.VISIBLE : View.GONE);
+        final View addParticipantImageView = convertView.findViewById(R.id.filtered_list_actions_list);
+        addParticipantImageView.setVisibility(mWithAddIcon ? View.VISIBLE : View.GONE);*/
+
+        final View editContactPen = convertView.findViewById(R.id.filtered_list_actions_list);
+        editContactPen.setVisibility(mWithEditIcon ? View.VISIBLE : View.GONE);
+
+        editContactPen.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DinsicUtils.editContactForm(mContext, mActivity, mContext.getString(R.string.people_edit_contact_warning_msg), participant.mContact);
+            }
+        });
 
         final ImageView iconCheck = convertView.findViewById(R.id.icon_check_invite_member);
         iconCheck.setVisibility(participant.mIsSelectedToInvite ? View.VISIBLE : View.GONE);

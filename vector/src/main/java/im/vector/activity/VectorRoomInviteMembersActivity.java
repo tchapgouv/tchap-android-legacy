@@ -49,6 +49,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import fr.gouv.tchap.activity.TchapLoginActivity;
 import im.vector.Matrix;
 import im.vector.R;
 import im.vector.adapters.ParticipantAdapterItem;
@@ -88,12 +89,13 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
     private ContactsFilter mContactsFilter = ContactsFilter.ALL;
 
     // This enum is used to select a mode for room creation
-    private VectorRoomCreationActivity.RoomCreationModes mMode = VectorRoomCreationActivity.RoomCreationModes.DISCUSSION;
+    public VectorRoomCreationActivity.RoomCreationModes mMode = VectorRoomCreationActivity.RoomCreationModes.NEW_ROOM;
 
     // account data
     private String mMatrixId;
 
     // main UI items
+    private View mParentLayout;
     private SearchView mSearchView;
     private ExpandableListView mListView;
 
@@ -102,6 +104,8 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
 
     // adapter
     private VectorParticipantsAdapter mAdapter;
+
+    public boolean isInviteMode = false;
 
     // tell if a confirmation dialog must be displayed to validate the user ids list
     private boolean mAddConfirmationDialog;
@@ -205,6 +209,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         }
 
         // Initialize search view
+        mParentLayout = findViewById(R.id.vector_invite_members_layout);
         mSearchView = findViewById(R.id.external_search_view);
         mSearchView.setOnQueryTextListener(this);
 
@@ -231,6 +236,20 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
             mContactsFilter = (ContactsFilter) intent.getSerializableExtra(EXTRA_INVITE_CONTACTS_FILTER);
         }
 
+        // Initialize action bar title
+        switch (mMode) {
+            case DIRECT_CHAT:
+                this.setTitle(R.string.tchap_room_invite_member_direct_chat);
+                break;
+            case NEW_ROOM:
+                this.setTitle(R.string.tchap_room_invite_member_title);
+                break;
+            case INVITE:
+                isInviteMode = true;
+                this.setTitle(R.string.room_creation_invite_members);
+                break;
+        }
+
         // get current session
         mSession = Matrix.getInstance(getApplicationContext()).getSession(mMatrixId);
 
@@ -254,10 +273,10 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         // the chevron is managed in the header view
         mListView.setGroupIndicator(null);
 
-        mAdapter = new VectorParticipantsAdapter(this,
+        mAdapter = new VectorParticipantsAdapter(this,this,
                 R.layout.adapter_item_vector_add_participants,
                 R.layout.adapter_item_vector_people_header,
-                mSession, roomId, true, mContactsFilter);
+                mSession, roomId, true, isInviteMode, mContactsFilter);
 
         mAdapter.setHiddenParticipantItems(mHiddenParticipantItems);
 
@@ -271,6 +290,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
 
                 if (item instanceof ParticipantAdapterItem) {
                     final ParticipantAdapterItem participantItem = (ParticipantAdapterItem) item;
+
                     if (null != mMode && mMode == VectorRoomCreationActivity.RoomCreationModes.DIRECT_CHAT) {
                         DinsicUtils.startDirectChat(VectorRoomInviteMembersActivity.this, mSession, participantItem);
                     } else {
@@ -284,7 +304,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
             }
         });
 
-        /*View inviteByIdTextView = findViewById(R.id.search_invite_by_id);
+        View inviteByIdTextView = findViewById(R.id.search_invite_by_id);
         inviteByIdTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -294,7 +314,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                     displayInviteByUserId();
                 }
             }
-        });*/
+        });
 
         // Check permission to access contacts
         CommonActivityUtils.checkPermissions(CommonActivityUtils.REQUEST_CODE_PERMISSION_MEMBERS_SEARCH, this);
@@ -332,6 +352,18 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
 
         item.setEnabled(!userIdsToInvite.isEmpty());
 
+        switch (mMode) {
+            case DIRECT_CHAT:
+                item.setTitle("");
+                break;
+            case NEW_ROOM:
+                item.setTitle(R.string.tchap_room_invite_member_action);
+                break;
+            case INVITE:
+                item.setTitle(R.string.invite);
+                break;
+        }
+
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -347,6 +379,9 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                 onPatternUpdate(false);
             }
         });
+
+        mSearchView.setQuery("", false);
+        mParentLayout.requestFocus();
     }
 
     @Override

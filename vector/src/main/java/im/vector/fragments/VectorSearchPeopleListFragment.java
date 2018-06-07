@@ -1,5 +1,6 @@
 /*
  * Copyright 2016 OpenMarket Ltd
+ * Copyright 2018 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +19,6 @@ package im.vector.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -154,10 +154,10 @@ public class VectorSearchPeopleListFragment extends VectorBaseFragment {
         // the chevron is managed in the header view
         mPeopleListView.setGroupIndicator(null);
 
-        mAdapter = new VectorParticipantsAdapter(getContext(),
+        mAdapter = new VectorParticipantsAdapter(this.getActivity(), getContext(),
                 R.layout.adapter_item_vector_add_participants,
                 R.layout.adapter_item_vector_people_header,
-                mSession, null, true, VectorRoomInviteMembersActivity.ContactsFilter.ALL);
+                mSession, null, true, true , VectorRoomInviteMembersActivity.ContactsFilter.ALL);
 
         mPeopleListView.setAdapter(mAdapter);
 

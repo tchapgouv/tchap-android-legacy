@@ -1,11 +1,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="fr.gouv.tchap.activity.TchapRoomCreationActivity" >
+    tools:context="fr.gouv.tchap.activity.TchapRoomCreationActivity">
 
     <item
         android:id="@+id/action_invite_members"
-        android:title="@string/tchap_room_invite_member_action"
+        android:title=""
+        android:textAppearance="@style/AppTheme.Widget.ActionButton"
         android:textAllCaps="false"
         app:showAsAction="always"
         android:orderInCategory="0"/>

@@ -147,7 +147,7 @@ public class VectorRoomCreationAdapter extends ArrayAdapter<ParticipantAdapterIt
         // retrieve the ui items
         final ImageView thumbView = convertView.findViewById(R.id.filtered_list_avatar);
         final TextView nameTextView = convertView.findViewById(R.id.filtered_list_name);
-        final TextView statusTextView = convertView.findViewById(R.id.filtered_list_status);
+        final TextView statusTextView = convertView.findViewById(R.id.filtered_list_email);
         final ImageView matrixUserBadge = convertView.findViewById(R.id.filtered_list_matrix_user);
 
         // display the avatar
