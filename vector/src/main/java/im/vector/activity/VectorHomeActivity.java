@@ -950,12 +950,8 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 mInviteContactLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        // Create a new discussion
-                        // Invite one or more users
-                        // If only one contact is selected, it will be a direct chat
-                        // Multiselection mode is required
-                        // TODO sp3-11 invite only non Tchap users
-                        //DinsicUtils.alertSimpleMsg(VectorHomeActivity.this, getString(R.string.action_not_available_yet));
+                        // We launch a VectorRoomCreationActivity activity to invite
+                        // some non-tchap contacts by using their email
                         createNewChat(VectorRoomCreationActivity.RoomCreationModes.INVITE);
                     }
                 });

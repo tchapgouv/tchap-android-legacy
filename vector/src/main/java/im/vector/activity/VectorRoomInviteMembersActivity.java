@@ -112,6 +112,8 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
     // - email address when mContactsFilter = ContactsFilter.NO_TCHAP_ONLY
     // - both in the other cases
     ArrayList<String> userIdsToInvite = new ArrayList<>();
+
+    // TODO Remove this array usage
     ArrayList<ParticipantAdapterItem> participantsItemToInvite = new ArrayList<>();
 
     // retrieve a matrix Id from an email
@@ -516,13 +518,13 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         boolean ret = false;
         ParticipantAdapterItem participantAdapterItem = item;
         if (item.mIsValid) {
-            if (!userIdsToInvite.contains(participantAdapterItem.mUserId) && !participantsItemToInvite.contains(participantAdapterItem)) {
+            if (!userIdsToInvite.contains(participantAdapterItem.mUserId)) {
                 userIdsToInvite.add(participantAdapterItem.mUserId);
                 participantsItemToInvite.add(participantAdapterItem);
                 participantAdapterItem.mIsSelectedToInvite = true;
             } else {
                 userIdsToInvite.remove(participantAdapterItem.mUserId);
-                participantsItemToInvite.add(participantAdapterItem);
+                participantsItemToInvite.remove(participantAdapterItem);
                 participantAdapterItem.mIsSelectedToInvite = false;
             }
             ret = true;
