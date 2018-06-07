@@ -89,7 +89,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
     private ContactsFilter mContactsFilter = ContactsFilter.ALL;
 
     // This enum is used to select a mode for room creation
-    public VectorRoomCreationActivity.RoomCreationModes mMode = VectorRoomCreationActivity.RoomCreationModes.NEW_ROOM;
+    private VectorRoomCreationActivity.RoomCreationModes mMode = VectorRoomCreationActivity.RoomCreationModes.NEW_ROOM;
 
     // account data
     private String mMatrixId;
@@ -105,7 +105,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
     // adapter
     private VectorParticipantsAdapter mAdapter;
 
-    public boolean isInviteMode = false;
+    private boolean isInviteMode = false;
 
     // tell if a confirmation dialog must be displayed to validate the user ids list
     private boolean mAddConfirmationDialog;
@@ -239,14 +239,14 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         // Initialize action bar title
         switch (mMode) {
             case DIRECT_CHAT:
-                this.setTitle(R.string.tchap_room_invite_member_direct_chat);
+                setTitle(R.string.tchap_room_invite_member_direct_chat);
                 break;
             case NEW_ROOM:
-                this.setTitle(R.string.tchap_room_invite_member_title);
+                setTitle(R.string.tchap_room_invite_member_title);
                 break;
             case INVITE:
                 isInviteMode = true;
-                this.setTitle(R.string.room_creation_invite_members);
+                setTitle(R.string.room_creation_invite_members);
                 break;
         }
 
