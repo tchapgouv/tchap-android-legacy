@@ -243,19 +243,35 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                     list.add(participant);
 
                 } else {
-                    // select just one email, in priority the french gov email
-                    ParticipantAdapterItem candidateParticipant = null;
-
+                    // We create an item for each email except if the resulting contact is filtered by mContactsFilter.
                     for (String email : contact.getEmails()) {
                         if (!TextUtils.isEmpty(email) && !ParticipantAdapterItem.isBlackedListed(email)) {
-                            Contact dummyContact = new Contact(email);
+                            // Check whether a Tchap account is linked to this email.
+                            Contact.MXID mxid = PIDsRetriever.getInstance().getMXID(email);
+
+                            // Consider the contact filter here
+                            switch (mContactsFilter) {
+                                case TCHAP_ONLY:
+                                    if (null == mxid) {
+                                        // we ignore this email and go to the next one if any
+                                        continue;
+                                    }
+                                    break;
+                                case NO_TCHAP_ONLY:
+                                    if (null != mxid) {
+                                        // we ignore this email and go to the next one if any
+                                        continue;
+                                    }
+                                    break;
+                            }
+
+                            // TODO check whether there is an issue to use the same id for several dummy contacts
+                            Contact dummyContact = new Contact(contact.getContactId());
                             dummyContact.setDisplayName(contact.getDisplayName());
                             dummyContact.addEmailAdress(email);
                             dummyContact.setThumbnailUri(contact.getThumbnailUri());
 
                             ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
-
-                            Contact.MXID mxid = PIDsRetriever.getInstance().getMXID(email);
 
                             if (null != mxid) {
                                 participant.mUserId = mxid.mMatrixId;
@@ -263,43 +279,11 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                                 participant.mUserId = email;
                             }
 
-                            if (DinsicUtils.isFromFrenchGov(email)) {
-                                // In the case of the contact is a french gov agent,
-                                // this email is chosen in priority
-                                // and we do not continue looking for another email (break)
-                                candidateParticipant = participant;
-                                break;
-                            } else if (null == candidateParticipant || null != mxid) {
-                                // In the case of the contact is NOT a french gov agent,
-                                // it is added to the list whether it is a Tchap user or not
-                                candidateParticipant = participant;
+                            // Here we add the contact to the list
+                            if (mUsedMemberUserIds == null || !mUsedMemberUserIds.contains(participant.mUserId)) {
+                                DinsicUtils.removeParticipantIfExist(list, participant);
+                                list.add(participant);
                             }
-                        }
-                    }
-
-                    if (candidateParticipant != null) {
-                        // This enum, mContactsFilter, is used to filter the display of this contact
-                        switch (mContactsFilter) {
-                            case TCHAP_ONLY:
-                                if (!MXSession.isUserId(candidateParticipant.mUserId)) {
-                                    // we ignore it and go to the next contact
-                                    // we don't add this contact to the list
-                                    continue;
-                                }
-                                break;
-                            case NO_TCHAP_ONLY:
-                                if (MXSession.isUserId(candidateParticipant.mUserId)) {
-                                    // we ignore and go to the next contact
-                                    // we don't add this contact to the list
-                                    continue;
-                                }
-                                break;
-                        }
-
-                        // Here we add the contact to the list
-                        if (mUsedMemberUserIds != null && !mUsedMemberUserIds.contains(candidateParticipant.mUserId)) {
-                            DinsicUtils.removeParticipantIfExist(list, candidateParticipant);
-                            list.add(candidateParticipant);
                         }
                     }
                 }

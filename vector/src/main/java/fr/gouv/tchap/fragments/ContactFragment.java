@@ -588,7 +588,8 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                                 }
 
                                 // Create a contact for this Tchap user
-                                Contact dummyContact = new Contact(email);
+                                // TODO check whether there is an issue to use the same id for several dummy contacts
+                                Contact dummyContact = new Contact(contact.getContactId());
                                 dummyContact.setDisplayName(contact.getDisplayName());
                                 dummyContact.addEmailAdress(email);
                                 dummyContact.setThumbnailUri(contact.getThumbnailUri());
