@@ -842,10 +842,6 @@ Appareils inconnus :</string>
     <string name="tchap_room_invite_member_action">Ajouter</string>
     <string name="tchap_room_invite_member_direct_chat">Nouvelle discussion</string>
 
-
-    // tchap new strings
-    <string name="tchap_invite_contacts_to_tchap">Inviter des contacts dans Tchap</string>
-
     // tchap new strings
     <string name="tchap_invite_contacts_to_tchap">Inviter des contacts dans Tchap</string>
 
