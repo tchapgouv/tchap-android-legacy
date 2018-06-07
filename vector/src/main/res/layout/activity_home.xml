@@ -4,7 +4,7 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFFFF"
+    android:background="@color/riot_primary_background_color_light"
     android:fitsSystemWindows="true">
 
     <RelativeLayout
@@ -24,27 +24,31 @@
             <android.support.v7.widget.SearchView
                 android:id="@+id/search_view"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:alpha="0.6"/>
         </android.support.v7.widget.Toolbar>
-
 
         <android.support.design.widget.TabLayout
             android:id="@+id/tab_layout"
             android:layout_width="match_parent"
-            android:layout_height="35dp"
-
+            android:layout_height="50dp"
             android:layout_below="@+id/home_toolbar"
             android:background="?attr/vector_tabbar_background"
             android:theme="@style/AppTheme.NoActionBar"
             app:tabGravity="fill"
-            app:tabMode="fixed"
+            app:tabIndicatorColor="@color/riot_primary_background_color_light"
             app:tabMaxWidth="0dp"
+            app:tabMode="fixed"
+            android:paddingRight="5dp"
+            android:paddingLeft="5dp"
+            android:paddingBottom="15dp"
             app:tabTextAppearance="@style/Vector.Toolbar.Title">
 
             <android.support.design.widget.TabItem
                 android:id="@+id/tab_item_conversations"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:gravity="center"
                 android:text="dummy" />
 
             <android.support.design.widget.TabItem
@@ -53,9 +57,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="dummy" />
-
         </android.support.design.widget.TabLayout>
-
 
         <ProgressBar
             android:id="@+id/home_recents_sync_in_progress"
@@ -73,7 +75,6 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/home_recents_sync_in_progress"
             android:visibility="gone" />
-
 
         <!-- The main content view -->
         <RelativeLayout
@@ -116,8 +117,6 @@
                     android:visibility="visible" />
             </FrameLayout>
         </RelativeLayout>
-
-
     </RelativeLayout>
 
     <android.support.design.widget.NavigationView

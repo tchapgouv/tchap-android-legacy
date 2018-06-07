@@ -1,52 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal"
-    android:autoSizeTextType="none">
+    android:autoSizeTextType="none"
+    android:orientation="horizontal">
 
     <LinearLayout
+        android:id="@+id/tab_icon_conversations"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal"
-        android:id="@+id/tab_icon_conversations">
+        android:orientation="horizontal">
 
         <TextView
             android:id="@+id/tab_icon_text_conversations"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:autoSizeMaxTextSize="13sp"
+            android:autoSizeMinTextSize="2sp"
+            android:autoSizeTextType="uniform"
             android:gravity="center"
             android:maxLines="1"
+            android:paddingTop="10dp"
             android:text="@string/tab_rooms_title"
-            android:textColor="?attr/primary_text_color"
-            android:autoSizeTextType="uniform"
-            android:autoSizeMinTextSize="2sp"
-            android:autoSizeMaxTextSize="13sp"
-            android:paddingTop="5dp"
-            />
+            android:textColor="?attr/primary_text_color" />
     </LinearLayout>
+
     <LinearLayout
+        android:id="@+id/tab_icon_contacts"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal"
-        android:id="@+id/tab_icon_contacts">
+        android:orientation="horizontal">
+
         <TextView
             android:id="@+id/tab_icon_text_contacts"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/tab_contacts_title"
-            android:maxLines="1"
-            android:autoSizeTextType="uniform"
-            android:autoSizeMinTextSize="2sp"
-            android:autoSizeMaxTextSize="13sp"
             android:layout_weight="1"
+            android:autoSizeMaxTextSize="13sp"
+            android:autoSizeMinTextSize="2sp"
+            android:autoSizeTextType="uniform"
             android:gravity="center"
-            android:textColor="?attr/primary_text_color"
-            android:paddingTop="5dp"/>
+            android:maxLines="1"
+            android:paddingTop="10dp"
+            android:text="@string/tab_contacts_title"
+            android:textColor="?attr/primary_text_color" />
     </LinearLayout>
-
-
 </LinearLayout>

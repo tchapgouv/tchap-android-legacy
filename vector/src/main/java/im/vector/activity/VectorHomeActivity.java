@@ -37,8 +37,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.support.design.internal.BottomNavigationMenuView;
-import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
@@ -90,7 +88,6 @@ import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.util.BingRulesManager;
 import org.matrix.androidsdk.util.Log;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -683,11 +680,11 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.settings_opt_in_of_analytics_prompt);
         builder.setPositiveButton(R.string.settings_opt_in_of_analytics_ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        setAnalyticsAuthorization(true);
-                    }
-                })
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                setAnalyticsAuthorization(true);
+            }
+        })
                 .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -1982,7 +1979,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 LinearLayout customTab = (LinearLayout) mTopNavigationView.getTabAt(menuIndex).getCustomView();
 
                 UnreadCounterBadgeView badgeView = new UnreadCounterBadgeView(customTab.getContext());
-                 FrameLayout.LayoutParams badgeLayoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+                FrameLayout.LayoutParams badgeLayoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
                 badgeLayoutParams.setMargins(0, -badgeOffsetY, 0, 0);//, iconViewLayoutParams.rightMargin, iconViewLayoutParams.bottomMargin);
                 customTab.addView(badgeView,badgeLayoutParams);
                 mBadgeViewByIndex.put(menuIndex, badgeView);
