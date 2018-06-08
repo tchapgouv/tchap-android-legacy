@@ -64,6 +64,7 @@ import im.vector.view.VectorAutoCompleteTextView;
  * This class provides a way to search other user to invite them in a dedicated room
  */
 public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implements SearchView.OnQueryTextListener {
+
     private static final String LOG_TAG = VectorRoomInviteMembersActivity.class.getSimpleName();
 
     // room identifier
@@ -105,8 +106,6 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
     // adapter
     private VectorParticipantsAdapter mAdapter;
 
-    private boolean isInviteMode = false;
-
     // tell if a confirmation dialog must be displayed to validate the user ids list
     private boolean mAddConfirmationDialog;
 
@@ -119,7 +118,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
 
     // TODO Remove this array usage
     ArrayList<ParticipantAdapterItem> participantsItemToInvite = new ArrayList<>();
-
+    
     // retrieve a matrix Id from an email
     private final ContactsManager.ContactsManagerListener mContactsListener = new ContactsManager.ContactsManagerListener() {
         @Override
@@ -245,7 +244,6 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                 setTitle(R.string.tchap_room_invite_member_title);
                 break;
             case INVITE:
-                isInviteMode = true;
                 setTitle(R.string.room_creation_invite_members);
                 break;
         }
@@ -273,10 +271,22 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         // the chevron is managed in the header view
         mListView.setGroupIndicator(null);
 
-        mAdapter = new VectorParticipantsAdapter(this,this,
+        mAdapter = new VectorParticipantsAdapter(this,
                 R.layout.adapter_item_vector_add_participants,
                 R.layout.adapter_item_vector_people_header,
-                mSession, roomId, true, isInviteMode, mContactsFilter);
+                mSession, roomId, mContactsFilter);
+
+        // Support the contact edition in case of no tchap users
+        if (mContactsFilter.equals(ContactsFilter.NO_TCHAP_ONLY)) {
+            mAdapter.setEditParticipantListener(new VectorParticipantsAdapter.VectorParticipantsAdapterEditListener() {
+                @Override
+                public void editContactForm(final ParticipantAdapterItem participant) {
+                    if (null != participant.mContact) {
+                        DinsicUtils.editContactForm(VectorRoomInviteMembersActivity.this, VectorRoomInviteMembersActivity.this, getString(R.string.people_edit_contact_warning_msg), participant.mContact);
+                    }
+                }
+            });
+        }
 
         mAdapter.setHiddenParticipantItems(mHiddenParticipantItems);
 

@@ -121,7 +121,6 @@ public class VectorSearchPeopleListFragment extends VectorBaseFragment {
         }
     };
 
-
     /**
      * Static constructor
      *
@@ -154,10 +153,10 @@ public class VectorSearchPeopleListFragment extends VectorBaseFragment {
         // the chevron is managed in the header view
         mPeopleListView.setGroupIndicator(null);
 
-        mAdapter = new VectorParticipantsAdapter(this.getActivity(), getContext(),
+        mAdapter = new VectorParticipantsAdapter(getContext(),
                 R.layout.adapter_item_vector_add_participants,
                 R.layout.adapter_item_vector_people_header,
-                mSession, null, true, true , VectorRoomInviteMembersActivity.ContactsFilter.ALL);
+                mSession, null, VectorRoomInviteMembersActivity.ContactsFilter.ALL);
 
         mPeopleListView.setAdapter(mAdapter);
 
