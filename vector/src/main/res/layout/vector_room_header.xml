@@ -69,7 +69,7 @@
             android:layout_gravity="center_vertical"
             android:ellipsize="end"
             android:padding="8dp"
-            android:textColor="?attr/default_text_light_color"
+            android:textColor="@color/riot_primary_background_color_light"
             android:textSize="14sp"
             tools:text="a text" />
 

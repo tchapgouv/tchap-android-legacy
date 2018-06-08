@@ -65,8 +65,8 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
     public static final String EXTRA_ROOM_CREATION_ACTIVITY_MODE = "EXTRA_ROOM_CREATION_ACTIVITY_MODE";
 
     // This enum is used to select a mode for a room creation
-    public enum RoomCreationModes { DIRECT_CHAT, INVITE, DISCUSSION }
-    private RoomCreationModes mMode = RoomCreationModes.DISCUSSION;
+    public enum RoomCreationModes { DIRECT_CHAT, INVITE, NEW_ROOM }
+    private RoomCreationModes mMode = RoomCreationModes.NEW_ROOM;
 
     // UI items
     private ListView membersListView;
@@ -141,7 +141,7 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
                         case INVITE:
                             launchInviteMembersActivity(mMode , VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY, INVITE_USER_REQUEST_CODE);
                             break;
-                        case DISCUSSION:
+                        case NEW_ROOM:
                             launchInviteMembersActivity(mMode, VectorRoomInviteMembersActivity.ContactsFilter.ALL, INVITE_USER_REQUEST_CODE);
                             break;
                     }
@@ -183,7 +183,7 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
                 case INVITE:
                     launchInviteMembersActivity(mMode, VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY, INVITE_USER_REQUEST_CODE);
                     break;
-                case DISCUSSION:
+                case NEW_ROOM:
                     launchInviteMembersActivity(mMode, VectorRoomInviteMembersActivity.ContactsFilter.ALL, INVITE_USER_REQUEST_CODE);
                     break;
             }
