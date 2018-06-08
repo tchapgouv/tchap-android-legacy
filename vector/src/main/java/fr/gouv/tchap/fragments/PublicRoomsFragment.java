@@ -1,5 +1,6 @@
 /*
- * Copyright 2017 Vector Creations Ltd
+ * Copyright 2018 New Vector Ltd
+ * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -246,13 +247,6 @@ public class PublicRoomsFragment extends AbsHomeFragment {
 
     /*
      * *********************************************************************************************
-     * rooms management
-     * *********************************************************************************************
-     */
-
-
-    /*
-     * *********************************************************************************************
      * Public rooms management
      * *********************************************************************************************
      */
@@ -303,8 +297,8 @@ public class PublicRoomsFragment extends AbsHomeFragment {
                     private void onDone() {
                         if (null != mActivity) {
                             mActivity.hideWaitingView();
-                            CommonActivityUtils.previewRoom(getActivity(), roomPreviewData);
                         }
+                        CommonActivityUtils.previewRoom(getActivity(), roomPreviewData);
                     }
 
                     @Override
@@ -515,7 +509,8 @@ public class PublicRoomsFragment extends AbsHomeFragment {
                     private void onError(String message) {
                         if (null != getActivity()) {
                             Log.e(LOG_TAG, "## startPublicRoomsSearch() failed " + message);
-                            Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+                            // Pb here when a lot of federation doesn't work, a lot of messages make a crash
+                            //    Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
                             if (hostIndex == mCurrentHosts.size()-1) {
                                 mAdapter.setNoMorePublicRooms(!mMorePublicRooms);
                                 addPublicRoomsListener();

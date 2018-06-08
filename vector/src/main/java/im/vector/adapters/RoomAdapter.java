@@ -79,6 +79,10 @@ public class RoomAdapter extends AbsAdapter {
 
         addSection(mRoomsSection);
 
+        // External users can not access to public rooms
+        if (!TchapLoginActivity.isUserExternal(mSession)) {
+            addSection(mPublicRoomsSection);
+        }
     }
 
     /*

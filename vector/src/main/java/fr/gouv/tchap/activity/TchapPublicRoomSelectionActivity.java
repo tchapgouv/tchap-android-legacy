@@ -40,10 +40,13 @@ import android.widget.ProgressBar;
 
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
+import org.matrix.androidsdk.data.RoomPreviewData;
 import org.matrix.androidsdk.data.RoomState;
 import org.matrix.androidsdk.data.RoomSummary;
 import org.matrix.androidsdk.listeners.MXEventListener;
+import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.model.Event;
+import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.util.Log;
 
 import java.util.List;
@@ -72,20 +75,7 @@ public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity impl
     private static TchapPublicRoomSelectionActivity sharedInstance = null;
 
 
-    private static final boolean WAITING_VIEW_STOP = false;
-    public static final boolean WAITING_VIEW_START = true;
-
-
-    private static final String TAG_FRAGMENT_HOME = "TAG_FRAGMENT_HOME";
-    private static final String TAG_FRAGMENT_FAVOURITES = "TAG_FRAGMENT_FAVOURITES";
-    private static final String TAG_FRAGMENT_PEOPLE = "TAG_FRAGMENT_PEOPLE";
-    private static final String TAG_FRAGMENT_ROOMS = "TAG_FRAGMENT_ROOMS";
-    private static final String TAG_FRAGMENT_GROUPS = "TAG_FRAGMENT_GROUPS";
-
-
-
-    // switch to a room activity
-    private Map<String, Object> mAutomaticallyOpenedRoomParams = null;
+     private static final String TAG_FRAGMENT_ROOMS = "TAG_FRAGMENT_ROOMS";
 
 
     @BindView(R.id.listView_spinner_views)
@@ -100,13 +90,6 @@ public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity impl
     @BindView(R.id.drawer_layout_public_room)
     DrawerLayout mDrawerLayout;
 
-    //jp     @BindView(R.id.tab_layout)
-//jp     TabLayout mTopNavigationView;
-
-    // calls
-//jp     @BindView(R.id.listView_pending_callview)
-    //jp    VectorPendingCallView mVectorPendingCallView;
-
     @BindView(R.id.home_recents_sync_in_progress)
     ProgressBar mSyncInProgressView;
 
@@ -114,9 +97,6 @@ public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity impl
     SearchView mSearchView;
 
     private boolean mStorePermissionCheck = false;
-
-    // a shared files intent is waiting the store init
-//jp     private Intent mSharedFilesIntent = null;
 
     private final BroadcastReceiver mBrdRcvStopWaitingView = new BroadcastReceiver() {
         @Override
@@ -127,12 +107,6 @@ public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity impl
 
     private FragmentManager mFragmentManager;
 
-
-    // the current displayed fragment
-    private String mCurrentFragmentTag;
-
-    private List<Room> mDirectChatInvitations;
-    private List<Room> mRoomInvitations;
 
 
     /*
@@ -163,34 +137,19 @@ public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity impl
     public void initUiAndData() {
         mFragmentManager = getSupportFragmentManager();
 
-        /*jp        if (CommonActivityUtils.shouldRestartApp(this)) {
-            Log.e(LOG_TAG, "Restart the application.");
-            CommonActivityUtils.restartApp(this);
-            return;
-        }
-
-        if (CommonActivityUtils.isGoingToSplash(this)) {
-            Log.d(LOG_TAG, "onCreate : Going to splash screen");
-            return;
-        }
-*/
         this.setTitle(R.string.room_join_public_room_alt_title);
+
         sharedInstance = this;
 
         setupNavigation();
 
         mSession = Matrix.getInstance(this).getDefaultSession();
 
-        // process intent parameters
-        final Intent intent = getIntent();
-
-
-
         // initialize the public rooms list
         PublicRoomsManager.getInstance().setSession(mSession);
-//        PublicRoomsManager.getInstance().refreshPublicRoomsCount(null);
 
         initViews();
+
     }
 
 
@@ -256,59 +215,6 @@ public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity impl
      }
 
     /**
-     * Update the displayed fragment according to the selected menu
-     *
-     * @param item menu item selected by the user
-     */
-    /*
-    private void updateSelectedFragment(final TabLayout.Tab item) {
-        int position = item.getPosition();
-        if (mCurrentMenuId == position) {
-            return;
-        }
-
-        Fragment fragment = null;
-
-        switch (position) {
-             case TAB_POSITION_CONTACT:
-                Log.d(LOG_TAG, "onNavigationItemSelected PEOPLE");
-                fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_PEOPLE);
-                if (fragment == null) {
-                    fragment = ContactFragment.newInstance();
-                }
-                mCurrentFragmentTag = TAG_FRAGMENT_PEOPLE;
-                mSearchView.setQueryHint(getString(R.string.home_filter_placeholder_people));
-                break;
-            case TAB_POSITION_CONVERSATION:
-                Log.d(LOG_TAG, "onNavigationItemSelected ROOMS");
-                fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_ROOMS);
-                if (fragment == null) {
-                    fragment = RoomsFragment.newInstance();
-                }
-                mCurrentFragmentTag = TAG_FRAGMENT_ROOMS;
-                mSearchView.setQueryHint(getString(R.string.home_filter_placeholder_rooms));
-                break;
-        }
-
-
-        // hide waiting view
-        hideWaitingView();
-
-
-        if (fragment != null) {
-            resetFilter();
-            try {
-                mFragmentManager.beginTransaction()
-                        .replace(R.id.fragment_container, fragment, mCurrentFragmentTag)
-                        .addToBackStack(mCurrentFragmentTag)
-                        .commit();
-            } catch (Exception e) {
-                Log.e(LOG_TAG, "## updateSelectedFragment() failed : " + e.getMessage());
-            }
-        }
-    }
-*/
-     /**
      * Init views
      */
     private void initViews() {
@@ -323,18 +229,22 @@ public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity impl
             searchEditFrame.setLayoutParams(searchEditFrameParams);
         }
         ImageView searchIcon = mSearchView.findViewById(R.id.search_mag_icon);
-        if (searchIcon != null) {
-            ViewGroup.MarginLayoutParams searchIconParams = (ViewGroup.MarginLayoutParams) searchIcon.getLayoutParams();
-            searchIconParams.leftMargin = 0;
-            searchIcon.setLayoutParams(searchIconParams);
-        }
 
         mSearchView.setMaxWidth(Integer.MAX_VALUE);
         mSearchView.setSubmitButtonEnabled(false);
         mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         mSearchView.setIconifiedByDefault(false);
         mSearchView.setOnQueryTextListener(this);
+        mSearchView.setQueryHint(getString(R.string.search_hint));
+        mSearchView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (v != null) {
+                    mSearchView.setIconified(false);
+                }
 
+            }
+        });
 
     }
 
@@ -410,26 +320,11 @@ public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity impl
 
         if (null == roomsFragment) {
             String pattern = null;
-/*
-            if (intent.hasExtra(EXTRA_SEARCHED_PATTERN)) {
-                pattern = intent.getStringExtra(EXTRA_SEARCHED_PATTERN);
-            }
-*/
-            roomsFragment = PublicRoomsFragment.newInstance();
+           roomsFragment = PublicRoomsFragment.newInstance();
             //session.getMyUserId(), R.layout.fragment_vector_public_rooms_list, pattern);
             mFragmentManager.beginTransaction().add(R.id.fragment_container, roomsFragment, TAG_FRAGMENT_ROOMS).commit();
         }
 
-   /*     switch (mCurrentMenuId) {
-            case TAB_POSITION_CONTACT:
-                fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_PEOPLE);
-                break;
-            case TAB_POSITION_CONVERSATION:
-                fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_ROOMS);
-                break;
-
-        }
-*/
         return fragment;
 
     }

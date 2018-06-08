@@ -16,6 +16,7 @@
     <color name="vector_tchap_text_color_light_grey">#949494</color>
     <color name="vector_tchap_hexagon_color_dark_grey">#979797</color>
     <color name="vector_tchap_hexagon_background_color_dark_grey">#ECECEC</color>
+    <color name="vector_tchap_search_background_color">#90dee5f1</color>
 
     <!-- home activity tab bar color -->
     <color name="tab_home">@color/vector_green_color</color>
@@ -62,6 +63,7 @@
     <color name="default_text_hint_color_dark">#CCDDDDDD</color>
     <color name="default_text_light_color_dark">#A4A4A4</color>
     <color name="default_button_light_text_dark">#FF747474</color>
+
 
     <!-- Quote Colors -->
     <color name="quote_strip_color">#FFDDDDDD</color>

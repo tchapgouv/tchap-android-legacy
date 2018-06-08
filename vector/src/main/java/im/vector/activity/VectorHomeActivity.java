@@ -127,6 +127,7 @@ import im.vector.util.ThemeUtils;
 import im.vector.util.VectorUtils;
 import im.vector.view.UnreadCounterBadgeView;
 import im.vector.view.VectorPendingCallView;
+import fr.gouv.tchap.fragments.TchapRoomsFragment;
 
 /**
  * Displays the main screen of the app, with rooms the user has joined and the ability to create
@@ -951,7 +952,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 Log.d(LOG_TAG, "onNavigationItemSelected ROOMS");
                 fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_ROOMS);
                 if (fragment == null) {
-                    fragment = RoomsFragment.newInstance();
+                    fragment = TchapRoomsFragment.newInstance();
                 }
                 mCurrentFragmentTag = TAG_FRAGMENT_ROOMS;
                 mSearchView.setQueryHint(getString(R.string.home_filter_placeholder_rooms));
