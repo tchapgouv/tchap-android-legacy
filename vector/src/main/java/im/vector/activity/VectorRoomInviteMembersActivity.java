@@ -118,7 +118,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
 
     // TODO Remove this array usage
     ArrayList<ParticipantAdapterItem> participantsItemToInvite = new ArrayList<>();
-    
+
     // retrieve a matrix Id from an email
     private final ContactsManager.ContactsManagerListener mContactsListener = new ContactsManager.ContactsManagerListener() {
         @Override
@@ -315,16 +315,21 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         });
 
         View inviteByIdTextView = findViewById(R.id.search_invite_by_id);
-        inviteByIdTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(TchapLoginActivity.isUserExternal(mSession)) {
-                    DinsicUtils.alertSimpleMsg(VectorRoomInviteMembersActivity.this, getString(R.string.action_forbidden));
-                } else {
-                    displayInviteByUserId();
+        if (mMode.equals(VectorRoomCreationActivity.RoomCreationModes.INVITE)) {
+            inviteByIdTextView.setVisibility(View.VISIBLE);
+            inviteByIdTextView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(TchapLoginActivity.isUserExternal(mSession)) {
+                        DinsicUtils.alertSimpleMsg(VectorRoomInviteMembersActivity.this, getString(R.string.action_forbidden));
+                    } else {
+                        displayInviteByUserId();
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            inviteByIdTextView.setVisibility(View.GONE);
+        }
 
         // Check permission to access contacts
         CommonActivityUtils.checkPermissions(CommonActivityUtils.REQUEST_CODE_PERMISSION_MEMBERS_SEARCH, this);
