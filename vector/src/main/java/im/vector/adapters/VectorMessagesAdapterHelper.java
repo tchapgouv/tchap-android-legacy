@@ -612,7 +612,6 @@ class VectorMessagesAdapterHelper {
         View uploadProgressLayout = convertView.findViewById(R.id.content_upload_progress_layout);
         View progressBar = convertView.findViewById(R.id.upload_event_spinner);
         View stickerDescription = convertView.findViewById(R.id.message_adapter_sticker_layout);
-        View imageVideoName = convertView.findViewById(R.id.image_video_name_layout);
 
         if (null != uploadProgressLayout) {
             uploadProgressLayout.setVisibility(View.GONE);
@@ -629,9 +628,18 @@ class VectorMessagesAdapterHelper {
         if (null != stickerDescription) {
             stickerDescription.setVisibility(View.GONE);
         }
+    }
 
-        if (null != imageVideoName) {
-            imageVideoName.setVisibility(View.GONE);
+    /**
+     * Hide the sticker description view
+     *
+     * @param convertView base view
+     */
+    public void hideStickerDescription(View convertView) {
+        View stickerDescription = convertView.findViewById(R.id.message_adapter_sticker_layout);
+
+        if (null != stickerDescription) {
+            stickerDescription.setVisibility(View.GONE);
         }
     }
 

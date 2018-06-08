@@ -950,6 +950,11 @@
     // tchap new strings
     <string name="tchap_invite_contacts_to_tchap">Invite contacts in Tchap</string>
     <string name="tchap_room_invite_member_direct_chat">New discussion</string>
+
+    // tchap scan media
+    <string name="tchap_scan_media_unavailable">Scan Unavailable</string>
+    <string name="tchap_scan_media_in_progress">Antivirus Scanning</string>
+    <string name="tchap_scan_media_untrusted_content">Infected File</string>
     
     <!-- group details -->
     <string name="group_details_home">Home</string>

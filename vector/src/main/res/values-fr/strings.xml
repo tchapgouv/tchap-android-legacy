@@ -845,6 +845,11 @@ Appareils inconnus :</string>
     // tchap new strings
     <string name="tchap_invite_contacts_to_tchap">Inviter des contacts dans Tchap</string>
 
+    // tchap scan media
+    <string name="tchap_scan_media_unavailable">Analyse Indisponible</string>
+    <string name="tchap_scan_media_in_progress">Analyse Antivirus</string>
+    <string name="tchap_scan_media_untrusted_content">Fichier Bloqué</string>
+
     // group details
     <string name="group_details_home">Accueil</string>
     <string name="group_details_people">Personnes</string>

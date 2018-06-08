@@ -133,14 +133,14 @@ public class VectorSearchFilesListAdapter extends VectorMessagesAdapter {
 
         // thumbnail
         ImageView thumbnailView = convertView.findViewById(R.id.file_search_thumbnail);
-        thumbnailView.setImageResource(R.drawable.media_scan_status_placeholder_unknown);
+        thumbnailView.setImageResource(R.drawable.e2e_warning); // TODO set the right icon if any
 
         // Check whether the media is trusted
         if (null != url)
         {
             boolean isTrusted = false;
             AntiVirusScanStatus antiVirusScanStatus = AntiVirusScanStatus.UNKNOWN;
-            int scanDrawable = R.drawable.media_scan_status_placeholder_unknown;
+            int scanDrawable = R.drawable.e2e_warning;
 
             if (null != mMediaScanManager) {
                 MediaScan mediaScan = mMediaScanManager.scanMedia(url);
@@ -149,7 +149,7 @@ public class VectorSearchFilesListAdapter extends VectorMessagesAdapter {
 
             switch (antiVirusScanStatus) {
                 case IN_PROGRESS:
-                    scanDrawable = R.drawable.media_scan_status_placeholder_inprogress;
+                    scanDrawable = R.drawable.tchap_scanning;
                     break;
                 case TRUSTED:
                     // Check the thumbnail url (if any)
@@ -159,13 +159,13 @@ public class VectorSearchFilesListAdapter extends VectorMessagesAdapter {
 
                         switch (antiVirusScanStatus) {
                             case IN_PROGRESS:
-                                scanDrawable = R.drawable.media_scan_status_placeholder_inprogress;
+                                scanDrawable = R.drawable.tchap_scanning;
                                 break;
                             case TRUSTED:
                                 isTrusted = true;
                                 break;
                             case INFECTED:
-                                scanDrawable = R.drawable.media_scan_status_placeholder_infected;
+                                scanDrawable = R.drawable.tchap_danger;
                                 break;
                         }
                     } else {
@@ -173,7 +173,7 @@ public class VectorSearchFilesListAdapter extends VectorMessagesAdapter {
                     }
                     break;
                 case INFECTED:
-                    scanDrawable = R.drawable.media_scan_status_placeholder_infected;
+                    scanDrawable = R.drawable.tchap_danger;
                     break;
             }
 
