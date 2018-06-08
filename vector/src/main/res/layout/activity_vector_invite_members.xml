@@ -1,26 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/vector_invite_members_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:focusableInTouchMode="true">
 
     <SearchView
         android:id="@+id/external_search_view"
+        style="@style/SearchViewMembers"
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        style="@style/SearchViewMembers"
-        android:iconifiedByDefault="false"
-        android:queryHint="@string/search"
-        android:background="@drawable/tchap_search_bar_style"
-        android:gravity="center"
         android:layout_margin="10dp"
-        android:clickable="true">
-    </SearchView>
+        android:background="@drawable/tchap_search_bar_style"
+        android:clickable="true"
+        android:gravity="center"
+        android:iconifiedByDefault="false"
+        android:queryHint="@string/search"/>
+
+    <TextView
+        android:id="@+id/search_invite_by_id"
+        style="@style/ListHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/external_search_view"
+        android:background="@android:color/transparent"
+        android:text="@string/people_search_invite_by_id"
+        android:textAllCaps="false"
+        android:textSize="16sp" />
 
     <ExpandableListView
         android:id="@+id/room_details_members_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/external_search_view"
+        android:layout_below="@+id/search_invite_by_id"
         android:divider="@android:color/transparent"
         android:dividerHeight="1px" />
 

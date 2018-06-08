@@ -49,6 +49,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import fr.gouv.tchap.activity.TchapLoginActivity;
 import im.vector.Matrix;
 import im.vector.R;
 import im.vector.adapters.ParticipantAdapterItem;
@@ -63,6 +64,7 @@ import im.vector.view.VectorAutoCompleteTextView;
  * This class provides a way to search other user to invite them in a dedicated room
  */
 public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implements SearchView.OnQueryTextListener {
+
     private static final String LOG_TAG = VectorRoomInviteMembersActivity.class.getSimpleName();
 
     // room identifier
@@ -88,12 +90,13 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
     private ContactsFilter mContactsFilter = ContactsFilter.ALL;
 
     // This enum is used to select a mode for room creation
-    private VectorRoomCreationActivity.RoomCreationModes mMode = VectorRoomCreationActivity.RoomCreationModes.DISCUSSION;
+    private VectorRoomCreationActivity.RoomCreationModes mMode = VectorRoomCreationActivity.RoomCreationModes.NEW_ROOM;
 
     // account data
     private String mMatrixId;
 
     // main UI items
+    private View mParentLayout;
     private SearchView mSearchView;
     private ExpandableListView mListView;
 
@@ -205,6 +208,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         }
 
         // Initialize search view
+        mParentLayout = findViewById(R.id.vector_invite_members_layout);
         mSearchView = findViewById(R.id.external_search_view);
         mSearchView.setOnQueryTextListener(this);
 
@@ -229,6 +233,19 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
 
         if (getIntent().hasExtra(EXTRA_INVITE_CONTACTS_FILTER)) {
             mContactsFilter = (ContactsFilter) intent.getSerializableExtra(EXTRA_INVITE_CONTACTS_FILTER);
+        }
+
+        // Initialize action bar title
+        switch (mMode) {
+            case DIRECT_CHAT:
+                setTitle(R.string.tchap_room_invite_member_direct_chat);
+                break;
+            case NEW_ROOM:
+                setTitle(R.string.tchap_room_invite_member_title);
+                break;
+            case INVITE:
+                setTitle(R.string.room_creation_invite_members);
+                break;
         }
 
         // get current session
@@ -257,7 +274,19 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         mAdapter = new VectorParticipantsAdapter(this,
                 R.layout.adapter_item_vector_add_participants,
                 R.layout.adapter_item_vector_people_header,
-                mSession, roomId, true, mContactsFilter);
+                mSession, roomId, mContactsFilter);
+
+        // Support the contact edition in case of no tchap users
+        if (mContactsFilter.equals(ContactsFilter.NO_TCHAP_ONLY)) {
+            mAdapter.setEditParticipantListener(new VectorParticipantsAdapter.VectorParticipantsAdapterEditListener() {
+                @Override
+                public void editContactForm(final ParticipantAdapterItem participant) {
+                    if (null != participant.mContact) {
+                        DinsicUtils.editContactForm(VectorRoomInviteMembersActivity.this, VectorRoomInviteMembersActivity.this, getString(R.string.people_edit_contact_warning_msg), participant.mContact);
+                    }
+                }
+            });
+        }
 
         mAdapter.setHiddenParticipantItems(mHiddenParticipantItems);
 
@@ -271,6 +300,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
 
                 if (item instanceof ParticipantAdapterItem) {
                     final ParticipantAdapterItem participantItem = (ParticipantAdapterItem) item;
+
                     if (null != mMode && mMode == VectorRoomCreationActivity.RoomCreationModes.DIRECT_CHAT) {
                         DinsicUtils.startDirectChat(VectorRoomInviteMembersActivity.this, mSession, participantItem);
                     } else {
@@ -284,17 +314,22 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
             }
         });
 
-        /*View inviteByIdTextView = findViewById(R.id.search_invite_by_id);
-        inviteByIdTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(TchapLoginActivity.isUserExternal(mSession)) {
-                    DinsicUtils.alertSimpleMsg(VectorRoomInviteMembersActivity.this, getString(R.string.action_forbidden));
-                } else {
-                    displayInviteByUserId();
+        View inviteByIdTextView = findViewById(R.id.search_invite_by_id);
+        if (mMode.equals(VectorRoomCreationActivity.RoomCreationModes.INVITE)) {
+            inviteByIdTextView.setVisibility(View.VISIBLE);
+            inviteByIdTextView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(TchapLoginActivity.isUserExternal(mSession)) {
+                        DinsicUtils.alertSimpleMsg(VectorRoomInviteMembersActivity.this, getString(R.string.action_forbidden));
+                    } else {
+                        displayInviteByUserId();
+                    }
                 }
-            }
-        });*/
+            });
+        } else {
+            inviteByIdTextView.setVisibility(View.GONE);
+        }
 
         // Check permission to access contacts
         CommonActivityUtils.checkPermissions(CommonActivityUtils.REQUEST_CODE_PERMISSION_MEMBERS_SEARCH, this);
@@ -332,6 +367,18 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
 
         item.setEnabled(!userIdsToInvite.isEmpty());
 
+        switch (mMode) {
+            case DIRECT_CHAT:
+                item.setTitle("");
+                break;
+            case NEW_ROOM:
+                item.setTitle(R.string.tchap_room_invite_member_action);
+                break;
+            case INVITE:
+                item.setTitle(R.string.invite);
+                break;
+        }
+
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -347,6 +394,9 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                 onPatternUpdate(false);
             }
         });
+
+        mSearchView.setQuery("", false);
+        mParentLayout.requestFocus();
     }
 
     @Override

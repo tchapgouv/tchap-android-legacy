@@ -426,7 +426,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     private void inviteMembers(int requestCode) {
         Intent intent = new Intent(TchapRoomCreationActivity.this, VectorRoomInviteMembersActivity.class);
         intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
-        intent.putExtra(VectorRoomCreationActivity.EXTRA_ROOM_CREATION_ACTIVITY_MODE, VectorRoomCreationActivity.RoomCreationModes.DISCUSSION);
+        intent.putExtra(VectorRoomCreationActivity.EXTRA_ROOM_CREATION_ACTIVITY_MODE, VectorRoomCreationActivity.RoomCreationModes.NEW_ROOM);
         intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_INVITE_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY);
         startActivityForResult(intent, requestCode);
     }
