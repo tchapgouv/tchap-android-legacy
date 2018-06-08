@@ -31,14 +31,14 @@
         <android.support.design.widget.TabLayout
             android:id="@+id/tab_layout"
             android:layout_width="match_parent"
-            android:layout_height="35dp"
+            android:layout_height="45dp"
 
             android:layout_below="@+id/home_toolbar"
             android:background="?attr/vector_tabbar_background"
             android:theme="@style/AppTheme.NoActionBar"
             app:tabGravity="fill"
-            app:tabMode="fixed"
             app:tabMaxWidth="0dp"
+            app:tabMode="fixed"
             app:tabTextAppearance="@style/Vector.Toolbar.Title">
 
             <android.support.design.widget.TabItem
