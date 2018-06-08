@@ -66,8 +66,8 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
 
     <string name="home_filter_placeholder_home">Rechercher des discussions</string>
     <string name="home_filter_placeholder_favorites">Rechercher des favoris</string>
-    <string name="home_filter_placeholder_people">Rechercher des personnes</string>
-    <string name="home_filter_placeholder_rooms">Rechercher des discussions</string>
+    <string name="home_filter_placeholder_people">Rechercher des contacts</string>
+    <string name="home_filter_placeholder_rooms">Rechercher des conversations</string>
 
     <string name="invitations_header">Invitations</string>
     <string name="low_priority_header">Priorité basse</string>

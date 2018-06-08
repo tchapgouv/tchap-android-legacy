@@ -24,8 +24,8 @@
             android:textColor="?attr/primary_text_color"
             android:autoSizeTextType="uniform"
             android:autoSizeMinTextSize="2sp"
-            android:autoSizeMaxTextSize="12sp"
-            android:paddingTop="10dp"
+            android:autoSizeMaxTextSize="13sp"
+            android:paddingTop="8dp"
             />
     </LinearLayout>
     <LinearLayout
@@ -41,11 +41,11 @@
             android:maxLines="1"
             android:autoSizeTextType="uniform"
             android:autoSizeMinTextSize="2sp"
-            android:autoSizeMaxTextSize="12sp"
+            android:autoSizeMaxTextSize="13sp"
             android:layout_weight="1"
             android:gravity="center"
             android:textColor="?attr/primary_text_color"
-            android:paddingTop="10dp"/>
+            android:paddingTop="8dp"/>
     </LinearLayout>
 
 
