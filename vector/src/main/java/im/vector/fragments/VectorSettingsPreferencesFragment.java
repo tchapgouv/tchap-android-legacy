@@ -357,7 +357,8 @@ public class VectorSettingsPreferencesFragment extends PreferenceFragment implem
         }
 
         // Themes
-        ListPreference themePreference = (ListPreference) findPreference(ThemeUtils.APPLICATION_THEME_KEY);
+        // Disable themes modification settings in Tchap
+        /*ListPreference themePreference = (ListPreference) findPreference(ThemeUtils.APPLICATION_THEME_KEY);
 
         if (null != themePreference) {
             themePreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
@@ -373,7 +374,7 @@ public class VectorSettingsPreferencesFragment extends PreferenceFragment implem
                     }
                 }
             });
-        }
+        }*/
 
         // privacy policy
         EditTextPreference privacyPreference = (EditTextPreference) findPreference(PreferencesManager.SETTINGS_PRIVACY_POLICY_PREFERENCE_KEY);

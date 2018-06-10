@@ -49,6 +49,7 @@ public class ParticipantAdapterItem implements java.io.Serializable {
     // displayed info
     public String mDisplayName;
     public String mAvatarUrl;
+    public boolean mIsSelectedToInvite = false;
 
     // user id
     public String mUserId;
@@ -127,7 +128,6 @@ public class ParticipantAdapterItem implements java.io.Serializable {
         mAvatarUrl = avatarUrl;
         mUserId = userId;
         mIsValid = isValid;
-
         initSearchByPatternFields();
     }
 

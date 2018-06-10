@@ -834,11 +834,18 @@ Appareils inconnus :</string>
     <string name="community_id_hint">Exemple</string>
 
     // tchap room creation
-    <string name="tchap_room_creation_title">Salon</string>
+    <string name="tchap_room_creation_title">Nouveau salon</string>
+    <string name="tchap_room_creation_next">Suivant</string>
     <string name="tchap_room_creation_avatar">Ajouter \n une photo</string>
     <string name="tchap_room_creation_name">Nommer le salon</string>
     <string name="tchap_room_creation_public">Rendre ce salon public</string>
     <string name="tchap_room_creation_public_private_info">Un salon public peut être rejoint par n\'importe quel membre de la communauté Tchap sous condition qu\'il soit accepté.</string>
+    <string name="tchap_room_invite_member_title">Ajouter au salon</string>
+    <string name="tchap_room_invite_member_action">Ajouter</string>
+    <string name="tchap_room_invite_member_direct_chat">Nouvelle discussion</string>
+
+    // tchap new strings
+    <string name="tchap_invite_contacts_to_tchap">Inviter des contacts dans Tchap</string>
 
     // group details
     <string name="group_details_home">Accueil</string>

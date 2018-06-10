@@ -298,10 +298,9 @@
         <activity
             android:name=".activity.VectorRoomInviteMembersActivity"
             android:configChanges="orientation|screenSize"
-            android:label="Vector searches"
+            android:label="@string/tchap_room_invite_member_title"
             android:launchMode="singleTop"
             android:parentActivityName=".activity.VectorHomeActivity"
-            android:theme="@style/SearchesAppTheme"
             android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

@@ -2126,6 +2126,7 @@ public class CommonActivityUtils {
         for (int i = 0; i < menu.size(); ++i) {
             MenuItem item = menu.getItem(i);
             Drawable drawable = item.getIcon();
+
             if (drawable != null) {
                 Drawable wrapped = DrawableCompat.wrap(drawable);
                 drawable.mutate();
