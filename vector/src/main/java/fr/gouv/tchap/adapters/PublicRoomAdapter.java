@@ -214,6 +214,9 @@ public class PublicRoomAdapter extends AbsAdapter {
         @BindView(R.id.public_room_members_count)
         TextView vPublicRoomsMemberCountTextView;
 
+        @BindView(R.id.public_room_domain)
+        TextView vPublicRoomDomain;
+
         private PublicRoomViewHolder(final View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
@@ -236,6 +239,18 @@ public class PublicRoomAdapter extends AbsAdapter {
 
             // display the room name
             vPublicRoomName.setText(roomName);
+
+            // display the room name
+            if (publicRoom.roomId != null &&
+                    publicRoom.roomId.split(":") != null &&
+                    publicRoom.roomId.split(":").length>1) {
+                    String myHS = publicRoom.roomId.split(":")[1];
+                    if (myHS.split("\\.") != null &&
+                        myHS.split("\\.").length>0) {
+
+                        vPublicRoomDomain.setText(myHS.split("\\.")[0]);
+                    }
+             }
 
             // members count
             vPublicRoomsMemberCountTextView.setText(mContext.getResources().getQuantityString(R.plurals.public_room_nb_users,
