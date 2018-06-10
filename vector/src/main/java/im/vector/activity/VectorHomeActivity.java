@@ -984,7 +984,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         showFloatingActionButton();
 
         if (fragment != null) {
-            resetFilter();
             try {
                 int myAnimEnter = R.anim.tchap_anim_slide_in_right;
                 int myAnimExit = R.anim.tchap_anim_slide_out_right;
@@ -999,6 +998,16 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 myFt.replace(R.id.fragment_container, fragment, mCurrentFragmentTag)
                         .addToBackStack(mCurrentFragmentTag)
                         .commit();
+                getSupportFragmentManager().executePendingTransactions();
+                String queryText = mSearchView.getQuery().toString();
+                if (queryText.length() == 0) {
+                    resetFilter();
+
+                } else {
+                    applyFilter(queryText);
+                }
+
+
             } catch (Exception e) {
                 Log.e(LOG_TAG, "## updateSelectedFragment() failed : " + e.getMessage());
             }
