@@ -840,6 +840,7 @@ Appareils inconnus :</string>
     <string name="tchap_room_creation_public_private_info">Un salon public peut être rejoint par n\'importe quel membre de la communauté Tchap sous condition qu\'il soit accepté.</string>
     <string name="tchap_room_invite_member_title">Ajouter au salon</string>
     <string name="tchap_room_invite_member_action">Ajouter</string>
+    <string name="tchap_room_invite_member_direct_chat">Nouvelle discussion</string>
 
     // tchap new strings
     <string name="tchap_invite_contacts_to_tchap">Inviter des contacts dans Tchap</string>

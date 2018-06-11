@@ -304,7 +304,7 @@ public class RoomsFragment extends AbsHomeFragment implements AbsHomeFragment.On
         }
         mAdapter.setRooms(mRooms);
     }
-    
+
     /*
      * *********************************************************************************************
      * Public rooms management

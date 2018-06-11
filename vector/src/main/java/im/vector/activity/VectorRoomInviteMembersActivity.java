@@ -396,6 +396,18 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                 break;
         }
 
+        switch (mMode) {
+            case DIRECT_CHAT:
+                item.setTitle("");
+                break;
+            case NEW_ROOM:
+                item.setTitle(R.string.tchap_room_invite_member_action);
+                break;
+            case INVITE:
+                item.setTitle(R.string.invite);
+                break;
+        }
+
         return super.onPrepareOptionsMenu(menu);
     }
 
