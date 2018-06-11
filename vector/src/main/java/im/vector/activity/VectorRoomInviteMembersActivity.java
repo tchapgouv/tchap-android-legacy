@@ -94,7 +94,9 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
 
     // add an extra to precise the type of filter we want to display contacts
     public static final String EXTRA_INVITE_CONTACTS_FILTER = "EXTRA_INVITE_CONTACTS_FILTER";
-    private static final int TAP_TO_VIEW_ACTION = 3475647;
+
+    // on devices >= android O, we need to define a channel for each notifications
+    private static final String SILENT_NOTIFICATION_CHANNEL_ID = "NotificationUtils.SILENT_NOTIFICATION_CHANNEL_ID";
 
     // This enum is used to filter the display of the contacts
     public enum ContactsFilter { ALL, TCHAP_ONLY, NO_TCHAP_ONLY }
@@ -818,7 +820,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationUtils.addNotificationChannels(this);
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NotificationUtils.SILENT_NOTIFICATION_CHANNEL_ID);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, SILENT_NOTIFICATION_CHANNEL_ID);
         builder.setAutoCancel(true)
                 .setDefaults(Notification.FLAG_LOCAL_ONLY)
                 .setWhen(System.currentTimeMillis())
