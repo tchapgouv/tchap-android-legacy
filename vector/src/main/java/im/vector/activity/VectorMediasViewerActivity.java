@@ -157,7 +157,7 @@ public class VectorMediasViewerActivity extends MXCActionBarActivity {
         }
 
         // Prepare a media scan manager even if all the provided media are supposed to be already trusted.
-        mMediaScanManager = new MediaScanManager(realm);
+        mMediaScanManager = new MediaScanManager(mSession.getHomeServerConfig(), realm);
         mMediaScanManager.setListener(new MediaScanManager.MediaScanManagerListener() {
             @Override
             public void onMediaScanChange(MediaScan mediaScan) {

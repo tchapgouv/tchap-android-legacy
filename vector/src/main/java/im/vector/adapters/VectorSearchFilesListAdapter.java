@@ -84,6 +84,7 @@ public class VectorSearchFilesListAdapter extends VectorMessagesAdapter {
         Long mediaSize = null;
         int avatarId = R.drawable.filetype_attachment;
         EncryptedFileInfo encryptedFileInfo = null;
+        EncryptedFileInfo encryptedFileThumbnailInfo = null;
 
         if (Message.MSGTYPE_IMAGE.equals(message.msgtype)) {
             ImageMessage imageMessage = JsonUtils.toImageMessage(event.getContent());
@@ -103,8 +104,9 @@ public class VectorSearchFilesListAdapter extends VectorMessagesAdapter {
                 avatarId = R.drawable.filetype_image;
             }
 
+            encryptedFileInfo = imageMessage.file;
             if (null != imageMessage.info) {
-                encryptedFileInfo = imageMessage.info.thumbnail_file;
+                encryptedFileThumbnailInfo = imageMessage.info.thumbnail_file;
             }
         } else if (Message.MSGTYPE_VIDEO.equals(message.msgtype)) {
             VideoMessage videoMessage = JsonUtils.toVideoMessage(event.getContent());
@@ -117,13 +119,15 @@ public class VectorSearchFilesListAdapter extends VectorMessagesAdapter {
 
             avatarId = R.drawable.filetype_video;
 
+            encryptedFileInfo = videoMessage.file;
             if (null != videoMessage.info) {
-                encryptedFileInfo = videoMessage.info.thumbnail_file;
+                encryptedFileThumbnailInfo = videoMessage.info.thumbnail_file;
             }
 
         } else if (Message.MSGTYPE_FILE.equals(message.msgtype) || Message.MSGTYPE_AUDIO.equals(message.msgtype)) {
             FileMessage fileMessage = JsonUtils.toFileMessage(event.getContent());
             url = fileMessage.getUrl();
+            encryptedFileInfo = fileMessage.file;
             if (null != fileMessage.info) {
                 mediaSize = fileMessage.info.size;
             }
@@ -136,14 +140,18 @@ public class VectorSearchFilesListAdapter extends VectorMessagesAdapter {
         thumbnailView.setImageResource(R.drawable.e2e_warning); // TODO set the right icon if any
 
         // Check whether the media is trusted
-        if (null != url)
-        {
+        if (null != url) {
             boolean isTrusted = false;
+            MediaScan mediaScan;
             AntiVirusScanStatus antiVirusScanStatus = AntiVirusScanStatus.UNKNOWN;
             int scanDrawable = R.drawable.e2e_warning;
 
             if (null != mMediaScanManager) {
-                MediaScan mediaScan = mMediaScanManager.scanMedia(url);
+                if (null != encryptedFileInfo) {
+                    mediaScan = mMediaScanManager.scanEncryptedMedia(encryptedFileInfo);
+                } else {
+                    mediaScan = mMediaScanManager.scanUnencryptedMedia(url);
+                }
                 antiVirusScanStatus = mediaScan.getAntiVirusScanStatus();
             }
 
@@ -154,7 +162,12 @@ public class VectorSearchFilesListAdapter extends VectorMessagesAdapter {
                 case TRUSTED:
                     // Check the thumbnail url (if any)
                     if (null != thumbUrl) {
-                        MediaScan mediaScan = mMediaScanManager.scanMedia(thumbUrl);
+                        if (null != encryptedFileThumbnailInfo) {
+                            mediaScan = mMediaScanManager.scanEncryptedMedia(encryptedFileThumbnailInfo);
+                        } else {
+                            mediaScan = mMediaScanManager.scanUnencryptedMedia(thumbUrl);
+                        }
+
                         antiVirusScanStatus = mediaScan.getAntiVirusScanStatus();
 
                         switch (antiVirusScanStatus) {
@@ -183,11 +196,11 @@ public class VectorSearchFilesListAdapter extends VectorMessagesAdapter {
 
                 if (null != thumbUrl) {
                     // detect if the media is encrypted
-                    if (null == encryptedFileInfo) {
+                    if (null == encryptedFileThumbnailInfo) {
                         int size = getContext().getResources().getDimensionPixelSize(R.dimen.member_list_avatar_size);
                         mSession.getMediasCache().loadAvatarThumbnail(mSession.getHomeServerConfig(), thumbnailView, thumbUrl, size);
                     } else {
-                        mSession.getMediasCache().loadBitmap(mSession.getHomeServerConfig(), thumbnailView, thumbUrl, 0, ExifInterface.ORIENTATION_UNDEFINED, null, encryptedFileInfo);
+                        mSession.getMediasCache().loadBitmap(mSession.getHomeServerConfig(), thumbnailView, thumbUrl, 0, ExifInterface.ORIENTATION_UNDEFINED, null, encryptedFileThumbnailInfo);
                     }
                 }
             } else {

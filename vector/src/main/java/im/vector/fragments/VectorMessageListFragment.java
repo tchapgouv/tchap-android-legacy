@@ -220,7 +220,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
         // Prepare media scan manager
         if (hostActivity instanceof RiotAppCompatActivity) {
             RiotAppCompatActivity riotAppCompatActivity = (RiotAppCompatActivity) hostActivity;
-            mMediaScanManager = new MediaScanManager(riotAppCompatActivity.realm);
+            mMediaScanManager = new MediaScanManager(mSession.getHomeServerConfig(), riotAppCompatActivity.realm);
 
             mMediaScanManager.setListener(new MediaScanManager.MediaScanManagerListener() {
                 @Override
@@ -988,16 +988,21 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
                 info.mOrientation = imageMessage.getOrientation();
                 info.mMimeType = imageMessage.getMimeType();
                 info.mEncryptedFileInfo = imageMessage.file;
-
+                if (null != imageMessage.info) {
+                    info.mEncryptedThumbnailFileInfo = imageMessage.info.thumbnail_file;
+                }
             } else if (Message.MSGTYPE_VIDEO.equals(message.msgtype)) {
                 VideoMessage videoMessage = (VideoMessage) message;
                 info = new SlidableMediaInfo();
                 info.mMessageType = Message.MSGTYPE_VIDEO;
                 info.mFileName = videoMessage.body;
                 info.mMediaUrl = videoMessage.getUrl();
-                info.mThumbnailUrl = (null != videoMessage.info) ? videoMessage.info.thumbnail_url : null;
+                info.mThumbnailUrl = videoMessage.getThumbnailUrl();
                 info.mMimeType = videoMessage.getMimeType();
                 info.mEncryptedFileInfo = videoMessage.file;
+                if (null != videoMessage.info) {
+                    info.mEncryptedThumbnailFileInfo = videoMessage.info.thumbnail_file;
+                }
             }
 
             // Check whether the media is trusted

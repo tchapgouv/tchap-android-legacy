@@ -18,6 +18,10 @@ package fr.gouv.tchap.media;
 
 import android.support.annotation.NonNull;
 
+import org.matrix.androidsdk.rest.model.MediaScanResult;
+
+import java.util.Date;
+
 import fr.gouv.tchap.model.MediaScan;
 import io.realm.Realm;
 
@@ -50,6 +54,7 @@ public class MediaScanDao {
 
     /**
      * Update the media scan antivirus status for a dedicated url.
+     * Refresh the last update date too.
      *
      * @param url                 the media url, must not be null.
      * @param antiVirusScanStatus the current antivirus scan status.
@@ -61,6 +66,35 @@ public class MediaScanDao {
             public void execute(Realm realm) {
                 MediaScan mediaScan = getMediaScan(realm, url);
                 mediaScan.setAntiVirusScanStatus(antiVirusScanStatus);
+                mediaScan.setAntiVirusScanDate(new Date());
+            }
+        });
+    }
+
+    /**
+     * Update the media scan antivirus status for a dedicated url by considering the anti-virus server response.
+     * Refresh the last update date too.
+     *
+     * @param url                 the media url, must not be null.
+     * @param mediaScanResult     the antivirus scan result.
+     */
+    /* package */ void updateMediaAntiVirusScanStatus(@NonNull final String url, final MediaScanResult mediaScanResult) {
+
+        mRealm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                MediaScan mediaScan = getMediaScan(realm, url);
+                AntiVirusScanStatus status;
+                if (mediaScanResult.clean) {
+                    // Trusted
+                    status = AntiVirusScanStatus.TRUSTED;
+                } else {
+                    // Infected
+                    status = AntiVirusScanStatus.INFECTED;
+                }
+                mediaScan.setAntiVirusScanStatus(status);
+                mediaScan.setAntiVirusScanInfo(mediaScanResult.info);
+                mediaScan.setAntiVirusScanDate(new Date());
             }
         });
     }
