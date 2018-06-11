@@ -19,12 +19,17 @@
 package im.vector.activity;
 
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
+import android.support.v4.app.NotificationCompat;
 import android.text.Editable;
+import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.Menu;
@@ -34,10 +39,14 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.SearchView;
+import android.widget.Toast;
 
 import org.matrix.androidsdk.MXSession;
+import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.listeners.MXEventListener;
+import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.model.Event;
+import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.util.Log;
@@ -57,6 +66,7 @@ import im.vector.adapters.VectorParticipantsAdapter;
 import im.vector.contacts.Contact;
 import im.vector.contacts.ContactsManager;
 import fr.gouv.tchap.util.DinsicUtils;
+import im.vector.notifications.NotificationUtils;
 import im.vector.util.VectorUtils;
 import im.vector.view.VectorAutoCompleteTextView;
 
@@ -84,6 +94,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
 
     // add an extra to precise the type of filter we want to display contacts
     public static final String EXTRA_INVITE_CONTACTS_FILTER = "EXTRA_INVITE_CONTACTS_FILTER";
+    private static final int TAP_TO_VIEW_ACTION = 3475647;
 
     // This enum is used to filter the display of the contacts
     public enum ContactsFilter { ALL, TCHAP_ONLY, NO_TCHAP_ONLY }
@@ -114,10 +125,11 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
     // - matrix id when mContactsFilter = ContactsFilter.TCHAP_ONLY
     // - email address when mContactsFilter = ContactsFilter.NO_TCHAP_ONLY
     // - both in the other cases
-    ArrayList<String> userIdsToInvite = new ArrayList<>();
+    ArrayList<String> mUserIdsToInvite = new ArrayList<>();
 
-    // TODO Remove this array usage
-    ArrayList<ParticipantAdapterItem> participantsItemToInvite = new ArrayList<>();
+    // Counts used to send invites by email
+    private int mCount;
+    private int mSuccessCount;
 
     // retrieve a matrix Id from an email
     private final ContactsManager.ContactsManagerListener mContactsListener = new ContactsManager.ContactsManagerListener() {
@@ -208,6 +220,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         }
 
         // Initialize search view
+        setWaitingView(findViewById(R.id.search_progress_view));
         mParentLayout = findViewById(R.id.vector_invite_members_layout);
         mSearchView = findViewById(R.id.external_search_view);
         mSearchView.setOnQueryTextListener(this);
@@ -265,8 +278,6 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         // tell if a confirmation dialog must be displayed.
         mAddConfirmationDialog = intent.getBooleanExtra(EXTRA_ADD_CONFIRMATION_DIALOG, false);
 
-        setWaitingView(findViewById(R.id.search_in_progress_view));
-
         mListView = findViewById(R.id.room_details_members_list);
         // the chevron is managed in the header view
         mListView.setGroupIndicator(null);
@@ -305,7 +316,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                         DinsicUtils.startDirectChat(VectorRoomInviteMembersActivity.this, mSession, participantItem);
                     } else {
                         updateParticipantListToInvite(participantItem);
-                        mAdapter.mCurrentSelectedUsers = userIdsToInvite;
+                        mAdapter.mCurrentSelectedUsers = mUserIdsToInvite;
                         mAdapter.notifyDataSetChanged();
                         invalidateOptionsMenu();
                     }
@@ -346,16 +357,22 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
+                startActivity(new Intent(this, VectorHomeActivity.class));
                 finish();
                 return true;
             case R.id.action_invite_members:
-                // Return the list of the members ids selected to invite for the room creation
-                Intent intent = new Intent();
-                intent.putExtra(EXTRA_OUT_SELECTED_USER_IDS, userIdsToInvite);
-                intent.putExtra(EXTRA_OUT_SELECTED_PARTICIPANT_ITEMS, participantsItemToInvite);
-                setResult(RESULT_OK, intent);
-                finish();
-                return true;
+
+                if (mMode.equals(VectorRoomCreationActivity.RoomCreationModes.NEW_ROOM)) {
+                    // Return the list of the members ids selected to invite for the room creation
+                    Intent intent = new Intent();
+                    intent.putExtra(EXTRA_OUT_SELECTED_USER_IDS, mUserIdsToInvite);
+                    setResult(RESULT_OK, intent);
+                    finish();
+                    return true;
+                } else {
+                    // Invite each selected email by creating a direct chat
+                    inviteNoTchapContactsByEmail(mUserIdsToInvite);
+                }
         }
 
         return super.onOptionsItemSelected(item);
@@ -365,7 +382,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem item = menu.findItem(R.id.action_invite_members);
 
-        item.setEnabled(!userIdsToInvite.isEmpty());
+        item.setEnabled(!mUserIdsToInvite.isEmpty());
 
         switch (mMode) {
             case DIRECT_CHAT:
@@ -568,13 +585,11 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         boolean ret = false;
         ParticipantAdapterItem participantAdapterItem = item;
         if (item.mIsValid) {
-            if (!userIdsToInvite.contains(participantAdapterItem.mUserId)) {
-                userIdsToInvite.add(participantAdapterItem.mUserId);
-                participantsItemToInvite.add(participantAdapterItem);
+            if (!mUserIdsToInvite.contains(participantAdapterItem.mUserId)) {
+                mUserIdsToInvite.add(participantAdapterItem.mUserId);
                 participantAdapterItem.mIsSelectedToInvite = true;
             } else {
-                userIdsToInvite.remove(participantAdapterItem.mUserId);
-                participantsItemToInvite.remove(participantAdapterItem);
+                mUserIdsToInvite.remove(participantAdapterItem.mUserId);
                 participantAdapterItem.mIsSelectedToInvite = false;
             }
             ret = true;
@@ -666,9 +681,9 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         });
     }
 
-    //==============================================================================================================
+    //==============================================================================================
     // Handle keyboard visibility
-    //==============================================================================================================
+    //==============================================================================================
 
     private void hideKeyboard () {
         // Check if no view has focus:
@@ -677,5 +692,133 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
             InputMethodManager imm = (InputMethodManager)getSystemService(this.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
+    }
+
+    //==============================================================================================
+    // Handle room creation with a list  of users id
+    //==============================================================================================
+
+    /**
+     * Invite by email one or more no-Tchap user(s)
+     *
+     * @param emails    the participant's email list
+     */
+    private void inviteNoTchapContactsByEmail (final ArrayList<String> emails) {
+
+        if (0 != mCount) {
+            Log.e(LOG_TAG, "##inviteNoTchapContactsByEmail : invitations are being sent");
+            return;
+        }
+
+        showWaitingView();
+        mCount = emails.size();
+        mSuccessCount = 0;
+
+        for (final String email : emails) {
+            // We check if this email has been already invited
+            // (pendingInvites are ignored here because we could not have a pending invite related to an email)
+            Room existingRoom = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(email, mSession, false);
+
+            if (null != existingRoom) {
+                // If a direct chat already exists, we do not re-invite the NoTchapUser
+                // and we notify the user by a toast
+                String message = getString(R.string.tchap_invite_already_send_message, email);
+                Toast.makeText(VectorRoomInviteMembersActivity.this, message, Toast.LENGTH_LONG).show();
+
+                // We decrement the counter before testing if it is equal to zero.
+                // If the counter is equal to zero, it means that we have reached the end of the list.
+                if (-- mCount == 0) {
+                    onNoTchapInviteDone(mSuccessCount);
+                }
+            } else {
+                // TODO for each email of the list, call server to check if Tchap registration is available for this email
+
+                // For each email from the list of No-Tchap users, we create a direct chat
+                // and we send him an invitation by email to join Tchap.
+                mSession.createDirectMessageRoom(email, new ApiCallback<String>() {
+                    @Override
+                    public void onSuccess(final String roomId) {
+                        // For each successful direct chat creation and invitation,
+                        // we increment the counter "mSuccessCount".
+                        mSuccessCount ++;
+
+                        if (-- mCount == 0) {
+                            onNoTchapInviteDone(mSuccessCount);
+                        }
+                    }
+
+                    private void onError(final String message) {
+                        Log.e(LOG_TAG, "##inviteNoTchapUserByEmail failed : " + message);
+                        new AlertDialog.Builder(VectorRoomInviteMembersActivity.this)
+                                .setMessage(getString(R.string.tchap_send_invite_failed, email))
+                                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+
+                                        // Despite the error, we continue the process
+                                        // until we reach the end of the list.
+                                        if (-- mCount == 0) {
+                                            onNoTchapInviteDone(mSuccessCount);
+                                        }
+                                    }
+                                })
+                                .show();
+                    }
+
+                    @Override
+                    public void onNetworkError(Exception e) {
+                        onError(e.getLocalizedMessage());
+                    }
+
+                    @Override
+                    public void onMatrixError(final MatrixError e) {
+                        onError(e.getLocalizedMessage());
+                    }
+
+                    @Override
+                    public void onUnexpectedError(final Exception e) {
+                        onError(e.getLocalizedMessage());
+                    }
+                });
+            }
+        }
+    }
+
+    private void onNoTchapInviteDone(int successCount) {
+        hideWaitingView();
+
+        sendNotification();
+
+        // We close the current screen and we come back on the hme screen.
+        startActivity(new Intent(this, VectorHomeActivity.class));
+        finish();
+    }
+
+    private void sendNotification() {
+        Log.e(LOG_TAG, "##inviteNoTchapUserByEmail : sendNotification" );
+
+        // Handle notification
+        // TODO Fix the display of the notifications
+        SpannableString text = new SpannableString(getResources().getQuantityString(R.plurals.tchap_succes_invite__notification, mSuccessCount, mSuccessCount));
+        Toast.makeText(VectorRoomInviteMembersActivity.this, text + " \n" + getString(R.string.tchap_send_invite_confirmation), Toast.LENGTH_SHORT).show();
+
+        Intent intent = new Intent(this, VectorHomeActivity.class);
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        NotificationUtils.addNotificationChannels(this);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NotificationUtils.SILENT_NOTIFICATION_CHANNEL_ID);
+        builder.setAutoCancel(true)
+                .setDefaults(Notification.FLAG_LOCAL_ONLY)
+                .setWhen(System.currentTimeMillis())
+                .setSmallIcon(R.drawable.logo_tchap_transparent)
+                .setTicker(text)
+                .setContentTitle(text)
+                .setContentText(getString(R.string.tchap_send_invite_confirmation))
+                .setDefaults(Notification.DEFAULT_LIGHTS| Notification.DEFAULT_SOUND)
+                .setContentIntent(contentIntent)
+                .setContentInfo("Info");
+
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(1, builder.build());
     }
 }

@@ -36,18 +36,16 @@
         android:divider="@android:color/transparent"
         android:dividerHeight="1px" />
 
-    <RelativeLayout
+    <FrameLayout
         android:id="@+id/search_progress_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="?attr/waiting_background_color"
         android:visibility="gone">
-
         <ProgressBar
+            android:id="@+id/listView_spinner"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:indeterminate="true" />
-    </RelativeLayout>
+            android:layout_gravity="center"
+            android:visibility="visible"/>
+    </FrameLayout>
 </RelativeLayout>

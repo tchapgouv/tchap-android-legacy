@@ -950,9 +950,15 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 mInviteContactLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        // We launch a VectorRoomCreationActivity activity to invite
-                        // some non-tchap contacts by using their email
-                        createNewChat(VectorRoomCreationActivity.RoomCreationModes.INVITE);
+                        if (!TchapLoginActivity.isUserExternal(mSession)) {
+                            // We launch a VectorRoomCreationActivity activity to invite
+                            // some non-tchap contacts by using their email
+                            createNewChat(VectorRoomCreationActivity.RoomCreationModes.INVITE);
+                        } else {
+                            // the invite button is temporarily blocked for external users to prevent them from
+                            // inviting people to Tchap
+                            DinsicUtils.alertSimpleMsg(VectorHomeActivity.this, getString(R.string.action_forbidden));
+                        }
                     }
                 });
                 break;
