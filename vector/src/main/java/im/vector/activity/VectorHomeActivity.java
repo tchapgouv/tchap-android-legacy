@@ -103,6 +103,7 @@ import java.util.TimerTask;
 import butterknife.BindView;
 import fr.gouv.tchap.activity.TchapLoginActivity;
 import fr.gouv.tchap.activity.TchapRoomCreationActivity;
+import fr.gouv.tchap.activity.TchapPublicRoomSelectionActivity;
 import im.vector.Matrix;
 import im.vector.MyPresenceManager;
 import im.vector.PublicRoomsManager;
@@ -123,6 +124,7 @@ import im.vector.util.ThemeUtils;
 import im.vector.util.VectorUtils;
 import im.vector.view.UnreadCounterBadgeView;
 import im.vector.view.VectorPendingCallView;
+import fr.gouv.tchap.fragments.TchapRoomsFragment;
 
 /**
  * Displays the main screen of the app, with rooms the user has joined and the ability to create
@@ -473,7 +475,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
 
         // initialize the public rooms list
         PublicRoomsManager.getInstance().setSession(mSession);
-        PublicRoomsManager.getInstance().refreshPublicRoomsCount(null);
+        //PublicRoomsManager.getInstance().refreshPublicRoomsCount(null);
 
         initViews();
     }
@@ -960,7 +962,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 Log.d(LOG_TAG, "onNavigationItemSelected ROOMS");
                 fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_ROOMS);
                 if (fragment == null) {
-                    fragment = RoomsFragment.newInstance();
+                    fragment = TchapRoomsFragment.newInstance();
                 }
                 mCurrentFragmentTag = TAG_FRAGMENT_ROOMS;
                 mSearchView.setQueryHint(getString(R.string.home_filter_placeholder_rooms));
@@ -1289,8 +1291,9 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         // ignore any action if there is a pending one
         if (!isWaitingViewVisible()) {
             if (!TchapLoginActivity.isUserExternal(mSession)) {
-                CharSequence items[] = new CharSequence[]{getString(R.string.start_new_chat), getString(R.string.tchap_room_creation_title)};
-                mFabDialog = new AlertDialog.Builder(this)
+
+                CharSequence items[] = new CharSequence[]{getString(R.string.start_new_chat), getString(R.string.room_creation_title), getString(R.string.room_creation_invite_members),getString(R.string.room_join_public_room_title)};
+                    mFabDialog = new AlertDialog.Builder(this)
                         .setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface d, int n) {
@@ -1305,6 +1308,18 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                                     // Launch the new screen to create an empty room
                                     final Intent intent = new Intent(VectorHomeActivity.this, TchapRoomCreationActivity.class);
                                     VectorHomeActivity.this.startActivity(intent);
+                                } else if (2 == n){
+                                    // Create a new discussion
+                                    // Invite one or more users
+                                    // If only one contact is selected, it will be a direct chat
+                                    // Multiselection mode is required
+                                    // TODO sp3-11 invite only non Tchap users
+                                    //DinsicUtils.alertSimpleMsg(VectorHomeActivity.this, getString(R.string.action_not_available_yet));
+                                    createNewChat(VectorRoomCreationActivity.RoomCreationModes.INVITE);
+                                } else {
+                                    final Intent intent = new Intent(VectorHomeActivity.this, TchapPublicRoomSelectionActivity.class);
+                                    VectorHomeActivity.this.startActivity(intent);
+
                                 }
                             }
                         })

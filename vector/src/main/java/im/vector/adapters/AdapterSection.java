@@ -82,9 +82,10 @@ public class AdapterSection<T> {
             Collections.sort(items, mComparator);
         }
         mItems.clear();
-        mItems.addAll(items);
-
-        setFilteredItems(items, currentFilterPattern);
+        if (items != null) {
+            mItems.addAll(items);
+            setFilteredItems(items, currentFilterPattern);
+        }
     }
 
     /**
