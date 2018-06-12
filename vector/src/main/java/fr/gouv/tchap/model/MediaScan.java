@@ -16,6 +16,8 @@
 
 package fr.gouv.tchap.model;
 
+import java.util.Date;
+
 import fr.gouv.tchap.media.AntiVirusScanStatus;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
@@ -24,7 +26,12 @@ public class MediaScan extends RealmObject {
 
     @PrimaryKey
     private String url;
+    // The current scan status.
     private String antiVirusScanStatus = AntiVirusScanStatus.UNKNOWN.toString();
+    // The potential information returned by the anti-virus scanner.
+    private String antiVirusScanInfo = null;
+    // The last update date.
+    private Date antiVirusScanDate = null;
 
     public String getUrl() { return  url; }
     public void setUrl(String url) { this.url = url; }
@@ -32,9 +39,21 @@ public class MediaScan extends RealmObject {
     public AntiVirusScanStatus getAntiVirusScanStatus() {
         return AntiVirusScanStatus.valueOf(antiVirusScanStatus);
     }
-
     public void setAntiVirusScanStatus(AntiVirusScanStatus antiVirusScanStatus) {
         this.antiVirusScanStatus = antiVirusScanStatus.toString();
     }
 
+    public String getAntiVirusScanInfo() {
+        return antiVirusScanInfo;
+    }
+    public void setAntiVirusScanInfo(String info) {
+        this.antiVirusScanInfo = info;
+    }
+
+    public Date getAntiVirusScanDate() {
+        return antiVirusScanDate;
+    }
+    public void setAntiVirusScanDate(Date date) {
+        this.antiVirusScanDate = date;
+    }
 }

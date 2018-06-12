@@ -235,7 +235,7 @@ public class VectorMediasViewerAdapter extends PagerAdapter {
                 public void onSuccess(File file) {
                     if (null != file) {
                         mHighResMediaIndex.add(position);
-                        loadVideo(position, view, thumbnailUrl, Uri.fromFile(file).toString(), mediaInfo.mMimeType, mediaInfo.mEncryptedFileInfo);
+                        loadVideo(position, view, thumbnailUrl, Uri.fromFile(file).toString(), mediaInfo.mMimeType, mediaInfo.mEncryptedThumbnailFileInfo, mediaInfo.mEncryptedFileInfo);
 
                         if (position == mAutoPlayItemAt) {
                             playVideo(view, videoView, file, mediaInfo.mMimeType);
@@ -301,7 +301,7 @@ public class VectorMediasViewerAdapter extends PagerAdapter {
                                         thumbView.post(new Runnable() {
                                             @Override
                                             public void run() {
-                                                loadVideo(position, view, thumbnailUrl, newHighResUri, mediaInfo.mMimeType, mediaInfo.mEncryptedFileInfo);
+                                                loadVideo(position, view, thumbnailUrl, newHighResUri, mediaInfo.mMimeType, mediaInfo.mEncryptedThumbnailFileInfo, mediaInfo.mEncryptedFileInfo);
 
                                                 if (position == mAutoPlayItemAt) {
                                                     playVideo(view, videoView, mediaFile, mediaInfo.mMimeType);
@@ -504,7 +504,7 @@ public class VectorMediasViewerAdapter extends PagerAdapter {
             });
 
         } else {
-            loadVideo(position, view, mediaInfo.mThumbnailUrl, mediaUrl, mediaInfo.mMimeType, mediaInfo.mEncryptedFileInfo);
+            loadVideo(position, view, mediaInfo.mThumbnailUrl, mediaUrl, mediaInfo.mMimeType, mediaInfo.mEncryptedThumbnailFileInfo, mediaInfo.mEncryptedFileInfo);
             container.addView(view, 0);
         }
 
@@ -736,12 +736,20 @@ public class VectorMediasViewerAdapter extends PagerAdapter {
     /**
      * Load the video items
      *
-     * @param view          the page view
-     * @param thumbnailUrl  the thumbnail URL
-     * @param videoUrl      the video Url
-     * @param videoMimeType the video mime type
+     * @param view                       the page view
+     * @param thumbnailUrl               the thumbnail URL
+     * @param videoUrl                   the video Url
+     * @param videoMimeType              the video mime type
+     * @param encryptedFileThumbnailInfo the encryption info for the thumbnail
+     * @param encryptedFileInfo          the encryption info for the video
      */
-    private void loadVideo(final int position, final View view, final String thumbnailUrl, final String videoUrl, final String videoMimeType, final EncryptedFileInfo encryptedFileInfo) {
+    private void loadVideo(final int position,
+                           final View view,
+                           final String thumbnailUrl,
+                           final String videoUrl,
+                           final String videoMimeType,
+                           final EncryptedFileInfo encryptedFileThumbnailInfo,
+                           final EncryptedFileInfo encryptedFileInfo) {
         final VideoView videoView = view.findViewById(R.id.media_slider_videoview);
         final ImageView thumbView = view.findViewById(R.id.media_slider_video_thumbnail);
         final ImageView playView = view.findViewById(R.id.media_slider_video_playView);
@@ -776,7 +784,7 @@ public class VectorMediasViewerAdapter extends PagerAdapter {
         });
 
         // init the thumbnail views
-        mMediasCache.loadBitmap(mSession.getHomeServerConfig(), thumbView, thumbnailUrl, 0, 0, null, null);
+        mMediasCache.loadBitmap(mSession.getHomeServerConfig(), thumbView, thumbnailUrl, 0, 0, null, encryptedFileThumbnailInfo);
 
         playView.setOnClickListener(new View.OnClickListener() {
             @Override

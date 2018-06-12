@@ -62,6 +62,7 @@ import org.matrix.androidsdk.interfaces.HtmlToolbox;
 import org.matrix.androidsdk.rest.model.crypto.EncryptedEventContent;
 import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.rest.model.EventContent;
+import org.matrix.androidsdk.rest.model.crypto.EncryptedFileInfo;
 import org.matrix.androidsdk.rest.model.message.FileMessage;
 import org.matrix.androidsdk.rest.model.message.ImageMessage;
 import org.matrix.androidsdk.rest.model.message.Message;
@@ -1797,25 +1798,49 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             int scanDrawable = R.drawable.e2e_warning; // FIXME set the right icon here (not available yet)
             int scanText = R.string.tchap_scan_media_unavailable;
             if (null != mMediaScanManager) {
-                List<String> urls = event.getMediaUrls();
-                boolean breakLoop = false;
-                for (String url : urls) {
-                    MediaScan mediaScan = mMediaScanManager.scanMedia(url);
-                    switch (mediaScan.getAntiVirusScanStatus()) {
-                        case IN_PROGRESS:
-                            scanDrawable = R.drawable.tchap_scanning;
-                            scanText = R.string.tchap_scan_media_in_progress;
-                            breakLoop = true;
-                            break;
-                        case INFECTED:
-                            scanDrawable = R.drawable.tchap_danger;
-                            scanText = R.string.tchap_scan_media_untrusted_content;
-                            breakLoop = true;
-                            break;
-                    }
+                if (event.isEncrypted()) {
+                    List<EncryptedFileInfo> encryptedFileInfos = event.getEncryptedFileInfos();
+                    boolean breakLoop = false;
+                    for (EncryptedFileInfo encryptedFileInfo : encryptedFileInfos) {
+                        MediaScan mediaScan = mMediaScanManager.scanEncryptedMedia(encryptedFileInfo);
+                        switch (mediaScan.getAntiVirusScanStatus()) {
+                            case IN_PROGRESS:
+                                scanDrawable = R.drawable.tchap_scanning;
+                                scanText = R.string.tchap_scan_media_in_progress;
+                                breakLoop = true;
+                                break;
+                            case INFECTED:
+                                scanDrawable = R.drawable.tchap_danger;
+                                scanText = R.string.tchap_scan_media_untrusted_content;
+                                breakLoop = true;
+                                break;
+                        }
 
-                    if (breakLoop) {
-                        break;
+                        if (breakLoop) {
+                            break;
+                        }
+                    }
+                } else {
+                    List<String> urls = event.getMediaUrls();
+                    boolean breakLoop = false;
+                    for (String url : urls) {
+                        MediaScan mediaScan = mMediaScanManager.scanUnencryptedMedia(url);
+                        switch (mediaScan.getAntiVirusScanStatus()) {
+                            case IN_PROGRESS:
+                                scanDrawable = R.drawable.tchap_scanning;
+                                scanText = R.string.tchap_scan_media_in_progress;
+                                breakLoop = true;
+                                break;
+                            case INFECTED:
+                                scanDrawable = R.drawable.tchap_danger;
+                                scanText = R.string.tchap_scan_media_untrusted_content;
+                                breakLoop = true;
+                                break;
+                        }
+
+                        if (breakLoop) {
+                            break;
+                        }
                     }
                 }
             }

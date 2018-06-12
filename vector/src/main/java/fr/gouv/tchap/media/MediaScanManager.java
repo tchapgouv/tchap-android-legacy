@@ -16,12 +16,17 @@
 
 package fr.gouv.tchap.media;
 
-import android.os.Handler;
-import android.os.Looper;
-
+import org.matrix.androidsdk.HomeServerConnectionConfig;
+import org.matrix.androidsdk.rest.callback.ApiCallback;
+import org.matrix.androidsdk.rest.client.MediaScanRestClient;
 import org.matrix.androidsdk.rest.model.Event;
+import org.matrix.androidsdk.rest.model.MatrixError;
+import org.matrix.androidsdk.rest.model.MediaScanResult;
 import org.matrix.androidsdk.rest.model.crypto.EncryptedFileInfo;
+import org.matrix.androidsdk.util.ContentManager;
+import org.matrix.androidsdk.util.Log;
 
+import java.util.Date;
 import java.util.List;
 
 import fr.gouv.tchap.model.MediaScan;
@@ -31,6 +36,8 @@ import io.realm.Realm;
 public class MediaScanManager {
 
     private static final String LOG_TAG = MediaScanManager.class.getSimpleName();
+
+    private final int MEDIA_SCAN_MANAGER_RETRY_DELAY = 10000;
 
     // Media scan listener
     public interface MediaScanManagerListener {
@@ -42,15 +49,18 @@ public class MediaScanManager {
 
     private MediaScanManagerListener mListener;
 
+    private MediaScanRestClient mMediaScanRestClient;
     // The Data Access Object (DAO)
     MediaScanDao mMediaScanDao;
 
     /**
      * Constructor
      *
-     * @param realm instance of mediaScanDao.
+     * @param hsConfig the home server connection config
+     * @param realm    the Realm instance to use.
      */
-    public MediaScanManager(Realm realm) {
+    public MediaScanManager(HomeServerConnectionConfig hsConfig, Realm realm) {
+        mMediaScanRestClient = new MediaScanRestClient(hsConfig);
         mMediaScanDao = new MediaScanDao(realm);
     }
 
@@ -64,29 +74,79 @@ public class MediaScanManager {
     }
 
     /**
-     * Get the current scan result of a media (including antivirus status).
+     * Get the current scan result of an unencrypted media (including antivirus status).
      * Trigger an antivirus scan if it is not already done.
      *
-     * @param url       the media url.
+     * @param url the matrix content url.
      * @return the current scan result of the media.
      */
-    public MediaScan scanMedia(String url) {
+    public MediaScan scanUnencryptedMedia(final String url) {
 
-        // Use the fake scanMedia for encrypted media until the server api is ready
-        EncryptedFileInfo mediaInfo = new EncryptedFileInfo();
-        mediaInfo.url = url;
-        return scanMedia(mediaInfo);
-
-        /*MediaScan mediaScan = mMediaScanDao.getMediaScan(url);
-
-        if (AntiVirusScanStatus.UNKNOWN == mediaScan.getAntiVirusScanStatus()) {
-
-            // TODO trigger the scan, call the listener on result
-            // TODO update the ScanAntiVirusScanStatus to IN_PROGRESS
-            // TODO Case Error, return the updated AntiVirusScanStatus to UNKNOWN
+        // Sanity check
+        if (!ContentManager.isValidMatrixContentUrl(url)) {
+            return new MediaScan();
         }
 
-        return mediaScan;*/
+        // Retrieve the existing result if any
+        MediaScan mediaScan = mMediaScanDao.getMediaScan(url);
+
+        // Check whether a new request is required
+        if (isUpdateRequired(mediaScan)) {
+            // Trigger the antivirus scan, update the current scan status in the database
+            mMediaScanDao.updateMediaAntiVirusScanStatus(url, AntiVirusScanStatus.IN_PROGRESS);
+            mediaScan = mMediaScanDao.getMediaScan(url);
+
+            String mediaServerAndId = url.substring(ContentManager.MATRIX_CONTENT_URI_SCHEME.length());
+            int index = mediaServerAndId.indexOf("/");
+            if (index < 0 || index > mediaServerAndId.length() - 2) {
+                // Invalid url
+                Log.e(LOG_TAG, "## scanUnencryptedMedia failed: invalid url");
+                return new MediaScan();
+            }
+
+            String domain = mediaServerAndId.substring(0, index);
+            String mediaId = mediaServerAndId.substring(index+1);
+
+            mMediaScanRestClient.scanUnencryptedFile(domain, mediaId, new ApiCallback<MediaScanResult>() {
+                @Override
+                public void onSuccess(MediaScanResult mediaScanResult) {
+                    Log.d(LOG_TAG, "## scanUnencryptedFile succeeded" + mediaScanResult.info);
+                    mMediaScanDao.updateMediaAntiVirusScanStatus(url, mediaScanResult);
+
+                    // Call the listener if any
+                    if (null != mListener) {
+                        mListener.onMediaScanChange(mMediaScanDao.getMediaScan(url));
+                    }
+                }
+
+                private void onError(final String message) {
+                    Log.e(LOG_TAG, "## scanUnencryptedFile failed " + message);
+                    mMediaScanDao.updateMediaAntiVirusScanStatus(url, AntiVirusScanStatus.UNKNOWN);
+
+                    // Call the listener if any
+                    if (null != mListener) {
+                        mListener.onMediaScanChange(mMediaScanDao.getMediaScan(url));
+                    }
+                }
+
+                @Override
+                public void onNetworkError(Exception e) {
+                    onError(e.getLocalizedMessage());
+                }
+
+                @Override
+                public void onMatrixError(MatrixError matrixError) {
+                    onError(matrixError.getLocalizedMessage());
+                }
+
+                @Override
+                public void onUnexpectedError(Exception e) {
+                    onError(e.getLocalizedMessage());
+                }
+            });
+        }
+
+        return mediaScan;
     }
 
     /**
@@ -96,44 +156,79 @@ public class MediaScanManager {
      * @param mediaInfo  the encrypted media information.
      * @return the current scan result of the encrypted media..
      */
-    public MediaScan scanMedia(final EncryptedFileInfo mediaInfo) {
+    public MediaScan scanEncryptedMedia(final EncryptedFileInfo mediaInfo) {
 
         MediaScan mediaScan = mMediaScanDao.getMediaScan(mediaInfo.url);
 
-        if (AntiVirusScanStatus.UNKNOWN == mediaScan.getAntiVirusScanStatus()) {
-
+        // Check whether a new request is required
+        if (isUpdateRequired(mediaScan)) {
             // Trigger the antivirus scan, update the current scan status in the database
             mMediaScanDao.updateMediaAntiVirusScanStatus(mediaInfo.url, AntiVirusScanStatus.IN_PROGRESS);
             mediaScan = mMediaScanDao.getMediaScan(mediaInfo.url);
 
-            // Dummy scan
-            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            mMediaScanRestClient.scanEncryptedFile(mediaInfo, new ApiCallback<MediaScanResult>() {
                 @Override
-                public void run() {
-
-                    // Fake status according to the url
-                    AntiVirusScanStatus status = AntiVirusScanStatus.UNKNOWN;
-                    if (mediaInfo.url.contains("i.tchap")) {
-                        // Trusted
-                        status = AntiVirusScanStatus.TRUSTED;
-                    } else if (mediaInfo.url.contains("/e.tchap")) {
-                        // Infected
-                        status = AntiVirusScanStatus.INFECTED;
-                    } else {
-                        // No change
-                        return;
-                    }
-                    mMediaScanDao.updateMediaAntiVirusScanStatus(mediaInfo.url, status);
+                public void onSuccess(MediaScanResult mediaScanResult) {
+                    Log.d(LOG_TAG, "## scanEncryptedFile succeeded" + mediaScanResult.info);
+                    mMediaScanDao.updateMediaAntiVirusScanStatus(mediaInfo.url, mediaScanResult);
 
                     // Call the listener if any
                     if (null != mListener) {
                         mListener.onMediaScanChange(mMediaScanDao.getMediaScan(mediaInfo.url));
                     }
                 }
-            }, 2000);
+
+                private void onError(final String message) {
+                    Log.e(LOG_TAG, "## scanEncryptedFile failed " + message);
+                    mMediaScanDao.updateMediaAntiVirusScanStatus(mediaInfo.url, AntiVirusScanStatus.UNKNOWN);
+
+                    // Call the listener if any
+                    if (null != mListener) {
+                        mListener.onMediaScanChange(mMediaScanDao.getMediaScan(mediaInfo.url));
+                    }
+                }
+
+                @Override
+                public void onNetworkError(Exception e) {
+                    onError(e.getLocalizedMessage());
+                }
+
+                @Override
+                public void onMatrixError(MatrixError matrixError) {
+                    onError(matrixError.getLocalizedMessage());
+                }
+
+                @Override
+                public void onUnexpectedError(Exception e) {
+                    onError(e.getLocalizedMessage());
+                }
+            });
         }
 
         return mediaScan;
+    }
+
+    private boolean isUpdateRequired (MediaScan mediaScan) {
+        boolean isUpdateRequired = false;
+
+        // Consider to launch a new request only if the scan is unknown for the moment.
+        if (AntiVirusScanStatus.UNKNOWN == mediaScan.getAntiVirusScanStatus()) {
+
+            // Check the date of the last update before triggering a new request.
+            Date lastUpdateDate = mediaScan.getAntiVirusScanDate();
+            if (null != lastUpdateDate) {
+                long lastUpdateDateTime = lastUpdateDate.getTime();
+                long nowTime = System.currentTimeMillis();
+
+                if (lastUpdateDateTime > nowTime || (nowTime - lastUpdateDateTime) > MEDIA_SCAN_MANAGER_RETRY_DELAY) {
+                    isUpdateRequired = true;
+                }
+            } else {
+                isUpdateRequired = true;
+            }
+
+        }
+        return isUpdateRequired;
     }
 
     /**
@@ -151,14 +246,25 @@ public class MediaScanManager {
      * @return true if the event contains at least one unchecked or untrusted url.
      */
     public boolean isUncheckedOrUntrustedMediaEvent(Event event) {
-        List<String> urls = event.getMediaUrls();
 
-        for (String url : urls) {
-            MediaScan mediaScan = scanMedia(url);
-            if (mediaScan.getAntiVirusScanStatus() != AntiVirusScanStatus.TRUSTED) {
-                return true;
+        if (event.isEncrypted()) {
+            List<EncryptedFileInfo> encryptedFileInfos = event.getEncryptedFileInfos();
+            for (EncryptedFileInfo encryptedFileInfo : encryptedFileInfos) {
+                MediaScan mediaScan = scanEncryptedMedia(encryptedFileInfo);
+                if (mediaScan.getAntiVirusScanStatus() != AntiVirusScanStatus.TRUSTED) {
+                    return true;
+                }
+            }
+        } else {
+            List<String> urls = event.getMediaUrls();
+            for (String url : urls) {
+                MediaScan mediaScan = scanUnencryptedMedia(url);
+                if (mediaScan.getAntiVirusScanStatus() != AntiVirusScanStatus.TRUSTED) {
+                    return true;
+                }
             }
         }
+
 
         return false;
     }
@@ -171,13 +277,24 @@ public class MediaScanManager {
      */
     public boolean isTrustedSlidableMediaInfo(SlidableMediaInfo mediaInfo) {
         boolean isTrusted = false;
+
         if (null != mediaInfo.mMediaUrl) {
             // Check whether the media is trusted
-            MediaScan mediaScan = scanMedia(mediaInfo.mMediaUrl);
+            MediaScan mediaScan;
+            if (null != mediaInfo.mEncryptedFileInfo) {
+                mediaScan = scanEncryptedMedia(mediaInfo.mEncryptedFileInfo);
+            } else {
+                mediaScan = scanUnencryptedMedia(mediaInfo.mMediaUrl);
+            }
             if (mediaScan.getAntiVirusScanStatus() == AntiVirusScanStatus.TRUSTED) {
                 // Check the thumbnail url (if any)
                 if (null != mediaInfo.mThumbnailUrl) {
-                    mediaScan = scanMedia(mediaInfo.mThumbnailUrl);
+                    if (null != mediaInfo.mEncryptedThumbnailFileInfo) {
+                        mediaScan = scanEncryptedMedia(mediaInfo.mEncryptedThumbnailFileInfo);
+                    } else {
+                        mediaScan = scanUnencryptedMedia(mediaInfo.mThumbnailUrl);
+                    }
+
                     isTrusted = (mediaScan.getAntiVirusScanStatus() == AntiVirusScanStatus.TRUSTED);
                 } else {
                     isTrusted = true;

@@ -281,7 +281,7 @@ class VectorMessagesAdapterMediasHelper {
         // Glide support animated gif
         if (event.getType().equals(Event.EVENT_TYPE_STICKER)) {
             // Check whether the sticker url is a valid Matrix media content URI, and convert it in an actual url.
-            String downloadableUrl = mSession.getContentManager().getDownloadableUrl(((StickerMessage) message).getUrl());
+            String downloadableUrl = mSession.getContentManager().getDownloadableUrl(((StickerMessage) message).getUrl(), false);
             if (null != downloadableUrl) {
                 Glide.with(mContext)
                         .load(downloadableUrl)
