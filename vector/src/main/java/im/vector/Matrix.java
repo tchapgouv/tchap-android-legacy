@@ -627,6 +627,9 @@ public class Matrix {
 
         final MXSession session = new MXSession(hsConfig, new MXDataHandler(store, credentials), mAppContext);
 
+        // Turn on the anti-virus server
+        session.getContentManager().configureAntiVirusScanner(true);
+
         session.getDataHandler().setRequestNetworkErrorListener(new MXDataHandler.RequestNetworkErrorListener() {
 
             @Override

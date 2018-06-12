@@ -24,5 +24,9 @@ public class VectorRealmMigration implements RealmMigration {
     public void migrate(DynamicRealm realm, long oldVersion, long newVersion) {
 
         // Handle here any new realm version
+
+        // For the moment we flush all the data on version update
+        realm.deleteAll();
+
     }
 }
