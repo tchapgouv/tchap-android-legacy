@@ -19,7 +19,6 @@
 
 package im.vector.adapters;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
@@ -387,6 +386,17 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
     }
 
     /**
+     * Update the list of user ids already selected.
+     * The usersId can be either emails or matrixId,
+     * depending on whether we are in the case INVITE or NEW_ROOM.
+     *
+     * @param selectedUserIds    the list of already selected usersIds.
+     */
+    public void setSelectedUserIds(ArrayList<String> selectedUserIds) {
+        mCurrentSelectedUsers = new ArrayList<>(selectedUserIds);
+    }
+
+    /**
      * Some contacts pids have been updated.
      */
     public void onPIdsUpdate() {
@@ -482,7 +492,6 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                         if (null != searchUsersResponse.results) {
                             for (User user : searchUsersResponse.results) {
                                 ParticipantAdapterItem participant = new ParticipantAdapterItem(user);
-                                participant.mIsSelectedToInvite = mCurrentSelectedUsers.contains(participant.mUserId);
                                 participantItemList.add(participant);
                             }
                         }
@@ -1076,7 +1085,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
         }
 
         final ImageView iconCheck = convertView.findViewById(R.id.icon_check_invite_member);
-        iconCheck.setVisibility(participant.mIsSelectedToInvite ? View.VISIBLE : View.GONE);
+        iconCheck.setVisibility(mCurrentSelectedUsers.contains(participant.mUserId) ? View.VISIBLE : View.GONE);
 
         return convertView;
     }

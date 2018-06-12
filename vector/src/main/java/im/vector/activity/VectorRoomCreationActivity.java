@@ -142,6 +142,7 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
                             launchInviteMembersActivity(mMode , VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY, INVITE_USER_REQUEST_CODE);
                             break;
                         case NEW_ROOM:
+                            // In Tchap, this case is handled by the TchapRoomCreationActivity
                             launchInviteMembersActivity(mMode, VectorRoomInviteMembersActivity.ContactsFilter.ALL, INVITE_USER_REQUEST_CODE);
                             break;
                     }
@@ -161,8 +162,13 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
         intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_HIDDEN_PARTICIPANT_ITEMS, mParticipants);
         intent.putExtra(EXTRA_ROOM_CREATION_ACTIVITY_MODE, mode);
         intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_INVITE_CONTACTS_FILTER, contactsFilter);
-        startActivity(intent);
 
+        if (mode.equals(RoomCreationModes.NEW_ROOM)) {
+            VectorRoomCreationActivity.this.startActivityForResult(intent, requestCode);
+        } else {
+            VectorRoomCreationActivity.this.startActivity(intent);
+        }
+        startActivity(intent);
     }
 
     @Override

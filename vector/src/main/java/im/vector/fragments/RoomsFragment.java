@@ -284,15 +284,13 @@ public class RoomsFragment extends AbsHomeFragment implements AbsHomeFragment.On
                         !room.isConferenceUserRoom() && // not a VOIP conference room
                         !lowPriorityRoomIds.contains(room.getRoomId())) {
                     // In the case of Tchap, we hide the direct chat in which the other member is a 3PID invite.
-                    Collection<RoomMember> members = room.getMembers();
                     if (room.isDirect()) {
+                        Collection<RoomMember> members = room.getMembers();
                         for (RoomMember member : members) {
                             if (member.getUserId().equals(mSession.getMyUserId())) {
                                 continue;
                             }
-                            if (member.membership.equalsIgnoreCase(RoomMember.MEMBERSHIP_INVITE) && null != member.getThirdPartyInviteToken()) {
-                                mRooms.remove(room);
-                            } else {
+                            if (!member.membership.equalsIgnoreCase(RoomMember.MEMBERSHIP_INVITE) && null == member.getThirdPartyInviteToken()) {
                                 mRooms.add(room);
                             }
                         }
