@@ -45,6 +45,8 @@ import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.util.Log;
 import org.matrix.androidsdk.util.ResourceUtils;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
@@ -95,6 +97,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     private MXSession mSession;
     private Uri mThumbnailUri = null;
     private CreateRoomParams mRoomParams = new CreateRoomParams();
+    private List<String> mParticipantsIds = new ArrayList<>();
 
     @Override
     public int getLayoutRes() {
@@ -211,14 +214,16 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                 onActivityResultRoomAvatarUpdate(resultCode, intent);
                 break;
             case REQ_CODE_ADD_PARTICIPANTS:
-                if (resultCode == Activity.RESULT_OK) {
+
+                mParticipantsIds = intent.getStringArrayListExtra(VectorRoomInviteMembersActivity.EXTRA_OUT_SELECTED_USER_IDS);
+
+                if (resultCode == RESULT_OK) {
                     // We have retrieved the list of members to invite from RoomInviteMembersActivity.
                     // This list can not be empty because the add button for the members selection is only activated if at least 1 member is selected.
                     // This list contains only matrixIds because the RoomInviteMembersActivity was opened in TCHAP_ONLY mode.
                     showWaitingView();
                     invalidateOptionsMenu();
-                    List<String> participants = intent.getStringArrayListExtra(VectorRoomInviteMembersActivity.EXTRA_OUT_SELECTED_USER_IDS);
-                    mRoomParams.addParticipantIds(mSession.getHomeServerConfig(), participants);
+                    mRoomParams.invite = mParticipantsIds;
                     createNewRoom();
                 } else if (resultCode == RESULT_CANCELED) {
                     invalidateOptionsMenu();
@@ -462,6 +467,11 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
         intent.putExtra(VectorRoomCreationActivity.EXTRA_ROOM_CREATION_ACTIVITY_MODE, VectorRoomCreationActivity.RoomCreationModes.NEW_ROOM);
         intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_INVITE_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY);
+
+        if (!mParticipantsIds.isEmpty()) {
+            intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_IN_SELECTED_USER_IDS, (Serializable) mParticipantsIds);
+        }
+
         startActivityForResult(intent, requestCode);
     }
 
