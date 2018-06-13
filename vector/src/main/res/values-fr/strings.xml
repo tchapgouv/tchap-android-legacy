@@ -840,10 +840,20 @@ Appareils inconnus :</string>
     <string name="tchap_room_creation_public_private_info">Un salon public peut être rejoint par n\'importe quel membre de la communauté Tchap sous condition qu\'il soit accepté.</string>
     <string name="tchap_room_invite_member_title">Ajouter au salon</string>
     <string name="tchap_room_invite_member_action">Ajouter</string>
-    <string name="tchap_room_invite_member_direct_chat">Nouvelle discussion</string>
 
     // tchap new strings
     <string name="tchap_invite_contacts_to_tchap">Inviter des contacts dans Tchap</string>
+    <string name="tchap_room_invite_member_direct_chat">Nouvelle discussion</string>
+    <string name="tchap_invite_already_send_message">Vous avez déjà envoyé une invitation à %s</string>
+    <string name="tchap_send_invite_failed">Echec de l\'envoi de l\'invitation à %s</string>
+    <string name="tchap_send_invite_confirmation">Vous recevrez une notification lorsque \n votre invité rejoindra la communauté Tchap</string>
+    <plurals name="tchap_succes_invite__notification">
+        <item quantity="one">1 invitation a bien été envoyée.</item>
+        <item quantity="other">%d invitations ont bien été envoyées.</item>
+    </plurals>
+    <string name="tchap_invite_room_alias_invalid_characters_title">Cet alias contient des caractères spéciaux invalides</string>
+    <string name="tchap_invite_room_alias_already_taken_title">Cet alias est déjà pris</string>
+    <string name="tchap_invite_room_alias_already_taken_message">Veuillez le modifier pour finaliser la création du salon.</string>
 
     // tchap scan media
     <string name="tchap_scan_media_unavailable">Analyse Indisponible</string>

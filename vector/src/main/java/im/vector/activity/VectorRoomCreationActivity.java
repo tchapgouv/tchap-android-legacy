@@ -23,22 +23,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 
-import org.matrix.androidsdk.rest.model.CreateRoomParams;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.util.Log;
 
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
-
 
 import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.data.Room;
-import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
-import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.MXSession;
 
 import java.util.ArrayList;
@@ -49,8 +42,6 @@ import java.util.List;
 import im.vector.R;
 import im.vector.adapters.ParticipantAdapterItem;
 import im.vector.adapters.VectorRoomCreationAdapter;
-import fr.gouv.tchap.util.DinsicUtils;
-import im.vector.util.ThemeUtils;
 
 public class VectorRoomCreationActivity extends MXCActionBarActivity {
     // tags
@@ -142,6 +133,7 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
                             launchInviteMembersActivity(mMode , VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY, INVITE_USER_REQUEST_CODE);
                             break;
                         case NEW_ROOM:
+                            // In Tchap, this case is handled by the TchapRoomCreationActivity
                             launchInviteMembersActivity(mMode, VectorRoomInviteMembersActivity.ContactsFilter.ALL, INVITE_USER_REQUEST_CODE);
                             break;
                     }
@@ -162,10 +154,10 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
         intent.putExtra(EXTRA_ROOM_CREATION_ACTIVITY_MODE, mode);
         intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_INVITE_CONTACTS_FILTER, contactsFilter);
 
-        if (mode.equals(RoomCreationModes.DIRECT_CHAT)) {
-            VectorRoomCreationActivity.this.startActivity(intent);
+        if (mode.equals(RoomCreationModes.NEW_ROOM)) {
+            startActivityForResult(intent, requestCode);
         } else {
-            VectorRoomCreationActivity.this.startActivityForResult(intent, requestCode);
+            startActivity(intent);
         }
     }
 
@@ -258,59 +250,6 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
             return String.CASE_INSENSITIVE_ORDER.compare(lhs, rhs);
         }
     };
-
-
-    //=============================================================================================
-    // Menu management
-    //=============================================================================================
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // the application is in a weird state
-        // GA : mSession is null
-        if (CommonActivityUtils.shouldRestartApp(this) || (null == mSession)) {
-            return false;
-        }
-
-        getMenuInflater().inflate(R.menu.vector_room_creation, menu);
-        CommonActivityUtils.tintMenuIcons(menu, ThemeUtils.getColor(this, R.attr.icon_tint_on_dark_action_bar_color));
-
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.action_create_room) {
-            if (mParticipants.isEmpty()) {
-                // create an empty room
-                // if there is no participant added to the list
-                createRoom(mParticipants);
-            } else {
-                // the first entry is self so ignore
-                // in order to avoid to invite myself
-                mParticipants.remove(0);
-
-                // standalone case : should be accepted ?
-                if (mParticipants.isEmpty()) {
-                    // create an empty room
-                    // if there is no participant added to the list
-                    createRoom(mParticipants);
-                } else if (mParticipants.size() > 1) {
-                    // create a new room with inviting multiple participants
-                    createRoom(mParticipants);
-                } else {
-                    // open a direct chat with this participant
-                    // by considering pending invite too
-                    // or create a new one if it doesn't exist
-                    DinsicUtils.openDirectChat(this, mParticipants.get(0).mUserId, mSession, true);
-                }
-            }
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
 
     //=============================================================================================
@@ -408,68 +347,5 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
         }
         Log.d(LOG_TAG, "## isDirectChatRoomAlreadyExist(): for user=" + aUserId + " no found room");
         return null;
-    }
-
-
-    /**
-     * Create a room with a list of participants.
-     *
-     * @param participants the list of participant
-     */
-    private void createRoom(final List<ParticipantAdapterItem> participants) {
-        showWaitingView();
-
-        CreateRoomParams params = new CreateRoomParams();
-
-        List<String> ids = new ArrayList<>();
-        for(ParticipantAdapterItem item : participants) {
-            if (null != item.mUserId) {
-                ids.add(item.mUserId);
-            }
-        }
-
-        params.addParticipantIds(mSession.getHomeServerConfig(), ids);
-
-        mSession.createRoom(params, new SimpleApiCallback<String>(VectorRoomCreationActivity.this) {
-            @Override
-            public void onSuccess(final String roomId) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        HashMap<String, Object> params = new HashMap<>();
-                        params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
-                        params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
-                        CommonActivityUtils.goToRoomPage(VectorRoomCreationActivity.this, mSession, params);
-                    }
-                });
-            }
-
-            private void onError(final String message) {
-                membersListView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (null != message) {
-                            Toast.makeText(VectorRoomCreationActivity.this, message, Toast.LENGTH_LONG).show();
-                        }
-                        hideWaitingView();
-                    }
-                });
-            }
-
-            @Override
-            public void onNetworkError(Exception e) {
-                onError(e.getLocalizedMessage());
-            }
-
-            @Override
-            public void onMatrixError(final MatrixError e) {
-                onError(e.getLocalizedMessage());
-            }
-
-            @Override
-            public void onUnexpectedError(final Exception e) {
-                onError(e.getLocalizedMessage());
-            }
-        });
     }
 }

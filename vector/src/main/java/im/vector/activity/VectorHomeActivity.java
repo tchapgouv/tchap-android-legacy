@@ -950,9 +950,15 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 mInviteContactLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        // We launch a VectorRoomCreationActivity activity to invite
-                        // some non-tchap contacts by using their email
-                        createNewChat(VectorRoomCreationActivity.RoomCreationModes.INVITE);
+                        if (!TchapLoginActivity.isUserExternal(mSession)) {
+                            // We launch a VectorRoomCreationActivity activity to invite
+                            // some non-tchap contacts by using their email
+                            createNewChat(VectorRoomCreationActivity.RoomCreationModes.INVITE);
+                        } else {
+                            // the invite button is temporarily blocked for external users to prevent them from
+                            // inviting people to Tchap
+                            DinsicUtils.alertSimpleMsg(VectorHomeActivity.this, getString(R.string.action_forbidden));
+                        }
                     }
                 });
                 break;
@@ -1214,15 +1220,12 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
             if (preferences.getBoolean(isFirstCryptoAlertKey, true)) {
-                SharedPreferences.Editor editor = preferences.edit();
-                editor.putBoolean(isFirstCryptoAlertKey, false);
-                editor.commit();
+                preferences.edit()
+                        .putBoolean(isFirstCryptoAlertKey, false)
+                        .apply();
 
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-                alertDialogBuilder.setMessage(getString(R.string.e2e_need_log_in_again));
-
-                // set dialog message
-                alertDialogBuilder
+                new AlertDialog.Builder(this)
+                        .setMessage(getString(R.string.e2e_need_log_in_again))
                         .setCancelable(true)
                         .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                             @Override
@@ -1234,11 +1237,8 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                                     public void onClick(DialogInterface dialog, int id) {
                                         CommonActivityUtils.logout(VectorApp.getCurrentActivity());
                                     }
-                                });
-                // create alert dialog
-                AlertDialog alertDialog = alertDialogBuilder.create();
-                // show it
-                alertDialog.show();
+                                })
+                        .show();
             }
         }
     }
@@ -1289,7 +1289,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         // ignore any action if there is a pending one
         if (!isWaitingViewVisible()) {
             if (!TchapLoginActivity.isUserExternal(mSession)) {
-                CharSequence items[] = new CharSequence[]{getString(R.string.start_new_chat), getString(R.string.room_creation_title)};
+                CharSequence items[] = new CharSequence[]{getString(R.string.start_new_chat), getString(R.string.tchap_room_creation_title)};
                 mFabDialog = new AlertDialog.Builder(this)
                         .setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
                             @Override
