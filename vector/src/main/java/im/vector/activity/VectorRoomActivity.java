@@ -47,6 +47,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -1084,12 +1085,19 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
         ViewedRoomTracker.getInstance().setMatrixId(null);
     }
 
+    private void applyScreenshotSecurity() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
+        }
+    }
+
     @Override
     protected void onResume() {
         Log.d(LOG_TAG, "++ Resume the activity");
         super.onResume();
 
         securityChecks.checkOnActivityStart();
+        applyScreenshotSecurity();
 
         ViewedRoomTracker.getInstance().setMatrixId(mSession.getCredentials().userId);
 

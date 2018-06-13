@@ -66,6 +66,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.view.LayoutInflater;
 import android.widget.Button;
@@ -534,11 +535,18 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
         revealFloatingActionMenu();
     }
 
+    private void applyScreenshotSecurity() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
 
         securityChecks.checkOnActivityStart();
+        applyScreenshotSecurity();
 
         MyPresenceManager.createPresenceManager(this, Matrix.getInstance(this).getSessions());
         MyPresenceManager.advertiseAllOnline();
