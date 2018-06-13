@@ -951,9 +951,9 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                     @Override
                     public void onClick(View v) {
                         if (!TchapLoginActivity.isUserExternal(mSession)) {
-                            // We launch a VectorRoomCreationActivity activity to invite
+                            // We launch a VectorRoomInviteMembersActivity activity to invite
                             // some non-tchap contacts by using their email
-                            createNewChat(VectorRoomCreationActivity.RoomCreationModes.INVITE);
+                            createNewChat(VectorRoomInviteMembersActivity.ActionMode.SEND_INVITE, VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY);
                         } else {
                             // the invite button is temporarily blocked for external users to prevent them from
                             // inviting people to Tchap
@@ -1296,11 +1296,10 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                             public void onClick(DialogInterface d, int n) {
                                 d.cancel();
                                 if (0 == n) {
-                                    // Create a new direct chat
-                                    // We can add only one people to the chat
-                                    // In this case, the click on the contact send the invitation
-                                    // Multiselection mode isn't required
-                                    createNewChat(VectorRoomCreationActivity.RoomCreationModes.DIRECT_CHAT);
+                                    // Create a new direct chat with an existing tchap user
+                                    // Multi-selection will be disabled
+                                    createNewChat(VectorRoomInviteMembersActivity.ActionMode.START_DIRECT_CHAT,
+                                            VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY);
                                 } else if (1 == n) {
                                     // Launch the new screen to create an empty room
                                     final Intent intent = new Intent(VectorHomeActivity.this, TchapRoomCreationActivity.class);
@@ -1389,11 +1388,12 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     /**
      * Open the room creation with inviting people.
      */
-    private void createNewChat(VectorRoomCreationActivity.RoomCreationModes mode) {
-        final Intent settingsIntent = new Intent(VectorHomeActivity.this, VectorRoomCreationActivity.class);
-        settingsIntent.putExtra(MXCActionBarActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
-        settingsIntent.putExtra(VectorRoomCreationActivity.EXTRA_ROOM_CREATION_ACTIVITY_MODE, mode);
-        startActivity(settingsIntent);
+    private void createNewChat(VectorRoomInviteMembersActivity.ActionMode mode, VectorRoomInviteMembersActivity.ContactsFilter contactsFilter) {
+        Intent intent = new Intent(VectorHomeActivity.this, VectorRoomInviteMembersActivity.class);
+        intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
+        intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_ACTION_ACTIVITY_MODE, mode);
+        intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, contactsFilter);
+        startActivity(intent);
     }
 
     /*

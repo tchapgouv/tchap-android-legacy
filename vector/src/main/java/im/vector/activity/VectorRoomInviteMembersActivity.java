@@ -96,18 +96,26 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
     // the already selected participants list
     public static final String EXTRA_IN_SELECTED_USER_IDS = "VectorInviteMembersActivity.EXTRA_IN_SELECTED_USER_IDS";
 
+    // add an extra to precise the type of mode we want to open the VectorRoomInviteMembersActivity
+    public static final String EXTRA_ACTION_ACTIVITY_MODE = "EXTRA_ACTION_ACTIVITY_MODE";
+
     // add an extra to precise the type of filter we want to display contacts
-    public static final String EXTRA_INVITE_CONTACTS_FILTER = "EXTRA_INVITE_CONTACTS_FILTER";
+    public static final String EXTRA_CONTACTS_FILTER = "EXTRA_CONTACTS_FILTER";
 
     // on devices >= android O, we need to define a channel for each notifications
     private static final String SILENT_NOTIFICATION_CHANNEL_ID = "NotificationUtils.SILENT_NOTIFICATION_CHANNEL_ID";
 
-    // This enum is used to filter the display of the contacts
+    // This enum is used to define the behavior of the activity on the contact selection and/or on the action selection:
+    // START_DIRECT_CHAT: the multi-selection is disabled, when a contact is selected a direct chat is opened to chat with him.
+    // SEND_INVITE: the multi-selection is enabled, an invite is sent for each selected contact when the user presses the Invite option (from the options menu).
+    // RETURN_SELECTED_USER_IDS: the multi-selection is enabled, the identifier (matrix id or email) of the selected contacts are returned when the user presses
+    // the Add option from the options menu.
+    public enum ActionMode { START_DIRECT_CHAT, SEND_INVITE, RETURN_SELECTED_USER_IDS }
+    private ActionMode mActionMode = ActionMode.RETURN_SELECTED_USER_IDS;
+
+    // This enum is used to filter the displayed contacts.
     public enum ContactsFilter { ALL, TCHAP_ONLY, NO_TCHAP_ONLY }
     private ContactsFilter mContactsFilter = ContactsFilter.ALL;
-
-    // This enum is used to select a mode for room creation
-    private VectorRoomCreationActivity.RoomCreationModes mMode = VectorRoomCreationActivity.RoomCreationModes.NEW_ROOM;
 
     // account data
     private String mMatrixId;
@@ -246,12 +254,12 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
             mHiddenParticipantItems = (List<ParticipantAdapterItem>) intent.getSerializableExtra(EXTRA_HIDDEN_PARTICIPANT_ITEMS);
         }
 
-        if (getIntent().hasExtra(VectorRoomCreationActivity.EXTRA_ROOM_CREATION_ACTIVITY_MODE)) {
-            mMode = (VectorRoomCreationActivity.RoomCreationModes) intent.getSerializableExtra(VectorRoomCreationActivity.EXTRA_ROOM_CREATION_ACTIVITY_MODE);
+        if (getIntent().hasExtra(EXTRA_ACTION_ACTIVITY_MODE)) {
+            mActionMode = (ActionMode) intent.getSerializableExtra(EXTRA_ACTION_ACTIVITY_MODE);
         }
 
-        if (getIntent().hasExtra(EXTRA_INVITE_CONTACTS_FILTER)) {
-            mContactsFilter = (ContactsFilter) intent.getSerializableExtra(EXTRA_INVITE_CONTACTS_FILTER);
+        if (getIntent().hasExtra(EXTRA_CONTACTS_FILTER)) {
+            mContactsFilter = (ContactsFilter) intent.getSerializableExtra(EXTRA_CONTACTS_FILTER);
         }
 
         if (getIntent().hasExtra(EXTRA_IN_SELECTED_USER_IDS)) {
@@ -259,14 +267,14 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         }
 
         // Initialize action bar title
-        switch (mMode) {
-            case DIRECT_CHAT:
+        switch (mActionMode) {
+            case START_DIRECT_CHAT:
                 setTitle(R.string.tchap_room_invite_member_direct_chat);
                 break;
-            case NEW_ROOM:
+            case RETURN_SELECTED_USER_IDS:
                 setTitle(R.string.tchap_room_invite_member_title);
                 break;
-            case INVITE:
+            case SEND_INVITE:
                 setTitle(R.string.room_creation_invite_members);
                 break;
         }
@@ -324,7 +332,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                 if (item instanceof ParticipantAdapterItem) {
                     final ParticipantAdapterItem participantItem = (ParticipantAdapterItem) item;
 
-                    if (null != mMode && mMode == VectorRoomCreationActivity.RoomCreationModes.DIRECT_CHAT) {
+                    if (mActionMode == ActionMode.START_DIRECT_CHAT) {
                         DinsicUtils.startDirectChat(VectorRoomInviteMembersActivity.this, mSession, participantItem);
                     } else {
                         updateParticipantListToInvite(participantItem);
@@ -337,7 +345,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         });
 
         View inviteByIdTextView = findViewById(R.id.search_invite_by_id);
-        if (mMode.equals(VectorRoomCreationActivity.RoomCreationModes.INVITE)) {
+        if (mActionMode == ActionMode.SEND_INVITE) {
             inviteByIdTextView.setVisibility(View.VISIBLE);
             inviteByIdTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -368,8 +376,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-
-                if (mMode.equals(VectorRoomCreationActivity.RoomCreationModes.NEW_ROOM)) {
+                if (mActionMode == ActionMode.RETURN_SELECTED_USER_IDS) {
                     // Return the current list of the selected users in order to selected them if the picker is opened again
                     Intent intent = new Intent();
                     intent.putExtra(EXTRA_OUT_SELECTED_USER_IDS, mUserIdsToInvite);
@@ -380,8 +387,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                 finish();
                 return true;
             case R.id.action_invite_members:
-
-                if (mMode.equals(VectorRoomCreationActivity.RoomCreationModes.NEW_ROOM)) {
+                if (mActionMode == ActionMode.RETURN_SELECTED_USER_IDS) {
                     // Return the current list of the selected users in order to selected them if the picker is opened again
                     Intent intent = new Intent();
                     intent.putExtra(EXTRA_OUT_SELECTED_USER_IDS, mUserIdsToInvite);
@@ -403,14 +409,14 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
 
         item.setEnabled(!mUserIdsToInvite.isEmpty());
 
-        switch (mMode) {
-            case DIRECT_CHAT:
+        switch (mActionMode) {
+            case START_DIRECT_CHAT:
                 item.setTitle("");
                 break;
-            case NEW_ROOM:
+            case RETURN_SELECTED_USER_IDS:
                 item.setTitle(R.string.tchap_room_invite_member_action);
                 break;
-            case INVITE:
+            case SEND_INVITE:
                 item.setTitle(R.string.invite);
                 break;
         }
@@ -735,7 +741,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         for (final String email : emails) {
             // We check if this email has been already invited
             // (pendingInvites are ignored here because we could not have a pending invite related to an email)
-            Room existingRoom = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(email, mSession, false);
+            Room existingRoom = DinsicUtils.isDirectChatRoomAlreadyExist(email, mSession, false);
 
             if (null != existingRoom) {
                 // If a direct chat already exists, we do not re-invite the NoTchapUser
