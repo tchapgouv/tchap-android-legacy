@@ -19,6 +19,7 @@ package fr.gouv.tchap.media;
 import org.matrix.androidsdk.HomeServerConnectionConfig;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.client.MediaScanRestClient;
+import org.matrix.androidsdk.rest.model.EncryptedMediaScanBody;
 import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.rest.model.MediaScanResult;
@@ -37,7 +38,7 @@ public class MediaScanManager {
 
     private static final String LOG_TAG = MediaScanManager.class.getSimpleName();
 
-    private final int MEDIA_SCAN_MANAGER_RETRY_DELAY = 10000;
+    private final int MEDIA_SCAN_MANAGER_RETRY_DELAY = 600000;
 
     // Media scan listener
     public interface MediaScanManagerListener {
@@ -166,7 +167,10 @@ public class MediaScanManager {
             mMediaScanDao.updateMediaAntiVirusScanStatus(mediaInfo.url, AntiVirusScanStatus.IN_PROGRESS);
             mediaScan = mMediaScanDao.getMediaScan(mediaInfo.url);
 
-            mMediaScanRestClient.scanEncryptedFile(mediaInfo, new ApiCallback<MediaScanResult>() {
+            EncryptedMediaScanBody encryptedMediaScanBody = new EncryptedMediaScanBody();
+            encryptedMediaScanBody.encryptedFileInfo = mediaInfo;
+
+            mMediaScanRestClient.scanEncryptedFile(encryptedMediaScanBody, new ApiCallback<MediaScanResult>() {
                 @Override
                 public void onSuccess(MediaScanResult mediaScanResult) {
                     Log.d(LOG_TAG, "## scanEncryptedFile succeeded" + mediaScanResult.info);

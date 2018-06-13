@@ -25,8 +25,7 @@ public class VectorRealmMigration implements RealmMigration {
 
         // Handle here any new realm version
 
-        // For the moment we flush all the data on version update
-        realm.deleteAll();
-
+        // We flush by default all the media scan result in case of migration.
+        realm.delete("MediaScan");
     }
 }
