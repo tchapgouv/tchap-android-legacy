@@ -950,7 +950,17 @@
     // tchap new strings
     <string name="tchap_invite_contacts_to_tchap">Invite contacts in Tchap</string>
     <string name="tchap_room_invite_member_direct_chat">New discussion</string>
-    
+    <string name="tchap_invite_already_send_message">You have already sent an invitation to %s</string>
+    <string name="tchap_send_invite_failed">Failed to send invitation to %s</string>
+    <string name="tchap_send_invite_confirmation">You will receive a notification when \n your guest joins the Tchap community</string>
+    <plurals name="tchap_succes_invite__notification">
+        <item quantity="one">1 invitation has been sent.</item>
+        <item quantity="other">%d invitations have been sent.</item>
+    </plurals>
+    <string name="tchap_invite_room_alias_invalid_characters_title">This alias contains invalid special characters</string>
+    <string name="tchap_invite_room_alias_already_taken_title">This alias is already taken</string>
+    <string name="tchap_invite_room_alias_already_taken_message">Please edit it to finalize the room creation.</string>
+
     <!-- group details -->
     <string name="group_details_home">Home</string>
     <string name="group_details_people">People</string>

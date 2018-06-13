@@ -29,6 +29,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.ValueCallback;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,6 +47,7 @@ import org.matrix.androidsdk.util.ResourceUtils;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -70,6 +73,9 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
     private static final int REQ_CODE_UPDATE_ROOM_AVATAR = 0x10;
     private static final int REQ_CODE_ADD_PARTICIPANTS = 0x11;
+    private static final String ERROR_CODE_ROOM_ALIAS_ALREADY_TAKEN = "Room alias already taken";
+    private static final String ERROR_CODE_ROOM_ALIAS_INVALID_CHARACTERS = "Invalid characters in room alias";
+
 
     @BindView(R.id.hexagon_mask_view)
     HexagonMaskView hexagonMaskView;
@@ -101,7 +107,10 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
         mSession = Matrix.getInstance(this).getDefaultSession();
 
-        CreateRoomParams mRoomParams = new CreateRoomParams();
+        setTitle(R.string.tchap_room_creation_title);
+
+        // Initialize default room params as private
+        switchPublicPrivateRoom.setChecked(false);
         mRoomParams.visibility = RoomState.DIRECTORY_VISIBILITY_PRIVATE;
         mRoomParams.preset = CreateRoomParams.PRESET_PRIVATE_CHAT;
     }
@@ -119,12 +128,18 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                 finish();
                 return true;
             case R.id.action_next:
+                if (mRoomParams.preset.equals(CreateRoomParams.PRESET_PUBLIC_CHAT)) {
+                    mRoomParams.roomAliasName = removeBlankSpace(mRoomParams.name.trim());
+
+                    if (mRoomParams.roomAliasName.isEmpty()) {
+                        mRoomParams.roomAliasName = getRandomString();
+                    }
+                }
                 inviteMembers(REQ_CODE_ADD_PARTICIPANTS);
                 hideKeyboard();
 
                 return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -150,18 +165,18 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     }
 
     @OnClick(R.id.switch_public_private_rooms)
-    void actionNotAvailable() {
-        switchPublicPrivateRoom.setChecked(false);
-
-        new AlertDialog.Builder(this)
-                .setMessage(R.string.action_not_available_yet)
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                })
-                .show();
+    void setRoomPrivacy() {
+        if (switchPublicPrivateRoom.isChecked()) {
+            switchPublicPrivateRoom.setChecked(true);
+            mRoomParams.visibility = RoomState.DIRECTORY_VISIBILITY_PUBLIC;
+            mRoomParams.preset = CreateRoomParams.PRESET_PUBLIC_CHAT;
+            Log.e(LOG_TAG, "##Public room with a mandatory room alias");
+        } else {
+            switchPublicPrivateRoom.setChecked(false);
+            mRoomParams.visibility = RoomState.DIRECTORY_VISIBILITY_PRIVATE;
+            mRoomParams.preset = CreateRoomParams.PRESET_PRIVATE_CHAT;
+            Log.e(LOG_TAG, "##Private room without room alias");
+        }
     }
 
     @OnTextChanged(R.id.et_room_name)
@@ -203,6 +218,8 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                     List<String> participants = intent.getStringArrayListExtra(VectorRoomInviteMembersActivity.EXTRA_OUT_SELECTED_USER_IDS);
                     mRoomParams.addParticipantIds(mSession.getHomeServerConfig(), participants);
                     createNewRoom();
+                } else if (resultCode == RESULT_CANCELED) {
+                    invalidateOptionsMenu();
                 }
                 break;
         }
@@ -276,6 +293,22 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
             @Override
             public void onMatrixError(final MatrixError e) {
                 onError(e.getLocalizedMessage());
+                mRoomParams.roomAliasName = removeBlankSpace(mRoomParams.name);
+                String title;
+
+                switch (e.error) {
+                    case ERROR_CODE_ROOM_ALIAS_INVALID_CHARACTERS:
+                        title = getString(R.string.tchap_invite_room_alias_invalid_characters_title);
+                        promptUserAboutRoomAliasError(title);
+                        break;
+                    case ERROR_CODE_ROOM_ALIAS_ALREADY_TAKEN:
+                        title = getString(R.string.tchap_invite_room_alias_already_taken_message);
+                        promptUserAboutRoomAliasError(title);
+                        break;
+                    default:
+                        onError(e.getLocalizedMessage());
+                        return;
+                }
             }
 
             @Override
@@ -429,5 +462,64 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         intent.putExtra(VectorRoomCreationActivity.EXTRA_ROOM_CREATION_ACTIVITY_MODE, VectorRoomCreationActivity.RoomCreationModes.NEW_ROOM);
         intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_INVITE_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY);
         startActivityForResult(intent, requestCode);
+    }
+
+    /**
+     * Create a room alias by removing spaces from the room name.
+     *
+     * @param roomName    the room name.
+     *
+     * Return a room alias without spaces.
+     */
+    private static String removeBlankSpace(String roomName) {
+        StringBuilder sb = new StringBuilder(roomName);
+        int j = 0;
+        for(int i = 0; i < sb.length(); i++) {
+            if (!Character.isWhitespace(sb.charAt(i))) {
+                sb.setCharAt(j++, sb.charAt(i));
+            }
+        }
+        return String.valueOf(sb.delete(j, sb.length()));
+    }
+
+    /**
+     * Generate a random room alias of 10 characters to avoid empty room alias.
+     */
+    protected String getRandomString() {
+        String RANDOMCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+        StringBuilder stringBuilder = new StringBuilder();
+        Random rnd = new Random();
+        while (stringBuilder.length() < 11) { // length of the random string.
+            int index = (int) (rnd.nextFloat() * RANDOMCHARS.length());
+            stringBuilder.append(RANDOMCHARS.charAt(index));
+        }
+        String randomString = stringBuilder.toString();
+        return randomString;
+    }
+
+    private void promptUserAboutRoomAliasError(String title) {
+        final EditText editText = new EditText(TchapRoomCreationActivity.this);
+
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        lp.setMargins(15, 0, 15, 0);
+        editText.setLayoutParams(lp);
+        editText.setText(mRoomParams.roomAliasName);
+
+        new AlertDialog.Builder(TchapRoomCreationActivity.this)
+                .setTitle(title)
+                .setMessage(R.string.tchap_invite_room_alias_already_taken_message)
+                .setView(editText)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mRoomParams.roomAliasName = editText.getText().toString();
+                        createNewRoom();
+                        hideKeyboard();
+                        dialog.dismiss();
+                    }
+                })
+                .show();
     }
 }
