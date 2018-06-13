@@ -129,7 +129,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                 return true;
             case R.id.action_next:
                 if (mRoomParams.preset.equals(CreateRoomParams.PRESET_PUBLIC_CHAT)) {
-                    mRoomParams.roomAliasName = removeBlankSpace(mRoomParams.name.trim());
+                    mRoomParams.roomAliasName = mRoomParams.name.trim().replace(" ", "");
 
                     if (mRoomParams.roomAliasName.isEmpty()) {
                         mRoomParams.roomAliasName = getRandomString();
@@ -293,7 +293,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
             @Override
             public void onMatrixError(final MatrixError e) {
                 onError(e.getLocalizedMessage());
-                mRoomParams.roomAliasName = removeBlankSpace(mRoomParams.name);
+                mRoomParams.roomAliasName = mRoomParams.name.trim().replace(" ", "");
                 String title;
 
                 switch (e.error) {
@@ -462,24 +462,6 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         intent.putExtra(VectorRoomCreationActivity.EXTRA_ROOM_CREATION_ACTIVITY_MODE, VectorRoomCreationActivity.RoomCreationModes.NEW_ROOM);
         intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_INVITE_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY);
         startActivityForResult(intent, requestCode);
-    }
-
-    /**
-     * Create a room alias by removing spaces from the room name.
-     *
-     * @param roomName    the room name.
-     *
-     * Return a room alias without spaces.
-     */
-    private static String removeBlankSpace(String roomName) {
-        StringBuilder sb = new StringBuilder(roomName);
-        int j = 0;
-        for(int i = 0; i < sb.length(); i++) {
-            if (!Character.isWhitespace(sb.charAt(i))) {
-                sb.setCharAt(j++, sb.charAt(i));
-            }
-        }
-        return String.valueOf(sb.delete(j, sb.length()));
     }
 
     /**
