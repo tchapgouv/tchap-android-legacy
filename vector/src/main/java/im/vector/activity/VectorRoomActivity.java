@@ -229,6 +229,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
     private ImageView mE2eImageView;
 
     // call
+    private boolean mAllowVoip;
     private View mStartCallLayout;
     private View mStopCallLayout;
 
@@ -854,11 +855,21 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             }
         });
 
+        mAllowVoip = getResources().getBoolean(R.bool.allow_voip);
+
         mStartCallLayout = findViewById(R.id.room_start_call_image_view);
         mStartCallLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if ((null != mRoom) && mRoom.isEncrypted() && (mRoom.getActiveMembers().size() > 2)) {
+                if (!mAllowVoip) {
+                    // display the dialog with the info text
+                    AlertDialog.Builder permissionsInfoDialog = new AlertDialog.Builder(VectorRoomActivity.this);
+                    Resources resource = getResources();
+                    permissionsInfoDialog.setMessage(resource.getString(R.string.action_not_available_yet));
+                    permissionsInfoDialog.setIcon(android.R.drawable.ic_dialog_alert);
+                    permissionsInfoDialog.setPositiveButton(resource.getString(R.string.ok), null);
+                    permissionsInfoDialog.show();
+                } else if ((null != mRoom) && mRoom.isEncrypted() && (mRoom.getActiveMembers().size() > 2)) {
                     // display the dialog with the info text
                     AlertDialog.Builder permissionsInfoDialog = new AlertDialog.Builder(VectorRoomActivity.this);
                     Resources resource = getResources();
@@ -2918,7 +2929,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
      */
     private void refreshCallButtons(boolean refreshOngoingConferenceCallView) {
         if ((null == sRoomPreviewData) && (null == mEventId) && canSendMessages()) {
-            boolean isCallSupported = mRoom.canPerformCall() && mSession.isVoipCallSupported();
+            boolean isCallSupported = mRoom.canPerformCall() && mSession.isVoipCallSupported() && mAllowVoip;
             IMXCall call = CallsManager.getSharedInstance().getActiveCall();
             Widget activeWidget = mVectorOngoingConferenceCallView.getActiveWidget();
 
@@ -2936,7 +2947,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                 call.addListener(mCallListener);
 
                 mStartCallLayout.setVisibility(View.GONE);
-                mStopCallLayout.setVisibility((call == roomCall) ? View.VISIBLE : View.GONE);
+                mStopCallLayout.setVisibility((call == roomCall && mAllowVoip) ? View.VISIBLE : View.GONE);
             }
 
             if (refreshOngoingConferenceCallView) {
