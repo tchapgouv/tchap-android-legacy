@@ -1715,90 +1715,95 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == android.R.id.home) {
-            finish();
-            return true;
-        }/* will be reconnected later  else if (id == R.id.ic_action_matrix_apps) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+            /* will be reconnected later  else if (id == R.id.ic_action_matrix_apps) {
             final Intent intent = new Intent(this, IntegrationManagerActivity.class);
             intent.putExtra(IntegrationManagerActivity.EXTRA_SESSION_ID, mMyUserId);
             intent.putExtra(IntegrationManagerActivity.EXTRA_ROOM_ID, mRoom.getRoomId());
-            startActivity(intent);
-        }*/ else if (id == R.id.ic_action_search_in_room) {
-            try {
-                enableActionBarHeader(HIDE_ACTION_BAR_HEADER);
+            startActivity(intent);*/
+            case R.id.ic_action_search_in_room:
+                try {
+                    enableActionBarHeader(HIDE_ACTION_BAR_HEADER);
 
-                final Intent searchIntent = new Intent(VectorRoomActivity.this, VectorUnifiedSearchActivity.class);
-                searchIntent.putExtra(VectorUnifiedSearchActivity.EXTRA_ROOM_ID, mRoom.getRoomId());
-                VectorRoomActivity.this.startActivity(searchIntent);
+                    final Intent searchIntent = new Intent(VectorRoomActivity.this, VectorUnifiedSearchActivity.class);
+                    searchIntent.putExtra(VectorUnifiedSearchActivity.EXTRA_ROOM_ID, mRoom.getRoomId());
+                    VectorRoomActivity.this.startActivity(searchIntent);
 
-            } catch (Exception e) {
-                Log.i(LOG_TAG, "## onOptionsItemSelected(): ");
-            }
-        } else if (id == R.id.ic_action_room_settings_people) {
-            launchRoomDetails(VectorRoomDetailsActivity.PEOPLE_TAB_INDEX);
-        } else if (id == R.id.ic_action_room_settings_file) {
-            launchRoomDetails(VectorRoomDetailsActivity.FILE_TAB_INDEX);
-        } else if (id == R.id.ic_action_room_settings_settings) {
-            launchRoomDetails(VectorRoomDetailsActivity.SETTINGS_TAB_INDEX);
-        } else if (id == R.id.ic_action_room_resend_unsent) {
-            mVectorMessageListFragment.resendUnsentMessages();
-            refreshNotificationsArea();
-        } else if (id == R.id.ic_action_room_delete_unsent) {
-            mVectorMessageListFragment.deleteUnsentEvents();
-            refreshNotificationsArea();
-        } else if (id == R.id.ic_action_room_leave) {
-            if (null != mRoom) {
-                Log.d(LOG_TAG, "Leave the room " + mRoom.getRoomId());
-                new AlertDialog.Builder(VectorRoomActivity.this)
-                        .setTitle(R.string.room_participants_leave_prompt_title)
-                        .setMessage(R.string.room_participants_leave_prompt_msg)
-                        .setPositiveButton(R.string.leave, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                                showWaitingView();
+                } catch (Exception e) {
+                    Log.i(LOG_TAG, "## onOptionsItemSelected(): ");
+                }
+                break;
+            case R.id.ic_action_room_settings_people:
+                launchRoomDetails(VectorRoomDetailsActivity.PEOPLE_TAB_INDEX);
+                break;
+            case R.id.ic_action_room_settings_file:
+                launchRoomDetails(VectorRoomDetailsActivity.FILE_TAB_INDEX);
+                break;
+            case R.id.ic_action_room_settings_settings:
+                launchRoomDetails(VectorRoomDetailsActivity.SETTINGS_TAB_INDEX);
+                break;
+            case R.id.ic_action_room_resend_unsent:
+                mVectorMessageListFragment.resendUnsentMessages();
+                refreshNotificationsArea();
+                break;
+            case R.id.ic_action_room_delete_unsent:
+                mVectorMessageListFragment.deleteUnsentEvents();
+                refreshNotificationsArea();
+                break;
+            case R.id.ic_action_room_leave:
+                if (null != mRoom) {
+                    Log.d(LOG_TAG, "Leave the room " + mRoom.getRoomId());
+                    new AlertDialog.Builder(VectorRoomActivity.this)
+                            .setTitle(R.string.room_participants_leave_prompt_title)
+                            .setMessage(R.string.room_participants_leave_prompt_msg)
+                            .setPositiveButton(R.string.leave, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                    showWaitingView();
 
-                                mRoom.leave(new ApiCallback<Void>() {
-                                    @Override
-                                    public void onSuccess(Void info) {
-                                        Log.d(LOG_TAG, "The room " + mRoom.getRoomId() + " is left");
-                                        // close the activity
-                                        finish();
-                                    }
+                                    mRoom.leave(new ApiCallback<Void>() {
+                                        @Override
+                                        public void onSuccess(Void info) {
+                                            Log.d(LOG_TAG, "The room " + mRoom.getRoomId() + " is left");
+                                            // close the activity
+                                            finish();
+                                        }
 
-                                    private void onError(String errorMessage) {
-                                        hideWaitingView();
-                                        Log.e(LOG_TAG, "Cannot leave the room " + mRoom.getRoomId() + " : " + errorMessage);
-                                    }
+                                        private void onError(String errorMessage) {
+                                            hideWaitingView();
+                                            Log.e(LOG_TAG, "Cannot leave the room " + mRoom.getRoomId() + " : " + errorMessage);
+                                        }
 
-                                    @Override
-                                    public void onNetworkError(Exception e) {
-                                        onError(e.getLocalizedMessage());
-                                    }
+                                        @Override
+                                        public void onNetworkError(Exception e) {
+                                            onError(e.getLocalizedMessage());
+                                        }
 
-                                    @Override
-                                    public void onMatrixError(MatrixError e) {
-                                        onError(e.getLocalizedMessage());
-                                    }
+                                        @Override
+                                        public void onMatrixError(MatrixError e) {
+                                            onError(e.getLocalizedMessage());
+                                        }
 
-                                    @Override
-                                    public void onUnexpectedError(Exception e) {
-                                        onError(e.getLocalizedMessage());
-                                    }
-                                });
-                            }
-                        })
-                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        })
-                        .create()
-                        .show();
-            }
+                                        @Override
+                                        public void onUnexpectedError(Exception e) {
+                                            onError(e.getLocalizedMessage());
+                                        }
+                                    });
+                                }
+                            })
+                            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            })
+                            .create()
+                            .show();
+                }
         }
 
         return super.onOptionsItemSelected(item);

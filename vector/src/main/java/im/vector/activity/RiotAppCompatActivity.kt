@@ -161,6 +161,11 @@ abstract class RiotAppCompatActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
+    override fun onBackPressed() {
+        setResult(RESULT_CANCELED)
+        finish()
+    }
+
     /* ==========================================================================================
      * ABSTRACT METHODS
      * ========================================================================================== */

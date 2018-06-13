@@ -128,17 +128,23 @@ public class RoomDirectoryPickerActivity extends RiotAppCompatActivity implement
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            setResult(RESULT_CANCELED);
-            finish();
-            return true;
-        }
-
-        if (item.getItemId() == R.id.action_add_custom_hs) {
-            displayCustomDirectoryDialog();
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                setResult(RESULT_CANCELED);
+                finish();
+                return true;
+            case R.id.action_add_custom_hs:
+                displayCustomDirectoryDialog();
+                break;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        setResult(RESULT_CANCELED);
+        finish();
     }
 
     @Override
