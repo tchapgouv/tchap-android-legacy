@@ -1292,8 +1292,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         if (!isWaitingViewVisible()) {
             if (!TchapLoginActivity.isUserExternal(mSession)) {
                 CharSequence items[] = new CharSequence[]{getString(R.string.start_new_chat), getString(R.string.room_creation_title),getString(R.string.room_join_public_room_title)};
-                    mFabDialog = new AlertDialog.Builder(this)
-                CharSequence items[] = new CharSequence[]{getString(R.string.start_new_chat), getString(R.string.tchap_room_creation_title)};
                 mFabDialog = new AlertDialog.Builder(this)
                         .setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
                             @Override
@@ -1309,14 +1307,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                                     // Launch the new screen to create an empty room
                                     final Intent intent = new Intent(VectorHomeActivity.this, TchapRoomCreationActivity.class);
                                     VectorHomeActivity.this.startActivity(intent);
-                                } else if (2 == n){
-                                    // Create a new discussion
-                                    // Invite one or more users
-                                    // If only one contact is selected, it will be a direct chat
-                                    // Multiselection mode is required
-                                    // TODO sp3-11 invite only non Tchap users
-                                    //DinsicUtils.alertSimpleMsg(VectorHomeActivity.this, getString(R.string.action_not_available_yet));
-                                    createNewChat(VectorRoomCreationActivity.RoomCreationModes.INVITE);
                                 } else {
                                     final Intent intent = new Intent(VectorHomeActivity.this, TchapPublicRoomSelectionActivity.class);
                                     VectorHomeActivity.this.startActivity(intent);
