@@ -17,6 +17,7 @@
 
 package fr.gouv.tchap.activity;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
@@ -773,7 +774,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         enableLoadingScreen(true);
 
         Log.d(LOG_TAG, "## onForgotPasswordClick()");
-        discoverTchapPlatform(email, new ApiCallback<Platform>() {
+        discoverTchapPlatform(this, email, new ApiCallback<Platform>() {
             private void onError(String errorMessage) {
                 Toast.makeText(TchapLoginActivity.this, (null == errorMessage) ? getString(R.string.auth_invalid_email) : errorMessage, Toast.LENGTH_LONG).show();
                 enableLoadingScreen(false);
@@ -782,6 +783,10 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             @Override
             public void onSuccess(Platform platform) {
                 Log.d(LOG_TAG, "## onForgotPasswordClick(): discoverTchapPlatform succeeds");
+                // Store the platform and the corresponding email to detect changes
+                mTchapPlatform = platform;
+                mCurrentEmail = email;
+
                 final HomeServerConnectionConfig hsConfig = getHsConfig();
 
                 // it might be null if the identity / homeserver urls are invalids
@@ -1402,7 +1407,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         enableLoadingScreen(true);
 
         Log.d(LOG_TAG, "## onLoginClick()");
-        discoverTchapPlatform(emailAddress, new ApiCallback<Platform>() {
+        discoverTchapPlatform(this, emailAddress, new ApiCallback<Platform>() {
             private void onError(String errorMessage) {
                 Toast.makeText(TchapLoginActivity.this, (null == errorMessage) ? getString(R.string.login_error_unable_login) : errorMessage, Toast.LENGTH_LONG).show();
                 enableLoadingScreen(false);
@@ -1410,6 +1415,10 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
             @Override
             public void onSuccess(Platform platform) {
+                // Store the platform and the corresponding email to detect changes
+                mTchapPlatform = platform;
+                mCurrentEmail = emailAddress;
+
                 final HomeServerConnectionConfig hsConfig = getHsConfig();
 
                 // it might be null if the identity / homeserver urls are invalids
@@ -2267,40 +2276,42 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     /**
      * Get the Tchap platform configuration (HS/IS) for the provided email address.
      *
+     * @param activity current activity
      * @param emailAddress the email address to consider
      * @param callback the asynchronous callback
      */
-    private void discoverTchapPlatform(final String emailAddress, final ApiCallback<Platform> callback) {
+    public static void discoverTchapPlatform(Activity activity, final String emailAddress, final ApiCallback<Platform> callback) {
         Log.d(LOG_TAG, "## discoverTchapPlatform [" + emailAddress + "]");
         // Copy the list of the known ISes in order to run over the list until to get an answer.
-        List<String> currentHosts = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.identity_server_names)));
-        discoverTchapPlatform(emailAddress, currentHosts, callback);
+        List<String> currentHosts = Arrays.asList(activity.getResources().getStringArray(R.array.identity_server_names));
+        List<String> idServerUrls = new ArrayList<>();
+        for (String host : currentHosts) {
+            idServerUrls.add(activity.getString(R.string.server_url_prefix) + host);
+        }
+        discoverTchapPlatform(emailAddress, idServerUrls, callback);
     }
 
     /**
      * Round-robin over all provided hosts by removing them one by one until we get the Tchap platform for the provided email address.
      *
      * @param emailAddress the email address to consider
-     * @param currentHosts the list of available ISes
+     * @param identityServerUrls the list of the available identity server urls
      * @param callback the asynchronous callback
      */
-    private void discoverTchapPlatform(final String emailAddress, final List<String> currentHosts, final ApiCallback<Platform> callback) {
-        if (currentHosts.isEmpty()) {
+    private static void discoverTchapPlatform(final String emailAddress, final List<String> identityServerUrls, final ApiCallback<Platform> callback) {
+        if (identityServerUrls.isEmpty()) {
             callback.onMatrixError(new MatrixError(MatrixError.UNKNOWN, "No host"));
         }
 
-        int index = (new Random()).nextInt(currentHosts.size());
-        String selectedUrl = getString(R.string.server_url_prefix) + currentHosts.get(index);
-        currentHosts.remove(index);
+        int index = (new Random()).nextInt(identityServerUrls.size());
+        String selectedUrl = identityServerUrls.get(index);
+        identityServerUrls.remove(index);
 
         TchapRestClient tchapRestClient = new TchapRestClient(new HomeServerConnectionConfig(Uri.parse(selectedUrl), Uri.parse(selectedUrl), null, new ArrayList<Fingerprint>(), false));
         tchapRestClient.info(emailAddress, ThreePid.MEDIUM_EMAIL, new ApiCallback<Platform>() {
             @Override
             public void onSuccess(Platform platform) {
                 Log.d(LOG_TAG, "## discoverTchapPlatform succeeded (" + platform.hs + ", " + platform.invited +")");
-                mTchapPlatform = platform;
-                // Store the corresponding email to detect changes
-                mCurrentEmail = emailAddress;
                 callback.onSuccess(platform);
             }
 
@@ -2313,24 +2324,24 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             @Override
             public void onMatrixError(MatrixError matrixError) {
                 Log.e(LOG_TAG, "## discoverTchapPlatform failed " + matrixError.getMessage());
-                if (currentHosts.isEmpty()) {
+                if (identityServerUrls.isEmpty()) {
                     // We checked all the known hosts, return the error
                     callback.onMatrixError(matrixError);
                 } else {
                     // Try again
-                    discoverTchapPlatform(emailAddress, currentHosts, callback);
+                    discoverTchapPlatform(emailAddress, identityServerUrls, callback);
                 }
             }
 
             @Override
             public void onUnexpectedError(Exception e) {
                 Log.e(LOG_TAG, "## discoverTchapPlatform failed " + e.getMessage());
-                if (currentHosts.isEmpty()) {
+                if (identityServerUrls.isEmpty()) {
                     // We checked all the known hosts, return the error
                     callback.onUnexpectedError(e);
                 } else {
                     // Try again
-                    discoverTchapPlatform(emailAddress, currentHosts, callback);
+                    discoverTchapPlatform(emailAddress, identityServerUrls, callback);
                 }
             }
         });
@@ -2356,7 +2367,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         // Reset the current platform and the registration flows (if any)
         resetRegistrationTchapPlatform();
 
-        String emailAddress = mCreationEmailAddressTextView.getText().toString().trim();
+        final String emailAddress = mCreationEmailAddressTextView.getText().toString().trim();
 
         // no email address ?
         if (TextUtils.isEmpty(emailAddress)) {
@@ -2371,7 +2382,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         enableLoadingScreen(true);
         Log.d(LOG_TAG, "## refreshRegistrationTchapPlatform");
 
-        discoverTchapPlatform(emailAddress, new ApiCallback<Platform>() {
+        discoverTchapPlatform(this, emailAddress, new ApiCallback<Platform>() {
             private void onError(String errorMessage) {
                 enableLoadingScreen(false);
                 // Keep disable the register button
@@ -2382,6 +2393,10 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
             @Override
             public void onSuccess(Platform platform) {
+                // Store the platform and the corresponding email to detect changes
+                mTchapPlatform = platform;
+                mCurrentEmail = emailAddress;
+
                 enableLoadingScreen(false);
             }
 

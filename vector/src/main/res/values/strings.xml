@@ -951,7 +951,9 @@
     <string name="tchap_invite_contacts_to_tchap">Invite contacts in Tchap</string>
     <string name="tchap_room_invite_member_direct_chat">New discussion</string>
     <string name="tchap_invite_already_send_message">You have already sent an invitation to %s</string>
+    <string name="tchap_invite_unreachable_message">%s cannot be reached for the moment by Tchap</string>
     <string name="tchap_send_invite_failed">Failed to send invitation to %s</string>
+    <string name="tchap_send_invite_network_error">Unable to send invite: Network error</string>
     <string name="tchap_send_invite_confirmation">You will receive a notification when \n your guest joins the Tchap community</string>
     <plurals name="tchap_succes_invite__notification">
         <item quantity="one">1 invitation has been sent.</item>
