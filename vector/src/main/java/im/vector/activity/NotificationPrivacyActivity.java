@@ -148,7 +148,7 @@ public class NotificationPrivacyActivity extends RiotAppCompatActivity  {
             case android.R.id.home:
                 setResult(RESULT_CANCELED);
                 finish();
-                break;
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
