@@ -129,6 +129,8 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                 return true;
             case R.id.action_next:
                 if (mRoomParams.preset.equals(CreateRoomParams.PRESET_PUBLIC_CHAT)) {
+                    // In case of a public room, the room alias is mandatory.
+                    // That's why, we deduce the room alias from the room name.
                     mRoomParams.roomAliasName = mRoomParams.name.trim().replace(" ", "");
 
                     if (mRoomParams.roomAliasName.isEmpty()) {
@@ -170,12 +172,12 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
             switchPublicPrivateRoom.setChecked(true);
             mRoomParams.visibility = RoomState.DIRECTORY_VISIBILITY_PUBLIC;
             mRoomParams.preset = CreateRoomParams.PRESET_PUBLIC_CHAT;
-            Log.e(LOG_TAG, "##Public room with a mandatory room alias");
+            Log.d(LOG_TAG, "## public");
         } else {
             switchPublicPrivateRoom.setChecked(false);
             mRoomParams.visibility = RoomState.DIRECTORY_VISIBILITY_PRIVATE;
             mRoomParams.preset = CreateRoomParams.PRESET_PRIVATE_CHAT;
-            Log.e(LOG_TAG, "##Private room without room alias");
+            Log.d(LOG_TAG, "## private");
         }
     }
 
@@ -293,7 +295,6 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
             @Override
             public void onMatrixError(final MatrixError e) {
                 onError(e.getLocalizedMessage());
-                mRoomParams.roomAliasName = mRoomParams.name.trim().replace(" ", "");
                 String title;
 
                 switch (e.error) {
@@ -307,7 +308,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                         break;
                     default:
                         onError(e.getLocalizedMessage());
-                        return;
+                        break;
                 }
             }
 
@@ -496,7 +497,11 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        mRoomParams.roomAliasName = editText.getText().toString();
+                        String alias = editText.getText().toString().trim().replace(" ", "");
+                        if (alias.isEmpty() || alias.equalsIgnoreCase(mRoomParams.roomAliasName)) {
+                            alias = getRandomString();
+                        }
+                        mRoomParams.roomAliasName = alias;
                         createNewRoom();
                         hideKeyboard();
                         dialog.dismiss();
