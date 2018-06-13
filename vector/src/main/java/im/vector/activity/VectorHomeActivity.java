@@ -1291,8 +1291,10 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         // ignore any action if there is a pending one
         if (!isWaitingViewVisible()) {
             if (!TchapLoginActivity.isUserExternal(mSession)) {
-                CharSequence items[] = new CharSequence[]{getString(R.string.start_new_chat), getString(R.string.room_creation_title), getString(R.string.room_creation_invite_members),getString(R.string.room_join_public_room_title)};
+                CharSequence items[] = new CharSequence[]{getString(R.string.start_new_chat), getString(R.string.room_creation_title),getString(R.string.room_join_public_room_title)};
                     mFabDialog = new AlertDialog.Builder(this)
+                CharSequence items[] = new CharSequence[]{getString(R.string.start_new_chat), getString(R.string.tchap_room_creation_title)};
+                mFabDialog = new AlertDialog.Builder(this)
                         .setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface d, int n) {
