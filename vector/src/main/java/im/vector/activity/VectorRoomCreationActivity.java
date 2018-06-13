@@ -23,22 +23,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 
-import org.matrix.androidsdk.rest.model.CreateRoomParams;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.util.Log;
 
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
-
 
 import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.data.Room;
-import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
-import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.MXSession;
 
 import java.util.ArrayList;
@@ -49,8 +42,6 @@ import java.util.List;
 import im.vector.R;
 import im.vector.adapters.ParticipantAdapterItem;
 import im.vector.adapters.VectorRoomCreationAdapter;
-import fr.gouv.tchap.util.DinsicUtils;
-import im.vector.util.ThemeUtils;
 
 public class VectorRoomCreationActivity extends MXCActionBarActivity {
     // tags
@@ -164,11 +155,10 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
         intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_INVITE_CONTACTS_FILTER, contactsFilter);
 
         if (mode.equals(RoomCreationModes.NEW_ROOM)) {
-            VectorRoomCreationActivity.this.startActivityForResult(intent, requestCode);
+            startActivityForResult(intent, requestCode);
         } else {
-            VectorRoomCreationActivity.this.startActivity(intent);
+            startActivity(intent);
         }
-        startActivity(intent);
     }
 
     @Override

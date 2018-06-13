@@ -117,7 +117,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
     private List<ParticipantAdapterItem> mContactsParticipants = null;
     private Set<String> mUsedMemberUserIds = null;
     private List<String> mDisplayNamesList = null;
-    public List<String> mCurrentSelectedUsers = null;
+    private List<String> mCurrentSelectedUsers = null;
     private String mPattern = "";
 
     private List<ParticipantAdapterItem> mItemsToHide = new ArrayList<>();
@@ -392,7 +392,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
      *
      * @param selectedUserIds    the list of already selected usersIds.
      */
-    public void setSelectedUserIds(ArrayList<String> selectedUserIds) {
+    public void setSelectedUserIds(List<String> selectedUserIds) {
         mCurrentSelectedUsers = new ArrayList<>(selectedUserIds);
     }
 
@@ -1052,7 +1052,6 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
 
         // the contact defines a matrix user but there is no way to get more information (presence, avatar)
         if (participant.mContact != null) {
-            boolean isMatrixUserId = MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(participant.mUserId).matches();
 
             if (participant.mContact.getEmails().size() > 0) {
                 statusTextView.setText(participant.mContact.getEmails().get(0));
@@ -1085,7 +1084,11 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
         }
 
         final ImageView iconCheck = convertView.findViewById(R.id.icon_check_invite_member);
-        iconCheck.setVisibility(mCurrentSelectedUsers.contains(participant.mUserId) ? View.VISIBLE : View.GONE);
+        if (participant.mIsValid) {
+            iconCheck.setVisibility(mCurrentSelectedUsers.contains(participant.mUserId) ? View.VISIBLE : View.GONE);
+        } else {
+            iconCheck.setVisibility(View.GONE);
+        }
 
         return convertView;
     }
