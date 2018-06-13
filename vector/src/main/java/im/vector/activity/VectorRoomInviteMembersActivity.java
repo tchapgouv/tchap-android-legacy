@@ -59,6 +59,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import fr.gouv.tchap.activity.TchapLoginActivity;
+import fr.gouv.tchap.activity.TchapRoomCreationActivity;
 import im.vector.Matrix;
 import im.vector.R;
 import im.vector.adapters.ParticipantAdapterItem;
@@ -327,6 +328,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                         DinsicUtils.startDirectChat(VectorRoomInviteMembersActivity.this, mSession, participantItem);
                     } else {
                         updateParticipantListToInvite(participantItem);
+                        mAdapter.setSelectedUserIds(mUserIdsToInvite);
                         mAdapter.notifyDataSetChanged();
                         invalidateOptionsMenu();
                     }
@@ -439,6 +441,26 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         super.onPause();
         mSession.getDataHandler().removeListener(mEventsListener);
         ContactsManager.getInstance().removeListener(mContactsListener);
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent;
+
+        switch (mMode) {
+            case DIRECT_CHAT:
+            case INVITE:
+                intent =  new Intent(VectorRoomInviteMembersActivity.this, VectorHomeActivity.class);
+                startActivity(intent);
+                finish();
+                break;
+            case NEW_ROOM:
+                Intent intentWithResult = new Intent(VectorRoomInviteMembersActivity.this, TchapRoomCreationActivity.class);
+                intentWithResult.putExtra(EXTRA_OUT_SELECTED_USER_IDS, mUserIdsToInvite);
+                setResult(RESULT_CANCELED, intentWithResult);
+                finish();
+                break;
+        }
     }
 
     @Override
@@ -608,7 +630,6 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
             } else {
                 mUserIdsToInvite.remove(participantAdapterItem.mUserId);
             }
-            mAdapter.setSelectedUserIds(mUserIdsToInvite);
             ret = true;
         } else {
             DinsicUtils.editContact(VectorRoomInviteMembersActivity.this, getApplicationContext(), item);

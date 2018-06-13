@@ -702,15 +702,16 @@ public class VectorMemberDetailsActivity extends MXCActionBarActivity implements
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (android.R.id.home == item.getItemId()) {
-            if (View.VISIBLE == mDevicesListView.getVisibility()) {
-                setScreenDevicesListVisibility(View.GONE);
-            } else {
-                // don't use the default parent activity defined in the manifest file.
-                // close this activity when the home button is pressed
-                onBackPressed();
-            }
-            return true;
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                if (View.VISIBLE == mDevicesListView.getVisibility()) {
+                    setScreenDevicesListVisibility(View.GONE);
+                } else {
+                    // don't use the default parent activity defined in the manifest file.
+                    // close this activity when the home button is pressed
+                    onBackPressed();
+                }
+                return true;
         }
 
         return super.onOptionsItemSelected(item);

@@ -157,6 +157,12 @@ public class PhoneNumberAdditionActivity extends RiotAppCompatActivity implement
     }
 
     @Override
+    public void onBackPressed() {
+        setResult(RESULT_CANCELED);
+        finish();
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
