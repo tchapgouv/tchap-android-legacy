@@ -49,7 +49,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.support.v4.app.FragmentTransaction;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -469,7 +468,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         }
         myTab = mTopNavigationView.getTabAt(myPosition);
         if (myTab != null) {
-            updateSelectedFragment(myTab, false);
+            updateSelectedFragment(myTab);
         }
 
         // initialize the public rooms list
@@ -596,7 +595,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         checkNotificationPrivacySetting();
 
         setSelectedTabStyle();
-        updateSelectedFragment(mTopNavigationView.getTabAt(mTopNavigationView.getSelectedTabPosition()), false);
     }
 
     /**
@@ -709,12 +707,11 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         if (CommonActivityUtils.shouldRestartApp(this)) {
             return false;
         }
-        //no more menus on tchap ... until when ?
-        /*
+
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.vector_home, menu);
         CommonActivityUtils.tintMenuIcons(menu, ThemeUtils.getColor(this, R.attr.icon_tint_on_dark_action_bar_color));
-       */ return true;
+        return true;
     }
 
     @Override
@@ -891,7 +888,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
             public void onTabSelected(TabLayout.Tab tab) {
                 //make tab selected bold
                 setSelectedTabStyle();
-                updateSelectedFragment(tab, true);
+                updateSelectedFragment(tab);
             }
 
             @Override
@@ -909,7 +906,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
      *
      * @param item menu item selected by the user
      */
-    private void updateSelectedFragment(final TabLayout.Tab item, boolean isAnimated) {
+    private void updateSelectedFragment(final TabLayout.Tab item) {
         int position = item.getPosition();
         if (mCurrentMenuId == position) {
             return;
@@ -995,30 +992,12 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         showFloatingActionButton();
 
         if (fragment != null) {
+            resetFilter();
             try {
-                int myAnimEnter = R.anim.tchap_anim_slide_in_right;
-                int myAnimExit = R.anim.tchap_anim_slide_out_right;
-                if (position == TAB_POSITION_CONTACT) {
-                    myAnimExit = R.anim.tchap_anim_slide_out_left;
-                    myAnimEnter = R.anim.tchap_anim_slide_in_left;
-                }
-                FragmentTransaction myFt = mFragmentManager.beginTransaction();
-                if (isAnimated) {
-                    myFt.setCustomAnimations(myAnimEnter, myAnimExit);
-                }
-                myFt.replace(R.id.fragment_container, fragment, mCurrentFragmentTag)
+                mFragmentManager.beginTransaction()
+                        .replace(R.id.fragment_container, fragment, mCurrentFragmentTag)
                         .addToBackStack(mCurrentFragmentTag)
                         .commit();
-                getSupportFragmentManager().executePendingTransactions();
-                String queryText = mSearchView.getQuery().toString();
-                if (queryText.length() == 0) {
-                    resetFilter();
-
-                } else {
-                    applyFilter(queryText);
-                }
-
-
             } catch (Exception e) {
                 Log.e(LOG_TAG, "## updateSelectedFragment() failed : " + e.getMessage());
             }
@@ -1102,15 +1081,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         mSearchView.setIconifiedByDefault(false);
         mSearchView.setOnQueryTextListener(this);
-        mSearchView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (v != null) {
-                    mSearchView.setIconified(false);
-                }
 
-            }
-        });
         if (null != mFloatingActionButton) {
             mFloatingActionButton.setOnClickListener(new View.OnClickListener() {
                 @Override

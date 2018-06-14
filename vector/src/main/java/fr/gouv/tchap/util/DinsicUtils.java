@@ -90,6 +90,40 @@ public class DinsicUtils {
     }
 
     /**
+     * get name part of a displayname
+     *
+     * @param displayName
+     * @return displayname without domain
+     */
+    public  static String getDisplaynameNamePart(String displayName) {
+        String myRet = displayName;
+        if (displayName.contains(" [")) {
+            myRet = displayName.split(" \\[")[0];
+        }
+        return myRet;
+    }
+    /**
+     * get name part of a displayname
+     *
+     * @param displayName
+     * @return displayname without name
+     */
+    public  static String getDisplaynameDomainPart(String displayName) {
+        String myRet = "";
+
+        if (displayName.contains("[")) {
+            myRet = displayName.split("\\[")[1];
+            if (myRet.contains("]")) {
+                myRet = myRet.split("\\]")[0];
+            }
+            else {
+                myRet = "";
+            }
+        }
+         return myRet;
+    }
+
+    /**
      * Edit contact form
      */
     public static void editContactForm(Context theContext, Activity myActivity, String editContactWarningMsg, final Contact contact ) {

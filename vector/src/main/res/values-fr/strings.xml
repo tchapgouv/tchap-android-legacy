@@ -66,8 +66,8 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
 
     <string name="home_filter_placeholder_home">Rechercher des discussions</string>
     <string name="home_filter_placeholder_favorites">Rechercher des favoris</string>
-    <string name="home_filter_placeholder_people">Rechercher des contacts</string>
-    <string name="home_filter_placeholder_rooms">Rechercher des conversations</string>
+    <string name="home_filter_placeholder_people">Rechercher des personnes</string>
+    <string name="home_filter_placeholder_rooms">Rechercher des discussions</string>
 
     <string name="invitations_header">Invitations</string>
     <string name="low_priority_header">Priorité basse</string>
@@ -80,7 +80,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="no_result_placeholder">Aucun résultat</string>
     <string name="no_email">Email pas disponible</string>
 
-    <string name="rooms_header">Conversations</string>
+    <string name="rooms_header">Discussions</string>
     <string name="rooms_directory_header">Répertoire des discussions</string>
     <string name="no_room_placeholder">Aucune discussion</string>
     <string name="no_public_room_placeholder">Aucune discussion publique disponible</string>
@@ -256,6 +256,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="room_details_title">Information sur la discussion</string>
     <string name="room_details_people">Participants</string>
     <string name="room_details_files">Fichiers</string>
+    <string name="room_details_files_title">Fichiers partagés</string>
     <string name="room_details_settings">Paramètres</string>
     <string name="room_details_selected">choisi</string>
     <string name="room_details_people_invited_group_name">INVITÉS</string>

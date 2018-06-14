@@ -457,6 +457,7 @@
     <string name="room_details_title">Room Details</string>
     <string name="room_details_people">People</string>
     <string name="room_details_files">Files</string>
+    <string name="room_details_files_title">Shared files</string>
     <string name="room_details_settings">Settings</string>
     <string name="room_details_selected">selected</string>
     <string name="malformed_id">Malformed ID. Should be an email address or a Matrix ID like \'@localpart:domain\'</string>

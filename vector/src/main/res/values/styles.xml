@@ -24,6 +24,28 @@
         <item name="android:fontFamily">"sans-serif-medium"</item>
     </style>
 
+    <style name="TchapRoomToolbarStyle" parent="Widget.AppCompat.Toolbar">
+        <item name="android:background">@android:color/white</item>
+        <item name="background">@android:color/white</item>
+
+        <!-- main text -->
+        <item name="titleTextAppearance">@style/Vector.Toolbar.Title</item>
+
+        <item name="theme">@style/TchapRoomToolbarTheme</item>
+    </style>
+
+    <style name="TchapRoomToolbarTheme">
+
+        <item name="colorControlNormal">#124a9d</item>
+    </style>
+
+    <style name="TchapRoom.Toolbar.Title" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@android:color/white</item>
+
+    </style>
+
+
     <!-- searchView style -->
     <style name="SearchViewMembers" parent="Widget.AppCompat.Light.SearchView">
         <item name="submitBackground">@color/tchap_search_bar</item>
