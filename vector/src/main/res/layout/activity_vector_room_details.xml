@@ -1,25 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <RelativeLayout
         android:background="@android:color/white"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:id="@+id/room_details_head">
 
-        <!-- tab fragments container -->
-        <FrameLayout
-            android:id="@+id/room_details_fragment_container"
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/room_toolbar"
+            style="@style/TchapRoomToolbarStyle"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="72dp"
+            android:layout_alignParentTop="true"
+            app:contentInsetEnd="0dp"
+            app:contentInsetStart="0dp">
 
+            <include layout="@layout/tchap_message_action_bar_custo_layout" />
+
+        </android.support.v7.widget.Toolbar>
+
+
+    <android.support.design.widget.TabLayout
+        android:id="@+id/tab_layout"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_below="@+id/room_toolbar"
+
+        app:tabGravity="fill"
+        app:tabIndicatorColor="@color/primary_color_light"
+        app:tabMaxWidth="0dp"
+        app:tabMode="fixed"
+        android:paddingRight="5dp"
+        android:paddingLeft="5dp"
+        android:paddingBottom="15dp"
+        app:tabTextColor="@color/riot_primary_text_color_light"
+        app:tabTextAppearance="@style/Vector.RoomToolbar.Title">
+
+        <android.support.design.widget.TabItem
+            android:id="@+id/tab_item_people"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:tag="people"
+            android:text="@string/room_details_people" />
+        <android.support.design.widget.TabItem
+            android:id="@+id/tab_item_files"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:tag="files"
+            android:text="@string/room_details_files" />
+        <android.support.design.widget.TabItem
+            android:id="@+id/tab_item_details"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:tag="settings"
+            android:text="@string/room_details_settings"/>
+
+    </android.support.design.widget.TabLayout>
         <!-- downloading progress bar -->
         <FrameLayout
             android:id="@+id/settings_loading_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone"
+            android:layout_below="@+id/tab_layout"
             android:background="?attr/waiting_background_color">
             <ProgressBar
                 android:id="@+id/loading_settings_progress_bar"
@@ -31,11 +81,20 @@
 
         <ProgressBar
             android:id="@+id/search_load_oldest_progress"
+            android:layout_below="@+id/settings_loading_layout"
             android:layout_height="40dp"
             android:layout_width="match_parent"
             android:layout_alignParentLeft="true"
             android:visibility="gone"
             android:indeterminate="true" />
+
+        <!-- tab fragments container -->
+        <FrameLayout
+            android:id="@+id/room_details_fragment_container"
+            android:layout_below="@+id/tab_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
     </RelativeLayout>
 
 </FrameLayout>

@@ -23,6 +23,11 @@
         <item name="android:textColor">?attr/primary_text_color</item>
         <item name="android:fontFamily">"sans-serif-medium"</item>
     </style>
+    <style name="Vector.RoomToolbar.Title" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">?attr/primary_text_color</item>
+        <item name="android:fontFamily">"sans-serif-medium"</item>
+    </style>
 
     <style name="TchapRoomToolbarStyle" parent="Widget.AppCompat.Toolbar">
         <item name="android:background">@android:color/white</item>

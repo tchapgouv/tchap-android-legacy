@@ -545,7 +545,7 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
      */
     private void processEditionMode() {
         boolean isEnabled;
-
+/*
         if (null != mSwitchDeletionMenuItem) {
             if (!isUserAdmin()) {
                 isEnabled = false;
@@ -554,7 +554,7 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
             mSwitchDeletionMenuItem.setVisible(isEnabled);
             mSwitchDeletionMenuItem.setEnabled(isEnabled);
         }
-    }
+ */   }
 
 
     /**
@@ -653,7 +653,7 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
         }
 
         if ((null != mSwitchDeletionMenuItem) && (mSwitchDeletionMenuItem.isEnabled())) {
-            mSwitchDeletionMenuItem.setVisible(!mIsMultiSelectionMode);
+            mSwitchDeletionMenuItem.setVisible(false);//!mIsMultiSelectionMode);
         }
     }
 
@@ -672,10 +672,12 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
      * Reset the activity title.
      */
     private void resetActivityTitle() {
+        /*
         mRemoveMembersMenuItem.setEnabled(true);
         mSwitchDeletionMenuItem.setEnabled(true);
 
         setActivityTitle(this.getResources().getString(R.string.room_details_title));
+        */
     }
 
     /**
