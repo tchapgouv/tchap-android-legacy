@@ -48,9 +48,9 @@ import im.vector.adapters.AdapterSection;
 import im.vector.adapters.PublicRoomsAdapterSection;
 import im.vector.util.VectorUtils;
 
-public class PublicRoomAdapter extends AbsAdapter {
+public class TchapPublicRoomAdapter extends AbsAdapter {
 
-    private static final String LOG_TAG = PublicRoomAdapter.class.getSimpleName();
+    private static final String LOG_TAG = TchapPublicRoomAdapter.class.getSimpleName();
 
     private static final int TYPE_HEADER_PUBLIC_ROOM = 0;
 
@@ -66,7 +66,7 @@ public class PublicRoomAdapter extends AbsAdapter {
      * *********************************************************************************************
      */
 
-    public PublicRoomAdapter(final Context context, final OnSelectItemListener listener, final RoomInvitationListener invitationListener, final MoreRoomActionListener moreActionListener) {
+    public TchapPublicRoomAdapter(final Context context, final OnSelectItemListener listener, final RoomInvitationListener invitationListener, final MoreRoomActionListener moreActionListener) {
         super(context, invitationListener, moreActionListener);
 
         mListener = listener;

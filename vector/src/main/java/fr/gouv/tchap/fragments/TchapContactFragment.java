@@ -56,7 +56,7 @@ import im.vector.activity.CommonActivityUtils;
 import fr.gouv.tchap.activity.TchapLoginActivity;
 import im.vector.activity.RiotAppCompatActivity;
 import im.vector.adapters.ParticipantAdapterItem;
-import fr.gouv.tchap.adapters.ContactAdapter;
+import fr.gouv.tchap.adapters.TchapContactAdapter;
 import im.vector.contacts.Contact;
 import im.vector.contacts.ContactsManager;
 import im.vector.contacts.PIDsRetriever;
@@ -66,8 +66,8 @@ import im.vector.util.VectorUtils;
 import im.vector.view.EmptyViewItemDecoration;
 import im.vector.view.SimpleDividerItemDecoration;
 
-public class ContactFragment extends AbsHomeFragment implements ContactsManager.ContactsManagerListener, AbsHomeFragment.OnRoomChangedListener {
-    private static final String LOG_TAG = ContactFragment.class.getSimpleName();
+public class TchapContactFragment extends AbsHomeFragment implements ContactsManager.ContactsManagerListener, AbsHomeFragment.OnRoomChangedListener {
+    private static final String LOG_TAG = TchapContactFragment.class.getSimpleName();
 
     private static final int MAX_KNOWN_CONTACTS_FILTER_COUNT = 50;
 
@@ -77,7 +77,7 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
     @BindView(R.id.listView_spinner_views)
     View waitingView;
 
-    private ContactAdapter mAdapter;
+    private TchapContactAdapter mAdapter;
 
     private final List<Room> mDirectChats = new ArrayList<>();
     private final List<ParticipantAdapterItem> mLocalContacts = new ArrayList<>();
@@ -94,8 +94,8 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
      * *********************************************************************************************
      */
 
-    public static ContactFragment newInstance() {
-        return new ContactFragment();
+    public static TchapContactFragment newInstance() {
+        return new TchapContactFragment();
     }
 
     /*
@@ -246,7 +246,7 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
         mRecycler.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
         mRecycler.addItemDecoration(new SimpleDividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL, margin));
         mRecycler.addItemDecoration(new EmptyViewItemDecoration(getActivity(), DividerItemDecoration.VERTICAL, 40, 16, 14));
-        mAdapter = new ContactAdapter(getActivity(), new ContactAdapter.OnSelectItemListener() {
+        mAdapter = new TchapContactAdapter(getActivity(), new TchapContactAdapter.OnSelectItemListener() {
             @Override
             public void onSelectItem(Room room, int position) {
                 openRoom(room);
@@ -533,7 +533,7 @@ public class ContactFragment extends AbsHomeFragment implements ContactsManager.
                     //
                     if (TextUtils.equals(fPattern, mCurrentFilter)) {
                         hideKnownContactLoadingView();
-                        mAdapter.setKnownContactsExtraTitle(ContactFragment.this.getContext().getString(R.string.offline));
+                        mAdapter.setKnownContactsExtraTitle(TchapContactFragment.this.getContext().getString(R.string.offline));
                         mAdapter.filterAccountKnownContacts(mCurrentFilter);
                     }
                 }

@@ -52,17 +52,17 @@ import im.vector.fragments.AbsHomeFragment;
 import im.vector.view.EmptyViewItemDecoration;
 import im.vector.view.SectionView;
 import im.vector.view.SimpleDividerItemDecoration;
-import fr.gouv.tchap.adapters.PublicRoomAdapter;
+import fr.gouv.tchap.adapters.TchapPublicRoomAdapter;
 
-public class PublicRoomsFragment extends AbsHomeFragment {
-    private static final String LOG_TAG = PublicRoomsFragment.class.getSimpleName();
+public class TchapPublicRoomsFragment extends AbsHomeFragment {
+    private static final String LOG_TAG = TchapPublicRoomsFragment.class.getSimpleName();
 
     private boolean mMorePublicRooms = false;
     @BindView(R.id.recyclerview)
     RecyclerView mRecycler;
 
     // rooms management
-    private PublicRoomAdapter mAdapter;
+    private TchapPublicRoomAdapter mAdapter;
 
     private  List<String> mCurrentHosts = null;
     private List<PublicRoomsManager> mPublicRoomsManagers = null;
@@ -75,8 +75,8 @@ public class PublicRoomsFragment extends AbsHomeFragment {
      * *********************************************************************************************
      */
 
-    public static PublicRoomsFragment newInstance() {
-        return new PublicRoomsFragment();
+    public static TchapPublicRoomsFragment newInstance() {
+        return new TchapPublicRoomsFragment();
     }
 
     /*
@@ -195,7 +195,7 @@ public class PublicRoomsFragment extends AbsHomeFragment {
         mRecycler.addItemDecoration(new SimpleDividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL, margin));
         mRecycler.addItemDecoration(new EmptyViewItemDecoration(getActivity(), DividerItemDecoration.VERTICAL, 40, 16, 14));
 
-        mAdapter = new PublicRoomAdapter(getActivity(), new PublicRoomAdapter.OnSelectItemListener() {
+        mAdapter = new TchapPublicRoomAdapter(getActivity(), new TchapPublicRoomAdapter.OnSelectItemListener() {
             @Override
             public void onSelectItem(Room room, int position) {
                 openRoom(room);

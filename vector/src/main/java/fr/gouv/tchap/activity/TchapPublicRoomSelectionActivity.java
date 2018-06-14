@@ -43,11 +43,10 @@ import im.vector.Matrix;
 import im.vector.MyPresenceManager;
 import im.vector.PublicRoomsManager;
 import im.vector.R;
-import im.vector.VectorApp;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.RiotAppCompatActivity;
 import im.vector.fragments.AbsHomeFragment;
-import fr.gouv.tchap.fragments.PublicRoomsFragment;
+import fr.gouv.tchap.fragments.TchapPublicRoomsFragment;
 
 /**
  * List all the public rooms by considering all known room directories.
@@ -117,7 +116,7 @@ public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity impl
 
         if (isFirstCreation()) {
             // Add public room fragment
-            mFragmentManager.beginTransaction().add(R.id.fragment_container, PublicRoomsFragment.newInstance(), TAG_FRAGMENT_ROOMS).commit();
+            mFragmentManager.beginTransaction().add(R.id.fragment_container, TchapPublicRoomsFragment.newInstance(), TAG_FRAGMENT_ROOMS).commit();
         }
 
         this.setTitle(R.string.room_join_public_room_alt_title);
