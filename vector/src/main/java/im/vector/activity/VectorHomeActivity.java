@@ -49,6 +49,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.support.v4.app.FragmentTransaction;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -469,7 +470,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         }
         myTab = mTopNavigationView.getTabAt(myPosition);
         if (myTab != null) {
-            updateSelectedFragment(myTab);
+            updateSelectedFragment(myTab, false);
         }
 
         initViews();
@@ -592,6 +593,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         checkNotificationPrivacySetting();
 
         setSelectedTabStyle();
+        updateSelectedFragment(mTopNavigationView.getTabAt(mTopNavigationView.getSelectedTabPosition()), false);
     }
 
     /**
@@ -704,11 +706,12 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         if (CommonActivityUtils.shouldRestartApp(this)) {
             return false;
         }
-
+        //no more menus on tchap ... until when ?
+        /*
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.vector_home, menu);
         CommonActivityUtils.tintMenuIcons(menu, ThemeUtils.getColor(this, R.attr.icon_tint_on_dark_action_bar_color));
-        return true;
+       */ return true;
     }
 
     @Override
@@ -885,7 +888,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
             public void onTabSelected(TabLayout.Tab tab) {
                 //make tab selected bold
                 setSelectedTabStyle();
-                updateSelectedFragment(tab);
+                updateSelectedFragment(tab, true);
             }
 
             @Override
@@ -903,7 +906,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
      *
      * @param item menu item selected by the user
      */
-    private void updateSelectedFragment(final TabLayout.Tab item) {
+    private void updateSelectedFragment(final TabLayout.Tab item, boolean isAnimated) {
         int position = item.getPosition();
         if (mCurrentMenuId == position) {
             return;
@@ -947,9 +950,15 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 mInviteContactLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        // We launch a VectorRoomCreationActivity activity to invite
-                        // some non-tchap contacts by using their email
-                        createNewChat(VectorRoomCreationActivity.RoomCreationModes.INVITE);
+                        if (!TchapLoginActivity.isUserExternal(mSession)) {
+                            // We launch a VectorRoomInviteMembersActivity activity to invite
+                            // some non-tchap contacts by using their email
+                            createNewChat(VectorRoomInviteMembersActivity.ActionMode.SEND_INVITE, VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY);
+                        } else {
+                            // the invite button is temporarily blocked for external users to prevent them from
+                            // inviting people to Tchap
+                            DinsicUtils.alertSimpleMsg(VectorHomeActivity.this, getString(R.string.action_forbidden));
+                        }
                     }
                 });
                 break;
@@ -989,12 +998,30 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         showFloatingActionButton();
 
         if (fragment != null) {
-            resetFilter();
             try {
-                mFragmentManager.beginTransaction()
-                        .replace(R.id.fragment_container, fragment, mCurrentFragmentTag)
+                int myAnimEnter = R.anim.tchap_anim_slide_in_right;
+                int myAnimExit = R.anim.tchap_anim_slide_out_right;
+                if (position == TAB_POSITION_CONTACT) {
+                    myAnimExit = R.anim.tchap_anim_slide_out_left;
+                    myAnimEnter = R.anim.tchap_anim_slide_in_left;
+                }
+                FragmentTransaction myFt = mFragmentManager.beginTransaction();
+                if (isAnimated) {
+                    myFt.setCustomAnimations(myAnimEnter, myAnimExit);
+                }
+                myFt.replace(R.id.fragment_container, fragment, mCurrentFragmentTag)
                         .addToBackStack(mCurrentFragmentTag)
                         .commit();
+                getSupportFragmentManager().executePendingTransactions();
+                String queryText = mSearchView.getQuery().toString();
+                if (queryText.length() == 0) {
+                    resetFilter();
+
+                } else {
+                    applyFilter(queryText);
+                }
+
+
             } catch (Exception e) {
                 Log.e(LOG_TAG, "## updateSelectedFragment() failed : " + e.getMessage());
             }
@@ -1078,7 +1105,15 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         mSearchView.setIconifiedByDefault(false);
         mSearchView.setOnQueryTextListener(this);
+        mSearchView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (v != null) {
+                    mSearchView.setIconified(false);
+                }
 
+            }
+        });
         if (null != mFloatingActionButton) {
             mFloatingActionButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -1211,15 +1246,12 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
             if (preferences.getBoolean(isFirstCryptoAlertKey, true)) {
-                SharedPreferences.Editor editor = preferences.edit();
-                editor.putBoolean(isFirstCryptoAlertKey, false);
-                editor.commit();
+                preferences.edit()
+                        .putBoolean(isFirstCryptoAlertKey, false)
+                        .apply();
 
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-                alertDialogBuilder.setMessage(getString(R.string.e2e_need_log_in_again));
-
-                // set dialog message
-                alertDialogBuilder
+                new AlertDialog.Builder(this)
+                        .setMessage(getString(R.string.e2e_need_log_in_again))
                         .setCancelable(true)
                         .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                             @Override
@@ -1231,11 +1263,8 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                                     public void onClick(DialogInterface dialog, int id) {
                                         CommonActivityUtils.logout(VectorApp.getCurrentActivity());
                                     }
-                                });
-                // create alert dialog
-                AlertDialog alertDialog = alertDialogBuilder.create();
-                // show it
-                alertDialog.show();
+                                })
+                        .show();
             }
         }
     }
@@ -1293,11 +1322,10 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                             public void onClick(DialogInterface d, int n) {
                                 d.cancel();
                                 if (0 == n) {
-                                    // Create a new direct chat
-                                    // We can add only one people to the chat
-                                    // In this case, the click on the contact send the invitation
-                                    // Multiselection mode isn't required
-                                    createNewChat(VectorRoomCreationActivity.RoomCreationModes.DIRECT_CHAT);
+                                    // Create a new direct chat with an existing tchap user
+                                    // Multi-selection will be disabled
+                                    createNewChat(VectorRoomInviteMembersActivity.ActionMode.START_DIRECT_CHAT,
+                                            VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY);
                                 } else if (1 == n) {
                                     // Launch the new screen to create an empty room
                                     final Intent intent = new Intent(VectorHomeActivity.this, TchapRoomCreationActivity.class);
@@ -1390,11 +1418,12 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     /**
      * Open the room creation with inviting people.
      */
-    private void createNewChat(VectorRoomCreationActivity.RoomCreationModes mode) {
-        final Intent settingsIntent = new Intent(VectorHomeActivity.this, VectorRoomCreationActivity.class);
-        settingsIntent.putExtra(MXCActionBarActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
-        settingsIntent.putExtra(VectorRoomCreationActivity.EXTRA_ROOM_CREATION_ACTIVITY_MODE, mode);
-        startActivity(settingsIntent);
+    private void createNewChat(VectorRoomInviteMembersActivity.ActionMode mode, VectorRoomInviteMembersActivity.ContactsFilter contactsFilter) {
+        Intent intent = new Intent(VectorHomeActivity.this, VectorRoomInviteMembersActivity.class);
+        intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
+        intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_ACTION_ACTIVITY_MODE, mode);
+        intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, contactsFilter);
+        startActivity(intent);
     }
 
     /*

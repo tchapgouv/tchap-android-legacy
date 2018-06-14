@@ -19,6 +19,8 @@
     <color name="vector_tchap_search_background_color">#90dee5f1</color>
     <color name="tchap_search_bar">#90dee5f1</color>
     <color name="tchap_search_bar_text">#7d7d7d</color>
+    <color name="tchap_general_search_bar">#12ffffff</color>
+    <color name="tchap_general_search_bar_border">#3bffffff</color>
     <color name="tchap_action_bar_text_color">#ffffff</color>
     <color name="tchap_primary_text_color">#000000</color>
     <color name="tchap_secondary_text_color">#aeaeae</color>
