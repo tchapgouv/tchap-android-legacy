@@ -37,12 +37,14 @@ import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomEmailInvitation;
 import org.matrix.androidsdk.data.RoomPreviewData;
 import org.matrix.androidsdk.data.RoomTag;
+import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.pid.RoomThirdPartyInvite;
 import org.matrix.androidsdk.util.Log;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -265,7 +267,7 @@ public class DinsicUtils {
      * @return boolean that says if the direct chat room is found or not
      */
     public static boolean openDirectChat(final RiotAppCompatActivity activity, String participantId, final MXSession session, boolean canCreate) {
-        Room existingRoom = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(participantId, session, true);
+        Room existingRoom = isDirectChatRoomAlreadyExist(participantId, session, true);
         boolean succeeded = false;
 
         // direct message api callback
@@ -336,6 +338,99 @@ public class DinsicUtils {
             }
         }
         return succeeded;
+    }
+
+    /**
+     * Return the first direct chat room for a given user ID.
+     *
+     * @param aUserId user ID to search for
+     * @param mSession current session
+     * @param includeInvite boolean to tell us if pending invitations have to be consider or not
+     * @return a room ID if search succeed, null otherwise.
+     */
+    public static Room isDirectChatRoomAlreadyExist(String aUserId, MXSession mSession, boolean includeInvite) {
+        if (null != mSession) {
+            IMXStore store = mSession.getDataHandler().getStore();
+            HashMap<String, List<String>> directChatRoomsDict;
+
+            if (null != store.getDirectChatRoomsDict()) {
+                directChatRoomsDict = new HashMap<>(store.getDirectChatRoomsDict());
+
+                if (directChatRoomsDict.containsKey(aUserId)) {
+                    ArrayList<String> roomIdsList = new ArrayList<>(directChatRoomsDict.get(aUserId));
+
+                    if (!roomIdsList.isEmpty()) {
+                        // In the description of the memberships, we display first the current user status and the other member in second.
+                        // We review all the direct chats by considering the memberships in the following priorities :
+                        // 1. join-join
+                        // 2. invite-join
+                        // 3. join-invite
+                        // 4. join-left (or invite-left)
+                        // The case left-x isn't possible because we ignore for the moment the left rooms.
+                        Room roomCandidateLeftByOther = null;
+                        Room roomCandidatePendingInvite = null;
+                        boolean isPendingInvite = false;
+
+                        for (String roomId : roomIdsList) {
+                            Room room = mSession.getDataHandler().getRoom(roomId, false);
+                            // check if the room is already initialized
+                            if ((null != room) && room.isReady() && !room.isLeaving()) {
+                                isPendingInvite = room.isInvited();
+                                if (includeInvite || !isPendingInvite) {
+                                    // dinsic: if the member is not already in matrix and just invited he's not active but
+                                    // the room can be considered as ok
+                                    if (!MXSession.isUserId(aUserId)) {
+                                        Log.d(LOG_TAG, "## isDirectChatRoomAlreadyExist(): for user: " + aUserId + " room id: " + roomId);
+                                        return room;
+                                    } else {
+                                        RoomMember member = room.getMember(aUserId);
+
+                                        if (null != member) {
+                                            if (member.membership.equals(RoomMember.MEMBERSHIP_JOIN)) {
+                                                if (!isPendingInvite) {
+                                                    // the other user is present in this room (join-join)
+                                                    Log.d(LOG_TAG, "## isDirectChatRoomAlreadyExist(): for user: " + aUserId + " (join) room id: " + roomId);
+                                                    return room;
+                                                } else {
+                                                    // I am invited by the other member (invite-join)
+                                                    // We consider first de case "invite-join" compare to "join-invite"
+                                                    Log.d(LOG_TAG, "## isDirectChatRoomAlreadyExist(): set candidate (invite-join) room id: " + roomId);
+                                                    roomCandidatePendingInvite = room;
+                                                }
+                                            } else if (member.membership.equals(RoomMember.MEMBERSHIP_INVITE)) {
+                                                // the other user is invited (join-invite)
+                                                if (roomCandidatePendingInvite == null) {
+                                                    Log.d(LOG_TAG, "## isDirectChatRoomAlreadyExist(): set candidate (join-invite) room id: " + roomId);
+                                                    roomCandidatePendingInvite = room;
+                                                }
+                                            } else if (member.membership.equals(RoomMember.MEMBERSHIP_LEAVE)) {
+                                                // the other member has left this room
+                                                // and I can be invite or join
+                                                Log.d(LOG_TAG, "## isDirectChatRoomAlreadyExist(): set candidate (join-left) room id: " + roomId);
+                                                roomCandidateLeftByOther = room;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        // check if an invitation is pending
+                        if (null != roomCandidatePendingInvite) {
+                            Log.d(LOG_TAG, "## isDirectChatRoomAlreadyExist(): user: " + aUserId + " (invite) room id: " + roomCandidatePendingInvite.getRoomId());
+                            return roomCandidatePendingInvite;
+                        }
+
+                        // by default we consider the room left by the other member
+                        if (null != roomCandidateLeftByOther) {
+                            Log.d(LOG_TAG, "## isDirectChatRoomAlreadyExist(): user: " + aUserId + " (leave) room id: " + roomCandidateLeftByOther.getRoomId());
+                            return roomCandidateLeftByOther;
+                        }
+                    }
+                }
+            }
+        }
+        Log.d(LOG_TAG, "## isDirectChatRoomAlreadyExist(): for user=" + aUserId + " no found room");
+        return null;
     }
 
     /**
