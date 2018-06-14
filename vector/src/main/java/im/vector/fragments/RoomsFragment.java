@@ -135,9 +135,7 @@ public class RoomsFragment extends AbsHomeFragment implements AbsHomeFragment.On
         super.onResume();
 
         refreshRooms();
-        if (null != mActivity) {
-            mAdapter.setInvitation(mActivity.getRoomInvitations());
-        }
+        mAdapter.setInvitation(mActivity.getRoomInvitations());
         mRecycler.addOnScrollListener(mScrollListener);
     }
 
@@ -462,18 +460,14 @@ public class RoomsFragment extends AbsHomeFragment implements AbsHomeFragment.On
      * Display the public rooms loading view
      */
     private void showPublicRoomsLoadingView() {
-        if (mAdapter.getSectionViewForSectionIndex(mAdapter.getSectionsCount() - 1) != null) {
-            mAdapter.getSectionViewForSectionIndex(mAdapter.getSectionsCount() - 1).showLoadingView();
-        }
+        mAdapter.getSectionViewForSectionIndex(mAdapter.getSectionsCount() - 1).showLoadingView();
     }
 
     /**
      * Hide the public rooms loading view
      */
     private void hidePublicRoomsLoadingView() {
-        if (mAdapter.getSectionViewForSectionIndex(mAdapter.getSectionsCount() - 1) != null) {
-            mAdapter.getSectionViewForSectionIndex(mAdapter.getSectionsCount() - 1).hideLoadingView();
-        }
+        mAdapter.getSectionViewForSectionIndex(mAdapter.getSectionsCount() - 1).hideLoadingView();
     }
 
     /**

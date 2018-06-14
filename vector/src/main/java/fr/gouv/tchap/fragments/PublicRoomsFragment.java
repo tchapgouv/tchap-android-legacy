@@ -17,8 +17,6 @@
 
 package fr.gouv.tchap.fragments;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DividerItemDecoration;
@@ -26,21 +24,15 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomPreviewData;
-import org.matrix.androidsdk.data.RoomSummary;
-import org.matrix.androidsdk.data.RoomTag;
-import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
-import org.matrix.androidsdk.rest.client.EventsRestClient;
 import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.rest.model.publicroom.PublicRoom;
 import org.matrix.androidsdk.util.Log;
@@ -48,19 +40,15 @@ import org.matrix.androidsdk.util.Log;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 
 import butterknife.BindView;
 import im.vector.PublicRoomsManager;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
-import im.vector.activity.RoomDirectoryPickerActivity;
 import im.vector.activity.VectorRoomActivity;
 import im.vector.adapters.AdapterSection;
-import im.vector.adapters.RoomAdapter;
 import im.vector.fragments.AbsHomeFragment;
-import im.vector.util.RoomDirectoryData;
 import im.vector.view.EmptyViewItemDecoration;
 import im.vector.view.SectionView;
 import im.vector.view.SimpleDividerItemDecoration;
@@ -69,24 +57,12 @@ import fr.gouv.tchap.adapters.PublicRoomAdapter;
 public class PublicRoomsFragment extends AbsHomeFragment {
     private static final String LOG_TAG = PublicRoomsFragment.class.getSimpleName();
 
-    // activity result codes
-    private static final int DIRECTORY_SOURCE_ACTIVITY_REQUEST_CODE = 314;
-
-    //
-    private static final String SELECTED_ROOM_DIRECTORY = "SELECTED_ROOM_DIRECTORY";
-
-    // dummy spinner to select the public rooms
-    private Spinner mPublicRoomsSelector;
-
     private boolean mMorePublicRooms = false;
     @BindView(R.id.recyclerview)
     RecyclerView mRecycler;
 
     // rooms management
     private PublicRoomAdapter mAdapter;
-
-    // the selected room directory
-    private RoomDirectoryData mSelectedRoomDirectory;
 
     private  List<String> mCurrentHosts = null;
     private List<PublicRoomsManager> mPublicRoomsManagers = null;
@@ -121,24 +97,25 @@ public class PublicRoomsFragment extends AbsHomeFragment {
         mPrimaryColor = ContextCompat.getColor(getActivity(), R.color.tab_rooms);
         mSecondaryColor = ContextCompat.getColor(getActivity(), R.color.tab_rooms_secondary);
         String userHSName = mSession.getMyUserId().substring(mSession.getMyUserId().indexOf(":") + 1);
-        List<String> servers = Arrays.asList(getResources().getStringArray(R.array.identity_server_names));
-        mCurrentHosts = new ArrayList<>();//();
+        List<String> servers = Arrays.asList(getResources().getStringArray(R.array.room_directory_servers));
+        mCurrentHosts = new ArrayList<>();
+        boolean isUserHSNameAdded = false;
         for (int i=0;i<servers.size();i++) {
-            if (servers.get(i).compareTo(userHSName)==0) {
+            if (servers.get(i).compareTo(userHSName) == 0) {
                 mCurrentHosts.add(null);
+                isUserHSNameAdded = true;
             }
             else {
                 mCurrentHosts.add(servers.get(i));
             }
         }
+        if (!isUserHSNameAdded) {
+            mCurrentHosts.add(null);
+        }
         initViews();
 
 
         mAdapter.onFilterDone(mCurrentFilter);
-
-        if (savedInstanceState != null) {
-            mSelectedRoomDirectory = (RoomDirectoryData) savedInstanceState.getSerializable(SELECTED_ROOM_DIRECTORY);
-        }
 
         initPublicRooms(false);
     }
@@ -157,14 +134,6 @@ public class PublicRoomsFragment extends AbsHomeFragment {
     public void onPause() {
         super.onPause();
         mRecycler.removeOnScrollListener(mScrollListener);
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        // save the selected room directory
-        outState.putSerializable(SELECTED_ROOM_DIRECTORY, mSelectedRoomDirectory);
     }
 
     /*
@@ -238,11 +207,6 @@ public class PublicRoomsFragment extends AbsHomeFragment {
             }
         }, this, this);
         mRecycler.setAdapter(mAdapter);
-
-        View spinner = mAdapter.findSectionSubViewById(R.id.public_rooms_selector);
-        if (spinner != null && spinner instanceof Spinner) {
-            mPublicRoomsSelector = (Spinner) spinner;
-        }
     }
 
     /*
@@ -369,55 +333,6 @@ public class PublicRoomsFragment extends AbsHomeFragment {
     };
 
     /**
-     * Refresh the directory source spinner
-     */
-    private void refreshDirectorySourceSpinner() {
-        // no directory source, use the default one
-        if (null == mSelectedRoomDirectory) {
-            mSelectedRoomDirectory = RoomDirectoryData.getDefault(mSession);
-        }
-
-        if (null == mRoomDirectoryAdapter) {
-            mRoomDirectoryAdapter = new ArrayAdapter<>(getActivity(), R.layout.public_room_spinner_item);
-        } else {
-            mRoomDirectoryAdapter.clear();
-        }
-
-        if (mPublicRoomsSelector != null) {
-            // reported by GA
-            // https://stackoverflow.com/questions/26752974/adapterdatasetobserver-was-not-registered
-            if (mRoomDirectoryAdapter != mPublicRoomsSelector.getAdapter()) {
-                mPublicRoomsSelector.setAdapter(mRoomDirectoryAdapter);
-            } else {
-                mRoomDirectoryAdapter.notifyDataSetChanged();
-            }
-
-            mPublicRoomsSelector.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                        startActivityForResult(RoomDirectoryPickerActivity.getIntent(getActivity(), mSession.getMyUserId()), DIRECTORY_SOURCE_ACTIVITY_REQUEST_CODE);
-                    }
-                    return true;
-                }
-            });
-        }
-
-        mRoomDirectoryAdapter.add(mSelectedRoomDirectory.getDisplayName());
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (Activity.RESULT_OK == resultCode) {
-            if (requestCode == DIRECTORY_SOURCE_ACTIVITY_REQUEST_CODE) {
-                mSelectedRoomDirectory = (RoomDirectoryData) data.getSerializableExtra(RoomDirectoryPickerActivity.EXTRA_OUT_ROOM_DIRECTORY_DATA);
-                mAdapter.setPublicRooms(new ArrayList<PublicRoom>());
-                initPublicRooms(true);
-            }
-        }
-    }
-
-    /**
      * Display the public rooms loading view
      */
     private void showPublicRoomsLoadingView() {
@@ -441,9 +356,6 @@ public class PublicRoomsFragment extends AbsHomeFragment {
      * @param displayOnTop true to display the public rooms in full screen
      */
     private void initPublicRooms(final boolean displayOnTop) {
-
-        refreshDirectorySourceSpinner();
-
         showPublicRoomsLoadingView();
 
         mAdapter.setNoMorePublicRooms(false);
@@ -451,9 +363,6 @@ public class PublicRoomsFragment extends AbsHomeFragment {
     }
 
     private void initPublicRoomsCascade(final boolean displayOnTop, final int hostIndex) {
-
-        refreshDirectorySourceSpinner();
-
         if (hostIndex == 0) {
             mAdapter.setNoMorePublicRooms(false);
             mAdapter.setPublicRooms(null);

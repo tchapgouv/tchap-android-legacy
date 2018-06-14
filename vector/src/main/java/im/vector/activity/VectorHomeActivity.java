@@ -111,7 +111,6 @@ import im.vector.R;
 import im.vector.VectorApp;
 import im.vector.fragments.AbsHomeFragment;
 import fr.gouv.tchap.fragments.ContactFragment;
-import im.vector.fragments.RoomsFragment;
 import im.vector.gcm.GcmRegistrationManager;
 import im.vector.receiver.VectorUniversalLinkReceiver;
 import im.vector.services.EventStreamService;
@@ -472,10 +471,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         if (myTab != null) {
             updateSelectedFragment(myTab);
         }
-
-        // initialize the public rooms list
-        PublicRoomsManager.getInstance().setSession(mSession);
-        //PublicRoomsManager.getInstance().refreshPublicRoomsCount(null);
 
         initViews();
     }
@@ -1291,7 +1286,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         // ignore any action if there is a pending one
         if (!isWaitingViewVisible()) {
             if (!TchapLoginActivity.isUserExternal(mSession)) {
-                CharSequence items[] = new CharSequence[]{getString(R.string.start_new_chat), getString(R.string.room_creation_title),getString(R.string.room_join_public_room_title)};
+                CharSequence items[] = new CharSequence[]{getString(R.string.start_new_chat), getString(R.string.tchap_room_creation_title),getString(R.string.room_join_public_room_title)};
                 mFabDialog = new AlertDialog.Builder(this)
                         .setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
                             @Override

@@ -1,6 +1,6 @@
 /*
- * Copyright 2017 Vector Creations Ltd
  * Copyright 2018 New Vector Ltd
+ * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package fr.gouv.tchap.adapters;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -30,8 +29,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.matrix.androidsdk.data.Room;
-import org.matrix.androidsdk.rest.model.publicroom.PublicRoom;
-import org.matrix.androidsdk.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,15 +40,10 @@ import im.vector.R;
 import im.vector.adapters.AbsAdapter;
 import im.vector.adapters.AdapterSection;
 import im.vector.adapters.RoomViewHolder;
-import im.vector.util.VectorUtils;
 
 public class TchapRoomAdapter extends AbsAdapter {
 
     private static final String LOG_TAG = TchapRoomAdapter.class.getSimpleName();
-
-    private static final int TYPE_HEADER_PUBLIC_ROOM = 0;
-
-    private static final int TYPE_PUBLIC_ROOM = 1;
 
     private final AdapterSection<Room> mRoomsSection;
 
@@ -86,35 +78,18 @@ public class TchapRoomAdapter extends AbsAdapter {
     protected RecyclerView.ViewHolder createSubViewHolder(ViewGroup viewGroup, int viewType) {
         final LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
 
-        View itemView;
-
-        if (viewType == TYPE_HEADER_PUBLIC_ROOM) {
-            itemView = inflater.inflate(R.layout.adapter_section_header_public_room, viewGroup, false);
-            itemView.setBackgroundColor(Color.MAGENTA);
-            return new HeaderViewHolder(itemView);
-        } else {
-            switch (viewType) {
-                case TYPE_ROOM:
-                    itemView = inflater.inflate(R.layout.adapter_item_room_view, viewGroup, false);
-                    return new RoomViewHolder(itemView);
-            }
+        switch (viewType) {
+            case TYPE_ROOM:
+                View itemView = inflater.inflate(R.layout.adapter_item_room_view, viewGroup, false);
+                return new RoomViewHolder(itemView);
         }
+
         return null;
     }
 
     @Override
     protected void populateViewHolder(int viewType, RecyclerView.ViewHolder viewHolder, int position) {
         switch (viewType) {
-            case TYPE_HEADER_PUBLIC_ROOM:
-                // Local header
-                final HeaderViewHolder headerViewHolder = (HeaderViewHolder) viewHolder;
-                for (Pair<Integer, AdapterSection> adapterSection : getSectionsArray()) {
-                    if (adapterSection.first == position) {
-                        headerViewHolder.populateViews(adapterSection.second);
-                        break;
-                    }
-                }
-                break;
             case TYPE_ROOM:
                 final RoomViewHolder roomViewHolder = (RoomViewHolder) viewHolder;
                 final Room room = (Room) getItemForPosition(position);
@@ -132,10 +107,7 @@ public class TchapRoomAdapter extends AbsAdapter {
     @Override
     protected int applyFilter(String pattern) {
         int nbResults = 0;
-
         nbResults += filterRoomSection(mRoomsSection, pattern);
-
-
         return nbResults;
     }
 

@@ -1,5 +1,6 @@
 /*
- * Copyright 2017 Vector Creations Ltd
+ * Copyright 2018 New Vector Ltd
+ * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,41 +17,29 @@
 
 package fr.gouv.tchap.fragments;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
-import android.widget.Spinner;
 
 import org.matrix.androidsdk.data.Room;
-import org.matrix.androidsdk.data.RoomPreviewData;
 import org.matrix.androidsdk.data.RoomSummary;
 import org.matrix.androidsdk.data.RoomTag;
 import org.matrix.androidsdk.data.store.IMXStore;
-import org.matrix.androidsdk.rest.callback.ApiCallback;
-import org.matrix.androidsdk.rest.model.MatrixError;
-import org.matrix.androidsdk.rest.model.publicroom.PublicRoom;
 import org.matrix.androidsdk.util.Log;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
 import butterknife.BindView;
 import im.vector.R;
-import im.vector.activity.CommonActivityUtils;
-import im.vector.activity.RoomDirectoryPickerActivity;
-import im.vector.activity.VectorRoomActivity;
 import im.vector.fragments.AbsHomeFragment;
 import im.vector.util.RoomDirectoryData;
 import im.vector.view.EmptyViewItemDecoration;
@@ -60,20 +49,11 @@ import fr.gouv.tchap.adapters.TchapRoomAdapter;
 public class TchapRoomsFragment extends AbsHomeFragment implements AbsHomeFragment.OnRoomChangedListener {
     private static final String LOG_TAG = TchapRoomsFragment.class.getSimpleName();
 
-    // activity result codes
-    private static final int DIRECTORY_SOURCE_ACTIVITY_REQUEST_CODE = 314;
-
-    //
-    private static final String SELECTED_ROOM_DIRECTORY = "SELECTED_ROOM_DIRECTORY";
-
     @BindView(R.id.recyclerview)
     RecyclerView mRecycler;
 
     // rooms management
     private TchapRoomAdapter mAdapter;
-
-    // the selected room directory
-    private RoomDirectoryData mSelectedRoomDirectory;
 
     // rooms list
     private final List<Room> mRooms = new ArrayList<>();
@@ -111,10 +91,6 @@ public class TchapRoomsFragment extends AbsHomeFragment implements AbsHomeFragme
         mOnRoomChangedListener = this;
 
         mAdapter.onFilterDone(mCurrentFilter);
-
-        if (savedInstanceState != null) {
-            mSelectedRoomDirectory = (RoomDirectoryData) savedInstanceState.getSerializable(SELECTED_ROOM_DIRECTORY);
-        }
     }
 
     @Override
@@ -132,14 +108,6 @@ public class TchapRoomsFragment extends AbsHomeFragment implements AbsHomeFragme
     public void onPause() {
         super.onPause();
         mRecycler.removeOnScrollListener(mScrollListener);
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        // save the selected room directory
-        outState.putSerializable(SELECTED_ROOM_DIRECTORY, mSelectedRoomDirectory);
     }
 
     /*
@@ -261,16 +229,6 @@ public class TchapRoomsFragment extends AbsHomeFragment implements AbsHomeFragme
 
         mAdapter.setRooms(mRooms);
     }
-
-    /*
-     * *********************************************************************************************
-     * Public rooms management
-     * *********************************************************************************************
-     */
-
-    // spinner text
-    private ArrayAdapter<CharSequence> mRoomDirectoryAdapter;
-
 
     /*
      * *********************************************************************************************

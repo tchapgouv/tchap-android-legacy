@@ -1,6 +1,6 @@
 /*
- * Copyright 2017 Vector Creations Ltd
  * Copyright 2018 New Vector Ltd
+ * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.matrix.androidsdk.data.Room;
-import org.matrix.androidsdk.rest.model.group.GroupUser;
 import org.matrix.androidsdk.rest.model.publicroom.PublicRoom;
 import org.matrix.androidsdk.util.Log;
 
@@ -43,13 +42,10 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import fr.gouv.tchap.activity.TchapLoginActivity;
-import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.R;
 import im.vector.adapters.AbsAdapter;
 import im.vector.adapters.AdapterSection;
 import im.vector.adapters.PublicRoomsAdapterSection;
-import im.vector.adapters.RoomViewHolder;
-import im.vector.util.StickySectionHelper;
 import im.vector.util.VectorUtils;
 
 public class PublicRoomAdapter extends AbsAdapter {
@@ -145,8 +141,6 @@ public class PublicRoomAdapter extends AbsAdapter {
     protected int applyFilter(String pattern) {
         int nbResults = 0;
 
-        //nbResults += filterRoomSection(mRoomsSection, pattern);
-
         // The public rooms search is done by a server request.
         // The result is also paginated so it make no sense to be done in the adapter
 
@@ -240,7 +234,7 @@ public class PublicRoomAdapter extends AbsAdapter {
             // display the room name
             vPublicRoomName.setText(roomName);
 
-            // display the room name
+            // display the room server host
             if (publicRoom.roomId != null &&
                     publicRoom.roomId.split(":") != null &&
                     publicRoom.roomId.split(":").length>1) {

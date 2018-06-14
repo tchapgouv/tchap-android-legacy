@@ -17,6 +17,7 @@
 package im.vector.adapters;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
@@ -77,12 +78,14 @@ public class AdapterSection<T> {
      * @param items
      * @param currentFilterPattern
      */
-    public void setItems(List<T> items, CharSequence currentFilterPattern) {
-        if (mComparator != null) {
-            Collections.sort(items, mComparator);
-        }
+    public void setItems(@Nullable List<T> items, CharSequence currentFilterPattern) {
         mItems.clear();
-        if (items != null) {
+
+        if (null != items) {
+            if (mComparator != null) {
+                Collections.sort(items, mComparator);
+            }
+
             mItems.addAll(items);
             setFilteredItems(items, currentFilterPattern);
         }

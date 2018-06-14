@@ -1,6 +1,4 @@
 /*
- * Copyright 2014 OpenMarket Ltd
- * Copyright 2017 Vector Creations Ltd
  * Copyright 2018 New Vector Ltd
  * Copyright 2018 DINSIC
  *
@@ -39,18 +37,6 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import org.matrix.androidsdk.MXSession;
-import org.matrix.androidsdk.data.Room;
-import org.matrix.androidsdk.data.RoomPreviewData;
-import org.matrix.androidsdk.data.RoomState;
-import org.matrix.androidsdk.data.RoomSummary;
-import org.matrix.androidsdk.listeners.MXEventListener;
-import org.matrix.androidsdk.rest.callback.ApiCallback;
-import org.matrix.androidsdk.rest.model.Event;
-import org.matrix.androidsdk.rest.model.MatrixError;
-import org.matrix.androidsdk.util.Log;
-
-import java.util.List;
-import java.util.Map;
 
 import butterknife.BindView;
 import im.vector.Matrix;
@@ -61,11 +47,10 @@ import im.vector.VectorApp;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.RiotAppCompatActivity;
 import im.vector.fragments.AbsHomeFragment;
-import im.vector.services.EventStreamService;
 import fr.gouv.tchap.fragments.PublicRoomsFragment;
+
 /**
- * Displays the main screen of the app, with rooms the user has joined and the ability to create
- * new rooms.
+ * List all the public rooms by considering all known room directories.
  */
 public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity implements SearchView.OnQueryTextListener {
 
@@ -82,9 +67,6 @@ public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity impl
     View waitingView;
 
 
-    private MXEventListener mEventsListener;
-
-
     private MXSession mSession;
 
     @BindView(R.id.drawer_layout_public_room)
@@ -96,8 +78,6 @@ public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity impl
     @BindView(R.id.search_view)
     SearchView mSearchView;
 
-    private boolean mStorePermissionCheck = false;
-
     private final BroadcastReceiver mBrdRcvStopWaitingView = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -106,8 +86,6 @@ public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity impl
     };
 
     private FragmentManager mFragmentManager;
-
-
 
     /*
      * *********************************************************************************************
@@ -137,11 +115,14 @@ public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity impl
     public void initUiAndData() {
         mFragmentManager = getSupportFragmentManager();
 
+        if (isFirstCreation()) {
+            // Add public room fragment
+            mFragmentManager.beginTransaction().add(R.id.fragment_container, PublicRoomsFragment.newInstance(), TAG_FRAGMENT_ROOMS).commit();
+        }
+
         this.setTitle(R.string.room_join_public_room_alt_title);
 
         sharedInstance = this;
-
-        setupNavigation();
 
         mSession = Matrix.getInstance(this).getDefaultSession();
 
@@ -149,9 +130,7 @@ public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity impl
         PublicRoomsManager.getInstance().setSession(mSession);
 
         initViews();
-
     }
-
 
     @Override
     protected void onResume() {
@@ -159,16 +138,8 @@ public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity impl
         MyPresenceManager.createPresenceManager(this, Matrix.getInstance(this).getSessions());
         MyPresenceManager.advertiseAllOnline();
 
-
         Intent intent = getIntent();
-
-         if (mSession.isAlive()) {
-            addEventsListener();
-        }
-
     }
-
-
 
     @Override
     public void onBackPressed() {
@@ -188,7 +159,6 @@ public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity impl
         super.onBackPressed();
     }
 
-
     @Override
     public void onLowMemory() {
         super.onLowMemory();
@@ -201,7 +171,6 @@ public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity impl
         CommonActivityUtils.onTrimMemory(this, level);
     }
 
-
      /*
      * *********************************************************************************************
      * UI management
@@ -209,16 +178,9 @@ public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity impl
      */
 
     /**
-     * Setup navigation components of the screen (toolbar, etc.)
-     */
-    private void setupNavigation() {
-     }
-
-    /**
      * Init views
      */
     private void initViews() {
-
         // init the search view
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         // Remove unwanted left margin
@@ -245,7 +207,6 @@ public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity impl
 
             }
         });
-
     }
 
     /**
@@ -308,28 +269,6 @@ public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity impl
     }
 
     /**
-     * Provides the selected fragment.
-     *
-     * @return the displayed fragment
-     */
-    private Fragment getSelectedFragment() {
-
-        Fragment fragment = null;
-        fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_ROOMS);
-        PublicRoomsFragment roomsFragment = (PublicRoomsFragment) mFragmentManager.findFragmentByTag(TAG_FRAGMENT_ROOMS);
-
-        if (null == roomsFragment) {
-            String pattern = null;
-           roomsFragment = PublicRoomsFragment.newInstance();
-            //session.getMyUserId(), R.layout.fragment_vector_public_rooms_list, pattern);
-            mFragmentManager.beginTransaction().add(R.id.fragment_container, roomsFragment, TAG_FRAGMENT_ROOMS).commit();
-        }
-
-        return fragment;
-
-    }
-
-    /**
      * Communicate the search pattern to the currently displayed fragment
      * Note: fragments will handle the search using @{@link android.widget.Filter} which means
      * asynchronous filtering operations
@@ -337,140 +276,12 @@ public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity impl
      * @param pattern
      */
     private void applyFilter(final String pattern) {
-        Fragment fragment = getSelectedFragment();
+        Fragment fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_ROOMS);
 
         if (fragment instanceof AbsHomeFragment) {
             ((AbsHomeFragment) fragment).applyFilter(pattern.trim());
         }
 
         //TODO add listener to know when filtering is done and dismiss the keyboard
-    }
-
-
-
-
-    //==============================================================================================================
-    // Events listener
-    //==============================================================================================================
-
-    /**
-     * Warn the displayed fragment about summary updates.
-     */
-    public void dispatchOnSummariesUpdate() {
-        Fragment fragment = getSelectedFragment();
-
-        if ((null != fragment) && (fragment instanceof AbsHomeFragment)) {
-            ((AbsHomeFragment) fragment).onSummariesUpdate();
-        }
-    }
-
-    /**
-     * Add a MXEventListener to the session listeners.
-     */
-    private void addEventsListener() {
-        mEventsListener = new MXEventListener() {
-            // set to true when a refresh must be triggered
-            private boolean mRefreshOnChunkEnd = false;
-
-            private void onForceRefresh() {
-                if (View.VISIBLE != mSyncInProgressView.getVisibility()) {
-                    dispatchOnSummariesUpdate();
-                }
-            }
-
-
-            @Override
-            public void onInitialSyncComplete(String toToken) {
-                Log.d(LOG_TAG, "## onInitialSyncComplete()");
-                dispatchOnSummariesUpdate();
-            }
-
-            @Override
-            public void onLiveEventsChunkProcessed(String fromToken, String toToken) {
-                if ((VectorApp.getCurrentActivity() == TchapPublicRoomSelectionActivity.this) && mRefreshOnChunkEnd) {
-                    dispatchOnSummariesUpdate();
-                }
-
-                mRefreshOnChunkEnd = false;
-                mSyncInProgressView.setVisibility(View.GONE);
-
-            }
-
-            @Override
-            public void onLiveEvent(final Event event, final RoomState roomState) {
-                String eventType = event.getType();
-
-                // refresh the UI at the end of the next events chunk
-                mRefreshOnChunkEnd |= ((event.roomId != null) && RoomSummary.isSupportedEvent(event)) ||
-                        Event.EVENT_TYPE_STATE_ROOM_MEMBER.equals(eventType) ||
-                        Event.EVENT_TYPE_TAGS.equals(eventType) ||
-                        Event.EVENT_TYPE_REDACTION.equals(eventType) ||
-                        Event.EVENT_TYPE_RECEIPT.equals(eventType) ||
-                        Event.EVENT_TYPE_STATE_ROOM_AVATAR.equals(eventType) ||
-                        Event.EVENT_TYPE_STATE_ROOM_THIRD_PARTY_INVITE.equals(eventType);
-            }
-
-            @Override
-            public void onReceiptEvent(String roomId, List<String> senderIds) {
-                // refresh only if the current user read some messages (to update the unread messages counters)
-                mRefreshOnChunkEnd |= (senderIds.indexOf(mSession.getCredentials().userId) >= 0);
-            }
-
-            @Override
-            public void onRoomTagEvent(String roomId) {
-                mRefreshOnChunkEnd = true;
-            }
-
-            @Override
-            public void onStoreReady() {
-                onForceRefresh();
-            }
-
-            @Override
-            public void onLeaveRoom(final String roomId) {
-                // clear any pending notification for this room
-                EventStreamService.cancelNotificationsForRoomId(mSession.getMyUserId(), roomId);
-                onForceRefresh();
-            }
-
-            @Override
-            public void onNewRoom(String roomId) {
-                onForceRefresh();
-            }
-
-            @Override
-            public void onJoinRoom(String roomId) {
-                onForceRefresh();
-            }
-
-            @Override
-            public void onDirectMessageChatRoomsListUpdate() {
-                mRefreshOnChunkEnd = true;
-            }
-
-            @Override
-            public void onEventDecrypted(Event event) {
-                RoomSummary summary = mSession.getDataHandler().getStore().getSummary(event.roomId);
-
-                if (null != summary) {
-                    // test if the latest event is refreshed
-                    Event latestReceivedEvent = summary.getLatestReceivedEvent();
-                    if ((null != latestReceivedEvent) && TextUtils.equals(latestReceivedEvent.eventId, event.eventId)) {
-                        dispatchOnSummariesUpdate();
-                    }
-                }
-            }
-        };
-
-        mSession.getDataHandler().addListener(mEventsListener);
-    }
-
-    /**
-     * Remove the MXEventListener to the session listeners.
-     */
-    private void removeEventsListener() {
-        if (mSession.isAlive()) {
-            mSession.getDataHandler().removeListener(mEventsListener);
-        }
     }
 }
