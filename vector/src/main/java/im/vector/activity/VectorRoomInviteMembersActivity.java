@@ -392,11 +392,12 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                     Intent intent = new Intent();
                     intent.putExtra(EXTRA_OUT_SELECTED_USER_IDS, mUserIdsToInvite);
                     setResult(RESULT_OK, intent);
+
+                    finish();
                 } else {
                     // Invite each selected email by creating a direct chat
-                    inviteNoTchapContactsByEmail(mUserIdsToInvite);
+                    inviteNoTchapContactsByEmail(mUserIdsToInvite, true);
                 }
-                finish();
                 return true;
         }
 
@@ -660,7 +661,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                 @Override
                 public void onClick(View v) {
                     String text = inviteTextView.getText().toString();
-                    ArrayList<ParticipantAdapterItem> items = new ArrayList<>();
+                    ArrayList<String> emails = new ArrayList<>();
 
                     Pattern pattern = android.util.Patterns.EMAIL_ADDRESS;
                     Matcher matcher = pattern.matcher(text);
@@ -668,13 +669,15 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                     while (matcher.find()) {
                         try {
                             String userEmail = text.substring(matcher.start(0), matcher.end(0));
-                            items.add(new ParticipantAdapterItem(userEmail, null, userEmail, true));
+                            emails.add(userEmail);
                         } catch (Exception e) {
                             Log.e(LOG_TAG, "## displayInviteByUserEmail() " + e.getMessage());
                         }
                     }
 
-                    finish(items);
+                    // Invite each typed email by creating a direct chat
+                    // Stay in the activity if there is at least one contact selected
+                    inviteNoTchapContactsByEmail(emails, mUserIdsToInvite.isEmpty());
 
                     inviteDialog.dismiss();
                 }
@@ -691,11 +694,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (null != inviteButton) {
                     String text = inviteTextView.getText().toString();
-
-                    boolean containMXID = MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(text).find();
-                    boolean containEmailAddress = android.util.Patterns.EMAIL_ADDRESS.matcher(text).find();
-
-                    inviteButton.setEnabled(containMXID || containEmailAddress);
+                    inviteButton.setEnabled(android.util.Patterns.EMAIL_ADDRESS.matcher(text).find());
                 }
             }
 
@@ -725,9 +724,10 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
     /**
      * Invite by email one or more no-Tchap user(s)
      *
-     * @param emails    the participant's email list
+     * @param emails  the participant's email list
+     * @param finish  tell whether the activity should be closed after this operation.
      */
-    private void inviteNoTchapContactsByEmail (final ArrayList<String> emails) {
+    private void inviteNoTchapContactsByEmail (final ArrayList<String> emails, final boolean finish) {
 
         if (0 != mCount) {
             Log.e(LOG_TAG, "##inviteNoTchapContactsByEmail : invitations are being sent");
@@ -752,7 +752,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                 // We decrement the counter before testing if it is equal to zero.
                 // If the counter is equal to zero, it means that we have reached the end of the list.
                 if (-- mCount == 0) {
-                    onNoTchapInviteDone();
+                    onNoTchapInviteDone(finish);
                 }
             } else {
                 // For each email of the list, call server to check if Tchap registration is available for this email
@@ -763,7 +763,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                         // We decrement the counter before testing if it is equal to zero.
                         // If the counter is equal to zero, it means that we have reached the end of the list.
                         if (-- mCount == 0) {
-                            onNoTchapInviteDone();
+                            onNoTchapInviteDone(finish);
                         }
                     }
 
@@ -779,7 +779,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                                 mSuccessCount ++;
 
                                 if (-- mCount == 0) {
-                                    onNoTchapInviteDone();
+                                    onNoTchapInviteDone(finish);
                                 }
                             }
 
@@ -794,7 +794,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                                                 // Despite the error, we continue the process
                                                 // until we reach the end of the list.
                                                 if (-- mCount == 0) {
-                                                    onNoTchapInviteDone();
+                                                    onNoTchapInviteDone(finish);
                                                 }
                                             }
                                         })
@@ -837,16 +837,18 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         }
     }
 
-    private void onNoTchapInviteDone() {
+    private void onNoTchapInviteDone(boolean finish) {
         hideWaitingView();
 
         if (mSuccessCount > 0) {
             displayLocalNotification();
         }
 
-        // We close the current screen and we come back on the hme screen.
-        startActivity(new Intent(this, VectorHomeActivity.class));
-        finish();
+        if (finish) {
+            // We close the current screen and we come back on the hme screen.
+            startActivity(new Intent(this, VectorHomeActivity.class));
+            finish();
+        }
     }
 
     private void displayLocalNotification() {
