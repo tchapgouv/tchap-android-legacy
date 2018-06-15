@@ -128,12 +128,10 @@ android {
 
         withVoip {
             dimension "voip"
-            resValue "bool", "allow_voip", "true"
         }
 
         withoutVoip {
             dimension "voip"
-            resValue "bool", "allow_voip", "false"
         }
     }
 
