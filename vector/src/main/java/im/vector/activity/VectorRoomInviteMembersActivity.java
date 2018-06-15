@@ -426,6 +426,21 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
     }
 
     @Override
+    public void onBackPressed() {
+        switch (mActionMode) {
+            case RETURN_SELECTED_USER_IDS:
+                Intent intentWithResult = new Intent();
+                intentWithResult.putExtra(EXTRA_OUT_SELECTED_USER_IDS, mUserIdsToInvite);
+                setResult(RESULT_CANCELED, intentWithResult);
+                finish();
+                break;
+            default:
+                super.onBackPressed();
+                break;
+        }
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         mSession.getDataHandler().addListener(mEventsListener);
