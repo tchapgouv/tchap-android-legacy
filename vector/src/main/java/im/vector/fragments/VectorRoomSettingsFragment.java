@@ -75,11 +75,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import im.vector.activity.SelectPictureActivity;
 import im.vector.Matrix;
 import im.vector.R;;
 import im.vector.VectorApp;
 import im.vector.activity.CommonActivityUtils;
-import im.vector.activity.VectorMediasPickerActivity;
 import im.vector.activity.VectorMemberDetailsActivity;
 import im.vector.activity.VectorRoomDetailsActivity;
 import im.vector.preference.AddressPreference;
@@ -1235,8 +1235,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Intent intent = new Intent(getActivity(), VectorMediasPickerActivity.class);
-                intent.putExtra(VectorMediasPickerActivity.EXTRA_AVATAR_MODE, true);
+                Intent intent = new Intent(getActivity(), SelectPictureActivity.class);
                 startActivityForResult(intent, REQ_CODE_UPDATE_ROOM_AVATAR);
             }
         });

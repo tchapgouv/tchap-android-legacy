@@ -125,8 +125,6 @@ public class PreferencesManager {
 
     public static final String SETTINGS_GROUPS_FLAIR_KEY = "SETTINGS_GROUPS_FLAIR_KEY";
 
-    private static final String SETTINGS_USE_NATIVE_CAMERA_PREFERENCE_KEY = "SETTINGS_USE_NATIVE_CAMERA_PREFERENCE_KEY";
-
     public static final String SETTINGS_SHOW_URL_PREVIEW_KEY = "SETTINGS_SHOW_URL_PREVIEW_KEY";
 
     private static final String SETTINGS_VIBRATE_ON_MENTION_KEY = "SETTINGS_VIBRATE_ON_MENTION_KEY";
@@ -316,16 +314,6 @@ public class PreferencesManager {
      */
     public static boolean hideAvatarDisplayNameChangeMessages(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_HIDE_AVATAR_DISPLAY_NAME_CHANGES_MESSAGES_KEY, false);
-    }
-
-    /**
-     * Tells the native camera to take a photo or record a video.
-     *
-     * @param context the context
-     * @return true to use the native camera app to record video or take photo.
-     */
-    public static boolean useNativeCamera(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_USE_NATIVE_CAMERA_PREFERENCE_KEY, false);
     }
 
     /**

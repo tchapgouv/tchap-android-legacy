@@ -1420,36 +1420,19 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             fragment.dismissAllowingStateLoss();
         }
 
-        final Integer[] messages;
-        final Integer[] icons;
+        final Integer[] messages = new Integer[]{
+                R.string.option_send_files,
+                //R.string.option_send_sticker,
+                R.string.option_take_photo,
+                R.string.option_take_video,
+        };
 
-        if (PreferencesManager.useNativeCamera(VectorRoomActivity.this)) {
-            messages = new Integer[]{
-                    R.string.option_send_files,
-                    //R.string.option_send_sticker,
-                    R.string.option_take_photo,
-                    R.string.option_take_video,
-            };
-
-            icons = new Integer[]{
-                    R.drawable.ic_material_file,
-                    //R.drawable.ic_send_sticker,
-                    R.drawable.ic_material_camera,
-                    R.drawable.ic_material_videocam,
-            };
-        } else {
-            messages = new Integer[]{
-                    R.string.option_send_files,
-                    //R.string.option_send_sticker,
-                    R.string.option_take_photo_video,
-            };
-
-            icons = new Integer[]{
-                    R.drawable.ic_material_file,
-                    //R.drawable.ic_send_sticker,
-                    R.drawable.ic_material_camera,
-            };
-        }
+        final Integer[] icons = new Integer[]{
+                R.drawable.ic_material_file,
+                //R.drawable.ic_send_sticker,
+                R.drawable.ic_material_camera,
+                R.drawable.ic_material_videocam,
+        };
 
         fragment = IconAndTextDialogFragment.newInstance(icons, messages,
                 ThemeUtils.getColor(VectorRoomActivity.this, R.attr.riot_primary_background_color),
@@ -1470,17 +1453,9 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                         mCameraPermissionAction = R.string.option_take_photo_video;
                     }
                 } else if (selectedVal == R.string.option_take_photo) {
-                    if (CommonActivityUtils.checkPermissions(CommonActivityUtils.REQUEST_CODE_PERMISSION_TAKE_PHOTO, VectorRoomActivity.this)) {
-                        launchNativeCamera();
-                    } else {
-                        mCameraPermissionAction = R.string.option_take_photo;
-                    }
+                    launchNativeCamera();
                 } else if (selectedVal == R.string.option_take_video) {
-                    if (CommonActivityUtils.checkPermissions(CommonActivityUtils.REQUEST_CODE_PERMISSION_TAKE_PHOTO, VectorRoomActivity.this)) {
-                        launchNativeVideoRecorder();
-                    } else {
-                        mCameraPermissionAction = R.string.option_take_video;
-                    }
+                    launchNativeVideoRecorder();
                 }
             }
         });
@@ -2672,7 +2647,6 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
         if (0 == aPermissions.length) {
             Log.e(LOG_TAG, "## onRequestPermissionsResult(): cancelled " + aRequestCode);
         } else if (aRequestCode == CommonActivityUtils.REQUEST_CODE_PERMISSION_ROOM_DETAILS) {
-            boolean isCameraPermissionGranted = false;
 
             for (int i = 0; i < aPermissions.length; i++) {
                 Log.d(LOG_TAG, "## onRequestPermissionsResult(): " + aPermissions[i] + "=" + aGrantResults[i]);
@@ -2680,21 +2654,13 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                 if (Manifest.permission.CAMERA.equals(aPermissions[i])) {
                     if (PackageManager.PERMISSION_GRANTED == aGrantResults[i]) {
                         Log.d(LOG_TAG, "## onRequestPermissionsResult(): CAMERA permission granted");
-                        isCameraPermissionGranted = true;
                     } else {
                         Log.d(LOG_TAG, "## onRequestPermissionsResult(): CAMERA permission not granted");
                     }
                 }
             }
 
-            // the user allows to use to the camera.
-            if (isCameraPermissionGranted) {
-                Intent intent = new Intent(VectorRoomActivity.this, VectorMediasPickerActivity.class);
-                intent.putExtra(VectorMediasPickerActivity.EXTRA_AVATAR_MODE, true);
-                startActivityForResult(intent, REQUEST_ROOM_AVATAR_CODE);
-            } else {
-                launchRoomDetails(VectorRoomDetailsActivity.SETTINGS_TAB_INDEX);
-            }
+            launchRoomDetails(VectorRoomDetailsActivity.SETTINGS_TAB_INDEX);
         } else if (aRequestCode == CommonActivityUtils.REQUEST_CODE_PERMISSION_TAKE_PHOTO) {
             boolean isCameraPermissionGranted = false;
 
@@ -4200,14 +4166,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                 public void onClick(View v) {
                     // sanity checks : reported by GA
                     if ((null != mRoom) && (null != mRoom.getLiveState())) {
-                        if (CommonActivityUtils.isPowerLevelEnoughForAvatarUpdate(mRoom, mSession)) {
-                            // need to check if the camera permission has been granted
-                            if (CommonActivityUtils.checkPermissions(CommonActivityUtils.REQUEST_CODE_PERMISSION_ROOM_DETAILS, VectorRoomActivity.this)) {
-                                Intent intent = new Intent(VectorRoomActivity.this, VectorMediasPickerActivity.class);
-                                intent.putExtra(VectorMediasPickerActivity.EXTRA_AVATAR_MODE, true);
-                                startActivityForResult(intent, REQUEST_ROOM_AVATAR_CODE);
-                            }
-                        } else {
+                        if (!CommonActivityUtils.isPowerLevelEnoughForAvatarUpdate(mRoom, mSession)) {
                             launchRoomDetails(VectorRoomDetailsActivity.SETTINGS_TAB_INDEX);
                         }
                     }
