@@ -59,7 +59,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import fr.gouv.tchap.activity.TchapLoginActivity;
-import fr.gouv.tchap.activity.TchapRoomCreationActivity;
 import fr.gouv.tchap.sdk.rest.model.Platform;
 import im.vector.Matrix;
 import im.vector.R;
@@ -429,17 +428,14 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
     @Override
     public void onBackPressed() {
         switch (mActionMode) {
-            case START_DIRECT_CHAT:
-            case SEND_INVITE:
-                Intent intent =  new Intent(VectorRoomInviteMembersActivity.this, VectorHomeActivity.class);
-                startActivity(intent);
-                finish();
-                break;
             case RETURN_SELECTED_USER_IDS:
                 Intent intentWithResult = new Intent();
                 intentWithResult.putExtra(EXTRA_OUT_SELECTED_USER_IDS, mUserIdsToInvite);
                 setResult(RESULT_CANCELED, intentWithResult);
                 finish();
+                break;
+            default:
+                super.onBackPressed();
                 break;
         }
     }
