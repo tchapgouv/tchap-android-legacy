@@ -436,7 +436,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                 finish();
                 break;
             case RETURN_SELECTED_USER_IDS:
-                Intent intentWithResult = new Intent(VectorRoomInviteMembersActivity.this, TchapRoomCreationActivity.class);
+                Intent intentWithResult = new Intent();
                 intentWithResult.putExtra(EXTRA_OUT_SELECTED_USER_IDS, mUserIdsToInvite);
                 setResult(RESULT_CANCELED, intentWithResult);
                 finish();
