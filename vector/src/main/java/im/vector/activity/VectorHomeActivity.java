@@ -36,6 +36,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.support.annotation.ColorRes;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -51,8 +52,10 @@ import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.support.v4.app.FragmentTransaction;
 import android.text.Editable;
+import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.style.ForegroundColorSpan;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -178,7 +181,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     private static final int TAB_POSITION_CONVERSATION=0;
     private static final int TAB_POSITION_CONTACT=1;
 
-
     // switch to a room activity
     private Map<String, Object> mAutomaticallyOpenedRoomParams = null;
 
@@ -206,6 +208,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
 
     @BindView(R.id.home_toolbar)
     Toolbar mToolbar;
+
     @BindView(R.id.drawer_layout)
     DrawerLayout mDrawerLayout;
 
@@ -611,7 +614,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 }
             }
         }
-
     }
 
 
@@ -881,7 +883,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         mTopNavigationView.getTabAt(TAB_POSITION_CONVERSATION).setCustomView(customTabConversations);
         mTopNavigationView.getTabAt(TAB_POSITION_CONTACT).setCustomView(customTabContacts);
 
-
         mTopNavigationView.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -1015,12 +1016,9 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 String queryText = mSearchView.getQuery().toString();
                 if (queryText.length() == 0) {
                     resetFilter();
-
                 } else {
                     applyFilter(queryText);
                 }
-
-
             } catch (Exception e) {
                 Log.e(LOG_TAG, "## updateSelectedFragment() failed : " + e.getMessage());
             }
@@ -1323,16 +1321,14 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                                 if (0 == n) {
                                     // Create a new direct chat with an existing tchap user
                                     // Multi-selection will be disabled
-                                    createNewChat(VectorRoomInviteMembersActivity.ActionMode.START_DIRECT_CHAT,
-                                            VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY);
+                                    createNewChat(VectorRoomInviteMembersActivity.ActionMode.START_DIRECT_CHAT, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY);
                                 } else if (1 == n) {
                                     // Launch the new screen to create an empty room
                                     final Intent intent = new Intent(VectorHomeActivity.this, TchapRoomCreationActivity.class);
-                                    VectorHomeActivity.this.startActivity(intent);
+                                    startActivity(intent);
                                 } else {
                                     final Intent intent = new Intent(VectorHomeActivity.this, TchapPublicRoomSelectionActivity.class);
-                                    VectorHomeActivity.this.startActivity(intent);
-
+                                    startActivity(intent);
                                 }
                             }
                         })
@@ -1723,47 +1719,47 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
 
     private void refreshSlidingMenu() {
         // use a dedicated view
-        NavigationView navigationView = findViewById(R.id.navigation_view);
+        final NavigationView navigationView = findViewById(R.id.navigation_view);
 
         ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(
                 this,                  /* host Activity */
                 mDrawerLayout,         /* DrawerLayout object */
                 mToolbar,
                 R.string.action_open,  /* "open drawer" description */
-                R.string.action_close  /* "close drawer" description */
-        ) {
+                R.string.action_close  /* "close drawer" description */) {
 
             public void onDrawerClosed(View view) {
                 switch (VectorHomeActivity.this.mSlidingMenuIndex) {
-                    case R.id.sliding_menu_settings: {
+                    case R.id.sliding_menu_contacts:
+                        setSelectedTabStyle();
+                        updateSelectedFragment(mTopNavigationView.getTabAt(TAB_POSITION_CONTACT), true);
+                        break;
+
+                    case R.id.sliding_menu_public_rooms:
+                        final Intent intent = new Intent(VectorHomeActivity.this, TchapPublicRoomSelectionActivity.class);
+                        startActivity(intent);
+                        break;
+
+                    case R.id.sliding_menu_settings:
                         // launch the settings activity
                         final Intent settingsIntent = new Intent(VectorHomeActivity.this, VectorSettingsActivity.class);
                         settingsIntent.putExtra(MXCActionBarActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
                         VectorHomeActivity.this.startActivity(settingsIntent);
                         break;
-                    }
 
-                    case R.id.sliding_menu_send_bug_report: {
+                    case R.id.sliding_copyright_terms:
+                        VectorUtils.displayAppCopyright();
+                        break;
+
+                    case R.id.sliding_menu_app_tac:
+                        VectorUtils.displayAppTac();
+                        break;
+
+                    case R.id.sliding_menu_send_bug_report:
                         BugReporter.sendBugReport();
                         break;
-                    }
 
-                    case R.id.sliding_menu_exit: {
-                        if (null != EventStreamService.getInstance()) {
-                            EventStreamService.getInstance().stopNow();
-                        }
-                        VectorHomeActivity.this.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                VectorHomeActivity.this.finish();
-                                System.exit(0);
-                            }
-                        });
-
-                        break;
-                    }
-
-                    case R.id.sliding_menu_sign_out: {
+                    case R.id.sliding_menu_sign_out:
                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(VectorHomeActivity.this);
                         alertDialogBuilder.setMessage(getString(R.string.action_sign_out_confirmation));
 
@@ -1803,29 +1799,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                         alertDialog.show();
 
                         break;
-                    }
-
-                    case R.id.sliding_copyright_terms: {
-                        VectorUtils.displayAppCopyright();
-                        break;
-                    }
-
-                    case R.id.sliding_menu_app_tac: {
-                        VectorUtils.displayAppTac();
-                        break;
-                    }
-
-                    case R.id.sliding_menu_privacy_policy: {
-                        VectorUtils.displayAppPrivacyPolicy();
-                        break;
-                    }
-
-                    case R.id.sliding_menu_third_party_notices: {
-                        VectorUtils.displayThirdPartyLicenses();
-                        break;
-                    }
                 }
-
                 VectorHomeActivity.this.mSlidingMenuIndex = -1;
             }
 
@@ -1852,15 +1826,25 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
             getSupportActionBar().setHomeAsUpIndicator(CommonActivityUtils.tintDrawable(this, ContextCompat.getDrawable(this, R.drawable.ic_material_menu_white), R.attr.primary_control_color));
         }
 
+        // init the main menu
         Menu menuNav = navigationView.getMenu();
-        MenuItem aboutMenuItem = menuNav.findItem(R.id.sliding_menu_version);
-
-        if (null != aboutMenuItem) {
-            String version = this.getString(R.string.room_sliding_menu_version) + " " + VectorUtils.getApplicationVersion(this);
-            aboutMenuItem.setTitle(version);
+        MenuItem signOutMenuItem = menuNav.findItem(R.id.sliding_menu_sign_out);
+        if (null != signOutMenuItem) {
+            setTextColorForMenuItem(signOutMenuItem, R.color.vector_fuchsia_color);
         }
 
-        // init the main menu
+        TextView aboutMenuItem = findViewById(R.id.sliding_menu_app_version);
+        if (null != aboutMenuItem) {
+            String version = this.getString(R.string.room_sliding_menu_version) + " " + VectorUtils.getApplicationVersion(this);
+            aboutMenuItem.setText(version);
+        }
+
+        TextView infoMenuItem = findViewById(R.id.sliding_menu_infos);
+        if (null != infoMenuItem) {
+            String info = this.getString(R.string.tchap_burger_menu_info);
+            infoMenuItem.setText(info);
+        }
+
         TextView displayNameTextView = navigationView.findViewById(R.id.home_menu_main_displayname);
 
         if (null != displayNameTextView) {
@@ -1868,8 +1852,8 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         }
 
         TextView userIdTextView = navigationView.findViewById(R.id.home_menu_main_matrix_id);
-        if (null != userIdTextView) {
-            userIdTextView.setText(mSession.getMyUserId());
+        if (null != userIdTextView && null != mSession) {
+            userIdTextView.setText(mSession.getMyUser().getlinkedEmails().get(0).address);
         }
 
         ImageView mainAvatarView = navigationView.findViewById(R.id.home_menu_main_avatar);
@@ -1886,6 +1870,12 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 }
             });
         }
+    }
+
+    private void setTextColorForMenuItem(MenuItem menuItem, @ColorRes int color) {
+        SpannableString spanString = new SpannableString(menuItem.getTitle().toString());
+        spanString.setSpan(new ForegroundColorSpan(ContextCompat.getColor(this, color)), 0, spanString.length(), 0);
+        menuItem.setTitle(spanString);
     }
 
     //==============================================================================================================

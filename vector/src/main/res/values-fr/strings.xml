@@ -760,7 +760,7 @@ Appareils inconnus :</string>
     <string name="share_without_verifying">Partager sans vérifier</string>
     <string name="ignore_request">Ignorer la demande</string>
 
-<string name="notification_noisy_notifications">Notifications sonores</string>
+    <string name="notification_noisy_notifications">Notifications sonores</string>
     <string name="notification_silent_notifications">Notifications muettes</string>
 
     <string name="option_take_photo">Prendre une photo</string>
@@ -858,6 +858,9 @@ Appareils inconnus :</string>
     <string name="tchap_invite_room_alias_invalid_characters_title">Cet alias contient des caractères spéciaux invalides</string>
     <string name="tchap_invite_room_alias_already_taken_title">Cet alias est déjà pris</string>
     <string name="tchap_invite_room_alias_already_taken_message">Veuillez le modifier pour finaliser la création du salon.</string>
+    <string name="tchap_burger_menu_contacts">Contacts</string>
+    <string name="tchap_burger_menu_public_rooms">Salons publics</string>
+    <string name="tchap_burger_menu_info">Cette application n\'est pas approuvée\npour l\'échange d\'informations en diffusion restreinte</string>
 
     // group details
     <string name="group_details_home">Accueil</string>
