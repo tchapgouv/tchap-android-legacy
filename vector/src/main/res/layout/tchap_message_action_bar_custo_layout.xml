@@ -28,7 +28,7 @@
             android:singleLine="true"
             android:textAlignment="center"
             android:textColor="@android:color/black"
-
+            android:textStyle="bold"
             android:textSize="16sp"
             tools:text="title" />
 

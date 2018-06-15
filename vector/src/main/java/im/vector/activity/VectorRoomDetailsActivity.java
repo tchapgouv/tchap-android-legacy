@@ -37,6 +37,7 @@ import android.widget.Toast;
 import org.matrix.androidsdk.fragments.MatrixMessageListFragment;
 import org.matrix.androidsdk.listeners.MXEventListener;
 import org.matrix.androidsdk.util.Log;
+import org.matrix.androidsdk.data.Room;
 
 import java.util.List;
 
@@ -169,8 +170,7 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
 
         // tab creation and restore tabs UI context
         // use a toolbar instead of the actionbar
-        // to be able to display an expandable header
-        mToolbar = findViewById(R.id.room_toolbar);
+         mToolbar = findViewById(R.id.room_toolbar);
         setSupportActionBar(mToolbar);
 
         if (null != getSupportActionBar()) {
@@ -181,7 +181,7 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
         mActionBarCustomTitle = findViewById(R.id.room_action_bar_title);
         mActionBarCustomTopic = findViewById(R.id.room_action_bar_topic);
         mAvatar = findViewById(R.id.avatar_img);
-        setTitle();
+        setRoomTitle();
         setTopic();
         setAvatar();
 
@@ -189,8 +189,6 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
         mTabNavigationView.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                //make tab selected bold
-                //setSelectedTabStyle();
 
                 updateSelectedFragment(mTabNavigationView.getSelectedTabPosition());
             }
@@ -198,14 +196,7 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
                 int myPosition = tab.getPosition();
-                /*Bundle tabHolder = (Bundle) tab.getTag();
-                String fragmentTag = tabHolder.getString(KEY_FRAGMENT_TAG, "");
-                Log.d(LOG_TAG, "## onTabUnselected() FragTag=" + fragmentTag);
-                */
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-
-                // save tab UI context before leaving the tab...
-//                saveUiTabContext(tab);
 
                 if (myPosition == PEOPLE_TAB_INDEX) {
                     if (null != mRoomDetailsMembersFragment) {
@@ -239,8 +230,6 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
         }
 
         updateSelectedFragment(myPosition);
-
- //       createNavigationTabs(selectedTab);
     }
 
     @Override
@@ -366,62 +355,7 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
         }
     }
 
-    // =============================================================================================
-    // Tabs logic implementation
- /*   private void createNavigationTabs(int defaultSelectedTab) {
-        int tabIndexToRestore;
 
-        // Set the tabs navigation mode
-        mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-
-        // People tab creation: display the members of the this room
-        ActionBar.Tab tabToBeAdded = mActionBar.newTab();
-        String tabTitle = getResources().getString(R.string.room_details_people);
-        tabToBeAdded.setText(tabTitle);
-        tabToBeAdded.setTabListener(this);
-        Bundle tabBundle = new Bundle();
-        tabBundle.putString(KEY_FRAGMENT_TAG, TAG_FRAGMENT_PEOPLE_ROOM_DETAILS);
-        tabToBeAdded.setTag(tabBundle);
-        mActionBar.addTab(tabToBeAdded);
-
-        // Files tab creation: display the file list in the room history
-        tabToBeAdded = mActionBar.newTab();
-        tabTitle = getResources().getString(R.string.room_details_files);
-        tabToBeAdded.setText(tabTitle);
-        tabToBeAdded.setTabListener(this);
-        tabBundle = new Bundle();
-        tabBundle.putString(KEY_FRAGMENT_TAG, TAG_FRAGMENT_FILES_DETAILS);
-        tabToBeAdded.setTag(tabBundle);
-        mActionBar.addTab(tabToBeAdded);
-
-
-        // Settings tab creation: the room settings (room photo, name, topic..)
-        tabToBeAdded = mActionBar.newTab();
-        tabTitle = getResources().getString(R.string.room_details_settings);
-        tabToBeAdded.setText(tabTitle);
-        tabToBeAdded.setTabListener(this);
-        tabBundle = new Bundle();
-        tabBundle.putString(KEY_FRAGMENT_TAG, TAG_FRAGMENT_SETTINGS_ROOM_DETAIL);
-        tabToBeAdded.setTag(tabBundle);
-        mActionBar.addTab(tabToBeAdded);
-
-        // set the default tab to be displayed
-        tabIndexToRestore = isFirstCreation()? -1 : getSavedInstanceState().getInt(KEY_STATE_CURRENT_TAB_INDEX, -1);
-
-        if (-1 == tabIndexToRestore) {
-            tabIndexToRestore = defaultSelectedTab;
-        }
-
-        if (-1 == tabIndexToRestore) {
-            // default value: display the search in rooms tab
-            tabIndexToRestore = PEOPLE_TAB_INDEX;
-        }
-
-        // set the tab to display & set current tab index
-        mActionBar.setSelectedNavigationItem(tabIndexToRestore);
-        mCurrentTabIndex = tabIndexToRestore;
-    }
-*/
     /**
      * Called when a tab enters the selected state.
      *
@@ -520,52 +454,7 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
         }
     }
 
-    /**
-     * Called when a tab exits the selected state.
-     *
-     * @param tab The tab that was unselected
-     * @param ft  A {@link FragmentTransaction} for queuing fragment operations to execute
-     *            during a tab switch. This tab's unselected and the newly selected tab's select
-     *            will be executed in a single transaction. This FragmentTransaction does not
-     */
-/*    @Override
-    public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {
-        Bundle tabHolder = (Bundle) tab.getTag();
-        String fragmentTag = tabHolder.getString(KEY_FRAGMENT_TAG, "");
-        Log.d(LOG_TAG, "## onTabUnselected() FragTag=" + fragmentTag);
 
-        // save tab UI context before leaving the tab...
-        saveUiTabContext(tab);
-
-        if (fragmentTag.equals(TAG_FRAGMENT_PEOPLE_ROOM_DETAILS)) {
-            if (null != mRoomDetailsMembersFragment) {
-                ft.detach(mRoomDetailsMembersFragment);
-            }
-        } else if (fragmentTag.equals(TAG_FRAGMENT_SETTINGS_ROOM_DETAIL)) {
-            onTabUnselectedSettingsFragment();
-        } else if (fragmentTag.equals(TAG_FRAGMENT_FILES_DETAILS)) {
-            if (null != mSearchFilesFragment) {
-                mSearchFilesFragment.cancelCatchingRequests();
-                ft.detach(mSearchFilesFragment);
-            }
-        } else {
-            Log.w(LOG_TAG, "## onTabUnselected() unknown tab selected!!");
-        }
-    }
-*/
-    /**
-     * Called when a tab that is already selected is chosen again by the user.
-     * Some applications may use this action to return to the top level of a category.
-     *
-     * @param tab The tab that was reselected.
-     * @param ft  A {@link FragmentTransaction} for queuing fragment operations to execute
-     *            once this method returns. This FragmentTransaction does not support
-     */
-/*    @Override
-    public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
-
-    }
-*/
     /**
      * Specific method to add the fragment, to avoid using the FragmentTransaction
      * that requires a Fragment based on the support V4.
@@ -605,13 +494,17 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
      * Set the title value in the action bar and in the
      * room header layout
      */
-    private void setTitle() {
+    private void setRoomTitle() {
         String titleToApply = "";
         if ((null != mSession) && (null != mRoom)) {
             titleToApply = VectorUtils.getRoomDisplayName(this, mSession, mRoom);
             titleToApply = DinsicUtils.getDisplaynameNamePart(titleToApply);
         }
 
+        // set action bar title
+        setRoomTitle(titleToApply);
+    }
+    public void setRoomTitle(String titleToApply) {
         // set action bar title
         mActionBarCustomTitle.setText(titleToApply);
     }
@@ -621,17 +514,26 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
     private void setTopic() {
         String topic = "";
         if (null != mRoom) {
-            topic = DinsicUtils.getDisplaynameDomainPart(VectorUtils.getRoomDisplayName(this, mSession, mRoom));
+            topic = mRoom.getTopic();
 
-            mActionBarCustomTopic.setText(topic);
+            setTopic(topic);
         }
     }
+    public void setTopic(String topic) {
+            mActionBarCustomTopic.setText(topic);
+    }
+
     /**
      * Refresh the room avatar.
      */
     private void setAvatar() {
         if (null != mRoom) {
             VectorUtils.loadRoomAvatar(this, mSession, mAvatar, mRoom);
+        }
+    }
+    public void setAvatar(Room myRoom) {
+        if (null != mRoom) {
+            VectorUtils.loadRoomAvatar(this, mSession, mAvatar, myRoom);
         }
     }
 

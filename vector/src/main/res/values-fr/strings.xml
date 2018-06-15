@@ -254,10 +254,10 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="ssl_fingerprint_example">00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</string>
 
     <string name="room_details_title">Information sur la discussion</string>
-    <string name="room_details_people">Participants</string>
-    <string name="room_details_files">Fichiers</string>
+    <string name="room_details_people">MEMBRES</string>
+    <string name="room_details_files">FICHIERS</string>
     <string name="room_details_files_title">Fichiers partagés</string>
-    <string name="room_details_settings">Paramètres</string>
+    <string name="room_details_settings">PARAMETRES</string>
     <string name="room_details_selected">choisi</string>
     <string name="room_details_people_invited_group_name">INVITÉS</string>
     <string name="room_details_people_present_group_name">MEMBRES</string>

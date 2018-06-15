@@ -37,7 +37,7 @@
         android:paddingRight="5dp"
         android:paddingLeft="5dp"
         android:paddingBottom="15dp"
-        app:tabTextColor="@color/riot_primary_text_color_light"
+        app:tabTextColor="@color/vector_tchap_text_color_light"
         app:tabTextAppearance="@style/Vector.RoomToolbar.Title">
 
         <android.support.design.widget.TabItem
@@ -63,13 +63,19 @@
             android:text="@string/room_details_settings"/>
 
     </android.support.design.widget.TabLayout>
-        <!-- downloading progress bar -->
+        <View
+            android:id="@+id/header_bottom_separator"
+            android:layout_below="@+id/tab_layout"
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:layout_alignParentLeft="true"
+            android:background="?attr/room_header_divider_color" />        <!-- downloading progress bar -->
         <FrameLayout
             android:id="@+id/settings_loading_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone"
-            android:layout_below="@+id/tab_layout"
+            android:layout_below="@+id/header_bottom_separator"
             android:background="?attr/waiting_background_color">
             <ProgressBar
                 android:id="@+id/loading_settings_progress_bar"
@@ -91,9 +97,9 @@
         <!-- tab fragments container -->
         <FrameLayout
             android:id="@+id/room_details_fragment_container"
-            android:layout_below="@+id/tab_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:layout_below="@+id/search_load_oldest_progress"/>
 
     </RelativeLayout>
 
