@@ -16,6 +16,7 @@
     <color name="vector_tchap_text_color_light_grey">#949494</color>
     <color name="vector_tchap_hexagon_color_dark_grey">#979797</color>
     <color name="vector_tchap_hexagon_background_color_dark_grey">#ECECEC</color>
+    <color name="vector_tchap_search_background_color">#90dee5f1</color>
     <color name="tchap_search_bar">#90dee5f1</color>
     <color name="tchap_search_bar_text">#7d7d7d</color>
     <color name="tchap_general_search_bar">#12ffffff</color>

@@ -287,6 +287,8 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="room_recents_create_room">Créer une discussion</string>
     <string name="room_recents_join_room">Rejoindre la discussion</string>
     <string name="room_recents_join_room_title">Rejoindre une discussion</string>
+    <string name="room_join_public_room_title">Accéder à un salon public</string>
+    <string name="room_join_public_room_alt_title">Accéder à un salon</string>
     <string name="directory_search_results_title">Parcourir le répertoire</string>
     <string name="directory_searching_title">Recherche dans le répertoire…</string>
 
@@ -463,8 +465,8 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="historical_placeholder">Rechercher dans l\'historique</string>
 
 <plurals name="public_room_nb_users">
-	<item quantity="one">%d utilisateur</item>
-	<item quantity="other">%d utilisateurs</item>
+	<item quantity="one">%d membre</item>
+	<item quantity="other">%d membres</item>
 </plurals>
 
     <string name="send_bug_report_description">Veuillez décrire l\'erreur. Qu\'avez-vous fait ? Quel était le comportement attendu ? Que s\'est-il réellement passé ?</string>
