@@ -112,6 +112,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     private static final int MODE_UNKNOWN = 0;
     private static final int MODE_LOGIN = 1;
     private static final int MODE_ACCOUNT_CREATION = 2;
+    private static final int MODE_ACCOUNT_CREATION_WAIT_FOR_EMAIL = 21;
     private static final int MODE_FORGOT_PASSWORD = 3;
     private static final int MODE_FORGOT_PASSWORD_WAITING_VALIDATION = 4;
     private static final int MODE_ACCOUNT_CREATION_THREE_PID = 5;
@@ -171,6 +172,12 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
     @BindView(R.id.fragment_tchap_first_register)
     View screenRegister;
+
+    @BindView(R.id.fragment_tchap_first_register_wait_for_email)
+    View screenRegisterWaitForEmail;
+
+    @BindView(R.id.fragment_tchap_register_wait_for_email_email)
+    TextView screenRegisterWaitForEmailEmailTextView;
 
     // forgot password button
     private TextView mForgotPasswordButton;
@@ -651,6 +658,11 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                         onClick();
                         refreshDisplay();
                         return true;
+                    case MODE_ACCOUNT_CREATION_WAIT_FOR_EMAIL:
+                        // Go back to register screen
+                        cancelEmailPolling();
+                        fallbackToRegistrationMode();
+                        return true;
                 }
                 break;
         }
@@ -667,6 +679,11 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 mMode = MODE_START;
                 onClick();
                 refreshDisplay();
+                break;
+            case MODE_ACCOUNT_CREATION_WAIT_FOR_EMAIL:
+                // Go back to register screen
+                cancelEmailPolling();
+                fallbackToRegistrationMode();
                 break;
             default:
                 super.onBackPressed();
@@ -1398,8 +1415,12 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                                         }
                                     } else if (e.mStatus == 403) {
                                         // not supported by the server
+                                        /*
                                         mRegisterButton.setVisibility(View.GONE);
                                         mMode = MODE_LOGIN;
+                                        refreshDisplay();
+                                        */
+                                        // For Tchap, it depends on the email. Stay in the registration screen
                                         refreshDisplay();
                                     }
                                 }
@@ -1823,13 +1844,13 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
      * Refresh the visibility of mHomeServerText
      */
     private void refreshDisplay() {
-
         // Toolbar visibility and title, screen
         switch (mMode) {
             case MODE_START:
                 toolbar.setVisibility(View.GONE);
                 screenWelcome.setVisibility(View.VISIBLE);
                 screenRegister.setVisibility(View.GONE);
+                screenRegisterWaitForEmail.setVisibility(View.GONE);
                 screenLogin.setVisibility(View.GONE);
                 break;
             case MODE_ACCOUNT_CREATION:
@@ -1837,6 +1858,15 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 toolbar.setTitle(R.string.tchap_register_title);
                 screenWelcome.setVisibility(View.GONE);
                 screenRegister.setVisibility(View.VISIBLE);
+                screenRegisterWaitForEmail.setVisibility(View.GONE);
+                screenLogin.setVisibility(View.GONE);
+                break;
+            case MODE_ACCOUNT_CREATION_WAIT_FOR_EMAIL:
+                toolbar.setVisibility(View.VISIBLE);
+                toolbar.setTitle(R.string.tchap_register_title);
+                screenWelcome.setVisibility(View.GONE);
+                screenRegister.setVisibility(View.GONE);
+                screenRegisterWaitForEmail.setVisibility(View.VISIBLE);
                 screenLogin.setVisibility(View.GONE);
                 break;
             case MODE_LOGIN:
@@ -1844,10 +1874,11 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 toolbar.setTitle(R.string.tchap_connection_title);
                 screenWelcome.setVisibility(View.GONE);
                 screenRegister.setVisibility(View.GONE);
+                screenRegisterWaitForEmail.setVisibility(View.GONE);
                 screenLogin.setVisibility(View.VISIBLE);
                 break;
             default:
-                // TODO
+                // TODO manage other cases
                 toolbar.setTitle("");
                 break;
         }
@@ -2297,8 +2328,9 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         Log.d(LOG_TAG, "## onWaitingEmailValidation()");
 
         // Prompt the user to check his email
-        hideMainLayoutAndToast(getResources().getString(R.string.auth_email_validation_message));
-        enableLoadingScreen(true);
+        mMode = MODE_ACCOUNT_CREATION_WAIT_FOR_EMAIL;
+        screenRegisterWaitForEmailEmailTextView.setText(mCurrentEmail);
+        refreshDisplay();
 
         // Loop to know whether the email has been checked
         mRegisterPollingRunnable = new Runnable() {
@@ -2584,5 +2616,11 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     public static boolean isUserExternal(MXSession session) {
         String myHost = session.getHomeServerConfig().getHomeserverUri().getHost();
         return myHost.contains(".e.");
+    }
+
+    @OnClick(R.id.fragment_tchap_register_wait_for_email_back)
+    void onEmailNotReceived() {
+        cancelEmailPolling();
+        fallbackToRegistrationMode();
     }
 }

@@ -979,6 +979,9 @@
     <string name="tchap_connection_password">Tchap password</string>
     <string name="tchap_connection_password_confirm">Password confirmation</string>
     <string name="tchap_connection_forgotten_email">I have forgotten my password</string>
+    <string name="tchap_register_wait_for_email_title">An e-mail has been sent</string>
+    <string name="tchap_register_wait_for_email_subtitle">Please open it and click in the link it contains to finalize the verification</string>
+    <string name="tchap_register_wait_for_email_no_email">I have not received any e-mail!</string>
 
     <string name="rooms">Rooms</string>
     <string name="joined">Joined</string>

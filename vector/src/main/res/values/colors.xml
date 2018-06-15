@@ -24,6 +24,7 @@
     <color name="tchap_action_bar_text_color">#ffffff</color>
     <color name="tchap_primary_text_color">#000000</color>
     <color name="tchap_secondary_text_color">#aeaeae</color>
+    <color name="tchap_gray_86">#FF868686</color>
 
     <!-- home activity tab bar color -->
     <color name="tab_home">@color/vector_green_color</color>

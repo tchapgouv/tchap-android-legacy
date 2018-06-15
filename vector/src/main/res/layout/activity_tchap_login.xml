@@ -137,13 +137,9 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <include
-                layout="@layout/fragment_tchap_first_register"
-                android:visibility="gone" />
+            <include layout="@layout/fragment_tchap_first_register" />
 
-            <include
-                layout="@layout/fragment_tchap_first_login"
-                android:visibility="gone" />
+            <include layout="@layout/fragment_tchap_first_login" />
 
             <LinearLayout
                 android:id="@+id/main_input_layout"
@@ -299,6 +295,12 @@
     </ScrollView>
 
     <include layout="@layout/fragment_tchap_first_welcome" />
+
+    <include
+        layout="@layout/fragment_tchap_first_register_wait_for_email"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/toolbar" />
 
     <!-- flow mask view: to be displayed above the entire screen -->
     <RelativeLayout
