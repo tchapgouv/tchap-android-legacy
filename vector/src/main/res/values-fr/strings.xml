@@ -500,7 +500,7 @@ Vous pouvez ajouter votre adresse e-mail à votre profil dans les paramètres.</
     <string name="auth_reset_password_success_message">Votre mot de passe a été réinitialisé.
 
 Vous avez été déconnecté de tous les appareils et ne recevrez plus de notifications. Pour réactiver les notifications, reconnectez-vous sur chaque appareil.</string>
-    <string name="start_message">Bienvenue sur Tchap</string>
+    <string name="start_message">Bienvenue dans Tchap</string>
     <string name="login_error_must_start_http">L\'URL doit commencer par http[s]://</string>
     <string name="login_error_network_error">Impossible de se connecter : erreur réseau</string>
     <string name="login_error_unable_login">Impossible de se connecter</string>
@@ -833,7 +833,7 @@ Appareils inconnus :</string>
 
     // tchap room creation
     <string name="tchap_room_creation_title">Nouveau salon</string>
-    <string name="tchap_room_creation_next">Suivant</string>
+    <string name="tchap_action_next">Suivant</string>
     <string name="tchap_room_creation_avatar">Ajouter \n une photo</string>
     <string name="tchap_room_creation_name">Nommer le salon</string>
     <string name="tchap_room_creation_public">Rendre ce salon public</string>
@@ -862,6 +862,17 @@ Appareils inconnus :</string>
     <string name="group_details_people">Personnes</string>
     <string name="group_details_rooms">Discussions</string>
     <string name="no_users_placeholder">Pas d\'utilisateurs</string>
+
+    <!-- Login/Register Tchap -->
+    <string name="tchap_register_title">Inscription Tchap</string>
+    <string name="tchap_connection_title">Connexion Tchap</string>
+    <string name="tchap_has_account_no">Je n’ai pas\nde compte</string>
+    <string name="tchap_has_account_yes">J’ai un compte</string>
+    <string name="tchap_connection_email">Adresse mél</string>
+    <string name="tchap_connection_email_help">Si vous avez le mél de l’administation de l’État, utilisez-le</string>
+    <string name="tchap_connection_password">Mot de passe Tchap</string>
+    <string name="tchap_connection_password_confirm">Confirmer le mot de passe</string>
+    <string name="tchap_connection_forgotten_email">J’ai oublié mon mot de passe</string>
 
     <string name="rooms">Discussions</string>
     <string name="joined">Rejoint</string>

@@ -1,14 +1,15 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- Not used anymore in Tchap -->
     <RelativeLayout
         android:id="@+id/login_actions_bar"
         android:layout_width="wrap_content"
         android:layout_height="56dp"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true">
+        android:layout_alignParentRight="true"
+        android:visibility="gone">
 
         <View
             android:layout_width="match_parent"
@@ -42,6 +43,7 @@
             android:background="@android:color/white"
             android:text="@string/auth_register"
             android:textColor="@color/vector_green_color" />
+
         <Button
             android:id="@+id/button_go_login"
             android:layout_width="150dp"
@@ -118,29 +120,30 @@
 
     </RelativeLayout>
 
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/Vector.ActionBarTheme.TchapLogin" />
+
     <!-- the main body is defined in a scroll view to avoid split items -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/login_actions_bar">
+        android:layout_below="@+id/toolbar">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="30dp">
+            <include
+                layout="@layout/fragment_tchap_first_register"
+                android:visibility="gone" />
 
-                <ImageView
-                    android:id="@+id/login_large_logo"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
-                    android:layout_centerHorizontal="true"
-                    android:src="@drawable/logo_tchap_color" />
-            </RelativeLayout>
+            <include
+                layout="@layout/fragment_tchap_first_login"
+                android:visibility="gone" />
 
             <LinearLayout
                 android:id="@+id/main_input_layout"
@@ -151,49 +154,6 @@
                 android:layout_marginTop="19dp"
                 android:orientation="vertical">
 
-                <LinearLayout
-                    android:id="@+id/login_inputs_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:visibility="gone">
-
-                    <EditText
-                        android:id="@+id/login_user_name"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/settings_email_address"
-                        android:inputType="textEmailAddress"
-                        android:maxLines="1"
-                        android:nextFocusDown="@+id/login_password" />
-
-                    <EditText
-                        android:id="@+id/login_password"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:ems="10"
-                        android:hint="@string/auth_password_placeholder"
-                        android:inputType="textPassword"
-                        android:maxLines="1" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/start_layout"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginTop="70dp"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/start_message"
-                        android:gravity="center"
-                        android:textSize="24sp" />
-
-                </LinearLayout>
                 <LinearLayout
                     android:id="@+id/forget_password_inputs_layout"
                     android:layout_width="match_parent"
@@ -232,42 +192,6 @@
                         android:hint="@string/auth_repeat_new_password_placeholder"
                         android:inputType="textPassword"
                         android:maxLines="1" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/creation_inputs_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:visibility="gone"
-                    tools:visibility="visible">
-
-                    <EditText
-                        android:id="@+id/creation_your_email"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/auth_email_placeholder"
-                        android:inputType="textEmailAddress"
-                        android:maxLines="1" />
-
-                    <EditText
-                        android:id="@+id/creation_password1"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:ems="10"
-                        android:hint="@string/auth_password_placeholder"
-                        android:inputType="textPassword"
-                        android:maxLines="1" />
-
-                    <EditText
-                        android:id="@+id/creation_password2"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:ems="10"
-                        android:hint="@string/auth_repeat_password_placeholder"
-                        android:inputType="textPassword"
-                        android:maxLines="1" />
-
                 </LinearLayout>
 
                 <LinearLayout
@@ -315,8 +239,8 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
-                            android:gravity="center_vertical"
                             android:layout_toRightOf="@+id/display_server_url_expand_checkbox"
+                            android:gravity="center_vertical"
                             android:text="@string/auth_use_server_options" />
 
                     </RelativeLayout>
@@ -359,16 +283,6 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <TextView
-                    android:id="@+id/login_forgot_password"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="5dp"
-                    android:paddingBottom="10dp"
-                    android:paddingTop="5dp"
-                    android:text="@string/auth_forgot_password"
-                    android:textColor="@color/vector_green_color"
-                    android:textSize="14sp" />
             </LinearLayout>
 
             <TextView
@@ -381,7 +295,10 @@
                 android:visibility="gone" />
 
         </LinearLayout>
+
     </ScrollView>
+
+    <include layout="@layout/fragment_tchap_first_welcome" />
 
     <!-- flow mask view: to be displayed above the entire screen -->
     <RelativeLayout
