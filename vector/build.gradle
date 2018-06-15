@@ -2,7 +2,18 @@ repositories {
     mavenCentral()
 }
 
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.jween.gradle:android-soexcluder:1.1'
+    }
+}
+
 apply plugin: 'com.android.application'
+apply plugin: 'android-soexcluder'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 
@@ -123,9 +134,12 @@ android {
         withoutVoip {
             dimension "voip"
             resValue "bool", "allow_voip", "false"
-            packagingOptions {
-                exclude "lib/*/libjingle_peerconnection_so.so"
-            }
+        }
+    }
+
+    soexcluder {
+        withoutVoip {
+            exclude "lib/*/libjingle_peerconnection_so.so"
         }
     }
 
