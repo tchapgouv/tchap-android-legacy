@@ -1,0 +1,102 @@
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout_public_room"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFFFF"
+    android:fitsSystemWindows="true">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:descendantFocusability="beforeDescendants"
+        android:focusableInTouchMode="true">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/home_toolbar"
+            style="@style/VectorToolbarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent">
+
+            <!-- The search view is added in the toolbar not in the menu
+                 to ensure that the overflow icon menu is not hidden.-->
+            <android.support.v7.widget.SearchView
+                android:id="@+id/search_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="12dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/tchap_search_bar_style"
+                style="@style/SearchViewMembers"
+                android:textAlignment="center"
+                android:clickable="true"/>
+        </android.support.v7.widget.Toolbar>
+
+
+        <ProgressBar
+            android:id="@+id/home_recents_sync_in_progress"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/home_toolbar"
+            android:background="@color/vector_green_color"
+            android:indeterminate="true"
+            android:visibility="gone" />
+
+        <im.vector.view.VectorPendingCallView
+            android:id="@+id/listView_pending_callview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/home_recents_sync_in_progress"
+            android:visibility="gone" />
+
+
+        <!-- The main content view -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/home_toolbar"
+            tools:context="org.matrix.vector.activity.VectorHomeActivity">
+
+            <FrameLayout
+                android:id="@+id/fragment_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="?attr/riot_primary_background_color" />
+
+            <FrameLayout
+                android:id="@+id/listView_spinner_views"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="?attr/waiting_background_color"
+                android:visibility="gone">
+
+                <ProgressBar
+                    android:id="@+id/listView_spinner"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center"
+                    android:visibility="visible" />
+            </FrameLayout>
+        </RelativeLayout>
+
+
+    </RelativeLayout>
+
+    <android.support.design.widget.NavigationView
+        android:id="@+id/navigation_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="?attr/riot_primary_background_color"
+        android:fitsSystemWindows="true"
+        app:headerLayout="@layout/vector_home_menu_header"
+        app:itemIconTint="?attr/home_navigation_icon_color"
+        app:menu="@menu/vector_home_sliding_menu"
+        app:theme="@style/NavigationViewStyle" />
+
+</android.support.v4.widget.DrawerLayout>

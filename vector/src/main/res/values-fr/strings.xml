@@ -287,6 +287,8 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="room_recents_create_room">Créer une discussion</string>
     <string name="room_recents_join_room">Rejoindre la discussion</string>
     <string name="room_recents_join_room_title">Rejoindre une discussion</string>
+    <string name="room_join_public_room_title">Accéder à un salon public</string>
+    <string name="room_join_public_room_alt_title">Accéder à un salon</string>
     <string name="directory_search_results_title">Parcourir le répertoire</string>
     <string name="directory_searching_title">Recherche dans le répertoire…</string>
 
@@ -463,8 +465,8 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="historical_placeholder">Rechercher dans l\'historique</string>
 
     <plurals name="public_room_nb_users">
-        <item quantity="one">%d utilisateur</item>
-        <item quantity="other">%d utilisateurs</item>
+        <item quantity="one">%d membre</item>
+        <item quantity="other">%d membres</item>
     </plurals>
 
     <string name="send_bug_report_description">Veuillez décrire l\'erreur. Qu\'avez-vous fait ? Quel était le comportement attendu ? Que s\'est-il réellement passé ?</string>
@@ -837,7 +839,7 @@ Appareils inconnus :</string>
     <string name="tchap_room_creation_avatar">Ajouter \n une photo</string>
     <string name="tchap_room_creation_name">Nommer le salon</string>
     <string name="tchap_room_creation_public">Rendre ce salon public</string>
-    <string name="tchap_room_creation_public_private_info">Un salon public peut être rejoint par n\'importe quel membre de la communauté Tchap sous condition qu\'il soit accepté.</string>
+    <string name="tchap_room_creation_public_private_info">Un salon public peut être rejoint par n\'importe quel membre de la communauté Tchap, il ne doit contenir aucune donnée sensible.</string>
     <string name="tchap_room_invite_member_title">Ajouter au salon</string>
     <string name="tchap_room_invite_member_action">Ajouter</string>
 
@@ -856,6 +858,9 @@ Appareils inconnus :</string>
     <string name="tchap_invite_room_alias_invalid_characters_title">Cet alias contient des caractères spéciaux invalides</string>
     <string name="tchap_invite_room_alias_already_taken_title">Cet alias est déjà pris</string>
     <string name="tchap_invite_room_alias_already_taken_message">Veuillez le modifier pour finaliser la création du salon.</string>
+    <string name="tchap_burger_menu_contacts">Contacts</string>
+    <string name="tchap_burger_menu_public_rooms">Salons publics</string>
+    <string name="tchap_burger_menu_info">Cette application n\'est pas approuvée\npour l\'échange d\'informations en diffusion restreinte</string>
 
     // group details
     <string name="group_details_home">Accueil</string>
