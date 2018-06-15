@@ -939,7 +939,7 @@
     <string name="community_id">Community Id</string>
     <string name="community_id_hint">example</string>
 
-    // tchap room creation
+    <!-- tchap room creation -->
     <string name="tchap_room_creation_title">New room</string>
     <string name="tchap_room_creation_next">Next</string>
     <string name="tchap_room_creation_avatar">Add an avatar</string>
@@ -949,7 +949,7 @@
     <string name="tchap_room_invite_member_title">Add to the room</string>
     <string name="tchap_room_invite_member_action">Add</string>
 
-    // tchap new strings
+    <!-- tchap new strings -->
     <string name="tchap_invite_contacts_to_tchap">Invite contacts in Tchap</string>
     <string name="tchap_room_invite_member_direct_chat">New discussion</string>
     <string name="tchap_invite_already_send_message">You have already sent an invitation to %s</string>
@@ -964,6 +964,9 @@
     <string name="tchap_invite_room_alias_invalid_characters_title">This alias contains invalid special characters</string>
     <string name="tchap_invite_room_alias_already_taken_title">This alias is already taken</string>
     <string name="tchap_invite_room_alias_already_taken_message">Please edit it to finalize the room creation.</string>
+    <string name="tchap_burger_menu_contacts">Contacts</string>
+    <string name="tchap_burger_menu_public_rooms">Public rooms</string>
+    <string name="tchap_burger_menu_info">This app is not approved for\nrestricted information interchange</string>
 
     <!-- group details -->
     <string name="group_details_home">Home</string>

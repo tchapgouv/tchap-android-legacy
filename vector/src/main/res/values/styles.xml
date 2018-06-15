@@ -103,7 +103,9 @@
 
     <!-- home scroller menu -->
     <style name="NavigationViewStyle">
-        <item name="android:textSize">14sp</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:itemTextAppearance">@color/vector_tchap_text_color_light</item>
+        <item name="android:itemPadding">15dp</item>
     </style>
 
     <style name="LoginEditTextStyle" parent="@android:style/Widget.EditText">
