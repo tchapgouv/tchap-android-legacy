@@ -88,7 +88,7 @@ android {
 
     // The base dimension permits to deal with GooglePlay/Fdroid app
     // The voip flavor dimension permits to include/exclude jitsi at compilation time
-    flavorDimensions "voip", "base"
+    flavorDimensions "base", "voip"
 
     productFlavors {
         app {
