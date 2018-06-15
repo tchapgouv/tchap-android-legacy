@@ -15,15 +15,15 @@
         android:layout_centerVertical="true" />
 
     <ImageView
-        android:id="@+id/contact_badge"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
+        android:id="@+id/contact_status"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
         android:layout_alignRight="@+id/contact_avatar_layout"
-        android:layout_alignTop="@+id/contact_avatar_layout"
-        android:layout_marginRight="-7dp"
-        android:layout_marginTop="-7dp"
-        android:src="@drawable/logo_tchap_color"
-        android:visibility="gone" />
+        android:layout_alignBottom="@+id/contact_avatar_layout"
+        android:src="@drawable/tchap_presence_status_icon_style"
+        android:layout_marginLeft="-10dp"
+        android:visibility="gone"
+        tools:visibility="visible"/>
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -47,7 +47,7 @@
             tools:text="A member name" />
 
         <TextView
-            android:id="@+id/contact_desc"
+            android:id="@+id/contact_domain"
             android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"

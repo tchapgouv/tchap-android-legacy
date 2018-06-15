@@ -15,6 +15,17 @@
         android:layout_centerVertical="true" />
 
     <ImageView
+        android:id="@+id/contact_status"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:layout_alignRight="@+id/contact_avatar_layout"
+        android:layout_alignBottom="@+id/contact_avatar_layout"
+        android:src="@drawable/tchap_presence_status_icon_style"
+        android:layout_marginLeft="-10dp"
+        android:visibility="gone"
+        tools:visibility="visible"/>
+
+    <ImageView
         android:id="@+id/contact_badge"
         android:layout_width="20dp"
         android:layout_height="20dp"

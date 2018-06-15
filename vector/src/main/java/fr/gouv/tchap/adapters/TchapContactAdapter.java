@@ -359,14 +359,14 @@ public class TchapContactAdapter extends AbsAdapter {
         @BindView(R.id.contact_avatar)
         ImageView vContactAvatar;
 
-        @BindView(R.id.contact_badge)
-        ImageView vContactBadge;
+        @BindView(R.id.contact_status)
+        ImageView vContactStatus;
 
         @BindView(R.id.contact_name)
         TextView vContactName;
 
-        @BindView(R.id.contact_desc)
-        TextView vContactDesc;
+        @BindView(R.id.contact_domain)
+        TextView vContactDomain;
 
         private ContactViewHolder(final View itemView) {
             super(itemView);
@@ -399,7 +399,7 @@ public class TchapContactAdapter extends AbsAdapter {
 
             if (participant.mDisplayName.contains("[")) {
                 vContactName.setText(participant.mDisplayName.substring(0, participant.mDisplayName.lastIndexOf("[")));
-                vContactDesc.setText(participant.mDisplayName.substring(participant.mDisplayName.lastIndexOf("[") +1, participant.mDisplayName.lastIndexOf("]")));
+                vContactDomain.setText(participant.mDisplayName.substring(participant.mDisplayName.lastIndexOf("[") +1, participant.mDisplayName.lastIndexOf("]")));
             } else {
                 vContactName.setText(participant.mDisplayName);
             }
@@ -407,21 +407,13 @@ public class TchapContactAdapter extends AbsAdapter {
             // Prepare the description to be displayed below the name
             // - for a matrix user: display the user's presence (if any)
             // - for others (local contacts): display one of his media (email, phone number), if any
-            /*boolean isMatrixUserId = MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(participant.mUserId).matches();
-            vContactBadge.setVisibility(View.GONE);
+            boolean isMatrixUserId = MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(participant.mUserId).matches();
             if (isMatrixUserId) {
-                loadContactPresence(vContactDesc, participant, position);
+                loadContactPresence(vContactStatus, participant, position);
             }
-            if (!isMatrixUserId || vContactDesc.getText().length() == 0) {
-                vContactDesc.setText("");
-                if (null != participant.mContact) {
-                    if (null != participant.mContact.getEmails() && !participant.mContact.getEmails().isEmpty()) {
-                        vContactDesc.setText(participant.mContact.getEmails().get(0));
-                    } else if (null != participant.mContact.getPhonenumbers() && !participant.mContact.getPhonenumbers().isEmpty()) {
-                        vContactDesc.setText(participant.mContact.getPhonenumbers().get(0).mRawPhoneNumber);
-                    }
-                }
-            }*/
+            if (!isMatrixUserId) {
+                vContactStatus.setVisibility(View.GONE);
+            }
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -434,22 +426,23 @@ public class TchapContactAdapter extends AbsAdapter {
         /**
          * Get the presence for the given contact
          *
-         * @param textView
+         * @param imageView
          * @param item
          * @param position
          */
-        private void loadContactPresence(final TextView textView, final ParticipantAdapterItem item,
+        private void loadContactPresence(final ImageView imageView,
+                                         final ParticipantAdapterItem item,
                                          final int position) {
-            final String presence = VectorUtils.getUserOnlineStatus(mContext, mSession, item.mUserId, new SimpleApiCallback<Void>() {
+            final boolean presence = VectorUtils.getUserPresenceStatus(mContext, mSession, item.mUserId, new SimpleApiCallback<Void>() {
                 @Override
                 public void onSuccess(Void info) {
-                    if (textView != null) {
-                        textView.setText(VectorUtils.getUserOnlineStatus(mContext, mSession, item.mUserId, null));
+                    if (imageView != null) {
+                        imageView.setVisibility(VectorUtils.getUserPresenceStatus(mContext, mSession, item.mUserId, null) ? View.VISIBLE : View.GONE);
                         notifyItemChanged(position);
                     }
                 }
             });
-            textView.setText(presence);
+            imageView.setVisibility(presence ? View.VISIBLE : View.GONE);
         }
     }
 
