@@ -89,12 +89,27 @@ public class TchapContactAdapter extends AbsAdapter {
         mDirectChatsSection.setEmptyViewPlaceholder(context.getString(R.string.no_conversation_placeholder), context.getString(R.string.no_result_placeholder));
 
         // use the gouv comparator to show in priority matrix and agent users
-        mLocalContactsSection = new AdapterSection<>(context, context.getString(R.string.local_address_book_header),
-                R.layout.adapter_local_contacts_sticky_header_subview, R.layout.adapter_item_contact_view, TYPE_HEADER_LOCAL_CONTACTS, TYPE_CONTACT, new ArrayList<ParticipantAdapterItem>(), ParticipantAdapterItem.alphaGouvComparator);
+        String sectionTitle = context.getString(R.string.local_address_book_header);
+        mLocalContactsSection = new AdapterSection<>(
+                context,
+                sectionTitle,
+                R.layout.adapter_local_contacts_sticky_header_subview,
+                R.layout.adapter_item_contact_view,
+                TYPE_HEADER_LOCAL_CONTACTS,
+                TYPE_CONTACT,
+                new ArrayList<ParticipantAdapterItem>(),
+                ParticipantAdapterItem.alphaGouvComparator);
         mLocalContactsSection.setEmptyViewPlaceholder(!ContactsManager.getInstance().isContactBookAccessAllowed() ? mNoContactAccessPlaceholder : mNoResultPlaceholder);
 
-        mKnownContactsSection = new KnownContactsAdapterSection(context, context.getString(R.string.user_directory_header), -1,
-                R.layout.adapter_item_contact_view, TYPE_HEADER_DEFAULT, TYPE_CONTACT, new ArrayList<ParticipantAdapterItem>(), null);
+        mKnownContactsSection = new KnownContactsAdapterSection(
+                context,
+                context.getString(R.string.user_directory_header),
+                -1,
+                R.layout.adapter_item_contact_view,
+                TYPE_HEADER_DEFAULT,
+                TYPE_CONTACT,
+                new ArrayList<ParticipantAdapterItem>(),
+                null);
         mKnownContactsSection.setEmptyViewPlaceholder(null, context.getString(R.string.no_result_placeholder));
         mKnownContactsSection.setIsHiddenWhenNoFilter(true);
 
@@ -381,12 +396,18 @@ public class TchapContactAdapter extends AbsAdapter {
             }
 
             participant.displayAvatar(mSession, vContactAvatar);
-            vContactName.setText(participant.getUniqueDisplayName(null));
+
+            if (participant.mDisplayName.contains("[")) {
+                vContactName.setText(participant.mDisplayName.substring(0, participant.mDisplayName.lastIndexOf("[")));
+                vContactDesc.setText(participant.mDisplayName.substring(participant.mDisplayName.lastIndexOf("[") +1, participant.mDisplayName.lastIndexOf("]")));
+            } else {
+                vContactName.setText(participant.mDisplayName);
+            }
 
             // Prepare the description to be displayed below the name
             // - for a matrix user: display the user's presence (if any)
             // - for others (local contacts): display one of his media (email, phone number), if any
-            boolean isMatrixUserId = MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(participant.mUserId).matches();
+            /*boolean isMatrixUserId = MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(participant.mUserId).matches();
             vContactBadge.setVisibility(View.GONE);
             if (isMatrixUserId) {
                 loadContactPresence(vContactDesc, participant, position);
@@ -400,7 +421,7 @@ public class TchapContactAdapter extends AbsAdapter {
                         vContactDesc.setText(participant.mContact.getPhonenumbers().get(0).mRawPhoneNumber);
                     }
                 }
-            }
+            }*/
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="74dp"
     android:paddingLeft="16dp"
-    android:paddingRight="16dp">
+    android:paddingRight="10dp">
 
     <include
         android:id="@+id/contact_avatar_layout"
@@ -25,19 +25,21 @@
         android:src="@drawable/logo_tchap_color"
         android:visibility="gone" />
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_toRightOf="@+id/contact_avatar_layout"
-        android:orientation="vertical">
+        android:layout_marginRight="5dp"
+        android:layout_toRightOf="@+id/contact_avatar_layout">
 
         <TextView
             android:id="@+id/contact_name"
-            android:layout_width="wrap_content"
+            android:layout_width="200dp"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
             android:maxLines="1"
             android:textColor="?attr/default_text_dark_color"
             android:textSize="16sp"
@@ -46,13 +48,18 @@
 
         <TextView
             android:id="@+id/contact_desc"
-            android:layout_width="wrap_content"
+            android:layout_width="120dp"
             android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_gravity="center_vertical"
+            android:layout_marginTop="6dp"
+            android:ellipsize="end"
+            android:gravity="right|center_vertical"
             android:maxLines="1"
-            android:textColor="?attr/default_text_light_color"
-            android:textSize="14sp"
-            tools:text="A member status" />
+            android:textAllCaps="false"
+            android:textColor="@color/vector_tchap_primary_color_light"
+            android:textSize="10sp"
+            tools:text="A member domain" />
 
-    </LinearLayout>
-
+    </RelativeLayout>
 </RelativeLayout>

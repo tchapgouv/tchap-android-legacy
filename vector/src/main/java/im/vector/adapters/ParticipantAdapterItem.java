@@ -430,31 +430,31 @@ public class ParticipantAdapterItem implements java.io.Serializable {
         if (null != getAvatarBitmap()) {
             imageView.setImageBitmap(getAvatarBitmap());
         } else {
-                if (TextUtils.isEmpty(mUserId)) {
-                    VectorUtils.loadUserAvatar(imageView.getContext(), session, imageView, mAvatarUrl, mDisplayName, mDisplayName);
-                } else {
+            if (TextUtils.isEmpty(mUserId)) {
+                VectorUtils.loadUserAvatar(imageView.getContext(), session, imageView, mAvatarUrl, mDisplayName, mDisplayName);
+            } else {
 
-                    // try to provide a better display for a participant when the user is known.
-                    if (TextUtils.equals(mUserId, mDisplayName) || TextUtils.isEmpty(mAvatarUrl)) {
-                        IMXStore store = session.getDataHandler().getStore();
+                // try to provide a better display for a participant when the user is known.
+                if (TextUtils.equals(mUserId, mDisplayName) || TextUtils.isEmpty(mAvatarUrl)) {
+                    IMXStore store = session.getDataHandler().getStore();
 
-                        if (null != store) {
-                            User user = store.getUser(mUserId);
+                    if (null != store) {
+                        User user = store.getUser(mUserId);
 
-                            if (null != user) {
-                                if (TextUtils.equals(mUserId, mDisplayName) && !TextUtils.isEmpty(user.displayname)) {
-                                    mDisplayName = user.displayname;
-                                }
+                        if (null != user) {
+                            if (TextUtils.equals(mUserId, mDisplayName) && !TextUtils.isEmpty(user.displayname)) {
+                                mDisplayName = user.displayname;
+                            }
 
-                                if (null == mAvatarUrl) {
-                                    mAvatarUrl = user.avatar_url;
-                                }
+                            if (null == mAvatarUrl) {
+                                mAvatarUrl = user.avatar_url;
                             }
                         }
                     }
-
-                    VectorUtils.loadUserAvatar(imageView.getContext(), session, imageView, mAvatarUrl, mUserId, mDisplayName);
                 }
+
+                VectorUtils.loadUserAvatar(imageView.getContext(), session, imageView, mAvatarUrl, mUserId, mDisplayName);
+            }
         }
     }
 
@@ -469,24 +469,24 @@ public class ParticipantAdapterItem implements java.io.Serializable {
         String displayname = mDisplayName;
 
         // for the matrix users, append the matrix id to see the difference
-            String lowerCaseDisplayname = displayname.toLowerCase(VectorApp.getApplicationLocale());
+        String lowerCaseDisplayname = displayname.toLowerCase(VectorApp.getApplicationLocale());
 
-            // detect if the username is used by several users
-            int pos = -1;
+        // detect if the username is used by several users
+        int pos = -1;
 
-            if (null != otherDisplayNames) {
-                pos = otherDisplayNames.indexOf(lowerCaseDisplayname);
-
-                if (pos >= 0) {
-                    if (pos == otherDisplayNames.lastIndexOf(lowerCaseDisplayname)) {
-                        pos = -1;
-                    }
-                }
-            }
+        if (null != otherDisplayNames) {
+            pos = otherDisplayNames.indexOf(lowerCaseDisplayname);
 
             if (pos >= 0) {
-                displayname += " (" + mUserId + ")";
+                if (pos == otherDisplayNames.lastIndexOf(lowerCaseDisplayname)) {
+                    pos = -1;
+                }
             }
+        }
+
+        if (pos >= 0) {
+            displayname += " (" + mUserId + ")";
+        }
         return displayname;
     }
 
