@@ -56,6 +56,7 @@
 
     </android.support.design.widget.TextInputLayout>
 
+    <!-- This is disabled for the moment -->
     <TextView
         android:id="@+id/tchap_first_login_password_forgotten"
         android:layout_width="wrap_content"
@@ -67,6 +68,7 @@
         android:textColor="@color/vector_tchap_text_color_light"
         android:textSize="13.5sp"
         android:textStyle="normal"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tchap_first_login_password_layout" />

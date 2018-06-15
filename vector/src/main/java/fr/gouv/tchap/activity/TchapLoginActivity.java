@@ -2253,17 +2253,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         }
     }
 
-    /**
-     * The user display name has been updated.
-     *
-     * @param logMessage the message to log
-     * @TODO remove this method as soon as the server is able to handle correctly the displayname
-     */
-    private void onDisplayNameUpdateDone(final String logMessage) {
-        Log.d(LOG_TAG, "## onDisplayNameUpdateDone " + logMessage);
-        finish();
-    }
-
     /*
      * *********************************************************************************************
      * Account creation - Listeners
