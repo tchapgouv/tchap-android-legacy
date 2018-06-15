@@ -152,7 +152,7 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
         final ImageView mMemberAvatarImageView;
         final ImageView mMemberAvatarBadgeImageView;
         final TextView mMemberNameTextView;
-        final TextView mMemberStatusTextView;
+        final TextView mMemberDomainTextView;
         final View mHiddenListActionsView;
         final View mDeleteActionsView;
         final RelativeLayout mSwipeCellLayout;
@@ -161,7 +161,7 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
             mMemberAvatarImageView = aParentView.findViewById(R.id.filtered_list_avatar);
             mMemberAvatarBadgeImageView = aParentView.findViewById(R.id.filtered_list_avatar_badge);
             mMemberNameTextView = aParentView.findViewById(R.id.filtered_list_name);
-            mMemberStatusTextView = aParentView.findViewById(R.id.filtered_list_email);
+            mMemberDomainTextView = aParentView.findViewById(R.id.filtered_list_domain);
             mHiddenListActionsView = aParentView.findViewById(R.id.filtered_list_actions);
             mSwipeCellLayout = aParentView.findViewById(R.id.filtered_list_cell);
             mDeleteActionsView = aParentView.findViewById(R.id.filtered_list_delete_action);
@@ -735,7 +735,15 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
                 memberName += " (" + participant.mUserId + ")";
             }
         }
-        viewHolder.mMemberNameTextView.setText(memberName);
+
+        viewHolder.mMemberNameTextView.setPadding(0, 22, 0, 0);
+        viewHolder.mMemberDomainTextView.setPadding(0, 30, 0, 0);
+        if (memberName.contains("[")) {
+            viewHolder.mMemberNameTextView.setText(memberName.substring(0, memberName.lastIndexOf("[")));
+            viewHolder.mMemberDomainTextView.setText(memberName.substring(memberName.lastIndexOf("[") +1, memberName.lastIndexOf("]")));
+        } else {
+            viewHolder.mMemberNameTextView.setText(memberName);
+        }
 
         // 2b admin badge
         viewHolder.mMemberAvatarBadgeImageView.setVisibility(View.GONE);
@@ -753,7 +761,7 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
             }
         }
         // 3 - display member status
-        viewHolder.mMemberStatusTextView.setText(VectorUtils.getUserOnlineStatus(mContext, mSession, participant.mUserId, null));
+        //viewHolder.mMemberStatusTextView.setText(VectorUtils.getUserOnlineStatus(mContext, mSession, participant.mUserId, null));
 
         // add "remove member from room" action
         viewHolder.mDeleteActionsView.setOnClickListener(new View.OnClickListener() {
