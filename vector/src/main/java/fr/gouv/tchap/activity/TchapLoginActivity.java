@@ -1897,7 +1897,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
         // mButtonsView.setVisibility(View.VISIBLE);
 
-        mPasswordForgottenTxtView.setVisibility(isLoginMode ? View.VISIBLE : View.GONE);
+        //mPasswordForgottenTxtView.setVisibility(isLoginMode ? View.VISIBLE : View.GONE);
         mLoginButton.setVisibility(mMode == MODE_LOGIN ? View.VISIBLE : View.GONE);
         mRegisterButton.setVisibility(mMode == MODE_ACCOUNT_CREATION ? View.VISIBLE : View.GONE);
         mGoLoginButton.setVisibility(mMode == MODE_START ? View.VISIBLE : View.GONE);
