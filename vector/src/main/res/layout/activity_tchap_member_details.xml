@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/member_details_activity_main_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/riot_primary_background_color"
+    android:orientation="vertical">
+    <FrameLayout
+        android:id="@+id/room_action_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/room_toolbar"
+            style="@style/TchapRoomToolbarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:layout_alignParentTop="true"
+            app:contentInsetEnd="0dp"
+            app:contentInsetStart="0dp">
+
+            <include layout="@layout/tchap_message_action_bar_custo_layout" />
+
+        </android.support.v7.widget.Toolbar>
+
+    </FrameLayout>
+    <View
+        android:id="@+id/header_bottom_separator"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/room_action_bar"
+        android:background="?attr/room_header_divider_color" />
+
+    <im.vector.view.VectorCircularImageView
+        android:id="@+id/big_avatar_img"
+        android:layout_width="@dimen/big_avatar_size"
+        android:layout_height="@dimen/big_avatar_size"
+        android:layout_below="@+id/header_bottom_separator"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_marginBottom="16dp"
+        android:layout_marginTop="16dp"
+        tools:background="#f00" />
+    <TextView
+        android:id="@+id/member_details_presence"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/big_avatar_img"
+        android:layout_marginBottom="16dp"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:gravity="center_horizontal"
+        android:textColor="?attr/default_text_light_color"
+        android:textSize="14sp" />
+    <View
+        android:id="@+id/header_bottom_separator_2"
+        android:layout_below="@+id/member_details_presence"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:layout_alignParentLeft="true"
+        android:background="?attr/room_header_divider_color" />
+
+
+    <!-- RelativeLayout
+        android:id="@+id/member_details_action_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white">
+
+        <RelativeLayout
+            android:id="@+id/action_bar_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            android:visibility="visible">
+
+            <RelativeLayout
+                android:id="@+id/member_avatar_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true">
+
+                <include
+                    android:id="@+id/memberDetails_roundAvatar"
+                    layout="@layout/vector_large_round_avatar"
+                    android:layout_width="84dp"
+                    android:layout_height="84dp" />
+            </RelativeLayout>
+
+            <ImageView
+                android:id="@+id/member_avatar_badge"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_alignRight="@id/member_avatar_container"
+                android:layout_alignTop="@id/member_avatar_container"
+                android:layout_marginRight="-7dp"
+                android:layout_marginTop="-0dp"
+                android:src="@drawable/admin_icon"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/member_details_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/member_avatar_container"
+                android:layout_marginTop="10dp"
+                android:singleLine="true"
+                android:gravity="center_horizontal"
+                android:textColor="@android:color/white"
+                android:textSize="20sp" />
+
+        </RelativeLayout>
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/member_details_toolbar"
+            style="@style/VectorToolbarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_alignParentTop="true"
+            android:background="@android:color/transparent"
+            app:contentInsetEnd="0dp"
+            app:contentInsetStart="0dp">
+
+        </android.support.v7.widget.Toolbar>
+    </RelativeLayout-->
+
+    <!-- the member actions list: start new room, Make admin, block.. -->
+    <ExpandableListView
+        android:id="@+id/member_details_actions_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/header_bottom_separator_2"
+        android:cacheColorHint="@android:color/transparent"
+        android:divider="#00000000"
+        android:dividerHeight="0dp"
+        android:listSelector="@android:color/transparent" />
+
+    <include
+        android:id="@+id/devices_header_view"
+        layout="@layout/adapter_item_vector_recent_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/member_details_action_bar"
+        android:visibility="gone" />
+
+    <!-- devices list view: displayed when ExpandableListView is hidden -->
+    <ListView
+        android:id="@+id/member_details_devices_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/devices_header_view"
+        android:cacheColorHint="@android:color/transparent"
+        android:divider="#00000000"
+        android:dividerHeight="0dp"
+        android:listSelector="@android:color/transparent"
+        android:visibility="gone" />
+
+    <!-- progress bar view, displayed when an action in the list view is pressed -->
+    <include
+        android:id="@+id/member_details_list_view_progress_bar"
+        layout="@layout/progress_bar_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+    <!-- display the avatar in fullscreen -->
+    <RelativeLayout
+        android:id="@+id/member_details_fullscreen_avatar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/black"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:id="@+id/progress_bar_view"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_centerInParent="true" />
+
+        <ImageView
+            android:id="@+id/member_details_fullscreen_avatar_image_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter" />
+    </RelativeLayout>
+
+</RelativeLayout>

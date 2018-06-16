@@ -45,7 +45,7 @@ import im.vector.util.VectorUtils;
 /**
  * This class implements the direct room details screen
  */
-public class TchapDirectRoomDetailsActivity extends MXCActionBarActivity {
+public class TchapDirectRoomDetailsActivity extends TchapContactActionBarActivity {
     private static final String LOG_TAG = TchapDirectRoomDetailsActivity.class.getSimpleName();
 
     // exclude the room ID
@@ -63,9 +63,6 @@ public class TchapDirectRoomDetailsActivity extends MXCActionBarActivity {
     private String mMatrixId;
 
     private android.support.v7.widget.Toolbar mToolbar;
-    private TextView mActionBarCustomTitle;
-    private TextView mActionBarCustomTopic;
-    private ImageView mAvatar;
     private FragmentManager mFragmentManager;
 
     private final MXEventListener mEventListener = new MXEventListener() {
@@ -91,6 +88,7 @@ public class TchapDirectRoomDetailsActivity extends MXCActionBarActivity {
 
     @Override
     public void initUiAndData() {
+        super.initUiAndData();
         if (CommonActivityUtils.shouldRestartApp(this)) {
             Log.e(LOG_TAG, "Restart the application.");
             CommonActivityUtils.restartApp(this);
@@ -136,9 +134,6 @@ public class TchapDirectRoomDetailsActivity extends MXCActionBarActivity {
         setSupportActionBar(mToolbar);
 
         mFragmentManager = getSupportFragmentManager();
-        mActionBarCustomTitle = findViewById(R.id.room_action_bar_title);
-        mActionBarCustomTopic = findViewById(R.id.room_action_bar_topic);
-        mAvatar = findViewById(R.id.big_avatar_img);
         if (null != getSupportActionBar()) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
@@ -160,39 +155,6 @@ public class TchapDirectRoomDetailsActivity extends MXCActionBarActivity {
     }
 
 
-    /**
-     * Set the title value in the action bar and in the
-     * room header layout
-     */
-    private void setTitle() {
-        String titleToApply = "";
-        if ((null != mSession) && (null != mRoom)) {
-            titleToApply = VectorUtils.getRoomDisplayName(this, mSession, mRoom);
-            titleToApply = DinsicUtils.getDisplaynameNamePart(titleToApply);
-        }
-
-        // set action bar title
-        mActionBarCustomTitle.setText(titleToApply);
-    }
-    /**
-     * Set the topic
-     */
-    private void setTopic() {
-        String topic = "";
-        if (null != mRoom) {
-            topic = DinsicUtils.getDisplaynameDomainPart(VectorUtils.getRoomDisplayName(this, mSession, mRoom));
-
-            mActionBarCustomTopic.setText(topic);
-        }
-    }
-    /**
-     * Refresh the room avatar.
-     */
-    private void setAvatar() {
-        if (null != mRoom) {
-            VectorUtils.loadRoomAvatar(this, mSession, mAvatar, mRoom);
-        }
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
@@ -222,6 +184,28 @@ public class TchapDirectRoomDetailsActivity extends MXCActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Set the title value in the action bar and in the
+     * room header layout
+     */
+    protected void setTitle() {
+        String titleToApply = "";
+        if ((null != mSession) && (null != mRoom)) {
+            titleToApply = VectorUtils.getRoomDisplayName(this, mSession, mRoom);
+            titleToApply = DinsicUtils.getDisplaynameNamePart(titleToApply);
+        }
+        super.setTitle(titleToApply);
+    }
+    /**
+     * Set the topic
+     */
+    protected void setTopic() {
+        String topic = "";
+        if (null != mRoom) {
+            topic = DinsicUtils.getDisplaynameDomainPart(VectorUtils.getRoomDisplayName(this, mSession, mRoom));
+        super.setTopic(topic);
+        }
+    }
 
 
     @Override
