@@ -1074,21 +1074,17 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
             // direct chats management
 
             // list other direct rooms
-            int cpt = 0;
             List<String> roomIds = mSession.getDataHandler().getDirectChatRoomIdsList(mMemberId);
             for (String roomId : roomIds) {
                 Room room = mSession.getDataHandler().getRoom(roomId);
                 if (null != room) {
                     directMessagesActions.add(new VectorMemberDetailsAdapter.AdapterMemberActionItems(room));
-                    cpt++;
                 }
             }
-            //jp if direct chat already exists don't propose another
-            if (cpt==0) {
-                imageResource = R.drawable.ic_add_black;
-                actionText = getResources().getString(R.string.start_new_chat);
-                directMessagesActions.add(new VectorMemberDetailsAdapter.AdapterMemberActionItems(imageResource, actionText, ITEM_ACTION_START_CHAT));
-            }
+
+            imageResource = R.drawable.ic_add_black;
+            actionText = getResources().getString(R.string.start_new_chat);
+            directMessagesActions.add(new VectorMemberDetailsAdapter.AdapterMemberActionItems(imageResource, actionText, ITEM_ACTION_START_CHAT));
 
             mListViewAdapter.setDirectCallsActionsList(directMessagesActions);
             mListViewAdapter.notifyDataSetChanged();
