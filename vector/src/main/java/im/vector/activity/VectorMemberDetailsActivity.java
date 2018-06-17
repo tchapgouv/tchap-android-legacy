@@ -101,6 +101,7 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
     private static final int ITEM_ACTION_START_VIDEO_CALL = 13;
     private static final int ITEM_ACTION_MENTION = 14;
     private static final int ITEM_ACTION_DEVICES = 15;
+    private static final int ITEM_ACTION_DIALOG = 16;
 
     private static final int VECTOR_ROOM_MODERATOR_LEVEL = 50;
     private static final int VECTOR_ROOM_ADMIN_LEVEL = 100;
@@ -842,6 +843,11 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
         }
 
         // Check user's power level before allowing an action (kick, ban, ...)
+        if (!TextUtils.equals(mMemberId, selfUserId)) {
+            if (null != mRoom) {
+                supportedActions.add(ITEM_ACTION_DIALOG);
+            }
+        }
         if (TextUtils.equals(mMemberId, selfUserId)) {
             if (null != mRoom) {
                 supportedActions.add(ITEM_ACTION_LEAVE);
@@ -1123,10 +1129,11 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
 
             ArrayList<Integer> supportedActionsList = supportedActionsList();
 
-            imageResource = R.drawable.ic_comment_black;
-            actionText = getResources().getString(R.string.start_new_chat);
-            uncategorizedActions.add(new VectorMemberDetailsAdapter.AdapterMemberActionItems(imageResource, actionText, ITEM_ACTION_START_CHAT));
-
+            if (supportedActionsList.indexOf(ITEM_ACTION_DIALOG) >= 0) {
+                imageResource = R.drawable.ic_comment_black;
+                actionText = getResources().getString(R.string.start_new_chat);
+                uncategorizedActions.add(new VectorMemberDetailsAdapter.AdapterMemberActionItems(imageResource, actionText, ITEM_ACTION_START_CHAT));
+            }
             // build the "ignore" item
             if (supportedActionsList.indexOf(ITEM_ACTION_IGNORE) >= 0) {
                 imageResource = R.drawable.ic_person_outline_black;
