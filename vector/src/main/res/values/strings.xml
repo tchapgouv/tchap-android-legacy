@@ -950,6 +950,7 @@
 
     // tchap new strings
     <string name="tchap_invite_contacts_to_tchap">Invite contacts in Tchap</string>
+    <string name="tchap_invite_contacts_to_room">Invite contacts in Room</string>
     <string name="tchap_room_invite_member_direct_chat">New discussion</string>
     
     <!-- group details -->

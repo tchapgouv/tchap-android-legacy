@@ -317,7 +317,7 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
     private TextView mSearchNoResultTextView;
     private ImageView mClearSearchImageView;
     private String mPatternValue;
-    private View mAddMembersFloatingActionButton;
+    private View mAddMembersButton;
 
     // create an instance of the fragment
     public static VectorRoomDetailsMembersFragment newInstance() {
@@ -645,10 +645,10 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
         if (null != mRemoveMembersMenuItem) {
             mRemoveMembersMenuItem.setVisible(mIsMultiSelectionMode);
 
-            if (null != mAddMembersFloatingActionButton && !RoomUtils.isDirectChat(mSession, mRoom.getRoomId())) {
-                mAddMembersFloatingActionButton.setVisibility(mIsMultiSelectionMode ? View.GONE : View.VISIBLE);
+            if (null != mAddMembersButton && !RoomUtils.isDirectChat(mSession, mRoom.getRoomId())) {
+                mAddMembersButton.setVisibility(mIsMultiSelectionMode ? View.GONE : View.VISIBLE);
             } else {
-                mAddMembersFloatingActionButton.setVisibility(View.GONE);
+                mAddMembersButton.setVisibility(View.GONE);
             }
         }
 
@@ -782,9 +782,9 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
     private void finalizeInit() {
         MXMediasCache mxMediasCache = mSession.getMediasCache();
 
-        mAddMembersFloatingActionButton = mViewHierarchy.findViewById(R.id.add_participants_create_view);
+        mAddMembersButton = mViewHierarchy.findViewById(R.id.ly_invite_contacts_to_room);
 
-        mAddMembersFloatingActionButton.setOnClickListener(new View.OnClickListener() {
+        mAddMembersButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // pop to the home activity

@@ -845,6 +845,7 @@ Appareils inconnus :</string>
 
     // tchap new strings
     <string name="tchap_invite_contacts_to_tchap">Inviter des contacts dans Tchap</string>
+    <string name="tchap_invite_contacts_to_room">Inviter au salon</string>
 
     // group details
     <string name="group_details_home">Accueil</string>
