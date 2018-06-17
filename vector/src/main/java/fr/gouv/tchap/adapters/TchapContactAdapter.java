@@ -53,9 +53,9 @@ import im.vector.contacts.ContactsManager;
 import im.vector.util.RoomUtils;
 import im.vector.util.VectorUtils;
 
-public class ContactAdapter extends AbsAdapter {
+public class TchapContactAdapter extends AbsAdapter {
 
-    private static final String LOG_TAG = ContactAdapter.class.getSimpleName();
+    private static final String LOG_TAG = TchapContactAdapter.class.getSimpleName();
 
     private static final int TYPE_HEADER_LOCAL_CONTACTS = 0;
 
@@ -76,7 +76,7 @@ public class ContactAdapter extends AbsAdapter {
      * *********************************************************************************************
      */
 
-    public ContactAdapter(final Context context, final OnSelectItemListener listener, final RoomInvitationListener invitationListener, final MoreRoomActionListener moreActionListener) {
+    public TchapContactAdapter(final Context context, final OnSelectItemListener listener, final RoomInvitationListener invitationListener, final MoreRoomActionListener moreActionListener) {
         super(context, invitationListener, moreActionListener);
         mListener = listener;
 

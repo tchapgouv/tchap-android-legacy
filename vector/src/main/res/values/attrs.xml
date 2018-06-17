@@ -44,6 +44,7 @@
         <attr name="fenced_code_block_background_color" format="color" />
         <attr name="room_activity_divider_color" format="color" />
         <attr name="room_header_divider_color" format="color" />
+        <attr name="domain_message_color" format="color" />
 
         <!-- tab bar colors -->
         <attr name="tab_bar_inverted_background_color" format="color" />

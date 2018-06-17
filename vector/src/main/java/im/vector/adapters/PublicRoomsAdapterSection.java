@@ -24,7 +24,7 @@ import org.matrix.androidsdk.rest.model.publicroom.PublicRoom;
 import java.util.Comparator;
 import java.util.List;
 
-class PublicRoomsAdapterSection extends AdapterSection<PublicRoom> {
+public class PublicRoomsAdapterSection extends AdapterSection<PublicRoom> {
 
     // estimated public rooms count
     // the server should provide this value

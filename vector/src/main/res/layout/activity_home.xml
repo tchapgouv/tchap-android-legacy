@@ -24,8 +24,14 @@
             <android.support.v7.widget.SearchView
                 android:id="@+id/search_view"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:alpha="0.6"/>
+                android:layout_height="30dp"
+                android:layout_marginBottom="12dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="25dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/tchap_search_field"
+                android:clickable="true"
+                android:textAlignment="center" />
         </android.support.v7.widget.Toolbar>
 
         <android.support.design.widget.TabLayout
@@ -34,14 +40,14 @@
             android:layout_height="45dp"
             android:layout_below="@+id/home_toolbar"
             android:background="?attr/vector_tabbar_background"
+            android:paddingBottom="15dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
             android:theme="@style/AppTheme.NoActionBar"
             app:tabGravity="fill"
             app:tabIndicatorColor="@color/riot_primary_background_color_light"
             app:tabMaxWidth="0dp"
             app:tabMode="fixed"
-            android:paddingRight="5dp"
-            android:paddingLeft="5dp"
-            android:paddingBottom="15dp"
             app:tabTextAppearance="@style/Vector.Toolbar.Title">
 
             <android.support.design.widget.TabItem
@@ -153,11 +159,46 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="?attr/riot_primary_background_color"
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/vector_home_menu_header"
-        app:itemIconTint="?attr/home_navigation_icon_color"
-        app:menu="@menu/vector_home_sliding_menu"
-        app:theme="@style/NavigationViewStyle" />
+        app:itemTextColor="@color/vector_tchap_text_color_light"
+        app:menu="@menu/vector_home_sliding_menu">
 
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginBottom="10dp"
+            android:background="?attr/riot_primary_background_color"
+            android:orientation="vertical">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:background="?attr/list_divider_color" />
+
+            <TextView
+                android:id="@+id/sliding_menu_infos"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="10dp"
+                android:lines="3"
+                android:maxLines="3"
+                android:text="@string/tchap_burger_menu_info"
+                android:textColor="@color/tchap_navigation_menu_text_color"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/sliding_menu_app_version"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="10dp"
+                android:textColor="@color/tchap_navigation_menu_text_color"
+                android:textSize="12sp" />
+        </LinearLayout>
+    </android.support.design.widget.NavigationView>
 </android.support.v4.widget.DrawerLayout>
