@@ -89,7 +89,7 @@ import im.vector.preference.VectorListPreference;
 import im.vector.preference.VectorSwitchPreference;
 import im.vector.util.ThemeUtils;
 import im.vector.util.VectorUtils;
-
+import fr.gouv.tchap.preference.TchapRoomAvatarPreference;
 import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 
 public class VectorRoomSettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -159,7 +159,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
     private PreferenceCategory mFlairSettingsCategory;
 
     // UI elements
-    private RoomAvatarPreference mRoomPhotoAvatar;
+    private TchapRoomAvatarPreference mRoomPhotoAvatar;
     private EditTextPreference mRoomNameEditTxt;
     private EditTextPreference mRoomTopicEditTxt;
     private CheckBoxPreference mRoomDirectoryVisibilitySwitch;
@@ -382,7 +382,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
         addPreferencesFromResource(R.xml.vector_room_settings_preferences);
 
         // init preference fields
-        mRoomPhotoAvatar = (RoomAvatarPreference) findPreference(PREF_KEY_ROOM_PHOTO_AVATAR);
+        mRoomPhotoAvatar = (TchapRoomAvatarPreference) findPreference(PREF_KEY_ROOM_PHOTO_AVATAR);
         mRoomNameEditTxt = (EditTextPreference) findPreference(PREF_KEY_ROOM_NAME);
         mRoomTopicEditTxt = (EditTextPreference) findPreference(PREF_KEY_ROOM_TOPIC);
         mRoomDirectoryVisibilitySwitch = (CheckBoxPreference) findPreference(PREF_KEY_ROOM_DIRECTORY_VISIBILITY_SWITCH);

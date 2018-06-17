@@ -57,15 +57,4 @@
         android:layout_centerVertical="true"
         />
 
-    <!--include
-        android:id="@+id/room_avatar"
-        layout="@layout/vector_room_header_round_avatar"
-        android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="16dp" /-->
-
-
     </RelativeLayout>

@@ -3068,8 +3068,22 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
      */
     private void updateRoomHeaderAvatar() {
         if (null != mRoom) {
+            if (RoomUtils.isDirectChat(mSession, mRoom.getRoomId())) {
+                mToolbar.findViewById(R.id.avatar_h_img).setVisibility(View.INVISIBLE);
+                mActionBarHeaderRoomAvatar = mToolbar.findViewById(R.id.avatar_img);
+                mToolbar.findViewById(R.id.avatar_img).setVisibility(View.VISIBLE);
+            } else {
+                mToolbar.findViewById(R.id.avatar_img).setVisibility(View.INVISIBLE);
+                mActionBarHeaderRoomAvatar = mToolbar.findViewById(R.id.avatar_h_img);
+                mToolbar.findViewById(R.id.avatar_h_img).setVisibility(View.VISIBLE);
+            }
             VectorUtils.loadRoomAvatar(this, mSession, mActionBarHeaderRoomAvatar, mRoom);
         } else if (null != sRoomPreviewData) {
+
+            mToolbar.findViewById(R.id.avatar_img).setVisibility(View.INVISIBLE);
+            mActionBarHeaderRoomAvatar = mToolbar.findViewById(R.id.avatar_h_img);
+            mToolbar.findViewById(R.id.avatar_h_img).setVisibility(View.VISIBLE);
+
             String roomName = sRoomPreviewData.getRoomName();
             if (TextUtils.isEmpty(roomName)) {
                 roomName = " ";
@@ -3182,7 +3196,15 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                 titleToApply = getResources().getText(R.string.search) + " : " + titleToApply;
             }
         } else if (null != sRoomPreviewData) {
-            titleToApply = sRoomPreviewData.getRoomName();
+            //try to put real name
+            if (sRoomPreviewData.getRoomState() != null
+                    && sRoomPreviewData.getRoomState().name != null
+                    && sRoomPreviewData.getRoomState().name.length()>0) {
+                titleToApply = sRoomPreviewData.getRoomState().name;
+            }
+            else {
+                titleToApply = sRoomPreviewData.getRoomName();
+            }
         }
 
         // set action bar title
@@ -3664,7 +3686,13 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                     invitationTextView.setText(getResources().getString(R.string.room_preview_invitation_format, roomEmailInvitation.inviterName));
                     subInvitationTextView.setText(getResources().getString(R.string.room_preview_unlinked_email_warning, roomEmailInvitation.email));
                 } else {
-                    invitationTextView.setText(getResources().getString(R.string.room_preview_try_join_an_unknown_room, TextUtils.isEmpty(sRoomPreviewData.getRoomName()) ? getResources().getString(R.string.room_preview_try_join_an_unknown_room_default) : roomName));
+                    String myRoomName = sRoomPreviewData.getRoomName();
+                    if (sRoomPreviewData.getRoomState() != null
+                            && sRoomPreviewData.getRoomState().name != null
+                            && sRoomPreviewData.getRoomState().name.length()>0) {
+                        myRoomName = sRoomPreviewData.getRoomState().name;
+                    }
+                    invitationTextView.setText(getResources().getString(R.string.room_preview_try_join_an_unknown_room, TextUtils.isEmpty(myRoomName) ? getResources().getString(R.string.room_preview_try_join_an_unknown_room_default) : myRoomName));
 
                     // the room preview has some messages
                     if ((null != sRoomPreviewData.getRoomResponse()) && (null != sRoomPreviewData.getRoomResponse().messages)) {

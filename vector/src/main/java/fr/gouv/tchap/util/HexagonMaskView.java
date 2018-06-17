@@ -100,9 +100,11 @@ public class HexagonMaskView extends android.support.v7.widget.AppCompatImageVie
     @Override
     public void onMeasure(int widthMeasureSpec, int heightMeasureSpec){
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        width = MeasureSpec.getSize(widthMeasureSpec);
-        height =  MeasureSpec.getSize(heightMeasureSpec);
-        radius = height / 2 - 10;
+        //with Measurespec.getSize it doesn't work for little sizes.
+        //works fine with getMeasuredWidth
+        width = this.getMeasuredWidth();//MeasureSpec.getSize(widthMeasureSpec);
+        height = this.getMeasuredHeight();//MeasureSpec.getSize(heightMeasureSpec);
+        radius = height / 2;// - 10;
         calculatePath();
     }
 }

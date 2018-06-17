@@ -4,7 +4,7 @@
     android:layout_height="match_parent">
 
     <!-- this section has no title in purpose -->
-    <im.vector.preference.RoomAvatarPreference
+    <fr.gouv.tchap.preference.TchapRoomAvatarPreference
         android:key="roomPhotoAvatar"
         android:title="@string/room_settings_room_photo" />
 
