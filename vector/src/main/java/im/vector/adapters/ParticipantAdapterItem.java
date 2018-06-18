@@ -182,12 +182,12 @@ public class ParticipantAdapterItem implements java.io.Serializable {
     };
 
     /**
-     * Get a comparator to sort members, first matrix and gouv.fr, then alphabetically
+     * Get a comparator to sort members, first tchap users, then alphabetically
      *
      * @param session
      * @return
      */
-    public static final Comparator<ParticipantAdapterItem> alphaGouvComparator = new Comparator<ParticipantAdapterItem>() {
+    public static final Comparator<ParticipantAdapterItem> tchapAlphaComparator = new Comparator<ParticipantAdapterItem>() {
         @Override
         public int compare(ParticipantAdapterItem part1, ParticipantAdapterItem part2) {
             String lhs = part1.getComparisonDisplayName();
@@ -204,7 +204,6 @@ public class ParticipantAdapterItem implements java.io.Serializable {
                 return -1;
             else if (!part1.isViewedInPriority() && part2.isViewedInPriority())
                 return +1;
-            //---
 
             return String.CASE_INSENSITIVE_ORDER.compare(lhs, rhs);
         }
@@ -430,31 +429,30 @@ public class ParticipantAdapterItem implements java.io.Serializable {
         if (null != getAvatarBitmap()) {
             imageView.setImageBitmap(getAvatarBitmap());
         } else {
-                if (TextUtils.isEmpty(mUserId)) {
-                    VectorUtils.loadUserAvatar(imageView.getContext(), session, imageView, mAvatarUrl, mDisplayName, mDisplayName);
-                } else {
+            if (TextUtils.isEmpty(mUserId)) {
+                VectorUtils.loadUserAvatar(imageView.getContext(), session, imageView, mAvatarUrl, mDisplayName, mDisplayName);
+            } else {
+                // try to provide a better display for a participant when the user is known.
+                if (TextUtils.equals(mUserId, mDisplayName) || TextUtils.isEmpty(mAvatarUrl)) {
+                    IMXStore store = session.getDataHandler().getStore();
 
-                    // try to provide a better display for a participant when the user is known.
-                    if (TextUtils.equals(mUserId, mDisplayName) || TextUtils.isEmpty(mAvatarUrl)) {
-                        IMXStore store = session.getDataHandler().getStore();
+                    if (null != store) {
+                        User user = store.getUser(mUserId);
 
-                        if (null != store) {
-                            User user = store.getUser(mUserId);
+                        if (null != user) {
+                            if (TextUtils.equals(mUserId, mDisplayName) && !TextUtils.isEmpty(user.displayname)) {
+                                mDisplayName = user.displayname;
+                            }
 
-                            if (null != user) {
-                                if (TextUtils.equals(mUserId, mDisplayName) && !TextUtils.isEmpty(user.displayname)) {
-                                    mDisplayName = user.displayname;
-                                }
-
-                                if (null == mAvatarUrl) {
-                                    mAvatarUrl = user.avatar_url;
-                                }
+                            if (null == mAvatarUrl) {
+                                mAvatarUrl = user.avatar_url;
                             }
                         }
                     }
-
-                    VectorUtils.loadUserAvatar(imageView.getContext(), session, imageView, mAvatarUrl, mUserId, mDisplayName);
                 }
+
+                VectorUtils.loadUserAvatar(imageView.getContext(), session, imageView, mAvatarUrl, mUserId, mDisplayName);
+            }
         }
     }
 
@@ -469,24 +467,24 @@ public class ParticipantAdapterItem implements java.io.Serializable {
         String displayname = mDisplayName;
 
         // for the matrix users, append the matrix id to see the difference
-            String lowerCaseDisplayname = displayname.toLowerCase(VectorApp.getApplicationLocale());
+        String lowerCaseDisplayname = displayname.toLowerCase(VectorApp.getApplicationLocale());
 
-            // detect if the username is used by several users
-            int pos = -1;
+        // detect if the username is used by several users
+        int pos = -1;
 
-            if (null != otherDisplayNames) {
-                pos = otherDisplayNames.indexOf(lowerCaseDisplayname);
-
-                if (pos >= 0) {
-                    if (pos == otherDisplayNames.lastIndexOf(lowerCaseDisplayname)) {
-                        pos = -1;
-                    }
-                }
-            }
+        if (null != otherDisplayNames) {
+            pos = otherDisplayNames.indexOf(lowerCaseDisplayname);
 
             if (pos >= 0) {
-                displayname += " (" + mUserId + ")";
+                if (pos == otherDisplayNames.lastIndexOf(lowerCaseDisplayname)) {
+                    pos = -1;
+                }
             }
+        }
+
+        if (pos >= 0) {
+            displayname += " (" + mUserId + ")";
+        }
         return displayname;
     }
 
@@ -531,19 +529,11 @@ public class ParticipantAdapterItem implements java.io.Serializable {
 
     /**
      * Tells if a participant is to be viewed in priority
-     * priority is for Matrix member
+     * Presently, priority is for Matrix member
      * @param
-     * @return true if matrix user or email address is from gov
+     * @return true if the participant is a priority.
      */
     public boolean isViewedInPriority() {
-        boolean retour = false;
-        boolean isMatrixUserId = MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(mUserId).matches();
-
-        if (isMatrixUserId)
-            retour = true;
-        else{
-            retour = false;
-        }
-        return retour;
+        return MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(mUserId).matches();
     }
 }

@@ -997,6 +997,81 @@ public class VectorUtils {
         return presenceText;
     }
 
+    /**
+     * Provide the user online status from his user Id.
+     * if refreshCallback is set, try to refresh the user presence if it is not known
+     *
+     * @param context         the context.
+     * @param session         the session.
+     * @param userId          the userId.
+     * @param refreshCallback the presence callback.
+     * @return true if the user is online.
+     */
+    public static boolean isUserOnline(final Context context, final MXSession session, final String userId, final SimpleApiCallback<Void> refreshCallback) {
+        // sanity checks
+        if ((null == session) || (null == userId)) {
+            return false;
+        }
+
+        final User user = session.getDataHandler().getStore().getUser(userId);
+
+        // refresh the presence with this conditions
+        boolean triggerRefresh = (null == user) || user.isPresenceObsolete();
+
+        if ((null != refreshCallback) && triggerRefresh) {
+            Log.d(LOG_TAG, "Get the user presence : " + userId);
+
+            final String fPresence = (null != user) ? user.presence : null;
+
+            session.refreshUserPresence(userId, new ApiCallback<Void>() {
+                @Override
+                public void onSuccess(Void info) {
+                    boolean isUpdated = false;
+                    User updatedUser = session.getDataHandler().getStore().getUser(userId);
+
+                    // don't find any info for the user
+                    if ((null == user) && (null == updatedUser)) {
+                        Log.d(LOG_TAG, "Don't find any presence info of " + userId);
+                    } else if ((null == user) && (null != updatedUser)) {
+                        Log.d(LOG_TAG, "Got the user presence : " + userId);
+                        isUpdated = true;
+                    } else if (!TextUtils.equals(fPresence, updatedUser.presence)) {
+                        isUpdated = true;
+                        Log.d(LOG_TAG, "Got some new user presence info : " + userId);
+                        Log.d(LOG_TAG, "currently_active : " + updatedUser.currently_active);
+                        Log.d(LOG_TAG, "lastActiveAgo : " + updatedUser.lastActiveAgo);
+                    }
+
+                    if (isUpdated && (null != refreshCallback)) {
+                        try {
+                            refreshCallback.onSuccess(null);
+                        } catch (Exception e) {
+                            Log.e(LOG_TAG, "getUserOnlineStatus refreshCallback failed");
+                        }
+                    }
+                }
+
+                @Override
+                public void onNetworkError(Exception e) {
+                    Log.e(LOG_TAG, "getUserOnlineStatus onNetworkError " + e.getLocalizedMessage());
+                }
+
+                @Override
+                public void onMatrixError(MatrixError e) {
+                    Log.e(LOG_TAG, "getUserOnlineStatus onMatrixError " + e.getLocalizedMessage());
+                }
+
+                @Override
+                public void onUnexpectedError(Exception e) {
+                    Log.e(LOG_TAG, "getUserOnlineStatus onUnexpectedError " + e.getLocalizedMessage());
+                }
+            });
+        }
+
+        // Return the current presence status.
+        return ((null != user) && (TextUtils.equals(user.presence, User.PRESENCE_ONLINE)));
+    }
+
     //==============================================================================================================
     // Users list
     //==============================================================================================================
