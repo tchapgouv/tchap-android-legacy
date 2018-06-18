@@ -23,6 +23,33 @@
         <item name="android:textColor">?attr/primary_text_color</item>
         <item name="android:fontFamily">"sans-serif-medium"</item>
     </style>
+    <style name="Vector.RoomToolbar.Title" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">?attr/primary_text_color</item>
+        <item name="android:fontFamily">"sans-serif-medium"</item>
+    </style>
+
+    <style name="TchapRoomToolbarStyle" parent="Widget.AppCompat.Toolbar">
+        <item name="android:background">@android:color/white</item>
+        <item name="background">@android:color/white</item>
+
+        <!-- main text -->
+        <item name="titleTextAppearance">@style/Vector.Toolbar.Title</item>
+
+        <item name="theme">@style/TchapRoomToolbarTheme</item>
+    </style>
+
+    <style name="TchapRoomToolbarTheme">
+
+        <item name="colorControlNormal">#124a9d</item>
+    </style>
+
+    <style name="TchapRoom.Toolbar.Title" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@android:color/white</item>
+
+    </style>
+
 
     <!-- searchView style -->
     <style name="SearchViewMembers" parent="Widget.AppCompat.Light.SearchView">
@@ -112,7 +139,7 @@
     <!-- home scroller menu -->
     <style name="NavigationViewStyle">
         <item name="android:textSize">15sp</item>
-        <item name="android:itemTextAppearance">@color/vector_tchap_text_color_light</item>
+        <item name="android:itemTextAppearance">@color/tchap_text_color_light</item>
         <item name="android:itemPadding">15dp</item>
     </style>
 

@@ -189,6 +189,19 @@
             android:label="@string/room_details_title"
             android:launchMode="singleTop"
             android:parentActivityName=".activity.VectorRoomActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustResize">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="im.vector.activity.VectorRoomActivity" />
+        </activity>
+        <activity
+            android:name="fr.gouv.tchap.activity.TchapDirectRoomDetailsActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/room_details_title"
+            android:launchMode="singleTop"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:parentActivityName=".activity.VectorRoomActivity"
             android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

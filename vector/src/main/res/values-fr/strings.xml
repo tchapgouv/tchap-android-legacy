@@ -109,6 +109,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="search">Rechercher</string>
 
     <string name="start_new_chat">Nouvelle discussion</string>
+    <string name="start_new_chat_from_contact">Dialoguer</string>
     <string name="start_voice_call">Nouvel appel vocal</string>
     <string name="start_video_call">Nouvel appel vidéo</string>
 
@@ -254,9 +255,10 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="ssl_fingerprint_example">00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</string>
 
     <string name="room_details_title">Information sur la discussion</string>
-    <string name="room_details_people">Participants</string>
-    <string name="room_details_files">Fichiers</string>
-    <string name="room_details_settings">Paramètres</string>
+    <string name="room_details_people">MEMBRES</string>
+    <string name="room_details_files">FICHIERS</string>
+    <string name="room_details_files_title">Fichiers partagés</string>
+    <string name="room_details_settings">PARAMETRES</string>
     <string name="room_details_selected">choisi</string>
     <string name="room_details_people_invited_group_name">INVITÉS</string>
     <string name="room_details_people_present_group_name">MEMBRES</string>
@@ -845,6 +847,7 @@ Appareils inconnus :</string>
 
     // tchap new strings
     <string name="tchap_invite_contacts_to_tchap">Inviter des contacts dans Tchap</string>
+    <string name="tchap_invite_contacts_to_room">Inviter au salon</string>
     <string name="tchap_room_invite_member_direct_chat">Nouvelle discussion</string>
     <string name="tchap_invite_already_send_message">Vous avez déjà envoyé une invitation à %s</string>
     <string name="tchap_invite_unreachable_message">%s n\'est pas joignable pour l\'instant par Tchap</string>

@@ -81,6 +81,7 @@ import im.vector.VectorApp;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.VectorMediasPickerActivity;
 import im.vector.activity.VectorMemberDetailsActivity;
+import im.vector.activity.VectorRoomDetailsActivity;
 import im.vector.preference.AddressPreference;
 import im.vector.preference.RoomAvatarPreference;
 import im.vector.preference.VectorCustomActionEditTextPreference;
@@ -88,7 +89,7 @@ import im.vector.preference.VectorListPreference;
 import im.vector.preference.VectorSwitchPreference;
 import im.vector.util.ThemeUtils;
 import im.vector.util.VectorUtils;
-
+import fr.gouv.tchap.preference.TchapRoomAvatarPreference;
 import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 
 public class VectorRoomSettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -158,7 +159,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
     private PreferenceCategory mFlairSettingsCategory;
 
     // UI elements
-    private RoomAvatarPreference mRoomPhotoAvatar;
+    private TchapRoomAvatarPreference mRoomPhotoAvatar;
     private EditTextPreference mRoomNameEditTxt;
     private EditTextPreference mRoomTopicEditTxt;
     private CheckBoxPreference mRoomDirectoryVisibilitySwitch;
@@ -203,6 +204,56 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
         public void onSuccess(Void info) {
             Log.d(LOG_TAG, "##update succeed");
             onDone(null, UPDATE_UI);
+        }
+
+        @Override
+        public void onNetworkError(Exception e) {
+            Log.w(LOG_TAG, "##NetworkError " + e.getLocalizedMessage());
+            onDone(e.getLocalizedMessage(), DO_NOT_UPDATE_UI);
+        }
+
+        @Override
+        public void onMatrixError(MatrixError e) {
+            Log.w(LOG_TAG, "##MatrixError " + e.getLocalizedMessage());
+            onDone(e.getLocalizedMessage(), DO_NOT_UPDATE_UI);
+        }
+
+        @Override
+        public void onUnexpectedError(Exception e) {
+            Log.w(LOG_TAG, "##UnexpectedError " + e.getLocalizedMessage());
+            onDone(e.getLocalizedMessage(), DO_NOT_UPDATE_UI);
+        }
+    };
+
+    // update field listener
+    private final ApiCallback<Void> mUpdateAvatarCallback = new ApiCallback<Void>() {
+        /**
+         * refresh the fragment.
+         * @param mode true to force refresh
+         */
+        private void onDone(final String message, final boolean mode) {
+            if (null != getActivity()) {
+                if (!TextUtils.isEmpty(message)) {
+                    Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
+                }
+
+                // ensure that the response has been sent in the UI thread
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        hideLoadingView(mode);
+                    }
+                });
+            }
+        }
+
+        @Override
+        public void onSuccess(Void info) {
+            Log.d(LOG_TAG, "##update succeed");
+            onDone(null, UPDATE_UI);
+            if (getActivity() instanceof VectorRoomDetailsActivity){
+                ((VectorRoomDetailsActivity) getActivity()).setAvatar(mRoom);
+            }
         }
 
         @Override
@@ -331,7 +382,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
         addPreferencesFromResource(R.xml.vector_room_settings_preferences);
 
         // init preference fields
-        mRoomPhotoAvatar = (RoomAvatarPreference) findPreference(PREF_KEY_ROOM_PHOTO_AVATAR);
+        mRoomPhotoAvatar = (TchapRoomAvatarPreference) findPreference(PREF_KEY_ROOM_PHOTO_AVATAR);
         mRoomNameEditTxt = (EditTextPreference) findPreference(PREF_KEY_ROOM_NAME);
         mRoomTopicEditTxt = (EditTextPreference) findPreference(PREF_KEY_ROOM_TOPIC);
         mRoomDirectoryVisibilitySwitch = (CheckBoxPreference) findPreference(PREF_KEY_ROOM_DIRECTORY_VISIBILITY_SWITCH);
@@ -345,12 +396,15 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
         mFlairSettingsCategory = (PreferenceCategory) getPreferenceManager().findPreference(PREF_KEY_FLAIR);
         mRoomNotificationsPreference = (ListPreference) getPreferenceManager().findPreference(PREF_KEY_ROOM_NOTIFICATIONS_LIST);
 
-        mRoomAccessRulesListPreference.setOnPreferenceWarningIconClickListener(new VectorListPreference.OnPreferenceWarningIconClickListener() {
-            @Override
-            public void onWarningIconClick(Preference preference) {
-                displayAccessRoomWarning();
-            }
-        });
+        if (null != mRoomAccessRulesListPreference) {
+            mRoomAccessRulesListPreference.setOnPreferenceWarningIconClickListener(new VectorListPreference.OnPreferenceWarningIconClickListener() {
+                @Override
+                public void onWarningIconClick(Preference preference) {
+                    displayAccessRoomWarning();
+                }
+            });
+        }
+
 
         // display the room Id.
         EditTextPreference roomInternalIdPreference = (EditTextPreference) findPreference(PREF_KEY_ROOM_INTERNAL_ID);
@@ -1143,6 +1197,9 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
 
             Log.d(LOG_TAG, "##onRoomNamePreferenceChanged to " + newName);
             mRoom.updateName(newName, mUpdateCallback);
+            if (getActivity() instanceof VectorRoomDetailsActivity){
+                ((VectorRoomDetailsActivity) getActivity()).setRoomTitle(newName);
+            }
         }
     }
 
@@ -1163,6 +1220,9 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
             displayLoadingView();
             Log.d(LOG_TAG, "## update topic to " + newTopic);
             mRoom.updateTopic(newTopic, mUpdateCallback);
+            if (getActivity() instanceof VectorRoomDetailsActivity){
+                ((VectorRoomDetailsActivity) getActivity()).setTopic(newTopic);
+            }
         }
 
     }
@@ -1238,7 +1298,8 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
                                 @Override
                                 public void run() {
                                     Log.d(LOG_TAG, "The avatar has been uploaded, update the room avatar");
-                                    mRoom.updateAvatarUrl(contentUri, mUpdateCallback);
+                                    mRoom.updateAvatarUrl(contentUri, mUpdateAvatarCallback);
+
                                 }
                             });
                         }
@@ -1689,6 +1750,8 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
      * Refresh the addresses section
      */
     private void refreshAddresses() {
+        return; //no access to this section in tchap at this step of the product
+        /*
         final String localSuffix = ":" + mSession.getHomeServerConfig().getHomeserverUri().getHost();
         final String canonicalAlias = mRoom.getLiveState().alias;
         final ArrayList<String> aliases = new ArrayList<>(mRoom.getAliases());
@@ -1812,6 +1875,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
 
             mAddressesSettingsCategory.addPreference(addAddressPreference);
         }
+        */
     }
 
 
@@ -1819,6 +1883,8 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
      * Refresh the addresses section
      */
     private void refreshEndToEnd() {
+        return; //no etoe information in tchap at this stage of the product
+        /*
         // encrypt to unverified devices
         final CheckBoxPreference sendToUnverifiedDevicesPref = (CheckBoxPreference) findPreference(getString(R.string.room_settings_never_send_to_unverified_devices_title));
 
@@ -1962,62 +2028,14 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
                                     onDone();
                                 }
                             });
-                            /*
-                            new AlertDialog.Builder(getActivity())
-                                    .setTitle(R.string.room_settings_addresses_e2e_prompt_title)
-                                    .setMessage(R.string.room_settings_addresses_e2e_prompt_message)
-                                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            dialog.dismiss();
 
-                                            displayLoadingView();
-                                            mRoom.enableEncryptionWithAlgorithm(MXCryptoAlgorithms.MXCRYPTO_ALGORITHM_MEGOLM, new ApiCallback<Void>() {
-
-                                                private void onDone() {
-                                                    hideLoadingView(false);
-                                                    refreshEndToEnd();
-                                                }
-
-                                                @Override
-                                                public void onSuccess(Void info) {
-                                                    onDone();
-                                                }
-
-                                                @Override
-                                                public void onNetworkError(Exception e) {
-                                                    onDone();
-                                                }
-
-                                                @Override
-                                                public void onMatrixError(MatrixError e) {
-                                                    onDone();
-                                                }
-
-                                                @Override
-                                                public void onUnexpectedError(Exception e) {
-                                                    onDone();
-                                                }
-                                            });
-
-                                        }
-                                    })
-                                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            dialog.dismiss();
-                                            encryptSwitchPreference.setChecked(false);
-                                        }
-                                    })
-                                    .create()
-                                    .show();
-                                    */
                         }
                         return true;
                     }
                 });
 
             }
-        }
+        }*/
     }
+
 }

@@ -1,5 +1,6 @@
 /*
  * Copyright 2018 New Vector Ltd
+ * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,7 +74,7 @@ public class HexagonMaskView extends android.support.v7.widget.AppCompatImageVie
         hexagonPath.lineTo(centerX + triangleHeight, centerY + radius/2);
         hexagonPath.moveTo(centerX, centerY + radius);
 
-        float radiusBorder = radius - 5;
+        float radiusBorder = radius - 2;
         float triangleBorderHeight = (float) (Math.sqrt(3) * radiusBorder / 2);
         hexagonBorderPath.moveTo(centerX, centerY + radiusBorder);
         hexagonBorderPath.lineTo(centerX - triangleBorderHeight, centerY + radiusBorder/2);
@@ -100,9 +101,9 @@ public class HexagonMaskView extends android.support.v7.widget.AppCompatImageVie
     @Override
     public void onMeasure(int widthMeasureSpec, int heightMeasureSpec){
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        width = MeasureSpec.getSize(widthMeasureSpec);
-        height =  MeasureSpec.getSize(heightMeasureSpec);
-        radius = height / 2 - 10;
+        width = this.getMeasuredWidth();
+        height = this.getMeasuredHeight();
+        radius = height / 2;
         calculatePath();
     }
 }
