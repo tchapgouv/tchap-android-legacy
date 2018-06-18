@@ -160,6 +160,7 @@
     <string name="search">Search</string>
 
     <string name="start_new_chat">Start New Chat</string>
+    <string name="start_new_chat_from_contact">Chat</string>
     <string name="start_voice_call">Start Voice Call</string>
     <string name="start_video_call">Start Video Call</string>
 

@@ -945,9 +945,9 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 mCurrentFragmentTag = TAG_FRAGMENT_PEOPLE;
                 mSearchView.setQueryHint(getString(R.string.home_filter_placeholder_people));
 
-                mInviteContactLayout.setVisibility(View.VISIBLE);
+                if (mInviteContactLayout != null) mInviteContactLayout.setVisibility(View.VISIBLE);
 
-                mInviteContactLayout.setOnClickListener(new View.OnClickListener() {
+                if (mInviteContactLayout != null) mInviteContactLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         if (!TchapLoginActivity.isUserExternal(mSession)) {
@@ -970,7 +970,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 }
                 mCurrentFragmentTag = TAG_FRAGMENT_ROOMS;
                 mSearchView.setQueryHint(getString(R.string.home_filter_placeholder_rooms));
-                mInviteContactLayout.setVisibility(View.GONE);
+                if (mInviteContactLayout != null) mInviteContactLayout.setVisibility(View.GONE);
                 break;
             /*case R.id.bottom_action_groups:
                 Log.d(LOG_TAG, "onNavigationItemSelected GROUPS");

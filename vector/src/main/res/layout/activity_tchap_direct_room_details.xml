@@ -51,16 +51,19 @@
         android:layout_height="3dp"
         android:layout_alignParentLeft="true"
         android:background="?attr/room_header_divider_color" />
+
     <TextView
         android:id="@+id/room_title_files"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/header_bottom_separator_2"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="29dp"
         android:ellipsize="end"
+        android:text="@string/room_details_files_title"
         android:textAlignment="center"
         android:textColor="@color/vector_tchap_text_color_light"
-        android:textSize="15sp"
-        android:text="@string/room_details_files_title"/>
+        android:textSize="15sp" />
     <RelativeLayout
         android:layout_below="@+id/room_title_files"
 

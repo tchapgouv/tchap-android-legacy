@@ -25,24 +25,24 @@
             android:id="@+id/room_action_bar_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
             android:singleLine="true"
-            android:textAlignment="center"
-            android:textColor="@android:color/black"
-            android:textStyle="bold"
+             android:textColor="@android:color/black"
             android:textSize="16sp"
+            android:textStyle="bold"
             tools:text="title" />
 
         <TextView
             android:id="@+id/room_action_bar_topic"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@+id/room_action_bar_title"
             android:ellipsize="end"
+            android:gravity="center_horizontal"
             android:maxLines="1"
-            android:textAlignment="center"
             android:textColor="@color/vector_tchap_primary_color"
             android:textSize="12sp"
-            tools:text="topic"
-            android:layout_below="@+id/room_action_bar_title"/>
+            tools:text="topic" />
 
     </RelativeLayout>
 

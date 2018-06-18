@@ -1131,7 +1131,7 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
 
             if (supportedActionsList.indexOf(ITEM_ACTION_DIALOG) >= 0) {
                 imageResource = R.drawable.ic_comment_black;
-                actionText = getResources().getString(R.string.start_new_chat);
+                actionText = getResources().getString(R.string.start_new_chat_from_contact);
                 uncategorizedActions.add(new VectorMemberDetailsAdapter.AdapterMemberActionItems(imageResource, actionText, ITEM_ACTION_START_CHAT));
             }
             // build the "ignore" item
