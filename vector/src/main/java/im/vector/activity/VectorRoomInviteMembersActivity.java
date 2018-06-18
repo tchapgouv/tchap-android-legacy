@@ -238,6 +238,15 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         mParentLayout = findViewById(R.id.vector_invite_members_layout);
         mSearchView = findViewById(R.id.external_search_view);
         mSearchView.setOnQueryTextListener(this);
+        mSearchView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (v != null) {
+                    mSearchView.setIconified(false);
+                }
+
+            }
+        });
 
         // Check if no view has focus:
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
