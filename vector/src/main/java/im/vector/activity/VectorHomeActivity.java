@@ -1314,7 +1314,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
             if (!TchapLoginActivity.isUserExternal(mSession)) {
                 CharSequence items[] = new CharSequence[]{getString(R.string.start_new_chat), getString(R.string.tchap_room_creation_title),getString(R.string.room_join_public_room_title)};
                 mFabDialog = new AlertDialog.Builder(this)
-                        .setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
+                        .setItems(items, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface d, int n) {
                                 d.cancel();
@@ -1332,7 +1332,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                                 }
                             }
                         })
-                        .setNegativeButton(R.string.cancel, null)
+                        //.setNegativeButton(R.string.cancel, null)
                         .show();
             } else {
                 // the FAB action is temporarily blocked for external users to prevent them from
