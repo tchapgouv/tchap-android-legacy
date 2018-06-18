@@ -943,7 +943,7 @@
 
     <!-- tchap room creation -->
     <string name="tchap_room_creation_title">New room</string>
-    <string name="tchap_room_creation_next">Next</string>
+    <string name="tchap_action_next">Next</string>
     <string name="tchap_room_creation_avatar">Add an avatar</string>
     <string name="tchap_room_creation_name">Name this room</string>
     <string name="tchap_room_creation_public">Make this room public</string>
@@ -976,6 +976,20 @@
     <string name="group_details_people">People</string>
     <string name="group_details_rooms">Rooms</string>
     <string name="no_users_placeholder">No users</string>
+
+    <!-- Login/Register Tchap -->
+    <string name="tchap_register_title">Sign up to Tchap</string>
+    <string name="tchap_connection_title">Login to Tchap</string>
+    <string name="tchap_has_account_no">I do not have\nan account</string>
+    <string name="tchap_has_account_yes">I already have\nan account</string>
+    <string name="tchap_connection_email">Email</string>
+    <string name="tchap_connection_email_help">If you have an email from the French government, please use it</string>
+    <string name="tchap_connection_password">Tchap password</string>
+    <string name="tchap_connection_password_confirm">Password confirmation</string>
+    <string name="tchap_connection_forgotten_email">I have forgotten my password</string>
+    <string name="tchap_register_wait_for_email_title">An e-mail has been sent</string>
+    <string name="tchap_register_wait_for_email_subtitle">Please open it and click in the link it contains to finalize the verification</string>
+    <string name="tchap_register_wait_for_email_no_email">I have not received any e-mail!</string>
 
     <string name="rooms">Rooms</string>
     <string name="joined">Joined</string>

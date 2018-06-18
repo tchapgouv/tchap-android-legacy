@@ -25,6 +25,7 @@
     <color name="tchap_action_bar_text_color">#ffffff</color>
     <color name="tchap_primary_text_color">#000000</color>
     <color name="tchap_secondary_text_color">#aeaeae</color>
+    <color name="tchap_gray_86">#FF868686</color>
     <color name="tchap_navigation_menu_text_color">#9b9b9b</color>
 
     <!-- home activity tab bar color -->

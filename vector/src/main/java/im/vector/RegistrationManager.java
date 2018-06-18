@@ -353,6 +353,9 @@ public class RegistrationManager {
                     }
                 }
             });
+        } else {
+            // TODO Report this fix in Riot
+            listener.onRegistrationFailed("mRegistrationResponse is null or session is null");
         }
     }
 

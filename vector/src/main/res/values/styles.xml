@@ -95,6 +95,14 @@
         <item name="textAllCaps">false</item>
     </style>
 
+    <style name="Vector.ActionBarTheme.TchapLogin" parent="@style/ThemeOverlay.AppCompat.ActionBar">
+        <item name="colorControlNormal">@color/vector_tchap_text_color_light</item>
+        <item name="actionMenuTextColor">@color/tchap_text_color_light_selector</item>
+        <item name="android:actionMenuTextColor">@color/tchap_text_color_light_selector</item>
+        <item name="android:textSize">13.5sp</item>
+        <item name="textAllCaps">false</item>
+    </style>
+
     <style name="AppTheme.Widget.ActionButton" parent="@style/Widget.AppCompat.ActionButton">
         <item name="android:textAllCaps">false</item>
     </style>
@@ -327,6 +335,10 @@
         <item name="android:buttonStyle">@style/LoginButtonStyle</item>
 
         <item name="colorAccent">?attr/editTextColor</item>
+
+        <item name="colorControlNormal">@color/vector_tchap_text_color_light</item>
+        <item name="colorControlActivated">@color/vector_tchap_text_color_light</item>
+        <item name="colorControlHighlight">@color/vector_tchap_text_color_light</item>
     </style>
 
     <style name="CountryPickerTheme" parent="AppTheme.NoActionBar">
@@ -359,7 +371,9 @@
 
         <item name="android:windowFrame">@null</item>
         <item name="android:windowTitleStyle">@style/RtlOverlay.DialogWindowTitle.AppCompat</item>
-        <item name="android:windowTitleBackgroundStyle">@style/Base.DialogWindowTitleBackground.AppCompat</item>
+        <item name="android:windowTitleBackgroundStyle">
+            @style/Base.DialogWindowTitleBackground.AppCompat
+        </item>
         <item name="android:windowBackground">@drawable/abc_dialog_material_background</item>
         <item name="android:windowIsFloating">true</item>
         <item name="android:backgroundDimEnabled">true</item>
@@ -536,7 +550,9 @@
 
         <item name="android:windowFrame">@null</item>
         <item name="android:windowTitleStyle">@style/RtlOverlay.DialogWindowTitle.AppCompat</item>
-        <item name="android:windowTitleBackgroundStyle">@style/Base.DialogWindowTitleBackground.AppCompat</item>
+        <item name="android:windowTitleBackgroundStyle">
+            @style/Base.DialogWindowTitleBackground.AppCompat
+        </item>
         <item name="android:windowBackground">@drawable/abc_dialog_material_background</item>
         <item name="android:windowIsFloating">true</item>
         <item name="android:backgroundDimEnabled">true</item>
@@ -552,7 +568,7 @@
 
         <item name="android:listDivider">@null</item>
     </style>
-    
+
     <!--  ************************  Black theme  **************************** -->
 
     <style name="AppTheme.NoActionBar.Black" parent="@style/Theme.Vector.Black">
@@ -691,7 +707,9 @@
 
         <item name="android:windowFrame">@null</item>
         <item name="android:windowTitleStyle">@style/RtlOverlay.DialogWindowTitle.AppCompat</item>
-        <item name="android:windowTitleBackgroundStyle">@style/Base.DialogWindowTitleBackground.AppCompat</item>
+        <item name="android:windowTitleBackgroundStyle">
+            @style/Base.DialogWindowTitleBackground.AppCompat
+        </item>
         <item name="android:windowBackground">@drawable/abc_dialog_material_background</item>
         <item name="android:windowIsFloating">true</item>
         <item name="android:backgroundDimEnabled">true</item>
@@ -714,12 +732,20 @@
         <item name="editTextColor">?attr/riot_primary_text_color</item>
         <item name="android:editTextColor">?attr/riot_primary_text_color</item>
     </style>
+
     <style name="Vector_Lock_Dark" parent="Theme.Vector.EmptyDark">
         <item name="android:background">?attr/riot_primary_background_color</item>
         <item name="android:textColor">?attr/primary_text_color</item>
         <item name="editTextColor">?attr/riot_primary_text_color</item>
         <item name="android:editTextColor">?attr/riot_primary_text_color</item>
     </style>
-    <style name="Vector_Lock_Black" parent="Vector_Lock_Dark">
+
+    <style name="Vector_Lock_Black" parent="Vector_Lock_Dark"></style>
+
+    <style name="TchapTextInputLayout" parent="TextAppearance.AppCompat">
+        <item name="android:textSize">13.5sp</item>
+        <item name="android:textColor">@color/vector_tchap_text_color_light</item>
+        <item name="android:textColorHint">@color/vector_tchap_text_color_light</item>
+        <item name="colorAccent">@color/vector_tchap_text_color_light</item>
     </style>
 </resources>
