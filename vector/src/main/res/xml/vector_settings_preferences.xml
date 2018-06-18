@@ -242,7 +242,7 @@
 
     <im.vector.preference.VectorDividerCategory />
 
-    <im.vector.preference.VectorPreferenceCategory
+    <!-- not for now im.vector.preference.VectorPreferenceCategory
         android:key="SETTINGS_LABS_PREFERENCE_KEY"
         android:title="@string/room_settings_labs_pref_title">
 
@@ -280,7 +280,7 @@
 
     </im.vector.preference.VectorPreferenceCategory>
 
-    <im.vector.preference.VectorDividerCategory />
+    <im.vector.preference.VectorDividerCategory /-->
 
     <!-- ************ Cryptography section ************ -->
     <PreferenceCategory
@@ -309,10 +309,10 @@
             android:summary="@string/encryption_import_room_keys_summary"
             android:title="@string/encryption_import_e2e_room_keys" />
 
-        <im.vector.preference.VectorSwitchPreference
+        <!-- im.vector.preference.VectorSwitchPreference
             android:key="SETTINGS_ENCRYPTION_NEVER_SENT_TO_PREFERENCE_KEY"
             android:summary="@string/encryption_never_send_to_unverified_devices_summary"
-            android:title="@string/encryption_never_send_to_unverified_devices_title" />
+            android:title="@string/encryption_never_send_to_unverified_devices_title" / -->
 
     </PreferenceCategory>
 
@@ -325,7 +325,7 @@
 
     <im.vector.preference.VectorDividerCategory android:key="SETTINGS_DEVICES_DIVIDER_PREFERENCE_KEY" />
 
-    <PreferenceCategory android:title="@string/settings_advanced">
+    <!-- PreferenceCategory android:title="@string/settings_advanced">
 
         <im.vector.preference.VectorCustomActionEditTextPreference
             android:key="SETTINGS_LOGGED_IN_PREFERENCE_KEY"
@@ -341,13 +341,13 @@
             android:key="SETTINGS_IDENTITY_SERVER_PREFERENCE_KEY"
             android:summary="1.2.3"
             android:title="@string/settings_identity_server" />
-    </PreferenceCategory>
+    </PreferenceCategory >
 
-    <im.vector.preference.VectorDividerCategory />
+    <im.vector.preference.VectorDividerCategory /-->
 
-    <PreferenceCategory
+    <!--PreferenceCategory
         android:key="SETTINGS_ANALYTICS_PREFERENCE_KEY"
-        android:title="@string/settings_analytics">
+        android:title="@string/settings_analytics" -->
 
         <!-- Remove Analytics tracking until Tchap defines its own instance -->
         <!-- im.vector.preference.VectorSwitchPreference
@@ -356,10 +356,10 @@
             android:summary="@string/settings_opt_in_of_analytics_summary"
             android:title="@string/settings_opt_in_of_analytics" /-->
 
-        <im.vector.preference.VectorSwitchPreference
+        <!--im.vector.preference.VectorSwitchPreference
             android:key="SETTINGS_USE_RAGE_SHAKE_KEY"
             android:title="@string/send_bug_report_rage_shake" />
-    </PreferenceCategory>
+    </PreferenceCategory-->
 
     <im.vector.preference.VectorDividerCategory />
 
@@ -367,7 +367,7 @@
         android:key="SETTINGS_OTHERS_PREFERENCE_KEY"
         android:title="@string/settings_other">
 
-        <Preference
+        <!--Preference
             android:key="application_info_link"
             android:summary="@string/settings_summary_app_info_link"
             android:title="@string/settings_title_app_info_link" />
@@ -396,7 +396,7 @@
 
         <im.vector.preference.VectorCustomActionEditTextPreference
             android:key="SETTINGS_THIRD_PARTY_NOTICES_PREFERENCE_KEY"
-            android:title="@string/settings_third_party_notices" />
+            android:title="@string/settings_third_party_notices" /-->
 
         <im.vector.preference.VectorCustomActionEditTextPreference
             android:key="SETTINGS_MEDIA_SAVING_PERIOD_KEY"

@@ -694,27 +694,28 @@ public class VectorSettingsPreferencesFragment extends PreferenceFragment implem
         mDevicesListSettingsCategoryDivider = (PreferenceCategory) findPreference(PreferencesManager.SETTINGS_DEVICES_DIVIDER_PREFERENCE_KEY);
         mCryptographyCategory = (PreferenceCategory) findPreference(PreferencesManager.SETTINGS_CRYPTOGRAPHY_PREFERENCE_KEY);
         mCryptographyCategoryDivider = (PreferenceCategory) findPreference(PreferencesManager.SETTINGS_CRYPTOGRAPHY_DIVIDER_PREFERENCE_KEY);
-        mLabsCategory = (PreferenceCategory) findPreference(PreferencesManager.SETTINGS_LABS_PREFERENCE_KEY);
+        mLabsCategory = null;//(PreferenceCategory) findPreference(PreferencesManager.SETTINGS_LABS_PREFERENCE_KEY);
         mGroupsFlairCategory = (PreferenceCategory) findPreference(PreferencesManager.SETTINGS_GROUPS_FLAIR_KEY);
 
         // preference to start the App info screen, to facilitate App permissions access
         Preference applicationInfoLInkPref = findPreference(APP_INFO_LINK_PREFERENCE_KEY);
-        applicationInfoLInkPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                if (null != getActivity()) {
-                    Intent intent = new Intent();
-                    intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    Uri uri = Uri.fromParts("package", appContext.getPackageName(), null);
-                    intent.setData(uri);
-                    getActivity().getApplicationContext().startActivity(intent);
+        if (applicationInfoLInkPref != null) {
+            applicationInfoLInkPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    if (null != getActivity()) {
+                        Intent intent = new Intent();
+                        intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        Uri uri = Uri.fromParts("package", appContext.getPackageName(), null);
+                        intent.setData(uri);
+                        getActivity().getApplicationContext().startActivity(intent);
+                    }
+
+                    return true;
                 }
-
-                return true;
-            }
-        });
-
+            });
+        }
         // Contacts
         setContactsPreferences();
 
@@ -724,111 +725,123 @@ public class VectorSettingsPreferencesFragment extends PreferenceFragment implem
         final CheckBoxPreference useCryptoPref = (CheckBoxPreference) findPreference(PreferencesManager.SETTINGS_ROOM_SETTINGS_LABS_END_TO_END_PREFERENCE_KEY);
         final Preference cryptoIsEnabledPref = findPreference(PreferencesManager.SETTINGS_ROOM_SETTINGS_LABS_END_TO_END_IS_ACTIVE_PREFERENCE_KEY);
 
-        cryptoIsEnabledPref.setEnabled(false);
-
-        if (!mSession.isCryptoEnabled()) {
-            useCryptoPref.setChecked(false);
-            mLabsCategory.removePreference(cryptoIsEnabledPref);
-        } else {
-            mLabsCategory.removePreference(useCryptoPref);
+        if (cryptoIsEnabledPref!= null) {
+            cryptoIsEnabledPref.setEnabled(false);
         }
 
-        useCryptoPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValueAsVoid) {
-                if (TextUtils.isEmpty(mSession.getCredentials().deviceId)) {
-                    new AlertDialog.Builder(getActivity())
-                            .setMessage(R.string.room_settings_labs_end_to_end_warnings)
-                            .setPositiveButton(R.string.logout, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
-                                    CommonActivityUtils.logout(getActivity());
-
-                                }
-                            })
-                            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
-                                    useCryptoPref.setChecked(false);
-                                }
-                            })
-                            .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                                @Override
-                                public void onCancel(DialogInterface dialog) {
-                                    dialog.dismiss();
-                                    useCryptoPref.setChecked(false);
-                                }
-                            })
-                            .create()
-                            .show();
-                } else {
-                    boolean newValue = (boolean) newValueAsVoid;
-
-                    if (mSession.isCryptoEnabled() != newValue) {
-                        displayLoadingView();
-
-                        mSession.enableCrypto(newValue, new ApiCallback<Void>() {
-                            private void refresh() {
-                                if (null != getActivity()) {
-                                    getActivity().runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            hideLoadingView();
-                                            useCryptoPref.setChecked(mSession.isCryptoEnabled());
-
-                                            if (mSession.isCryptoEnabled()) {
-                                                mLabsCategory.removePreference(useCryptoPref);
-                                                mLabsCategory.addPreference(cryptoIsEnabledPref);
-                                            }
-                                        }
-                                    });
-                                }
-                            }
-
-                            @Override
-                            public void onSuccess(Void info) {
-                                useCryptoPref.setEnabled(false);
-                                refresh();
-                            }
-
-                            @Override
-                            public void onNetworkError(Exception e) {
-                                useCryptoPref.setChecked(false);
-                            }
-
-                            @Override
-                            public void onMatrixError(MatrixError e) {
-                                useCryptoPref.setChecked(false);
-                            }
-
-                            @Override
-                            public void onUnexpectedError(Exception e) {
-                                useCryptoPref.setChecked(false);
-                            }
-                        });
-                    }
-                }
-
-                return true;
+        if (!mSession.isCryptoEnabled()) {
+            if (useCryptoPref != null) {
+                useCryptoPref.setChecked(false);
             }
-        });
+            if (mLabsCategory != null) {
+                mLabsCategory.removePreference(cryptoIsEnabledPref);
+            }
+        } else {
+            if (mLabsCategory != null) {
+                mLabsCategory.removePreference(useCryptoPref);
+            }
+        }
+        if (useCryptoPref != null) {
+            useCryptoPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValueAsVoid) {
+                    if (TextUtils.isEmpty(mSession.getCredentials().deviceId)) {
+                        new AlertDialog.Builder(getActivity())
+                                .setMessage(R.string.room_settings_labs_end_to_end_warnings)
+                                .setPositiveButton(R.string.logout, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                        CommonActivityUtils.logout(getActivity());
+
+                                    }
+                                })
+                                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                        useCryptoPref.setChecked(false);
+                                    }
+                                })
+                                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                                    @Override
+                                    public void onCancel(DialogInterface dialog) {
+                                        dialog.dismiss();
+                                        useCryptoPref.setChecked(false);
+                                    }
+                                })
+                                .create()
+                                .show();
+                    } else {
+                        boolean newValue = (boolean) newValueAsVoid;
+
+                        if (mSession.isCryptoEnabled() != newValue) {
+                            displayLoadingView();
+
+                            mSession.enableCrypto(newValue, new ApiCallback<Void>() {
+                                private void refresh() {
+                                    if (null != getActivity()) {
+                                        getActivity().runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                hideLoadingView();
+                                                useCryptoPref.setChecked(mSession.isCryptoEnabled());
+
+                                                if (mSession.isCryptoEnabled()) {
+                                                    if (mLabsCategory != null) {
+                                                        mLabsCategory.removePreference(useCryptoPref);
+                                                        mLabsCategory.addPreference(cryptoIsEnabledPref);
+                                                    }
+                                                }
+                                            }
+                                        });
+                                    }
+                                }
+
+                                @Override
+                                public void onSuccess(Void info) {
+                                    useCryptoPref.setEnabled(false);
+                                    refresh();
+                                }
+
+                                @Override
+                                public void onNetworkError(Exception e) {
+                                    useCryptoPref.setChecked(false);
+                                }
+
+                                @Override
+                                public void onMatrixError(MatrixError e) {
+                                    useCryptoPref.setChecked(false);
+                                }
+
+                                @Override
+                                public void onUnexpectedError(Exception e) {
+                                    useCryptoPref.setChecked(false);
+                                }
+                            });
+                        }
+                    }
+
+                    return true;
+                }
+            });
+        }
 
         // SaveMode Managment
         final CheckBoxPreference dataSaveModePref = (CheckBoxPreference) findPreference(PreferencesManager.SETTINGS_DATA_SAVE_MODE_PREFERENCE_KEY);
-        dataSaveModePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                List<MXSession> sessions = Matrix.getMXSessions(getActivity());
-                for (MXSession session : sessions) {
-                    session.setUseDataSaveMode((boolean) newValue);
+        if (dataSaveModePref != null) {
+            dataSaveModePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    List<MXSession> sessions = Matrix.getMXSessions(getActivity());
+                    for (MXSession session : sessions) {
+                        session.setUseDataSaveMode((boolean) newValue);
+                    }
+
+                    return true;
                 }
-
-                return true;
-            }
-        });
-
+            });
+        }
         // Remove Analytics tracking until Tchap defines its own instance
         // Analytics tracking managment
         /*final CheckBoxPreference useAnalyticsModePref = (CheckBoxPreference) findPreference(PreferencesManager.SETTINGS_USE_ANALYTICS_KEY);
@@ -848,16 +861,17 @@ public class VectorSettingsPreferencesFragment extends PreferenceFragment implem
         final CheckBoxPreference useRageShakeModePref = (CheckBoxPreference) findPreference(PreferencesManager.SETTINGS_USE_RAGE_SHAKE_KEY);
         final boolean mIsUsedRageShake = PreferencesManager.useRageshake(appContext);
 
-        useRageShakeModePref.setChecked(mIsUsedRageShake);
+        if (useRageShakeModePref != null) {
+            useRageShakeModePref.setChecked(mIsUsedRageShake);
 
-        useRageShakeModePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                PreferencesManager.setUseRageshake(appContext, (boolean) newValue);
-                return true;
-            }
-        });
-
+            useRageShakeModePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    PreferencesManager.setUseRageshake(appContext, (boolean) newValue);
+                    return true;
+                }
+            });
+        }
         // deactivate account
         EditTextPreference deactivateAccountPref = (EditTextPreference) findPreference(PreferencesManager.SETTINGS_DEACTIVATE_ACCOUNT_KEY);
 
@@ -1716,7 +1730,7 @@ public class VectorSettingsPreferencesFragment extends PreferenceFragment implem
 
                     VectorCustomActionEditTextPreference preference = new VectorCustomActionEditTextPreference(getActivity(), isThisDeviceTarget ? Typeface.BOLD : Typeface.NORMAL);
                     preference.setTitle(pusher.deviceDisplayName);
-                    preference.setSummary(pusher.appDisplayName);
+                    //don't show the app display name preference.setSummary(pusher.appDisplayName);
                     preference.setKey(PUSHER_PREFERENCE_KEY_BASE + index);
                     index++;
                     mPushersSettingsCategory.addPreference(preference);
