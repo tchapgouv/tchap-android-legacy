@@ -692,7 +692,7 @@ Appareils inconnus :</string>
 
     <string name="offline">Hors ligne</string>
 
-    <string name="user_directory_header">Répertoire utilisateur</string>
+    <string name="user_directory_header">Répertoire Tchap</string>
 
     <string name="people_search_user_directory">RÉPERTOIRE UTILISATEUR (%s)</string>
     <string name="settings_start_on_boot">Lancer au démarrage</string>
