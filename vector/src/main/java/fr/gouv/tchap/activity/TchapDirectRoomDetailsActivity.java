@@ -1,6 +1,6 @@
 /*
- * Copyright 2014 OpenMarket Ltd
  * Copyright 2018 New Vector Ltd
+ * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import org.matrix.androidsdk.fragments.MatrixMessageListFragment;
 import org.matrix.androidsdk.listeners.MXEventListener;
@@ -37,7 +35,6 @@ import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.Matrix;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
-import im.vector.activity.MXCActionBarActivity;
 import im.vector.activity.VectorHomeActivity;
 import im.vector.fragments.VectorSearchRoomFilesListFragment;
 import im.vector.util.VectorUtils;
@@ -154,8 +151,6 @@ public class TchapDirectRoomDetailsActivity extends TchapContactActionBarActivit
 
     }
 
-
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -192,21 +187,21 @@ public class TchapDirectRoomDetailsActivity extends TchapContactActionBarActivit
         String titleToApply = "";
         if ((null != mSession) && (null != mRoom)) {
             titleToApply = VectorUtils.getRoomDisplayName(this, mSession, mRoom);
-            titleToApply = DinsicUtils.getDisplaynameNamePart(titleToApply);
+            titleToApply = DinsicUtils.getNameFromDisplayName(titleToApply);
         }
         super.setTitle(titleToApply);
     }
+
     /**
      * Set the topic
      */
     protected void setTopic() {
         String topic = "";
         if (null != mRoom) {
-            topic = DinsicUtils.getDisplaynameDomainPart(VectorUtils.getRoomDisplayName(this, mSession, mRoom));
+            topic = DinsicUtils.getDomainFromDisplayName(VectorUtils.getRoomDisplayName(this, mSession, mRoom));
         super.setTopic(topic);
         }
     }
-
 
     @Override
     protected void onPause() {
@@ -263,7 +258,6 @@ public class TchapDirectRoomDetailsActivity extends TchapContactActionBarActivit
         }
     }
 
-
     /**
      * Start a file search
      */
@@ -283,7 +277,6 @@ public class TchapDirectRoomDetailsActivity extends TchapContactActionBarActivit
 
     }
 
-
     /**
      * The search is done.
      *
@@ -295,5 +288,4 @@ public class TchapDirectRoomDetailsActivity extends TchapContactActionBarActivit
             // stop "wait while searching" screen
             hideWaitingView();
     }
-
 }

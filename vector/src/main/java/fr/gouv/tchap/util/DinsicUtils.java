@@ -92,37 +92,38 @@ public class DinsicUtils {
     }
 
     /**
-     * get name part of a displayname
+     * Get name part of a display name by removing the domain part if any.
+     * For example in case of "Jean Martin [Modernisation]", this will return "Jean Martin".
      *
      * @param displayName
-     * @return displayname without domain
+     * @return displayName without domain
      */
-    public  static String getDisplaynameNamePart(String displayName) {
+    public  static String getNameFromDisplayName(String displayName) {
         String myRet = displayName;
-        if (displayName.contains(" [")) {
-            myRet = displayName.split(" \\[")[0];
+        if (displayName.contains("[")) {
+            myRet = displayName.split("\\[")[0].trim();
         }
         return myRet;
     }
     /**
-     * get name part of a displayname
+     * Get the potential domain name from a display name.
+     * For example in case of "Jean Martin [Modernisation]", this will return "Modernisation".
      *
      * @param displayName
-     * @return displayname without name
+     * @return displayName without name, empty string if no domain is available.
      */
-    public  static String getDisplaynameDomainPart(String displayName) {
+    public  static String getDomainFromDisplayName(String displayName) {
         String myRet = "";
 
         if (displayName.contains("[")) {
             myRet = displayName.split("\\[")[1];
             if (myRet.contains("]")) {
                 myRet = myRet.split("\\]")[0];
-            }
-            else {
+            } else {
                 myRet = "";
             }
         }
-         return myRet;
+        return myRet.trim();
     }
 
     /**

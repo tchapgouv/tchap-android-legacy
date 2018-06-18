@@ -1,5 +1,6 @@
 /*
- * Copyright 2016 OpenMarket Ltd
+ * Copyright 2018 New Vector Ltd
+ * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +23,6 @@ import android.preference.EditTextPreference;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import org.matrix.androidsdk.MXSession;
@@ -34,24 +34,20 @@ import im.vector.util.VectorUtils;
 
 public class HexagonAvatarPreference extends EditTextPreference {
 
-    Context mContext;
     HexagonMaskView mAvatarView;
     MXSession mSession;
     private ProgressBar mLoadingProgressBar;
 
     public HexagonAvatarPreference(Context context) {
         super(context);
-        mContext = context;
     }
 
     public HexagonAvatarPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
-        mContext = context;
     }
 
     public HexagonAvatarPreference(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        mContext = context;
     }
 
     @Override
@@ -67,7 +63,7 @@ public class HexagonAvatarPreference extends EditTextPreference {
     public void refreshAvatar() {
         if ((null != mAvatarView) && (null != mSession)) {
             MyUser myUser = mSession.getMyUser();
-            VectorUtils.loadUserAvatar(mContext, mSession, mAvatarView, myUser.getAvatarUrl(), myUser.user_id, myUser.displayname);
+            VectorUtils.loadUserAvatar(getContext(), mSession, mAvatarView, myUser.getAvatarUrl(), myUser.user_id, myUser.displayname);
         }
     }
 

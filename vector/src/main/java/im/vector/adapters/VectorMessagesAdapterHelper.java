@@ -196,7 +196,7 @@ class VectorMessagesAdapterHelper {
                     senderTextView.setVisibility(View.GONE);
                 } else {
                     senderTextView.setVisibility(View.VISIBLE);
-                    senderTextView.setText(DinsicUtils.getDisplaynameNamePart(getUserDisplayName(event.getSender(), row.getRoomState())));
+                    senderTextView.setText(DinsicUtils.getNameFromDisplayName(getUserDisplayName(event.getSender(), row.getRoomState())));
 
                     final String fSenderId = event.getSender();
                     final String fDisplayName = (null == senderTextView.getText()) ? "" : senderTextView.getText().toString();

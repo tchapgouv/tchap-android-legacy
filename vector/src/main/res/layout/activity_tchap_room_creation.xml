@@ -51,7 +51,7 @@
                         android:textAllCaps="false"
                         android:textSize="12sp"
                         android:text="@string/tchap_room_creation_avatar"
-                        android:textColor="@color/vector_tchap_text_color_light"
+                        android:textColor="@color/tchap_text_color_light"
                         tools:text="Ajouter \n une photo"/>
                 </RelativeLayout>
 

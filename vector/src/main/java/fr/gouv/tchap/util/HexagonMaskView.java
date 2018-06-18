@@ -1,5 +1,6 @@
 /*
  * Copyright 2018 New Vector Ltd
+ * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -100,11 +101,9 @@ public class HexagonMaskView extends android.support.v7.widget.AppCompatImageVie
     @Override
     public void onMeasure(int widthMeasureSpec, int heightMeasureSpec){
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        //with Measurespec.getSize it doesn't work for little sizes.
-        //works fine with getMeasuredWidth
-        width = this.getMeasuredWidth();//MeasureSpec.getSize(widthMeasureSpec);
-        height = this.getMeasuredHeight();//MeasureSpec.getSize(heightMeasureSpec);
-        radius = height / 2;// - 10;
+        width = this.getMeasuredWidth();
+        height = this.getMeasuredHeight();
+        radius = height / 2;
         calculatePath();
     }
 }

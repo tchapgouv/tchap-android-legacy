@@ -2,6 +2,7 @@
  * Copyright 2014 OpenMarket Ltd
  * Copyright 2017 Vector Creations Ltd
  * Copyright 2018 New Vector Ltd
+ * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1513,12 +1514,12 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
         }
 
         if ((null != mRoomMember) && !TextUtils.isEmpty(mRoomMember.displayname)) {
-            setTitle(DinsicUtils.getDisplaynameNamePart(mRoomMember.displayname));
-            setTopic(DinsicUtils.getDisplaynameDomainPart(mRoomMember.displayname));
+            setTitle(DinsicUtils.getNameFromDisplayName(mRoomMember.displayname));
+            setTopic(DinsicUtils.getDomainFromDisplayName(mRoomMember.displayname));
         } else {
             refreshUser();
-            setTitle(DinsicUtils.getDisplaynameNamePart(mUser.displayname));
-            setTopic(DinsicUtils.getDisplaynameDomainPart(mUser.displayname));
+            setTitle(DinsicUtils.getNameFromDisplayName(mUser.displayname));
+            setTopic(DinsicUtils.getDomainFromDisplayName(mUser.displayname));
         }
 
 

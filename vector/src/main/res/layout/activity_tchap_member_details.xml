@@ -14,8 +14,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-
-
         <android.support.v7.widget.Toolbar
             android:id="@+id/room_toolbar"
             style="@style/TchapRoomToolbarStyle"
@@ -33,7 +31,7 @@
     <View
         android:id="@+id/header_bottom_separator"
         android:layout_width="match_parent"
-        android:layout_height="3dp"
+        android:layout_height="2dp"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/room_action_bar"
         android:background="?attr/room_header_divider_color" />
@@ -63,7 +61,7 @@
         android:id="@+id/header_bottom_separator_2"
         android:layout_below="@+id/member_details_presence"
         android:layout_width="match_parent"
-        android:layout_height="3dp"
+        android:layout_height="1dp"
         android:layout_alignParentLeft="true"
         android:background="?attr/room_header_divider_color" />
 

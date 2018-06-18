@@ -1,5 +1,6 @@
 /*
- * Copyright 2016 OpenMarket Ltd
+ * Copyright 2018 New Vector Ltd
+ * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,12 +23,11 @@ import android.util.AttributeSet;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
 
-import im.vector.preference.UserAvatarPreference;
 import im.vector.util.VectorUtils;
 
 /**
  * Specialized class to target a Room avatar preference.
- * Based don the avatar preference class it redefines refreshAvatar() and
+ * Based on the avatar preference class it redefines refreshAvatar() and
  * add the new method  setConfiguration().
  */
 public class TchapRoomAvatarPreference extends HexagonAvatarPreference {
@@ -36,23 +36,20 @@ public class TchapRoomAvatarPreference extends HexagonAvatarPreference {
 
     public TchapRoomAvatarPreference(Context context) {
         super(context);
-        mContext = context;
     }
 
     public TchapRoomAvatarPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
-        mContext = context;
     }
 
     public TchapRoomAvatarPreference(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        mContext = context;
     }
 
     @Override
     public void refreshAvatar() {
         if ((null != mAvatarView) && (null != mRoom)) {
-            VectorUtils.loadRoomAvatar(mContext, mSession, mAvatarView, mRoom);
+            VectorUtils.loadRoomAvatar(getContext(), mSession, mAvatarView, mRoom);
         }
     }
 

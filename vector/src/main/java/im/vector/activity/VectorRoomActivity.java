@@ -65,7 +65,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.gson.JsonParser;
 
@@ -2377,13 +2376,12 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
      *
      */
     private void launchDirectRoomDetails() {
-        if ((null != mSession) && (null != mRoom) && (null != mRoom.getMember(mSession.getMyUserId())) && RoomUtils.isDirectChat(mSession, mRoom.getRoomId())) {
+        if ((null != mSession) && (null != mRoom) && (null != mRoom.getMember(mSession.getMyUserId()))) {
 
-            // pop to the home activity
+            // pop to the TchapDirectRoomDetails activity
             Intent intent = new Intent(VectorRoomActivity.this, TchapDirectRoomDetailsActivity.class);
             intent.putExtra(TchapDirectRoomDetailsActivity.EXTRA_ROOM_ID, mRoom.getRoomId());
             intent.putExtra(TchapDirectRoomDetailsActivity.EXTRA_MATRIX_ID, mSession.getCredentials().userId);
-//            intent.putExtra(TchapDirectRoomDetailsActivity.EXTRA_SELECTED_TAB_ID, selectedTab);
             startActivityForResult(intent, GET_MENTION_REQUEST_CODE);
         }
     }
@@ -3017,16 +3015,13 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
     private void setTopic() {
         String topic = null;
         if (null != mRoom) {
-            if (RoomUtils.isDirectChat(mSession, mRoom.getRoomId())) {
-                topic = DinsicUtils.getDisplaynameDomainPart(VectorUtils.getRoomDisplayName(this, mSession, mRoom));
+            if (mRoom.isDirect()) {
+                topic = DinsicUtils.getDomainFromDisplayName(VectorUtils.getRoomDisplayName(this, mSession, mRoom));
             }
             else {
                 topic =getResources().getQuantityString(R.plurals.room_title_members,
                         mRoom.getJoinedMembers().size(), mRoom.getJoinedMembers().size());
-
             }
-
-            //topic = mRoom.getTopic();
         } else if ((null != sRoomPreviewData) && (null != sRoomPreviewData.getRoomState())) {
             topic = sRoomPreviewData.getRoomState().topic;
         }
@@ -3068,7 +3063,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
      */
     private void updateRoomHeaderAvatar() {
         if (null != mRoom) {
-            if (RoomUtils.isDirectChat(mSession, mRoom.getRoomId())) {
+            if (mRoom.isDirect()) {
                 mToolbar.findViewById(R.id.avatar_h_img).setVisibility(View.INVISIBLE);
                 mActionBarHeaderRoomAvatar = mToolbar.findViewById(R.id.avatar_img);
                 mToolbar.findViewById(R.id.avatar_img).setVisibility(View.VISIBLE);
@@ -3079,7 +3074,6 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             }
             VectorUtils.loadRoomAvatar(this, mSession, mActionBarHeaderRoomAvatar, mRoom);
         } else if (null != sRoomPreviewData) {
-
             mToolbar.findViewById(R.id.avatar_img).setVisibility(View.INVISIBLE);
             mActionBarHeaderRoomAvatar = mToolbar.findViewById(R.id.avatar_h_img);
             mToolbar.findViewById(R.id.avatar_h_img).setVisibility(View.VISIBLE);
@@ -3128,13 +3122,10 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
         headerTextsContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int myTab = VectorRoomDetailsActivity.PEOPLE_TAB_INDEX;
-                if ((null != mSession) && (null != mRoom) && (RoomUtils.isDirectChat(mSession,mRoom.getRoomId()))) {
-                    //myTab = VectorRoomDetailsActivity.SETTINGS_TAB_INDEX;
+                if ((null != mRoom) && (mRoom.isDirect())) {
                     launchDirectRoomDetails();
-                }
-                else {
-                    launchRoomDetails(myTab);
+                } else {
+                    launchRoomDetails(VectorRoomDetailsActivity.PEOPLE_TAB_INDEX);
                 }
             }
         });
@@ -3164,7 +3155,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                         } else {
                             // wait the touch up to display the room settings page
                             // Tchap: Do not open the room settings page in case of a "dialogue" (direct chat), the room settings are not editable.
-                            if (null != mRoom && !RoomUtils.isDirectChat(mSession,mRoom.getRoomId())) {
+                            if (null != mRoom && !mRoom.isDirect()) {
                                 launchRoomDetails(VectorRoomDetailsActivity.SETTINGS_TAB_INDEX);
                             }
                         }
@@ -3183,8 +3174,8 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
         String titleToApply = mDefaultRoomName;
         if ((null != mSession) && (null != mRoom)) {
             titleToApply = VectorUtils.getRoomDisplayName(this, mSession, mRoom);
-            if (RoomUtils.isDirectChat(mSession, mRoom.getRoomId())) {
-                titleToApply = DinsicUtils.getDisplaynameNamePart(titleToApply);
+            if (mRoom.isDirect()) {
+                titleToApply = DinsicUtils.getNameFromDisplayName(titleToApply);
             }
 
             if (TextUtils.isEmpty(titleToApply)) {
@@ -3384,7 +3375,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                             // display the both action buttons only when it makes sense
                             // i.e not a room preview
                             // Tchap: Hide them for the "dialogues" (direct chat) too.
-                            boolean hideMembersButtons = (null == mRoom) || !TextUtils.isEmpty(mEventId) || (null != sRoomPreviewData) || (RoomUtils.isDirectChat(mSession, mRoom.getRoomId()));
+                            boolean hideMembersButtons = (null == mRoom) || !TextUtils.isEmpty(mEventId) || (null != sRoomPreviewData) || (mRoom.isDirect());
                             mActionBarHeaderActiveMembersListButton.setVisibility(hideMembersButtons ? View.GONE : View.VISIBLE);
                             mActionBarHeaderActiveMembersInviteButton.setVisibility(hideMembersButtons ? View.GONE : View.VISIBLE);
                         } else {
@@ -4046,7 +4037,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
      */
     private void addRoomHeaderClickListeners() {
         // Tchap: Do not define the listeners in case of a "dialogue" (direct chat), the room name and the avatar are not editable.
-        if (null != mRoom && RoomUtils.isDirectChat(mSession,mRoom.getRoomId())) {
+        if (null != mRoom && mRoom.isDirect()) {
             return;
         }
 

@@ -31,13 +31,15 @@
         android:layout_below="@+id/room_toolbar"
 
         app:tabGravity="fill"
-        app:tabIndicatorColor="@color/primary_color_light"
+        app:tabIndicatorColor="@color/tchap_text_color_light"
+        app:tabIndicatorHeight="3.8dp"
         app:tabMaxWidth="0dp"
         app:tabMode="fixed"
         android:paddingRight="5dp"
         android:paddingLeft="5dp"
-        android:paddingBottom="15dp"
-        app:tabTextColor="@color/vector_tchap_text_color_light"
+        android:paddingBottom="0dp"
+        app:tabTextColor="@color/tchap_text_color_light_with_alpha"
+        app:tabSelectedTextColor="@color/tchap_text_color_light"
         app:tabTextAppearance="@style/Vector.RoomToolbar.Title">
 
         <android.support.design.widget.TabItem
@@ -67,7 +69,7 @@
             android:id="@+id/header_bottom_separator"
             android:layout_below="@+id/tab_layout"
             android:layout_width="match_parent"
-            android:layout_height="3dp"
+            android:layout_height="1dp"
             android:layout_alignParentLeft="true"
             android:background="?attr/room_header_divider_color" />        <!-- downloading progress bar -->
         <FrameLayout

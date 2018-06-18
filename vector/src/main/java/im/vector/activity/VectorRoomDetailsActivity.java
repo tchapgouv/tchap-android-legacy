@@ -1,6 +1,7 @@
 /*
  * Copyright 2014 OpenMarket Ltd
  * Copyright 2018 New Vector Ltd
+ * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +26,6 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBar.TabListener;
 import android.support.v7.widget.Toolbar;
 
 import android.view.MenuItem;
@@ -170,7 +170,7 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
 
         // tab creation and restore tabs UI context
         // use a toolbar instead of the actionbar
-         mToolbar = findViewById(R.id.room_toolbar);
+        mToolbar = findViewById(R.id.room_toolbar);
         setSupportActionBar(mToolbar);
 
         if (null != getSupportActionBar()) {
@@ -498,7 +498,7 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
         String titleToApply = "";
         if ((null != mSession) && (null != mRoom)) {
             titleToApply = VectorUtils.getRoomDisplayName(this, mSession, mRoom);
-            titleToApply = DinsicUtils.getDisplaynameNamePart(titleToApply);
+            titleToApply = DinsicUtils.getNameFromDisplayName(titleToApply);
         }
 
         // set action bar title
