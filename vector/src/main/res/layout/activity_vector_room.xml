@@ -21,26 +21,32 @@
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/room_toolbar"
-            style="@style/VectorToolbarStyle"
+            style="@style/TchapRoomToolbarStyle"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
+            android:layout_height="72dp"
             android:layout_alignParentTop="true"
-            android:background="?attr/primary_color"
             app:contentInsetEnd="0dp"
             app:contentInsetStart="0dp">
 
-            <include layout="@layout/vector_message_action_bar_custo_layout" />
+            <include layout="@layout/tchap_room_or_direct_action_bar_custo_layout" />
 
         </android.support.v7.widget.Toolbar>
 
     </FrameLayout>
+    <View
+        android:id="@+id/header_bottom_separator"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/room_action_bar"
+        android:background="?attr/room_header_divider_color" />
 
     <ProgressBar
         android:id="@+id/room_sync_in_progress"
         style="@style/Widget.AppCompat.ProgressBar.Horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/room_action_bar"
+        android:layout_below="@+id/header_bottom_separator"
         android:background="?attr/primary_color"
         android:contentDescription="@string/room_sync_in_progress"
         android:indeterminate="true" />

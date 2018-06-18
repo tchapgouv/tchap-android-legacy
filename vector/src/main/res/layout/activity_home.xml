@@ -113,7 +113,7 @@
                     android:layout_marginTop="20dp"
                     android:layout_toRightOf="@+id/icon_add_contacts_to_tchap"
                     android:text="@string/tchap_invite_contacts_to_tchap"
-                    android:textColor="@color/vector_tchap_text_color_light"
+                    android:textColor="@color/tchap_text_color_light"
                     android:textSize="16sp" />
             </RelativeLayout>
 
@@ -161,7 +161,7 @@
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/vector_home_menu_header"
-        app:itemTextColor="@color/vector_tchap_text_color_light"
+        app:itemTextColor="@color/tchap_text_color_light"
         app:menu="@menu/vector_home_sliding_menu">
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"

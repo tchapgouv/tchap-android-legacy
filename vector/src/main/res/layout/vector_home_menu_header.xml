@@ -34,7 +34,7 @@
         android:maxLines="2"
         android:paddingLeft="5dp"
         android:paddingRight="5dp"
-        android:textColor="@color/vector_tchap_text_color_light"
+        android:textColor="@color/tchap_text_color_light"
         android:textSize="15sp"
         tools:text="A displayname here" />
 
