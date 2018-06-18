@@ -74,7 +74,7 @@ public class HexagonMaskView extends android.support.v7.widget.AppCompatImageVie
         hexagonPath.lineTo(centerX + triangleHeight, centerY + radius/2);
         hexagonPath.moveTo(centerX, centerY + radius);
 
-        float radiusBorder = radius - 5;
+        float radiusBorder = radius - 2;
         float triangleBorderHeight = (float) (Math.sqrt(3) * radiusBorder / 2);
         hexagonBorderPath.moveTo(centerX, centerY + radiusBorder);
         hexagonBorderPath.lineTo(centerX - triangleBorderHeight, centerY + radiusBorder/2);
