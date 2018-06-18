@@ -1755,10 +1755,10 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                         VectorUtils.displayAppTac();
                         break;
 
-                    case R.id.sliding_menu_send_bug_report:
+                    /* not for the first step on tchap case R.id.sliding_menu_send_bug_report:
                         BugReporter.sendBugReport();
                         break;
-
+                    */
                     case R.id.sliding_menu_sign_out:
                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(VectorHomeActivity.this);
                         alertDialogBuilder.setMessage(getString(R.string.action_sign_out_confirmation));
