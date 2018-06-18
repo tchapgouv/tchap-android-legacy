@@ -41,6 +41,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.R;
 import im.vector.VectorApp;
 import fr.gouv.tchap.activity.TchapLoginActivity;
@@ -89,16 +90,15 @@ public class TchapContactAdapter extends AbsAdapter {
         mDirectChatsSection.setEmptyViewPlaceholder(context.getString(R.string.no_conversation_placeholder), context.getString(R.string.no_result_placeholder));
 
         // use the gouv comparator to show in priority matrix and agent users
-        String sectionTitle = context.getString(R.string.local_address_book_header);
         mLocalContactsSection = new AdapterSection<>(
                 context,
-                sectionTitle,
+                context.getString(R.string.local_address_book_header),
                 R.layout.adapter_local_contacts_sticky_header_subview,
                 R.layout.adapter_item_contact_view,
                 TYPE_HEADER_LOCAL_CONTACTS,
                 TYPE_CONTACT,
                 new ArrayList<ParticipantAdapterItem>(),
-                ParticipantAdapterItem.alphaGouvComparator);
+                ParticipantAdapterItem.tchapAlphaComparator);
         mLocalContactsSection.setEmptyViewPlaceholder(!ContactsManager.getInstance().isContactBookAccessAllowed() ? mNoContactAccessPlaceholder : mNoResultPlaceholder);
 
         mKnownContactsSection = new KnownContactsAdapterSection(
@@ -397,21 +397,13 @@ public class TchapContactAdapter extends AbsAdapter {
 
             participant.displayAvatar(mSession, vContactAvatar);
 
-            if (participant.mDisplayName.contains("[")) {
-                vContactName.setText(participant.mDisplayName.substring(0, participant.mDisplayName.lastIndexOf("[")));
-                vContactDomain.setText(participant.mDisplayName.substring(participant.mDisplayName.lastIndexOf("[") +1, participant.mDisplayName.lastIndexOf("]")));
-            } else {
-                vContactName.setText(participant.mDisplayName);
-            }
+            vContactName.setText(DinsicUtils.getNameFromDisplayName(participant.mDisplayName));
+            vContactDomain.setText(DinsicUtils.getDomainFromDisplayName(participant.mDisplayName));
 
-            // Prepare the description to be displayed below the name
-            // - for a matrix user: display the user's presence (if any)
-            // - for others (local contacts): display one of his media (email, phone number), if any
-            boolean isMatrixUserId = MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(participant.mUserId).matches();
-            if (isMatrixUserId) {
+            // Check whether tchap user are online
+            if (MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(participant.mUserId).matches()) {
                 loadContactPresence(vContactStatus, participant, position);
-            }
-            if (!isMatrixUserId) {
+            } else {
                 vContactStatus.setVisibility(View.GONE);
             }
 
@@ -433,11 +425,11 @@ public class TchapContactAdapter extends AbsAdapter {
         private void loadContactPresence(final ImageView imageView,
                                          final ParticipantAdapterItem item,
                                          final int position) {
-            final boolean presence = VectorUtils.getUserPresenceStatus(mContext, mSession, item.mUserId, new SimpleApiCallback<Void>() {
+            final boolean presence = VectorUtils.isUserOnline(mContext, mSession, item.mUserId, new SimpleApiCallback<Void>() {
                 @Override
                 public void onSuccess(Void info) {
                     if (imageView != null) {
-                        imageView.setVisibility(VectorUtils.getUserPresenceStatus(mContext, mSession, item.mUserId, null) ? View.VISIBLE : View.GONE);
+                        imageView.setVisibility(VectorUtils.isUserOnline(mContext, mSession, item.mUserId, null) ? View.VISIBLE : View.GONE);
                         notifyItemChanged(position);
                     }
                 }

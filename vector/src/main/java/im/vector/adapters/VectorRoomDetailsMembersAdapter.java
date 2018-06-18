@@ -47,6 +47,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 
+import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.R;
 import im.vector.VectorApp;
 import im.vector.activity.CommonActivityUtils;
@@ -738,12 +739,8 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
 
         viewHolder.mMemberNameTextView.setPadding(0, 22, 0, 0);
         viewHolder.mMemberDomainTextView.setPadding(0, 30, 0, 0);
-        if (memberName.contains("[")) {
-            viewHolder.mMemberNameTextView.setText(memberName.substring(0, memberName.lastIndexOf("[")));
-            viewHolder.mMemberDomainTextView.setText(memberName.substring(memberName.lastIndexOf("[") +1, memberName.lastIndexOf("]")));
-        } else {
-            viewHolder.mMemberNameTextView.setText(memberName);
-        }
+        viewHolder.mMemberNameTextView.setText(DinsicUtils.getNameFromDisplayName(memberName));
+        viewHolder.mMemberDomainTextView.setText(DinsicUtils.getDomainFromDisplayName(memberName));
 
         // 2b admin badge
         viewHolder.mMemberAvatarBadgeImageView.setVisibility(View.GONE);

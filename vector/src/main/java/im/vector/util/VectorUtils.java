@@ -1005,9 +1005,9 @@ public class VectorUtils {
      * @param session         the session.
      * @param userId          the userId.
      * @param refreshCallback the presence callback.
-     * @return the online status description.
+     * @return true if the user is online.
      */
-    public static boolean getUserPresenceStatus(final Context context, final MXSession session, final String userId, final SimpleApiCallback<Void> refreshCallback) {
+    public static boolean isUserOnline(final Context context, final MXSession session, final String userId, final SimpleApiCallback<Void> refreshCallback) {
         // sanity checks
         if ((null == session) || (null == userId)) {
             return false;
@@ -1068,22 +1068,8 @@ public class VectorUtils {
             });
         }
 
-        // unknown user
-        if (null == user) {
-            return false;
-        }
-
-        boolean presenceStatus = false;
-
-        if (TextUtils.equals(user.presence, User.PRESENCE_ONLINE)) {
-            presenceStatus = true;
-        } else if (TextUtils.equals(user.presence, User.PRESENCE_UNAVAILABLE)) {
-            presenceStatus = false;
-        } else if (TextUtils.equals(user.presence, User.PRESENCE_OFFLINE) || (null == user.presence)) {
-            presenceStatus = false;
-        }
-
-        return presenceStatus;
+        // Return the current presence status.
+        return ((null != user) && (TextUtils.equals(user.presence, User.PRESENCE_ONLINE)));
     }
 
     //==============================================================================================================
