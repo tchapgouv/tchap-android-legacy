@@ -96,7 +96,7 @@
     </style>
 
     <style name="Vector.ActionBarTheme.TchapLogin" parent="@style/ThemeOverlay.AppCompat.ActionBar">
-        <item name="colorControlNormal">@color/vector_tchap_text_color_light</item>
+        <item name="colorControlNormal">@color/tchap_text_color_light</item>
         <item name="actionMenuTextColor">@color/tchap_text_color_light_selector</item>
         <item name="android:actionMenuTextColor">@color/tchap_text_color_light_selector</item>
         <item name="android:textSize">13.5sp</item>
@@ -336,9 +336,9 @@
 
         <item name="colorAccent">?attr/editTextColor</item>
 
-        <item name="colorControlNormal">@color/vector_tchap_text_color_light</item>
-        <item name="colorControlActivated">@color/vector_tchap_text_color_light</item>
-        <item name="colorControlHighlight">@color/vector_tchap_text_color_light</item>
+        <item name="colorControlNormal">@color/tchap_text_color_light</item>
+        <item name="colorControlActivated">@color/tchap_text_color_light</item>
+        <item name="colorControlHighlight">@color/tchap_text_color_light</item>
     </style>
 
     <style name="CountryPickerTheme" parent="AppTheme.NoActionBar">
@@ -744,8 +744,8 @@
 
     <style name="TchapTextInputLayout" parent="TextAppearance.AppCompat">
         <item name="android:textSize">13.5sp</item>
-        <item name="android:textColor">@color/vector_tchap_text_color_light</item>
-        <item name="android:textColorHint">@color/vector_tchap_text_color_light</item>
-        <item name="colorAccent">@color/vector_tchap_text_color_light</item>
+        <item name="android:textColor">@color/tchap_text_color_light</item>
+        <item name="android:textColorHint">@color/tchap_text_color_light</item>
+        <item name="colorAccent">@color/tchap_text_color_light</item>
     </style>
 </resources>

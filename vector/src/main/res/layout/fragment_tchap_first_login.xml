@@ -15,7 +15,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:textColorHint="@color/vector_tchap_text_color_light"
+        android:textColorHint="@color/tchap_text_color_light"
         app:hintTextAppearance="@style/TchapTextInputLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -27,7 +27,7 @@
             android:layout_height="wrap_content"
             android:hint="@string/tchap_connection_email"
             android:inputType="textEmailAddress"
-            android:textColor="@color/vector_tchap_text_color_light"
+            android:textColor="@color/tchap_text_color_light"
             android:textSize="16sp"
             tools:text="manu@gouv.fr" />
 
@@ -38,7 +38,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:textColorHint="@color/vector_tchap_text_color_light"
+        android:textColorHint="@color/tchap_text_color_light"
         app:hintTextAppearance="@style/TchapTextInputLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -50,7 +50,7 @@
             android:layout_height="wrap_content"
             android:hint="@string/tchap_connection_password"
             android:inputType="textPassword"
-            android:textColor="@color/vector_tchap_text_color_light"
+            android:textColor="@color/tchap_text_color_light"
             android:textSize="16sp"
             tools:text="password" />
 
@@ -65,7 +65,7 @@
         android:fontFamily="sans-serif"
         android:padding="8dp"
         android:text="@string/tchap_connection_forgotten_email"
-        android:textColor="@color/vector_tchap_text_color_light"
+        android:textColor="@color/tchap_text_color_light"
         android:textSize="13.5sp"
         android:textStyle="normal"
         android:visibility="gone"

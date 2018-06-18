@@ -11,7 +11,7 @@
     <color name="vector_tchap_primary_color_light">#162d58</color>
     <color name="vector_tchap_secondary_color_light">#162d58</color>
     <color name="tchap_text_color_light">#124a9d</color>
-    <color name="tchap_text_color_light_with_alpha">#3b124a9d</color>
+    <color name="tchap_text_color_light_with_alpha">#99124a9d</color>
     <color name="vector_tchap_text_color_dark">#162d58</color>
     <color name="vector_tchap_text_color_dark_grey">#858585</color>
     <color name="vector_tchap_text_color_light_grey">#949494</color>
