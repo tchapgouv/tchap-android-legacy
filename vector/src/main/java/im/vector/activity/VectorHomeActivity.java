@@ -1734,8 +1734,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
             public void onDrawerClosed(View view) {
                 switch (VectorHomeActivity.this.mSlidingMenuIndex) {
                     case R.id.sliding_menu_contacts:
-                        setSelectedTabStyle();
-                        updateSelectedFragment(mTopNavigationView.getTabAt(TAB_POSITION_CONTACT), true);
+                        mTopNavigationView.getTabAt(TAB_POSITION_CONTACT).select();
                         break;
 
                     case R.id.sliding_menu_public_rooms:
