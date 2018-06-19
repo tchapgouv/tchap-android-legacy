@@ -109,6 +109,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="search">Rechercher</string>
 
     <string name="start_new_chat">Nouvelle discussion</string>
+    <string name="start_new_chat_from_contact">Dialoguer</string>
     <string name="start_voice_call">Nouvel appel vocal</string>
     <string name="start_video_call">Nouvel appel vidéo</string>
 
@@ -254,9 +255,10 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="ssl_fingerprint_example">00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</string>
 
     <string name="room_details_title">Information sur la discussion</string>
-    <string name="room_details_people">Participants</string>
-    <string name="room_details_files">Fichiers</string>
-    <string name="room_details_settings">Paramètres</string>
+    <string name="room_details_people">MEMBRES</string>
+    <string name="room_details_files">FICHIERS</string>
+    <string name="room_details_files_title">Fichiers partagés</string>
+    <string name="room_details_settings">PARAMETRES</string>
     <string name="room_details_selected">choisi</string>
     <string name="room_details_people_invited_group_name">INVITÉS</string>
     <string name="room_details_people_present_group_name">MEMBRES</string>
@@ -464,10 +466,10 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="directory_server_native_rooms">Toutes les discussions natives sur %s</string>
     <string name="historical_placeholder">Rechercher dans l\'historique</string>
 
-<plurals name="public_room_nb_users">
-	<item quantity="one">%d membre</item>
-	<item quantity="other">%d membres</item>
-</plurals>
+    <plurals name="public_room_nb_users">
+        <item quantity="one">%d membre</item>
+        <item quantity="other">%d membres</item>
+    </plurals>
 
     <string name="send_bug_report_description">Veuillez décrire l\'erreur. Qu\'avez-vous fait ? Quel était le comportement attendu ? Que s\'est-il réellement passé ?</string>
     <string name="send_bug_report_logs_description">Afin de diagnostiquer les problèmes, les journaux de ce client seront envoyés avec ce rapport d\'erreur. Si vous préférez envoyer le texte ci-dessus uniquement, veuillez décochez :</string>
@@ -502,7 +504,7 @@ Vous pouvez ajouter votre adresse e-mail à votre profil dans les paramètres.</
     <string name="auth_reset_password_success_message">Votre mot de passe a été réinitialisé.
 
 Vous avez été déconnecté de tous les appareils et ne recevrez plus de notifications. Pour réactiver les notifications, reconnectez-vous sur chaque appareil.</string>
-    <string name="start_message">Bienvenue sur Tchap</string>
+    <string name="start_message">Bienvenue dans Tchap</string>
     <string name="login_error_must_start_http">L\'URL doit commencer par http[s]://</string>
     <string name="login_error_network_error">Impossible de se connecter : erreur réseau</string>
     <string name="login_error_unable_login">Impossible de se connecter</string>
@@ -690,7 +692,7 @@ Appareils inconnus :</string>
 
     <string name="offline">Hors ligne</string>
 
-    <string name="user_directory_header">Répertoire utilisateur</string>
+    <string name="user_directory_header">Répertoire Tchap</string>
 
     <string name="people_search_user_directory">RÉPERTOIRE UTILISATEUR (%s)</string>
     <string name="settings_start_on_boot">Lancer au démarrage</string>
@@ -718,7 +720,7 @@ Appareils inconnus :</string>
     <string name="larger">Très grande</string>
     <string name="largest">La plus grande</string>
     <string name="huge">Énorme</string>
-<string name="light_theme">Thème clair</string>
+    <string name="light_theme">Thème clair</string>
     <string name="dark_theme">Thème sombre</string>
     <string name="black_them">Thème noir</string>
 
@@ -835,7 +837,7 @@ Appareils inconnus :</string>
 
     // tchap room creation
     <string name="tchap_room_creation_title">Nouveau salon</string>
-    <string name="tchap_room_creation_next">Suivant</string>
+    <string name="tchap_action_next">Suivant</string>
     <string name="tchap_room_creation_avatar">Ajouter \n une photo</string>
     <string name="tchap_room_creation_name">Nommer le salon</string>
     <string name="tchap_room_creation_public">Rendre ce salon public</string>
@@ -845,6 +847,7 @@ Appareils inconnus :</string>
 
     // tchap new strings
     <string name="tchap_invite_contacts_to_tchap">Inviter des contacts dans Tchap</string>
+    <string name="tchap_invite_contacts_to_room">Inviter au salon</string>
     <string name="tchap_room_invite_member_direct_chat">Nouvelle discussion</string>
     <string name="tchap_invite_already_send_message">Vous avez déjà envoyé une invitation à %s</string>
     <string name="tchap_invite_unreachable_message">%s n\'est pas joignable pour l\'instant par Tchap</string>
@@ -868,6 +871,20 @@ Appareils inconnus :</string>
     <string name="group_details_rooms">Discussions</string>
     <string name="no_users_placeholder">Pas d\'utilisateurs</string>
 
+    <!-- Login/Register Tchap -->
+    <string name="tchap_register_title">Inscription Tchap</string>
+    <string name="tchap_connection_title">Connexion Tchap</string>
+    <string name="tchap_has_account_no">Je n’ai pas\nde compte</string>
+    <string name="tchap_has_account_yes">J’ai un compte</string>
+    <string name="tchap_connection_email">Adresse email</string>
+    <string name="tchap_connection_email_help">Si vous avez l’email de l’administation de l’État, utilisez-le</string>
+    <string name="tchap_connection_password">Mot de passe Tchap</string>
+    <string name="tchap_connection_password_confirm">Confirmer le mot de passe</string>
+    <string name="tchap_connection_forgotten_email">J’ai oublié mon mot de passe</string>
+    <string name="tchap_register_wait_for_email_title">Un email vous a été envoyé</string>
+    <string name="tchap_register_wait_for_email_subtitle">Veuillez l’ouvrir et cliquer sur le lien qui est dedans pour finaliser la vérification</string>
+    <string name="tchap_register_wait_for_email_no_email">Je n’ai pas reçu l’email!</string>
+
     <string name="rooms">Discussions</string>
     <string name="joined">Rejoint</string>
     <string name="invited">Invité</string>
@@ -886,29 +903,29 @@ Appareils inconnus :</string>
     <string name="reason_colon">Motif : %1$s</string>
     <string name="rejoin">Rejoindre</string>
     <string name="forget_room">Abandonner la discussion</string>
-<string name="settings_flair">Badge</string>
+    <string name="settings_flair">Badge</string>
 
     <string name="send_bug_report_rage_shake">Secouer avec frustration pour signaler un bug</string>
 
     <string name="actions">Actions</string>
     <string name="room_sync_in_progress">Synchronisation…</string>
     <plurals name="room_header_active_members_count">
-	<item quantity="one">Un membre actif</item>
-	<item quantity="other">%d membres actifs</item>
-</plurals>
+        <item quantity="one">Un membre actif</item>
+        <item quantity="other">%d membres actifs</item>
+    </plurals>
     <plurals name="room_title_members">
-	<item quantity="one">Un membre</item>
-	<item quantity="other">%d membres</item>
-</plurals>
+        <item quantity="one">Un membre</item>
+        <item quantity="other">%d membres</item>
+    </plurals>
     <plurals name="room_new_messages_notification">
-	<item quantity="one">Un nouveau message</item>
-	<item quantity="other">%d nouveaux messages</item>
-</plurals>
+        <item quantity="one">Un nouveau message</item>
+        <item quantity="other">%d nouveaux messages</item>
+    </plurals>
 
     <string name="room_displayname_many_members">%1$s et %2$s</string>
     <plurals name="others">
-	<item quantity="one">Un autre</item>
-	<item quantity="other">%d autres</item>
+        <item quantity="one">Un autre</item>
+        <item quantity="other">%d autres</item>
     </plurals>
 
     <string name="list_members">Liste les membres</string>
@@ -936,17 +953,17 @@ Appareils inconnus :</string>
     <string name="notification_unread_notified_messages_in_room">%1$s dans %2$s"</string>
 
     <plurals name="active_widgets">
-	<item quantity="one">Un gadget actif</item>
-	<item quantity="other">%d gadgets actifs</item>
-</plurals>
+        <item quantity="one">Un gadget actif</item>
+        <item quantity="other">%d gadgets actifs</item>
+    </plurals>
 
     // Widget Integration Manager
     <string name="avatar">Avatar</string>
 
-<plurals name="membership_changes">
-	<item quantity="one">Un changement de statut</item>
-	<item quantity="other">%d changements de statut</item>
-</plurals>
+    <plurals name="membership_changes">
+        <item quantity="one">Un changement de statut</item>
+        <item quantity="other">%d changements de statut</item>
+    </plurals>
 
     <string name="open_chat_header">Développer l\'entête</string>
     <string name="receipt_avatar">Réception de l\'avatar</string>

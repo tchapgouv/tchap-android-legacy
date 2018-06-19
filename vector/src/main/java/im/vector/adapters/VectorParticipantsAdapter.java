@@ -718,7 +718,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                 // Sort also by gouv priority
                 // the contacts are sorted by alphabetical method
 
-                Collections.sort(contactBookList, ParticipantAdapterItem.alphaComparator);// alphaGouvComparator);
+                Collections.sort(contactBookList, ParticipantAdapterItem.alphaComparator);// tchapAlphaComparator);
             }
             mParticipantsListsList.add(contactBookList);
         } else {

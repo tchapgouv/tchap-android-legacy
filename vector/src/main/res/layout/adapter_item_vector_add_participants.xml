@@ -89,17 +89,18 @@
                 <!-- keep singleLine="true" because maxLines="1" truncation is not the expected one.-->
                 <TextView
                     android:id="@+id/filtered_list_name"
-                    android:layout_width="wrap_content"
+                    android:layout_width="200dp"
                     android:layout_height="wrap_content"
                     android:layout_alignTop="@id/filtered_list_avatar"
                     android:layout_marginLeft="16dp"
-                    android:layout_marginRight="16dp"
+                    android:layout_marginRight="5dp"
                     android:layout_toRightOf="@id/filtered_list_avatar"
+                    android:ellipsize="end"
                     android:singleLine="true"
-                    android:text="A member name"
                     android:textColor="@color/tchap_primary_text_color"
                     android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    tools:text="Member name" />
 
                 <TextView
                     android:id="@+id/filtered_list_email"
@@ -110,9 +111,24 @@
                     android:layout_marginRight="16dp"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:text="adresse mail"
                     android:textColor="@color/tchap_secondary_text_color"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    tools:text="Member email" />
+
+                <TextView
+                    android:id="@+id/filtered_list_domain"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginTop="15dp"
+                    android:ellipsize="end"
+                    android:gravity="right|center_vertical"
+                    android:maxLines="1"
+                    android:textColor="@color/vector_tchap_primary_color"
+                    android:textSize="10sp"
+                    tools:text="Member domain" />
             </RelativeLayout>
 
             <RelativeLayout

@@ -65,7 +65,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.gson.JsonParser;
 
@@ -112,6 +111,7 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import fr.gouv.tchap.activity.TchapDirectRoomDetailsActivity;
 import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.Matrix;
 import im.vector.R;
@@ -591,7 +591,6 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
         mActionBarHeaderActiveMembersTextView = findViewById(R.id.action_bar_header_room_members_text_view);
         mActionBarHeaderActiveMembersListButton = findViewById(R.id.action_bar_header_room_members_settings_view);
         mActionBarHeaderActiveMembersInviteButton = findViewById(R.id.action_bar_header_room_members_invite_view);
-        mActionBarHeaderRoomAvatar = mRoomHeaderView.findViewById(R.id.avatar_img);
         mRoomPreviewLayout = findViewById(R.id.room_preview_info_layout);
         mVectorPendingCallView = findViewById(R.id.room_pending_call_view);
         mVectorOngoingConferenceCallView = findViewById(R.id.room_ongoing_conference_call_view);
@@ -611,6 +610,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
         // use a toolbar instead of the actionbar
         // to be able to display an expandable header
         mToolbar = findViewById(R.id.room_toolbar);
+        mActionBarHeaderRoomAvatar = mToolbar.findViewById(R.id.avatar_img);
         setSupportActionBar(mToolbar);
 
         if (null != getSupportActionBar()) {
@@ -1691,8 +1691,8 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
         // the menu is only displayed when the current activity does not display a timeline search
         if (TextUtils.isEmpty(mEventId) && (null == sRoomPreviewData)) {
             // Inflate the menu; this adds items to the action bar if it is present.
-            getMenuInflater().inflate(R.menu.vector_room, menu);
-            CommonActivityUtils.tintMenuIcons(menu, ThemeUtils.getColor(this, R.attr.icon_tint_on_dark_action_bar_color));
+            //getMenuInflater().inflate(R.menu.vector_room, menu);
+            //CommonActivityUtils.tintMenuIcons(menu, ThemeUtils.getColor(this, R.attr.icon_tint_on_dark_action_bar_color));
 
             mResendUnsentMenuItem = menu.findItem(R.id.ic_action_room_resend_unsent);
             mResendDeleteMenuItem = menu.findItem(R.id.ic_action_room_delete_unsent);
@@ -2371,6 +2371,20 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             startActivityForResult(intent, GET_MENTION_REQUEST_CODE);
         }
     }
+    /**
+     * Launch the direct room details activity with a selected tab.
+     *
+     */
+    private void launchDirectRoomDetails() {
+        if ((null != mSession) && (null != mRoom) && (null != mRoom.getMember(mSession.getMyUserId()))) {
+
+            // pop to the TchapDirectRoomDetails activity
+            Intent intent = new Intent(VectorRoomActivity.this, TchapDirectRoomDetailsActivity.class);
+            intent.putExtra(TchapDirectRoomDetailsActivity.EXTRA_ROOM_ID, mRoom.getRoomId());
+            intent.putExtra(TchapDirectRoomDetailsActivity.EXTRA_MATRIX_ID, mSession.getCredentials().userId);
+            startActivityForResult(intent, GET_MENTION_REQUEST_CODE);
+        }
+    }
 
     /**
      * Launch the invite people activity
@@ -3000,9 +3014,14 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
      */
     private void setTopic() {
         String topic = null;
-
         if (null != mRoom) {
-            topic = mRoom.getTopic();
+            if (mRoom.isDirect()) {
+                topic = DinsicUtils.getDomainFromDisplayName(VectorUtils.getRoomDisplayName(this, mSession, mRoom));
+            }
+            else {
+                topic =getResources().getQuantityString(R.plurals.room_title_members,
+                        mRoom.getJoinedMembers().size(), mRoom.getJoinedMembers().size());
+            }
         } else if ((null != sRoomPreviewData) && (null != sRoomPreviewData.getRoomState())) {
             topic = sRoomPreviewData.getRoomState().topic;
         }
@@ -3044,8 +3063,21 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
      */
     private void updateRoomHeaderAvatar() {
         if (null != mRoom) {
+            if (mRoom.isDirect()) {
+                mToolbar.findViewById(R.id.avatar_h_img).setVisibility(View.INVISIBLE);
+                mActionBarHeaderRoomAvatar = mToolbar.findViewById(R.id.avatar_img);
+                mToolbar.findViewById(R.id.avatar_img).setVisibility(View.VISIBLE);
+            } else {
+                mToolbar.findViewById(R.id.avatar_img).setVisibility(View.INVISIBLE);
+                mActionBarHeaderRoomAvatar = mToolbar.findViewById(R.id.avatar_h_img);
+                mToolbar.findViewById(R.id.avatar_h_img).setVisibility(View.VISIBLE);
+            }
             VectorUtils.loadRoomAvatar(this, mSession, mActionBarHeaderRoomAvatar, mRoom);
         } else if (null != sRoomPreviewData) {
+            mToolbar.findViewById(R.id.avatar_img).setVisibility(View.INVISIBLE);
+            mActionBarHeaderRoomAvatar = mToolbar.findViewById(R.id.avatar_h_img);
+            mToolbar.findViewById(R.id.avatar_h_img).setVisibility(View.VISIBLE);
+
             String roomName = sRoomPreviewData.getRoomName();
             if (TextUtils.isEmpty(roomName)) {
                 roomName = " ";
@@ -3072,24 +3104,28 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
         View headerTextsContainer = findViewById(R.id.header_texts_container);
 
         // add click listener on custom action bar to display/hide the header view
-        mActionBarCustomArrowImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (null != mRoomHeaderView) {
-                    if (View.GONE == mRoomHeaderView.getVisibility()) {
-                        enableActionBarHeader(SHOW_ACTION_BAR_HEADER);
-                    } else {
-                        enableActionBarHeader(HIDE_ACTION_BAR_HEADER);
+        if (mActionBarCustomArrowImageView != null) {
+            mActionBarCustomArrowImageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (null != mRoomHeaderView) {
+                        if (View.GONE == mRoomHeaderView.getVisibility()) {
+                            enableActionBarHeader(SHOW_ACTION_BAR_HEADER);
+                        } else {
+                            enableActionBarHeader(HIDE_ACTION_BAR_HEADER);
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
 
         headerTextsContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (TextUtils.isEmpty(mEventId) && (null == sRoomPreviewData)) {
-                    enableActionBarHeader(SHOW_ACTION_BAR_HEADER);
+                if ((null != mRoom) && (mRoom.isDirect())) {
+                    launchDirectRoomDetails();
+                } else {
+                    launchRoomDetails(VectorRoomDetailsActivity.PEOPLE_TAB_INDEX);
                 }
             }
         });
@@ -3119,7 +3155,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                         } else {
                             // wait the touch up to display the room settings page
                             // Tchap: Do not open the room settings page in case of a "dialogue" (direct chat), the room settings are not editable.
-                            if (null != mRoom && !RoomUtils.isDirectChat(mSession,mRoom.getRoomId())) {
+                            if (null != mRoom && !mRoom.isDirect()) {
                                 launchRoomDetails(VectorRoomDetailsActivity.SETTINGS_TAB_INDEX);
                             }
                         }
@@ -3138,6 +3174,9 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
         String titleToApply = mDefaultRoomName;
         if ((null != mSession) && (null != mRoom)) {
             titleToApply = VectorUtils.getRoomDisplayName(this, mSession, mRoom);
+            if (mRoom.isDirect()) {
+                titleToApply = DinsicUtils.getNameFromDisplayName(titleToApply);
+            }
 
             if (TextUtils.isEmpty(titleToApply)) {
                 titleToApply = mDefaultRoomName;
@@ -3148,7 +3187,15 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                 titleToApply = getResources().getText(R.string.search) + " : " + titleToApply;
             }
         } else if (null != sRoomPreviewData) {
-            titleToApply = sRoomPreviewData.getRoomName();
+            //try to put real name
+            if (sRoomPreviewData.getRoomState() != null
+                    && sRoomPreviewData.getRoomState().name != null
+                    && sRoomPreviewData.getRoomState().name.length()>0) {
+                titleToApply = sRoomPreviewData.getRoomState().name;
+            }
+            else {
+                titleToApply = sRoomPreviewData.getRoomName();
+            }
         }
 
         // set action bar title
@@ -3281,7 +3328,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
     private void updateRoomHeaderMembersStatus() {
         if (null != mActionBarHeaderActiveMembersLayout) {
             // refresh only if the action bar is hidden
-            if (mActionBarCustomTitle.getVisibility() == View.GONE) {
+            if (mActionBarCustomTitle != null && mActionBarCustomTitle.getVisibility() == View.GONE) {
                 if ((null != mRoom) || (null != sRoomPreviewData)) {
                     // update the members status: "active members"/"members"
                     int joinedMembersCount = 0;
@@ -3328,7 +3375,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                             // display the both action buttons only when it makes sense
                             // i.e not a room preview
                             // Tchap: Hide them for the "dialogues" (direct chat) too.
-                            boolean hideMembersButtons = (null == mRoom) || !TextUtils.isEmpty(mEventId) || (null != sRoomPreviewData) || (RoomUtils.isDirectChat(mSession, mRoom.getRoomId()));
+                            boolean hideMembersButtons = (null == mRoom) || !TextUtils.isEmpty(mEventId) || (null != sRoomPreviewData) || (mRoom.isDirect());
                             mActionBarHeaderActiveMembersListButton.setVisibility(hideMembersButtons ? View.GONE : View.VISIBLE);
                             mActionBarHeaderActiveMembersInviteButton.setVisibility(hideMembersButtons ? View.GONE : View.VISIBLE);
                         } else {
@@ -3360,41 +3407,51 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
      * @param aIsHeaderViewDisplayed true to show the header view, false to hide
      */
     private void enableActionBarHeader(boolean aIsHeaderViewDisplayed) {
+        if (mActionBarCustomArrowImageView != null) {
+            mIsHeaderViewDisplayed = aIsHeaderViewDisplayed;
+            if (SHOW_ACTION_BAR_HEADER == aIsHeaderViewDisplayed) {
+                dismissKeyboard();
 
-        mIsHeaderViewDisplayed = aIsHeaderViewDisplayed;
-        if (SHOW_ACTION_BAR_HEADER == aIsHeaderViewDisplayed) {
-            dismissKeyboard();
+                // hide the name and the topic in the action bar.
+                // these items are hidden when the header view is opened
+                if (mActionBarCustomTitle != null) {
+                    mActionBarCustomTitle.setVisibility(View.GONE);
+                }
+                mActionBarCustomTopic.setVisibility(View.GONE);
 
-            // hide the name and the topic in the action bar.
-            // these items are hidden when the header view is opened
-            mActionBarCustomTitle.setVisibility(View.GONE);
-            mActionBarCustomTopic.setVisibility(View.GONE);
+                // update the UI content of the action bar header
+                updateActionBarHeaderView();
+                // set the arrow to up
+                mActionBarCustomArrowImageView.setImageResource(R.drawable.ic_arrow_drop_up_white);
+                // enable the header view to make it visible
+                mRoomHeaderView.setVisibility(View.VISIBLE);
+                mToolbar.setBackgroundColor(Color.TRANSPARENT);
+            } else {
+                // hide the room header only if it is displayed
+                if (View.VISIBLE == mRoomHeaderView.getVisibility()) {
+                    // show the name and the topic in the action bar.
+                    if (mActionBarCustomTitle != null) {
+                        mActionBarCustomTitle.setVisibility(View.VISIBLE);
+                    }
+                    // if the topic is empty, do not show it
+                    if (!TextUtils.isEmpty(mActionBarCustomTopic.getText())) {
+                        mActionBarCustomTopic.setVisibility(View.VISIBLE);
+                    }
 
+                    // update title and topic (action bar)
+                    updateActionBarTitleAndTopic();
+
+                    // hide the action bar header view and reset the arrow image (arrow reset to down)
+                    mActionBarCustomArrowImageView.setImageResource(R.drawable.ic_arrow_drop_down_white);
+                    mRoomHeaderView.setVisibility(View.GONE);
+                    mToolbar.setBackgroundColor(ThemeUtils.getColor(this, R.attr.primary_color));
+                }
+            }
+        }
+        else {
             // update the UI content of the action bar header
             updateActionBarHeaderView();
-            // set the arrow to up
-            mActionBarCustomArrowImageView.setImageResource(R.drawable.ic_arrow_drop_up_white);
-            // enable the header view to make it visible
-            mRoomHeaderView.setVisibility(View.VISIBLE);
-            mToolbar.setBackgroundColor(Color.TRANSPARENT);
-        } else {
-            // hide the room header only if it is displayed
-            if (View.VISIBLE == mRoomHeaderView.getVisibility()) {
-                // show the name and the topic in the action bar.
-                mActionBarCustomTitle.setVisibility(View.VISIBLE);
-                // if the topic is empty, do not show it
-                if (!TextUtils.isEmpty(mActionBarCustomTopic.getText())) {
-                    mActionBarCustomTopic.setVisibility(View.VISIBLE);
-                }
 
-                // update title and topic (action bar)
-                updateActionBarTitleAndTopic();
-
-                // hide the action bar header view and reset the arrow image (arrow reset to down)
-                mActionBarCustomArrowImageView.setImageResource(R.drawable.ic_arrow_drop_down_white);
-                mRoomHeaderView.setVisibility(View.GONE);
-                mToolbar.setBackgroundColor(ThemeUtils.getColor(this, R.attr.primary_color));
-            }
         }
     }
 
@@ -3620,7 +3677,13 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                     invitationTextView.setText(getResources().getString(R.string.room_preview_invitation_format, roomEmailInvitation.inviterName));
                     subInvitationTextView.setText(getResources().getString(R.string.room_preview_unlinked_email_warning, roomEmailInvitation.email));
                 } else {
-                    invitationTextView.setText(getResources().getString(R.string.room_preview_try_join_an_unknown_room, TextUtils.isEmpty(sRoomPreviewData.getRoomName()) ? getResources().getString(R.string.room_preview_try_join_an_unknown_room_default) : roomName));
+                    String myRoomName = sRoomPreviewData.getRoomName();
+                    if (sRoomPreviewData.getRoomState() != null
+                            && sRoomPreviewData.getRoomState().name != null
+                            && sRoomPreviewData.getRoomState().name.length()>0) {
+                        myRoomName = sRoomPreviewData.getRoomState().name;
+                    }
+                    invitationTextView.setText(getResources().getString(R.string.room_preview_try_join_an_unknown_room, TextUtils.isEmpty(myRoomName) ? getResources().getString(R.string.room_preview_try_join_an_unknown_room_default) : myRoomName));
 
                     // the room preview has some messages
                     if ((null != sRoomPreviewData.getRoomResponse()) && (null != sRoomPreviewData.getRoomResponse().messages)) {
@@ -3974,7 +4037,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
      */
     private void addRoomHeaderClickListeners() {
         // Tchap: Do not define the listeners in case of a "dialogue" (direct chat), the room name and the avatar are not editable.
-        if (null != mRoom && RoomUtils.isDirectChat(mSession,mRoom.getRoomId())) {
+        if (null != mRoom && mRoom.isDirect()) {
             return;
         }
 

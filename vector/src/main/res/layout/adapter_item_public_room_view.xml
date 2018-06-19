@@ -6,13 +6,16 @@
     android:layout_height="74dp"
     android:paddingRight="16dp">
 
-
-    <im.vector.view.VectorCircularImageView
+    <fr.gouv.tchap.util.HexagonMaskView
         android:id="@+id/public_room_avatar"
         android:layout_width="@dimen/chat_avatar_size"
         android:layout_height="@dimen/chat_avatar_size"
         android:layout_centerVertical="true"
         android:layout_marginLeft="16dp"
+        android:maxWidth="@dimen/chat_avatar_size"
+        android:maxHeight="@dimen/chat_avatar_size"
+        android:scaleType="centerCrop"
+        android:adjustViewBounds="true"
         tools:src="#22000000" />
 
     <RelativeLayout
