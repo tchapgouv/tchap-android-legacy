@@ -1850,7 +1850,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         TextView displayNameTextView = navigationView.findViewById(R.id.home_menu_main_displayname);
 
         if (null != displayNameTextView) {
-            displayNameTextView.setText(mSession.getMyUser().displayname);
+            displayNameTextView.setText(DinsicUtils.getNameFromDisplayName(mSession.getMyUser().displayname));
         }
 
         TextView userIdTextView = navigationView.findViewById(R.id.home_menu_main_matrix_id);
