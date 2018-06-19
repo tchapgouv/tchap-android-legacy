@@ -1335,7 +1335,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                                 }
                             }
                         })
-                        //.setNegativeButton(R.string.cancel, null)
+                        .setNegativeButton(R.string.cancel, null)
                         .show();
             } else {
                 // the FAB action is temporarily blocked for external users to prevent them from
