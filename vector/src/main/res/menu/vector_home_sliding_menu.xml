@@ -16,9 +16,9 @@
         </group>
 
         <group android:id="@+id/app_group">
-            <item
+            <!-- item
                 android:id="@+id/sliding_copyright_terms"
-                android:title="@string/room_sliding_menu_copyright" />
+                android:title="@string/room_sliding_menu_copyright" /-->
 
             <item
                 android:id="@+id/sliding_menu_app_tac"
