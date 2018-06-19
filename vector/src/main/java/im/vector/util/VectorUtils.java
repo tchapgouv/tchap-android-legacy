@@ -789,7 +789,7 @@ public class VectorUtils {
      */
     public static void displayAppTac() {
         if (null != VectorApp.getCurrentActivity()) {
-            displayInWebview(VectorApp.getCurrentActivity(), "https://riot.im/tac");
+            displayInWebview(VectorApp.getCurrentActivity(), "https://www.tchap.gouv.fr/tac");
         }
     }
 
@@ -798,7 +798,7 @@ public class VectorUtils {
      */
     public static void displayAppCopyright() {
         if (null != VectorApp.getCurrentActivity()) {
-            displayInWebview(VectorApp.getCurrentActivity(), "https://riot.im/copyright");
+            displayInWebview(VectorApp.getCurrentActivity(), "https://www.tchap.gouv.fr/copyright");
         }
     }
 
@@ -807,7 +807,7 @@ public class VectorUtils {
      */
     public static void displayAppPrivacyPolicy() {
         if (null != VectorApp.getCurrentActivity()) {
-            displayInWebview(VectorApp.getCurrentActivity(), "https://riot.im/privacy");
+            displayInWebview(VectorApp.getCurrentActivity(), "https://www.tchap.gouv.fr/privacy");
         }
     }
 
