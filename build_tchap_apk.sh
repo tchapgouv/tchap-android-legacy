@@ -2,9 +2,9 @@
 rm *.apk
 ./gradlew clean 
 
-./gradlew lintAppRelease assembleAppMatrixorg
-./gradlew lintAppfdroidRelease assembleAppfdroidMatrixorg
+./gradlew lintAppWithVoipRelease assembleAppWithVoipMatrixorg
+./gradlew lintAppfdroidWithVoipRelease assembleAppfdroidWithVoipMatrixorg
 
-#cp app/build/outputs/apk/app-alpha-matrixorg.apk ./alpha.apk
-cp vector/build/outputs/apk/app/matrixorg/vector-app-matrixorg.apk ./tchapGooglePlay.apk
-cp vector/build/outputs/apk/appfdroid/matrixorg/vector-appfdroid-matrixorg.apk ./tchapFDroid.apk
+#cp the resulting apk
+cp vector/build/outputs/apk/appWithVoip/matrixorg/vector-app-withVoip-matrixorg.apk ./tchapGooglePlay.apk
+cp vector/build/outputs/apk/appfdroidWithVoip/matrixorg/vector-appfdroid-withVoip-matrixorg.apk ./tchapFDroid.apk
