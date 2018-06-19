@@ -1,47 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/navigation_view_height"
-    android:background="@color/vector_green_color"
+    android:layout_height="wrap_content"
+    android:background="@color/tchap_action_bar_text_color"
     android:orientation="vertical">
 
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:adjustViewBounds="true"
         android:layout_centerInParent="true"
-        android:scaleType="centerCrop"
-        android:src="@drawable/bubbles_bg_portrait"/>
+        android:adjustViewBounds="true"
+        android:background="@color/tchap_action_bar_text_color"
+        android:scaleType="centerCrop" />
 
     <im.vector.view.VectorCircularImageView
         android:id="@+id/home_menu_main_avatar"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="@dimen/navigation_avatar_top_margin">
-    </im.vector.view.VectorCircularImageView>
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/navigation_avatar_top_margin"
+        tools:src="@drawable/logo_tchap_color" />
 
     <TextView
         android:id="@+id/home_menu_main_displayname"
-        android:layout_width="match_parent"
-        android:layout_height="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/home_menu_main_avatar"
-        android:textSize="16sp"
-        android:textColor="@android:color/white"
-        android:layout_marginTop="39dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="20dp"
-        android:text="A displayname here" />
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
+        android:gravity="center_horizontal"
+        android:maxLines="2"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:textColor="@color/tchap_text_color_light"
+        android:textSize="15sp"
+        tools:text="A displayname here" />
 
     <TextView
         android:id="@+id/home_menu_main_matrix_id"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="12sp"
-        android:textColor="@android:color/white"
         android:layout_below="@+id/home_menu_main_displayname"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginTop="3dp"
-        android:text="A matrix id here" />
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_horizontal"
+        android:maxLines="3"
+        android:paddingBottom="15dp"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
+        android:paddingTop="5dp"
+        android:textColor="@color/tchap_navigation_menu_text_color"
+        android:textSize="12sp"
+        tools:text="The user email address" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:background="?attr/list_divider_color"/>
 </RelativeLayout>

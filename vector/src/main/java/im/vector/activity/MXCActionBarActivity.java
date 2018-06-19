@@ -43,8 +43,8 @@ import im.vector.VectorApp;
 public abstract class MXCActionBarActivity extends RiotAppCompatActivity {
     public static final String EXTRA_MATRIX_ID = "MXCActionBarActivity.EXTRA_MATRIX_ID";
 
-    MXSession mSession = null;
-    Room mRoom = null;
+    protected MXSession mSession = null;
+    protected Room mRoom = null;
 
     @Override
     public void onLowMemory() {

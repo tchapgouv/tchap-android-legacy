@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <FrameLayout
+        android:id="@+id/room_action_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/room_toolbar"
+            style="@style/TchapRoomToolbarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:layout_alignParentTop="true"
+            app:contentInsetEnd="0dp"
+            app:contentInsetStart="0dp">
+
+            <include layout="@layout/tchap_direct_action_bar_custo_layout" />
+
+        </android.support.v7.widget.Toolbar>
+
+    </FrameLayout>
+    <View
+        android:id="@+id/header_bottom_separator"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/room_action_bar"
+        android:background="?attr/room_header_divider_color" />
+
+    <im.vector.view.VectorCircularImageView
+        android:id="@+id/big_avatar_img"
+        android:layout_width="@dimen/big_avatar_size"
+        android:layout_height="@dimen/big_avatar_size"
+        android:layout_below="@+id/header_bottom_separator"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_marginBottom="16dp"
+        android:layout_marginTop="16dp"
+        tools:background="#f00" />
+    <View
+        android:id="@+id/header_bottom_separator_2"
+        android:layout_below="@+id/big_avatar_img"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_alignParentLeft="true"
+        android:background="?attr/room_header_divider_color" />
+
+    <TextView
+        android:id="@+id/room_title_files"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/header_bottom_separator_2"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="29dp"
+        android:ellipsize="end"
+        android:text="@string/room_details_files_title"
+        android:textAlignment="center"
+        android:textColor="@color/tchap_text_color_light"
+        android:textSize="15sp" />
+    <RelativeLayout
+        android:layout_below="@+id/room_title_files"
+
+        android:background="@android:color/white"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- tab fragments container -->
+        <FrameLayout
+            android:id="@+id/room_details_fragment_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <!-- downloading progress bar -->
+        <FrameLayout
+            android:id="@+id/settings_loading_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            android:background="?attr/waiting_background_color">
+            <ProgressBar
+                android:id="@+id/loading_settings_progress_bar"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:visibility="visible"/>
+        </FrameLayout>
+
+        <ProgressBar
+            android:id="@+id/search_load_oldest_progress"
+            android:layout_height="40dp"
+            android:layout_width="match_parent"
+            android:layout_alignParentLeft="true"
+            android:visibility="gone"
+            android:indeterminate="true" />
+    </RelativeLayout>
+
+</RelativeLayout>

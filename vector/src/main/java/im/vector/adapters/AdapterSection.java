@@ -17,6 +17,7 @@
 package im.vector.adapters;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
@@ -27,7 +28,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import im.vector.R;
-import im.vector.VectorApp;
 import im.vector.util.ThemeUtils;
 
 public class AdapterSection<T> {
@@ -77,14 +77,17 @@ public class AdapterSection<T> {
      * @param items
      * @param currentFilterPattern
      */
-    public void setItems(List<T> items, CharSequence currentFilterPattern) {
-        if (mComparator != null) {
-            Collections.sort(items, mComparator);
-        }
+    public void setItems(@Nullable List<T> items, CharSequence currentFilterPattern) {
         mItems.clear();
-        mItems.addAll(items);
 
-        setFilteredItems(items, currentFilterPattern);
+        if (null != items) {
+            if (mComparator != null) {
+                Collections.sort(items, mComparator);
+            }
+
+            mItems.addAll(items);
+            setFilteredItems(items, currentFilterPattern);
+        }
     }
 
     /**
@@ -121,7 +124,7 @@ public class AdapterSection<T> {
      * @param titleToFormat
      */
     void formatTitle(final String titleToFormat) {
-        SpannableString spannableString = new SpannableString(titleToFormat.toUpperCase(VectorApp.getApplicationLocale()));
+        SpannableString spannableString = new SpannableString(titleToFormat);
         spannableString.setSpan(new ForegroundColorSpan(ThemeUtils.getColor(mContext, R.attr.list_header_subtext_color)),
                 mTitle.length(), titleToFormat.length(), 0);
         mTitleFormatted = spannableString;

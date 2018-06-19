@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/wrapper_view"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="0dp"
     android:orientation="vertical"
     android:tag="without-divider">
 
@@ -16,9 +16,9 @@
         android:tag="sticky"
         android:text="Default section header" />
 
-    <include
+    <!-- include
         layout="@layout/adapter_public_room_sticky_header_subview"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content" / -->
 
 </LinearLayout>

@@ -4,7 +4,7 @@
     android:layout_height="match_parent">
 
     <!-- this section has no title in purpose -->
-    <im.vector.preference.RoomAvatarPreference
+    <fr.gouv.tchap.preference.TchapRoomAvatarPreference
         android:key="roomPhotoAvatar"
         android:title="@string/room_settings_room_photo" />
 
@@ -18,12 +18,6 @@
         android:key="roomTopicEditText"
         android:title="@string/room_settings_topic" />
 
-    <ListPreference
-        android:dialogTitle="@string/room_settings_tag_pref_dialog_title"
-        android:entries="@array/tag_entries"
-        android:entryValues="@array/tag_values"
-        android:key="roomTagList"
-        android:title="@string/room_settings_room_tag" />
 
     <!-- the notification rule selection -->
     <ListPreference
@@ -38,44 +32,14 @@
 
     <im.vector.preference.VectorDividerCategory />
 
-    <im.vector.preference.VectorPreferenceCategory
-        android:key="prefCatAccessVisibility"
-        android:title="@string/room_settings_category_access_visibility_title">
 
-        <!-- indicate if the room name should listed in the room directory list -->
-        <im.vector.preference.VectorSwitchPreference
-            android:key="roomNameListedInDirectorySwitch"
-            android:title="@string/room_settings_directory_visibility" />
-
-        <!-- for further use
-        <Preference
-            android:key="roomPrivacyInfo"
-            android:title="@string/settings_room_privacy_label" /> -->
-
-        <!-- room access rules (Who can access?) -->
-        <im.vector.preference.VectorListPreference
-            android:dialogTitle="@string/room_settings_room_access_rules_pref_dialog_title"
-            android:entries="@array/room_access_rules_entries"
-            android:entryValues="@array/room_access_rules_values"
-            android:key="roomAccessRulesList"
-            android:title="@string/room_settings_room_access_rules_pref_title" />
-
-        <!-- room read history (Who can read history?) -->
-        <ListPreference
-            android:dialogTitle="@string/room_settings_room_read_history_rules_pref_dialog_title"
-            android:entries="@array/room_read_history_rules_entries"
-            android:entryValues="@array/room_read_history_rules_values"
-            android:key="roomReadHistoryRulesList"
-            android:title="@string/room_settings_room_read_history_rules_pref_title" />
-    </im.vector.preference.VectorPreferenceCategory>
-
-    <im.vector.preference.VectorDividerCategory />
-
+    <!-- no addresses section in tchap at this step of the product
     <im.vector.preference.VectorPreferenceCategory
         android:key="addresses"
         android:title="@string/room_settings_addresses_pref_title">
 
     </im.vector.preference.VectorPreferenceCategory>
+    -->
 
     <!--im.vector.preference.VectorDividerCategory
         android:key="flair_divider"
@@ -96,6 +60,7 @@
 
     <im.vector.preference.VectorDividerCategory />
 
+    <!-- no addresses section in tchap at this step of the product
     <im.vector.preference.VectorPreferenceCategory
         android:key="advanced"
         android:title="@string/room_settings_category_advanced_title">
@@ -110,5 +75,6 @@
             android:title="@string/room_settings_never_send_to_unverified_devices_title" />
 
     </im.vector.preference.VectorPreferenceCategory>
+    -->
 
 </PreferenceScreen>

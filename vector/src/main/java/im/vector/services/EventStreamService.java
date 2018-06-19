@@ -248,6 +248,14 @@ public class EventStreamService extends Service {
             //Log.d(LOG_TAG, "onBingEvent : the event " + event);
             //Log.d(LOG_TAG, "onBingEvent : the bingRule " + bingRule);
 
+            if (event.isCallEvent()) {
+                MXSession session = Matrix.getMXSession(getApplicationContext(), event.getMatrixId());
+                if (null == session || !session.isVoipCallSupported()) {
+                    Log.d(LOG_TAG, "ignore call event : voip not allowed");
+                    return;
+                }
+            }
+
             Log.d(LOG_TAG, "prepareNotification : " + event.eventId + " in " + roomState.roomId);
             prepareNotification(event, bingRule);
         }

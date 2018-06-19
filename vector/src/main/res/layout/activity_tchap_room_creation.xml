@@ -51,7 +51,7 @@
                         android:textAllCaps="false"
                         android:textSize="12sp"
                         android:text="@string/tchap_room_creation_avatar"
-                        android:textColor="@color/vector_tchap_text_color_light"
+                        android:textColor="@color/tchap_text_color_light"
                         tools:text="Ajouter \n une photo"/>
                 </RelativeLayout>
 
@@ -113,7 +113,7 @@
                 android:text="@string/tchap_room_creation_public_private_info"
                 android:textSize="12sp"
                 android:textColor="@color/vector_tchap_text_color_light_grey"
-                tools:text="Un salon public peut être rejoint par n'importe quel membre de la communauté Tchap sous condition qu'il soit accepté."/>
+                tools:text="Un salon public peut être rejoint par n'importe quel membre de la communauté Tchap, il ne doit contenir aucune donnée sensible."/>
         </LinearLayout>
 
         <FrameLayout
