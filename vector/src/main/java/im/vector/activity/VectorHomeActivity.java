@@ -1855,7 +1855,10 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
 
         TextView userIdTextView = navigationView.findViewById(R.id.home_menu_main_matrix_id);
         if (null != userIdTextView && null != mSession) {
-            userIdTextView.setText(mSession.getMyUser().getlinkedEmails().get(0).address);
+            List<org.matrix.androidsdk.rest.model.pid.ThirdPartyIdentifier> emailslist = mSession.getMyUser().getlinkedEmails();
+            if (emailslist != null)
+                if (emailslist.size() != 0)
+                    userIdTextView.setText(emailslist.get(0).address);
         }
 
         ImageView mainAvatarView = navigationView.findViewById(R.id.home_menu_main_avatar);
