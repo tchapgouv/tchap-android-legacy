@@ -1855,6 +1855,9 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
 
         TextView userIdTextView = navigationView.findViewById(R.id.home_menu_main_matrix_id);
         if (null != userIdTextView && null != mSession) {
+            // Note the user's email is retrieved by a server request here
+            // It is not available when the device is offline
+            // TODO store this email locally with the user's credentials
             List<org.matrix.androidsdk.rest.model.pid.ThirdPartyIdentifier> emailslist = mSession.getMyUser().getlinkedEmails();
             if (emailslist != null)
                 if (emailslist.size() != 0)
