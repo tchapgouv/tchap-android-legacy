@@ -1317,7 +1317,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
             if (!TchapLoginActivity.isUserExternal(mSession)) {
                 CharSequence items[] = new CharSequence[]{getString(R.string.start_new_chat), getString(R.string.tchap_room_creation_title),getString(R.string.room_join_public_room_title)};
                 mFabDialog = new AlertDialog.Builder(this)
-                        .setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
+                        .setItems(items, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface d, int n) {
                                 d.cancel();
