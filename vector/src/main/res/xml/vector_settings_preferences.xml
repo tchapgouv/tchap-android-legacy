@@ -359,9 +359,9 @@
         <!--im.vector.preference.VectorSwitchPreference
             android:key="SETTINGS_USE_RAGE_SHAKE_KEY"
             android:title="@string/send_bug_report_rage_shake" />
-    </PreferenceCategory-->
+    </PreferenceCategory>
 
-    <im.vector.preference.VectorDividerCategory />
+    <im.vector.preference.VectorDividerCategory /-->
 
     <PreferenceCategory
         android:key="SETTINGS_OTHERS_PREFERENCE_KEY"
