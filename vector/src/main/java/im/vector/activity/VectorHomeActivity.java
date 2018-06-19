@@ -1749,10 +1749,10 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                         VectorHomeActivity.this.startActivity(settingsIntent);
                         break;
 
-                    case R.id.sliding_copyright_terms:
+                    /* case R.id.sliding_copyright_terms:
                         VectorUtils.displayAppCopyright();
                         break;
-
+                    */
                     case R.id.sliding_menu_app_tac:
                         VectorUtils.displayAppTac();
                         break;
