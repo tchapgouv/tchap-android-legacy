@@ -16,17 +16,17 @@
         </group>
 
         <group android:id="@+id/app_group">
-            <item
+            <!-- item
                 android:id="@+id/sliding_copyright_terms"
-                android:title="@string/room_sliding_menu_copyright" />
+                android:title="@string/room_sliding_menu_copyright" /-->
 
             <item
                 android:id="@+id/sliding_menu_app_tac"
                 android:title="@string/room_sliding_menu_term_and_conditions" />
 
-            <item
+            <!--item
                 android:id="@+id/sliding_menu_send_bug_report"
-                android:title="@string/send_bug_report" />
+                android:title="@string/send_bug_report" /-->
 
             <item
                 android:id="@+id/sliding_menu_sign_out"
