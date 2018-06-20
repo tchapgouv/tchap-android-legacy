@@ -1,5 +1,6 @@
 /*
  * Copyright 2017 Vector Creations Ltd
+ * Copyright 2018 New Vector Ltd
  * Copyright 2018 DINSIC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,16 +35,13 @@ import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.PopupMenu;
 
-import org.matrix.androidsdk.MXDataHandler;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomAccountData;
 import org.matrix.androidsdk.data.RoomState;
 import org.matrix.androidsdk.data.RoomSummary;
-import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.rest.model.RoomMember;
@@ -59,7 +57,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import im.vector.Matrix;
@@ -430,24 +427,35 @@ public class RoomUtils {
     }
 
     /**
-     * See {@link #displayPopupMenu(Context, MXSession, Room, View, boolean, boolean, MoreActionListener, HistoricalRoomActionListener)}
+     * See {@link #displayPopupMenu(Context, MXSession, Room, View, View, boolean, boolean, MoreActionListener, HistoricalRoomActionListener)}
      */
     public static void displayPopupMenu(final Context context, final MXSession session, final Room room,
                                         final View actionView, final boolean isFavorite, final boolean isLowPrior,
                                         @NonNull final MoreActionListener listener) {
         if (listener != null) {
-            displayPopupMenu(context, session, room, actionView, isFavorite, isLowPrior, listener, null);
+            displayPopupMenu(context, session, room, actionView, null, isFavorite, isLowPrior, listener, null);
+        }
+    }
+
+    /**
+     * See {@link #displayPopupMenu(Context, MXSession, Room, View, View, boolean, boolean, MoreActionListener, HistoricalRoomActionListener)}
+     */
+    public static void displayTchapPopupMenu(final Context context, final MXSession session, final Room room,
+                                        final View actionView, final View notificationMuteView, final boolean isFavorite, final boolean isLowPrior,
+                                        @NonNull final MoreActionListener listener) {
+        if (listener != null) {
+            displayPopupMenu(context, session, room, actionView, notificationMuteView, isFavorite, isLowPrior, listener, null);
         }
     }
 
 
     /**
-     * See {@link #displayPopupMenu(Context, MXSession, Room, View, boolean, boolean, MoreActionListener, HistoricalRoomActionListener)}
+     * See {@link #displayPopupMenu(Context, MXSession, Room, View, View, boolean, boolean, MoreActionListener, HistoricalRoomActionListener)}
      */
     public static void displayHistoricalRoomMenu(final Context context, final MXSession session, final Room room,
                                                  final View actionView, @NonNull final HistoricalRoomActionListener listener) {
         if (listener != null) {
-            displayPopupMenu(context, session, room, actionView, false, false, null, listener);
+            displayPopupMenu(context, session, room, actionView, null, false, false, null, listener);
         }
     }
 
@@ -464,7 +472,7 @@ public class RoomUtils {
      */
     @SuppressLint("NewApi")
     private static void displayPopupMenu(final Context context, final MXSession session, final Room room,
-                                         final View actionView, final boolean isFavorite, final boolean isLowPrior,
+                                         final View actionView, final View notificationMuteView, final boolean isFavorite, final boolean isLowPrior,
                                          final MoreActionListener moreActionListener, final HistoricalRoomActionListener historicalRoomActionListener) {
         // sanity check
         if (null == room) {
@@ -571,18 +579,30 @@ public class RoomUtils {
                             }
                             case R.id.ic_action_notifications_noisy:
                                 moreActionListener.onUpdateRoomNotificationsState(session, room.getRoomId(), BingRulesManager.RoomNotificationState.ALL_MESSAGES_NOISY);
+                                if (null != notificationMuteView) {
+                                    notificationMuteView.setVisibility(View.GONE);
+                                }
                                 break;
 
                             case R.id.ic_action_notifications_all_message:
                                 moreActionListener.onUpdateRoomNotificationsState(session, room.getRoomId(), BingRulesManager.RoomNotificationState.ALL_MESSAGES);
+                                if (null != notificationMuteView) {
+                                    notificationMuteView.setVisibility(View.GONE);
+                                }
                                 break;
 
                             case R.id.ic_action_notifications_mention_only:
                                 moreActionListener.onUpdateRoomNotificationsState(session, room.getRoomId(), BingRulesManager.RoomNotificationState.MENTIONS_ONLY);
+                                if (null != notificationMuteView) {
+                                    notificationMuteView.setVisibility(View.GONE);
+                                }
                                 break;
 
                             case R.id.ic_action_notifications_mute:
                                 moreActionListener.onUpdateRoomNotificationsState(session, room.getRoomId(), BingRulesManager.RoomNotificationState.MUTE);
+                                if (null != notificationMuteView) {
+                                    notificationMuteView.setVisibility(View.VISIBLE);
+                                }
                                 break;
 
                             case R.id.ic_action_select_remove: {

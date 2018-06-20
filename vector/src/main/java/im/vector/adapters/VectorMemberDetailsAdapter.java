@@ -1,6 +1,7 @@
 /*
  * Copyright 2016 OpenMarket Ltd
  * Copyright 2017 Vector Creations Ltd
+ * Copyright 2018 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +34,7 @@ import org.matrix.androidsdk.data.Room;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.gouv.tchap.util.HexagonMaskView;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.VectorMemberDetailsActivity;
@@ -98,12 +100,14 @@ public class VectorMemberDetailsAdapter extends BaseExpandableListAdapter {
      */
     private static class MemberDetailsViewHolder {
         final VectorCircularImageView mVectorCircularImageView;
+        final HexagonMaskView mHexagonImageView;
         final ImageView mActionImageView;
         final TextView mActionDescTextView;
         final View mRoomAvatarLayout;
 
         MemberDetailsViewHolder(View aParentView) {
             mActionImageView = aParentView.findViewById(R.id.adapter_member_details_icon);
+            mHexagonImageView = aParentView.findViewById(R.id.hexagon_mask_view);
             mActionDescTextView = aParentView.findViewById(R.id.adapter_member_details_action_text);
             mVectorCircularImageView = aParentView.findViewById(R.id.room_avatar_image_view);
             mRoomAvatarLayout = aParentView.findViewById(R.id.room_avatar_layout);
@@ -372,7 +376,9 @@ public class VectorMemberDetailsAdapter extends BaseExpandableListAdapter {
             // room avatar
             viewHolder.mActionImageView.setVisibility(View.GONE);
             viewHolder.mRoomAvatarLayout.setVisibility(View.VISIBLE);
-            VectorUtils.loadRoomAvatar(mContext, mSession, viewHolder.mVectorCircularImageView, currentItem.mRoom);
+            viewHolder.mHexagonImageView.setVisibility(View.VISIBLE);
+            viewHolder.mVectorCircularImageView.setVisibility(View.GONE);
+            VectorUtils.loadRoomAvatar(mContext, mSession, viewHolder.mHexagonImageView, currentItem.mRoom);
 
             // set the action associated to the item
             convertView.setOnClickListener(new View.OnClickListener() {

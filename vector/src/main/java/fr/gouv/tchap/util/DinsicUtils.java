@@ -58,7 +58,6 @@ import fr.gouv.tchap.activity.TchapLoginActivity;
 import im.vector.activity.RiotAppCompatActivity;
 import im.vector.activity.VectorHomeActivity;
 import im.vector.activity.VectorRoomActivity;
-import im.vector.activity.VectorRoomCreationActivity;
 import im.vector.adapters.ParticipantAdapterItem;
 import im.vector.contacts.Contact;
 import im.vector.contacts.ContactsManager;

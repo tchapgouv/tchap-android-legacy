@@ -1848,10 +1848,12 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
             infoMenuItem.setText(info);
         }
 
+        // Display name in the header of the burger menu
         TextView displayNameTextView = navigationView.findViewById(R.id.home_menu_main_displayname);
-
         if (null != displayNameTextView) {
-            displayNameTextView.setText(mSession.getMyUser().displayname);
+            String displayName = mSession.getMyUser().displayname;
+            String displayNameWithoutDomain = DinsicUtils.getNameFromDisplayName(displayName);
+            displayNameTextView.setText(displayNameWithoutDomain);
         }
 
         TextView userIdTextView = navigationView.findViewById(R.id.home_menu_main_matrix_id);

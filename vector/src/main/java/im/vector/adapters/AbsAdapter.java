@@ -1,5 +1,6 @@
 /*
  * Copyright 2017 Vector Creations Ltd
+ * Copyright 2018 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +19,7 @@ package im.vector.adapters;
 
 import android.content.Context;
 import android.support.annotation.IdRes;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 
@@ -58,6 +60,8 @@ public abstract class AbsAdapter extends AbsFilterableAdapter {
 
     protected static final int TYPE_GROUP_INVITATION = -5;
 
+    protected static final int TYPE_ROOM_DIRECT = -6;
+
     // Helper handling the sticky view for each section
     private StickySectionHelper mStickySectionHelper;
 
@@ -86,7 +90,6 @@ public abstract class AbsAdapter extends AbsFilterableAdapter {
         mInviteSection.setIsHiddenWhenEmpty(true);
         addSection(mInviteSection);
     }
-
 
     AbsAdapter(final Context context, final GroupInvitationListener invitationListener, final MoreGroupActionListener moreActionListener) {
         super(context, invitationListener, moreActionListener);
@@ -119,7 +122,7 @@ public abstract class AbsAdapter extends AbsFilterableAdapter {
             if (section.first == position) {
                 return section.second.getHeaderViewType();
             } else if (position <= section.first + section.second.getNbItems()) {
-                return section.second.getContentViewType();
+                return section.second.getContentViewType(position - section.first);
             }
         }
         return 0;
@@ -490,6 +493,7 @@ public abstract class AbsAdapter extends AbsFilterableAdapter {
 
     public interface MoreRoomActionListener {
         void onMoreActionClick(View itemView, Room room);
+        void onTchapMoreActionClick(View itemView, Room room, @Nullable View notificationMuteView);
     }
 
     public interface MoreGroupActionListener {
