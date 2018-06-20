@@ -28,6 +28,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.ContactsContract;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.widget.Toast;
@@ -41,9 +42,11 @@ import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.rest.model.RoomMember;
+import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.rest.model.pid.RoomThirdPartyInvite;
 import org.matrix.androidsdk.util.Log;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -480,30 +483,16 @@ public class DinsicUtils {
 
             // Tell if contact is tchap user
             if (MXSession.isUserId(selectedContact.mUserId)) { // || DinsicUtils.isFromFrenchGov(item.mContact.getEmails()))
-                // The contact is a Tchap user, try to open an existing direct chat
-                if (!DinsicUtils.openDirectChat(activity, selectedContact.mUserId, session, false)) {
-                    // If it's a Tchap user without a direct chat with him
-                    // Display a popup to confirm the creation of a new direct chat with him
-                    String msg = activity.getResources().getString(R.string.start_new_chat_prompt_msg, selectedContact.mDisplayName);
-                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
-                    alertDialogBuilder.setMessage(msg);
-
-                    // set dialog message
-                    alertDialogBuilder
-                            .setCancelable(false)
-                            .setPositiveButton(R.string.ok,
-                                    new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int id) {
-                                            DinsicUtils.openDirectChat(activity, selectedContact.mUserId, session, true);
-                                        }
-                                    })
-                            .setNegativeButton(R.string.cancel, null);
-
-                    // create alert dialog
-                    AlertDialog alertDialog = alertDialogBuilder.create();
-                    // show it
-                    alertDialog.show();
+                // The contact is a Tchap user, try to get the corresponding User instance.
+                User tchapUser = session.getDataHandler().getUser(selectedContact.mUserId);
+                // The return value is null is we don't already share a room with him.
+                if (null == tchapUser) {
+                    tchapUser = new User();
+                    tchapUser.user_id = selectedContact.mUserId;
+                    tchapUser.avatar_url = selectedContact.mAvatarUrl;
+                    tchapUser.displayname = selectedContact.mDisplayName;
                 }
+                startDirectChat(activity, session, tchapUser);
             } else {
                 // The contact isn't a Tchap user
                 String msg = activity.getResources().getString(R.string.room_invite_non_gov_people);
@@ -537,6 +526,26 @@ public class DinsicUtils {
             }
         } else { // tell the user that the email must be filled. Propose to fill it
             DinsicUtils.editContact(activity, activity, selectedContact);
+        }
+    }
+
+    /**
+     * Prepare a direct chat with a tchap user.
+     *
+     * @param activity      the current activity
+     * @param session       the current session
+     * @param selectedUser  the selected tchap user
+     */
+    public static void startDirectChat(final RiotAppCompatActivity activity, final MXSession session, User selectedUser) {
+        // Consider here that the provided id is a correct matrix identifier, we don't check again
+        // Try first to open an existing direct chat
+        if (!DinsicUtils.openDirectChat(activity, selectedUser.user_id, session, false)) {
+            // There is no direct chat with him yet
+            // Display a fake room, the actual room will be created on the first message
+            HashMap<String, Object> params = new HashMap<>();
+            params.put(VectorRoomActivity.EXTRA_MATRIX_ID, session.getMyUserId());
+            params.put(VectorRoomActivity.EXTRA_TCHAP_USER, selectedUser);
+            CommonActivityUtils.goToRoomPage(activity, session, params);
         }
     }
 

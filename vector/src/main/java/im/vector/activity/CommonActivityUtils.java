@@ -1267,6 +1267,8 @@ public class CommonActivityUtils {
                                                        intent.putExtra(key, (Boolean) value);
                                                    } else if (value instanceof Parcelable) {
                                                        intent.putExtra(key, (Parcelable) value);
+                                                   } else if (value instanceof Serializable) {
+                                                       intent.putExtra(key, (Serializable) value);
                                                    }
                                                }
 

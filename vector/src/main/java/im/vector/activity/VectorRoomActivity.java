@@ -65,6 +65,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.JsonParser;
 
@@ -112,6 +113,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import fr.gouv.tchap.activity.TchapDirectRoomDetailsActivity;
+import fr.gouv.tchap.activity.TchapLoginActivity;
 import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.Matrix;
 import im.vector.R;
@@ -123,10 +125,8 @@ import im.vector.fragments.VectorUnknownDevicesFragment;
 import im.vector.notifications.NotificationUtils;
 import im.vector.services.EventStreamService;
 import im.vector.util.CallsManager;
-import im.vector.util.MatrixURLSpan;
 import im.vector.util.PreferencesManager;
 import im.vector.util.ReadMarkerManager;
-import im.vector.util.RoomUtils;
 import im.vector.util.SlashComandsParser;
 import im.vector.util.ThemeUtils;
 import im.vector.util.VectorMarkdownParser;
@@ -149,6 +149,11 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
      **/
     public static final String EXTRA_MATRIX_ID = MXCActionBarActivity.EXTRA_MATRIX_ID;
     /**
+     * Tchap: Use VectorRoomActivity to set up a new direct chat
+     * the Tchap user id (string)
+     **/
+    public static final String EXTRA_TCHAP_USER = "EXTRA_TCHAP_USER";
+    /**
      * the room id (string)
      **/
     public static final String EXTRA_ROOM_ID = "EXTRA_ROOM_ID";
@@ -164,6 +169,10 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
      * the forwarded data (list of media uris)
      **/
     public static final String EXTRA_ROOM_INTENT = "EXTRA_ROOM_INTENT";
+    /**
+     * the forwarded text message (a string to send while opening the room)
+     **/
+    public static final String EXTRA_TEXT_MESSAGE = "EXTRA_TEXT_MESSAGE";
     /**
      * the room is opened in preview mode (string)
      **/
@@ -212,6 +221,8 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
     private MXSession mSession;
     private Room mRoom;
     private String mMyUserId;
+    private User mTchapUser;
+
     // the parameter is too big to be sent by the intent
     // so use a static variable to send it
     public static RoomPreviewData sRoomPreviewData = null;
@@ -552,8 +563,8 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
         }
 
         final Intent intent = getIntent();
-        if (!intent.hasExtra(EXTRA_ROOM_ID)) {
-            Log.e(LOG_TAG, "No room ID extra.");
+        if (!intent.hasExtra(EXTRA_ROOM_ID) && !intent.hasExtra(EXTRA_TCHAP_USER)) {
+            Log.e(LOG_TAG, "No room ID or User ID extra.");
             finish();
             return;
         }
@@ -567,6 +578,8 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
         }
 
         String roomId = intent.getStringExtra(EXTRA_ROOM_ID);
+
+        mTchapUser = (User)intent.getSerializableExtra(EXTRA_TCHAP_USER);
 
         // ensure that the preview mode is really expected
         if (!intent.hasExtra(EXTRA_ROOM_PREVIEW_ID)) {
@@ -638,6 +651,8 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             Log.d(LOG_TAG, "Displaying " + roomId + " in unread preview mode");
         } else if (!TextUtils.isEmpty(mEventId) || (null != sRoomPreviewData)) {
             Log.d(LOG_TAG, "Displaying " + roomId + " in preview mode");
+        } else if (null != mTchapUser) {
+            Log.d(LOG_TAG, "Displaying new direct chat for" + mTchapUser.user_id);
         } else {
             Log.d(LOG_TAG, "Displaying " + roomId);
         }
@@ -679,108 +694,17 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
         mSendImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                // In the case of a direct chat, we check if the other member has left the room.
-                String leftMemberId = null;
-                String leftMemberName = null;
-                if (mRoom.isDirect() && mRoom.getActiveMembers().size() == 1) {
-                    Collection<RoomMember> members = mRoom.getMembers();
-
-                    for (RoomMember member : members) {
-                        if (!member.getUserId().equals(mMyUserId)) {
-                            leftMemberId = member.getUserId();
-                            leftMemberName = member.getName();
-                            break;
+                if (!TextUtils.isEmpty(mEditText.getText())) {
+                    // Consider first the case where the current room is a direct chat left by the other member
+                    if (!sendMessageByInvitingLeftMemberInDirectChat(null)) {
+                        // Check now whether the current activity was started without a room but with a user id.
+                        if (!sendMessageByCreatingNewDirectChat(null)) {
+                            // Send the message as usually
+                            sendTextMessage();
                         }
                     }
-                }
-
-                if (!TextUtils.isEmpty(mEditText.getText())) {
-                    // If the other member has left the direct chat, we invite him again
-                    // and send the message on the invitation's onSuccess
-                    if (null != leftMemberId) {
-                        Log.d(LOG_TAG, "onSendClick: invite again " + leftMemberId);
-                        mRoom.invite(leftMemberId, new ApiCallback<Void>() {
-                            @Override
-                            public void onSuccess(Void info) {
-                                Log.d(LOG_TAG, "onSendClick: sendTextMessage");
-                                sendTextMessage();
-                            }
-
-                            @Override
-                            public void onNetworkError(Exception e) {
-                                Log.e(LOG_TAG, "onSendClick invite failed " + e.getMessage());
-                            }
-
-                            @Override
-                            public void onMatrixError(MatrixError e) {
-                                Log.e(LOG_TAG, "onSendClick invite failed " + e.getMessage());
-                            }
-
-                            @Override
-                            public void onUnexpectedError(Exception e) {
-                                Log.e(LOG_TAG, "onSendClick invite failed " + e.getMessage());
-                            }
-                        });
-                    } else {
-                        sendTextMessage();
-                    }
                 } else {
-                    // If the other member has left the direct chat, we prompt the user to invite him again
-                    // and select the file type on the invitation's onSuccess
-                    if (null != leftMemberId) {
-
-                        final AlertDialog.Builder builder = new AlertDialog.Builder(VectorRoomActivity.this);
-                        builder.setMessage(getString(R.string.room_left_member_invite_prompt_msg, leftMemberName));
-
-                        final String finalLeftMemberId = leftMemberId;
-                        Log.d(LOG_TAG, "onSendClick: prompt to invite again " + leftMemberId);
-
-                        // Click on the ok button allow to re-invite the member who left the direct chat
-                        // and on the invitation success, the processus of file selection continue
-                        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                Log.d(LOG_TAG, "onSendClick: invite");
-                                mRoom.invite(finalLeftMemberId, new ApiCallback<Void>() {
-                                    @Override
-                                    public void onSuccess(Void info) {
-                                        Log.d(LOG_TAG, "onSendClick: sendTextMessage");
-                                        selectFileToSend();
-                                    }
-
-                                    @Override
-                                    public void onNetworkError(Exception e) {
-                                        Log.e(LOG_TAG, "onSendClick invite failed " + e.getMessage());
-                                    }
-
-                                    @Override
-                                    public void onMatrixError(MatrixError e) {
-                                        Log.e(LOG_TAG, "onSendClick invite failed " + e.getMessage());
-
-                                    }
-
-                                    @Override
-                                    public void onUnexpectedError(Exception e) {
-                                        Log.e(LOG_TAG, "onSendClick invite failed " + e.getMessage());
-                                    }
-                                });
-                            }
-                        });
-
-                        // Click on the cancel button dismiss the popup and don't allow to select a file to send
-                        // The left member isn't re-invite
-                        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-
-                            }
-                        });
-
-                        builder.show();
-                    } else {
-                        selectFileToSend();
-                    }
+                    selectFileToSend();
                 }
             }
         });
@@ -799,8 +723,11 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                         handleTypingNotification(mEditText.getText().length() != 0);
                     }
 
-                    manageSendMoreButtons();
                     refreshCallButtons(true);
+                }
+
+                if (null != mRoom || null != mTchapUser) {
+                    manageSendMoreButtons();
                 }
             }
 
@@ -922,11 +849,13 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
 
         CommonActivityUtils.resumeEventStream(this);
 
-        mRoom = mSession.getDataHandler().getRoom(roomId, false);
+        if (null != roomId) {
+            mRoom = mSession.getDataHandler().getRoom(roomId, false);
+        }
 
         FragmentManager fm = getSupportFragmentManager();
         mVectorMessageListFragment = (VectorMessageListFragment) fm.findFragmentByTag(TAG_FRAGMENT_MATRIX_MESSAGE_LIST);
-        if (mVectorMessageListFragment == null) {
+        if (mVectorMessageListFragment == null && null != roomId) {
             Log.d(LOG_TAG, "Create VectorMessageListFragment");
 
             // this fragment displays messages and handles all message logic
@@ -940,7 +869,9 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             Log.d(LOG_TAG, "Reuse VectorMessageListFragment");
         }
 
-        mVectorRoomMediasSender = new VectorRoomMediasSender(this, mVectorMessageListFragment, Matrix.getInstance(this).getMediasCache());
+        if (null != mVectorMessageListFragment) {
+            mVectorRoomMediasSender = new VectorRoomMediasSender(this, mVectorMessageListFragment, Matrix.getInstance(this).getMediasCache());
+        }
 
         manageRoomPreview();
         addRoomHeaderClickListeners();
@@ -988,11 +919,26 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                             intent.removeExtra(EXTRA_ROOM_INTENT);
                             sendMediasIntent(mediaIntent);
                         }
-                    }, 1000);
+                    }, 500);
                 }
             } else {
                 intent.removeExtra(EXTRA_ROOM_INTENT);
                 Log.e(LOG_TAG, "## onCreate() : ignore EXTRA_ROOM_INTENT because savedInstanceState != null");
+            }
+        } else if (intent.hasExtra(EXTRA_TEXT_MESSAGE)) {
+            if (isFirstCreation()) {
+                final String textMessage = intent.getStringExtra(EXTRA_TEXT_MESSAGE);
+                mEditText.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        intent.removeExtra(EXTRA_TEXT_MESSAGE);
+                        mEditText.setText(textMessage);
+                        sendTextMessage();
+                    }
+                }, 500);
+            } else {
+                intent.removeExtra(EXTRA_TEXT_MESSAGE);
+                Log.e(LOG_TAG, "## onCreate() : ignore EXTRA_TEXT_MESSAGE because savedInstanceState != null");
             }
         }
 
@@ -1159,8 +1105,10 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
 
         refreshSelfAvatar();
 
-        // in case a "Send as" dialog was in progress when the activity was destroyed (life cycle)
-        mVectorRoomMediasSender.resumeResizeMediaAndSend();
+        if (null != mVectorRoomMediasSender) {
+            // in case a "Send as" dialog was in progress when the activity was destroyed (life cycle)
+            mVectorRoomMediasSender.resumeResizeMediaAndSend();
+        }
 
         // header visibility has launched
         enableActionBarHeader(intent.getBooleanExtra(EXTRA_EXPAND_ROOM_HEADER, false) ? SHOW_ACTION_BAR_HEADER : HIDE_ACTION_BAR_HEADER);
@@ -1188,7 +1136,10 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
     public void onSaveInstanceState(Bundle savedInstanceState) {
         // Always call the superclass so it can save the view hierarchy state
         super.onSaveInstanceState(savedInstanceState);
-        savedInstanceState.putInt(FIRST_VISIBLE_ROW, mVectorMessageListFragment.mMessageListView.getFirstVisiblePosition());
+
+        if (null != mVectorMessageListFragment) {
+            savedInstanceState.putInt(FIRST_VISIBLE_ROW, mVectorMessageListFragment.mMessageListView.getFirstVisiblePosition());
+        }
     }
 
     @Override
@@ -1291,6 +1242,12 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             mSyncInProgressView.setVisibility(VectorApp.isSessionSyncing(mSession) ? View.VISIBLE : View.GONE);
         } else {
             mSyncInProgressView.setVisibility(View.GONE);
+
+            if (null != mTchapUser) {
+                // consider an encrypted room by default
+                mEditText.setHint(mSession.isCryptoEnabled() ? R.string.room_message_placeholder_encrypted : R.string.room_message_placeholder_not_encrypted);
+                mE2eImageView.setImageResource(mSession.isCryptoEnabled() ? R.drawable.e2e_verified : R.drawable.e2e_unencrypted);
+            }
         }
 
         mSession.getDataHandler().addListener(mGlobalEventListener);
@@ -1334,19 +1291,21 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
 
         enableActionBarHeader(mIsHeaderViewDisplayed);
 
-        // refresh the UI : the timezone could have been updated
-        mVectorMessageListFragment.refresh();
+        if (null != mVectorMessageListFragment) {
+            // refresh the UI : the timezone could have been updated
+            mVectorMessageListFragment.refresh();
 
-        // the list automatically scrolls down when its top moves down
-        if (null != mVectorMessageListFragment.mMessageListView) {
-            mVectorMessageListFragment.mMessageListView.lockSelectionOnResize();
-        }
+            // the list automatically scrolls down when its top moves down
+            if (null != mVectorMessageListFragment.mMessageListView) {
+                mVectorMessageListFragment.mMessageListView.lockSelectionOnResize();
+            }
 
-        // the device has been rotated
-        // so try to keep the same top/left item;
-        if (mScrollToIndex > 0) {
-            mVectorMessageListFragment.scrollToIndexWhenLoaded(mScrollToIndex);
-            mScrollToIndex = -1;
+            // the device has been rotated
+            // so try to keep the same top/left item;
+            if (mScrollToIndex > 0) {
+                mVectorMessageListFragment.scrollToIndexWhenLoaded(mScrollToIndex);
+                mScrollToIndex = -1;
+            }
         }
 
         if (null != mCallId) {
@@ -1385,7 +1344,6 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
         // init the auto-completion list from the room members
         mEditText.initAutoCompletion(mSession, (null != mRoom) ? mRoom.getRoomId() : null);
 
-
         if (mReadMarkerManager != null) {
             mReadMarkerManager.onResume();
         }
@@ -1401,7 +1359,14 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             switch (requestCode) {
                 case REQUEST_FILES_REQUEST_CODE:
                 case TAKE_IMAGE_REQUEST_CODE:
-                    sendMediasIntent(data);
+                    // Consider first the case where the current room is a direct chat left by the other member
+                    if (!sendMessageByInvitingLeftMemberInDirectChat(data)) {
+                        // Check now whether the current activity was started without a room but with a user id.
+                        if (!sendMessageByCreatingNewDirectChat(data)) {
+                            // Send the media in the current room as usually
+                            sendMediasIntent(data);
+                        }
+                    }
                     break;
                 case RequestCodesKt.STICKER_PICKER_ACTIVITY_REQUEST_CODE:
                     sendSticker(data);
@@ -1699,11 +1664,12 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             mSearchInRoomMenuItem = menu.findItem(R.id.ic_action_search_in_room);
             mUseMatrixAppsMenuItem = null; //will be reconnected later menu.findItem(R.id.ic_action_matrix_apps);
 
-            RoomMember member = mRoom.getMember(mSession.getMyUserId());
-
-            // kicked / banned room
-            if ((null != member) && member.kickedOrBanned()) {
-                menu.findItem(R.id.ic_action_room_leave).setVisible(false);
+            if (null != mRoom) {
+                RoomMember member = mRoom.getMember(mSession.getMyUserId());
+                // kicked / banned room
+                if ((null != member) && member.kickedOrBanned()) {
+                    menu.findItem(R.id.ic_action_room_leave).setVisible(false);
+                }
             }
 
             // hide / show the unsent / resend all entries.
@@ -2201,6 +2167,140 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                 mRoom.getRoomId());
 
         mVectorMessageListFragment.sendStickerMessage(event);
+    }
+
+    /**
+     * Check whether the current room is a direct chat left by the other member.
+     * In this case, return the identifier of the left member.
+     *
+     * @return the left member id, if the current user is alone in a direct chat.
+     */
+    private @Nullable String leftMemberInDirectChat() {
+        // In the case of a direct chat, we check if the other member has left the room.
+        if (null != mRoom && mRoom.isDirect() && mRoom.getActiveMembers().size() == 1) {
+            Collection<RoomMember> members = mRoom.getMembers();
+
+            for (RoomMember member : members) {
+                if (!member.getUserId().equals(mMyUserId)) {
+                    return member.getUserId();
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Check whether the current room is a direct chat left by the other member.
+     * In this case, this method will handle the message by inviting again the left member
+     * before sending the message (text or media).
+     *
+     * @param mediaIntent selected media to send (if any). When this param is null, this method
+     *                    will send the current editText text.
+     * @return true when the message has been handled.
+     */
+    private boolean sendMessageByInvitingLeftMemberInDirectChat(final @Nullable Intent mediaIntent) {
+        // In the case of a direct chat, we check if the other member has left the room.
+        String leftMemberId = leftMemberInDirectChat();
+        if (null != leftMemberId) {
+            Log.d(LOG_TAG, "sendMessageByInvitingLeftMemberInDirectChat: invite again " + leftMemberId);
+            mRoom.invite(leftMemberId, new ApiCallback<Void>() {
+                @Override
+                public void onSuccess(Void info) {
+                    if (null != mediaIntent) {
+                        Log.d(LOG_TAG, "sendMediasIntentByInvitingLeftMemberInDirectChat: sendMediasIntent");
+                        sendMediasIntent(mediaIntent);
+                    } else {
+                        Log.d(LOG_TAG, "sendMessageByInvitingLeftMemberInDirectChat: sendTextMessage");
+                        sendTextMessage();
+                    }
+                }
+
+                @Override
+                public void onNetworkError(Exception e) {
+                    Log.e(LOG_TAG, "sendMessageByInvitingLeftMemberInDirectChat invite failed " + e.getMessage());
+                }
+
+                @Override
+                public void onMatrixError(MatrixError e) {
+                    Log.e(LOG_TAG, "sendMessageByInvitingLeftMemberInDirectChat invite failed " + e.getMessage());
+                }
+
+                @Override
+                public void onUnexpectedError(Exception e) {
+                    Log.e(LOG_TAG, "sendMessageByInvitingLeftMemberInDirectChat invite failed " + e.getMessage());
+                }
+            });
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Check whether the current activity was started without a room but with a user id.
+     * In this case, this method will handle the new message by creating a new direct chat with
+     * this user.
+     * A new activity will be started to open the resulting room and send the message (text or media)
+     *
+     * @param mediaIntent selected media to send (if any). When this param is null, this method
+     *                    will send the current editText text.
+     * @return true when the text message has been handled.
+     */
+    private boolean sendMessageByCreatingNewDirectChat(final @Nullable Intent mediaIntent) {
+        if (null != mTchapUser) {
+            // Here we create a new direct chat with the selected user, and post the message.
+            if (!TchapLoginActivity.isUserExternal(mSession)) {
+                showWaitingView();
+                mSession.createDirectMessageRoom(mTchapUser.user_id, new ApiCallback<String>() {
+                    @Override
+                    public void onSuccess(final String roomId) {
+                        hideWaitingView();
+
+                        HashMap<String, Object> params = new HashMap<>();
+                        params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
+                        params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
+                        if (null != mediaIntent) {
+                            params.put(VectorRoomActivity.EXTRA_ROOM_INTENT, mediaIntent);
+                        } else {
+                            params.put(VectorRoomActivity.EXTRA_TEXT_MESSAGE, mEditText.getText().toString());
+                        }
+
+                        Log.d(LOG_TAG, "## sendMessageByCreatingNewDirectChat: onSuccess - start goToRoomPage");
+                        CommonActivityUtils.goToRoomPage(VectorRoomActivity.this, mSession, params);
+                    }
+
+                    private void onError(final String message) {
+                        mEditText.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (null != message) {
+                                    Toast.makeText(VectorRoomActivity.this, message, Toast.LENGTH_LONG).show();
+                                }
+                                hideWaitingView();
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onNetworkError(Exception e) {
+                        onError(e.getLocalizedMessage());
+                    }
+
+                    @Override
+                    public void onMatrixError(final MatrixError e) {
+                        onError(e.getLocalizedMessage());
+                    }
+
+                    @Override
+                    public void onUnexpectedError(final Exception e) {
+                        onError(e.getLocalizedMessage());
+                    }
+                });
+            } else {
+                DinsicUtils.alertSimpleMsg(this, this.getString(R.string.room_creation_forbidden));
+            }
+            return true;
+        }
+        return  false;
     }
 
     //================================================================================
@@ -2931,7 +3031,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
      * Refresh the call buttons display.
      */
     private void refreshCallButtons(boolean refreshOngoingConferenceCallView) {
-        if ((null == sRoomPreviewData) && (null == mEventId) && canSendMessages()) {
+        if ((null == sRoomPreviewData) && (null == mEventId) && (null == mTchapUser) && canSendMessages()) {
             boolean isCallSupported = mRoom.canPerformCall() && mSession.isVoipCallSupported();
             IMXCall call = CallsManager.getSharedInstance().getActiveCall();
             Widget activeWidget = mVectorOngoingConferenceCallView.getActiveWidget();
@@ -3083,6 +3183,11 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                 roomName = " ";
             }
             VectorUtils.loadUserAvatar(this, sRoomPreviewData.getSession(), mActionBarHeaderRoomAvatar, sRoomPreviewData.getRoomAvatarUrl(), sRoomPreviewData.getRoomId(), roomName);
+        } else if (null != mTchapUser) {
+            mToolbar.findViewById(R.id.avatar_h_img).setVisibility(View.INVISIBLE);
+            mActionBarHeaderRoomAvatar = mToolbar.findViewById(R.id.avatar_img);
+            mToolbar.findViewById(R.id.avatar_img).setVisibility(View.VISIBLE);
+            VectorUtils.loadUserAvatar(this, mSession, mActionBarHeaderRoomAvatar, mTchapUser);
         }
     }
 
@@ -3122,10 +3227,12 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
         headerTextsContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if ((null != mRoom) && (mRoom.isDirect())) {
-                    launchDirectRoomDetails();
-                } else {
-                    launchRoomDetails(VectorRoomDetailsActivity.PEOPLE_TAB_INDEX);
+                if (null != mRoom) {
+                    if (mRoom.isDirect()) {
+                        launchDirectRoomDetails();
+                    } else {
+                        launchRoomDetails(VectorRoomDetailsActivity.PEOPLE_TAB_INDEX);
+                    }
                 }
             }
         });
@@ -3196,6 +3303,12 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             else {
                 titleToApply = sRoomPreviewData.getRoomName();
             }
+        } else if (null != mTchapUser) {
+            if (null != mTchapUser.displayname) {
+                titleToApply = DinsicUtils.getNameFromDisplayName(mTchapUser.displayname);
+            } else {
+                titleToApply = mTchapUser.user_id;
+            }
         }
 
         // set action bar title
@@ -3219,13 +3332,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
         updateRoomHeaderAvatar();
 
         // update the room name
-        if (null != mRoom) {
-            mActionBarHeaderRoomName.setText(VectorUtils.getRoomDisplayName(this, mSession, mRoom));
-        } else if (null != sRoomPreviewData) {
-            mActionBarHeaderRoomName.setText(sRoomPreviewData.getRoomName());
-        } else {
-            mActionBarHeaderRoomName.setText("");
-        }
+        setTitle();
 
         // update topic and members status
         updateRoomHeaderTopic();
@@ -3308,6 +3415,9 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             if (null != powerLevels) {
                 canSendMessage = powerLevels.maySendMessage(mMyUserId);
             }
+        } else if (null != mTchapUser) {
+            // Allow the user to send something to trigger the room creation
+            canSendMessage = true;
         }
 
         return canSendMessage;
@@ -3317,7 +3427,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
      * Check if the user can send a message in this room
      */
     private void checkSendEventStatus() {
-        if ((null != mRoom) && (null != mRoom.getLiveState())) {
+        if ((null != mRoom) && (null != mRoom.getLiveState()) || (null != mTchapUser)) {
             boolean canSendMessage = canSendMessages();
             mSendingMessagesLayout.setVisibility(canSendMessage ? View.VISIBLE : View.GONE);
             mCanNotPostTextView.setVisibility(!canSendMessage ? View.VISIBLE : View.GONE);

@@ -393,7 +393,14 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
                 break;
 
             case ITEM_ACTION_START_CHAT:
-                DinsicUtils.openDirectChat(this, mMemberId, mSession, true);
+                User tchapUser = mSession.getDataHandler().getUser(mMemberId);
+                // the returned value should not be null here because we share the current room
+                // sanity check
+                if (null == tchapUser) {
+                    tchapUser = new User();
+                    tchapUser.user_id = tchapUser.displayname = mMemberId;
+                }
+                DinsicUtils.startDirectChat(this, mSession, tchapUser);
                 break;
 
             case ITEM_ACTION_START_VIDEO_CALL:
