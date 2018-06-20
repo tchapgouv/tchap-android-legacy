@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <!-- View
+        android:id="@+id/ly_invite_contacts_to_tchap"
+        android:layout_below="@+id/tab_layout"
+        android:layout_width="match_parent"
+        android:layout_height="15dp"
+        android:layout_alignParentLeft="true"
+        android:background="?attr/room_header_divider_color" /-->        <!-- downloading progress bar -->
+
+    <RelativeLayout
+        android:id="@+id/ly_invite_contacts_to_tchap"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_marginLeft="24dp"
+        android:clickable="true"
+        >
+
+        <ImageView
+            android:id="@+id/icon_add_contacts_to_tchap"
+            android:layout_width="41dp"
+            android:layout_height="41dp"
+            android:layout_marginTop="10dp"
+            android:src="@drawable/tchap_ic_add_contact" />
+
+        <TextView
+            android:id="@+id/tv_invite_contacts_to_tchap"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="20dp"
+            android:layout_toRightOf="@+id/icon_add_contacts_to_tchap"
+            android:text="@string/tchap_invite_contacts_to_tchap"
+            android:textColor="@color/tchap_text_color_light"
+            android:textSize="16sp" />
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/encapsule"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ly_invite_contacts_to_tchap">
+
+        <include layout="@layout/fragment_people"
+            />    </RelativeLayout>
+
+
+
+
+</RelativeLayout>

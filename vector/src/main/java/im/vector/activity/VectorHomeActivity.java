@@ -225,8 +225,8 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     @BindView(R.id.search_view)
     SearchView mSearchView;
 
-    @BindView(R.id.ly_invite_contacts_to_tchap)
-    View mInviteContactLayout;
+//    @BindView(R.id.ly_invite_contacts_to_tchap)
+//    View mInviteContactLayout;
 
     private boolean mStorePermissionCheck = false;
 
@@ -945,7 +945,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 mCurrentFragmentTag = TAG_FRAGMENT_PEOPLE;
                 mSearchView.setQueryHint(getString(R.string.home_filter_placeholder_people));
 
-                if (mInviteContactLayout != null) {
+/*                if (mInviteContactLayout != null) {
                     mInviteContactLayout.setVisibility(View.VISIBLE);
                     mInviteContactLayout.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -961,7 +961,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                             }
                         }
                     });
-                }
+                }*/
                 break;
             case TAB_POSITION_CONVERSATION:
                 Log.d(LOG_TAG, "onNavigationItemSelected ROOMS");
@@ -971,10 +971,10 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 }
                 mCurrentFragmentTag = TAG_FRAGMENT_ROOMS;
                 mSearchView.setQueryHint(getString(R.string.home_filter_placeholder_rooms));
-                if (mInviteContactLayout != null) {
+ /*               if (mInviteContactLayout != null) {
                     mInviteContactLayout.setVisibility(View.GONE);
                 }
-                break;
+ */               break;
             /*case R.id.bottom_action_groups:
                 Log.d(LOG_TAG, "onNavigationItemSelected GROUPS");
                 fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_GROUPS);
@@ -1009,18 +1009,20 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                     myAnimEnter = R.anim.tchap_anim_slide_in_left;
                 }
                 FragmentTransaction myFt = mFragmentManager.beginTransaction();
+                String queryText = mSearchView.getQuery().toString();
                 if (isAnimated) {
                     myFt.setCustomAnimations(myAnimEnter, myAnimExit);
                 }
                 myFt.replace(R.id.fragment_container, fragment, mCurrentFragmentTag)
-                        .addToBackStack(mCurrentFragmentTag)
-                        .commit();
-                getSupportFragmentManager().executePendingTransactions();
-                String queryText = mSearchView.getQuery().toString();
+                        //.addToBackStack(mCurrentFragmentTag)
+                        .commitNow();
+                //getSupportFragmentManager().executePendingTransactions();
                 if (queryText.length() == 0) {
                     resetFilter();
                 } else {
-                    applyFilter(queryText);
+  //                  String myTag = TAG_FRAGMENT_PEOPLE;
+  //                  if (position == TAB_POSITION_CONVERSATION)  myTag = TAG_FRAGMENT_ROOMS;
+                    applyFilter(queryText );
                 }
             } catch (Exception e) {
                 Log.e(LOG_TAG, "## updateSelectedFragment() failed : " + e.getMessage());
@@ -1228,6 +1230,14 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
      */
     private void applyFilter(final String pattern) {
         Fragment fragment = getSelectedFragment();
+
+        if (fragment instanceof AbsHomeFragment) {
+            ((AbsHomeFragment) fragment).applyFilter(pattern.trim());
+        }
+
+        //TODO add listener to know when filtering is done and dismiss the keyboard
+    }
+    private void applyFilter(final String pattern, Fragment fragment) {
 
         if (fragment instanceof AbsHomeFragment) {
             ((AbsHomeFragment) fragment).applyFilter(pattern.trim());

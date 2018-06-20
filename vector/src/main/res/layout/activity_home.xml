@@ -89,7 +89,7 @@
             android:layout_below="@+id/tab_layout"
             tools:context="org.matrix.vector.activity.VectorHomeActivity">
 
-            <RelativeLayout
+            <!-- RelativeLayout
                 android:id="@+id/ly_invite_contacts_to_tchap"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
@@ -115,14 +115,13 @@
                     android:text="@string/tchap_invite_contacts_to_tchap"
                     android:textColor="@color/tchap_text_color_light"
                     android:textSize="16sp" />
-            </RelativeLayout>
+            </RelativeLayout -->
 
             <FrameLayout
                 android:id="@+id/fragment_container"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_below="@+id/ly_invite_contacts_to_tchap"
-                android:background="?attr/riot_primary_background_color" />
+                 android:background="?attr/riot_primary_background_color" />
 
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/floating_action_button"
