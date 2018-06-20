@@ -118,6 +118,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     private static final int MODE_ACCOUNT_CREATION_THREE_PID = 5;
     private static final int MODE_START = 6;
 
+    private static final int NO_PREFERRED_HOST=-1;
     // saved parameters index
 
     // login
@@ -2425,10 +2426,35 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         // Copy the list of the known ISes in order to run over the list until to get an answer.
         List<String> currentHosts = Arrays.asList(activity.getResources().getStringArray(R.array.identity_server_names));
         List<String> idServerUrls = new ArrayList<>();
-        for (String host : currentHosts) {
-            idServerUrls.add(activity.getString(R.string.server_url_prefix) + host);
+        String HSName = "";
+        MXSession mySession = null;
+        if (Matrix.getInstance(activity)!= null) {
+            mySession = Matrix.getInstance(activity).getDefaultSession();
+            if (mySession!= null) {
+              HomeServerConnectionConfig myConfig = mySession.getHomeServerConfig();
+              if (myConfig != null) {
+                  Uri myHost = myConfig.getHomeserverUri();
+                  if (myHost != null) {
+                      HSName = myHost.toString();
+                  }
+              }
+            }
         }
-        discoverTchapPlatform(emailAddress, idServerUrls, callback);
+
+
+        int preferredHost = NO_PREFERRED_HOST;
+        int cpt=0;
+        for (String host : currentHosts) {
+            String theHost = activity.getString(R.string.server_url_prefix) + host;
+            idServerUrls.add(theHost);
+            if (theHost.compareTo(HSName)==0) {
+                preferredHost = cpt;
+            }
+            cpt++;
+//                                mSession.getMyUserId().substring(mSession.getMyUserId().indexOf(":") + 1);
+        }
+
+        discoverTchapPlatform(emailAddress, idServerUrls, preferredHost, callback);
     }
 
     /**
@@ -2438,12 +2464,16 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
      * @param identityServerUrls the list of the available identity server urls
      * @param callback           the asynchronous callback
      */
-    private static void discoverTchapPlatform(final String emailAddress, final List<String> identityServerUrls, final ApiCallback<Platform> callback) {
+    private static void discoverTchapPlatform(final String emailAddress, final List<String> identityServerUrls, int preferredHost, final ApiCallback<Platform> callback) {
         if (identityServerUrls.isEmpty()) {
             callback.onMatrixError(new MatrixError(MatrixError.UNKNOWN, "No host"));
         }
 
-        int index = (new Random()).nextInt(identityServerUrls.size());
+        int index = preferredHost;
+        //if user is already connected, start with his HS
+        if (index == NO_PREFERRED_HOST) {
+            index = (new Random()).nextInt(identityServerUrls.size());
+        }
         String selectedUrl = identityServerUrls.get(index);
         identityServerUrls.remove(index);
 
@@ -2458,7 +2488,13 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             @Override
             public void onNetworkError(Exception e) {
                 Log.e(LOG_TAG, "## discoverTchapPlatform failed " + e.getMessage());
-                callback.onNetworkError(e);
+                if (identityServerUrls.isEmpty()) {
+                    // We checked all the known hosts, return the error
+                    callback.onNetworkError(e);
+                } else {
+                    // Try again
+                    discoverTchapPlatform(emailAddress, identityServerUrls, NO_PREFERRED_HOST, callback);
+                }
             }
 
             @Override
@@ -2469,7 +2505,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                     callback.onMatrixError(matrixError);
                 } else {
                     // Try again
-                    discoverTchapPlatform(emailAddress, identityServerUrls, callback);
+                    discoverTchapPlatform(emailAddress, identityServerUrls, NO_PREFERRED_HOST, callback);
                 }
             }
 
@@ -2481,7 +2517,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                     callback.onUnexpectedError(e);
                 } else {
                     // Try again
-                    discoverTchapPlatform(emailAddress, identityServerUrls, callback);
+                    discoverTchapPlatform(emailAddress, identityServerUrls, NO_PREFERRED_HOST, callback);
                 }
             }
         });
