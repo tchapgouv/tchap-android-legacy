@@ -445,12 +445,8 @@ public class DinsicUtils {
 
             // Tell if contact is tchap user
             if (MXSession.isUserId(selectedContact.mUserId)) { // || DinsicUtils.isFromFrenchGov(item.mContact.getEmails()))
-                // The contact is a Tchap user
+                // The contact is a Tchap user, try to open an existing direct chat
                 if (!DinsicUtils.openDirectChat(activity, selectedContact.mUserId, session, false)) {
-            //to be consciensously reviewed!
-            //        // If a direct chat already exist with him, open it
-            //        DinsicUtils.openDirectChat(activity, selectedContact.mUserId, session, true);
-            //    } else {
                     // If it's a Tchap user without a direct chat with him
                     // Display a popup to confirm the creation of a new direct chat with him
                     String msg = activity.getResources().getString(R.string.start_new_chat_prompt_msg, selectedContact.mDisplayName);
