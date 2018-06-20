@@ -68,6 +68,11 @@ public class FallbackLoginActivity extends VectorAppCompatActivity {
         mWebView = findViewById(R.id.account_creation_webview);
         mWebView.getSettings().setJavaScriptEnabled(true);
 
+        mWebView.getSettings().setAllowFileAccessFromFileURLs(false);
+        mWebView.getSettings().setAllowUniversalAccessFromFileURLs(false);
+        mWebView.getSettings().setAllowFileAccess(false);
+        mWebView.getSettings().setAllowContentAccess(false);
+
         Intent intent = getIntent();
         mHomeServerUrl = "https://matrix.org/";
 

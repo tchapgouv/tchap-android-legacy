@@ -97,6 +97,10 @@ public class AccountCreationCaptchaActivity extends VectorAppCompatActivity {
         final WebView webView = findViewById(R.id.account_creation_webview);
         webView.getSettings().setJavaScriptEnabled(true);
 
+        webView.getSettings().setAllowFileAccessFromFileURLs(false);
+        webView.getSettings().setAllowFileAccess(false);
+        webView.getSettings().setAllowContentAccess(false);
+
         final View loadingView = findViewById(R.id.account_creation_webview_loading);
         final Intent intent = getIntent();
 

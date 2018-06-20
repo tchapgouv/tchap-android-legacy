@@ -767,6 +767,11 @@ public class VectorUtils {
      */
     private static void displayInWebview(final Context context, String url) {
         WebView wv = new WebView(context);
+
+        wv.getSettings().setAllowFileAccessFromFileURLs(false);
+        wv.getSettings().setAllowFileAccess(false);
+        wv.getSettings().setAllowContentAccess(false);
+
         wv.loadUrl(url);
         wv.setWebViewClient(new WebViewClient() {
             @Override
