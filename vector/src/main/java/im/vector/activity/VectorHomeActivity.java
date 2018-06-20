@@ -945,7 +945,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 mCurrentFragmentTag = TAG_FRAGMENT_PEOPLE;
                 mSearchView.setQueryHint(getString(R.string.home_filter_placeholder_people));
 
-/*                if (mInviteContactLayout != null) {
+                /*if (mInviteContactLayout != null) {
                     mInviteContactLayout.setVisibility(View.VISIBLE);
                     mInviteContactLayout.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -971,10 +971,10 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 }
                 mCurrentFragmentTag = TAG_FRAGMENT_ROOMS;
                 mSearchView.setQueryHint(getString(R.string.home_filter_placeholder_rooms));
- /*               if (mInviteContactLayout != null) {
+               /* if (mInviteContactLayout != null) {
                     mInviteContactLayout.setVisibility(View.GONE);
-                }
- */               break;
+                }*/
+                break;
             /*case R.id.bottom_action_groups:
                 Log.d(LOG_TAG, "onNavigationItemSelected GROUPS");
                 fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_GROUPS);
@@ -1009,25 +1009,31 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                     myAnimEnter = R.anim.tchap_anim_slide_in_left;
                 }
                 FragmentTransaction myFt = mFragmentManager.beginTransaction();
-                String queryText = mSearchView.getQuery().toString();
                 if (isAnimated) {
                     myFt.setCustomAnimations(myAnimEnter, myAnimExit);
                 }
                 myFt.replace(R.id.fragment_container, fragment, mCurrentFragmentTag)
-                        //.addToBackStack(mCurrentFragmentTag)
-                        .commitNow();
-                //getSupportFragmentManager().executePendingTransactions();
+                        .addToBackStack(mCurrentFragmentTag)
+                        .commit();
+                getSupportFragmentManager().executePendingTransactions();
+                String queryText = mSearchView.getQuery().toString();
                 if (queryText.length() == 0) {
                     resetFilter();
                 } else {
-  //                  String myTag = TAG_FRAGMENT_PEOPLE;
-  //                  if (position == TAB_POSITION_CONVERSATION)  myTag = TAG_FRAGMENT_ROOMS;
-                    applyFilter(queryText );
+                    //move applyfilter from here to fragment.
+                    // Here it causes a crash, probably because the fragment is not completed.
+                    //It strange because commit is supposed to synchronyse the fragment completion
+                    // The best would have been to listen to fragment complete
+                    // applyFilter(queryText);
                 }
             } catch (Exception e) {
                 Log.e(LOG_TAG, "## updateSelectedFragment() failed : " + e.getMessage());
             }
         }
+    }
+
+    public String getSearchQuery(){
+        return  mSearchView.getQuery().toString();
     }
 
     /**
@@ -1230,14 +1236,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
      */
     private void applyFilter(final String pattern) {
         Fragment fragment = getSelectedFragment();
-
-        if (fragment instanceof AbsHomeFragment) {
-            ((AbsHomeFragment) fragment).applyFilter(pattern.trim());
-        }
-
-        //TODO add listener to know when filtering is done and dismiss the keyboard
-    }
-    private void applyFilter(final String pattern, Fragment fragment) {
 
         if (fragment instanceof AbsHomeFragment) {
             ((AbsHomeFragment) fragment).applyFilter(pattern.trim());
