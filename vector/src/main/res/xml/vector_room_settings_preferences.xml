@@ -30,7 +30,7 @@
         android:key="roomLeave"
         android:title="@string/leave" />
 
-    <im.vector.preference.VectorDividerCategory />
+    <!--im.vector.preference.VectorDividerCategory /-->
 
 
     <!-- no addresses section in tchap at this step of the product
@@ -58,7 +58,7 @@
         android:key="banned"
         android:title="@string/room_settings_banned_users_title"></im.vector.preference.VectorPreferenceCategory>
 
-    <im.vector.preference.VectorDividerCategory />
+    <!--im.vector.preference.VectorDividerCategory /-->
 
     <!-- no addresses section in tchap at this step of the product
     <im.vector.preference.VectorPreferenceCategory

@@ -93,11 +93,12 @@ public class PillView extends LinearLayout {
      * @return the url
      */
     private static String getLinkedUrl(String url) {
-        boolean isSupported = (null != url) && url.startsWith("https://matrix.to/#/");
+        // Tchap disable matrix.to for the moment
+        /*boolean isSupported = (null != url) && url.startsWith("https://matrix.to/#/");
 
         if (isSupported) {
             return url.substring("https://matrix.to/#/".length());
-        }
+        }*/
 
         return null;
     }

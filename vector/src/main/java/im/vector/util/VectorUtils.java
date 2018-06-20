@@ -100,7 +100,8 @@ public class VectorUtils {
      * @return the permalink
      */
     public static String getPermalink(String roomIdOrAlias, String eventId) {
-        if (TextUtils.isEmpty(roomIdOrAlias)) {
+        // Tchap disable matrix.to for the moment
+        /*if (TextUtils.isEmpty(roomIdOrAlias)) {
             return null;
         }
 
@@ -111,7 +112,8 @@ public class VectorUtils {
         }
 
         // the $ character is not as a part of an url so escape it.
-        return link.replace("$", "%24");
+        return link.replace("$", "%24");*/
+        return null;
     }
 
     //==============================================================================================================

@@ -3248,7 +3248,8 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             } else {
                 mActionBarHeaderRoomTopic.setVisibility(View.VISIBLE);
 
-                SpannableStringBuilder strBuilder = new SpannableStringBuilder(value);
+                // Tchap disable matrix.to for the moment
+                /*SpannableStringBuilder strBuilder = new SpannableStringBuilder(value);
                 MatrixURLSpan.refreshMatrixSpans(strBuilder, mVectorMessageListFragment);
                 mActionBarHeaderRoomTopic.setText(strBuilder);
 
@@ -3258,7 +3259,8 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                     for (URLSpan span : urls) {
                         makeLinkClickable(strBuilder, span, value);
                     }
-                }
+                }*/
+                mActionBarHeaderRoomTopic.setText(value);
             }
         }
     }
