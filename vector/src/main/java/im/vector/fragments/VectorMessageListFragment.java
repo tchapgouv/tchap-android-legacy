@@ -674,9 +674,9 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
                     startActivity(sendIntent);
                 }
             }
-        } else if (action == R.id.ic_action_vector_permalink) {
+        } /*else if (action == R.id.ic_action_vector_permalink) {
             VectorUtils.copyToClipboard(getActivity(), VectorUtils.getPermalink(event.roomId, event.eventId));
-        } else if (action == R.id.ic_action_vector_report) {
+        } */else if (action == R.id.ic_action_vector_report) {
             onMessageReport(event);
         } else if ((action == R.id.ic_action_view_source) || (action == R.id.ic_action_view_decrypted_source)) {
             getActivity().runOnUiThread(new Runnable() {
@@ -1188,38 +1188,42 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
 
     @Override
     public void onRoomAliasClick(String roomAlias) {
-        try {
+        // Tchap disable permalink for the moment
+        /*try {
             onURLClick(Uri.parse(VectorUtils.getPermalink(roomAlias, null)));
         } catch (Exception e) {
             Log.e(LOG_TAG, "onRoomAliasClick failed " + e.getLocalizedMessage());
-        }
+        }*/
     }
 
     @Override
     public void onRoomIdClick(String roomId) {
-        try {
+        // Tchap disable permalink for the moment
+        /*try {
             onURLClick(Uri.parse(VectorUtils.getPermalink(roomId, null)));
         } catch (Exception e) {
             Log.e(LOG_TAG, "onRoomIdClick failed " + e.getLocalizedMessage());
-        }
+        }*/
     }
 
     @Override
     public void onMessageIdClick(String messageId) {
-        try {
+        // Tchap disable permalink for the moment
+        /*try {
             onURLClick(Uri.parse(VectorUtils.getPermalink(mRoom.getRoomId(), messageId)));
         } catch (Exception e) {
             Log.e(LOG_TAG, "onRoomIdClick failed " + e.getLocalizedMessage());
-        }
+        }*/
     }
 
     @Override
     public void onGroupIdClick(String groupId) {
-        try {
+        // Tchap disable permalink for the moment
+        /*try {
             onURLClick(Uri.parse(VectorUtils.getPermalink(groupId, null)));
         } catch (Exception e) {
             Log.e(LOG_TAG, "onRoomIdClick failed " + e.getLocalizedMessage());
-        }
+        }*/
     }
 
     private int mInvalidIndexesCount = 0;

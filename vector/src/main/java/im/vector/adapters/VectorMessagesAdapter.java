@@ -2439,7 +2439,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
 
         menu.findItem(R.id.ic_action_view_source).setVisible(true);
         menu.findItem(R.id.ic_action_view_decrypted_source).setVisible(event.isEncrypted() && (null != event.getClearEvent()));
-        menu.findItem(R.id.ic_action_vector_permalink).setVisible(true);
+        menu.findItem(R.id.ic_action_vector_permalink).setVisible(false);// Tchap disable permalink
 
         if (!TextUtils.isEmpty(textMsg)) {
             menu.findItem(R.id.ic_action_vector_copy).setVisible(true);

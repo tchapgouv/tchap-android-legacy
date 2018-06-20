@@ -2023,10 +2023,10 @@ public class CommonActivityUtils {
             public void onSuccess(byte[] bytesArray) {
                 try {
                     ByteArrayInputStream stream = new ByteArrayInputStream(bytesArray);
-                    String url = session.getMediasCache().saveMedia(stream, "riot-" + System.currentTimeMillis() + ".txt", "text/plain");
+                    String url = session.getMediasCache().saveMedia(stream, "tchap-" + System.currentTimeMillis() + ".txt", "text/plain");
                     stream.close();
 
-                    CommonActivityUtils.saveMediaIntoDownloads(appContext, new File(Uri.parse(url).getPath()), "riot-keys.txt", "text/plain", new SimpleApiCallback<String>() {
+                    CommonActivityUtils.saveMediaIntoDownloads(appContext, new File(Uri.parse(url).getPath()), "tchap-keys.txt", "text/plain", new SimpleApiCallback<String>() {
                         @Override
                         public void onSuccess(String path) {
                             if (null != callback) {
