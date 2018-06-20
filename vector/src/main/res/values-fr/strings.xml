@@ -869,6 +869,7 @@ Appareils inconnus :</string>
     <string name="tchap_scan_media_unavailable">Analyse Indisponible</string>
     <string name="tchap_scan_media_in_progress">Analyse Antivirus</string>
     <string name="tchap_scan_media_untrusted_content">Fichier Bloqué</string>
+    <string name="tchap_scan_media_untrusted_content_message">Le document (%s) a été filtré par la politique de sécurité</string>
 
     // group details
     <string name="group_details_home">Accueil</string>

@@ -137,14 +137,14 @@ public class VectorSearchFilesListAdapter extends VectorMessagesAdapter {
 
         // thumbnail
         ImageView thumbnailView = convertView.findViewById(R.id.file_search_thumbnail);
-        thumbnailView.setImageResource(R.drawable.e2e_warning); // TODO set the right icon if any
+        thumbnailView.setImageResource(R.drawable.ic_notification_privacy_warning); // TODO set the right icon if any
 
         // Check whether the media is trusted
         if (null != url) {
             boolean isTrusted = false;
             MediaScan mediaScan;
             AntiVirusScanStatus antiVirusScanStatus = AntiVirusScanStatus.UNKNOWN;
-            int scanDrawable = R.drawable.e2e_warning;
+            int scanDrawable = R.drawable.ic_notification_privacy_warning;
 
             if (null != mMediaScanManager) {
                 if (null != encryptedFileInfo) {

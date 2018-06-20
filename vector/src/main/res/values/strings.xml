@@ -975,6 +975,7 @@
     <string name="tchap_scan_media_unavailable">Scan Unavailable</string>
     <string name="tchap_scan_media_in_progress">Antivirus Scanning</string>
     <string name="tchap_scan_media_untrusted_content">Infected File</string>
+    <string name="tchap_scan_media_untrusted_content_message">The file (%s) has been blocked</string>
     
     <!-- group details -->
     <string name="group_details_home">Home</string>

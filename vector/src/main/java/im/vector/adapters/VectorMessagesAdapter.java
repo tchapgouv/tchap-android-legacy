@@ -1795,7 +1795,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
 
             // Retrieve the current scan result
             AntiVirusScanStatus antiVirusScanStatus = AntiVirusScanStatus.UNKNOWN;
-            int scanDrawable = R.drawable.e2e_warning; // FIXME set the right icon here (not available yet)
+            int scanDrawable = R.drawable.ic_notification_privacy_warning; // FIXME set the right icon here (not available yet)
             int scanText = R.string.tchap_scan_media_unavailable;
             if (null != mMediaScanManager) {
                 if (event.isEncrypted()) {
@@ -1812,6 +1812,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                             case INFECTED:
                                 scanDrawable = R.drawable.tchap_danger;
                                 scanText = R.string.tchap_scan_media_untrusted_content;
+                                fileName = mContext.getResources().getString(R.string.tchap_scan_media_untrusted_content_message, fileName);
                                 breakLoop = true;
                                 break;
                         }
@@ -1834,6 +1835,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                             case INFECTED:
                                 scanDrawable = R.drawable.tchap_danger;
                                 scanText = R.string.tchap_scan_media_untrusted_content;
+                                fileName = mContext.getResources().getString(R.string.tchap_scan_media_untrusted_content_message, fileName);
                                 breakLoop = true;
                                 break;
                         }
