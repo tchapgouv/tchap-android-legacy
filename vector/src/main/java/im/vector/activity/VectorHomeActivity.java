@@ -1424,7 +1424,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     /**
      * Open the room creation with inviting people.
      */
-    private void createNewChat(VectorRoomInviteMembersActivity.ActionMode mode, VectorRoomInviteMembersActivity.ContactsFilter contactsFilter) {
+    public void createNewChat(VectorRoomInviteMembersActivity.ActionMode mode, VectorRoomInviteMembersActivity.ContactsFilter contactsFilter) {
         Intent intent = new Intent(VectorHomeActivity.this, VectorRoomInviteMembersActivity.class);
         intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
         intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_ACTION_ACTIVITY_MODE, mode);
