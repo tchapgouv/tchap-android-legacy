@@ -59,6 +59,7 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
     TextView vRoomName;
 
     @BindView(R.id.notification_mute_bell)
+    @Nullable
     ImageView vRoomNotificationMute;
 
     @BindView(R.id.room_member_domain)
@@ -248,10 +249,12 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
         }
 
         BingRulesManager.RoomNotificationState roomNotificationState = session.getDataHandler().getBingRulesManager().getRoomNotificationState(room.getRoomId());
-        if (null != vRoomNotificationMute && roomNotificationState.equals(BingRulesManager.RoomNotificationState.MUTE)) {
-            vRoomNotificationMute.setVisibility(View.VISIBLE);
-        } else {
-            vRoomNotificationMute.setVisibility(View.GONE);
+        if (null != vRoomNotificationMute) {
+            if (roomNotificationState.equals(BingRulesManager.RoomNotificationState.MUTE)) {
+                vRoomNotificationMute.setVisibility(View.VISIBLE);
+            } else {
+                vRoomNotificationMute.setVisibility(View.GONE);
+            }
         }
 
         if (null != room && null != vRoomPinFavorite) {

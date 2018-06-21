@@ -81,7 +81,7 @@
             android:layout_width="16dp"
             android:layout_height="16dp"
             android:layout_marginLeft="7dp"
-            android:layout_marginTop="6dp"
+            android:layout_marginTop="4dp"
             android:layout_toRightOf="@+id/room_name"
             android:src="@drawable/tchap_ic_notification_mute_bell"
             android:visibility="gone" />
