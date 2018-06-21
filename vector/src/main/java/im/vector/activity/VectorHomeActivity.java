@@ -225,9 +225,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     @BindView(R.id.search_view)
     SearchView mSearchView;
 
-    @BindView(R.id.ly_invite_contacts_to_tchap)
-    View mInviteContactLayout;
-
     private boolean mStorePermissionCheck = false;
 
     // a shared files intent is waiting the store init
@@ -944,24 +941,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 }
                 mCurrentFragmentTag = TAG_FRAGMENT_PEOPLE;
                 mSearchView.setQueryHint(getString(R.string.home_filter_placeholder_people));
-
-                if (mInviteContactLayout != null) {
-                    mInviteContactLayout.setVisibility(View.VISIBLE);
-                    mInviteContactLayout.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if (!TchapLoginActivity.isUserExternal(mSession)) {
-                                // We launch a VectorRoomInviteMembersActivity activity to invite
-                                // some non-tchap contacts by using their email
-                                createNewChat(VectorRoomInviteMembersActivity.ActionMode.SEND_INVITE, VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY);
-                            } else {
-                                // the invite button is temporarily blocked for external users to prevent them from
-                                // inviting people to Tchap
-                                DinsicUtils.alertSimpleMsg(VectorHomeActivity.this, getString(R.string.action_forbidden));
-                            }
-                        }
-                    });
-                }
                 break;
             case TAB_POSITION_CONVERSATION:
                 Log.d(LOG_TAG, "onNavigationItemSelected ROOMS");
@@ -971,9 +950,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 }
                 mCurrentFragmentTag = TAG_FRAGMENT_ROOMS;
                 mSearchView.setQueryHint(getString(R.string.home_filter_placeholder_rooms));
-                if (mInviteContactLayout != null) {
-                    mInviteContactLayout.setVisibility(View.GONE);
-                }
                 break;
             /*case R.id.bottom_action_groups:
                 Log.d(LOG_TAG, "onNavigationItemSelected GROUPS");
@@ -1020,12 +996,20 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 if (queryText.length() == 0) {
                     resetFilter();
                 } else {
-                    applyFilter(queryText);
+                    //move applyfilter from here to fragment.
+                    // Here it causes a crash, probably because the fragment is not completed.
+                    //It strange because commit is supposed to synchronyse the fragment completion
+                    // The best would have been to listen to fragment complete
+                    // applyFilter(queryText);
                 }
             } catch (Exception e) {
                 Log.e(LOG_TAG, "## updateSelectedFragment() failed : " + e.getMessage());
             }
         }
+    }
+
+    public String getSearchQuery(){
+        return  mSearchView.getQuery().toString();
     }
 
     /**
@@ -1416,7 +1400,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     /**
      * Open the room creation with inviting people.
      */
-    private void createNewChat(VectorRoomInviteMembersActivity.ActionMode mode, VectorRoomInviteMembersActivity.ContactsFilter contactsFilter) {
+    public void createNewChat(VectorRoomInviteMembersActivity.ActionMode mode, VectorRoomInviteMembersActivity.ContactsFilter contactsFilter) {
         Intent intent = new Intent(VectorHomeActivity.this, VectorRoomInviteMembersActivity.class);
         intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
         intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_ACTION_ACTIVITY_MODE, mode);
