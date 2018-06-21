@@ -792,9 +792,8 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
         if (null != inflatedView) {
             inflatedView.setBackgroundColor(Color.TRANSPARENT);
             inflatedView.setTag(viewType);
+            displayE2eIcon(inflatedView, position);
         }
-
-        displayE2eIcon(inflatedView, position);
 
         return inflatedView;
     }
@@ -1630,8 +1629,8 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
 
             if (null != imageTypeView) {
                 imageTypeView.setImageResource(Message.MSGTYPE_AUDIO.equals(fileMessage.msgtype) ? R.drawable.filetype_audio : R.drawable.filetype_attachment);
+                imageTypeView.setBackgroundColor(Color.TRANSPARENT);
             }
-            imageTypeView.setBackgroundColor(Color.TRANSPARENT);
 
             mMediasHelper.managePendingFileDownload(convertView, event, fileMessage, position);
             mMediasHelper.managePendingUpload(convertView, event, ROW_TYPE_FILE, fileMessage.url);
