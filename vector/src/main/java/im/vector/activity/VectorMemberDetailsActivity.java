@@ -398,7 +398,8 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
                 // sanity check
                 if (null == tchapUser) {
                     tchapUser = new User();
-                    tchapUser.user_id = tchapUser.displayname = mMemberId;
+                    tchapUser.user_id = mMemberId;
+                    tchapUser.displayname = mMemberId;
                 }
                 DinsicUtils.startDirectChat(this, mSession, tchapUser);
                 break;

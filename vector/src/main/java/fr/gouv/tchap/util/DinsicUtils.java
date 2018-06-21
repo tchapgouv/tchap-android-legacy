@@ -202,7 +202,7 @@ public class DinsicUtils {
                     .setPositiveButton(R.string.action_edit_contact_form,
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
-                                    DinsicUtils.editContactForm(theContext,activity,activity.getString(R.string.people_edit_contact_warning_msg),item.mContact);
+                                    editContactForm(theContext,activity,activity.getString(R.string.people_edit_contact_warning_msg),item.mContact);
                                 }
                             });
 
@@ -372,7 +372,7 @@ public class DinsicUtils {
                 activity.showWaitingView();
                 session.createDirectMessageRoom(participantId, prepareDirectChatCallBack);
             } else {
-                DinsicUtils.alertSimpleMsg(activity, activity.getString(R.string.room_creation_forbidden));
+                alertSimpleMsg(activity, activity.getString(R.string.room_creation_forbidden));
             }
         }
         return succeeded;
@@ -482,10 +482,10 @@ public class DinsicUtils {
         if (selectedContact.mIsValid) {
 
             // Tell if contact is tchap user
-            if (MXSession.isUserId(selectedContact.mUserId)) { // || DinsicUtils.isFromFrenchGov(item.mContact.getEmails()))
+            if (MXSession.isUserId(selectedContact.mUserId)) {
                 // The contact is a Tchap user, try to get the corresponding User instance.
                 User tchapUser = session.getDataHandler().getUser(selectedContact.mUserId);
-                // The return value is null is we don't already share a room with him.
+                // The return value is null if we don't already share a room with him.
                 if (null == tchapUser) {
                     tchapUser = new User();
                     tchapUser.user_id = selectedContact.mUserId;
@@ -496,12 +496,12 @@ public class DinsicUtils {
             } else {
                 // The contact isn't a Tchap user
                 String msg = activity.getResources().getString(R.string.room_invite_non_gov_people);
-                if (DinsicUtils.isFromFrenchGov(selectedContact.mContact.getEmails()))
+                if (isFromFrenchGov(selectedContact.mContact.getEmails()))
                     msg = activity.getResources().getString(R.string.room_invite_gov_people);
 
-                if (!DinsicUtils.openDirectChat(activity, selectedContact.mUserId, session, false)) {
+                if (!openDirectChat(activity, selectedContact.mUserId, session, false)) {
                     if (TchapLoginActivity.isUserExternal(session)) {
-                        DinsicUtils.alertSimpleMsg(activity, activity.getResources().getString(R.string.room_creation_forbidden));
+                        alertSimpleMsg(activity, activity.getResources().getString(R.string.room_creation_forbidden));
                     } else {
                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
                         alertDialogBuilder.setMessage(msg);
@@ -512,7 +512,7 @@ public class DinsicUtils {
                                 .setPositiveButton(R.string.ok,
                                         new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int id) {
-                                                DinsicUtils.openDirectChat(activity, selectedContact.mUserId, session, true);
+                                                openDirectChat(activity, selectedContact.mUserId, session, true);
                                             }
                                         })
                                 .setNegativeButton(R.string.cancel, null);
@@ -525,7 +525,7 @@ public class DinsicUtils {
                 }
             }
         } else { // tell the user that the email must be filled. Propose to fill it
-            DinsicUtils.editContact(activity, activity, selectedContact);
+            editContact(activity, activity, selectedContact);
         }
     }
 
@@ -539,7 +539,7 @@ public class DinsicUtils {
     public static void startDirectChat(final RiotAppCompatActivity activity, final MXSession session, User selectedUser) {
         // Consider here that the provided id is a correct matrix identifier, we don't check again
         // Try first to open an existing direct chat
-        if (!DinsicUtils.openDirectChat(activity, selectedUser.user_id, session, false)) {
+        if (!openDirectChat(activity, selectedUser.user_id, session, false)) {
             // There is no direct chat with him yet
             // Display a fake room, the actual room will be created on the first message
             HashMap<String, Object> params = new HashMap<>();
