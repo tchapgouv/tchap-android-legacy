@@ -100,7 +100,8 @@ public class VectorUtils {
      * @return the permalink
      */
     public static String getPermalink(String roomIdOrAlias, String eventId) {
-        if (TextUtils.isEmpty(roomIdOrAlias)) {
+        // Tchap disable matrix.to for the moment
+        /*if (TextUtils.isEmpty(roomIdOrAlias)) {
             return null;
         }
 
@@ -111,7 +112,8 @@ public class VectorUtils {
         }
 
         // the $ character is not as a part of an url so escape it.
-        return link.replace("$", "%24");
+        return link.replace("$", "%24");*/
+        return null;
     }
 
     //==============================================================================================================
@@ -789,7 +791,7 @@ public class VectorUtils {
      */
     public static void displayAppTac() {
         if (null != VectorApp.getCurrentActivity()) {
-            displayInWebview(VectorApp.getCurrentActivity(), "https://riot.im/tac");
+            displayInWebview(VectorApp.getCurrentActivity(), "https://www.tchap.gouv.fr/tac");
         }
     }
 
@@ -798,7 +800,7 @@ public class VectorUtils {
      */
     public static void displayAppCopyright() {
         if (null != VectorApp.getCurrentActivity()) {
-            displayInWebview(VectorApp.getCurrentActivity(), "https://riot.im/copyright");
+            displayInWebview(VectorApp.getCurrentActivity(), "https://www.tchap.gouv.fr/copyright");
         }
     }
 
@@ -807,7 +809,7 @@ public class VectorUtils {
      */
     public static void displayAppPrivacyPolicy() {
         if (null != VectorApp.getCurrentActivity()) {
-            displayInWebview(VectorApp.getCurrentActivity(), "https://riot.im/privacy");
+            displayInWebview(VectorApp.getCurrentActivity(), "https://www.tchap.gouv.fr/privacy");
         }
     }
 

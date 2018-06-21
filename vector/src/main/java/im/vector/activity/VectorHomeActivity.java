@@ -225,9 +225,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     @BindView(R.id.search_view)
     SearchView mSearchView;
 
-    @BindView(R.id.ly_invite_contacts_to_tchap)
-    View mInviteContactLayout;
-
     private boolean mStorePermissionCheck = false;
 
     // a shared files intent is waiting the store init
@@ -944,24 +941,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 }
                 mCurrentFragmentTag = TAG_FRAGMENT_PEOPLE;
                 mSearchView.setQueryHint(getString(R.string.home_filter_placeholder_people));
-
-                if (mInviteContactLayout != null) {
-                    mInviteContactLayout.setVisibility(View.VISIBLE);
-                    mInviteContactLayout.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if (!TchapLoginActivity.isUserExternal(mSession)) {
-                                // We launch a VectorRoomInviteMembersActivity activity to invite
-                                // some non-tchap contacts by using their email
-                                createNewChat(VectorRoomInviteMembersActivity.ActionMode.SEND_INVITE, VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY);
-                            } else {
-                                // the invite button is temporarily blocked for external users to prevent them from
-                                // inviting people to Tchap
-                                DinsicUtils.alertSimpleMsg(VectorHomeActivity.this, getString(R.string.action_forbidden));
-                            }
-                        }
-                    });
-                }
                 break;
             case TAB_POSITION_CONVERSATION:
                 Log.d(LOG_TAG, "onNavigationItemSelected ROOMS");
@@ -971,9 +950,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 }
                 mCurrentFragmentTag = TAG_FRAGMENT_ROOMS;
                 mSearchView.setQueryHint(getString(R.string.home_filter_placeholder_rooms));
-                if (mInviteContactLayout != null) {
-                    mInviteContactLayout.setVisibility(View.GONE);
-                }
                 break;
             /*case R.id.bottom_action_groups:
                 Log.d(LOG_TAG, "onNavigationItemSelected GROUPS");
@@ -1020,12 +996,20 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                 if (queryText.length() == 0) {
                     resetFilter();
                 } else {
-                    applyFilter(queryText);
+                    //move applyfilter from here to fragment.
+                    // Here it causes a crash, probably because the fragment is not completed.
+                    //It strange because commit is supposed to synchronyse the fragment completion
+                    // The best would have been to listen to fragment complete
+                    // applyFilter(queryText);
                 }
             } catch (Exception e) {
                 Log.e(LOG_TAG, "## updateSelectedFragment() failed : " + e.getMessage());
             }
         }
+    }
+
+    public String getSearchQuery(){
+        return  mSearchView.getQuery().toString();
     }
 
     /**
@@ -1317,7 +1301,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
             if (!TchapLoginActivity.isUserExternal(mSession)) {
                 CharSequence items[] = new CharSequence[]{getString(R.string.start_new_chat), getString(R.string.tchap_room_creation_title),getString(R.string.room_join_public_room_title)};
                 mFabDialog = new AlertDialog.Builder(this)
-                        .setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
+                        .setItems(items, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface d, int n) {
                                 d.cancel();
@@ -1416,7 +1400,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     /**
      * Open the room creation with inviting people.
      */
-    private void createNewChat(VectorRoomInviteMembersActivity.ActionMode mode, VectorRoomInviteMembersActivity.ContactsFilter contactsFilter) {
+    public void createNewChat(VectorRoomInviteMembersActivity.ActionMode mode, VectorRoomInviteMembersActivity.ContactsFilter contactsFilter) {
         Intent intent = new Intent(VectorHomeActivity.this, VectorRoomInviteMembersActivity.class);
         intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
         intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_ACTION_ACTIVITY_MODE, mode);
@@ -1734,8 +1718,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
             public void onDrawerClosed(View view) {
                 switch (VectorHomeActivity.this.mSlidingMenuIndex) {
                     case R.id.sliding_menu_contacts:
-                        setSelectedTabStyle();
-                        updateSelectedFragment(mTopNavigationView.getTabAt(TAB_POSITION_CONTACT), true);
+                        mTopNavigationView.getTabAt(TAB_POSITION_CONTACT).select();
                         break;
 
                     case R.id.sliding_menu_public_rooms:
@@ -1750,18 +1733,18 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                         VectorHomeActivity.this.startActivity(settingsIntent);
                         break;
 
-                    case R.id.sliding_copyright_terms:
+                    /* case R.id.sliding_copyright_terms:
                         VectorUtils.displayAppCopyright();
                         break;
-
+                    */
                     case R.id.sliding_menu_app_tac:
                         VectorUtils.displayAppTac();
                         break;
 
-                    case R.id.sliding_menu_send_bug_report:
+                    /* not for the first step on tchap case R.id.sliding_menu_send_bug_report:
                         BugReporter.sendBugReport();
                         break;
-
+                    */
                     case R.id.sliding_menu_sign_out:
                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(VectorHomeActivity.this);
                         alertDialogBuilder.setMessage(getString(R.string.action_sign_out_confirmation));
@@ -1851,12 +1834,18 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         TextView displayNameTextView = navigationView.findViewById(R.id.home_menu_main_displayname);
 
         if (null != displayNameTextView) {
-            displayNameTextView.setText(mSession.getMyUser().displayname);
+            displayNameTextView.setText(DinsicUtils.getNameFromDisplayName(mSession.getMyUser().displayname));
         }
 
         TextView userIdTextView = navigationView.findViewById(R.id.home_menu_main_matrix_id);
         if (null != userIdTextView && null != mSession) {
-            userIdTextView.setText(mSession.getMyUser().getlinkedEmails().get(0).address);
+            // Note the user's email is retrieved by a server request here
+            // It is not available when the device is offline
+            // TODO store this email locally with the user's credentials
+            List<org.matrix.androidsdk.rest.model.pid.ThirdPartyIdentifier> emailslist = mSession.getMyUser().getlinkedEmails();
+            if (emailslist != null)
+                if (emailslist.size() != 0)
+                    userIdTextView.setText(emailslist.get(0).address);
         }
 
         ImageView mainAvatarView = navigationView.findViewById(R.id.home_menu_main_avatar);

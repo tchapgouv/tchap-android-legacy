@@ -435,7 +435,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         hideWaitingView();
 
         new AlertDialog.Builder(TchapRoomCreationActivity.this)
-                .setMessage(R.string.settings_error_message_saving_avatar_on_server)
+                .setMessage(R.string.tchap_room_creation_save_avatar_failed)
                 .setPositiveButton(R.string.resend, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

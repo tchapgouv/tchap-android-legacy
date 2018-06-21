@@ -65,6 +65,8 @@ import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.util.VectorUtils;
 import im.vector.view.EmptyViewItemDecoration;
 import im.vector.view.SimpleDividerItemDecoration;
+import im.vector.activity.VectorRoomInviteMembersActivity;
+
 
 public class TchapContactFragment extends AbsHomeFragment implements ContactsManager.ContactsManagerListener, AbsHomeFragment.OnRoomChangedListener {
     private static final String LOG_TAG = TchapContactFragment.class.getSimpleName();
@@ -76,6 +78,9 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
 
     @BindView(R.id.listView_spinner_views)
     View waitingView;
+
+    @BindView(R.id.ly_invite_contacts_to_tchap)
+    View mInviteContactLayout;
 
     private TchapContactAdapter mAdapter;
 
@@ -106,7 +111,7 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
 
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_people, container, false);
+        return inflater.inflate(R.layout.fragment_people_and_invite, container, false);
     }
 
     @Override
@@ -128,7 +133,25 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
 
         mOnRoomChangedListener = this;
 
+        // Initialize the filter inputs
+        mCurrentFilter = mActivity.getSearchQuery();
         mAdapter.onFilterDone(mCurrentFilter);
+
+        mInviteContactLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!TchapLoginActivity.isUserExternal(mSession)) {
+                    // We launch a VectorRoomInviteMembersActivity activity to invite
+                    // some non-tchap contacts by using their email
+                    mActivity.createNewChat(VectorRoomInviteMembersActivity.ActionMode.SEND_INVITE, VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY);
+                } else {
+                    // the invite button is temporarily blocked for external users to prevent them from
+                    // inviting people to Tchap
+                    DinsicUtils.alertSimpleMsg(mActivity, getString(R.string.action_forbidden));
+                }
+            }
+        });
+
 
         if (!ContactsManager.getInstance().isContactBookAccessRequested()) {
             CommonActivityUtils.checkPermissions(CommonActivityUtils.REQUEST_CODE_PERMISSION_MEMBERS_SEARCH, this);

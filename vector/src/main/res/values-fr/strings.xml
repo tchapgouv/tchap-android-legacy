@@ -733,7 +733,6 @@ Appareils inconnus :</string>
     <string name="settings_12_24_timestamps">Afficher l\'horodatage au format 12 heures (par ex. 2:30pm)</string>
     <string name="settings_hide_join_leave_messages">Masquer les messages d\'arrivée/départ (les invitations/exclusions/bannissements ne sont pas concernés)</string>
     <string name="settings_hide_avatar_display_name_changes_messages">Masquer les changements d\'avatar et de nom</string>
-    <string name="settings_error_message_saving_avatar_on_server">La sauvegarde de la photo du salon a échoué. \n Que souhaitez-vous faire ?</string>
 
     <string name="widget_no_power_to_manage">Vous avez besoin d\'une permission pour gérer les widgets de cette discussion</string>
     <string name="widget_creation_failure">La création du widget a échoué</string>
@@ -844,6 +843,7 @@ Appareils inconnus :</string>
     <string name="tchap_room_creation_public_private_info">Un salon public peut être rejoint par n\'importe quel membre de la communauté Tchap, il ne doit contenir aucune donnée sensible.</string>
     <string name="tchap_room_invite_member_title">Ajouter au salon</string>
     <string name="tchap_room_invite_member_action">Ajouter</string>
+    <string name="tchap_room_creation_save_avatar_failed">La sauvegarde de la photo du salon a échoué. \n Que souhaitez-vous faire ?</string>
 
     // tchap new strings
     <string name="tchap_invite_contacts_to_tchap">Inviter des contacts dans Tchap</string>
