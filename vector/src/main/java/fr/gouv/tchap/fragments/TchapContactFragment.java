@@ -133,9 +133,8 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
 
         mOnRoomChangedListener = this;
 
-        String queryText = mActivity.getSearchQuery();
-        mCurrentFilter = queryText;
-        applyFilter(mCurrentFilter);
+        // Initialize the filter inputs
+        mCurrentFilter = mActivity.getSearchQuery();
         mAdapter.onFilterDone(mCurrentFilter);
 
         mInviteContactLayout.setOnClickListener(new View.OnClickListener() {

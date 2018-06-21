@@ -3,21 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <!-- View
-        android:id="@+id/ly_invite_contacts_to_tchap"
-        android:layout_below="@+id/tab_layout"
-        android:layout_width="match_parent"
-        android:layout_height="15dp"
-        android:layout_alignParentLeft="true"
-        android:background="?attr/room_header_divider_color" /-->        <!-- downloading progress bar -->
 
     <RelativeLayout
         android:id="@+id/ly_invite_contacts_to_tchap"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:layout_marginLeft="24dp"
-        android:clickable="true"
-        >
+        android:clickable="true">
 
         <ImageView
             android:id="@+id/icon_add_contacts_to_tchap"
@@ -43,8 +35,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/ly_invite_contacts_to_tchap">
 
-        <include layout="@layout/fragment_people"
-            />    </RelativeLayout>
+        <include layout="@layout/fragment_people"/>
+    </RelativeLayout>
 
 
 

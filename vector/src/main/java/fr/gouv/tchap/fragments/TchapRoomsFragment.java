@@ -89,9 +89,9 @@ public class TchapRoomsFragment extends AbsHomeFragment implements AbsHomeFragme
         initViews();
 
         mOnRoomChangedListener = this;
-        String queryText = mActivity.getSearchQuery();
-        mCurrentFilter = queryText;
-        applyFilter(mCurrentFilter);
+
+        // Initialize the filter inputs
+        mCurrentFilter = mActivity.getSearchQuery();
         mAdapter.onFilterDone(mCurrentFilter);
     }
 
