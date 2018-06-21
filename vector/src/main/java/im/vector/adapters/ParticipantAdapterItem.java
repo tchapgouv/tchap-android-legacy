@@ -109,6 +109,7 @@ public class ParticipantAdapterItem implements java.io.Serializable {
         }
 
         mUserId = null;
+        mAvatarUrl = contact.getThumbnailUri();
         mRoomMember = null;
         mContact = contact;
         initSearchByPatternFields();
