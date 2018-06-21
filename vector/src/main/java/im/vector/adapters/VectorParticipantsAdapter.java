@@ -54,6 +54,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import fr.gouv.tchap.fragments.TchapContactFragment;
 import im.vector.Matrix;
 import im.vector.R;
 import im.vector.VectorApp;
@@ -235,12 +236,24 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
     private void addContacts(List<ParticipantAdapterItem> list) {
         Collection<Contact> contacts = ContactsManager.getInstance().getLocalContactsSnapshot();
 
+        if (mContactsFilter == VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY_ENLARGED) {
+            //add participants from direct chats
+            List<ParticipantAdapterItem> myDirectContacts = DinsicUtils.getContactsFromDirectChats(mSession);
+            for (ParticipantAdapterItem myContact : myDirectContacts) {
+                if (!DinsicUtils.participantAlreadyAdded(list, myContact))
+                    list.add(myContact);
+            }
+        }
+
+
         if (null != contacts) {
             for (Contact contact : contacts) {
                 // Show contacts without emails only in two cases :
                 // 1) when all contacts are displaying
                 // 2) when no tchap users are displaying
-                if (contact.getEmails().isEmpty() && mContactsFilter != VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY) {
+                if (contact.getEmails().isEmpty() &&
+                        mContactsFilter != VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY &&
+                        mContactsFilter != VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY_ENLARGED) {
                     Contact dummyContact = new Contact(contact.getContactId());
                     dummyContact.setDisplayName(contact.getDisplayName());
                     dummyContact.addEmailAdress(mContext.getString(R.string.no_email));
@@ -262,6 +275,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                             // Consider the contact filter here
                             switch (mContactsFilter) {
                                 case TCHAP_ONLY:
+                                case TCHAP_ONLY_ENLARGED:
                                     if (null == mxid) {
                                         // we ignore this email and go to the next one if any
                                         continue;
@@ -997,6 +1011,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
         // retrieve the ui items
         final ImageView thumbView = convertView.findViewById(R.id.filtered_list_avatar);
         final TextView nameTextView = convertView.findViewById(R.id.filtered_list_name);
+        final TextView domainNameTextView = convertView.findViewById(R.id.filtered_list_domain);
         final TextView statusTextView = convertView.findViewById(R.id.filtered_list_email);
 
         // Contacts not in priority are seen different
@@ -1021,7 +1036,8 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
         participant.displayAvatar(mSession, thumbView);
 
         synchronized (LOG_TAG) {
-            nameTextView.setText(participant.getUniqueDisplayName(mDisplayNamesList));
+            nameTextView.setText(DinsicUtils.getNameFromDisplayName(participant.getUniqueDisplayName(mDisplayNamesList)));
+            domainNameTextView.setText(DinsicUtils.getDomainFromDisplayName(participant.getUniqueDisplayName(mDisplayNamesList)));
         }
 
         // set the presence
@@ -1049,14 +1065,16 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                 });
             }
         }
-
+        statusTextView.setText("");
         // the contact defines a matrix user but there is no way to get more information (presence, avatar)
         if (participant.mContact != null) {
 
             if (participant.mContact.getEmails().size() > 0) {
                 statusTextView.setText(participant.mContact.getEmails().get(0));
             } else {
-                statusTextView.setText(participant.mContact.getPhonenumbers().get(0).mRawPhoneNumber);
+                if (participant.mContact.getPhonenumbers().size() > 0) {
+                    statusTextView.setText(participant.mContact.getPhonenumbers().get(0).mRawPhoneNumber);
+                }
             }
         } else {
             statusTextView.setText(status);
