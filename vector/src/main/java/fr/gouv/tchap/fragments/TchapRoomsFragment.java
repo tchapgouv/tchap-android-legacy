@@ -25,7 +25,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Filter;
 
 import org.matrix.androidsdk.data.Room;
@@ -43,7 +42,6 @@ import java.util.List;
 import butterknife.BindView;
 import im.vector.R;
 import im.vector.fragments.AbsHomeFragment;
-import im.vector.util.RoomDirectoryData;
 import im.vector.view.EmptyViewItemDecoration;
 import im.vector.view.SimpleDividerItemDecoration;
 import fr.gouv.tchap.adapters.TchapRoomAdapter;

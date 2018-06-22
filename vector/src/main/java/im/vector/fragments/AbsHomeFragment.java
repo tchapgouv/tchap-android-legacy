@@ -22,7 +22,6 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.MenuItem;
@@ -43,8 +42,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import butterknife.ButterKnife;
-import butterknife.Unbinder;
 import im.vector.Matrix;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
@@ -178,7 +175,16 @@ public abstract class AbsHomeFragment extends VectorBaseFragment implements AbsA
     }
 
     @Override
-    public void onUpdateRoomNotificationsState(MXSession session, String roomId, BingRulesManager.RoomNotificationState state) {
+    public void onTchapMoreActionClick(View itemView, Room room, View notificationMuteView) {
+        // User clicked on the "more actions" area
+        final Set<String> tags = room.getAccountData().getKeys();
+        final boolean isFavorite = tags != null && tags.contains(RoomTag.ROOM_TAG_FAVOURITE);
+        final boolean isLowPriority = tags != null && tags.contains(RoomTag.ROOM_TAG_LOW_PRIORITY);
+        RoomUtils.displayTchapPopupMenu(mActivity, mSession, room, itemView, notificationMuteView, isFavorite, isLowPriority, this);
+    }
+
+    @Override
+    public void onUpdateRoomNotificationsState(final MXSession session, final String roomId, final BingRulesManager.RoomNotificationState state) {
         mActivity.showWaitingView();
         session.getDataHandler().getBingRulesManager().updateRoomNotificationState(roomId, state, new BingRulesManager.onBingRuleUpdateListener() {
             @Override

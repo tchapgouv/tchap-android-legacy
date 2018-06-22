@@ -35,7 +35,7 @@
             android:layout_width="15dp"
             android:layout_height="15dp"
             android:layout_alignBottom="@+id/room_avatar"
-            android:layout_alignRight="@+id/room_avatar_direct_chat_icon"
+            android:layout_toRightOf="@+id/room_avatar_direct_chat_icon"
             android:src="@drawable/e2e_verified"
             android:tint="?attr/default_icon_tint_color"
             android:visibility="invisible"
