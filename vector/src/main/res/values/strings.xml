@@ -991,6 +991,8 @@
     <string name="tchap_register_wait_for_email_subtitle">Please open it and click in the link it contains to finalize the verification</string>
     <string name="tchap_register_wait_for_email_no_email">I have not received any e-mail!</string>
 
+    <string name="tchap_dialog_user_consent_homeserver_name">Tchap</string>
+
     <string name="rooms">Rooms</string>
     <string name="joined">Joined</string>
     <string name="invited">Invited</string>

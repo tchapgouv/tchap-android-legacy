@@ -541,10 +541,10 @@ Veuillez autoriser l\'accès dans la prochaine fenêtre contextuelle pour pouvoi
     <string name="permissions_rationale_msg_camera_and_audio">Tchap a besoin d\'accéder à votre appareil photo et à votre microphone pour passer des appels vidéo.
 
 Veuillez autoriser l\'accès dans les prochaines fenêtres contextuelles pour pouvoir effectuer l\'appel.</string>
-    <string name="permissions_rationale_msg_contacts">Tchap a besoin d\'accéder aux contacts de votre carnet d\'adresses pour trouver d\'autres utilisateurs de Matrix avec leur numéro de téléphone et leur adresse e-mail.
+    <string name="permissions_rationale_msg_contacts">Tchap a besoin d\'accéder aux contacts de votre carnet d\'adresses pour trouver d\'autres utilisateurs de Tchap avec leur numéro de téléphone et leur adresse e-mail.
 
 Veuillez autoriser l\'accès dans la prochaine fenêtre contextuelle pour découvrir les utilisateurs du carnet d\'adresses joignables avec Tchap.</string>
-    <string name="permissions_msg_contacts_warning_other_androids">Tchap a besoin d\'accéder aux contacts de votre carnet d\'adresses pour trouver d\'autres utilisateurs de Matrix avec leur numéro de téléphone et leur adresse e-mail.
+    <string name="permissions_msg_contacts_warning_other_androids">Tchap a besoin d\'accéder aux contacts de votre carnet d\'adresses pour trouver d\'autres utilisateurs de Tchap avec leur numéro de téléphone et leur adresse e-mail.
 
 Autorisez-vous Tchap à accéder à vos contacts ?</string>
 
@@ -884,6 +884,8 @@ Appareils inconnus :</string>
     <string name="tchap_register_wait_for_email_subtitle">Veuillez l’ouvrir et cliquer sur le lien qui est dedans pour finaliser la vérification</string>
     <string name="tchap_register_wait_for_email_no_email">Je n’ai pas reçu l’email!</string>
 
+    <string name="tchap_dialog_user_consent_homeserver_name">Tchap</string>
+
     <string name="rooms">Conversations</string>
     <string name="joined">Rejoint</string>
     <string name="invited">Invité</string>
@@ -976,7 +978,7 @@ Appareils inconnus :</string>
     <string name="settings_notification_privacy_no_permission">L\'application <b>n\'</b>a <b>pas</b> besoin de la permission pour fonctionner en arrière-plan</string>
     <string name="settings_notification_privacy_gcm">• Les notifications sont envoyées via Google Cloud Messaging</string>
     <string name="settings_notification_privacy_metadata">• Les notifications ne contiennent que des métadonnées</string>
-    <string name="settings_notification_privacy_secure_message_content">• Le contenu du message de notification est <b>issu directement du serveur d\'accueil Matrix</b></string>
+    <string name="settings_notification_privacy_secure_message_content">• Le contenu du message de notification est <b>issu directement du serveur d\'accueil Tchap</b></string>
     <string name="settings_notification_privacy_nosecure_message_content">• Les notifications contiennent <b>des métadonnées et des messages</b></string>
     <string name="settings_notification_privacy_message_content_not_shown">• Les notifications <b>n\'afficheront pas le contenu des messages</b></string>
 
@@ -1004,7 +1006,7 @@ Voulez-vous en ajouter ?</string>
 
     <string name="widget_integration_missing_parameter">Un paramètre requis est manquant.</string>
     <string name="widget_integration_invalid_parameter">Un paramètre n\'est pas valide.</string>
-    <string name="dialog_user_consent_content">Pour continuer à utiliser le serveur d\'accueil %1$s, vous devez lire et accepter les conditions générales.</string>
+    <string name="dialog_user_consent_content">Pour continuer à utiliser %1$s, vous devez lire et accepter les conditions générales.</string>
     <string name="dialog_user_consent_submit">Voir maintenant</string>
 
     <string name="deactivate_account_title">Désactiver le compte</string>
