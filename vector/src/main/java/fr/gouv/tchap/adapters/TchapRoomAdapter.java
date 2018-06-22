@@ -59,7 +59,7 @@ public class TchapRoomAdapter extends AbsAdapter {
         mListener = listener;
 
         mRoomsSection = new AdapterSection<Room>(context, context.getString(R.string.rooms_header), -1,
-                R.layout.adapter_item_room_view, TYPE_HEADER_DEFAULT, TYPE_ROOM, new ArrayList<Room>(), DinsicUtils.getRoomsComparator(mSession, false)) {
+                R.layout.adapter_item_room_view, TYPE_HEADER_DEFAULT, TYPE_UNDEFINED, new ArrayList<Room>(), DinsicUtils.getRoomsComparator(mSession, false)) {
             @Override
             public int getContentViewType(int position) {
                 if(getItems().get(position-1).isDirect()) {
@@ -73,11 +73,6 @@ public class TchapRoomAdapter extends AbsAdapter {
 
         addSection(mRoomsSection);
 
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        return super.getItemViewType(position);
     }
 
     /*

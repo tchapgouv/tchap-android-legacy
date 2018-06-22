@@ -50,17 +50,19 @@ import im.vector.view.SectionView;
 public abstract class AbsAdapter extends AbsFilterableAdapter {
     private static final String LOG_TAG = AbsAdapter.class.getSimpleName();
 
-    protected static final int TYPE_HEADER_DEFAULT = -1;
+    protected static final int TYPE_UNDEFINED = -1;
 
-    protected static final int TYPE_ROOM_INVITATION = -2;
+    protected static final int TYPE_HEADER_DEFAULT = -2;
 
-    protected static final int TYPE_ROOM = -3;
+    protected static final int TYPE_ROOM_INVITATION = -3;
 
-    protected static final int TYPE_GROUP = -4;
+    protected static final int TYPE_ROOM = -4;
 
-    protected static final int TYPE_GROUP_INVITATION = -5;
+    protected static final int TYPE_GROUP = -5;
 
-    protected static final int TYPE_ROOM_DIRECT = -6;
+    protected static final int TYPE_GROUP_INVITATION = -6;
+
+    protected static final int TYPE_ROOM_DIRECT = -7;
 
     // Helper handling the sticky view for each section
     private StickySectionHelper mStickySectionHelper;
