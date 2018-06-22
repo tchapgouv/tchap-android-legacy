@@ -18,10 +18,8 @@
 package fr.gouv.tchap.adapters;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -60,8 +58,17 @@ public class TchapRoomAdapter extends AbsAdapter {
 
         mListener = listener;
 
-        mRoomsSection = new AdapterSection<>(context, context.getString(R.string.rooms_header), -1,
-                R.layout.adapter_item_room_view, TYPE_HEADER_DEFAULT, TYPE_ROOM, new ArrayList<Room>(), DinsicUtils.getRoomsComparator(mSession, false));
+        mRoomsSection = new AdapterSection<Room>(context, context.getString(R.string.rooms_header), -1,
+                R.layout.adapter_item_room_view, TYPE_HEADER_DEFAULT, TYPE_UNDEFINED, new ArrayList<Room>(), DinsicUtils.getRoomsComparator(mSession, false)) {
+            @Override
+            public int getContentViewType(int position) {
+                if(getItems().get(position-1).isDirect()) {
+                    return TYPE_ROOM_DIRECT;
+                } else {
+                    return TYPE_ROOM;
+                }
+            }
+        };
         mRoomsSection.setEmptyViewPlaceholder(context.getString(R.string.no_room_placeholder), context.getString(R.string.no_result_placeholder));
 
         addSection(mRoomsSection);
@@ -82,6 +89,10 @@ public class TchapRoomAdapter extends AbsAdapter {
             case TYPE_ROOM:
                 View itemView = inflater.inflate(R.layout.adapter_item_room_view, viewGroup, false);
                 return new RoomViewHolder(itemView);
+
+            case TYPE_ROOM_DIRECT:
+                View itemViewD = inflater.inflate(R.layout.adapter_item_direct_room_view, viewGroup, false);
+                return new RoomViewHolder(itemViewD);
         }
 
         return null;
@@ -91,6 +102,7 @@ public class TchapRoomAdapter extends AbsAdapter {
     protected void populateViewHolder(int viewType, RecyclerView.ViewHolder viewHolder, int position) {
         switch (viewType) {
             case TYPE_ROOM:
+            case TYPE_ROOM_DIRECT:
                 final RoomViewHolder roomViewHolder = (RoomViewHolder) viewHolder;
                 final Room room = (Room) getItemForPosition(position);
                 roomViewHolder.populateViews(mContext, mSession, room, false, false, mMoreRoomActionListener);
@@ -146,7 +158,6 @@ public class TchapRoomAdapter extends AbsAdapter {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
-
     }
 
     /*

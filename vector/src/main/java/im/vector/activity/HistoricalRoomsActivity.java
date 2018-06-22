@@ -22,6 +22,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -389,6 +390,11 @@ public class HistoricalRoomsActivity extends RiotAppCompatActivity implements Se
     @Override
     public void onMoreActionClick(View itemView, Room room) {
         RoomUtils.displayHistoricalRoomMenu(this, mSession, room, itemView, this);
+    }
+
+    @Override
+    public void onTchapMoreActionClick(View itemView, Room room, @Nullable View notificationMuteView) {
+
     }
 
     @Override

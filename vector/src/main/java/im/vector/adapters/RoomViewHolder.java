@@ -33,12 +33,14 @@ import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomSummary;
 import org.matrix.androidsdk.data.RoomTag;
 import org.matrix.androidsdk.data.store.IMXStore;
+import org.matrix.androidsdk.util.BingRulesManager;
 import org.matrix.androidsdk.util.Log;
 
 import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.R;
 import im.vector.util.RoomUtils;
 import im.vector.util.VectorUtils;
@@ -46,11 +48,27 @@ import im.vector.util.VectorUtils;
 public class RoomViewHolder extends RecyclerView.ViewHolder {
     private static final String LOG_TAG = RoomViewHolder.class.getSimpleName();
 
+    @BindView(R.id.room_pin_ic)
+    @Nullable
+    View vRoomPinFavorite;
+
     @BindView(R.id.room_avatar)
     ImageView vRoomAvatar;
 
     @BindView(R.id.room_name)
     TextView vRoomName;
+
+    @BindView(R.id.notification_mute_bell)
+    @Nullable
+    ImageView vRoomNotificationMute;
+
+    @BindView(R.id.room_member_domain)
+    @Nullable
+    TextView vRoomDomain;
+
+    @BindView(R.id.room_creator)
+    @Nullable
+    TextView vRoomCreator;
 
     @BindView(R.id.room_name_server)
     @Nullable
@@ -64,16 +82,8 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
     @Nullable
     TextView vRoomTimestamp;
 
-    @BindView(R.id.indicator_unread_message)
-    @Nullable
-    View vRoomUnreadIndicator;
-
     @BindView(R.id.room_unread_count)
     TextView vRoomUnreadCount;
-
-    @BindView(R.id.direct_chat_indicator)
-    @Nullable
-    View mDirectChatIndicator;
 
     @BindView(R.id.room_avatar_encrypted_icon)
     View vRoomEncryptedIcon;
@@ -85,10 +95,6 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.room_more_action_anchor)
     @Nullable
     View vRoomMoreActionAnchor;
-
-    @BindView(R.id.room_pin_ic)
-    @Nullable
-    View vRoomPinFavorite;
 
     public RoomViewHolder(final View itemView) {
         super(itemView);
@@ -164,7 +170,7 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
             bingUnreadColor = Color.TRANSPARENT;
         }
 
-        if (isInvitation || (notificationCount > 0)) {
+        if (isInvitation || notificationCount > 0) {
             vRoomUnreadCount.setText(isInvitation ? "!" : RoomUtils.formatUnreadMessagesCounter(notificationCount));
             vRoomUnreadCount.setTypeface(null, Typeface.BOLD);
             GradientDrawable shape = new GradientDrawable();
@@ -177,7 +183,21 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
             vRoomUnreadCount.setVisibility(View.GONE);
         }
 
-        String roomName = VectorUtils.getRoomDisplayName(context, session, room);
+        String displayName = VectorUtils.getRoomDisplayName(context, session, room);
+        String roomName = DinsicUtils.getNameFromDisplayName(displayName);
+
+        if (null != vRoomDomain) {
+            vRoomDomain.setText(DinsicUtils.getDomainFromDisplayName(displayName));
+        }
+
+        if (null != vRoomCreator && null != room.getState().creator) {
+            String roomCreatorName = session.getDataHandler().getUser(room.getState().creator).displayname;
+            String userNameWithoutDomain = DinsicUtils.getNameFromDisplayName(roomCreatorName);
+            vRoomCreator.setText(userNameWithoutDomain);
+        }
+
+        VectorUtils.loadRoomAvatar(context, session, vRoomAvatar, room);
+
         if (vRoomNameServer != null) {
             // This view holder is for the home page, we have up to two lines to display the name
             if (MXSession.isRoomAlias(roomName)) {
@@ -199,9 +219,6 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
         } else {
             vRoomName.setText(roomName);
         }
-        vRoomName.setTypeface(null, (0 != unreadMsgCount) ? Typeface.BOLD : Typeface.NORMAL);
-
-        VectorUtils.loadRoomAvatar(context, session, vRoomAvatar, room);
 
         // get last message to be displayed
         if (vRoomLastMessage != null) {
@@ -209,16 +226,7 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
             vRoomLastMessage.setText(lastMsgToDisplay);
         }
 
-        if (mDirectChatIndicator != null) {
-            mDirectChatIndicator.setVisibility(isDirectChat ? View.VISIBLE : View.INVISIBLE);
-        }
         vRoomEncryptedIcon.setVisibility(room.isEncrypted() ? View.VISIBLE : View.INVISIBLE);
-
-        if (vRoomUnreadIndicator != null) {
-            // set bing view background colour
-            vRoomUnreadIndicator.setBackgroundColor(bingUnreadColor);
-            vRoomUnreadIndicator.setVisibility(roomSummary.isInvited() ? View.INVISIBLE : View.VISIBLE);
-        }
 
         if (vRoomTimestamp != null) {
             vRoomTimestamp.setText(RoomUtils.getRoomTimestamp(context, roomSummary.getLatestReceivedEvent()));
@@ -229,10 +237,24 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
                 @Override
                 public void onClick(View v) {
                     if (null != moreRoomActionListener) {
-                        moreRoomActionListener.onMoreActionClick(vRoomMoreActionAnchor, room);
+                        // In this case, we have a feedback issue because the notification mode change
+                        // is handled by an async task (with a very long delay).
+                        // We have overridden onMoreActionClick by onTchapMoreActionClick
+                        // in order to set the visibility of the vRoomNotificationMute on the notification option click
+                        // in RoomUtils.
+                        moreRoomActionListener.onTchapMoreActionClick(vRoomMoreActionAnchor, room, vRoomNotificationMute);
                     }
                 }
             });
+        }
+
+        BingRulesManager.RoomNotificationState roomNotificationState = session.getDataHandler().getBingRulesManager().getRoomNotificationState(room.getRoomId());
+        if (null != vRoomNotificationMute) {
+            if (roomNotificationState.equals(BingRulesManager.RoomNotificationState.MUTE)) {
+                vRoomNotificationMute.setVisibility(View.VISIBLE);
+            } else {
+                vRoomNotificationMute.setVisibility(View.GONE);
+            }
         }
 
         if (null != room && null != vRoomPinFavorite) {
@@ -243,7 +265,7 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
             if (isPinnedRoom) {
                 vRoomPinFavorite.setVisibility(View.VISIBLE);
             } else {
-                vRoomPinFavorite.setVisibility(View.GONE);
+                vRoomPinFavorite.setVisibility(View.INVISIBLE);
             }
         }
     }

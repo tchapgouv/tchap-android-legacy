@@ -28,7 +28,16 @@
                 android:id="@+id/room_avatar_image_view"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
-                android:layout_centerVertical="true" />
+                android:layout_centerVertical="true"
+                android:visibility="gone"/>
+
+            <fr.gouv.tchap.util.HexagonMaskView
+                android:id="@+id/hexagon_mask_view"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@color/vector_tchap_hexagon_background_color_dark_grey"
+                android:layout_centerVertical="true"
+                android:visibility="gone"/>
 
             <ImageView
                 android:id="@+id/room_avatar_direct_chat_icon"

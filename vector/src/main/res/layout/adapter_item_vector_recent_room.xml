@@ -46,7 +46,7 @@
             android:layout_width="15dp"
             android:layout_height="15dp"
             android:layout_alignBottom="@+id/room_avatar_layout"
-            android:layout_alignLeft="@+id/room_avatar_layout"
+            android:layout_toRightOf="@+id/room_avatar_layout"
             android:layout_marginLeft="35dp"
             android:src="@drawable/e2e_verified"
             android:tint="?attr/default_icon_tint_color"

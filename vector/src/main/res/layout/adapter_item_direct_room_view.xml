@@ -10,11 +10,11 @@
         android:layout_width="10dp"
         android:layout_height="15dp"
         android:src="@drawable/tchap_ic_pin_room"
-        android:visibility="gone" />
+        android:visibility="invisible" />
 
     <include
         android:id="@+id/room_avatar_layout"
-        layout="@layout/adapter_item_hexagon_avatar_room_view"
+        layout="@layout/adapter_item_circular_avatar_room_view"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginLeft="6dp"
@@ -70,6 +70,7 @@
             android:fontFamily="sans-serif-regular"
             android:maxLines="1"
             android:maxWidth="180dp"
+            android:paddingTop="2dp"
             android:textColor="@color/tchap_primary_text_color"
             android:textSize="16sp"
             android:textStyle="bold"
@@ -86,31 +87,34 @@
             android:visibility="gone" />
 
         <TextView
-            android:id="@+id/room_creator"
+            android:id="@+id/room_member_domain"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/room_name"
-            android:layout_marginBottom="5dp"
-            android:layout_marginTop="5dp"
+            android:layout_gravity="right"
+            android:layout_marginTop="7dp"
+            android:layout_toLeftOf="@+id/room_more_action_ic"
             android:ellipsize="end"
+            android:gravity="right"
             android:maxLines="1"
-            android:maxWidth="200dp"
-            android:textColor="@color/tchap_primary_text_color"
-            android:textSize="12sp"
-            android:textStyle="bold" />
+            android:maxWidth="95dp"
+            android:textAllCaps="false"
+            android:textColor="@color/vector_tchap_primary_color"
+            android:textSize="10sp"
+            tools:text="Room member domain" />
 
         <TextView
             android:id="@+id/room_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/room_creator"
+            android:layout_below="@+id/room_name"
             android:layout_marginRight="25dp"
             android:layout_marginTop="3dp"
             android:ellipsize="end"
-            android:maxLines="1"
+            android:maxLines="2"
             android:maxWidth="220dp"
-            android:textColor="?attr/default_text_light_color"
+            android:textColor="@color/tchap_primary_text_color"
             android:textSize="12sp"
+            android:textStyle="bold"
             tools:text="First message of the room is a bit too long to be displayed" />
 
         <ImageView
