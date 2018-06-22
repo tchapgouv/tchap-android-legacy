@@ -372,7 +372,6 @@ public class VectorMemberDetailsAdapter extends BaseExpandableListAdapter {
             // room avatar
             viewHolder.mActionImageView.setVisibility(View.GONE);
             viewHolder.mRoomAvatarLayout.setVisibility(View.VISIBLE);
-            viewHolder.mVectorCircularImageView.setVisibility(View.VISIBLE);
             VectorUtils.loadRoomAvatar(mContext, mSession, viewHolder.mVectorCircularImageView, currentItem.mRoom);
 
             // set the action associated to the item
