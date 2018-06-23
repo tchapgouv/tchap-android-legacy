@@ -1500,7 +1500,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
         // we will review this in next sprints
         MXUsersDevicesMap<MXDeviceInfo> unknownDevices = (MXUsersDevicesMap<MXDeviceInfo>) error.mExceptionData;
         if ((null != unknownDevices)){
-            HashMap<String, HashMap<String, MXDeviceInfo>> myMap = unknownDevices.getMap();
+            Map<String, Map<String, MXDeviceInfo>> myMap = unknownDevices.getMap();
             List<MXDeviceInfo> dis = new ArrayList<>();
             for ( String userId : unknownDevices.getUserIds()){
                 for (String deviceId : unknownDevices.getUserDeviceIds(userId)){

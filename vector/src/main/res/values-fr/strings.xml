@@ -1022,7 +1022,7 @@ La visibilité des messages dans Matrix est identique à celle des e-mails. Si n
 
     // Overrided sdk's strings
     <string name="notice_room_name_changed">%1$s a changé le nom du salon en : %2$s</string>
-    <string name="notice_made_future_room_visibility">%1$s a rendu l\'historique futur du salon visible pour %2$s</string>
+    <string name="notice_made_future_room_visibility">%1$s a rendu l\'historique futur de la conversation visible pour %2$s</string>
     <string name="notice_room_visibility_invited">tous les membres du salon, depuis qu\'ils ont été invités.</string>
     <string name="notice_room_visibility_joined">tous les membres du salon, depuis qu\'ils l\'ont rejoint.</string>
     <string name="notice_room_visibility_shared">tous les membres du salon.</string>
