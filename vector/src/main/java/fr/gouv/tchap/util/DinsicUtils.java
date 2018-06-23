@@ -28,8 +28,8 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.ContactsContract;
-import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.widget.Toast;
 
@@ -46,7 +46,6 @@ import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.rest.model.pid.RoomThirdPartyInvite;
 import org.matrix.androidsdk.util.Log;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -64,6 +63,7 @@ import im.vector.activity.VectorRoomActivity;
 import im.vector.adapters.ParticipantAdapterItem;
 import im.vector.contacts.Contact;
 import im.vector.contacts.ContactsManager;
+import im.vector.contacts.PIDsRetriever;
 import im.vector.util.RoomUtils;
 
 public class DinsicUtils {
@@ -234,14 +234,13 @@ public class DinsicUtils {
         }
     }  
 
-    public static boolean participantAlreadyAdded(List<ParticipantAdapterItem> participants, ParticipantAdapterItem participant){
-
+    public static boolean participantAlreadyAdded(List<ParticipantAdapterItem> participants, ParticipantAdapterItem participant) {
         boolean find = false;
         Iterator<ParticipantAdapterItem> iterator = participants.iterator();
         boolean finish = !iterator.hasNext();
-        while (!finish){
+        while (!finish) {
             ParticipantAdapterItem curp = iterator.next();
-            if (curp!= null)
+            if (curp != null && curp.mIsValid)
                 find = curp.mUserId.equals(participant.mUserId);
             finish = (find || !(iterator.hasNext()));
         }
@@ -250,14 +249,14 @@ public class DinsicUtils {
 
     }
 
-    public static boolean removeParticipantIfExist(List<ParticipantAdapterItem> participants, ParticipantAdapterItem participant){
+    public static boolean removeParticipantIfExist(List<ParticipantAdapterItem> participants, ParticipantAdapterItem participant) {
 
         boolean find = false;
         Iterator<ParticipantAdapterItem> iterator = participants.iterator();
         boolean finish = !iterator.hasNext();
-        while (!finish){
+        while (!finish) {
             ParticipantAdapterItem curp = iterator.next();
-            if (curp!= null) {
+            if (curp != null && curp.mIsValid) {
                 find = curp.mUserId.equals(participant.mUserId);
                 if (find) iterator.remove();
             }
@@ -267,7 +266,7 @@ public class DinsicUtils {
         return find;
     }
 
-    public static void alertSimpleMsg(FragmentActivity activity, String msg){
+    public static void alertSimpleMsg(FragmentActivity activity, String msg) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
         alertDialogBuilder.setMessage(msg);
 
@@ -477,9 +476,8 @@ public class DinsicUtils {
      * @param session   the current session
      * @param selectedContact the selected contact
      */
-    public static void startDirectChat(final RiotAppCompatActivity activity, final MXSession session, final ParticipantAdapterItem selectedContact) {
+    public static void startDirectChat (final RiotAppCompatActivity activity, final MXSession session, final ParticipantAdapterItem selectedContact) {
         if (selectedContact.mIsValid) {
-
             // Tell if contact is tchap user
             if (MXSession.isUserId(selectedContact.mUserId)) {
                 // The contact is a Tchap user, try to get the corresponding User instance.
@@ -699,5 +697,124 @@ public class DinsicUtils {
                 return getRoomsDateComparator().compare(room1, room2);
             }
         };
+    }
+
+    /* get contacts from direct chats */
+    public static List<ParticipantAdapterItem> getContactsFromDirectChats(final MXSession mSession) {
+        List<ParticipantAdapterItem> participants = new ArrayList<>();
+
+        if ((null == mSession) || (null == mSession.getDataHandler())) {
+            Log.e(LOG_TAG, "## getContactsFromDirectChats() : null session");
+            return participants;
+        }
+
+        IMXStore store = mSession.getDataHandler().getStore();
+
+        if (null != store.getDirectChatRoomsDict()) {
+            // Retrieve all the keys of the direct chats HashMap (they correspond to the users with direct chats)
+            List<String> keysList = new ArrayList<>(store.getDirectChatRoomsDict().keySet());
+
+            for (String key : keysList) {
+                // Check whether this key is an actual user id
+                if (MXSession.isUserId(key)) {
+                    // Ignore the current user if he appears in the direct chat map
+                    if (key.equals(mSession.getMyUserId())) {
+                        continue;
+                    }
+
+                    // Retrieve the user display name from the room members information.
+                    // By this way we check that the current user has joined at least one of the direct chats for this user.
+                    // The users for whom no direct is joined by the current user are ignored for the moment.
+                    // @TODO Keep displaying these users in the contacts list, the problem is to get their displayname
+                    // @NOTE The user displayname may be known thanks to the presence event. But
+                    // it is unknown until we receive a presence event for this user.
+                    List<String> roomIdsList = store.getDirectChatRoomsDict().get(key);
+                    if (roomIdsList != null && !roomIdsList.isEmpty()) {
+                        for (String roomId: roomIdsList) {
+                            Room room = store.getRoom(roomId);
+                            if (null != room) {
+                                RoomMember roomMember = room.getMember(key);
+                                if (null != roomMember && !TextUtils.isEmpty(roomMember.displayname)) {
+                                    // Add a contact for this user
+                                    Contact dummyContact = new Contact("null");
+                                    dummyContact.setDisplayName(roomMember.displayname);
+                                    ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
+                                    participant.mUserId = key;
+                                    participants.add(participant);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                else if (android.util.Patterns.EMAIL_ADDRESS.matcher(key).matches()) {
+                    // Check whether this email corresponds to an actual user id, else ignore it.
+                    // @TODO Trigger a lookup3Pid request if the info is not available.
+                    final Contact.MXID contactMxId = PIDsRetriever.getInstance().getMXID(key);
+                    if (null != contactMxId && contactMxId.mMatrixId.length() > 0) {
+                        // @TODO Add MXSession API to update the HashMap in one run.
+                        List<String> roomIdsList = new ArrayList<>(store.getDirectChatRoomsDict().get(key));
+                        Log.d(LOG_TAG, "## getContactsFromDirectChats() update direct chat map " + roomIdsList + " " + key);
+                        for (final String roomId : roomIdsList) {
+                            Log.d(LOG_TAG, "## getContactsFromDirectChats() update direct chat map " + roomId);
+                            // Disable first the direct chat to set it on the right user id
+                            mSession.toggleDirectChatRoom(roomId, null, new ApiCallback<Void>() {
+                                @Override
+                                public void onSuccess(Void info) {
+                                    mSession.toggleDirectChatRoom(roomId, contactMxId.mMatrixId, new ApiCallback<Void>() {
+                                        @Override
+                                        public void onSuccess(Void info) {
+                                            Log.d(LOG_TAG, "## getContactsFromDirectChats() succeeded to update direct chat map ");
+                                            // Here we used the local data of the PIDsRetriever, so the contact will be added by local contacts list.
+                                            // @TODO if we support remote lookup to resolve the email, we have to add the resulting contact (but he may be already present)
+                                        }
+
+                                        private void onFails(final String errorMessage) {
+                                            Log.e(LOG_TAG, "## getContactsFromDirectChats() failed to update direct chat map " + errorMessage);
+                                        }
+
+                                        @Override
+                                        public void onNetworkError(Exception e) {
+                                            onFails(e.getLocalizedMessage());
+                                        }
+
+                                        @Override
+                                        public void onMatrixError(MatrixError e) {
+                                            onFails(e.getLocalizedMessage());
+                                        }
+
+                                        @Override
+                                        public void onUnexpectedError(Exception e) {
+                                            onFails(e.getLocalizedMessage());
+                                        }
+                                    });
+                                }
+
+                                private void onFails(final String errorMessage) {
+                                    Log.e(LOG_TAG, "## getContactsFromDirectChats() failed to update direct chat map " + errorMessage);
+                                }
+
+                                @Override
+                                public void onNetworkError(Exception e) {
+                                    onFails(e.getLocalizedMessage());
+                                }
+
+                                @Override
+                                public void onMatrixError(MatrixError e) {
+                                    onFails(e.getLocalizedMessage());
+                                }
+
+                                @Override
+                                public void onUnexpectedError(Exception e) {
+                                    onFails(e.getLocalizedMessage());
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+        }
+
+        return participants;
     }
 }

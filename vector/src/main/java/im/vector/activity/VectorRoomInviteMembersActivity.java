@@ -114,6 +114,8 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
     private ActionMode mActionMode = ActionMode.RETURN_SELECTED_USER_IDS;
 
     // This enum is used to filter the displayed contacts.
+    // Note: the Tchap users for who a discussion (direct chat) exists will be considered as local contacts.
+    // This means they will appear in the local contacts section.
     public enum ContactsFilter { ALL, TCHAP_ONLY, NO_TCHAP_ONLY }
     private ContactsFilter mContactsFilter = ContactsFilter.ALL;
 

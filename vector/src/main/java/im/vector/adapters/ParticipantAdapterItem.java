@@ -263,8 +263,15 @@ public class ParticipantAdapterItem implements java.io.Serializable {
 
             @Override
             public int compare(ParticipantAdapterItem part1, ParticipantAdapterItem part2) {
-                User userA = getUser(part1.mUserId);
-                User userB = getUser(part2.mUserId);
+                User userA = null;
+                User userB = null;
+
+                if (null != part1.mUserId) {
+                    userA =  getUser(part1.mUserId);
+                }
+                if (null != part2.mUserId) {
+                    userB =  getUser(part2.mUserId);
+                }
 
                 String userADisplayName = part1.getComparisonDisplayName();
                 String userBDisplayName = part2.getComparisonDisplayName();
@@ -497,7 +504,7 @@ public class ParticipantAdapterItem implements java.io.Serializable {
     public boolean retrievePids() {
         boolean isUpdated = false;
 
-        if (android.util.Patterns.EMAIL_ADDRESS.matcher(mUserId).matches()) {
+        if (null != mUserId && android.util.Patterns.EMAIL_ADDRESS.matcher(mUserId).matches()) {
             if (null != mContact) {
                 mContact.refreshMatridIds();
             }
@@ -535,6 +542,9 @@ public class ParticipantAdapterItem implements java.io.Serializable {
      * @return true if the participant is a priority.
      */
     public boolean isViewedInPriority() {
-        return MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(mUserId).matches();
+        if (null != mUserId) {
+            return MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(mUserId).matches();
+        }
+        return false;
     }
 }

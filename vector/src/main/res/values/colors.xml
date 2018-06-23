@@ -66,7 +66,7 @@
     <color name="primary_hint_text_color_light">@color/vector_silver_color</color>
     <color name="primary_hint_text_color_dark">@color/vector_tchap_primary_color</color>
 
-    <color name="riot_primary_text_color_light">#FF3C3C3C</color>
+    <color name="riot_primary_text_color_light">#000000</color>
     <color name="default_text_hint_color_light">#903C3C3C</color>
     <color name="default_text_light_color_light">#8E000000</color>
     <color name="default_button_light_text_light">#FF747474</color>
