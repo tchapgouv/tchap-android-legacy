@@ -28,7 +28,6 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.ContactsContract;
-import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -47,7 +46,6 @@ import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.rest.model.pid.RoomThirdPartyInvite;
 import org.matrix.androidsdk.util.Log;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -62,7 +60,6 @@ import fr.gouv.tchap.activity.TchapLoginActivity;
 import im.vector.activity.RiotAppCompatActivity;
 import im.vector.activity.VectorHomeActivity;
 import im.vector.activity.VectorRoomActivity;
-import im.vector.activity.VectorRoomCreationActivity;
 import im.vector.adapters.ParticipantAdapterItem;
 import im.vector.contacts.Contact;
 import im.vector.contacts.ContactsManager;
@@ -237,14 +234,13 @@ public class DinsicUtils {
         }
     }  
 
-    public static boolean participantAlreadyAdded(List<ParticipantAdapterItem> participants, ParticipantAdapterItem participant){
-
+    public static boolean participantAlreadyAdded(List<ParticipantAdapterItem> participants, ParticipantAdapterItem participant) {
         boolean find = false;
         Iterator<ParticipantAdapterItem> iterator = participants.iterator();
         boolean finish = !iterator.hasNext();
-        while (!finish){
+        while (!finish) {
             ParticipantAdapterItem curp = iterator.next();
-            if (curp!= null)
+            if (curp != null && curp.mIsValid)
                 find = curp.mUserId.equals(participant.mUserId);
             finish = (find || !(iterator.hasNext()));
         }
@@ -253,14 +249,14 @@ public class DinsicUtils {
 
     }
 
-    public static boolean removeParticipantIfExist(List<ParticipantAdapterItem> participants, ParticipantAdapterItem participant){
+    public static boolean removeParticipantIfExist(List<ParticipantAdapterItem> participants, ParticipantAdapterItem participant) {
 
         boolean find = false;
         Iterator<ParticipantAdapterItem> iterator = participants.iterator();
         boolean finish = !iterator.hasNext();
-        while (!finish){
+        while (!finish) {
             ParticipantAdapterItem curp = iterator.next();
-            if (curp!= null) {
+            if (curp != null && curp.mIsValid) {
                 find = curp.mUserId.equals(participant.mUserId);
                 if (find) iterator.remove();
             }
@@ -270,7 +266,7 @@ public class DinsicUtils {
         return find;
     }
 
-    public static void alertSimpleMsg(FragmentActivity activity, String msg){
+    public static void alertSimpleMsg(FragmentActivity activity, String msg) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
         alertDialogBuilder.setMessage(msg);
 
@@ -480,9 +476,8 @@ public class DinsicUtils {
      * @param session   the current session
      * @param selectedContact the selected contact
      */
-    public static void startDirectChat(final RiotAppCompatActivity activity, final MXSession session, final ParticipantAdapterItem selectedContact) {
+    public static void startDirectChat (final RiotAppCompatActivity activity, final MXSession session, final ParticipantAdapterItem selectedContact) {
         if (selectedContact.mIsValid) {
-
             // Tell if contact is tchap user
             if (MXSession.isUserId(selectedContact.mUserId)) {
                 // The contact is a Tchap user, try to get the corresponding User instance.
@@ -703,6 +698,7 @@ public class DinsicUtils {
             }
         };
     }
+
     /* get contacts from direct chats */
     public static List<ParticipantAdapterItem> getContactsFromDirectChats(final MXSession mSession) {
         List<ParticipantAdapterItem> participants = new ArrayList<>();
@@ -821,5 +817,4 @@ public class DinsicUtils {
 
         return participants;
     }
-
 }

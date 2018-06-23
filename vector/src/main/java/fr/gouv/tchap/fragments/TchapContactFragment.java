@@ -32,14 +32,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;
 
-import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
-import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.listeners.MXEventListener;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.rest.model.MatrixError;
-import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.rest.model.search.SearchUsersResponse;
 import org.matrix.androidsdk.util.Log;
@@ -168,11 +165,6 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
 
         ContactsManager.getInstance().addListener(this);
 
-        // @TODO List all the users with a direct chat,
-        // replace mDirectChats with a HashMap<String, String> to keep the mapping between
-        // these users and their DM
-        initDirectChatsData();
-
         // Local address book
         initContactsData();
 
@@ -290,15 +282,6 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
      */
 
     /**
-     * Prepare the direct chat data
-     */
-    private void initDirectChatsData() {
-        // @TODO List here all the users with a direct chat (-> Remove getContactsFromDirectChats()),
-        // replace mDirectChats with a HashMap<String, String> to keep the mapping between
-        // these users and their DM
-    }
-
-    /**
      * Fill the local address book and known contacts adapters with data
      * Display the Tchap users only
      */
@@ -334,11 +317,13 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
             }
         }
 
-        //add participants from direct chats
+        // Add the Tchap users extracted from the current discussions (direct chats).
         List<ParticipantAdapterItem> myDirectContacts = DinsicUtils.getContactsFromDirectChats(mSession);
-        for (ParticipantAdapterItem myContact : myDirectContacts){
-            if (!DinsicUtils.participantAlreadyAdded(mLocalContacts,myContact))
-                mLocalContacts.add(myContact);
+        for (ParticipantAdapterItem myContact : myDirectContacts) {
+            // Remove the item built from the local contact if any.
+            // The item built from the direct chat data has the right avatar.
+            DinsicUtils.removeParticipantIfExist(mLocalContacts, myContact);
+            mLocalContacts.add(myContact);
         }
     }
 
@@ -626,11 +611,14 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
         // Retrieve only Tchap user contacts
         // For all contacts use getContacts() method
         final List<ParticipantAdapterItem> newContactList = getOnlyTchapUserContacts();
-        //add participants from direct chats
+
+        // Add the Tchap users extracted from the current discussions (direct chats).
         List<ParticipantAdapterItem> myDirectContacts = DinsicUtils.getContactsFromDirectChats(mSession);
         for (ParticipantAdapterItem myContact : myDirectContacts){
-            if (!DinsicUtils.participantAlreadyAdded(newContactList,myContact))
-                newContactList.add(myContact);
+            // Remove the item built from the local contact if any.
+            // The item built from the direct chat data has the right avatar.
+            DinsicUtils.removeParticipantIfExist(newContactList, myContact);
+            newContactList.add(myContact);
         }
 
         if (!mLocalContacts.containsAll(newContactList)) {

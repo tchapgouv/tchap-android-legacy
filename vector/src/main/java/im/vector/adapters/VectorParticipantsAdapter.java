@@ -54,7 +54,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import fr.gouv.tchap.fragments.TchapContactFragment;
 import im.vector.Matrix;
 import im.vector.R;
 import im.vector.VectorApp;
@@ -229,22 +228,12 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
     }
 
     /**
-     * Add the contacts participants
+     * Add the participants created from the local contact book.
      *
      * @param list the participantItem indexed by their matrix Id
      */
-    private void addContacts(List<ParticipantAdapterItem> list) {
+    private void addLocalContacts(List<ParticipantAdapterItem> list) {
         Collection<Contact> contacts = ContactsManager.getInstance().getLocalContactsSnapshot();
-
-        if (mContactsFilter == VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY_ENLARGED) {
-            //add participants from direct chats
-            List<ParticipantAdapterItem> myDirectContacts = DinsicUtils.getContactsFromDirectChats(mSession);
-            for (ParticipantAdapterItem myContact : myDirectContacts) {
-                if (!DinsicUtils.participantAlreadyAdded(list, myContact))
-                    list.add(myContact);
-            }
-        }
-
 
         if (null != contacts) {
             for (Contact contact : contacts) {
@@ -252,19 +241,16 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                 // 1) when all contacts are displaying
                 // 2) when no tchap users are displaying
                 if (contact.getEmails().isEmpty() &&
-                        mContactsFilter != VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY &&
-                        mContactsFilter != VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY_ENLARGED) {
+                        mContactsFilter != VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY) {
                     Contact dummyContact = new Contact(contact.getContactId());
                     dummyContact.setDisplayName(contact.getDisplayName());
                     dummyContact.addEmailAdress(mContext.getString(R.string.no_email));
                     dummyContact.setThumbnailUri(contact.getThumbnailUri());
 
                     ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
-
-                    participant.mUserId = "null";
+                    // This participant is invalid (the mUserId field is null).
                     participant.mIsValid = false;
                     list.add(participant);
-
                 } else {
                     // We create an item for each email except if the resulting contact is filtered by mContactsFilter.
                     for (String email : contact.getEmails()) {
@@ -275,7 +261,6 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                             // Consider the contact filter here
                             switch (mContactsFilter) {
                                 case TCHAP_ONLY:
-                                case TCHAP_ONLY_ENLARGED:
                                     if (null == mxid) {
                                         // we ignore this email and go to the next one if any
                                         continue;
@@ -305,8 +290,12 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
 
                             // Here we add the contact to the list
                             if (mUsedMemberUserIds == null || !mUsedMemberUserIds.contains(participant.mUserId)) {
-                                DinsicUtils.removeParticipantIfExist(list, participant);
-                                list.add(participant);
+                                // When the tchap users are displayed (see mContactsFilter), a contact
+                                // may be already created by considering the current discussions (direct chats).
+                                // In this case, we keep the existing participant item and ignore the one that we just created.
+                                if (!DinsicUtils.participantAlreadyAdded(list, participant)) {
+                                    list.add(participant);
+                                }
                             }
                         }
                     }
@@ -348,12 +337,20 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
         fillUsedMembersList();
 
         List<ParticipantAdapterItem> participants = new ArrayList<>();
-        if (VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY != mContactsFilter) {
-            // Add all known matrix users
+        if (mContactsFilter != VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY) {
+            // Add first all known matrix users
             participants.addAll(VectorUtils.listKnownParticipants(mSession).values());
+
+            // Update each participant for who a discussion (direct chat) exists,
+            // in order to display them in local contacts section
+            List<ParticipantAdapterItem> myDirectContacts = DinsicUtils.getContactsFromDirectChats(mSession);
+            for (ParticipantAdapterItem myContact : myDirectContacts) {
+                DinsicUtils.removeParticipantIfExist(participants, myContact);
+                participants.add(myContact);
+            }
         }
-        // Add phone contacts which have an email address
-        addContacts(participants);
+        // Add phone contacts
+        addLocalContacts(participants);
 
         // List of display names
         List<String> displayNamesList = new ArrayList<>();
@@ -425,8 +422,17 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
             }
 
             if (null != mContactsParticipants) {
-                List<ParticipantAdapterItem> newContactList = new ArrayList<>();
-                addContacts(newContactList);
+                List<ParticipantAdapterItem> newContactList;
+                if (mContactsFilter != VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY) {
+                    // Initialize the participants list with the tchap users extracted from the
+                    // current discussions (direct chats).
+                    newContactList = DinsicUtils.getContactsFromDirectChats(mSession);
+                } else {
+                    newContactList = new ArrayList<>();
+                }
+
+                addLocalContacts(newContactList);
+
                 if (!mContactsParticipants.containsAll(newContactList)) {
                     // Force update
                     gotUpdates = true;
@@ -592,6 +598,10 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
 
             for (ParticipantAdapterItem item : unusedParticipants) {
                 if (match(item, mPattern)) {
+                    // Remove the existing item with the same userId if any.
+                    // This is required to keep displaying in the local contacts section the tchap
+                    // users extracted from the discussions (direct chats).
+                    DinsicUtils.removeParticipantIfExist(participantItemList, item);
                     participantItemList.add(item);
                 }
             }
@@ -604,8 +614,16 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                     public void run() {
                         fillUsedMembersList();
 
-                        List<ParticipantAdapterItem> list = new ArrayList<>();
-                        addContacts(list);
+                        List<ParticipantAdapterItem> list;
+                        if (mContactsFilter != VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY) {
+                            // Initialize the participants list with the tchap users extracted from the
+                            // current discussions (direct chats).
+                            list = DinsicUtils.getContactsFromDirectChats(mSession);
+                        } else {
+                            list = new ArrayList<>();
+                        }
+
+                        addLocalContacts(list);
 
                         synchronized (LOG_TAG) {
                             mContactsParticipants = list;
@@ -1014,22 +1032,21 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
         final TextView domainNameTextView = convertView.findViewById(R.id.filtered_list_domain);
         final TextView statusTextView = convertView.findViewById(R.id.filtered_list_email);
 
-        // Contacts not in priority are seen different
-        if (!participant.isViewedInPriority()){
-            //final int semiTransparentGrey = Color.argb(155, 185, 185, 185);
-            //thumbView.setAlpha( 0.5f);
-            nameTextView.setTypeface(null, Typeface.ITALIC);
-        }
-        else {
-            //thumbView.clearColorFilter();
-            nameTextView.setTypeface(null, Typeface.BOLD);
-        }
-
         // reported by GA
         // it should never happen but it happened...
         if ((null == thumbView) || (null == nameTextView) || (null == statusTextView)) {
             Log.e(LOG_TAG, "## getChildView() : some ui items are null");
             return convertView;
+        }
+
+        // Contacts not in priority are seen different
+        if (!participant.isViewedInPriority()){
+            //final int semiTransparentGrey = Color.argb(155, 185, 185, 185);
+            //thumbView.setAlpha( 0.5f);
+            nameTextView.setTypeface(null, Typeface.ITALIC);
+        } else {
+            //thumbView.clearColorFilter();
+            nameTextView.setTypeface(null, Typeface.BOLD);
         }
 
         // display the avatar
@@ -1065,16 +1082,14 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                 });
             }
         }
-        statusTextView.setText("");
-        // the contact defines a matrix user but there is no way to get more information (presence, avatar)
-        if (participant.mContact != null) {
 
+        statusTextView.setText("");
+        if (mContactsFilter == VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY) {
+            // Use the status text view to display the contact email if any
             if (participant.mContact.getEmails().size() > 0) {
                 statusTextView.setText(participant.mContact.getEmails().get(0));
-            } else {
-                if (participant.mContact.getPhonenumbers().size() > 0) {
-                    statusTextView.setText(participant.mContact.getPhonenumbers().get(0).mRawPhoneNumber);
-                }
+            } else if (participant.mContact.getPhonenumbers().size() > 0) {
+                statusTextView.setText(participant.mContact.getPhonenumbers().get(0).mRawPhoneNumber);
             }
         } else {
             statusTextView.setText(status);

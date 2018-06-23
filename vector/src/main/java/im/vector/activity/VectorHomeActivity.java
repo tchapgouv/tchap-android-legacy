@@ -1308,7 +1308,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                                 if (0 == n) {
                                     // Create a new direct chat with an existing tchap user
                                     // Multi-selection will be disabled
-                                    createNewChat(VectorRoomInviteMembersActivity.ActionMode.START_DIRECT_CHAT, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY_ENLARGED);
+                                    createNewChat(VectorRoomInviteMembersActivity.ActionMode.START_DIRECT_CHAT, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY);
                                 } else if (1 == n) {
                                     // Launch the new screen to create an empty room
                                     final Intent intent = new Intent(VectorHomeActivity.this, TchapRoomCreationActivity.class);
