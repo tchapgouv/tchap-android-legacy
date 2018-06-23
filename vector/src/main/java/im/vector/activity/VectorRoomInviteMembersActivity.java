@@ -353,7 +353,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
             }
         });
 
-        View inviteByIdTextView = findViewById(R.id.search_invite_by_id);
+        View inviteByIdTextView = findViewById(R.id.ly_invite_contacts_by_email);
         if (mActionMode == ActionMode.SEND_INVITE) {
             inviteByIdTextView.setVisibility(View.VISIBLE);
             inviteByIdTextView.setOnClickListener(new View.OnClickListener() {
