@@ -118,7 +118,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     private static final int MODE_ACCOUNT_CREATION_THREE_PID = 5;
     private static final int MODE_START = 6;
 
-    private static final int NO_PREFERRED_HOST=-1;
     // saved parameters index
 
     // login
@@ -2423,60 +2422,46 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
      */
     public static void discoverTchapPlatform(Activity activity, final String emailAddress, final ApiCallback<Platform> callback) {
         Log.d(LOG_TAG, "## discoverTchapPlatform [" + emailAddress + "]");
-        // Copy the list of the known ISes in order to run over the list until to get an answer.
-        List<String> currentHosts = Arrays.asList(activity.getResources().getStringArray(R.array.identity_server_names));
+        // Prepare the list of the known ISes in order to run over the list until to get an answer.
         List<String> idServerUrls = new ArrayList<>();
-        String HSName = "";
-        MXSession mySession = null;
-        if (Matrix.getInstance(activity)!= null) {
-            mySession = Matrix.getInstance(activity).getDefaultSession();
-            if (mySession!= null) {
-              HomeServerConnectionConfig myConfig = mySession.getHomeServerConfig();
-              if (myConfig != null) {
-                  Uri myHost = myConfig.getHomeserverUri();
-                  if (myHost != null) {
-                      HSName = myHost.toString();
-                  }
-              }
+
+        // Consider first the current identity server if any.
+        String currentIdServerUrl = null;
+        MXSession currentSession = Matrix.getInstance(activity).getDefaultSession();
+        if (null != currentSession) {
+            currentIdServerUrl = currentSession.getHomeServerConfig().getIdentityServerUri().toString();
+            idServerUrls.add(currentIdServerUrl);
+        }
+
+        // Add randomly the known ISes
+        List<String> currentHosts = new ArrayList<>(Arrays.asList(activity.getResources().getStringArray(R.array.identity_server_names)));
+        while (!currentHosts.isEmpty()) {
+            int index = (new Random()).nextInt(currentHosts.size());
+            String host = currentHosts.remove(index);
+
+            String idServerUrl = activity.getString(R.string.server_url_prefix) + host;
+            if (null == currentIdServerUrl || !idServerUrl.equals(currentIdServerUrl)) {
+                idServerUrls.add(idServerUrl);
             }
         }
 
-
-        int preferredHost = NO_PREFERRED_HOST;
-        int cpt=0;
-        for (String host : currentHosts) {
-            String theHost = activity.getString(R.string.server_url_prefix) + host;
-            idServerUrls.add(theHost);
-            if (theHost.compareTo(HSName)==0) {
-                preferredHost = cpt;
-            }
-            cpt++;
-//                                mSession.getMyUserId().substring(mSession.getMyUserId().indexOf(":") + 1);
-        }
-
-        discoverTchapPlatform(emailAddress, idServerUrls, preferredHost, callback);
+        discoverTchapPlatform(emailAddress, idServerUrls, callback);
     }
 
     /**
-     * Round-robin over all provided hosts by removing them one by one until we get the Tchap platform for the provided email address.
+     * Run over all the provided hosts by removing them one by one until we get the Tchap platform for the provided email address.
      *
      * @param emailAddress       the email address to consider
      * @param identityServerUrls the list of the available identity server urls
      * @param callback           the asynchronous callback
      */
-    private static void discoverTchapPlatform(final String emailAddress, final List<String> identityServerUrls, int preferredHost, final ApiCallback<Platform> callback) {
+    private static void discoverTchapPlatform(final String emailAddress, final List<String> identityServerUrls, final ApiCallback<Platform> callback) {
         if (identityServerUrls.isEmpty()) {
             callback.onMatrixError(new MatrixError(MatrixError.UNKNOWN, "No host"));
         }
 
-        int index = preferredHost;
-        //if user is already connected, start with his HS
-        if (index == NO_PREFERRED_HOST) {
-            index = (new Random()).nextInt(identityServerUrls.size());
-        }
-        String selectedUrl = identityServerUrls.get(index);
-        identityServerUrls.remove(index);
-
+        // Retrieve the first identity server url by removing it from the list.
+        String selectedUrl = identityServerUrls.remove(0);
         TchapRestClient tchapRestClient = new TchapRestClient(new HomeServerConnectionConfig(Uri.parse(selectedUrl), Uri.parse(selectedUrl), null, new ArrayList<Fingerprint>(), false));
         tchapRestClient.info(emailAddress, ThreePid.MEDIUM_EMAIL, new ApiCallback<Platform>() {
             @Override
@@ -2493,7 +2478,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                     callback.onNetworkError(e);
                 } else {
                     // Try again
-                    discoverTchapPlatform(emailAddress, identityServerUrls, NO_PREFERRED_HOST, callback);
+                    discoverTchapPlatform(emailAddress, identityServerUrls, callback);
                 }
             }
 
@@ -2505,7 +2490,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                     callback.onMatrixError(matrixError);
                 } else {
                     // Try again
-                    discoverTchapPlatform(emailAddress, identityServerUrls, NO_PREFERRED_HOST, callback);
+                    discoverTchapPlatform(emailAddress, identityServerUrls, callback);
                 }
             }
 
@@ -2517,7 +2502,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                     callback.onUnexpectedError(e);
                 } else {
                     // Try again
-                    discoverTchapPlatform(emailAddress, identityServerUrls, NO_PREFERRED_HOST, callback);
+                    discoverTchapPlatform(emailAddress, identityServerUrls, callback);
                 }
             }
         });
