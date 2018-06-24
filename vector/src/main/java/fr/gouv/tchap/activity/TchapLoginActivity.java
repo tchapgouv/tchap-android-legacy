@@ -2422,17 +2422,34 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
      */
     public static void discoverTchapPlatform(Activity activity, final String emailAddress, final ApiCallback<Platform> callback) {
         Log.d(LOG_TAG, "## discoverTchapPlatform [" + emailAddress + "]");
-        // Copy the list of the known ISes in order to run over the list until to get an answer.
-        List<String> currentHosts = Arrays.asList(activity.getResources().getStringArray(R.array.identity_server_names));
+        // Prepare the list of the known ISes in order to run over the list until to get an answer.
         List<String> idServerUrls = new ArrayList<>();
-        for (String host : currentHosts) {
-            idServerUrls.add(activity.getString(R.string.server_url_prefix) + host);
+
+        // Consider first the current identity server if any.
+        String currentIdServerUrl = null;
+        MXSession currentSession = Matrix.getInstance(activity).getDefaultSession();
+        if (null != currentSession) {
+            currentIdServerUrl = currentSession.getHomeServerConfig().getIdentityServerUri().toString();
+            idServerUrls.add(currentIdServerUrl);
         }
+
+        // Add randomly the known ISes
+        List<String> currentHosts = new ArrayList<>(Arrays.asList(activity.getResources().getStringArray(R.array.identity_server_names)));
+        while (!currentHosts.isEmpty()) {
+            int index = (new Random()).nextInt(currentHosts.size());
+            String host = currentHosts.remove(index);
+
+            String idServerUrl = activity.getString(R.string.server_url_prefix) + host;
+            if (null == currentIdServerUrl || !idServerUrl.equals(currentIdServerUrl)) {
+                idServerUrls.add(idServerUrl);
+            }
+        }
+
         discoverTchapPlatform(emailAddress, idServerUrls, callback);
     }
 
     /**
-     * Round-robin over all provided hosts by removing them one by one until we get the Tchap platform for the provided email address.
+     * Run over all the provided hosts by removing them one by one until we get the Tchap platform for the provided email address.
      *
      * @param emailAddress       the email address to consider
      * @param identityServerUrls the list of the available identity server urls
@@ -2443,10 +2460,8 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             callback.onMatrixError(new MatrixError(MatrixError.UNKNOWN, "No host"));
         }
 
-        int index = (new Random()).nextInt(identityServerUrls.size());
-        String selectedUrl = identityServerUrls.get(index);
-        identityServerUrls.remove(index);
-
+        // Retrieve the first identity server url by removing it from the list.
+        String selectedUrl = identityServerUrls.remove(0);
         TchapRestClient tchapRestClient = new TchapRestClient(new HomeServerConnectionConfig(Uri.parse(selectedUrl), Uri.parse(selectedUrl), null, new ArrayList<Fingerprint>(), false));
         tchapRestClient.info(emailAddress, ThreePid.MEDIUM_EMAIL, new ApiCallback<Platform>() {
             @Override
@@ -2458,7 +2473,13 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             @Override
             public void onNetworkError(Exception e) {
                 Log.e(LOG_TAG, "## discoverTchapPlatform failed " + e.getMessage());
-                callback.onNetworkError(e);
+                if (identityServerUrls.isEmpty()) {
+                    // We checked all the known hosts, return the error
+                    callback.onNetworkError(e);
+                } else {
+                    // Try again
+                    discoverTchapPlatform(emailAddress, identityServerUrls, callback);
+                }
             }
 
             @Override

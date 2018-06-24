@@ -41,7 +41,7 @@
             android:ellipsize="end"
             android:gravity="center_vertical"
             android:maxLines="1"
-            android:textColor="?attr/default_text_dark_color"
+            android:textColor="?attr/riot_primary_text_color"
             android:textSize="16sp"
             android:textStyle="bold"
             tools:text="A member name" />

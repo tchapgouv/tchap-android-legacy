@@ -1500,7 +1500,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
         // we will review this in next sprints
         MXUsersDevicesMap<MXDeviceInfo> unknownDevices = (MXUsersDevicesMap<MXDeviceInfo>) error.mExceptionData;
         if ((null != unknownDevices)){
-            HashMap<String, HashMap<String, MXDeviceInfo>> myMap = unknownDevices.getMap();
+            Map<String, Map<String, MXDeviceInfo>> myMap = unknownDevices.getMap();
             List<MXDeviceInfo> dis = new ArrayList<>();
             for ( String userId : unknownDevices.getUserIds()){
                 for (String deviceId : unknownDevices.getUserDeviceIds(userId)){
@@ -2507,10 +2507,18 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
     private void launchFileSelectionIntent() {
         enableActionBarHeader(HIDE_ACTION_BAR_HEADER);
 
-        Intent fileIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        Intent fileIntent;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            fileIntent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        } else {
+            fileIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             fileIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         }
+
         fileIntent.setType("*/*");
         startActivityForResult(fileIntent, REQUEST_FILES_REQUEST_CODE);
     }
