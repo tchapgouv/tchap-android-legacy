@@ -62,12 +62,14 @@ import org.matrix.androidsdk.interfaces.HtmlToolbox;
 import org.matrix.androidsdk.rest.model.crypto.EncryptedEventContent;
 import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.rest.model.EventContent;
+import org.matrix.androidsdk.rest.model.crypto.EncryptedFileInfo;
 import org.matrix.androidsdk.rest.model.message.FileMessage;
 import org.matrix.androidsdk.rest.model.message.ImageMessage;
 import org.matrix.androidsdk.rest.model.message.Message;
 import org.matrix.androidsdk.rest.model.PowerLevels;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.message.StickerMessage;
+import org.matrix.androidsdk.rest.model.message.VideoMessage;
 import org.matrix.androidsdk.util.EventDisplay;
 import org.matrix.androidsdk.util.JsonUtils;
 import org.matrix.androidsdk.util.Log;
@@ -89,6 +91,9 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import fr.gouv.tchap.media.AntiVirusScanStatus;
+import fr.gouv.tchap.media.MediaScanManager;
+import fr.gouv.tchap.model.MediaScan;
 import im.vector.R;
 import im.vector.VectorApp;
 import im.vector.activity.CommonActivityUtils;
@@ -153,7 +158,8 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
     static final int ROW_TYPE_EMOJI = 9;
     static final int ROW_TYPE_CODE = 10;
     static final int ROW_TYPE_STICKER = 11;
-    static final int NUM_ROW_TYPES = 12;
+    static final int ROW_TYPE_MEDIA_SCAN = 12;
+    static final int NUM_ROW_TYPES = 13;
 
     final Context mContext;
     private final HashMap<Integer, Integer> mRowTypeToLayoutId = new HashMap<>();
@@ -192,6 +198,9 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
     private String mReadReceiptEventId;
 
     private MatrixLinkMovementMethod mLinkMovementMethod;
+
+    // AntiVirus scan manager return the scan status of a media
+    protected MediaScanManager mMediaScanManager;
 
     private final VectorMessagesAdapterMediasHelper mMediasHelper;
     final protected VectorMessagesAdapterHelper mHelper;
@@ -264,6 +273,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                 R.layout.adapter_item_vector_message_code,
                 R.layout.adapter_item_vector_message_image_video,
                 R.layout.adapter_item_vector_hidden_message,
+                R.layout.adapter_item_tchap_media_scan,
                 mediasCache);
     }
 
@@ -285,6 +295,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
      * @param codeResLayoutId       the code message layout
      * @param stickerResLayoutId    the sticker message layout
      * @param hiddenResLayoutId     the hidden message layout
+     * @param mediaScanResLayoutId  the unchecked or untrusted attachments layout
      * @param mediasCache           the medias cache.
      */
     VectorMessagesAdapter(MXSession session,
@@ -301,6 +312,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                           int codeResLayoutId,
                           int stickerResLayoutId,
                           int hiddenResLayoutId,
+                          int mediaScanResLayoutId,
                           MXMediasCache mediasCache) {
         super(context, 0);
         mContext = context;
@@ -316,6 +328,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
         mRowTypeToLayoutId.put(ROW_TYPE_CODE, codeResLayoutId);
         mRowTypeToLayoutId.put(ROW_TYPE_STICKER, stickerResLayoutId);
         mRowTypeToLayoutId.put(ROW_TYPE_HIDDEN, hiddenResLayoutId);
+        mRowTypeToLayoutId.put(ROW_TYPE_MEDIA_SCAN, mediaScanResLayoutId);
         mMediasCache = mediasCache;
         mLayoutInflater = LayoutInflater.from(mContext);
         // the refresh will be triggered only when it is required
@@ -424,6 +437,13 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
      * Items getter / setter
      * *********************************************************************************************
      */
+
+    /**
+     * Set the media scan manager
+     */
+    public void setMediaScanManager(MediaScanManager mediaScanManager) {
+        mMediaScanManager = mediaScanManager;
+    }
 
     /**
      * Tests if the row can be inserted in a merge row.
@@ -758,6 +778,9 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             case ROW_TYPE_MERGE:
                 inflatedView = getMergeView(position, convertView, parent);
                 break;
+            case ROW_TYPE_MEDIA_SCAN:
+                inflatedView = getMediaScanView(position, convertView, parent);
+                break;
             default:
                 throw new RuntimeException("Unknown item view type for position " + position);
         }
@@ -989,6 +1012,11 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
 
         if (event instanceof EventGroup) {
             return ROW_TYPE_MERGE;
+        }
+
+        // check whether the event contains an unchecked or untrusted url
+        if (mMediaScanManager.isUncheckedOrUntrustedMediaEvent(event)) {
+            return ROW_TYPE_MEDIA_SCAN;
         }
 
         // never cache the view type of encrypted events
@@ -1423,7 +1451,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             View imageLayout = convertView.findViewById(R.id.messagesAdapter_image_layout);
             imageLayout.setAlpha(event.isSent() ? 1.0f : 0.5f);
 
-            this.manageSubView(position, convertView, imageLayout, type);
+            manageSubView(position, convertView, imageLayout, type);
 
             ImageView imageView = convertView.findViewById(R.id.messagesAdapter_image);
             addContentViewListeners(convertView, imageView, position, type);
@@ -1609,7 +1637,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             mMediasHelper.managePendingUpload(convertView, event, ROW_TYPE_FILE, fileMessage.url);
 
             View fileLayout = convertView.findViewById(R.id.messagesAdapter_file_layout);
-            this.manageSubView(position, convertView, fileLayout, ROW_TYPE_FILE);
+            manageSubView(position, convertView, fileLayout, ROW_TYPE_FILE);
 
             addContentViewListeners(convertView, fileTextView, position, ROW_TYPE_FILE);
         } catch (Exception e) {
@@ -1731,6 +1759,110 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             convertView.findViewById(R.id.messagesAdapter_body_view).setAlpha(alpha);
         } catch (Exception e) {
             Log.e(LOG_TAG, "## getMergeView() failed " + e.getMessage());
+        }
+
+        return convertView;
+    }
+
+    /**
+     * Unchecked or untrusted attachments management
+     *
+     * @param position    the message position
+     * @param convertView the message view
+     * @param parent      the parent view
+     * @return the updated text view.
+     */
+    private View getMediaScanView(final int position, View convertView, ViewGroup parent) {
+        if (convertView == null) {
+            convertView = mLayoutInflater.inflate(mRowTypeToLayoutId.get(ROW_TYPE_MEDIA_SCAN), parent, false);
+        }
+
+        // Here the event contains at least one url which is unchecked or untrusted.
+        try {
+            final TextView fileTextView = convertView.findViewById(R.id.messagesAdapter_filename);
+            final ImageView scanIconView = convertView.findViewById(R.id.messagesAdapter_media_scan_icon);
+            final TextView scanTextView = convertView.findViewById(R.id.messagesAdapter_media_scan_text);
+
+            if (null == fileTextView || null == scanIconView || null == scanTextView) {
+                Log.e(LOG_TAG, "getMediaScanView : invalid layout");
+                return convertView;
+            }
+
+            MessageRow row = getItem(position);
+            Event event = row.getEvent();
+            Message message = (Message) JsonUtils.toClass(event.getContent(), Message.class);
+            String fileName = message.body;
+
+            // Retrieve the current scan result
+            AntiVirusScanStatus antiVirusScanStatus = AntiVirusScanStatus.UNKNOWN;
+            int scanDrawable = R.drawable.ic_notification_privacy_warning; // FIXME set the right icon here (not available yet)
+            int scanText = R.string.tchap_scan_media_unavailable;
+            if (null != mMediaScanManager) {
+                if (event.isEncrypted()) {
+                    List<EncryptedFileInfo> encryptedFileInfos = event.getEncryptedFileInfos();
+                    boolean breakLoop = false;
+                    for (EncryptedFileInfo encryptedFileInfo : encryptedFileInfos) {
+                        MediaScan mediaScan = mMediaScanManager.scanEncryptedMedia(encryptedFileInfo);
+                        switch (mediaScan.getAntiVirusScanStatus()) {
+                            case IN_PROGRESS:
+                                scanDrawable = R.drawable.tchap_scanning;
+                                scanText = R.string.tchap_scan_media_in_progress;
+                                breakLoop = true;
+                                break;
+                            case INFECTED:
+                                scanDrawable = R.drawable.tchap_danger;
+                                scanText = R.string.tchap_scan_media_untrusted_content;
+                                fileName = mContext.getResources().getString(R.string.tchap_scan_media_untrusted_content_message, fileName);
+                                breakLoop = true;
+                                break;
+                        }
+
+                        if (breakLoop) {
+                            break;
+                        }
+                    }
+                } else {
+                    List<String> urls = event.getMediaUrls();
+                    boolean breakLoop = false;
+                    for (String url : urls) {
+                        MediaScan mediaScan = mMediaScanManager.scanUnencryptedMedia(url);
+                        switch (mediaScan.getAntiVirusScanStatus()) {
+                            case IN_PROGRESS:
+                                scanDrawable = R.drawable.tchap_scanning;
+                                scanText = R.string.tchap_scan_media_in_progress;
+                                breakLoop = true;
+                                break;
+                            case INFECTED:
+                                scanDrawable = R.drawable.tchap_danger;
+                                scanText = R.string.tchap_scan_media_untrusted_content;
+                                fileName = mContext.getResources().getString(R.string.tchap_scan_media_untrusted_content_message, fileName);
+                                breakLoop = true;
+                                break;
+                        }
+
+                        if (breakLoop) {
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Apply the retrieve data
+            scanIconView.setImageResource(scanDrawable);
+            scanTextView.setText(mContext.getResources().getString(scanText));
+            if (null != fileName) {
+                fileTextView.setVisibility(View.VISIBLE);
+                fileTextView.setText(fileName);
+            } else {
+                fileTextView.setVisibility(View.GONE);
+            }
+
+            // dimmed when the message is not sent
+            View mainLayout = convertView.findViewById(R.id.messagesAdapter_media_layout);
+            mainLayout.setAlpha(event.isSent() ? 1.0f : 0.5f);
+            this.manageSubView(position, convertView, mainLayout, ROW_TYPE_MEDIA_SCAN);
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "## getMediaScanView() failed " + e.getMessage());
         }
 
         return convertView;
@@ -2437,11 +2569,14 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             menu.getItem(i).setVisible(false);
         }
 
+        // Check whether the event contains an unchecked or untrusted url.
+        boolean isUncheckedOrUntrustedMediaEvent = (null == mMediaScanManager || mMediaScanManager.isUncheckedOrUntrustedMediaEvent(event));
+
         menu.findItem(R.id.ic_action_view_source).setVisible(true);
         menu.findItem(R.id.ic_action_view_decrypted_source).setVisible(event.isEncrypted() && (null != event.getClearEvent()));
         menu.findItem(R.id.ic_action_vector_permalink).setVisible(false);// Tchap disable permalink
 
-        if (!TextUtils.isEmpty(textMsg)) {
+        if (!TextUtils.isEmpty(textMsg) && !isUncheckedOrUntrustedMediaEvent) {
             menu.findItem(R.id.ic_action_vector_copy).setVisible(true);
             menu.findItem(R.id.ic_action_vector_quote).setVisible(true);
         }
@@ -2482,7 +2617,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
 
             menu.findItem(R.id.ic_action_vector_redact_message).setVisible(canBeRedacted);
 
-            if (Event.EVENT_TYPE_MESSAGE.equals(event.getType())) {
+            if (Event.EVENT_TYPE_MESSAGE.equals(event.getType()) && !isUncheckedOrUntrustedMediaEvent) {
                 Message message = JsonUtils.toMessage(event.getContentAsJsonObject());
 
                 // share / forward the message

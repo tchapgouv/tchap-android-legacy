@@ -1127,7 +1127,7 @@ public class VectorMediasPickerActivity extends MXCActionBarActivity implements 
      * @return the unique file name
      */
     private static String buildNewImageName(Context context) {
-        String nameRetValue = "VectorImage_" + new SimpleDateFormat("yyyy-MM-dd_hhmmss").format(new Date()) + ".jpg";
+        String nameRetValue = "Image_" + new SimpleDateFormat("yyyy-MM-dd_hhmmss").format(new Date()) + ".jpg";
 
         // save new name in preference
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);

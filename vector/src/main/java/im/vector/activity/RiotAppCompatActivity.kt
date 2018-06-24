@@ -40,10 +40,14 @@ import im.vector.receiver.DebugReceiver
 import im.vector.util.AssetReader
 import org.matrix.androidsdk.util.Log
 
+import io.realm.Realm
+
 /**
  * Parent class for all Activities in Vector application
  */
 abstract class RiotAppCompatActivity : AppCompatActivity() {
+
+    lateinit var realm: Realm
 
     /* ==========================================================================================
      * DATA
@@ -83,6 +87,10 @@ abstract class RiotAppCompatActivity : AppCompatActivity() {
     final override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Initialization of realm are done in VectorApp class
+        // Get a Realm instance for the application
+        realm = Realm.getDefaultInstance() // opens the file named "default.realm"
+
         doBeforeSetContentView()
 
         setContentView(getLayoutRes())
@@ -105,6 +113,8 @@ abstract class RiotAppCompatActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+
+        realm.close()
 
         unBinder?.unbind()
         unBinder = null

@@ -1,6 +1,7 @@
 /*
  * Copyright 2015 OpenMarket Ltd
  * Copyright 2017 Vector Creations Ltd
+ * Copyright 2018 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,7 +89,13 @@ public class VectorSearchMessagesListFragment extends VectorMessageListFragment 
 
     @Override
     public AbstractMessagesAdapter createMessagesAdapter() {
-        return new VectorSearchMessagesListAdapter(mSession, getActivity(), (null == mRoomId), getMXMediasCache());
+        VectorSearchMessagesListAdapter vectorSearchMessagesListAdapter = new VectorSearchMessagesListAdapter(mSession, getActivity(), (null == mRoomId), getMXMediasCache());
+        // Add the current media scan manager if any
+        if (null != mMediaScanManager) {
+            vectorSearchMessagesListAdapter.setMediaScanManager(mMediaScanManager);
+        }
+
+        return vectorSearchMessagesListAdapter;
     }
 
     @Override

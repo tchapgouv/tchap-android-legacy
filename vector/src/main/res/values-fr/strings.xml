@@ -109,7 +109,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="search">Rechercher</string>
 
     <string name="start_new_chat">Nouvelle discussion</string>
-    <string name="start_new_chat_from_contact">Dialoguer</string>
+    <string name="start_new_chat_from_contact">Envoyer un message</string>
     <string name="start_voice_call">Nouvel appel vocal</string>
     <string name="start_video_call">Nouvel appel vidéo</string>
 
@@ -864,6 +864,12 @@ Appareils inconnus :</string>
     <string name="tchap_burger_menu_contacts">Contacts</string>
     <string name="tchap_burger_menu_public_rooms">Salons publics</string>
     <string name="tchap_burger_menu_info">Cette application n\'est pas approuvée\npour l\'échange d\'informations en diffusion restreinte</string>
+
+    // tchap scan media
+    <string name="tchap_scan_media_unavailable">Analyse Indisponible</string>
+    <string name="tchap_scan_media_in_progress">Analyse Antivirus</string>
+    <string name="tchap_scan_media_untrusted_content">Fichier Bloqué</string>
+    <string name="tchap_scan_media_untrusted_content_message">Le document (%s) a été filtré par la politique de sécurité</string>
 
     // group details
     <string name="group_details_home">Accueil</string>

@@ -50,6 +50,7 @@ import org.matrix.androidsdk.listeners.MXEventListener;
 import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.rest.model.login.Credentials;
 
+import fr.gouv.tchap.media.MediaScanManager;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.SplashActivity;
 import im.vector.gcm.GcmRegistrationManager;
@@ -57,6 +58,7 @@ import im.vector.services.EventStreamService;
 import im.vector.store.LoginStorage;
 import im.vector.util.PreferencesManager;
 import im.vector.widgets.WidgetsManager;
+import io.realm.Realm;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -542,6 +544,13 @@ public class Matrix {
         } else {
             session.clear(context, callback);
         }
+
+        // Clear media scan database
+        // TODO The media scan database clear should be handled during the media cache clear when the MediaScanManager will be moved into the sdk.
+        Realm realm = Realm.getDefaultInstance();
+        MediaScanManager mediaScanManager = new MediaScanManager(session.getHomeServerConfig(), realm);
+        mediaScanManager.clearAntiVirusScanResults();
+        realm.close();
     }
 
     /**
@@ -626,6 +635,9 @@ public class Matrix {
         }*/
 
         final MXSession session = new MXSession(hsConfig, new MXDataHandler(store, credentials), mAppContext);
+
+        // Turn on the anti-virus server
+        session.getContentManager().configureAntiVirusScanner(true);
 
         session.getDataHandler().setRequestNetworkErrorListener(new MXDataHandler.RequestNetworkErrorListener() {
 

@@ -96,6 +96,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import fr.gouv.tchap.media.MediaScanManager;
 import im.vector.Matrix;
 import im.vector.R;
 import im.vector.VectorApp;
@@ -482,6 +483,12 @@ public class VectorSettingsPreferencesFragment extends PreferenceFragment implem
 
                     try {
                         task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                        // Clear media scan database
+                        if (getActivity() instanceof RiotAppCompatActivity) {
+                            RiotAppCompatActivity riotAppCompatActivity = (RiotAppCompatActivity) getActivity();
+                            MediaScanManager mediaScanManager = new MediaScanManager(mSession.getHomeServerConfig(), riotAppCompatActivity.realm);
+                            mediaScanManager.clearAntiVirusScanResults();
+                        }
                     } catch (Exception e) {
                         Log.e(LOG_TAG, "## mSession.getMediasCache().clear() failed " + e.getMessage());
                         task.cancel(true);

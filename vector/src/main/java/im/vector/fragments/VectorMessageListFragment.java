@@ -71,10 +71,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import fr.gouv.tchap.media.AntiVirusScanStatus;
+import fr.gouv.tchap.media.MediaScanManager;
+import fr.gouv.tchap.model.MediaScan;
 import im.vector.Matrix;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.MXCActionBarActivity;
+import im.vector.activity.RiotAppCompatActivity;
 import im.vector.activity.VectorHomeActivity;
 import im.vector.activity.VectorMediasViewerActivity;
 import im.vector.activity.VectorMemberDetailsActivity;
@@ -101,6 +105,9 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
     private static final String TAG_FRAGMENT_USER_GROUPS_DIALOG = "TAG_FRAGMENT_USER_GROUPS_DIALOG";
 
     private IListFragmentEventListener mHostActivityListener;
+
+    // Media scan manager
+    protected MediaScanManager mMediaScanManager;
 
     // onMediaAction actions
     // private static final int ACTION_VECTOR_SHARE = R.id.ic_action_vector_share;
@@ -181,25 +188,56 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
     }
 
     /**
-     * Called when a fragment is first attached to its activity.
-     * {@link #onCreate(Bundle)} will be called after this.
+     * Called when the fragment's activity has been created and this
+     * fragment's view hierarchy instantiated.  It can be used to do final
+     * initialization once these pieces are in place, such as retrieving
+     * views or restoring state.  It is also useful for fragments that use
+     * {@link #setRetainInstance(boolean)} to retain their instance,
+     * as this callback tells the fragment when it is fully associated with
+     * the new activity instance.  This is called after {@link #onCreateView}
+     * and before {@link #onViewStateRestored(Bundle)}.
      *
-     * @param aHostActivity parent activity
+     * @param savedInstanceState If the fragment is being re-created from
+     * a previous saved state, this is the state.
      */
     @Override
-    public void onAttach(Activity aHostActivity) {
-        super.onAttach(aHostActivity);
+    public void onActivityCreated(final Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        Activity hostActivity = getActivity();
         try {
-            mHostActivityListener = (IListFragmentEventListener) aHostActivity;
+            mHostActivityListener = (IListFragmentEventListener) hostActivity;
         } catch (ClassCastException e) {
             // if host activity does not provide the implementation, just ignore it
-            Log.w(LOG_TAG, "## onAttach(): host activity does not implement IListFragmentEventListener " + aHostActivity);
+            Log.w(LOG_TAG, "## onAttach(): host activity does not implement IListFragmentEventListener " + hostActivity);
             mHostActivityListener = null;
         }
 
-        mBackProgressView = aHostActivity.findViewById(R.id.loading_room_paginate_back_progress);
-        mForwardProgressView = aHostActivity.findViewById(R.id.loading_room_paginate_forward_progress);
-        mMainProgressView = aHostActivity.findViewById(R.id.main_progress_layout);
+        mBackProgressView = hostActivity.findViewById(R.id.loading_room_paginate_back_progress);
+        mForwardProgressView = hostActivity.findViewById(R.id.loading_room_paginate_forward_progress);
+        mMainProgressView = hostActivity.findViewById(R.id.main_progress_layout);
+
+        // Prepare media scan manager
+        if (hostActivity instanceof RiotAppCompatActivity) {
+            RiotAppCompatActivity riotAppCompatActivity = (RiotAppCompatActivity) hostActivity;
+            mMediaScanManager = new MediaScanManager(mSession.getHomeServerConfig(), riotAppCompatActivity.realm);
+
+            mMediaScanManager.setListener(new MediaScanManager.MediaScanManagerListener() {
+                @Override
+                public void onMediaScanChange(MediaScan mediaScan) {
+                    // Check if the fragment is added to its Activity before
+                    if (isAdded() && null != mAdapter) {
+                        // Refresh display
+                        mAdapter.notifyDataSetChanged();
+                    }
+                }
+            });
+
+            // Update the adapter if any
+            if (null != mAdapter && (mAdapter instanceof VectorMessagesAdapter)) {
+                ((VectorMessagesAdapter)mAdapter).setMediaScanManager(mMediaScanManager);
+            }
+        }
     }
 
     @Override
@@ -245,6 +283,8 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
         mBackProgressView = null;
         mForwardProgressView = null;
         mMainProgressView = null;
+
+        mMediaScanManager = null;
     }
 
     @Override
@@ -259,7 +299,13 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
 
     @Override
     public AbstractMessagesAdapter createMessagesAdapter() {
-        return new VectorMessagesAdapter(mSession, getActivity(), getMXMediasCache());
+        VectorMessagesAdapter vectorMessagesAdapter = new VectorMessagesAdapter(mSession, getActivity(), getMXMediasCache());
+        // Add the current media scan manager if any
+        if (null != mMediaScanManager) {
+            vectorMessagesAdapter.setMediaScanManager(mMediaScanManager);
+        }
+
+        return vectorMessagesAdapter;
     }
 
     /**
@@ -921,7 +967,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
     }
 
     /**
-     * @return the image and video messages list
+     * @return the list of the trusted images and videos
      */
     ArrayList<SlidableMediaInfo> listSlidableMessages() {
         ArrayList<SlidableMediaInfo> res = new ArrayList<>();
@@ -929,30 +975,38 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
         for (int position = 0; position < mAdapter.getCount(); position++) {
             MessageRow row = mAdapter.getItem(position);
             Message message = JsonUtils.toMessage(row.getEvent().getContent());
+            SlidableMediaInfo info = null;
 
             if (Message.MSGTYPE_IMAGE.equals(message.msgtype)) {
-
                 ImageMessage imageMessage = (ImageMessage) message;
-                SlidableMediaInfo info = new SlidableMediaInfo();
+                info = new SlidableMediaInfo();
                 info.mMessageType = Message.MSGTYPE_IMAGE;
                 info.mFileName = imageMessage.body;
                 info.mMediaUrl = imageMessage.getUrl();
+                info.mThumbnailUrl = imageMessage.getThumbnailUrl();
                 info.mRotationAngle = imageMessage.getRotation();
                 info.mOrientation = imageMessage.getOrientation();
                 info.mMimeType = imageMessage.getMimeType();
                 info.mEncryptedFileInfo = imageMessage.file;
-                res.add(info);
-
+                if (null != imageMessage.info) {
+                    info.mEncryptedThumbnailFileInfo = imageMessage.info.thumbnail_file;
+                }
             } else if (Message.MSGTYPE_VIDEO.equals(message.msgtype)) {
-
                 VideoMessage videoMessage = (VideoMessage) message;
-                SlidableMediaInfo info = new SlidableMediaInfo();
+                info = new SlidableMediaInfo();
                 info.mMessageType = Message.MSGTYPE_VIDEO;
                 info.mFileName = videoMessage.body;
                 info.mMediaUrl = videoMessage.getUrl();
-                info.mThumbnailUrl = (null != videoMessage.info) ? videoMessage.info.thumbnail_url : null;
+                info.mThumbnailUrl = videoMessage.getThumbnailUrl();
                 info.mMimeType = videoMessage.getMimeType();
                 info.mEncryptedFileInfo = videoMessage.file;
+                if (null != videoMessage.info) {
+                    info.mEncryptedThumbnailFileInfo = videoMessage.info.thumbnail_file;
+                }
+            }
+
+            // Check whether the media is trusted
+            if (null != info && null != mMediaScanManager && mMediaScanManager.isTrustedSlidableMediaInfo(info)) {
                 res.add(info);
             }
         }
@@ -1006,6 +1060,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
     @Override
     public void onContentClick(int position) {
         try {
+            // CAUTION: We consider here that the clicked media is trusted (check on his scan result is achieved before displaying it, and enabling click on it).
             MessageRow row = mAdapter.getItem(position);
             Event event = row.getEvent();
 
@@ -1021,6 +1076,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
 
             // video and images are displayed inside a medias slider.
             if (Message.MSGTYPE_IMAGE.equals(message.msgtype) || (Message.MSGTYPE_VIDEO.equals(message.msgtype))) {
+                // Retrieve the trusted slidable medias
                 ArrayList<SlidableMediaInfo> mediaMessagesList = listSlidableMessages();
                 int listPosition = getMediaMessagePosition(mediaMessagesList, message);
 
