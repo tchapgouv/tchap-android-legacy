@@ -1,3 +1,37 @@
+Changes in Tchap 1.0.0 (2018-06-25)
+===================================================
+ 
+Improvements:
+ * Update matrix-sdk lib: build 1815 - Revision: b9d425adf430f05312697f5bc2f5c9dce9d1c912
+ * Antivirus: Add MediaScan in the attachments handling #122 (Encrypted AES keys are not supported yet)
+ * Authentication screen: remove Tchap icon, add ActionBar title #187
+ * Room creation - Set Avatar, Name, Privacy and Participants #127
+ * Contacts: new direct chat creation #176
+ * Invitation des contacts: Add the button at the top of contacts list #173
+ * Invitation des contacts: Update the non-tchap contacts list display #174
+ * Invitation des contacts: Hide the created room used to invite a contact #175
+ * Invitation des contacts: Check whether the contact can register before inviting him #184
+ * Invitation des contacts: Update "inviter par mail" button #177
+ * Burger menu: update design #191
+ * New build flavor to include/exclude VoIP features and related code PR#202
+ * Home screen: Remove the search icon and the menu icon from the ActionBar #188
+ * Theme: Update Tchap colors #178
+ * Change the public rooms access (Use the floating button) #196
+ * Redesign headers and details screens for room activities #217
+ * Home screen - Conversation View: Update design #190
+ * Home screen - Contact View: remove connexion info, highlight contact domain #189
+ * Tchap links: Update all the existing riot links #185
+ * Hide radio button on menu #230
+ * Nouveau changement de terminologie : les salons redeviennent des salons, et les dialogue des discussions #186
+ * Disable permalink, remove matrix.to handling #193
+ * Enlarge contact's list #246
+ * Nouvelle Discussion: list only Tchap users #194
+ 
+Bug Fixes:
+ * Some non-tchap users are displayed in the Contacts list #181
+ * Contact's list is not correct when inviting to a room #234
+ * Focus when click on search icon #223
+
 Changes in Tchap 0.1.8 (2018-05-30)
 ===================================================
  
