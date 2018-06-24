@@ -71,6 +71,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.R;
 import im.vector.VectorApp;
 import im.vector.listeners.IMessagesAdapterActionsListener;
@@ -195,7 +196,7 @@ class VectorMessagesAdapterHelper {
                     senderTextView.setVisibility(View.GONE);
                 } else {
                     senderTextView.setVisibility(View.VISIBLE);
-                    senderTextView.setText(getUserDisplayName(event.getSender(), row.getRoomState()));
+                    senderTextView.setText(DinsicUtils.getNameFromDisplayName(getUserDisplayName(event.getSender(), row.getRoomState())));
 
                     final String fSenderId = event.getSender();
                     final String fDisplayName = (null == senderTextView.getText()) ? "" : senderTextView.getText().toString();
@@ -599,6 +600,34 @@ class VectorMessagesAdapterHelper {
             } else {
                 headerLayout.setVisibility(View.GONE);
             }
+        }
+    }
+
+    /**
+     * Hide the progress layout and the sticker's description
+     *
+     * @param convertView   base view
+     */
+    public void initializeLayoutsDisplay(View convertView) {
+        View downloadProgressLayout = convertView.findViewById(R.id.content_download_progress_layout);
+        View uploadProgressLayout = convertView.findViewById(R.id.content_upload_progress_layout);
+        View progressBar = convertView.findViewById(R.id.upload_event_spinner);
+        View stickerDescription = convertView.findViewById(R.id.message_adapter_sticker_layout);
+
+        if (null != uploadProgressLayout) {
+            uploadProgressLayout.setVisibility(View.GONE);
+        }
+
+        if (null != downloadProgressLayout) {
+            downloadProgressLayout.setVisibility(View.GONE);
+        }
+
+        if (null != progressBar) {
+            progressBar.setVisibility(View.GONE);
+        }
+
+        if (null != stickerDescription) {
+            stickerDescription.setVisibility(View.GONE);
         }
     }
 

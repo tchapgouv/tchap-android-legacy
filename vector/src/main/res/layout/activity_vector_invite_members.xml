@@ -1,38 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/vector_invite_members_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:focusableInTouchMode="true">
 
-    <TextView
-        android:id="@+id/search_invite_by_id"
-        style="@style/ListHeader"
+    <SearchView
+        android:id="@+id/external_search_view"
+        style="@style/SearchViewMembers"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        android:text="@string/people_search_invite_by_id"
-        android:textAllCaps="false"
-        android:textSize="16sp" />
+        android:layout_height="40dp"
+        android:layout_margin="10dp"
+        android:background="@drawable/tchap_search_bar_style"
+        android:clickable="true"
+        android:gravity="center"
+        android:iconifiedByDefault="false"
+        android:queryHint="@string/search"/>
+
+    <RelativeLayout
+        android:id="@+id/ly_invite_contacts_by_email"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_below="@+id/external_search_view"
+        android:layout_marginLeft="24dp"
+        android:clickable="true"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <ImageView
+            android:id="@+id/icon_add_contacts_by_email"
+            android:layout_width="41dp"
+            android:layout_height="41dp"
+            android:layout_marginTop="10dp"
+            android:src="@drawable/tchap_ic_add_bymail" />
+
+        <TextView
+            android:id="@+id/tv_invite_contacts_by_email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="20dp"
+            android:layout_toRightOf="@+id/icon_add_contacts_by_email"
+            android:text="@string/tchap_invite_contacts_by_email"
+            android:textColor="@color/tchap_text_color_light"
+            android:textSize="16sp" />
+    </RelativeLayout>
+
+
 
     <ExpandableListView
         android:id="@+id/room_details_members_list"
-        android:layout_below="@+id/search_invite_by_id"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@+id/ly_invite_contacts_by_email"
         android:divider="@android:color/transparent"
         android:dividerHeight="1px" />
 
-    <RelativeLayout
-        android:id="@+id/search_in_progress_view"
+    <FrameLayout
+        android:id="@+id/search_progress_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="?attr/waiting_background_color"
-        android:visibility="visible">
-
+        android:visibility="gone">
         <ProgressBar
+            android:id="@+id/listView_spinner"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:indeterminate="true" />
-    </RelativeLayout>
+            android:layout_gravity="center"
+            android:visibility="visible"/>
+    </FrameLayout>
 </RelativeLayout>

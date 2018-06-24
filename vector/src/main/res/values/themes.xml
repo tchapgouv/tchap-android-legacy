@@ -44,6 +44,8 @@
         <item name="markdown_block_background_color">#FFEEEEEE</item>
         <item name="fenced_code_block_background_color">#FF00FF00</item>
         <item name="room_activity_divider_color">#FFF2F2F2</item>
+        <item name="room_header_divider_color">#bbbbbb</item>
+        <item name="domain_message_color">#162d58</item>
 
         <!-- tab bar colors -->
         <item name="tab_bar_background_color">?attr/primary_color</item>

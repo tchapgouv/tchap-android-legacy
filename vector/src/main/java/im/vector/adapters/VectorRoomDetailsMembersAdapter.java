@@ -47,6 +47,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 
+import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.R;
 import im.vector.VectorApp;
 import im.vector.activity.CommonActivityUtils;
@@ -152,20 +153,18 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
         final ImageView mMemberAvatarImageView;
         final ImageView mMemberAvatarBadgeImageView;
         final TextView mMemberNameTextView;
-        final TextView mMemberStatusTextView;
+        final TextView mMemberDomainTextView;
         final View mHiddenListActionsView;
         final View mDeleteActionsView;
         final RelativeLayout mSwipeCellLayout;
-        final CheckBox mMultipleSelectionCheckBox;
 
         ChildMemberViewHolder(View aParentView) {
             mMemberAvatarImageView = aParentView.findViewById(R.id.filtered_list_avatar);
             mMemberAvatarBadgeImageView = aParentView.findViewById(R.id.filtered_list_avatar_badge);
             mMemberNameTextView = aParentView.findViewById(R.id.filtered_list_name);
-            mMemberStatusTextView = aParentView.findViewById(R.id.filtered_list_status);
+            mMemberDomainTextView = aParentView.findViewById(R.id.filtered_list_domain);
             mHiddenListActionsView = aParentView.findViewById(R.id.filtered_list_actions);
             mSwipeCellLayout = aParentView.findViewById(R.id.filtered_list_cell);
-            mMultipleSelectionCheckBox = aParentView.findViewById(R.id.filtered_list_checkbox);
             mDeleteActionsView = aParentView.findViewById(R.id.filtered_list_delete_action);
         }
     }
@@ -737,7 +736,11 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
                 memberName += " (" + participant.mUserId + ")";
             }
         }
-        viewHolder.mMemberNameTextView.setText(memberName);
+
+        viewHolder.mMemberNameTextView.setPadding(0, 22, 0, 0);
+        viewHolder.mMemberDomainTextView.setPadding(0, 30, 0, 0);
+        viewHolder.mMemberNameTextView.setText(DinsicUtils.getNameFromDisplayName(memberName));
+        viewHolder.mMemberDomainTextView.setText(DinsicUtils.getDomainFromDisplayName(memberName));
 
         // 2b admin badge
         viewHolder.mMemberAvatarBadgeImageView.setVisibility(View.GONE);
@@ -755,7 +758,7 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
             }
         }
         // 3 - display member status
-        viewHolder.mMemberStatusTextView.setText(VectorUtils.getUserOnlineStatus(mContext, mSession, participant.mUserId, null));
+        //viewHolder.mMemberStatusTextView.setText(VectorUtils.getUserOnlineStatus(mContext, mSession, participant.mUserId, null));
 
         // add "remove member from room" action
         viewHolder.mDeleteActionsView.setOnClickListener(new View.OnClickListener() {
@@ -899,37 +902,6 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
         }
 
         int backgroundColor = ThemeUtils.getColor(mContext, R.attr.riot_primary_background_color);
-
-        // multi selections mode
-        // do not display a checkbox for oneself
-        if (mIsMultiSelectionMode && !TextUtils.equals(mSession.getMyUserId(), participant.mUserId) && (null != participant.mRoomMember)) {
-            viewHolder.mMultipleSelectionCheckBox.setVisibility(View.VISIBLE);
-
-            viewHolder.mMultipleSelectionCheckBox.setChecked(mSelectedUserIds.indexOf(participant.mUserId) >= 0);
-
-            if (viewHolder.mMultipleSelectionCheckBox.isChecked()) {
-                backgroundColor = ThemeUtils.getColor(mContext, R.attr.multi_selection_background_color);
-            }
-
-            viewHolder.mMultipleSelectionCheckBox.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (viewHolder.mMultipleSelectionCheckBox.isChecked()) {
-                        mSelectedUserIds.add(participant.mUserId);
-                        viewHolder.mSwipeCellLayout.setBackgroundColor(ThemeUtils.getColor(mContext, R.attr.multi_selection_background_color));
-                    } else {
-                        mSelectedUserIds.remove(participant.mUserId);
-                        viewHolder.mSwipeCellLayout.setBackgroundColor(ThemeUtils.getColor(mContext, R.attr.riot_primary_background_color));
-                    }
-
-                    if (null != mOnParticipantsListener) {
-                        mOnParticipantsListener.onSelectUserId(participant.mUserId);
-                    }
-                }
-            });
-        } else {
-            viewHolder.mMultipleSelectionCheckBox.setVisibility(View.GONE);
-        }
 
         viewHolder.mSwipeCellLayout.setBackgroundColor(backgroundColor);
 

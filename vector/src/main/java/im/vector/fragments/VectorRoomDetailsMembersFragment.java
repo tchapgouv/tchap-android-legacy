@@ -317,7 +317,7 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
     private TextView mSearchNoResultTextView;
     private ImageView mClearSearchImageView;
     private String mPatternValue;
-    private View mAddMembersFloatingActionButton;
+    private View mAddMembersButton;
 
     // create an instance of the fragment
     public static VectorRoomDetailsMembersFragment newInstance() {
@@ -545,7 +545,7 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
      */
     private void processEditionMode() {
         boolean isEnabled;
-
+/*
         if (null != mSwitchDeletionMenuItem) {
             if (!isUserAdmin()) {
                 isEnabled = false;
@@ -554,7 +554,7 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
             mSwitchDeletionMenuItem.setVisible(isEnabled);
             mSwitchDeletionMenuItem.setEnabled(isEnabled);
         }
-    }
+ */   }
 
 
     /**
@@ -645,15 +645,15 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
         if (null != mRemoveMembersMenuItem) {
             mRemoveMembersMenuItem.setVisible(mIsMultiSelectionMode);
 
-            if (null != mAddMembersFloatingActionButton && !RoomUtils.isDirectChat(mSession, mRoom.getRoomId())) {
-                mAddMembersFloatingActionButton.setVisibility(mIsMultiSelectionMode ? View.GONE : View.VISIBLE);
+            if (null != mAddMembersButton && !RoomUtils.isDirectChat(mSession, mRoom.getRoomId())) {
+                mAddMembersButton.setVisibility(mIsMultiSelectionMode ? View.GONE : View.VISIBLE);
             } else {
-                mAddMembersFloatingActionButton.setVisibility(View.GONE);
+                mAddMembersButton.setVisibility(View.GONE);
             }
         }
 
         if ((null != mSwitchDeletionMenuItem) && (mSwitchDeletionMenuItem.isEnabled())) {
-            mSwitchDeletionMenuItem.setVisible(!mIsMultiSelectionMode);
+            mSwitchDeletionMenuItem.setVisible(false);//!mIsMultiSelectionMode);
         }
     }
 
@@ -672,10 +672,12 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
      * Reset the activity title.
      */
     private void resetActivityTitle() {
+        /*
         mRemoveMembersMenuItem.setEnabled(true);
         mSwitchDeletionMenuItem.setEnabled(true);
 
         setActivityTitle(this.getResources().getString(R.string.room_details_title));
+        */
     }
 
     /**
@@ -780,9 +782,9 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
     private void finalizeInit() {
         MXMediasCache mxMediasCache = mSession.getMediasCache();
 
-        mAddMembersFloatingActionButton = mViewHierarchy.findViewById(R.id.add_participants_create_view);
+        mAddMembersButton = mViewHierarchy.findViewById(R.id.ly_invite_contacts_to_room);
 
-        mAddMembersFloatingActionButton.setOnClickListener(new View.OnClickListener() {
+        mAddMembersButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // pop to the home activity
@@ -790,7 +792,7 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
                 intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
                 intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_ROOM_ID, mRoom.getRoomId());
                 intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_ADD_CONFIRMATION_DIALOG, true);
-                intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_INVITE_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.ALL);
+                intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY);
                 getActivity().startActivityForResult(intent, INVITE_USER_REQUEST_CODE);
             }
         });

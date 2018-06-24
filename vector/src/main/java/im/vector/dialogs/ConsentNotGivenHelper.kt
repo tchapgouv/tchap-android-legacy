@@ -61,7 +61,7 @@ class ConsentNotGivenHelper(private val activity: Activity, savedInstanceState: 
         AlertDialog.Builder(activity)
                 .setTitle(R.string.settings_app_term_conditions)
                 .setMessage(activity.getString(R.string.dialog_user_consent_content,
-                        Matrix.getInstance(activity).defaultSession.homeServerConfig.homeserverUri.host))
+                        activity.getString(R.string.tchap_dialog_user_consent_homeserver_name)))
                 .setPositiveButton(R.string.dialog_user_consent_submit) { _, _ ->
                     openWebViewActivity(matrixError.consentUri)
                     isDialogDisplayed = false

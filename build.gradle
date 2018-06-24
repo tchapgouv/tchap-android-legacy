@@ -14,13 +14,16 @@ buildscript {
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
+
+        // Use Realm Database
+        classpath "io.realm:realm-gradle-plugin:5.1.0"
     }
 }
 
 // global properties used in sub modules
 ext {
-    versionCodeProp = 13
-    versionNameProp = "0.1.8"
+    versionCodeProp = 20
+    versionNameProp = "1.0.0"
     versionBuild = System.getenv("BUILD_NUMBER") as Integer ?: 0
     buildNumberProp = "${versionBuild}"
 }

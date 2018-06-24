@@ -147,8 +147,7 @@ public class VectorRoomCreationAdapter extends ArrayAdapter<ParticipantAdapterIt
         // retrieve the ui items
         final ImageView thumbView = convertView.findViewById(R.id.filtered_list_avatar);
         final TextView nameTextView = convertView.findViewById(R.id.filtered_list_name);
-        final TextView statusTextView = convertView.findViewById(R.id.filtered_list_status);
-        final ImageView matrixUserBadge = convertView.findViewById(R.id.filtered_list_matrix_user);
+        final TextView statusTextView = convertView.findViewById(R.id.filtered_list_email);
 
         // display the avatar
         participant.displayAvatar(mSession, thumbView);
@@ -183,17 +182,9 @@ public class VectorRoomCreationAdapter extends ArrayAdapter<ParticipantAdapterIt
         // the contact defines a matrix user but there is no way to get more information (presence, avatar)
         if (participant.mContact != null) {
             statusTextView.setText(participant.mUserId);
-
-            boolean isMatrixUserId = !android.util.Patterns.EMAIL_ADDRESS.matcher(participant.mUserId).matches();
-            matrixUserBadge.setVisibility(isMatrixUserId ? View.VISIBLE : View.GONE);
         } else {
             statusTextView.setText(status);
-            matrixUserBadge.setVisibility(View.GONE);
         }
-
-        // the checkbox is not managed here
-        final CheckBox checkBox = convertView.findViewById(R.id.filtered_list_checkbox);
-        checkBox.setVisibility(View.GONE);
 
         final View removeParticipantImageView = convertView.findViewById(R.id.filtered_list_remove_button);
         removeParticipantImageView.setVisibility(View.VISIBLE);

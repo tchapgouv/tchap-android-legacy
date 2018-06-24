@@ -6,13 +6,16 @@
     android:layout_height="74dp"
     android:paddingRight="16dp">
 
-
-    <im.vector.view.VectorCircularImageView
+    <fr.gouv.tchap.util.HexagonMaskView
         android:id="@+id/public_room_avatar"
         android:layout_width="@dimen/chat_avatar_size"
         android:layout_height="@dimen/chat_avatar_size"
         android:layout_centerVertical="true"
         android:layout_marginLeft="16dp"
+        android:maxWidth="@dimen/chat_avatar_size"
+        android:maxHeight="@dimen/chat_avatar_size"
+        android:scaleType="centerCrop"
+        android:adjustViewBounds="true"
         tools:src="#22000000" />
 
     <RelativeLayout
@@ -32,7 +35,7 @@
             android:fontFamily="sans-serif-regular"
             android:maxLines="1"
             android:textColor="?attr/riot_primary_text_color"
-            android:textSize="16sp"
+            android:textSize="15sp"
             tools:text="Room name a bit long to be displayed completely" />
 
         <TextView
@@ -42,20 +45,31 @@
             android:layout_alignRight="@+id/public_room_name"
             android:layout_below="@+id/public_room_name"
             android:ellipsize="end"
-            android:maxLines="1"
+            android:maxLines="2"
             android:textColor="?attr/default_text_light_color"
-            android:textSize="14sp"
+            android:textSize="12sp"
             tools:text="First message of the room is a bit too long to be displayed" />
 
         <TextView
             android:id="@+id/public_room_members_count"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBaseline="@+id/public_room_name"
+            android:layout_alignBottom="@+id/public_room_topic"
+            android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:textColor="?attr/default_text_light_color"
-            android:textSize="12sp"
+            android:textSize="10sp"
             tools:text="14 Mar" />
+
+        <TextView
+            android:id="@+id/public_room_domain"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/public_room_name"
+            android:layout_alignParentRight="true"
+            android:textColor="?attr/domain_message_color"
+            android:textSize="10sp"
+            tools:text="Diplomatie" />
     </RelativeLayout>
 
 </RelativeLayout>

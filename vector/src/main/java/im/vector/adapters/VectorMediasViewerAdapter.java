@@ -1,5 +1,6 @@
 /*
  * Copyright 2015 OpenMarket Ltd
+ * Copyright 2018 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,6 +55,7 @@ import org.matrix.androidsdk.util.ImageUtils;
 import org.matrix.androidsdk.util.JsonUtils;
 import org.matrix.androidsdk.view.PieFractionView;
 
+import fr.gouv.tchap.media.MediaScanManager;
 import im.vector.R;
 
 import org.matrix.androidsdk.db.MXMediasCache;
@@ -89,6 +91,10 @@ public class VectorMediasViewerAdapter extends PagerAdapter {
     private final MXSession mSession;
 
     private int mAutoPlayItemAt = -1;
+
+    // We are not supposed to process unchecked or untrusted media in this viewer.
+    // We add here a media scan manager to apply some sanity checks.
+    protected MediaScanManager mMediaScanManager;
 
     public VectorMediasViewerAdapter(Context context, MXSession session, MXMediasCache mediasCache, List<SlidableMediaInfo> mediaMessagesList, int maxImageWidth, int maxImageHeight) {
         this.mContext = context;
@@ -153,6 +159,13 @@ public class VectorMediasViewerAdapter extends PagerAdapter {
     }
 
     /**
+     * Set the media scan manager
+     */
+    public void setMediaScanManager(MediaScanManager mediaScanManager) {
+        mMediaScanManager = mediaScanManager;
+    }
+
+    /**
      * @param position the position of the item to play.
      */
     public void autoPlayItemAt(int position) {
@@ -167,6 +180,12 @@ public class VectorMediasViewerAdapter extends PagerAdapter {
      */
     private void downloadHighResMedia(final View view, final int position) {
         SlidableMediaInfo imageInfo = mMediasMessagesList.get(position);
+
+        // Sanity check: check whether the media is still trusted
+        if (null == imageInfo || null == mMediaScanManager || !mMediaScanManager.isTrustedSlidableMediaInfo(imageInfo)) {
+            Log.e(LOG_TAG, "## downloadHighResMedia : the media is unchecked or untrusted " + imageInfo.mMediaUrl);
+            return;
+        }
 
         // image
         if (imageInfo.mMessageType.equals(Message.MSGTYPE_IMAGE)) {
@@ -216,7 +235,7 @@ public class VectorMediasViewerAdapter extends PagerAdapter {
                 public void onSuccess(File file) {
                     if (null != file) {
                         mHighResMediaIndex.add(position);
-                        loadVideo(position, view, thumbnailUrl, Uri.fromFile(file).toString(), mediaInfo.mMimeType, mediaInfo.mEncryptedFileInfo);
+                        loadVideo(position, view, thumbnailUrl, Uri.fromFile(file).toString(), mediaInfo.mMimeType, mediaInfo.mEncryptedThumbnailFileInfo, mediaInfo.mEncryptedFileInfo);
 
                         if (position == mAutoPlayItemAt) {
                             playVideo(view, videoView, file, mediaInfo.mMimeType);
@@ -282,7 +301,7 @@ public class VectorMediasViewerAdapter extends PagerAdapter {
                                         thumbView.post(new Runnable() {
                                             @Override
                                             public void run() {
-                                                loadVideo(position, view, thumbnailUrl, newHighResUri, mediaInfo.mMimeType, mediaInfo.mEncryptedFileInfo);
+                                                loadVideo(position, view, thumbnailUrl, newHighResUri, mediaInfo.mMimeType, mediaInfo.mEncryptedThumbnailFileInfo, mediaInfo.mEncryptedFileInfo);
 
                                                 if (position == mAutoPlayItemAt) {
                                                     playVideo(view, videoView, mediaFile, mediaInfo.mMimeType);
@@ -426,6 +445,12 @@ public class VectorMediasViewerAdapter extends PagerAdapter {
         final SlidableMediaInfo mediaInfo = mMediasMessagesList.get(position);
         String mediaUrl = mediaInfo.mMediaUrl;
 
+        // Sanity check: check whether the media is still trusted
+        if (null == mediaInfo || null == mMediaScanManager || !mMediaScanManager.isTrustedSlidableMediaInfo(mediaInfo)) {
+            Log.e(LOG_TAG, "## instantiateItem : the media is unchecked or untrusted " + mediaUrl);
+            return view;
+        }
+
         if (mediaInfo.mMessageType.equals(Message.MSGTYPE_IMAGE)) {
             imageWebView.setVisibility(View.VISIBLE);
             // Do not set layer type, it prevent gif from being played
@@ -479,7 +504,7 @@ public class VectorMediasViewerAdapter extends PagerAdapter {
             });
 
         } else {
-            loadVideo(position, view, mediaInfo.mThumbnailUrl, mediaUrl, mediaInfo.mMimeType, mediaInfo.mEncryptedFileInfo);
+            loadVideo(position, view, mediaInfo.mThumbnailUrl, mediaUrl, mediaInfo.mMimeType, mediaInfo.mEncryptedThumbnailFileInfo, mediaInfo.mEncryptedFileInfo);
             container.addView(view, 0);
         }
 
@@ -624,6 +649,12 @@ public class VectorMediasViewerAdapter extends PagerAdapter {
     private void downloadMedia() {
         final SlidableMediaInfo mediaInfo = mMediasMessagesList.get(mLatestPrimaryItemPosition);
 
+        // Sanity check: check whether the media is still trusted
+        if (null == mediaInfo || null == mMediaScanManager || !mMediaScanManager.isTrustedSlidableMediaInfo(mediaInfo)) {
+            Log.e(LOG_TAG, "## onAction : the media is unchecked or untrusted " + mediaInfo.mMediaUrl);
+            return;
+        }
+
         if (mMediasCache.isMediaCached(mediaInfo.mMediaUrl, mediaInfo.mMimeType)) {
             mMediasCache.createTmpMediaFile(mediaInfo.mMediaUrl, mediaInfo.mMimeType, mediaInfo.mEncryptedFileInfo, new SimpleApiCallback<File>() {
                 @Override
@@ -705,12 +736,20 @@ public class VectorMediasViewerAdapter extends PagerAdapter {
     /**
      * Load the video items
      *
-     * @param view          the page view
-     * @param thumbnailUrl  the thumbnail URL
-     * @param videoUrl      the video Url
-     * @param videoMimeType the video mime type
+     * @param view                       the page view
+     * @param thumbnailUrl               the thumbnail URL
+     * @param videoUrl                   the video Url
+     * @param videoMimeType              the video mime type
+     * @param encryptedFileThumbnailInfo the encryption info for the thumbnail
+     * @param encryptedFileInfo          the encryption info for the video
      */
-    private void loadVideo(final int position, final View view, final String thumbnailUrl, final String videoUrl, final String videoMimeType, final EncryptedFileInfo encryptedFileInfo) {
+    private void loadVideo(final int position,
+                           final View view,
+                           final String thumbnailUrl,
+                           final String videoUrl,
+                           final String videoMimeType,
+                           final EncryptedFileInfo encryptedFileThumbnailInfo,
+                           final EncryptedFileInfo encryptedFileInfo) {
         final VideoView videoView = view.findViewById(R.id.media_slider_videoview);
         final ImageView thumbView = view.findViewById(R.id.media_slider_video_thumbnail);
         final ImageView playView = view.findViewById(R.id.media_slider_video_playView);
@@ -745,7 +784,7 @@ public class VectorMediasViewerAdapter extends PagerAdapter {
         });
 
         // init the thumbnail views
-        mMediasCache.loadBitmap(mSession.getHomeServerConfig(), thumbView, thumbnailUrl, 0, 0, null, null);
+        mMediasCache.loadBitmap(mSession.getHomeServerConfig(), thumbView, thumbnailUrl, 0, 0, null, encryptedFileThumbnailInfo);
 
         playView.setOnClickListener(new View.OnClickListener() {
             @Override

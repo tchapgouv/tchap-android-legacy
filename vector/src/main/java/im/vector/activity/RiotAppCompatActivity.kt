@@ -31,17 +31,23 @@ import androidx.core.view.isVisible
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.Unbinder
+import im.vector.BuildConfig
 import im.vector.R
 import im.vector.VectorApp
 import im.vector.activity.interfaces.Restorable
 import im.vector.dialogs.ConsentNotGivenHelper
+import im.vector.receiver.DebugReceiver
 import im.vector.util.AssetReader
 import org.matrix.androidsdk.util.Log
+
+import io.realm.Realm
 
 /**
  * Parent class for all Activities in Vector application
  */
 abstract class RiotAppCompatActivity : AppCompatActivity() {
+
+    lateinit var realm: Realm
 
     /* ==========================================================================================
      * DATA
@@ -50,6 +56,9 @@ abstract class RiotAppCompatActivity : AppCompatActivity() {
     private var unBinder: Unbinder? = null
 
     private var savedInstanceState: Bundle? = null
+
+    // For debug only
+    private var debugReceiver: DebugReceiver? = null
 
     /* ==========================================================================================
      * UI
@@ -78,6 +87,10 @@ abstract class RiotAppCompatActivity : AppCompatActivity() {
     final override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Initialization of realm are done in VectorApp class
+        // Get a Realm instance for the application
+        realm = Realm.getDefaultInstance() // opens the file named "default.realm"
+
         doBeforeSetContentView()
 
         setContentView(getLayoutRes())
@@ -101,6 +114,8 @@ abstract class RiotAppCompatActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
 
+        realm.close()
+
         unBinder?.unbind()
         unBinder = null
     }
@@ -114,6 +129,23 @@ abstract class RiotAppCompatActivity : AppCompatActivity() {
         }
 
         Log.event(Log.EventTag.NAVIGATION, "onResume Activity " + this.javaClass.simpleName)
+
+        DebugReceiver
+                .getIntentFilter()
+                .takeIf { BuildConfig.DEBUG }
+                ?.let {
+                    debugReceiver = DebugReceiver()
+                    registerReceiver(debugReceiver, it)
+                }
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        debugReceiver?.let {
+            unregisterReceiver(debugReceiver)
+            debugReceiver = null
+        }
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {

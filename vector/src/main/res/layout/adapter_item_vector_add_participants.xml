@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="74dp"
+    android:layout_height="65dp"
     android:orientation="horizontal">
 
     <LinearLayout
@@ -23,7 +24,6 @@
                 android:layout_height="24dp"
                 android:layout_centerInParent="true"
                 android:src="@drawable/ic_material_eject_white" />
-
         </RelativeLayout>
     </LinearLayout>
 
@@ -31,96 +31,128 @@
         android:id="@+id/filtered_list_cell"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
         android:background="?attr/riot_primary_background_color">
 
-        <RelativeLayout
-            android:id="@+id/filtered_list_actions_list"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="16dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
 
-            <CheckBox
-                android:id="@+id/filtered_list_checkbox"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="gone" />
+            <RelativeLayout
+                android:id="@+id/ly_user_infos"
+                android:layout_width="300dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
 
-            <ImageView
-                android:id="@+id/filtered_list_remove_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/vector_creation_remove_user"
-                android:visibility="gone" />
+                <FrameLayout
+                    android:id="@+id/ly_icon_check_invite"
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginRight="7dp">
 
-            <ImageView
-                android:id="@+id/filtered_list_add_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:alpha="0.3"
-                android:src="@drawable/ic_add_black"
-                android:visibility="gone" />
-        </RelativeLayout>
+                    <ImageView
+                        android:id="@+id/icon_check_invite_member"
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:layout_alignParentLeft="true"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/tchap_ic_selected_contact"
+                        android:visibility="gone"
+                        tools:visibility="visible" />
+                </FrameLayout>
 
-        <im.vector.view.VectorCircularImageView
-            android:id="@+id/filtered_list_avatar"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="16dp" />
+                <im.vector.view.VectorCircularImageView
+                    android:id="@+id/filtered_list_avatar"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_centerVertical="true"
+                    android:layout_toRightOf="@id/ly_icon_check_invite"
+                    tools:background="@color/vector_fuchsia_color" />
 
-        <ImageView
-            android:id="@+id/filtered_list_matrix_user"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_alignRight="@+id/filtered_list_avatar"
-            android:layout_alignTop="@+id/filtered_list_avatar"
-            android:layout_marginRight="-7dp"
-            android:layout_marginTop="-7dp"
-            android:src="@drawable/logo_tchap_color"
-            android:visibility="gone" />
+                <ImageView
+                    android:id="@+id/filtered_list_avatar_badge"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_alignRight="@id/filtered_list_avatar"
+                    android:layout_alignTop="@id/filtered_list_avatar"
+                    android:layout_marginRight="-7dp"
+                    android:layout_marginTop="-7dp"
+                    android:src="@drawable/admin_icon"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
 
-        <ImageView
-            android:id="@+id/filtered_list_avatar_badge"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_alignRight="@id/filtered_list_avatar"
-            android:layout_alignTop="@id/filtered_list_avatar"
-            android:layout_marginRight="-7dp"
-            android:layout_marginTop="-7dp"
-            android:src="@drawable/admin_icon"
-            android:visibility="gone" />
+                <!-- keep singleLine="true" because maxLines="1" truncation is not the expected one.-->
+                <TextView
+                    android:id="@+id/filtered_list_name"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignTop="@id/filtered_list_avatar"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="5dp"
+                    android:layout_toRightOf="@id/filtered_list_avatar"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:textColor="@color/tchap_primary_text_color"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    tools:text="Member name" />
 
-        <!-- keep singleLine="true" because maxLines="1" truncation is not the expected one.-->
-        <TextView
-            android:id="@+id/filtered_list_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignTop="@id/filtered_list_avatar"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_toLeftOf="@id/filtered_list_actions_list"
-            android:layout_toRightOf="@id/filtered_list_avatar"
-            android:singleLine="true"
-            android:text="A member name"
-            android:textColor="?attr/default_text_dark_color"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/filtered_list_email"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@id/filtered_list_avatar"
+                    android:layout_alignLeft="@id/filtered_list_name"
+                    android:layout_marginRight="16dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textColor="@color/tchap_secondary_text_color"
+                    android:textSize="12sp"
+                    tools:text="Member email" />
 
-        <TextView
-            android:id="@+id/filtered_list_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@id/filtered_list_avatar"
-            android:layout_alignLeft="@id/filtered_list_name"
-            android:layout_marginRight="16dp"
-            android:layout_toLeftOf="@id/filtered_list_actions_list"
-            android:maxLines="1"
-            android:ellipsize="end"
-            android:text="A member status"
-            android:textColor="?attr/default_text_light_color"
-            android:textSize="14sp" />
+                <TextView
+                    android:id="@+id/filtered_list_domain"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginTop="15dp"
+                    android:ellipsize="end"
+                    android:gravity="right|center_vertical"
+                    android:maxLines="1"
+                    android:textColor="@color/vector_tchap_primary_color"
+                    android:textSize="10sp"
+                    tools:text="Member domain" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/filtered_list_actions_list"
+                android:layout_width="60dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/filtered_list_remove_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/vector_creation_remove_user"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/filtered_list_edit_button"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/tchap_ic_edit_pen" />
+            </RelativeLayout>
+        </LinearLayout>
 
         <View
             android:layout_width="match_parent"
@@ -128,6 +160,5 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
             android:background="?attr/list_divider_color" />
-
     </RelativeLayout>
 </RelativeLayout>

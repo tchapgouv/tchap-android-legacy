@@ -21,6 +21,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import org.matrix.androidsdk.crypto.IncomingRoomKeyRequest;
@@ -28,6 +29,7 @@ import org.matrix.androidsdk.crypto.IncomingRoomKeyRequestCancellation;
 import org.matrix.androidsdk.crypto.MXCrypto;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
+import org.matrix.androidsdk.rest.client.LoginRestClient;
 import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.ssl.Fingerprint;
 import org.matrix.androidsdk.ssl.UnrecognizedCertificateException;
@@ -48,6 +50,7 @@ import org.matrix.androidsdk.listeners.MXEventListener;
 import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.rest.model.login.Credentials;
 
+import fr.gouv.tchap.media.MediaScanManager;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.SplashActivity;
 import im.vector.gcm.GcmRegistrationManager;
@@ -55,6 +58,7 @@ import im.vector.services.EventStreamService;
 import im.vector.store.LoginStorage;
 import im.vector.util.PreferencesManager;
 import im.vector.widgets.WidgetsManager;
+import io.realm.Realm;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -466,6 +470,40 @@ public class Matrix {
     //==============================================================================================================
 
     /**
+     * Deactivate a session.
+     *
+     * @param context       the context.
+     * @param session       the session to deactivate.
+     * @param userPassword  the user password
+     * @param eraseUserData true to also erase all the user data
+     * @param aCallback     the success and failure callback
+     */
+    public void deactivateSession(final Context context,
+                                  final MXSession session,
+                                  final String userPassword,
+                                  final boolean eraseUserData,
+                                  final @NonNull ApiCallback<Void> aCallback) {
+        Log.d(LOG_TAG, "## deactivateSession() " + session.getMyUserId());
+
+        session.deactivateAccount(context, LoginRestClient.LOGIN_FLOW_TYPE_PASSWORD, userPassword, eraseUserData, new SimpleApiCallback<Void>(aCallback) {
+            @Override
+            public void onSuccess(Void info) {
+                mLoginStorage.removeCredentials(session.getHomeServerConfig());
+
+                session.getDataHandler().removeListener(mLiveEventListener);
+
+                VectorApp.removeSyncingSession(session);
+
+                synchronized (LOG_TAG) {
+                    mMXSessions.remove(session);
+                }
+
+                aCallback.onSuccess(info);
+            }
+        });
+    }
+
+    /**
      * Clear a session.
      *
      * @param context          the context.
@@ -506,6 +544,13 @@ public class Matrix {
         } else {
             session.clear(context, callback);
         }
+
+        // Clear media scan database
+        // TODO The media scan database clear should be handled during the media cache clear when the MediaScanManager will be moved into the sdk.
+        Realm realm = Realm.getDefaultInstance();
+        MediaScanManager mediaScanManager = new MediaScanManager(session.getHomeServerConfig(), realm);
+        mediaScanManager.clearAntiVirusScanResults();
+        realm.close();
     }
 
     /**
@@ -590,6 +635,9 @@ public class Matrix {
         }*/
 
         final MXSession session = new MXSession(hsConfig, new MXDataHandler(store, credentials), mAppContext);
+
+        // Turn on the anti-virus server
+        session.getContentManager().configureAntiVirusScanner(true);
 
         session.getDataHandler().setRequestNetworkErrorListener(new MXDataHandler.RequestNetworkErrorListener() {
 

@@ -5,9 +5,19 @@
     <!-- Identity server names -->
     <string-array
         name="identity_server_names" translatable="false" >
-        <item>i.tchap.gouv.fr</item>
-        <item>a.tchap.gouv.fr</item>
-        <item>e.tchap.gouv.fr</item>
+        <item>dev-durable.tchap.gouv.fr</item>
+        <item>dinum.tchap.gouv.fr</item>
+        <item>intradef.tchap.gouv.fr</item>
+        <item>diplomatie.tchap.gouv.fr</item>
+        <item>justice.tchap.gouv.fr</item>
+        <item>agriculture.tchap.gouv.fr</item>
+        <item>interieur.tchap.gouv.fr</item>
+        <item>social.tchap.gouv.fr</item>
+        <item>education.tchap.gouv.fr</item>
+        <item>finances.tchap.gouv.fr</item>
+        <item>ssi.tchap.gouv.fr</item>
+        <item>pm.tchap.gouv.fr</item>
+        <item>elysee.tchap.gouv.fr</item>
     </string-array>
 
     <!-- Server url prefix -->
@@ -30,8 +40,19 @@
     <!-- Default list of federated server names -->
     <string-array
         name="room_directory_servers" translatable="false" >
-        <item>i.tchap.gouv.fr</item>
-        <item>a.tchap.gouv.fr</item>
+        <item>dev-durable.tchap.gouv.fr</item>
+        <item>dinum.tchap.gouv.fr</item>
+        <item>intradef.tchap.gouv.fr</item>
+        <item>diplomatie.tchap.gouv.fr</item>
+        <item>justice.tchap.gouv.fr</item>
+        <item>agriculture.tchap.gouv.fr</item>
+        <item>interieur.tchap.gouv.fr</item>
+        <item>social.tchap.gouv.fr</item>
+        <item>education.tchap.gouv.fr</item>
+        <item>finances.tchap.gouv.fr</item>
+        <item>ssi.tchap.gouv.fr</item>
+        <item>pm.tchap.gouv.fr</item>
+        <item>elysee.tchap.gouv.fr</item>
     </string-array>
 
     <string-array name="theme_codes">

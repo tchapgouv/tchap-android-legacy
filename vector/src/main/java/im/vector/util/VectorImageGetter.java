@@ -127,7 +127,7 @@ public class VectorImageGetter implements Html.ImageGetter {
         protected Bitmap doInBackground(Object... params) {
             mSource = (String) params[0];
             // Check whether this source is a valid Matrix media content URI, and convert it in an actual url.
-            String downloadableUrl = mSession.getContentManager().getDownloadableUrl(mSource);
+            String downloadableUrl = mSession.getContentManager().getDownloadableUrl(mSource, false);
             if (null != downloadableUrl)
             {
                 Log.d(LOG_TAG, "## doInBackground() : " + mSource);

@@ -1,6 +1,7 @@
 /*
  * Copyright 2015 OpenMarket Ltd
  * Copyright 2017 Vector Creations Ltd
+ * Copyright 2018 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +38,8 @@ import org.matrix.androidsdk.rest.model.message.Message;
 import org.matrix.androidsdk.rest.model.message.VideoMessage;
 import org.matrix.androidsdk.util.JsonUtils;
 
+import fr.gouv.tchap.media.AntiVirusScanStatus;
+import fr.gouv.tchap.model.MediaScan;
 import im.vector.R;
 import im.vector.util.VectorUtils;
 
@@ -76,17 +79,19 @@ public class VectorSearchFilesListAdapter extends VectorMessagesAdapter {
         Message message = JsonUtils.toMessage(event.getContent());
 
         // common info
+        String url = null;
         String thumbUrl = null;
         Long mediaSize = null;
         int avatarId = R.drawable.filetype_attachment;
         EncryptedFileInfo encryptedFileInfo = null;
+        EncryptedFileInfo encryptedFileThumbnailInfo = null;
 
         if (Message.MSGTYPE_IMAGE.equals(message.msgtype)) {
             ImageMessage imageMessage = JsonUtils.toImageMessage(event.getContent());
+            url = imageMessage.getUrl();
             thumbUrl = imageMessage.getThumbnailUrl();
-
             if (null == thumbUrl) {
-                thumbUrl = imageMessage.getUrl();
+                thumbUrl = url;
             }
 
             if (null != imageMessage.info) {
@@ -99,12 +104,13 @@ public class VectorSearchFilesListAdapter extends VectorMessagesAdapter {
                 avatarId = R.drawable.filetype_image;
             }
 
+            encryptedFileInfo = imageMessage.file;
             if (null != imageMessage.info) {
-                encryptedFileInfo = imageMessage.info.thumbnail_file;
+                encryptedFileThumbnailInfo = imageMessage.info.thumbnail_file;
             }
         } else if (Message.MSGTYPE_VIDEO.equals(message.msgtype)) {
             VideoMessage videoMessage = JsonUtils.toVideoMessage(event.getContent());
-
+            url = videoMessage.getUrl();
             thumbUrl = videoMessage.getThumbnailUrl();
 
             if (null != videoMessage.info) {
@@ -113,13 +119,15 @@ public class VectorSearchFilesListAdapter extends VectorMessagesAdapter {
 
             avatarId = R.drawable.filetype_video;
 
+            encryptedFileInfo = videoMessage.file;
             if (null != videoMessage.info) {
-                encryptedFileInfo = videoMessage.info.thumbnail_file;
+                encryptedFileThumbnailInfo = videoMessage.info.thumbnail_file;
             }
 
         } else if (Message.MSGTYPE_FILE.equals(message.msgtype) || Message.MSGTYPE_AUDIO.equals(message.msgtype)) {
             FileMessage fileMessage = JsonUtils.toFileMessage(event.getContent());
-
+            url = fileMessage.getUrl();
+            encryptedFileInfo = fileMessage.file;
             if (null != fileMessage.info) {
                 mediaSize = fileMessage.info.size;
             }
@@ -129,17 +137,76 @@ public class VectorSearchFilesListAdapter extends VectorMessagesAdapter {
 
         // thumbnail
         ImageView thumbnailView = convertView.findViewById(R.id.file_search_thumbnail);
+        thumbnailView.setImageResource(R.drawable.ic_notification_privacy_warning); // TODO set the right icon if any
 
-        // default avatar
-        thumbnailView.setImageResource(avatarId);
+        // Check whether the media is trusted
+        if (null != url) {
+            boolean isTrusted = false;
+            MediaScan mediaScan;
+            AntiVirusScanStatus antiVirusScanStatus = AntiVirusScanStatus.UNKNOWN;
+            int scanDrawable = R.drawable.ic_notification_privacy_warning;
 
-        if (null != thumbUrl) {
-            // detect if the media is encrypted
-            if (null == encryptedFileInfo) {
-                int size = getContext().getResources().getDimensionPixelSize(R.dimen.member_list_avatar_size);
-                mSession.getMediasCache().loadAvatarThumbnail(mSession.getHomeServerConfig(), thumbnailView, thumbUrl, size);
+            if (null != mMediaScanManager) {
+                if (null != encryptedFileInfo) {
+                    mediaScan = mMediaScanManager.scanEncryptedMedia(encryptedFileInfo);
+                } else {
+                    mediaScan = mMediaScanManager.scanUnencryptedMedia(url);
+                }
+                antiVirusScanStatus = mediaScan.getAntiVirusScanStatus();
+            }
+
+            switch (antiVirusScanStatus) {
+                case IN_PROGRESS:
+                    scanDrawable = R.drawable.tchap_scanning;
+                    break;
+                case TRUSTED:
+                    // Check the thumbnail url (if any)
+                    if (null != thumbUrl) {
+                        if (null != encryptedFileThumbnailInfo) {
+                            mediaScan = mMediaScanManager.scanEncryptedMedia(encryptedFileThumbnailInfo);
+                        } else {
+                            mediaScan = mMediaScanManager.scanUnencryptedMedia(thumbUrl);
+                        }
+
+                        antiVirusScanStatus = mediaScan.getAntiVirusScanStatus();
+
+                        switch (antiVirusScanStatus) {
+                            case IN_PROGRESS:
+                                scanDrawable = R.drawable.tchap_scanning;
+                                break;
+                            case TRUSTED:
+                                isTrusted = true;
+                                break;
+                            case INFECTED:
+                                scanDrawable = R.drawable.tchap_danger;
+                                break;
+                        }
+                    } else {
+                        isTrusted = true;
+                    }
+                    break;
+                case INFECTED:
+                    scanDrawable = R.drawable.tchap_danger;
+                    break;
+            }
+
+            if (isTrusted) {
+                // Set the default media avatar
+                thumbnailView.setImageResource(avatarId);
+
+                if (null != thumbUrl) {
+                    // detect if the media is encrypted
+                    if (null == encryptedFileThumbnailInfo) {
+                        int size = getContext().getResources().getDimensionPixelSize(R.dimen.member_list_avatar_size);
+                        mSession.getMediasCache().loadAvatarThumbnail(mSession.getHomeServerConfig(), thumbnailView, thumbUrl, size);
+                    } else {
+                        mSession.getMediasCache().loadBitmap(mSession.getHomeServerConfig(), thumbnailView, thumbUrl, 0, ExifInterface.ORIENTATION_UNDEFINED, null, encryptedFileThumbnailInfo);
+                    }
+                }
             } else {
-                mSession.getMediasCache().loadBitmap(mSession.getHomeServerConfig(), thumbnailView, thumbUrl, 0, ExifInterface.ORIENTATION_UNDEFINED, null, encryptedFileInfo);
+                // If the media scan result is not available or if the media is infected,
+                // Don't display the thumbnail and display a placeholder icon according to the scan status
+                thumbnailView.setImageResource(scanDrawable);
             }
         }
 

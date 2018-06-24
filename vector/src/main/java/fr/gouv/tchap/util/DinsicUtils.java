@@ -29,6 +29,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.provider.ContactsContract;
 import android.support.v4.app.FragmentActivity;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.widget.Toast;
 
@@ -37,12 +38,15 @@ import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomEmailInvitation;
 import org.matrix.androidsdk.data.RoomPreviewData;
 import org.matrix.androidsdk.data.RoomTag;
+import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.rest.model.RoomMember;
+import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.rest.model.pid.RoomThirdPartyInvite;
 import org.matrix.androidsdk.util.Log;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -56,10 +60,10 @@ import fr.gouv.tchap.activity.TchapLoginActivity;
 import im.vector.activity.RiotAppCompatActivity;
 import im.vector.activity.VectorHomeActivity;
 import im.vector.activity.VectorRoomActivity;
-import im.vector.activity.VectorRoomCreationActivity;
 import im.vector.adapters.ParticipantAdapterItem;
 import im.vector.contacts.Contact;
 import im.vector.contacts.ContactsManager;
+import im.vector.contacts.PIDsRetriever;
 import im.vector.util.RoomUtils;
 
 public class DinsicUtils {
@@ -87,6 +91,41 @@ public class DinsicUtils {
             if (!myReturn) myReturn = isFromFrenchGov(myEmail);
         }
         return myReturn;
+    }
+
+    /**
+     * Get name part of a display name by removing the domain part if any.
+     * For example in case of "Jean Martin [Modernisation]", this will return "Jean Martin".
+     *
+     * @param displayName
+     * @return displayName without domain
+     */
+    public  static String getNameFromDisplayName(String displayName) {
+        String myRet = displayName;
+        if (displayName.contains("[")) {
+            myRet = displayName.split("\\[")[0].trim();
+        }
+        return myRet;
+    }
+    /**
+     * Get the potential domain name from a display name.
+     * For example in case of "Jean Martin [Modernisation]", this will return "Modernisation".
+     *
+     * @param displayName
+     * @return displayName without name, empty string if no domain is available.
+     */
+    public  static String getDomainFromDisplayName(String displayName) {
+        String myRet = "";
+
+        if (displayName.contains("[")) {
+            myRet = displayName.split("\\[")[1];
+            if (myRet.contains("]")) {
+                myRet = myRet.split("\\]")[0];
+            } else {
+                myRet = "";
+            }
+        }
+        return myRet.trim();
     }
 
     /**
@@ -162,7 +201,7 @@ public class DinsicUtils {
                     .setPositiveButton(R.string.action_edit_contact_form,
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
-                                    DinsicUtils.editContactForm(theContext,activity,activity.getString(R.string.people_edit_contact_warning_msg),item.mContact);
+                                    editContactForm(theContext,activity,activity.getString(R.string.people_edit_contact_warning_msg),item.mContact);
                                 }
                             });
 
@@ -195,14 +234,13 @@ public class DinsicUtils {
         }
     }  
 
-    public static boolean participantAlreadyAdded(List<ParticipantAdapterItem> participants, ParticipantAdapterItem participant){
-
+    public static boolean participantAlreadyAdded(List<ParticipantAdapterItem> participants, ParticipantAdapterItem participant) {
         boolean find = false;
         Iterator<ParticipantAdapterItem> iterator = participants.iterator();
         boolean finish = !iterator.hasNext();
-        while (!finish){
+        while (!finish) {
             ParticipantAdapterItem curp = iterator.next();
-            if (curp!= null)
+            if (curp != null && curp.mIsValid)
                 find = curp.mUserId.equals(participant.mUserId);
             finish = (find || !(iterator.hasNext()));
         }
@@ -211,14 +249,14 @@ public class DinsicUtils {
 
     }
 
-    public static boolean removeParticipantIfExist(List<ParticipantAdapterItem> participants, ParticipantAdapterItem participant){
+    public static boolean removeParticipantIfExist(List<ParticipantAdapterItem> participants, ParticipantAdapterItem participant) {
 
         boolean find = false;
         Iterator<ParticipantAdapterItem> iterator = participants.iterator();
         boolean finish = !iterator.hasNext();
-        while (!finish){
+        while (!finish) {
             ParticipantAdapterItem curp = iterator.next();
-            if (curp!= null) {
+            if (curp != null && curp.mIsValid) {
                 find = curp.mUserId.equals(participant.mUserId);
                 if (find) iterator.remove();
             }
@@ -228,7 +266,7 @@ public class DinsicUtils {
         return find;
     }
 
-    public static void alertSimpleMsg(FragmentActivity activity, String msg){
+    public static void alertSimpleMsg(FragmentActivity activity, String msg) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
         alertDialogBuilder.setMessage(msg);
 
@@ -265,7 +303,7 @@ public class DinsicUtils {
      * @return boolean that says if the direct chat room is found or not
      */
     public static boolean openDirectChat(final RiotAppCompatActivity activity, String participantId, final MXSession session, boolean canCreate) {
-        Room existingRoom = VectorRoomCreationActivity.isDirectChatRoomAlreadyExist(participantId, session, true);
+        Room existingRoom = isDirectChatRoomAlreadyExist(participantId, session, true);
         boolean succeeded = false;
 
         // direct message api callback
@@ -332,10 +370,103 @@ public class DinsicUtils {
                 activity.showWaitingView();
                 session.createDirectMessageRoom(participantId, prepareDirectChatCallBack);
             } else {
-                DinsicUtils.alertSimpleMsg(activity, activity.getString(R.string.room_creation_forbidden));
+                alertSimpleMsg(activity, activity.getString(R.string.room_creation_forbidden));
             }
         }
         return succeeded;
+    }
+
+    /**
+     * Return the first direct chat room for a given user ID.
+     *
+     * @param aUserId user ID to search for
+     * @param mSession current session
+     * @param includeInvite boolean to tell us if pending invitations have to be consider or not
+     * @return a room ID if search succeed, null otherwise.
+     */
+    public static Room isDirectChatRoomAlreadyExist(String aUserId, MXSession mSession, boolean includeInvite) {
+        if (null != mSession) {
+            IMXStore store = mSession.getDataHandler().getStore();
+            HashMap<String, List<String>> directChatRoomsDict;
+
+            if (null != store.getDirectChatRoomsDict()) {
+                directChatRoomsDict = new HashMap<>(store.getDirectChatRoomsDict());
+
+                if (directChatRoomsDict.containsKey(aUserId)) {
+                    ArrayList<String> roomIdsList = new ArrayList<>(directChatRoomsDict.get(aUserId));
+
+                    if (!roomIdsList.isEmpty()) {
+                        // In the description of the memberships, we display first the current user status and the other member in second.
+                        // We review all the direct chats by considering the memberships in the following priorities :
+                        // 1. join-join
+                        // 2. invite-join
+                        // 3. join-invite
+                        // 4. join-left (or invite-left)
+                        // The case left-x isn't possible because we ignore for the moment the left rooms.
+                        Room roomCandidateLeftByOther = null;
+                        Room roomCandidatePendingInvite = null;
+                        boolean isPendingInvite = false;
+
+                        for (String roomId : roomIdsList) {
+                            Room room = mSession.getDataHandler().getRoom(roomId, false);
+                            // check if the room is already initialized
+                            if ((null != room) && room.isReady() && !room.isLeaving()) {
+                                isPendingInvite = room.isInvited();
+                                if (includeInvite || !isPendingInvite) {
+                                    // dinsic: if the member is not already in matrix and just invited he's not active but
+                                    // the room can be considered as ok
+                                    if (!MXSession.isUserId(aUserId)) {
+                                        Log.d(LOG_TAG, "## isDirectChatRoomAlreadyExist(): for user: " + aUserId + " room id: " + roomId);
+                                        return room;
+                                    } else {
+                                        RoomMember member = room.getMember(aUserId);
+
+                                        if (null != member) {
+                                            if (member.membership.equals(RoomMember.MEMBERSHIP_JOIN)) {
+                                                if (!isPendingInvite) {
+                                                    // the other user is present in this room (join-join)
+                                                    Log.d(LOG_TAG, "## isDirectChatRoomAlreadyExist(): for user: " + aUserId + " (join) room id: " + roomId);
+                                                    return room;
+                                                } else {
+                                                    // I am invited by the other member (invite-join)
+                                                    // We consider first de case "invite-join" compare to "join-invite"
+                                                    Log.d(LOG_TAG, "## isDirectChatRoomAlreadyExist(): set candidate (invite-join) room id: " + roomId);
+                                                    roomCandidatePendingInvite = room;
+                                                }
+                                            } else if (member.membership.equals(RoomMember.MEMBERSHIP_INVITE)) {
+                                                // the other user is invited (join-invite)
+                                                if (roomCandidatePendingInvite == null) {
+                                                    Log.d(LOG_TAG, "## isDirectChatRoomAlreadyExist(): set candidate (join-invite) room id: " + roomId);
+                                                    roomCandidatePendingInvite = room;
+                                                }
+                                            } else if (member.membership.equals(RoomMember.MEMBERSHIP_LEAVE)) {
+                                                // the other member has left this room
+                                                // and I can be invite or join
+                                                Log.d(LOG_TAG, "## isDirectChatRoomAlreadyExist(): set candidate (join-left) room id: " + roomId);
+                                                roomCandidateLeftByOther = room;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        // check if an invitation is pending
+                        if (null != roomCandidatePendingInvite) {
+                            Log.d(LOG_TAG, "## isDirectChatRoomAlreadyExist(): user: " + aUserId + " (invite) room id: " + roomCandidatePendingInvite.getRoomId());
+                            return roomCandidatePendingInvite;
+                        }
+
+                        // by default we consider the room left by the other member
+                        if (null != roomCandidateLeftByOther) {
+                            Log.d(LOG_TAG, "## isDirectChatRoomAlreadyExist(): user: " + aUserId + " (leave) room id: " + roomCandidateLeftByOther.getRoomId());
+                            return roomCandidateLeftByOther;
+                        }
+                    }
+                }
+            }
+        }
+        Log.d(LOG_TAG, "## isDirectChatRoomAlreadyExist(): for user=" + aUserId + " no found room");
+        return null;
     }
 
     /**
@@ -345,47 +476,29 @@ public class DinsicUtils {
      * @param session   the current session
      * @param selectedContact the selected contact
      */
-    public static void startDirectChat(final RiotAppCompatActivity activity, final MXSession session, final ParticipantAdapterItem selectedContact) {
+    public static void startDirectChat (final RiotAppCompatActivity activity, final MXSession session, final ParticipantAdapterItem selectedContact) {
         if (selectedContact.mIsValid) {
-
             // Tell if contact is tchap user
-            if (MXSession.isUserId(selectedContact.mUserId)) { // || DinsicUtils.isFromFrenchGov(item.mContact.getEmails()))
-                // The contact is a Tchap user
-                if (DinsicUtils.openDirectChat(activity, selectedContact.mUserId, session, false)) {
-                    // If a direct chat already exist with him, open it
-                    DinsicUtils.openDirectChat(activity, selectedContact.mUserId, session, true);
-                } else {
-                    // If it's a Tchap user without a direct chat with him
-                    // Display a popup to confirm the creation of a new direct chat with him
-                    String msg = activity.getResources().getString(R.string.start_new_chat_prompt_msg, selectedContact.mDisplayName);
-                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
-                    alertDialogBuilder.setMessage(msg);
-
-                    // set dialog message
-                    alertDialogBuilder
-                            .setCancelable(false)
-                            .setPositiveButton(R.string.ok,
-                                    new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int id) {
-                                            DinsicUtils.openDirectChat(activity, selectedContact.mUserId, session, true);
-                                        }
-                                    })
-                            .setNegativeButton(R.string.cancel, null);
-
-                    // create alert dialog
-                    AlertDialog alertDialog = alertDialogBuilder.create();
-                    // show it
-                    alertDialog.show();
+            if (MXSession.isUserId(selectedContact.mUserId)) {
+                // The contact is a Tchap user, try to get the corresponding User instance.
+                User tchapUser = session.getDataHandler().getUser(selectedContact.mUserId);
+                // The return value is null if we don't already share a room with him.
+                if (null == tchapUser) {
+                    tchapUser = new User();
+                    tchapUser.user_id = selectedContact.mUserId;
+                    tchapUser.avatar_url = selectedContact.mAvatarUrl;
+                    tchapUser.displayname = selectedContact.mDisplayName;
                 }
+                startDirectChat(activity, session, tchapUser);
             } else {
                 // The contact isn't a Tchap user
                 String msg = activity.getResources().getString(R.string.room_invite_non_gov_people);
-                if (DinsicUtils.isFromFrenchGov(selectedContact.mContact.getEmails()))
+                if (isFromFrenchGov(selectedContact.mContact.getEmails()))
                     msg = activity.getResources().getString(R.string.room_invite_gov_people);
 
-                if (!DinsicUtils.openDirectChat(activity, selectedContact.mUserId, session, false)) {
+                if (!openDirectChat(activity, selectedContact.mUserId, session, false)) {
                     if (TchapLoginActivity.isUserExternal(session)) {
-                        DinsicUtils.alertSimpleMsg(activity, activity.getResources().getString(R.string.room_creation_forbidden));
+                        alertSimpleMsg(activity, activity.getResources().getString(R.string.room_creation_forbidden));
                     } else {
                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
                         alertDialogBuilder.setMessage(msg);
@@ -396,7 +509,7 @@ public class DinsicUtils {
                                 .setPositiveButton(R.string.ok,
                                         new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int id) {
-                                                DinsicUtils.openDirectChat(activity, selectedContact.mUserId, session, true);
+                                                openDirectChat(activity, selectedContact.mUserId, session, true);
                                             }
                                         })
                                 .setNegativeButton(R.string.cancel, null);
@@ -409,7 +522,27 @@ public class DinsicUtils {
                 }
             }
         } else { // tell the user that the email must be filled. Propose to fill it
-            DinsicUtils.editContact(activity, activity, selectedContact);
+            editContact(activity, activity, selectedContact);
+        }
+    }
+
+    /**
+     * Prepare a direct chat with a tchap user.
+     *
+     * @param activity      the current activity
+     * @param session       the current session
+     * @param selectedUser  the selected tchap user
+     */
+    public static void startDirectChat(final RiotAppCompatActivity activity, final MXSession session, User selectedUser) {
+        // Consider here that the provided id is a correct matrix identifier, we don't check again
+        // Try first to open an existing direct chat
+        if (!openDirectChat(activity, selectedUser.user_id, session, false)) {
+            // There is no direct chat with him yet
+            // Display a fake room, the actual room will be created on the first message
+            HashMap<String, Object> params = new HashMap<>();
+            params.put(VectorRoomActivity.EXTRA_MATRIX_ID, session.getMyUserId());
+            params.put(VectorRoomActivity.EXTRA_TCHAP_USER, selectedUser);
+            CommonActivityUtils.goToRoomPage(activity, session, params);
         }
     }
 
@@ -564,5 +697,124 @@ public class DinsicUtils {
                 return getRoomsDateComparator().compare(room1, room2);
             }
         };
+    }
+
+    /* get contacts from direct chats */
+    public static List<ParticipantAdapterItem> getContactsFromDirectChats(final MXSession mSession) {
+        List<ParticipantAdapterItem> participants = new ArrayList<>();
+
+        if ((null == mSession) || (null == mSession.getDataHandler())) {
+            Log.e(LOG_TAG, "## getContactsFromDirectChats() : null session");
+            return participants;
+        }
+
+        IMXStore store = mSession.getDataHandler().getStore();
+
+        if (null != store.getDirectChatRoomsDict()) {
+            // Retrieve all the keys of the direct chats HashMap (they correspond to the users with direct chats)
+            List<String> keysList = new ArrayList<>(store.getDirectChatRoomsDict().keySet());
+
+            for (String key : keysList) {
+                // Check whether this key is an actual user id
+                if (MXSession.isUserId(key)) {
+                    // Ignore the current user if he appears in the direct chat map
+                    if (key.equals(mSession.getMyUserId())) {
+                        continue;
+                    }
+
+                    // Retrieve the user display name from the room members information.
+                    // By this way we check that the current user has joined at least one of the direct chats for this user.
+                    // The users for whom no direct is joined by the current user are ignored for the moment.
+                    // @TODO Keep displaying these users in the contacts list, the problem is to get their displayname
+                    // @NOTE The user displayname may be known thanks to the presence event. But
+                    // it is unknown until we receive a presence event for this user.
+                    List<String> roomIdsList = store.getDirectChatRoomsDict().get(key);
+                    if (roomIdsList != null && !roomIdsList.isEmpty()) {
+                        for (String roomId: roomIdsList) {
+                            Room room = store.getRoom(roomId);
+                            if (null != room) {
+                                RoomMember roomMember = room.getMember(key);
+                                if (null != roomMember && !TextUtils.isEmpty(roomMember.displayname)) {
+                                    // Add a contact for this user
+                                    Contact dummyContact = new Contact("null");
+                                    dummyContact.setDisplayName(roomMember.displayname);
+                                    ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
+                                    participant.mUserId = key;
+                                    participants.add(participant);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                else if (android.util.Patterns.EMAIL_ADDRESS.matcher(key).matches()) {
+                    // Check whether this email corresponds to an actual user id, else ignore it.
+                    // @TODO Trigger a lookup3Pid request if the info is not available.
+                    final Contact.MXID contactMxId = PIDsRetriever.getInstance().getMXID(key);
+                    if (null != contactMxId && contactMxId.mMatrixId.length() > 0) {
+                        // @TODO Add MXSession API to update the HashMap in one run.
+                        List<String> roomIdsList = new ArrayList<>(store.getDirectChatRoomsDict().get(key));
+                        Log.d(LOG_TAG, "## getContactsFromDirectChats() update direct chat map " + roomIdsList + " " + key);
+                        for (final String roomId : roomIdsList) {
+                            Log.d(LOG_TAG, "## getContactsFromDirectChats() update direct chat map " + roomId);
+                            // Disable first the direct chat to set it on the right user id
+                            mSession.toggleDirectChatRoom(roomId, null, new ApiCallback<Void>() {
+                                @Override
+                                public void onSuccess(Void info) {
+                                    mSession.toggleDirectChatRoom(roomId, contactMxId.mMatrixId, new ApiCallback<Void>() {
+                                        @Override
+                                        public void onSuccess(Void info) {
+                                            Log.d(LOG_TAG, "## getContactsFromDirectChats() succeeded to update direct chat map ");
+                                            // Here we used the local data of the PIDsRetriever, so the contact will be added by local contacts list.
+                                            // @TODO if we support remote lookup to resolve the email, we have to add the resulting contact (but he may be already present)
+                                        }
+
+                                        private void onFails(final String errorMessage) {
+                                            Log.e(LOG_TAG, "## getContactsFromDirectChats() failed to update direct chat map " + errorMessage);
+                                        }
+
+                                        @Override
+                                        public void onNetworkError(Exception e) {
+                                            onFails(e.getLocalizedMessage());
+                                        }
+
+                                        @Override
+                                        public void onMatrixError(MatrixError e) {
+                                            onFails(e.getLocalizedMessage());
+                                        }
+
+                                        @Override
+                                        public void onUnexpectedError(Exception e) {
+                                            onFails(e.getLocalizedMessage());
+                                        }
+                                    });
+                                }
+
+                                private void onFails(final String errorMessage) {
+                                    Log.e(LOG_TAG, "## getContactsFromDirectChats() failed to update direct chat map " + errorMessage);
+                                }
+
+                                @Override
+                                public void onNetworkError(Exception e) {
+                                    onFails(e.getLocalizedMessage());
+                                }
+
+                                @Override
+                                public void onMatrixError(MatrixError e) {
+                                    onFails(e.getLocalizedMessage());
+                                }
+
+                                @Override
+                                public void onUnexpectedError(Exception e) {
+                                    onFails(e.getLocalizedMessage());
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+        }
+
+        return participants;
     }
 }

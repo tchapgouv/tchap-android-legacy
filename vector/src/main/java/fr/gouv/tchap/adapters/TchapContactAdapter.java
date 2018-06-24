@@ -41,6 +41,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.R;
 import im.vector.VectorApp;
 import fr.gouv.tchap.activity.TchapLoginActivity;
@@ -53,9 +54,9 @@ import im.vector.contacts.ContactsManager;
 import im.vector.util.RoomUtils;
 import im.vector.util.VectorUtils;
 
-public class ContactAdapter extends AbsAdapter {
+public class TchapContactAdapter extends AbsAdapter {
 
-    private static final String LOG_TAG = ContactAdapter.class.getSimpleName();
+    private static final String LOG_TAG = TchapContactAdapter.class.getSimpleName();
 
     private static final int TYPE_HEADER_LOCAL_CONTACTS = 0;
 
@@ -76,7 +77,7 @@ public class ContactAdapter extends AbsAdapter {
      * *********************************************************************************************
      */
 
-    public ContactAdapter(final Context context, final OnSelectItemListener listener, final RoomInvitationListener invitationListener, final MoreRoomActionListener moreActionListener) {
+    public TchapContactAdapter(final Context context, final OnSelectItemListener listener, final RoomInvitationListener invitationListener, final MoreRoomActionListener moreActionListener) {
         super(context, invitationListener, moreActionListener);
         mListener = listener;
 
@@ -89,12 +90,26 @@ public class ContactAdapter extends AbsAdapter {
         mDirectChatsSection.setEmptyViewPlaceholder(context.getString(R.string.no_conversation_placeholder), context.getString(R.string.no_result_placeholder));
 
         // use the gouv comparator to show in priority matrix and agent users
-        mLocalContactsSection = new AdapterSection<>(context, context.getString(R.string.local_address_book_header),
-                R.layout.adapter_local_contacts_sticky_header_subview, R.layout.adapter_item_contact_view, TYPE_HEADER_LOCAL_CONTACTS, TYPE_CONTACT, new ArrayList<ParticipantAdapterItem>(), ParticipantAdapterItem.alphaGouvComparator);
+        mLocalContactsSection = new AdapterSection<>(
+                context,
+                context.getString(R.string.local_address_book_header),
+                R.layout.adapter_local_contacts_sticky_header_subview,
+                R.layout.adapter_item_contact_view,
+                TYPE_HEADER_LOCAL_CONTACTS,
+                TYPE_CONTACT,
+                new ArrayList<ParticipantAdapterItem>(),
+                ParticipantAdapterItem.tchapAlphaComparator);
         mLocalContactsSection.setEmptyViewPlaceholder(!ContactsManager.getInstance().isContactBookAccessAllowed() ? mNoContactAccessPlaceholder : mNoResultPlaceholder);
 
-        mKnownContactsSection = new KnownContactsAdapterSection(context, context.getString(R.string.user_directory_header), -1,
-                R.layout.adapter_item_contact_view, TYPE_HEADER_DEFAULT, TYPE_CONTACT, new ArrayList<ParticipantAdapterItem>(), null);
+        mKnownContactsSection = new KnownContactsAdapterSection(
+                context,
+                context.getString(R.string.user_directory_header),
+                -1,
+                R.layout.adapter_item_contact_view,
+                TYPE_HEADER_DEFAULT,
+                TYPE_CONTACT,
+                new ArrayList<ParticipantAdapterItem>(),
+                null);
         mKnownContactsSection.setEmptyViewPlaceholder(null, context.getString(R.string.no_result_placeholder));
         mKnownContactsSection.setIsHiddenWhenNoFilter(true);
 
@@ -344,14 +359,14 @@ public class ContactAdapter extends AbsAdapter {
         @BindView(R.id.contact_avatar)
         ImageView vContactAvatar;
 
-        @BindView(R.id.contact_badge)
-        ImageView vContactBadge;
+        @BindView(R.id.contact_status)
+        ImageView vContactStatus;
 
         @BindView(R.id.contact_name)
         TextView vContactName;
 
-        @BindView(R.id.contact_desc)
-        TextView vContactDesc;
+        @BindView(R.id.contact_domain)
+        TextView vContactDomain;
 
         private ContactViewHolder(final View itemView) {
             super(itemView);
@@ -381,25 +396,15 @@ public class ContactAdapter extends AbsAdapter {
             }
 
             participant.displayAvatar(mSession, vContactAvatar);
-            vContactName.setText(participant.getUniqueDisplayName(null));
 
-            // Prepare the description to be displayed below the name
-            // - for a matrix user: display the user's presence (if any)
-            // - for others (local contacts): display one of his media (email, phone number), if any
-            boolean isMatrixUserId = MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(participant.mUserId).matches();
-            vContactBadge.setVisibility(View.GONE);
-            if (isMatrixUserId) {
-                loadContactPresence(vContactDesc, participant, position);
-            }
-            if (!isMatrixUserId || vContactDesc.getText().length() == 0) {
-                vContactDesc.setText("");
-                if (null != participant.mContact) {
-                    if (null != participant.mContact.getEmails() && !participant.mContact.getEmails().isEmpty()) {
-                        vContactDesc.setText(participant.mContact.getEmails().get(0));
-                    } else if (null != participant.mContact.getPhonenumbers() && !participant.mContact.getPhonenumbers().isEmpty()) {
-                        vContactDesc.setText(participant.mContact.getPhonenumbers().get(0).mRawPhoneNumber);
-                    }
-                }
+            vContactName.setText(DinsicUtils.getNameFromDisplayName(participant.mDisplayName));
+            vContactDomain.setText(DinsicUtils.getDomainFromDisplayName(participant.mDisplayName));
+
+            // Check whether tchap user are online
+            if (MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(participant.mUserId).matches()) {
+                loadContactPresence(vContactStatus, participant, position);
+            } else {
+                vContactStatus.setVisibility(View.GONE);
             }
 
             itemView.setOnClickListener(new View.OnClickListener() {
@@ -413,22 +418,23 @@ public class ContactAdapter extends AbsAdapter {
         /**
          * Get the presence for the given contact
          *
-         * @param textView
+         * @param imageView
          * @param item
          * @param position
          */
-        private void loadContactPresence(final TextView textView, final ParticipantAdapterItem item,
+        private void loadContactPresence(final ImageView imageView,
+                                         final ParticipantAdapterItem item,
                                          final int position) {
-            final String presence = VectorUtils.getUserOnlineStatus(mContext, mSession, item.mUserId, new SimpleApiCallback<Void>() {
+            final boolean presence = VectorUtils.isUserOnline(mContext, mSession, item.mUserId, new SimpleApiCallback<Void>() {
                 @Override
                 public void onSuccess(Void info) {
-                    if (textView != null) {
-                        textView.setText(VectorUtils.getUserOnlineStatus(mContext, mSession, item.mUserId, null));
+                    if (imageView != null) {
+                        imageView.setVisibility(VectorUtils.isUserOnline(mContext, mSession, item.mUserId, null) ? View.VISIBLE : View.GONE);
                         notifyItemChanged(position);
                     }
                 }
             });
-            textView.setText(presence);
+            imageView.setVisibility(presence ? View.VISIBLE : View.GONE);
         }
     }
 

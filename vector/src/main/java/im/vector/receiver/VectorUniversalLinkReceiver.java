@@ -74,7 +74,7 @@ public class VectorUniversalLinkReceiver extends BroadcastReceiver {
     //public static final String SPLASH_SENDER_ID = SplashActivity.class.getSimpleName();
 
     // the supported paths
-    private static final String SUPPORTED_PATH_BETA = "/beta/";
+    private static final String SUPPORTED_PATH_BETA = "/alphatest/";
     private static final String SUPPORTED_PATH_DEVELOP = "/develop/";
     private static final String SUPPORTED_PATH_APP = "/app/";
     private static final String SUPPORTED_PATH_STAGING = "/staging/";
@@ -407,12 +407,12 @@ public class VectorUniversalLinkReceiver extends BroadcastReceiver {
                 return null;
             }
 
-            if (!TextUtils.equals(uri.getHost(), "vector.im") && !TextUtils.equals(uri.getHost(), "riot.im") && !TextUtils.equals(uri.getHost(), "matrix.to")) {
+            if (!TextUtils.equals(uri.getHost(), "www.tchap.gouv.fr") /* && !TextUtils.equals(uri.getHost(), "matrix.to")*/) {
                 Log.e(LOG_TAG, "## parseUniversalLink : unsupported host " + uri.getHost());
                 return null;
             }
 
-            boolean isSupportedHost = TextUtils.equals(uri.getHost(), "vector.im") || TextUtils.equals(uri.getHost(), "riot.im");
+            boolean isSupportedHost = TextUtils.equals(uri.getHost(), "www.tchap.gouv.fr");
 
             // when the uri host is vector.im, it is followed by a dedicated path
             if (isSupportedHost && !mSupportedVectorLinkPaths.contains(uri.getPath())) {

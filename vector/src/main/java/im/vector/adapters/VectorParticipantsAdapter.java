@@ -1,6 +1,7 @@
 /*
  * Copyright 2016 OpenMarket Ltd
  * Copyright 2017 Vector Creations Ltd
+ * Copyright 2018 New Vector Ltd
  * Copyright DINSIC 2018
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +30,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
-import android.widget.CheckBox;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -90,6 +90,16 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
         void onSearchEnd(int count);
     }
 
+    /**
+     * Contacts edition listener
+     */
+    public interface VectorParticipantsAdapterEditListener {
+        /**
+         * Called when a the user wants to edit a contact.
+         */
+        void editContactForm(ParticipantAdapterItem participantAdapterItem);
+    }
+
     // layout info
     private final Context mContext;
     private final LayoutInflater mLayoutInflater;
@@ -107,6 +117,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
     private List<ParticipantAdapterItem> mContactsParticipants = null;
     private Set<String> mUsedMemberUserIds = null;
     private List<String> mDisplayNamesList = null;
+    private List<String> mCurrentSelectedUsers = null;
     private String mPattern = "";
 
     private List<ParticipantAdapterItem> mItemsToHide = new ArrayList<>();
@@ -129,8 +140,8 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
     // flag specifying if we show all peoples or only ones having a matrix user id
     private boolean mShowMatrixUserOnly = false;
 
-    // Set to true when we need to display the "+" icon
-    private final boolean mWithAddIcon;
+    // Optional listener to handle contact edition
+    private VectorParticipantsAdapterEditListener mEditParticipantListener;
 
     // tell if the known contacts list is limited
     private boolean mKnownContactsLimited;
@@ -151,19 +162,16 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
      * @param headerLayoutResourceId the header layout
      * @param session                the session.
      * @param roomId                 the room id.
-     * @param withAddIcon            whether we need to display the "+" icon
+     * @param contactsFilter         the filter to display the users
      */
-    public VectorParticipantsAdapter(Context context, int cellLayoutResourceId, int headerLayoutResourceId, MXSession session, String roomId, boolean withAddIcon, VectorRoomInviteMembersActivity.ContactsFilter contactsFilter) {
+    public VectorParticipantsAdapter(Context context, int cellLayoutResourceId, int headerLayoutResourceId, MXSession session, String roomId, VectorRoomInviteMembersActivity.ContactsFilter contactsFilter) {
         mContext = context;
-
         mLayoutInflater = LayoutInflater.from(context);
         mCellLayoutResourceId = cellLayoutResourceId;
         mHeaderLayoutResourceId = headerLayoutResourceId;
         mSession = session;
         mRoomId = roomId;
-        mWithAddIcon = withAddIcon;
         mContactsFilter = contactsFilter;
-
         mSortMethod = ParticipantAdapterItem.getComparator(session);
     }
 
@@ -178,6 +186,10 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
         mPattern = null;
 
         notifyDataSetChanged();
+    }
+
+    public void setEditParticipantListener(VectorParticipantsAdapterEditListener editParticipantListener) {
+        mEditParticipantListener = editParticipantListener;
     }
 
     /**
@@ -216,11 +228,11 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
     }
 
     /**
-     * Add the contacts participants
+     * Add the participants created from the local contact book.
      *
      * @param list the participantItem indexed by their matrix Id
      */
-    private void addContacts(List<ParticipantAdapterItem> list) {
+    private void addLocalContacts(List<ParticipantAdapterItem> list) {
         Collection<Contact> contacts = ContactsManager.getInstance().getLocalContactsSnapshot();
 
         if (null != contacts) {
@@ -228,32 +240,47 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                 // Show contacts without emails only in two cases :
                 // 1) when all contacts are displaying
                 // 2) when no tchap users are displaying
-                if (contact.getEmails().isEmpty() && mContactsFilter != VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY) {
+                if (contact.getEmails().isEmpty() &&
+                        mContactsFilter != VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY) {
                     Contact dummyContact = new Contact(contact.getContactId());
                     dummyContact.setDisplayName(contact.getDisplayName());
                     dummyContact.addEmailAdress(mContext.getString(R.string.no_email));
                     dummyContact.setThumbnailUri(contact.getThumbnailUri());
 
                     ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
-
-                    participant.mUserId = "null";
+                    // This participant is invalid (the mUserId field is null).
                     participant.mIsValid = false;
                     list.add(participant);
-
                 } else {
-                    // select just one email, in priority the french gov email
-                    ParticipantAdapterItem candidateParticipant = null;
-
+                    // We create an item for each email except if the resulting contact is filtered by mContactsFilter.
                     for (String email : contact.getEmails()) {
                         if (!TextUtils.isEmpty(email) && !ParticipantAdapterItem.isBlackedListed(email)) {
-                            Contact dummyContact = new Contact(email);
+                            // Check whether a Tchap account is linked to this email.
+                            Contact.MXID mxid = PIDsRetriever.getInstance().getMXID(email);
+
+                            // Consider the contact filter here
+                            switch (mContactsFilter) {
+                                case TCHAP_ONLY:
+                                    if (null == mxid) {
+                                        // we ignore this email and go to the next one if any
+                                        continue;
+                                    }
+                                    break;
+                                case NO_TCHAP_ONLY:
+                                    if (null != mxid) {
+                                        // we ignore this email and go to the next one if any
+                                        continue;
+                                    }
+                                    break;
+                            }
+
+                            // TODO check whether there is an issue to use the same id for several dummy contacts
+                            Contact dummyContact = new Contact(contact.getContactId());
                             dummyContact.setDisplayName(contact.getDisplayName());
                             dummyContact.addEmailAdress(email);
                             dummyContact.setThumbnailUri(contact.getThumbnailUri());
 
                             ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
-
-                            Contact.MXID mxid = PIDsRetriever.getInstance().getMXID(email);
 
                             if (null != mxid) {
                                 participant.mUserId = mxid.mMatrixId;
@@ -261,43 +288,15 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                                 participant.mUserId = email;
                             }
 
-                            if (DinsicUtils.isFromFrenchGov(email)) {
-                                // In the case of the contact is a french gov agent,
-                                // this email is chosen in priority
-                                // and we do not continue looking for another email (break)
-                                candidateParticipant = participant;
-                                break;
-                            } else if (null == candidateParticipant || null != mxid) {
-                                // In the case of the contact is NOT a french gov agent,
-                                // it is added to the list whether it is a Tchap user or not
-                                candidateParticipant = participant;
+                            // Here we add the contact to the list
+                            if (mUsedMemberUserIds == null || !mUsedMemberUserIds.contains(participant.mUserId)) {
+                                // When the tchap users are displayed (see mContactsFilter), a contact
+                                // may be already created by considering the current discussions (direct chats).
+                                // In this case, we keep the existing participant item and ignore the one that we just created.
+                                if (!DinsicUtils.participantAlreadyAdded(list, participant)) {
+                                    list.add(participant);
+                                }
                             }
-                        }
-                    }
-
-                    if (candidateParticipant != null) {
-                        // This enum, mContactsFilter, is used to filter the display of this contact
-                        switch (mContactsFilter) {
-                            case TCHAP_ONLY:
-                                if (!MXSession.isUserId(candidateParticipant.mUserId)) {
-                                    // we ignore it and go to the next contact
-                                    // we don't add this contact to the list
-                                    continue;
-                                }
-                                break;
-                            case NO_TCHAP_ONLY:
-                                if (MXSession.isUserId(candidateParticipant.mUserId)) {
-                                    // we ignore and go to the next contact
-                                    // we don't add this contact to the list
-                                    continue;
-                                }
-                                break;
-                        }
-
-                        // Here we add the contact to the list
-                        if (mUsedMemberUserIds != null && !mUsedMemberUserIds.contains(candidateParticipant.mUserId)) {
-                            DinsicUtils.removeParticipantIfExist(list, candidateParticipant);
-                            list.add(candidateParticipant);
                         }
                     }
                 }
@@ -338,12 +337,20 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
         fillUsedMembersList();
 
         List<ParticipantAdapterItem> participants = new ArrayList<>();
-        if (VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY != mContactsFilter) {
-            // Add all known matrix users
+        if (mContactsFilter != VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY) {
+            // Add first all known matrix users
             participants.addAll(VectorUtils.listKnownParticipants(mSession).values());
+
+            // Update each participant for who a discussion (direct chat) exists,
+            // in order to display them in local contacts section
+            List<ParticipantAdapterItem> myDirectContacts = DinsicUtils.getContactsFromDirectChats(mSession);
+            for (ParticipantAdapterItem myContact : myDirectContacts) {
+                DinsicUtils.removeParticipantIfExist(participants, myContact);
+                participants.add(myContact);
+            }
         }
-        // Add phone contacts which have an email address
-        addContacts(participants);
+        // Add phone contacts
+        addLocalContacts(participants);
 
         // List of display names
         List<String> displayNamesList = new ArrayList<>();
@@ -390,6 +397,17 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
     }
 
     /**
+     * Update the list of user ids already selected.
+     * The usersId can be either emails or matrixId,
+     * depending on whether we are in the case INVITE or NEW_ROOM.
+     *
+     * @param selectedUserIds    the list of already selected usersIds.
+     */
+    public void setSelectedUserIds(List<String> selectedUserIds) {
+        mCurrentSelectedUsers = new ArrayList<>(selectedUserIds);
+    }
+
+    /**
      * Some contacts pids have been updated.
      */
     public void onPIdsUpdate() {
@@ -404,8 +422,17 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
             }
 
             if (null != mContactsParticipants) {
-                List<ParticipantAdapterItem> newContactList = new ArrayList<>();
-                addContacts(newContactList);
+                List<ParticipantAdapterItem> newContactList;
+                if (mContactsFilter != VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY) {
+                    // Initialize the participants list with the tchap users extracted from the
+                    // current discussions (direct chats).
+                    newContactList = DinsicUtils.getContactsFromDirectChats(mSession);
+                } else {
+                    newContactList = new ArrayList<>();
+                }
+
+                addLocalContacts(newContactList);
+
                 if (!mContactsParticipants.containsAll(newContactList)) {
                     // Force update
                     gotUpdates = true;
@@ -484,7 +511,8 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
 
                         if (null != searchUsersResponse.results) {
                             for (User user : searchUsersResponse.results) {
-                                participantItemList.add(new ParticipantAdapterItem(user));
+                                ParticipantAdapterItem participant = new ParticipantAdapterItem(user);
+                                participantItemList.add(participant);
                             }
                         }
 
@@ -570,6 +598,10 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
 
             for (ParticipantAdapterItem item : unusedParticipants) {
                 if (match(item, mPattern)) {
+                    // Remove the existing item with the same userId if any.
+                    // This is required to keep displaying in the local contacts section the tchap
+                    // users extracted from the discussions (direct chats).
+                    DinsicUtils.removeParticipantIfExist(participantItemList, item);
                     participantItemList.add(item);
                 }
             }
@@ -582,8 +614,16 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                     public void run() {
                         fillUsedMembersList();
 
-                        List<ParticipantAdapterItem> list = new ArrayList<>();
-                        addContacts(list);
+                        List<ParticipantAdapterItem> list;
+                        if (mContactsFilter != VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY) {
+                            // Initialize the participants list with the tchap users extracted from the
+                            // current discussions (direct chats).
+                            list = DinsicUtils.getContactsFromDirectChats(mSession);
+                        } else {
+                            list = new ArrayList<>();
+                        }
+
+                        addLocalContacts(list);
 
                         synchronized (LOG_TAG) {
                             mContactsParticipants = list;
@@ -710,7 +750,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                 // Sort also by gouv priority
                 // the contacts are sorted by alphabetical method
 
-                Collections.sort(contactBookList, ParticipantAdapterItem.alphaComparator);// alphaGouvComparator);
+                Collections.sort(contactBookList, ParticipantAdapterItem.alphaComparator);// tchapAlphaComparator);
             }
             mParticipantsListsList.add(contactBookList);
         } else {
@@ -989,32 +1029,32 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
         // retrieve the ui items
         final ImageView thumbView = convertView.findViewById(R.id.filtered_list_avatar);
         final TextView nameTextView = convertView.findViewById(R.id.filtered_list_name);
-        final TextView statusTextView = convertView.findViewById(R.id.filtered_list_status);
-        final ImageView matrixUserBadge = convertView.findViewById(R.id.filtered_list_matrix_user);
+        final TextView domainNameTextView = convertView.findViewById(R.id.filtered_list_domain);
+        final TextView statusTextView = convertView.findViewById(R.id.filtered_list_email);
+
+        // reported by GA
+        // it should never happen but it happened...
+        if ((null == thumbView) || (null == nameTextView) || (null == statusTextView)) {
+            Log.e(LOG_TAG, "## getChildView() : some ui items are null");
+            return convertView;
+        }
 
         // Contacts not in priority are seen different
         if (!participant.isViewedInPriority()){
             //final int semiTransparentGrey = Color.argb(155, 185, 185, 185);
             //thumbView.setAlpha( 0.5f);
             nameTextView.setTypeface(null, Typeface.ITALIC);
-        }
-        else{
+        } else {
             //thumbView.clearColorFilter();
             nameTextView.setTypeface(null, Typeface.BOLD);
-        }
-
-        // reported by GA
-        // it should never happen but it happened...
-        if ((null == thumbView) || (null == nameTextView) || (null == statusTextView) || (null == matrixUserBadge)) {
-            Log.e(LOG_TAG, "## getChildView() : some ui items are null");
-            return convertView;
         }
 
         // display the avatar
         participant.displayAvatar(mSession, thumbView);
 
         synchronized (LOG_TAG) {
-            nameTextView.setText(participant.getUniqueDisplayName(mDisplayNamesList));
+            nameTextView.setText(DinsicUtils.getNameFromDisplayName(participant.getUniqueDisplayName(mDisplayNamesList)));
+            domainNameTextView.setText(DinsicUtils.getDomainFromDisplayName(participant.getUniqueDisplayName(mDisplayNamesList)));
         }
 
         // set the presence
@@ -1043,31 +1083,45 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
             }
         }
 
-        // the contact defines a matrix user but there is no way to get more information (presence, avatar)
-        if (participant.mContact != null) {
-            boolean isMatrixUserId = MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(participant.mUserId).matches();
-            matrixUserBadge.setVisibility(isMatrixUserId ? View.VISIBLE : View.GONE);
-
+        statusTextView.setText("");
+        if (mContactsFilter == VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY) {
+            // Use the status text view to display the contact email if any
             if (participant.mContact.getEmails().size() > 0) {
                 statusTextView.setText(participant.mContact.getEmails().get(0));
-            } else {
+            } else if (participant.mContact.getPhonenumbers().size() > 0) {
                 statusTextView.setText(participant.mContact.getPhonenumbers().get(0).mRawPhoneNumber);
             }
         } else {
             statusTextView.setText(status);
-            matrixUserBadge.setVisibility(View.GONE);
         }
 
         // Add alpha if cannot be invited
         //change alpha mgmt for tchap
         // convertView.setAlpha(participant.mIsValid ? 1f : 0.5f);
 
-        // the checkbox is not managed here
-        final CheckBox checkBox = convertView.findViewById(R.id.filtered_list_checkbox);
-        checkBox.setVisibility(View.GONE);
+        // Handle the display of the editContactButton (pen)
+        final View editContactPen = convertView.findViewById(R.id.filtered_list_actions_list);
 
-        final View addParticipantImageView = convertView.findViewById(R.id.filtered_list_add_button);
-        addParticipantImageView.setVisibility(mWithAddIcon ? View.VISIBLE : View.GONE);
+        if (null != mEditParticipantListener) {
+            editContactPen.setVisibility(View.VISIBLE);
+            editContactPen.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (null != mEditParticipantListener) {
+                        mEditParticipantListener.editContactForm(participant);
+                    }
+                }
+            });
+        } else {
+            editContactPen.setVisibility(View.GONE);
+        }
+
+        final ImageView iconCheck = convertView.findViewById(R.id.icon_check_invite_member);
+        if (participant.mIsValid) {
+            iconCheck.setVisibility(mCurrentSelectedUsers.contains(participant.mUserId) ? View.VISIBLE : View.GONE);
+        } else {
+            iconCheck.setVisibility(View.GONE);
+        }
 
         return convertView;
     }

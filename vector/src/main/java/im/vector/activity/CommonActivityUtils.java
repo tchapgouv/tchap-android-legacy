@@ -46,6 +46,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.AttrRes;
 import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -431,6 +432,74 @@ public class CommonActivityUtils {
         });
 
         Log.d(LOG_TAG, "## logout() : clearSessions in progress");
+    }
+
+    /**
+     * Clear all local data after a user account deactivation
+     *
+     * @param context       the application context
+     * @param mxSession     the session to deactivate
+     * @param userPassword  the user password
+     * @param eraseUserData true to also erase all the user data
+     * @param callback      the callback success and failure callback
+     */
+    public static void deactivateAccount(final Context context,
+                                         final MXSession mxSession,
+                                         final String userPassword,
+                                         final boolean eraseUserData,
+                                         final @NonNull ApiCallback<Void> callback) {
+        Matrix.getInstance(context).deactivateSession(context, mxSession, userPassword, eraseUserData, new SimpleApiCallback<Void>(callback) {
+
+            @Override
+            public void onSuccess(Void info) {
+                EventStreamService.removeNotification();
+                stopEventStream(context);
+
+                try {
+                    ShortcutBadger.setBadge(context, 0);
+                } catch (Exception e) {
+                    Log.d(LOG_TAG, "## logout(): Exception Msg=" + e.getMessage());
+                }
+
+                // Publish to the server that we're now offline
+                MyPresenceManager.getInstance(context, mxSession).advertiseOffline();
+                MyPresenceManager.remove(mxSession);
+
+                // clear the preferences
+                PreferencesManager.clearPreferences(context);
+
+                // reset the GCM
+                Matrix.getInstance(context).getSharedGCMRegistrationManager().resetGCMRegistration();
+
+                // clear the preferences
+                Matrix.getInstance(context).getSharedGCMRegistrationManager().clearPreferences();
+
+                // Clear the credentials
+                Matrix.getInstance(context).getLoginStorage().clear();
+
+                // clear the tmp store list
+                Matrix.getInstance(context).clearTmpStoresList();
+
+                // reset the contacts
+                PIDsRetriever.getInstance().reset();
+                ContactsManager.getInstance().reset();
+
+                MXMediasCache.clearThumbnailsCache(context);
+
+                callback.onSuccess(info);
+            }
+        });
+    }
+
+    /**
+     * Start LoginActivity in a new task, and clear any other existing task
+     *
+     * @param activity the current Activity
+     */
+    public static void startLoginActivityNewTask(Activity activity) {
+        Intent intent = new Intent(activity, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        activity.startActivity(intent);
     }
 
     /**
@@ -1198,6 +1267,8 @@ public class CommonActivityUtils {
                                                        intent.putExtra(key, (Boolean) value);
                                                    } else if (value instanceof Parcelable) {
                                                        intent.putExtra(key, (Parcelable) value);
+                                                   } else if (value instanceof Serializable) {
+                                                       intent.putExtra(key, (Serializable) value);
                                                    }
                                                }
 
@@ -1954,10 +2025,10 @@ public class CommonActivityUtils {
             public void onSuccess(byte[] bytesArray) {
                 try {
                     ByteArrayInputStream stream = new ByteArrayInputStream(bytesArray);
-                    String url = session.getMediasCache().saveMedia(stream, "riot-" + System.currentTimeMillis() + ".txt", "text/plain");
+                    String url = session.getMediasCache().saveMedia(stream, "tchap-" + System.currentTimeMillis() + ".txt", "text/plain");
                     stream.close();
 
-                    CommonActivityUtils.saveMediaIntoDownloads(appContext, new File(Uri.parse(url).getPath()), "riot-keys.txt", "text/plain", new SimpleApiCallback<String>() {
+                    CommonActivityUtils.saveMediaIntoDownloads(appContext, new File(Uri.parse(url).getPath()), "tchap-keys.txt", "text/plain", new SimpleApiCallback<String>() {
                         @Override
                         public void onSuccess(String path) {
                             if (null != callback) {
@@ -2057,6 +2128,7 @@ public class CommonActivityUtils {
         for (int i = 0; i < menu.size(); ++i) {
             MenuItem item = menu.getItem(i);
             Drawable drawable = item.getIcon();
+
             if (drawable != null) {
                 Drawable wrapped = DrawableCompat.wrap(drawable);
                 drawable.mutate();
