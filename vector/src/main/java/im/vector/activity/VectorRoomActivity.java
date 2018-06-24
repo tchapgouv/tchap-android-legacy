@@ -2287,7 +2287,18 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
 
                     @Override
                     public void onMatrixError(final MatrixError e) {
-                        onError(e.getLocalizedMessage());
+                        // Catch here the consent request (because mVectorMessageListFragment was not set up for the moment).
+                        if("M_CONSENT_NOT_GIVEN".equals(e.errcode)) {
+                            mEditText.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    onConsentNotGiven(null, e);
+                                    hideWaitingView();
+                                }
+                            });
+                        } else {
+                            onError(e.getLocalizedMessage());
+                        }
                     }
 
                     @Override
