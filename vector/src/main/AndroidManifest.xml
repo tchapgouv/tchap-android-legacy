@@ -340,11 +340,7 @@
 
                 <data android:scheme="http" />
                 <data android:scheme="https" />
-                <data android:host="matrix.i.tchap.gouv.fr" />
-                <data android:pathPrefix="/app/" />
-                <data android:pathPrefix="/beta/" />
-                <data android:pathPrefix="/develop/" />
-                <data android:pathPrefix="/staging/" />
+                <data android:host="matrix.dev-durable.tchap.gouv.fr" />
                 <!-- mail validation -->
                 <data android:pathPrefix="/_matrix/" />
             </intent-filter>
@@ -356,11 +352,7 @@
 
                 <data android:scheme="http" />
                 <data android:scheme="https" />
-                <data android:host="matrix.a.tchap.gouv.fr" />
-                <data android:pathPrefix="/app/" />
-                <data android:pathPrefix="/beta/" />
-                <data android:pathPrefix="/develop/" />
-                <data android:pathPrefix="/staging/" />
+                <data android:host="matrix.dinum.tchap.gouv.fr" />
                 <!-- mail validation -->
                 <data android:pathPrefix="/_matrix/" />
             </intent-filter>
@@ -372,11 +364,127 @@
 
                 <data android:scheme="http" />
                 <data android:scheme="https" />
-                <data android:host="matrix.e.tchap.gouv.fr" />
-                <data android:pathPrefix="/app/" />
-                <data android:pathPrefix="/beta/" />
-                <data android:pathPrefix="/develop/" />
-                <data android:pathPrefix="/staging/" />
+                <data android:host="matrix.intradef.tchap.gouv.fr" />
+                <!-- mail validation -->
+                <data android:pathPrefix="/_matrix/" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="matrix.diplomatie.tchap.gouv.fr" />
+                <!-- mail validation -->
+                <data android:pathPrefix="/_matrix/" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="matrix.justice.tchap.gouv.fr" />
+                <!-- mail validation -->
+                <data android:pathPrefix="/_matrix/" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="matrix.agriculture.tchap.gouv.fr" />
+                <!-- mail validation -->
+                <data android:pathPrefix="/_matrix/" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="matrix.interieur.tchap.gouv.fr" />
+                <!-- mail validation -->
+                <data android:pathPrefix="/_matrix/" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="matrix.social.tchap.gouv.fr" />
+                <!-- mail validation -->
+                <data android:pathPrefix="/_matrix/" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="matrix.education.tchap.gouv.fr" />
+                <!-- mail validation -->
+                <data android:pathPrefix="/_matrix/" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="matrix.finances.tchap.gouv.fr" />
+                <!-- mail validation -->
+                <data android:pathPrefix="/_matrix/" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="matrix.ssi.tchap.gouv.fr" />
+                <!-- mail validation -->
+                <data android:pathPrefix="/_matrix/" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="matrix.pm.tchap.gouv.fr" />
+                <!-- mail validation -->
+                <data android:pathPrefix="/_matrix/" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="matrix.elysee.tchap.gouv.fr" />
                 <!-- mail validation -->
                 <data android:pathPrefix="/_matrix/" />
             </intent-filter>
@@ -438,8 +546,8 @@
                 <data android:scheme="http" />
                 <data android:scheme="https" />
                 <data android:host="www.tchap.gouv.fr" />
+                <data android:pathPrefix="/alphatest/" />
                 <data android:pathPrefix="/app/" />
-                <data android:pathPrefix="/beta/" />
                 <data android:pathPrefix="/develop/" />
                 <data android:pathPrefix="/staging/" />
             </intent-filter>
@@ -462,7 +570,7 @@
 
                 <data android:scheme="http" />
                 <data android:scheme="https" />
-                <data android:host="matrix.i.tchap.gouv.fr" />
+                <data android:host="matrix.dev-durable.tchap.gouv.fr" />
                 <!-- mail validation -->
                 <data android:pathPrefix="/_matrix/" />
             </intent-filter>
@@ -471,7 +579,7 @@
 
                 <data android:scheme="http" />
                 <data android:scheme="https" />
-                <data android:host="matrix.a.tchap.gouv.fr" />
+                <data android:host="matrix.dinum.tchap.gouv.fr" />
                 <!-- mail validation -->
                 <data android:pathPrefix="/_matrix/" />
             </intent-filter>
@@ -480,7 +588,97 @@
 
                 <data android:scheme="http" />
                 <data android:scheme="https" />
-                <data android:host="matrix.e.tchap.gouv.fr" />
+                <data android:host="matrix.intradef.tchap.gouv.fr" />
+                <!-- mail validation -->
+                <data android:pathPrefix="/_matrix/" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="im.vector.receiver.BROADCAST_ACTION_REGISTRATION" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="matrix.diplomatie.tchap.gouv.fr" />
+                <!-- mail validation -->
+                <data android:pathPrefix="/_matrix/" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="im.vector.receiver.BROADCAST_ACTION_REGISTRATION" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="matrix.justice.tchap.gouv.fr" />
+                <!-- mail validation -->
+                <data android:pathPrefix="/_matrix/" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="im.vector.receiver.BROADCAST_ACTION_REGISTRATION" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="matrix.agriculture.tchap.gouv.fr" />
+                <!-- mail validation -->
+                <data android:pathPrefix="/_matrix/" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="im.vector.receiver.BROADCAST_ACTION_REGISTRATION" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="matrix.interieur.tchap.gouv.fr" />
+                <!-- mail validation -->
+                <data android:pathPrefix="/_matrix/" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="im.vector.receiver.BROADCAST_ACTION_REGISTRATION" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="matrix.social.tchap.gouv.fr" />
+                <!-- mail validation -->
+                <data android:pathPrefix="/_matrix/" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="im.vector.receiver.BROADCAST_ACTION_REGISTRATION" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="matrix.education.tchap.gouv.fr" />
+                <!-- mail validation -->
+                <data android:pathPrefix="/_matrix/" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="im.vector.receiver.BROADCAST_ACTION_REGISTRATION" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="matrix.finances.tchap.gouv.fr" />
+                <!-- mail validation -->
+                <data android:pathPrefix="/_matrix/" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="im.vector.receiver.BROADCAST_ACTION_REGISTRATION" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="matrix.ssi.tchap.gouv.fr" />
+                <!-- mail validation -->
+                <data android:pathPrefix="/_matrix/" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="im.vector.receiver.BROADCAST_ACTION_REGISTRATION" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="matrix.pm.tchap.gouv.fr" />
+                <!-- mail validation -->
+                <data android:pathPrefix="/_matrix/" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="im.vector.receiver.BROADCAST_ACTION_REGISTRATION" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="matrix.elysee.tchap.gouv.fr" />
                 <!-- mail validation -->
                 <data android:pathPrefix="/_matrix/" />
             </intent-filter>

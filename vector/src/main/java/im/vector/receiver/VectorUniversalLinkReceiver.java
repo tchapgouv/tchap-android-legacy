@@ -74,7 +74,7 @@ public class VectorUniversalLinkReceiver extends BroadcastReceiver {
     //public static final String SPLASH_SENDER_ID = SplashActivity.class.getSimpleName();
 
     // the supported paths
-    private static final String SUPPORTED_PATH_BETA = "/beta/";
+    private static final String SUPPORTED_PATH_BETA = "/alphatest/";
     private static final String SUPPORTED_PATH_DEVELOP = "/develop/";
     private static final String SUPPORTED_PATH_APP = "/app/";
     private static final String SUPPORTED_PATH_STAGING = "/staging/";
