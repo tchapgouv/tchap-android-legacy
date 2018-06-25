@@ -232,7 +232,7 @@ public class DinsicUtils {
             alertDialog.show();
 
         }
-    }  
+    }
 
     public static boolean participantAlreadyAdded(List<ParticipantAdapterItem> participants, ParticipantAdapterItem participant) {
         boolean find = false;
@@ -647,6 +647,11 @@ public class DinsicUtils {
             HashMap<String, Object> params = new HashMap<>();
             params.put(VectorRoomActivity.EXTRA_MATRIX_ID, session.getMyUserId());
             params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomPreviewData.getRoomId());
+
+            if (null != roomPreviewData.getEventId()) {
+                params.put(VectorRoomActivity.EXTRA_EVENT_ID, roomPreviewData.getEventId());
+            }
+
             CommonActivityUtils.goToRoomPage(activity, session, params);
         }
     }
