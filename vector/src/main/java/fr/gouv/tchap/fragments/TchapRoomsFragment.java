@@ -233,7 +233,7 @@ public class TchapRoomsFragment extends AbsHomeFragment implements AbsHomeFragme
                                 continue;
                             }
 
-                            // Check if the 3PID invite is pending for this invite
+                            // Check whether there is no pending 3PID invite for this member.
                             if (null == member.getThirdPartyInviteToken()) {
                                 mRooms.add(room);
                             }
