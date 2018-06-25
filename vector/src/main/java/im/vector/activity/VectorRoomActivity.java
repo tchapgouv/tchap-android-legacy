@@ -1535,10 +1535,6 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                         onDone();
                     }
                 });
-
-
-
-
         }
     }
 
@@ -1675,7 +1671,6 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             // hide / show the unsent / resend all entries.
             refreshNotificationsArea();
         }
-
         return true;
     }
 

@@ -647,18 +647,7 @@ public class DinsicUtils {
             HashMap<String, Object> params = new HashMap<>();
             params.put(VectorRoomActivity.EXTRA_MATRIX_ID, session.getMyUserId());
             params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomPreviewData.getRoomId());
-
-            if (null != roomPreviewData.getEventId()) {
-                params.put(VectorRoomActivity.EXTRA_EVENT_ID, roomPreviewData.getEventId());
-            }
-
-            // clear the activity stack to home activity
-            Intent intent = new Intent(activity, VectorHomeActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-
-            intent.putExtra(VectorHomeActivity.EXTRA_JUMP_TO_ROOM_PARAMS, params);
-            activity.startActivity(intent);
-            activity.finish();
+            CommonActivityUtils.goToRoomPage(activity, session, params);
         }
     }
 
