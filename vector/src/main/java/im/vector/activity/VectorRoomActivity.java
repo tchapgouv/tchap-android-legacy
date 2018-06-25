@@ -2269,15 +2269,10 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                     }
 
                     private void onError(final String message) {
-                        mEditText.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (null != message) {
-                                    Toast.makeText(VectorRoomActivity.this, message, Toast.LENGTH_LONG).show();
-                                }
-                                hideWaitingView();
-                            }
-                        });
+                        if (null != message) {
+                            Toast.makeText(VectorRoomActivity.this, message, Toast.LENGTH_LONG).show();
+                        }
+                        hideWaitingView();
                     }
 
                     @Override
@@ -2288,14 +2283,9 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                     @Override
                     public void onMatrixError(final MatrixError e) {
                         // Catch here the consent request (because mVectorMessageListFragment was not set up for the moment).
-                        if("M_CONSENT_NOT_GIVEN".equals(e.errcode)) {
-                            mEditText.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    onConsentNotGiven(null, e);
-                                    hideWaitingView();
-                                }
-                            });
+                        if (MatrixError.M_CONSENT_NOT_GIVEN.equals(e.errcode)) {
+                            hideWaitingView();
+                            onConsentNotGiven(null, e);
                         } else {
                             onError(e.getLocalizedMessage());
                         }
@@ -3859,7 +3849,13 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
 
                             @Override
                             public void onMatrixError(MatrixError e) {
-                                onError(e.getLocalizedMessage());
+                                // Catch here the consent request if any.
+                                if (MatrixError.M_CONSENT_NOT_GIVEN.equals(e.errcode)) {
+                                    hideWaitingView();
+                                    getConsentNotGivenHelper().displayDialog(e);
+                                } else {
+                                    onError(e.getLocalizedMessage());
+                                }
                             }
 
                             @Override
