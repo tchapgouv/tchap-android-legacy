@@ -298,21 +298,24 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
             @Override
             public void onMatrixError(final MatrixError e) {
-                onError(e.getLocalizedMessage());
-                String title;
-
-                switch (e.error) {
-                    case ERROR_CODE_ROOM_ALIAS_INVALID_CHARACTERS:
-                        title = getString(R.string.tchap_invite_room_alias_invalid_characters_title);
-                        promptUserAboutRoomAliasError(title);
-                        break;
-                    case ERROR_CODE_ROOM_ALIAS_ALREADY_TAKEN:
-                        title = getString(R.string.tchap_invite_room_alias_already_taken_message);
-                        promptUserAboutRoomAliasError(title);
-                        break;
-                    default:
-                        onError(e.getLocalizedMessage());
-                        break;
+                // Catch here the consent request if any.
+                if (MatrixError.M_CONSENT_NOT_GIVEN.equals(e.errcode)) {
+                    hideWaitingView();
+                    getConsentNotGivenHelper().displayDialog(e);
+                } else {
+                    switch (e.error) {
+                        case ERROR_CODE_ROOM_ALIAS_INVALID_CHARACTERS:
+                            hideWaitingView();
+                            promptUserAboutRoomAliasError(getString(R.string.tchap_invite_room_alias_invalid_characters_title));
+                            break;
+                        case ERROR_CODE_ROOM_ALIAS_ALREADY_TAKEN:
+                            hideWaitingView();
+                            promptUserAboutRoomAliasError(getString(R.string.tchap_invite_room_alias_already_taken_message));
+                            break;
+                        default:
+                            onError(e.getLocalizedMessage());
+                            break;
+                    }
                 }
             }
 
