@@ -232,7 +232,7 @@ public class DinsicUtils {
             alertDialog.show();
 
         }
-    }  
+    }
 
     public static boolean participantAlreadyAdded(List<ParticipantAdapterItem> participants, ParticipantAdapterItem participant) {
         boolean find = false;
@@ -652,13 +652,7 @@ public class DinsicUtils {
                 params.put(VectorRoomActivity.EXTRA_EVENT_ID, roomPreviewData.getEventId());
             }
 
-            // clear the activity stack to home activity
-            Intent intent = new Intent(activity, VectorHomeActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-
-            intent.putExtra(VectorHomeActivity.EXTRA_JUMP_TO_ROOM_PARAMS, params);
-            activity.startActivity(intent);
-            activity.finish();
+            CommonActivityUtils.goToRoomPage(activity, session, params);
         }
     }
 
