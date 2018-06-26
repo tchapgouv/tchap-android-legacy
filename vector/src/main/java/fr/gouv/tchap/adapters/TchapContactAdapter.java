@@ -385,7 +385,7 @@ public class TchapContactAdapter extends AbsAdapter {
             }
 
             // show the partipant different depending on priority
-            if (!participant.isViewedInPriority()){
+            if (!participant.isMatrixUser()){
                 final int semiTransparentGrey = Color.argb(155, 185, 185, 185);
                 vContactAvatar.setColorFilter(semiTransparentGrey);
                 vContactName.setTypeface(null, Typeface.ITALIC);
@@ -395,10 +395,26 @@ public class TchapContactAdapter extends AbsAdapter {
                 vContactName.setTypeface(null, Typeface.BOLD);
             }
 
+            // display the participant's avatar
             participant.displayAvatar(mSession, vContactAvatar);
 
+            // display the participant's name
             vContactName.setText(DinsicUtils.getNameFromDisplayName(participant.mDisplayName));
-            vContactDomain.setText(DinsicUtils.getDomainFromDisplayName(participant.mDisplayName));
+
+            // display the participant's domain
+            String domainName = DinsicUtils.getDomainFromDisplayName(participant.mDisplayName);
+
+            if (null == domainName || domainName.isEmpty()) {
+                String emailAddress = participant.mContact.getEmails().get(0);
+                String[] components2 = emailAddress.split("@");
+
+                if (components2.length>1) {
+                    String domain = components2[1].substring(0,components2[1].indexOf("."));
+                    String formattedDomain = domain.substring(0, 1).toUpperCase() + domain.substring(1);
+                    domainName = formattedDomain;
+                }
+            }
+            vContactDomain.setText(domainName);
 
             // Check whether tchap user are online
             if (MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(participant.mUserId).matches()) {

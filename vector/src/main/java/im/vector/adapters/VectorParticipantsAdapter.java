@@ -1030,32 +1030,48 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
         final ImageView thumbView = convertView.findViewById(R.id.filtered_list_avatar);
         final TextView nameTextView = convertView.findViewById(R.id.filtered_list_name);
         final TextView domainNameTextView = convertView.findViewById(R.id.filtered_list_domain);
-        final TextView statusTextView = convertView.findViewById(R.id.filtered_list_email);
+        final TextView emailTextView = convertView.findViewById(R.id.filtered_list_email);
+        final ImageView onlineStatusImageView = convertView.findViewById(R.id.filtered_list_online_status);
 
         // reported by GA
         // it should never happen but it happened...
-        if ((null == thumbView) || (null == nameTextView) || (null == statusTextView)) {
+        if ((null == thumbView) || (null == nameTextView) || (null == emailTextView)) {
             Log.e(LOG_TAG, "## getChildView() : some ui items are null");
             return convertView;
         }
 
-        // Contacts not in priority are seen different
-        if (!participant.isViewedInPriority()){
-            //final int semiTransparentGrey = Color.argb(155, 185, 185, 185);
-            //thumbView.setAlpha( 0.5f);
+        // No Tchap users are displayed differently than Tchap users
+        if (!participant.isMatrixUser()){
             nameTextView.setTypeface(null, Typeface.ITALIC);
         } else {
-            //thumbView.clearColorFilter();
+            onlineStatusImageView.setVisibility(VectorUtils.isUserOnline(mContext, mSession, participant.mUserId, null) ? View.VISIBLE : View.GONE);
+            domainNameTextView.setPadding(0, 30, 0, 0);
+            nameTextView.setPadding(0, 18, 0, 0);
             nameTextView.setTypeface(null, Typeface.BOLD);
         }
 
-        // display the avatar
+
+        // display the participant's avatar
         participant.displayAvatar(mSession, thumbView);
 
-        synchronized (LOG_TAG) {
-            nameTextView.setText(DinsicUtils.getNameFromDisplayName(participant.getUniqueDisplayName(mDisplayNamesList)));
-            domainNameTextView.setText(DinsicUtils.getDomainFromDisplayName(participant.getUniqueDisplayName(mDisplayNamesList)));
+        // display the participant's name
+        nameTextView.setText(DinsicUtils.getNameFromDisplayName(participant.mDisplayName));
+
+        // display the participant's domain
+        String domainName = DinsicUtils.getDomainFromDisplayName(participant.mDisplayName);
+
+        if (null == domainName || domainName.isEmpty()) {
+            String emailAddress = participant.mContact.getEmails().get(0);
+            String[] components2 = emailAddress.split("@");
+
+            if (components2.length>1) {
+                String domain = components2[1].substring(0,components2[1].indexOf("."));
+                String formattedDomain = domain.substring(0, 1).toUpperCase() + domain.substring(1);
+                domainName = formattedDomain;
+            }
         }
+
+        domainNameTextView.setText(domainName);
 
         // set the presence
         String status = "";
@@ -1083,16 +1099,16 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
             }
         }
 
-        statusTextView.setText("");
+        emailTextView.setText("");
         if (mContactsFilter == VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY) {
             // Use the status text view to display the contact email if any
             if (participant.mContact.getEmails().size() > 0) {
-                statusTextView.setText(participant.mContact.getEmails().get(0));
+                emailTextView.setText(participant.mContact.getEmails().get(0));
             } else if (participant.mContact.getPhonenumbers().size() > 0) {
-                statusTextView.setText(participant.mContact.getPhonenumbers().get(0).mRawPhoneNumber);
+                emailTextView.setText(participant.mContact.getPhonenumbers().get(0).mRawPhoneNumber);
             }
         } else {
-            statusTextView.setText(status);
+            emailTextView.setText(status);
         }
 
         // Add alpha if cannot be invited
