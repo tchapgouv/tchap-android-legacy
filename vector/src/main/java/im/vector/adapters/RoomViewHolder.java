@@ -66,9 +66,9 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
     @Nullable
     TextView vRoomDomain;
 
-    @BindView(R.id.room_creator)
+    @BindView(R.id.sender_name)
     @Nullable
-    TextView vRoomCreator;
+    TextView vSenderDisplayName;
 
     @BindView(R.id.room_name_server)
     @Nullable
@@ -190,10 +190,11 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
             vRoomDomain.setText(DinsicUtils.getDomainFromDisplayName(displayName));
         }
 
-        if (null != vRoomCreator && null != room.getState().creator) {
-            String roomCreatorName = session.getDataHandler().getUser(room.getState().creator).displayname;
-            String userNameWithoutDomain = DinsicUtils.getNameFromDisplayName(roomCreatorName);
-            vRoomCreator.setText(userNameWithoutDomain);
+        if (null != vSenderDisplayName && null != roomSummary.getLatestReceivedEvent()) {
+            String senderName = session.getDataHandler().getUser(roomSummary.getLatestReceivedEvent().getSender()).displayname;
+            String userNameWithoutDomain = DinsicUtils.getNameFromDisplayName(senderName);
+            vSenderDisplayName.setText(userNameWithoutDomain);
+            vSenderDisplayName.setVisibility(View.VISIBLE);
         }
 
         VectorUtils.loadRoomAvatar(context, session, vRoomAvatar, room);
@@ -224,6 +225,21 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
         if (vRoomLastMessage != null) {
             CharSequence lastMsgToDisplay = RoomUtils.getRoomMessageToDisplay(context, session, roomSummary);
             vRoomLastMessage.setText(lastMsgToDisplay);
+
+            if (notificationCount > 0) {
+                vRoomLastMessage.setTypeface(null, Typeface.BOLD);
+                vRoomLastMessage.setTextColor(ContextCompat.getColor(context, R.color.tchap_primary_text_color));
+            } else {
+                vRoomLastMessage.setTypeface(null, Typeface.NORMAL);
+                vRoomLastMessage.setTextColor(ContextCompat.getColor(context, R.color.tchap_third_text_color));
+            }
+
+            if (null != vSenderDisplayName) {
+                // Hide the sender display name if the message starts with his name
+                if (lastMsgToDisplay.toString().startsWith(vSenderDisplayName.getText().toString())) {
+                    vSenderDisplayName.setVisibility(View.GONE);
+                }
+            }
         }
 
         vRoomEncryptedIcon.setVisibility(room.isEncrypted() ? View.VISIBLE : View.INVISIBLE);
