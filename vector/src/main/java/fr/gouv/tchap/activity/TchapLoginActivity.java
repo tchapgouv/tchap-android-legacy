@@ -41,6 +41,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -416,10 +417,38 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         //loginPhoneNumberCountryCode.setCompoundDrawablesWithIntrinsicBounds(null, null, CommonActivityUtils.tintDrawable(this, ContextCompat.getDrawable(this, R.drawable.ic_material_expand_more_black), R.attr.settings_icon_tint_color), null);
         mLoginPasswordTextView = findViewById(R.id.tchap_first_login_password);
 
+        // Handle the keyboard action done
+        mLoginPasswordTextView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    onClick();
+                    onLoginClick();
+                    handled = true;
+                }
+                return handled;
+            }
+        });
+
         // account creation
         mCreationEmailAddressTextView = findViewById(R.id.tchap_first_register_email);
         mCreationPassword1TextView = findViewById(R.id.tchap_first_register_password);
         mCreationPassword2TextView = findViewById(R.id.tchap_first_register_password_confirm);
+
+        // Handle the keyboard action done
+        mCreationPassword2TextView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    onClick();
+                    onRegisterClick();
+                    handled = true;
+                }
+                return handled;
+            }
+        });
 
         // account creation - three pid
         mThreePidInstructions = findViewById(R.id.instructions);
@@ -666,7 +695,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 }
                 break;
         }
-
 
         return super.onOptionsItemSelected(item);
     }
