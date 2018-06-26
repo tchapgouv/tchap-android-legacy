@@ -112,9 +112,7 @@
             android:ellipsize="end"
             android:maxLines="2"
             android:maxWidth="220dp"
-            android:textColor="@color/tchap_primary_text_color"
             android:textSize="12sp"
-            android:textStyle="bold"
             tools:text="First message of the room is a bit too long to be displayed" />
 
         <ImageView

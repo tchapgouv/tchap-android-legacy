@@ -226,6 +226,14 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
             CharSequence lastMsgToDisplay = RoomUtils.getRoomMessageToDisplay(context, session, roomSummary);
             vRoomLastMessage.setText(lastMsgToDisplay);
 
+            if (notificationCount > 0) {
+                vRoomLastMessage.setTypeface(null, Typeface.BOLD);
+                vRoomLastMessage.setTextColor(ContextCompat.getColor(context, R.color.tchap_primary_text_color));
+            } else {
+                vRoomLastMessage.setTypeface(null, Typeface.NORMAL);
+                vRoomLastMessage.setTextColor(ContextCompat.getColor(context, R.color.tchap_third_text_color));
+            }
+
             if (null != vSenderDisplayName) {
                 // Hide the sender display name if the message starts with his name
                 if (lastMsgToDisplay.toString().startsWith(vSenderDisplayName.getText().toString())) {
