@@ -858,9 +858,6 @@ Appareils inconnus :</string>
         <item quantity="one">1 invitation a bien été envoyée.</item>
         <item quantity="other">%d invitations ont bien été envoyées.</item>
     </plurals>
-    <string name="tchap_invite_room_alias_invalid_characters_title">Cet alias contient des caractères spéciaux invalides</string>
-    <string name="tchap_invite_room_alias_already_taken_title">Cet alias est déjà pris</string>
-    <string name="tchap_invite_room_alias_already_taken_message">Veuillez le modifier pour finaliser la création du salon.</string>
     <string name="tchap_burger_menu_contacts">Contacts</string>
     <string name="tchap_burger_menu_public_rooms">Salons publics</string>
     <string name="tchap_burger_menu_info">Cette application n\'est pas approuvée\npour l\'échange d\'informations en diffusion restreinte</string>
