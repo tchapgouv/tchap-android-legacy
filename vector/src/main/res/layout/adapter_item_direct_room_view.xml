@@ -131,7 +131,7 @@
             android:id="@+id/room_update_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/room_message"
+            android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
             android:layout_marginRight="5dp"
             android:textColor="?attr/default_text_light_color"
