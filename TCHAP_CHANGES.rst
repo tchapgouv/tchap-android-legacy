@@ -1,3 +1,12 @@
+Changes in Tchap 1.0.1 (2018-06-26)
+===================================================
+ 
+Bug Fixes:
+ * Select back on a recently joined room make the user leave the app #255
+ * Unable to accept an invitation without giving consent #253
+ * Discussion: some discussions are missing in the conversations list #252
+ * Room summary : sender display name is wrong. #258
+
 Changes in Tchap 1.0.0 (2018-06-25)
 ===================================================
  

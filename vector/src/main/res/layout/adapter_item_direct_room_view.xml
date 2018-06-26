@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/room_view"
     android:layout_width="match_parent"
-    android:layout_height="95dp">
+    android:layout_height="76dp">
 
     <ImageView
         android:id="@+id/room_pin_ic"
@@ -18,7 +18,7 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginLeft="6dp"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="18dp"
         android:layout_toRightOf="@+id/room_pin_ic" />
 
     <ImageView
@@ -38,7 +38,7 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_marginLeft="16dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:layout_toRightOf="@+id/room_avatar_layout"
         android:paddingRight="10dp">
 
@@ -81,7 +81,7 @@
             android:layout_width="16dp"
             android:layout_height="16dp"
             android:layout_marginLeft="7dp"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="2dp"
             android:layout_toRightOf="@+id/room_name"
             android:src="@drawable/tchap_ic_notification_mute_bell"
             android:visibility="gone" />
@@ -91,7 +91,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="right"
-            android:layout_marginTop="7dp"
+            android:layout_marginTop="4dp"
             android:layout_toLeftOf="@+id/room_more_action_ic"
             android:ellipsize="end"
             android:gravity="right"
@@ -112,9 +112,7 @@
             android:ellipsize="end"
             android:maxLines="2"
             android:maxWidth="220dp"
-            android:textColor="@color/tchap_primary_text_color"
             android:textSize="12sp"
-            android:textStyle="bold"
             tools:text="First message of the room is a bit too long to be displayed" />
 
         <ImageView
@@ -124,7 +122,6 @@
             android:layout_alignBottom="@+id/room_name"
             android:layout_alignParentRight="true"
             android:layout_alignTop="@+id/room_name"
-            android:layout_marginTop="2dp"
             android:src="@drawable/vector_actions_9b"
             android:visibility="visible" />
 

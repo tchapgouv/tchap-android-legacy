@@ -367,7 +367,7 @@ public class RoomUtils {
         if (null != roomSummary) {
             if (roomSummary.getLatestReceivedEvent() != null) {
                 eventDisplay = new EventDisplay(context, roomSummary.getLatestReceivedEvent(), roomSummary.getLatestRoomState());
-                eventDisplay.setPrependMessagesWithAuthor(!isDirectChat(session,roomSummary.getRoomId()));
+                eventDisplay.setPrependMessagesWithAuthor(false);
                 messageToDisplay = eventDisplay.getTextualDisplay(ThemeUtils.getColor(context, R.attr.room_notification_text_color));
             }
 

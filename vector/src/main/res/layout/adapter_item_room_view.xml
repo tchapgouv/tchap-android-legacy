@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/room_view"
     android:layout_width="match_parent"
-    android:layout_height="95dp">
+    android:layout_height="76dp">
 
     <ImageView
         android:id="@+id/room_pin_ic"
@@ -18,7 +18,7 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginLeft="6dp"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="17dp"
         android:layout_toRightOf="@+id/room_pin_ic" />
 
     <ImageView
@@ -38,7 +38,7 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_marginLeft="16dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:layout_toRightOf="@+id/room_avatar_layout"
         android:paddingRight="10dp">
 
@@ -80,36 +80,35 @@
             android:layout_width="16dp"
             android:layout_height="16dp"
             android:layout_marginLeft="7dp"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="2dp"
             android:layout_toRightOf="@+id/room_name"
             android:src="@drawable/tchap_ic_notification_mute_bell"
             android:visibility="gone" />
 
         <TextView
-            android:id="@+id/room_creator"
+            android:id="@+id/sender_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/room_name"
-            android:layout_marginBottom="5dp"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="4dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:maxWidth="200dp"
             android:textColor="@color/tchap_primary_text_color"
             android:textSize="12sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:text="Sender name"  />
 
         <TextView
             android:id="@+id/room_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/room_creator"
+            android:layout_below="@+id/sender_name"
             android:layout_marginRight="25dp"
-            android:layout_marginTop="3dp"
+            android:layout_marginTop="4dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:maxWidth="220dp"
-            android:textColor="?attr/default_text_light_color"
             android:textSize="12sp"
             tools:text="First message of the room is a bit too long to be displayed" />
 
@@ -120,7 +119,6 @@
             android:layout_alignBottom="@+id/room_name"
             android:layout_alignParentRight="true"
             android:layout_alignTop="@+id/room_name"
-            android:layout_marginTop="2dp"
             android:src="@drawable/vector_actions_9b"
             android:visibility="visible" />
 
@@ -128,8 +126,8 @@
             android:id="@+id/room_update_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
             android:layout_marginRight="5dp"
             android:textColor="?attr/default_text_light_color"
             android:textSize="12sp"
