@@ -956,7 +956,7 @@
     <string name="tchap_invite_contacts_by_email">Invite contacts by email</string>
     <string name="tchap_invite_contacts_to_room">Invite contacts in Room</string>
     <string name="tchap_room_invite_member_direct_chat">New discussion</string>
-    <string name="tchap_invite_already_send_message">You have already sent an invitation to %s</string>
+    <string name="tchap_invite_already_send_message">A discussion with %s already exists</string>
     <string name="tchap_invite_unreachable_message">%s cannot be reached for the moment by Tchap</string>
     <string name="tchap_send_invite_failed">Failed to send invitation to %s</string>
     <string name="tchap_send_invite_network_error">Unable to send invite: Network error</string>
