@@ -28,7 +28,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "fr.gouv.rie.tchap"
+        applicationId "fr.gouv.tchap"
         minSdkVersion 16
         targetSdkVersion 26
         // use the version code
@@ -104,7 +104,6 @@ android {
 
     productFlavors {
         app {
-            applicationId "fr.gouv.rie.tchap"
             // use the version name
             versionCode rootProject.ext.versionCodeProp
             versionName rootProject.ext.versionNameProp
@@ -116,7 +115,6 @@ android {
         }
 
         appfdroid {
-            applicationId "fr.gouv.rie.tchap"
             // use the version name
             versionCode rootProject.ext.versionCodeProp
             versionName rootProject.ext.versionNameProp
