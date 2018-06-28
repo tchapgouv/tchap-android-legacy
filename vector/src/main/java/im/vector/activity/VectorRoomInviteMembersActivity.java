@@ -719,19 +719,19 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                     mSession.lookup3Pids(emails, medias, new ApiCallback<List<String>>() {
                         @Override
                         public void onSuccess(final List<String> pids) {
-                            Log.e(LOG_TAG, "lookup3Pids success " + pids.size());
+                            Log.e(LOG_TAG, "lookup3Pids : success " + pids.size());
 
                             for (int index = 0; index < emails.size();) {
                                 final String email = emails.get(index);
                                 String mxId = pids.get(index);
 
                                 if (!TextUtils.isEmpty(mxId)) {
-                                    // We check if this email has been already invited
-                                    // Here we consider the pendingInvites because we could have a pending invite related to this Tchap user).
+                                    // We check here if a discussion already exists for this Tchap user.
+                                    // We consider the pendingInvites because we could have a pending invite from this Tchap user.
                                     Room existingRoom = DinsicUtils.isDirectChatRoomAlreadyExist(mxId, mSession, true);
 
                                     if (null != existingRoom) {
-                                        // If a direct chat already exists, we do not re-invite the NoTchapUse.
+                                        // If a direct chat already exists, we do not invite him
                                         // We remove this email from the list to invite.
                                         emails.remove(index);
                                         pids.remove(index);
@@ -750,9 +750,9 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
 
                             hideWaitingView();
 
-                            // Invite each typed email by creating a direct chat
-                            // Stay in the activity if there is at least one contact selected
                             if (!emails.isEmpty()) {
+                                // Invite each typed email by creating a direct chat
+                                // Stay in the activity if there is at least one contact selected
                                 inviteNoTchapContactsByEmail(emails, mUserIdsToInvite.isEmpty());
                             }
                         }
@@ -762,12 +762,10 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                          * @param errorMessage the error message
                          */
                         private void onError(String errorMessage) {
-                            Log.e(LOG_TAG, "## retrieveMatrixIds() : failed " + errorMessage);
+                            Log.e(LOG_TAG, "## lookup3Pids success : failed " + errorMessage);
                             Toast.makeText(VectorRoomInviteMembersActivity.this, errorMessage, Toast.LENGTH_LONG).show();
                         }
-
-                        // ignore the network errors
-                        // will be checked again later
+                        
                         @Override
                         public void onNetworkError(Exception e) {
                             onError(e.getMessage());
