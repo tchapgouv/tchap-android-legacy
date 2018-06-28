@@ -739,8 +739,8 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
             }
         }
 
-        viewHolder.mMemberNameTextView.setPadding(0, 22, 0, 0);
-        viewHolder.mMemberDomainTextView.setPadding(0, 30, 0, 0);
+        viewHolder.mMemberNameTextView.setPadding(0, 37, 0, 0);
+        viewHolder.mMemberDomainTextView.setPadding(0, 54, 0, 0);
         viewHolder.mMemberNameTextView.setText(DinsicUtils.getNameFromDisplayName(memberName));
         viewHolder.mMemberDomainTextView.setText(DinsicUtils.getDomainFromDisplayName(memberName));
 

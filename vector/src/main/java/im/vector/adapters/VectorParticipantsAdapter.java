@@ -1040,76 +1040,56 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
             return convertView;
         }
 
-        // No Tchap users are displayed differently than Tchap users
-        if (!participant.isMatrixUser()){
-            nameTextView.setTypeface(null, Typeface.ITALIC);
-        } else {
+        // Tchap users are displayed differently than no Tchap users
+        if (participant.isMatrixUser()){
             onlineStatusImageView.setVisibility(VectorUtils.isUserOnline(mContext, mSession, participant.mUserId, null) ? View.VISIBLE : View.GONE);
-            domainNameTextView.setPadding(0, 30, 0, 0);
-            nameTextView.setPadding(0, 18, 0, 0);
+            domainNameTextView.setVisibility(View.VISIBLE);
+            domainNameTextView.setPadding(0, 54, 0, 0);
+            nameTextView.setText(DinsicUtils.getNameFromDisplayName(participant.mDisplayName));
+            nameTextView.setPadding(0, 37, 0, 0);
             nameTextView.setTypeface(null, Typeface.BOLD);
-        }
-
-
-        // display the participant's avatar
-        participant.displayAvatar(mSession, thumbView);
-
-        // display the participant's name
-        nameTextView.setText(DinsicUtils.getNameFromDisplayName(participant.mDisplayName));
-
-        // display the participant's domain
-        String domainName = DinsicUtils.getDomainFromDisplayName(participant.mDisplayName);
-
-        if (null == domainName || domainName.isEmpty()) {
-            String emailAddress = participant.mContact.getEmails().get(0);
-            String[] components2 = emailAddress.split("@");
-
-            if (components2.length>1) {
-                String domain = components2[1].substring(0,components2[1].indexOf("."));
-                String formattedDomain = domain.substring(0, 1).toUpperCase() + domain.substring(1);
-                domainName = formattedDomain;
-            }
-        }
-
-        domainNameTextView.setText(domainName);
-
-        // set the presence
-        String status = "";
-
-        if (groupPosition == mKnownContactsSectionPosition) {
-            User user = null;
-            MXSession matchedSession = null;
-            // retrieve the linked user
-            ArrayList<MXSession> sessions = Matrix.getMXSessions(mContext);
-
-            for (MXSession session : sessions) {
-                if (null == user) {
-                    matchedSession = session;
-                    user = session.getDataHandler().getUser(participant.mUserId);
-                }
-            }
-
-            if (null != user) {
-                status = VectorUtils.getUserOnlineStatus(mContext, matchedSession, participant.mUserId, new SimpleApiCallback<Void>() {
-                    @Override
-                    public void onSuccess(Void info) {
-                        VectorParticipantsAdapter.this.refresh(mFirstEntry, null);
-                    }
-                });
-            }
-        }
-
-        emailTextView.setText("");
-        if (mContactsFilter == VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY) {
-            // Use the status text view to display the contact email if any
+            emailTextView.setVisibility(View.GONE);
+        } else {
+            domainNameTextView.setVisibility(View.GONE);
+            domainNameTextView.setPadding(0, 0, 0, 0);
+            nameTextView.setText(participant.mDisplayName);
+            nameTextView.setPadding(0, 0, 0, 0);
+            nameTextView.setTypeface(null, Typeface.ITALIC);
+            emailTextView.setVisibility(View.VISIBLE);
+            // We display an additional information like email or phone number.
             if (participant.mContact.getEmails().size() > 0) {
                 emailTextView.setText(participant.mContact.getEmails().get(0));
             } else if (participant.mContact.getPhonenumbers().size() > 0) {
                 emailTextView.setText(participant.mContact.getPhonenumbers().get(0).mRawPhoneNumber);
             }
-        } else {
-            emailTextView.setText(status);
         }
+
+        // display the participant's avatar
+        participant.displayAvatar(mSession, thumbView);
+
+        // display the participant's domain
+        String domainName = DinsicUtils.getDomainFromDisplayName(participant.mDisplayName);
+
+        if (null == domainName || domainName.isEmpty()) {
+            // sanity check
+            if (null != participant.mContact && !participant.mContact.getEmails().isEmpty()) {
+                // We extract the domain of this tchap user from the his email
+                String emailAddress = participant.mContact.getEmails().get(0);
+                String[] components2 = emailAddress.split("@");
+
+                if (components2.length > 1) {
+                    String domain = components2[1].substring(0,components2[1].indexOf("."));
+                    String formattedDomain;
+                    if (domain.length() > 1) {
+                        formattedDomain = domain.substring(0, 1).toUpperCase() + domain.substring(1);
+                    } else {
+                        formattedDomain = domain.substring(0, 1).toUpperCase();
+                    }
+                    domainName = formattedDomain;
+                }
+            }
+        }
+        domainNameTextView.setText(domainName);
 
         // Add alpha if cannot be invited
         //change alpha mgmt for tchap
