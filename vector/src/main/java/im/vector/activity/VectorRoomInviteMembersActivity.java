@@ -843,72 +843,103 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         mCount = emails.size();
         mSuccessCount = 0;
 
-        final List<String> medias = new ArrayList<>();
+        for (final String email : emails) {
+            // We check if this email has been already invited
+            // (pendingInvites are ignored here because we could not have a pending invite related to an email)
+            Room existingRoom = DinsicUtils.isDirectChatRoomAlreadyExist(email, mSession, false);
 
-        for (String email : emails) {
-            medias.add(ThreePid.MEDIUM_EMAIL);
-        }
+            if (null != existingRoom) {
+                // If a direct chat already exists, we do not re-invite the NoTchapUser
+                // and we notify the user by a toast
+                String message = getString(R.string.tchap_invite_already_send_message, email);
+                Toast.makeText(VectorRoomInviteMembersActivity.this, message, Toast.LENGTH_LONG).show();
 
-        // Check for each email whether there is an associated account with a Matrix id.
-        mSession.lookup3Pids(emails, medias, new ApiCallback<List<String>>() {
-            @Override
-            public void onSuccess(final List<String> pids) {
-                Log.e(LOG_TAG, "lookup3Pids success " + pids.size());
-                
-                for (int index = 0; index < mCount; index++) {
-                    final String email = emails.get(index);
-                    String mxId = pids.get(index);
+                // We decrement the counter before testing if it is equal to zero.
+                // If the counter is equal to zero, it means that we have reached the end of the list.
+                if (-- mCount == 0) {
+                    onNoTchapInviteDone(finish);
+                }
+            } else {
+                // For each email of the list, call server to check if Tchap registration is available for this email
+                TchapLoginActivity.discoverTchapPlatform(this, email, new ApiCallback<Platform>() {
+                    private void onError(String message) {
+                        Toast.makeText(VectorRoomInviteMembersActivity.this, message, Toast.LENGTH_LONG).show();
 
-                    if (TextUtils.isEmpty(mxId)) {
-                        isTchapRegistrationAvailable(email, finish);
-                    } else {
-                        // We check if this email has been already invited
-                        // (pendingInvites are ignored here because we could not have a pending invite related to an email)
-                        Room existingRoom = DinsicUtils.isDirectChatRoomAlreadyExist(mxId, mSession, false);
-
-                        if (null != existingRoom) {
-                            // If a direct chat already exists, we do not re-invite the NoTchapUser
-                            // and we notify the user by a toast
-                            String message = getString(R.string.tchap_invite_already_send_message, email);
-                            Toast.makeText(VectorRoomInviteMembersActivity.this, message, Toast.LENGTH_LONG).show();
-
-                            // We decrement the counter before testing if it is equal to zero.
-                            // If the counter is equal to zero, it means that we have reached the end of the list.
-                            if (-- mCount == 0) {
-                                onNoTchapInviteDone(finish);
-                            }
-                        } else {
-                            isTchapRegistrationAvailable(email, finish);
+                        // We decrement the counter before testing if it is equal to zero.
+                        // If the counter is equal to zero, it means that we have reached the end of the list.
+                        if (-- mCount == 0) {
+                            onNoTchapInviteDone(finish);
                         }
                     }
-                }
-            }
 
-            /**
-             * Common error routine
-             * @param errorMessage the error message
-             */
-            private void onError(String errorMessage) {
-                Log.e(LOG_TAG, "## retrieveMatrixIds() : failed " + errorMessage);
-            }
+                    @Override
+                    public void onSuccess(Platform platform) {
+                        // The email owner is able to create a tchap account,
+                        // we create a direct chat with him, and invite him by email to join Tchap.
+                        mSession.createDirectMessageRoom(email, new ApiCallback<String>() {
+                            @Override
+                            public void onSuccess(final String roomId) {
+                                // For each successful direct chat creation and invitation,
+                                // we increment the counter "mSuccessCount".
+                                mSuccessCount ++;
 
-            // ignore the network errors
-            // will be checked again later
-            @Override
-            public void onNetworkError(Exception e) {
-                onError(e.getMessage());
-            }
+                                if (-- mCount == 0) {
+                                    onNoTchapInviteDone(finish);
+                                }
+                            }
 
-            @Override
-            public void onMatrixError(MatrixError e) {
-                onError(e.getMessage());
-            }
+                            private void onError(final String message) {
+                                Log.e(LOG_TAG, "##inviteNoTchapUserByEmail failed : " + message);
+                                new AlertDialog.Builder(VectorRoomInviteMembersActivity.this)
+                                        .setMessage(getString(R.string.tchap_send_invite_failed, email))
+                                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
 
-            @Override
-            public void onUnexpectedError(Exception e) {
-                onError(e.getMessage());
+                                                // Despite the error, we continue the process
+                                                // until we reach the end of the list.
+                                                if (-- mCount == 0) {
+                                                    onNoTchapInviteDone(finish);
+                                                }
+                                            }
+                                        })
+                                        .show();
+                            }
+
+                            @Override
+                            public void onNetworkError(Exception e) {
+                                onError(e.getLocalizedMessage());
+                            }
+
+                            @Override
+                            public void onMatrixError(final MatrixError e) {
+                                onError(e.getLocalizedMessage());
+                            }
+
+                            @Override
+                            public void onUnexpectedError(final Exception e) {
+                                onError(e.getLocalizedMessage());
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onNetworkError(Exception e) {
+                        onError(getString(R.string.tchap_send_invite_network_error));
+                    }
+
+                    @Override
+                    public void onMatrixError(MatrixError matrixError) {
+                        onError(getString(R.string.tchap_invite_unreachable_message, email));
+                    }
+
+                    @Override
+                    public void onUnexpectedError(Exception e) {
+                        onError(getString(R.string.tchap_invite_unreachable_message, email));
+                    }
+                } );
             }
-        });
+        }
     }
 
     /**
