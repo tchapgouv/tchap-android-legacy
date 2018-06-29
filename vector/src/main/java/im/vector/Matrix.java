@@ -548,7 +548,7 @@ public class Matrix {
         // Clear media scan database
         // TODO The media scan database clear should be handled during the media cache clear when the MediaScanManager will be moved into the sdk.
         Realm realm = Realm.getDefaultInstance();
-        MediaScanManager mediaScanManager = new MediaScanManager(session.getHomeServerConfig(), realm);
+        MediaScanManager mediaScanManager = new MediaScanManager(session.getMediaScanRestClient(), realm);
         mediaScanManager.clearAntiVirusScanResults();
         realm.close();
     }
