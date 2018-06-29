@@ -45,6 +45,7 @@ import android.util.Pair;
 import com.facebook.stetho.Stetho;
 
 import org.matrix.androidsdk.MXSession;
+import org.matrix.androidsdk.crypto.MXCryptoConfig;
 import org.matrix.androidsdk.util.Log;
 import org.piwik.sdk.Piwik;
 import org.piwik.sdk.QueryParams;
@@ -223,6 +224,14 @@ public class VectorApp extends MultiDexApplication {
 
         VECTOR_VERSION_STRING = Matrix.getInstance(this).getVersion(true, true);
 
+        // init the REST client
+        MXSession.initUserAgent(getApplicationContext());
+
+        // Configure e2e encryption to encrypt content for invited members
+        MXCryptoConfig cryptoConfig = new MXCryptoConfig();
+        cryptoConfig.mEncryptMessagesForInvitedMembers = true;
+        MXSession.setCryptoConfig(cryptoConfig);
+
         // not the first launch
         if (null != Matrix.getInstance(this).getDefaultSession()) {
             SDK_VERSION_STRING = Matrix.getInstance(this).getDefaultSession().getVersion(true);
@@ -253,9 +262,6 @@ public class VectorApp extends MultiDexApplication {
         Log.d(LOG_TAG, "----------------------------------------------------------------\n\n\n\n");
 
         mRageShake = new RageShake(this);
-
-        // init the REST client
-        MXSession.initUserAgent(getApplicationContext());
 
         this.registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
             final Map<String, String> mLocalesByActivity = new HashMap<>();

@@ -49,6 +49,7 @@ import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.User;
+import org.matrix.androidsdk.rest.model.pid.ThreePid;
 import org.matrix.androidsdk.util.Log;
 
 import java.util.ArrayList;
@@ -687,7 +688,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                 @Override
                 public void onClick(View v) {
                     String text = inviteTextView.getText().toString();
-                    ArrayList<String> emails = new ArrayList<>();
+                    final ArrayList<String> emails = new ArrayList<>();
 
                     Pattern pattern = android.util.Patterns.EMAIL_ADDRESS;
                     Matcher matcher = pattern.matcher(text);
@@ -701,9 +702,89 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                         }
                     }
 
-                    // Invite each typed email by creating a direct chat
-                    // Stay in the activity if there is at least one contact selected
-                    inviteNoTchapContactsByEmail(emails, mUserIdsToInvite.isEmpty());
+                    // In order to prepare the lookup3Pids,
+                    // We have to specify the type of media : email or phone number.
+                    // In this case, the media type always is an email.
+                    // That's why we create a new list of the same size as the list of emails,
+                    // in which the media type always is an email.
+                    final List<String> medias = new ArrayList<>();
+
+                    for (String email : emails) {
+                        medias.add(ThreePid.MEDIUM_EMAIL);
+                    }
+
+                    showWaitingView();
+
+                    // Check for each email whether there is an associated account with a Matrix id.
+                    mSession.lookup3Pids(emails, medias, new ApiCallback<List<String>>() {
+                        @Override
+                        public void onSuccess(final List<String> pids) {
+                            Log.e(LOG_TAG, "lookup3Pids : success " + pids.size());
+
+                            for (int index = 0; index < emails.size();) {
+                                final String email = emails.get(index);
+                                String mxId = pids.get(index);
+
+                                if (!TextUtils.isEmpty(mxId)) {
+                                    // We check here if a discussion already exists for this Tchap user.
+                                    // We consider the pendingInvites because we could have a pending invite from this Tchap user.
+                                    Room existingRoom = DinsicUtils.isDirectChatRoomAlreadyExist(mxId, mSession, true);
+
+                                    if (null != existingRoom) {
+                                        // If a direct chat already exists, we do not invite him
+                                        // We remove this email from the list to invite.
+                                        emails.remove(index);
+                                        pids.remove(index);
+
+                                        // and we notify the user by a toast
+                                        String message = getString(R.string.tchap_discussion_already_exist, email);
+                                        Toast.makeText(VectorRoomInviteMembersActivity.this, message, Toast.LENGTH_LONG).show();
+
+                                    } else {
+                                        // Presently, invite a Tchap user by his email is not supported correctly.
+                                        // The resulting room is seen as direct for the inviter and not for the receiver.
+                                        // Patch : we replace here the email by the retrieved MatrixId.
+                                        emails.set(index, mxId);
+                                        index ++;
+                                    }
+                                } else {
+                                    index ++;
+                                }
+                            }
+
+                            hideWaitingView();
+
+                            if (!emails.isEmpty()) {
+                                // Invite each typed email by creating a direct chat
+                                // Stay in the activity if there is at least one contact selected
+                                inviteNoTchapContactsByEmail(emails, mUserIdsToInvite.isEmpty());
+                            }
+                        }
+
+                        /**
+                         * Common error routine
+                         * @param errorMessage the error message
+                         */
+                        private void onError(String errorMessage) {
+                            Log.e(LOG_TAG, "## lookup3Pids success : failed " + errorMessage);
+                            Toast.makeText(VectorRoomInviteMembersActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                        }
+                        
+                        @Override
+                        public void onNetworkError(Exception e) {
+                            onError(e.getMessage());
+                        }
+
+                        @Override
+                        public void onMatrixError(MatrixError e) {
+                            onError(e.getMessage());
+                        }
+
+                        @Override
+                        public void onUnexpectedError(Exception e) {
+                            onError(e.getMessage());
+                        }
+                    });
 
                     inviteDialog.dismiss();
                 }
@@ -795,6 +876,13 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
 
                     @Override
                     public void onSuccess(Platform platform) {
+                        // Check whether the returned platform is valid
+                        if (null == platform.hs || platform.hs.isEmpty()) {
+                            // The email owner is not able to create a tchap account,
+                            onError(getString(R.string.tchap_invite_unreachable_message, email));
+                            return;
+                        }
+
                         // The email owner is able to create a tchap account,
                         // we create a direct chat with him, and invite him by email to join Tchap.
                         mSession.createDirectMessageRoom(email, new ApiCallback<String>() {

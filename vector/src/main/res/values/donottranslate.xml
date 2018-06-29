@@ -18,6 +18,7 @@
         <item>ssi.tchap.gouv.fr</item>
         <item>pm.tchap.gouv.fr</item>
         <item>elysee.tchap.gouv.fr</item>
+        <item>culture.tchap.gouv.fr</item>
     </string-array>
 
     <!-- Server url prefix -->
@@ -53,6 +54,7 @@
         <item>ssi.tchap.gouv.fr</item>
         <item>pm.tchap.gouv.fr</item>
         <item>elysee.tchap.gouv.fr</item>
+        <item>culture.tchap.gouv.fr</item>
     </string-array>
 
     <string-array name="theme_codes">
