@@ -2,6 +2,7 @@ Changes in Tchap 1.0.2 (2018-06-29)
 ===================================================
 
 Improvements:
+ * Change the application id with "fr.gouv.tchap".
  * Update matrix-sdk.aar lib - build 1820 - Revision: 85a7423c23cbf82e1f447f81dc1ff4661884438d
  * Encrypt event content for invited members when some device id are available for them.
  * Create a new room and invite members : the disabled buttons must have an alpha #254
