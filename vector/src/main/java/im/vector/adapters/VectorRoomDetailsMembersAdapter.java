@@ -152,6 +152,7 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
     private static class ChildMemberViewHolder {
         final ImageView mMemberAvatarImageView;
         final ImageView mMemberAvatarBadgeImageView;
+        final ImageView mMemberOnlineStatusImageView;
         final TextView mMemberNameTextView;
         final TextView mMemberDomainTextView;
         final View mHiddenListActionsView;
@@ -161,6 +162,7 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
         ChildMemberViewHolder(View aParentView) {
             mMemberAvatarImageView = aParentView.findViewById(R.id.filtered_list_avatar);
             mMemberAvatarBadgeImageView = aParentView.findViewById(R.id.filtered_list_avatar_badge);
+            mMemberOnlineStatusImageView = aParentView.findViewById(R.id.filtered_list_online_status);
             mMemberNameTextView = aParentView.findViewById(R.id.filtered_list_name);
             mMemberDomainTextView = aParentView.findViewById(R.id.filtered_list_domain);
             mHiddenListActionsView = aParentView.findViewById(R.id.filtered_list_actions);
@@ -758,7 +760,7 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
             }
         }
         // 3 - display member status
-        //viewHolder.mMemberStatusTextView.setText(VectorUtils.getUserOnlineStatus(mContext, mSession, participant.mUserId, null));
+        viewHolder.mMemberOnlineStatusImageView.setVisibility(VectorUtils.isUserOnline(mContext, mSession, participant.mUserId, null) ? View.VISIBLE : View.GONE);
 
         // add "remove member from room" action
         viewHolder.mDeleteActionsView.setOnClickListener(new View.OnClickListener() {

@@ -86,6 +86,17 @@
                     android:visibility="gone"
                     tools:visibility="visible" />
 
+                <ImageView
+                    android:id="@+id/filtered_list_online_status"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:layout_alignBottom="@id/filtered_list_avatar"
+                    android:layout_alignRight="@id/filtered_list_avatar"
+                    android:layout_marginLeft="-10dp"
+                    android:src="@drawable/tchap_presence_status_icon_style"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
                 <!-- keep singleLine="true" because maxLines="1" truncation is not the expected one.-->
                 <TextView
                     android:id="@+id/filtered_list_name"
@@ -117,12 +128,12 @@
 
                 <TextView
                     android:id="@+id/filtered_list_domain"
-                    android:layout_width="120dp"
+                    android:layout_width="150dp"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
-                    android:layout_gravity="center_vertical"
                     android:layout_marginRight="10dp"
-                    android:layout_marginTop="15dp"
+                    android:layout_alignTop="@id/filtered_list_name"
+                    android:layout_toRightOf="@+id/filtered_list_name"
                     android:ellipsize="end"
                     android:gravity="right|center_vertical"
                     android:maxLines="1"
