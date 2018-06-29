@@ -236,6 +236,9 @@ public class TchapRoomsFragment extends AbsHomeFragment implements AbsHomeFragme
                             // Check whether there is no pending 3PID invite for this member.
                             if (null == member.getThirdPartyInviteToken()) {
                                 mRooms.add(room);
+                                // Break here the loop on members in case of a wrong direct chat
+                                // (with several members)
+                                break;
                             }
                         }
                     } else {
