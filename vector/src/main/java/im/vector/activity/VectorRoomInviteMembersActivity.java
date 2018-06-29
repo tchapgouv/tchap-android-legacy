@@ -741,6 +741,10 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                                         Toast.makeText(VectorRoomInviteMembersActivity.this, message, Toast.LENGTH_LONG).show();
 
                                     } else {
+                                        // Presently, invite a Tchap user by his email is not supported correctly.
+                                        // The resulting room is seen as direct for the inviter and not for the receiver.
+                                        // Patch : we replace here the email by the retrieved MatrixId.
+                                        emails.set(index, mxId);
                                         index ++;
                                     }
                                 } else {
@@ -938,92 +942,6 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                 } );
             }
         }
-    }
-
-    /**
-     *  Call server to check if Tchap registration is available for this email
-     *
-     * @param email     the email of the person whom you want to invite in Tchap
-     * @param finish    true in order to close the screen after the send of the invitation
-     */
-    private void isTchapRegistrationAvailable(final String email, final boolean finish) {
-        TchapLoginActivity.discoverTchapPlatform(VectorRoomInviteMembersActivity.this, email, new ApiCallback<Platform>() {
-            private void onError(String message) {
-                Toast.makeText(VectorRoomInviteMembersActivity.this, message, Toast.LENGTH_LONG).show();
-
-                // We decrement the counter before testing if it is equal to zero.
-                // If the counter is equal to zero, it means that we have reached the end of the list.
-                if (-- mCount == 0) {
-                    onNoTchapInviteDone(finish);
-                }
-            }
-
-            @Override
-            public void onSuccess(Platform platform) {
-                // The email owner is able to create a tchap account,
-                // we create a direct chat with him, and invite him by email to join Tchap.
-                mSession.createDirectMessageRoom(email, new ApiCallback<String>() {
-                    @Override
-                    public void onSuccess(final String roomId) {
-                        // For each successful direct chat creation and invitation,
-                        // we increment the counter "mSuccessCount".
-                        mSuccessCount ++;
-
-                        if (-- mCount == 0) {
-                            onNoTchapInviteDone(finish);
-                        }
-                    }
-
-                    private void onError(final String message) {
-                        Log.e(LOG_TAG, "##inviteNoTchapUserByEmail failed : " + message);
-                        new AlertDialog.Builder(VectorRoomInviteMembersActivity.this)
-                                .setMessage(getString(R.string.tchap_send_invite_failed, email))
-                                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-
-                                        // Despite the error, we continue the process
-                                        // until we reach the end of the list.
-                                        if (-- mCount == 0) {
-                                            onNoTchapInviteDone(finish);
-                                        }
-                                    }
-                                })
-                                .show();
-                    }
-
-                    @Override
-                    public void onNetworkError(Exception e) {
-                        onError(e.getLocalizedMessage());
-                    }
-
-                    @Override
-                    public void onMatrixError(final MatrixError e) {
-                        onError(e.getLocalizedMessage());
-                    }
-
-                    @Override
-                    public void onUnexpectedError(final Exception e) {
-                        onError(e.getLocalizedMessage());
-                    }
-                });
-            }
-
-            @Override
-            public void onNetworkError(Exception e) {
-                onError(getString(R.string.tchap_send_invite_network_error));
-            }
-
-            @Override
-            public void onMatrixError(MatrixError matrixError) {
-                onError(getString(R.string.tchap_invite_unreachable_message, email));
-            }
-
-            @Override
-            public void onUnexpectedError(Exception e) {
-                onError(getString(R.string.tchap_invite_unreachable_message, email));
-            }
-        } );
     }
 
     private void onNoTchapInviteDone(boolean finish) {
