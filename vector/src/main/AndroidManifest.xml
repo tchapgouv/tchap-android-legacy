@@ -488,6 +488,18 @@
                 <!-- mail validation -->
                 <data android:pathPrefix="/_matrix/" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="matrix.culture.tchap.gouv.fr" />
+                <!-- mail validation -->
+                <data android:pathPrefix="/_matrix/" />
+            </intent-filter>
             <!--intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -679,6 +691,15 @@
                 <data android:scheme="http" />
                 <data android:scheme="https" />
                 <data android:host="matrix.elysee.tchap.gouv.fr" />
+                <!-- mail validation -->
+                <data android:pathPrefix="/_matrix/" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="im.vector.receiver.BROADCAST_ACTION_REGISTRATION" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="matrix.culture.tchap.gouv.fr" />
                 <!-- mail validation -->
                 <data android:pathPrefix="/_matrix/" />
             </intent-filter>
