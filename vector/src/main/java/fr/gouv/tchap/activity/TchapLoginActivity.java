@@ -2431,14 +2431,14 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
      * @return the home server Url according to current tchap platform.
      */
     private String getHomeServerUrl() {
-        return (null != mTchapPlatform) ? getString(R.string.server_url_prefix) + mTchapPlatform.hs : null;
+        return (null != mTchapPlatform && null != mTchapPlatform.hs) ? getString(R.string.server_url_prefix) + mTchapPlatform.hs : null;
     }
 
     /**
      * @return the identity server URL according to current tchap platform.
      */
     private String getIdentityServerUrl() {
-        return (null != mTchapPlatform) ? getString(R.string.server_url_prefix) + mTchapPlatform.hs : null;
+        return (null != mTchapPlatform && null != mTchapPlatform.hs) ? getString(R.string.server_url_prefix) + mTchapPlatform.hs : null;
     }
 
     /**

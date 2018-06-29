@@ -795,6 +795,13 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
 
                     @Override
                     public void onSuccess(Platform platform) {
+                        // Check whether the returned platform is valid
+                        if (null == platform.hs || platform.hs.isEmpty()) {
+                            // The email owner is not able to create a tchap account,
+                            onError(getString(R.string.tchap_invite_unreachable_message, email));
+                            return;
+                        }
+
                         // The email owner is able to create a tchap account,
                         // we create a direct chat with him, and invite him by email to join Tchap.
                         mSession.createDirectMessageRoom(email, new ApiCallback<String>() {
