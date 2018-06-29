@@ -384,10 +384,36 @@ public class TchapContactAdapter extends AbsAdapter {
                 return;
             }
 
-            // show the partipant different depending on priority
-            if (participant.isMatrixUser()){
+            // Tchap users are displayed differently than no Tchap users
+            if (participant.isMatrixUser()) {
                 vContactAvatar.clearColorFilter();
+
+                // display the participant's domain
+                // TODO External users : domain visibility should be GONE
+                String domainName = DinsicUtils.getDomainFromDisplayName(participant.mDisplayName);
+
+                if (null == domainName || domainName.isEmpty()) {
+                    // sanity check
+                    if (null != participant.mContact && !participant.mContact.getEmails().isEmpty()) {
+                        // We extract the domain of this tchap user from the his email
+                        String emailAddress = participant.mContact.getEmails().get(0);
+                        String[] components2 = emailAddress.split("@");
+
+                        if (components2.length > 1) {
+                            String domain = components2[1].substring(0,components2[1].indexOf("."));
+                            String formattedDomain;
+                            if (domain.length() > 1) {
+                                formattedDomain = domain.substring(0, 1).toUpperCase() + domain.substring(1);
+                            } else {
+                                formattedDomain = domain.substring(0, 1).toUpperCase();
+                            }
+                            domainName = formattedDomain;
+                        }
+                    }
+                }
                 vContactDomain.setVisibility(View.VISIBLE);
+                vContactDomain.setText(domainName);
+
                 vContactName.setTypeface(null, Typeface.BOLD);
                 vContactName.setText(DinsicUtils.getNameFromDisplayName(participant.mDisplayName));
             } else {
@@ -400,31 +426,6 @@ public class TchapContactAdapter extends AbsAdapter {
 
             // display the participant's avatar
             participant.displayAvatar(mSession, vContactAvatar);
-
-            // display the participant's domain
-            // TODO External users : domain visibility would be GONE
-            String domainName = DinsicUtils.getDomainFromDisplayName(participant.mDisplayName);
-
-            if (null == domainName || domainName.isEmpty()) {
-                // sanity check
-                if (null != participant.mContact && !participant.mContact.getEmails().isEmpty()) {
-                    // We extract the domain of this tchap user from the his email
-                    String emailAddress = participant.mContact.getEmails().get(0);
-                    String[] components2 = emailAddress.split("@");
-
-                    if (components2.length > 1) {
-                        String domain = components2[1].substring(0,components2[1].indexOf("."));
-                        String formattedDomain;
-                        if (domain.length() > 1) {
-                            formattedDomain = domain.substring(0, 1).toUpperCase() + domain.substring(1);
-                        } else {
-                            formattedDomain = domain.substring(0, 1).toUpperCase();
-                        }
-                        domainName = formattedDomain;
-                    }
-                }
-            }
-            vContactDomain.setText(domainName);
 
             // Check whether tchap user are online
             if (MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(participant.mUserId).matches()) {

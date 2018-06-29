@@ -1043,18 +1043,46 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
         // Tchap users are displayed differently than no Tchap users
         if (participant.isMatrixUser()){
             onlineStatusImageView.setVisibility(VectorUtils.isUserOnline(mContext, mSession, participant.mUserId, null) ? View.VISIBLE : View.GONE);
+
+            // display the participant's domain
+            String domainName = DinsicUtils.getDomainFromDisplayName(participant.mDisplayName);
+
+            if (null == domainName || domainName.isEmpty()) {
+                // sanity check
+                if (null != participant.mContact && !participant.mContact.getEmails().isEmpty()) {
+                    // We extract the domain of this tchap user from the his email
+                    String emailAddress = participant.mContact.getEmails().get(0);
+                    String[] components2 = emailAddress.split("@");
+
+                    if (components2.length > 1) {
+                        String domain = components2[1].substring(0,components2[1].indexOf("."));
+                        String formattedDomain;
+                        if (domain.length() > 1) {
+                            formattedDomain = domain.substring(0, 1).toUpperCase() + domain.substring(1);
+                        } else {
+                            formattedDomain = domain.substring(0, 1).toUpperCase();
+                        }
+                        domainName = formattedDomain;
+                    }
+                }
+            }
+            domainNameTextView.setText(domainName);
             domainNameTextView.setVisibility(View.VISIBLE);
-            domainNameTextView.setPadding(0, 54, 0, 0);
+            domainNameTextView.setPadding(0, 33, 0, 0);
+
             nameTextView.setText(DinsicUtils.getNameFromDisplayName(participant.mDisplayName));
-            nameTextView.setPadding(0, 37, 0, 0);
+            nameTextView.setPadding(0, 21, 0, 0);
             nameTextView.setTypeface(null, Typeface.BOLD);
+
             emailTextView.setVisibility(View.GONE);
         } else {
             domainNameTextView.setVisibility(View.GONE);
             domainNameTextView.setPadding(0, 0, 0, 0);
+
             nameTextView.setText(participant.mDisplayName);
             nameTextView.setPadding(0, 0, 0, 0);
             nameTextView.setTypeface(null, Typeface.ITALIC);
+
             emailTextView.setVisibility(View.VISIBLE);
             // We display an additional information like email or phone number.
             if (participant.mContact.getEmails().size() > 0) {
@@ -1066,30 +1094,6 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
 
         // display the participant's avatar
         participant.displayAvatar(mSession, thumbView);
-
-        // display the participant's domain
-        String domainName = DinsicUtils.getDomainFromDisplayName(participant.mDisplayName);
-
-        if (null == domainName || domainName.isEmpty()) {
-            // sanity check
-            if (null != participant.mContact && !participant.mContact.getEmails().isEmpty()) {
-                // We extract the domain of this tchap user from the his email
-                String emailAddress = participant.mContact.getEmails().get(0);
-                String[] components2 = emailAddress.split("@");
-
-                if (components2.length > 1) {
-                    String domain = components2[1].substring(0,components2[1].indexOf("."));
-                    String formattedDomain;
-                    if (domain.length() > 1) {
-                        formattedDomain = domain.substring(0, 1).toUpperCase() + domain.substring(1);
-                    } else {
-                        formattedDomain = domain.substring(0, 1).toUpperCase();
-                    }
-                    domainName = formattedDomain;
-                }
-            }
-        }
-        domainNameTextView.setText(domainName);
 
         // Add alpha if cannot be invited
         //change alpha mgmt for tchap
