@@ -29,8 +29,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.ValueCallback;
-import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -133,10 +131,17 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                 if (mRoomParams.preset.equals(CreateRoomParams.PRESET_PUBLIC_CHAT)) {
                     // In case of a public room, the room alias is mandatory.
                     // That's why, we deduce the room alias from the room name.
+
                     mRoomParams.roomAliasName = mRoomParams.name.trim().replace(" ", "");
+
+                    if (mRoomParams.roomAliasName.contains(":")) {
+                        mRoomParams.roomAliasName = mRoomParams.roomAliasName.replace(":","");
+                    }
 
                     if (mRoomParams.roomAliasName.isEmpty()) {
                         mRoomParams.roomAliasName = getRandomString();
+                    } else {
+                        mRoomParams.roomAliasName = mRoomParams.roomAliasName + getRandomString();
                     }
                 }
                 inviteMembers(REQ_CODE_ADD_PARTICIPANTS);
@@ -306,14 +311,18 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                     switch (e.error) {
                         case ERROR_CODE_ROOM_ALIAS_INVALID_CHARACTERS:
                             hideWaitingView();
-                            promptUserAboutRoomAliasError(getString(R.string.tchap_invite_room_alias_invalid_characters_title));
+                            mRoomParams.roomAliasName = getRandomString();
+                            createNewRoom();
                             break;
                         case ERROR_CODE_ROOM_ALIAS_ALREADY_TAKEN:
                             hideWaitingView();
-                            promptUserAboutRoomAliasError(getString(R.string.tchap_invite_room_alias_already_taken_message));
+                            mRoomParams.roomAliasName = getRandomString();
+                            createNewRoom();
                             break;
                         default:
-                            onError(e.getLocalizedMessage());
+                            Log.e (LOG_TAG, e.getLocalizedMessage());
+                            mRoomParams.roomAliasName = getRandomString();
+                            createNewRoom();
                             break;
                     }
                 }
@@ -484,41 +493,11 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         String RANDOMCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
         StringBuilder stringBuilder = new StringBuilder();
         Random rnd = new Random();
-        while (stringBuilder.length() < 11) { // length of the random string.
+        while (stringBuilder.length() < 7) { // length of the random string.
             int index = (int) (rnd.nextFloat() * RANDOMCHARS.length());
             stringBuilder.append(RANDOMCHARS.charAt(index));
         }
         String randomString = stringBuilder.toString();
         return randomString;
-    }
-
-    private void promptUserAboutRoomAliasError(String title) {
-        final EditText editText = new EditText(TchapRoomCreationActivity.this);
-
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        lp.setMargins(15, 0, 15, 0);
-        editText.setLayoutParams(lp);
-        editText.setText(mRoomParams.roomAliasName);
-
-        new AlertDialog.Builder(TchapRoomCreationActivity.this)
-                .setTitle(title)
-                .setMessage(R.string.tchap_invite_room_alias_already_taken_message)
-                .setView(editText)
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        String alias = editText.getText().toString().trim().replace(" ", "");
-                        if (alias.isEmpty() || alias.equalsIgnoreCase(mRoomParams.roomAliasName)) {
-                            alias = getRandomString();
-                        }
-                        mRoomParams.roomAliasName = alias;
-                        createNewRoom();
-                        hideKeyboard();
-                        dialog.dismiss();
-                    }
-                })
-                .show();
     }
 }
