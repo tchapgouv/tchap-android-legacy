@@ -201,9 +201,9 @@ public class ParticipantAdapterItem implements java.io.Serializable {
             }
 
 
-            if (part1.isViewedInPriority() && !part2.isViewedInPriority())
+            if (part1.isMatrixUser() && !part2.isMatrixUser())
                 return -1;
-            else if (!part1.isViewedInPriority() && part2.isViewedInPriority())
+            else if (!part1.isMatrixUser() && part2.isMatrixUser())
                 return +1;
 
             return String.CASE_INSENSITIVE_ORDER.compare(lhs, rhs);
@@ -541,7 +541,7 @@ public class ParticipantAdapterItem implements java.io.Serializable {
      * @param
      * @return true if the participant is a priority.
      */
-    public boolean isViewedInPriority() {
+    public boolean isMatrixUser() {
         if (null != mUserId) {
             return MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(mUserId).matches();
         }

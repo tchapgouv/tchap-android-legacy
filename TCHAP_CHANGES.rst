@@ -1,3 +1,19 @@
+Changes in Tchap 1.0.2 (2018-06-29)
+===================================================
+
+Improvements:
+ * Change the application id with "fr.gouv.tchap".
+ * Update matrix-sdk.aar lib - build #1820 - Revision: 85a7423c23cbf82e1f447f81dc1ff4661884438d
+ * Encrypt event content for invited members when some device id are available for them.
+ * Create a new room and invite members : the disabled buttons must have an alpha #254
+ * Contacts picker: Improve Tchap contacts display #261
+ * Room creation: Do not prompt the user if the alias is already used #249
+
+Bug Fixes:
+ * Authentication screen: Improve keyboard handling #251
+ * Home screen: enlarge clickable area of the tab (Conversations/Contacts) #268
+ * "Inviter par mail": check whether an account is already known for the provided email #250
+
 Changes in Tchap 1.0.1 (2018-06-26)
 ===================================================
  

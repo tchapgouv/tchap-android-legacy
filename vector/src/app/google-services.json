@@ -8,9 +8,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1092909174787:android:f382f0e7c238b32f",
+        "mobilesdk_app_id": "1:1092909174787:android:17729ba470343a4c",
         "android_client_info": {
-          "package_name": "fr.gouv.rie.tchap"
+          "package_name": "fr.gouv.tchap"
         }
       },
       "oauth_client": [
