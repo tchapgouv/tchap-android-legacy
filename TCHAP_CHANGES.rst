@@ -1,9 +1,20 @@
+Changes in Tchap 1.0.3 (2018-xx-xx)
+===================================================
+
+Improvements:
+ * Update matrix-sdk.aar lib - build 1821 - Revision: ad159d58cf62f859c269c6feb4e9e913c7ca3673
+ * Hide the "inviter des contacts dans Tchap" button #285
+
+Bug Fixes:
+ * My first public "salon" is displayed like a discussion #284
+ * Some discussions are displayed like a salon (and conversely) in the rooms search result #279
+
 Changes in Tchap 1.0.2 (2018-06-29)
 ===================================================
 
 Improvements:
  * Change the application id with "fr.gouv.tchap".
- * Update matrix-sdk.aar lib - build #1820 - Revision: 85a7423c23cbf82e1f447f81dc1ff4661884438d
+ * Update matrix-sdk.aar lib - build 1820 - Revision: 85a7423c23cbf82e1f447f81dc1ff4661884438d
  * Encrypt event content for invited members when some device id are available for them.
  * Create a new room and invite members : the disabled buttons must have an alpha #254
  * Contacts picker: Improve Tchap contacts display #261
