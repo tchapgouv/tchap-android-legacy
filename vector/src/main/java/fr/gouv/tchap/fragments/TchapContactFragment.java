@@ -134,7 +134,10 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
         mCurrentFilter = mActivity.getSearchQuery();
         mAdapter.onFilterDone(mCurrentFilter);
 
-        mInviteContactLayout.setOnClickListener(new View.OnClickListener() {
+        // Hide temporarily this button
+        mInviteContactLayout.setVisibility(View.GONE);
+        // TODO restore the listener when the feature will be activated
+        /*mInviteContactLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!TchapLoginActivity.isUserExternal(mSession)) {
@@ -147,8 +150,7 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
                     DinsicUtils.alertSimpleMsg(mActivity, getString(R.string.action_forbidden));
                 }
             }
-        });
-
+        });*/
 
         if (!ContactsManager.getInstance().isContactBookAccessRequested()) {
             CommonActivityUtils.checkPermissions(CommonActivityUtils.REQUEST_CODE_PERMISSION_MEMBERS_SEARCH, this);
