@@ -62,17 +62,20 @@ public class TchapRoomAdapter extends AbsAdapter {
                 R.layout.adapter_item_room_view, TYPE_HEADER_DEFAULT, TYPE_UNDEFINED, new ArrayList<Room>(), DinsicUtils.getRoomsComparator(mSession, false)) {
             @Override
             public int getContentViewType(int position) {
-                if(getItems().get(position-1).isDirect()) {
-                    return TYPE_ROOM_DIRECT;
-                } else {
-                    return TYPE_ROOM;
-                }
+                    // In order to retrieve the position of the item in the list,
+                    // we must take into account the header of the section.
+                    // As the header occupies the 1st position, 1 is removed from the position of the item in the list.
+                    final Room room = getFilteredItems().get(position-1);
+                    if(room.isDirect()) {
+                        return TYPE_ROOM_DIRECT;
+                    } else {
+                        return TYPE_ROOM;
+                    }
             }
         };
         mRoomsSection.setEmptyViewPlaceholder(context.getString(R.string.no_room_placeholder), context.getString(R.string.no_result_placeholder));
-
+        
         addSection(mRoomsSection);
-
     }
 
     /*
