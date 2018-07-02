@@ -20,14 +20,23 @@ package im.vector.adapters;
 import android.content.Context;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
 
 import butterknife.BindView;
+import fr.gouv.tchap.util.HexagonMaskView;
 import im.vector.R;
+import im.vector.util.VectorUtils;
 
 public class RoomInvitationViewHolder extends RoomViewHolder {
+
+    @BindView(R.id.room_avatar)
+    ImageView vRoomAvatar;
+
+    @BindView(R.id.room_avatar_hexagon)
+    HexagonMaskView vRoomAvatarHexagon;
 
     @BindView(R.id.recents_invite_reject_button)
     Button vRejectButton;
@@ -42,6 +51,16 @@ public class RoomInvitationViewHolder extends RoomViewHolder {
     void populateViews(final Context context, final MXSession session, final Room room,
                        final AbsAdapter.RoomInvitationListener invitationListener, final AbsAdapter.MoreRoomActionListener moreRoomActionListener) {
         super.populateViews(context, session, room, room.isDirectChatInvitation(), true, moreRoomActionListener);
+
+        if (null != room && room.isDirect()) {
+            vRoomAvatar.setVisibility(View.VISIBLE);
+            vRoomAvatarHexagon.setVisibility(View.GONE);
+            VectorUtils.loadRoomAvatar(context, session, vRoomAvatar, room);
+        } else {
+            vRoomAvatar.setVisibility(View.GONE);
+            vRoomAvatarHexagon.setVisibility(View.VISIBLE);
+            VectorUtils.loadRoomAvatar(context, session, vRoomAvatarHexagon, room);
+        }
 
         vJoinButton.setOnClickListener(new View.OnClickListener() {
             @Override
