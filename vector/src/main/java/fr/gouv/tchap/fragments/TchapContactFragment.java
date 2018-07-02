@@ -172,8 +172,6 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
 
         initContactsViews();
 
-        mAdapter.setInvitation(mActivity.getRoomInvitations());
-
         mRecycler.addOnScrollListener(mScrollListener);
     }
 
@@ -597,7 +595,6 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
         super.onSummariesUpdate();
 
         if (isResumed()) {
-            mAdapter.setInvitation(mActivity.getRoomInvitations());
             initContactsData();
         }
     }

@@ -1458,16 +1458,11 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
 
         List<Room> roomInvites = new ArrayList<>();
         switch (mCurrentMenuId) {
-            case TAB_POSITION_CONTACT:
-                roomInvites.addAll(mDirectChatInvitations);
-                break;
             case TAB_POSITION_CONVERSATION:
+                roomInvites.addAll(mDirectChatInvitations);
                 roomInvites.addAll(mRoomInvitations);
                 break;
             default:
-                roomInvites.addAll(mDirectChatInvitations);
-                roomInvites.addAll(mRoomInvitations);
-                Collections.sort(roomInvites, invitationComparator);
                 break;
         }
 
