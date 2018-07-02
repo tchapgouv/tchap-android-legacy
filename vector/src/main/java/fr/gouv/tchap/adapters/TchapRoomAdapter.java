@@ -64,7 +64,8 @@ public class TchapRoomAdapter extends AbsAdapter {
             public int getContentViewType(int position) {
                     // In order to retrieve the position of the item in the list,
                     // we must take into account the header of the section.
-                    // As the header occupies the 1st position, 1 is removed from the position of the item in the list.
+                    // As the header occupies the 1st position of the items list,
+                    // we remove 1 from the position of the item in the list.
                     final Room room = getFilteredItems().get(position-1);
                     if(room.isDirect()) {
                         return TYPE_ROOM_DIRECT;
