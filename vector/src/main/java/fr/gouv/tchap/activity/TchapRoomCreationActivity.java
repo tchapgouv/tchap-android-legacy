@@ -181,11 +181,10 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         startActivityForResult(intent, REQ_CODE_UPDATE_ROOM_AVATAR);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
     @OnClick(R.id.rly_hexagon_avatar)
     void addRoomAvatar() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED) {
-            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA}, REQUEST_CODE_PERMISSION_ROOM_DETAILS);
+        if (!CommonActivityUtils.checkPermissions(CommonActivityUtils.PERMISSION_CAMERA, this)) {
+            
         } else {
             openMediasPicker();
         }
