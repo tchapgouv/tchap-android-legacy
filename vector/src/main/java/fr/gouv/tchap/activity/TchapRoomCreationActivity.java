@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.support.design.widget.TextInputEditText;
+import android.support.v4.content.ContextCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -90,6 +91,9 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
     @BindView(R.id.switch_public_private_rooms)
     Switch switchPublicPrivateRoom;
+
+    @BindView(R.id.tv_public_private_room_description)
+    TextView tvPublicPrivateRoomDescription;
 
     private MXSession mSession;
     private Uri mThumbnailUri = null;
@@ -177,11 +181,13 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     void setRoomPrivacy() {
         if (switchPublicPrivateRoom.isChecked()) {
             switchPublicPrivateRoom.setChecked(true);
+            tvPublicPrivateRoomDescription.setTextColor(ContextCompat.getColor(this, R.color.vector_fuchsia_color));
             mRoomParams.visibility = RoomState.DIRECTORY_VISIBILITY_PUBLIC;
             mRoomParams.preset = CreateRoomParams.PRESET_PUBLIC_CHAT;
             Log.d(LOG_TAG, "## public");
         } else {
             switchPublicPrivateRoom.setChecked(false);
+            tvPublicPrivateRoomDescription.setTextColor(ContextCompat.getColor(this, R.color.vector_tchap_text_color_light_grey));
             mRoomParams.visibility = RoomState.DIRECTORY_VISIBILITY_PRIVATE;
             mRoomParams.preset = CreateRoomParams.PRESET_PRIVATE_CHAT;
             Log.d(LOG_TAG, "## private");
