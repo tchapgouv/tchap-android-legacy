@@ -22,12 +22,14 @@ import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -35,10 +37,12 @@ import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ExpandableListView;
-import android.widget.SearchView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import org.matrix.androidsdk.MXSession;
@@ -75,7 +79,7 @@ import im.vector.view.VectorAutoCompleteTextView;
 /**
  * This class provides a way to search other user to invite them in a dedicated room
  */
-public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implements SearchView.OnQueryTextListener {
+public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implements android.support.v7.widget.SearchView.OnQueryTextListener {
 
     private static final String LOG_TAG = VectorRoomInviteMembersActivity.class.getSimpleName();
 
@@ -125,7 +129,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
 
     // main UI items
     private View mParentLayout;
-    private SearchView mSearchView;
+    private android.support.v7.widget.SearchView mSearchView;
     private ExpandableListView mListView;
 
     // participants list
@@ -240,16 +244,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         setWaitingView(findViewById(R.id.search_progress_view));
         mParentLayout = findViewById(R.id.vector_invite_members_layout);
         mSearchView = findViewById(R.id.external_search_view);
-        mSearchView.setOnQueryTextListener(this);
-        mSearchView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (v != null) {
-                    mSearchView.setIconified(false);
-                }
-
-            }
-        });
+        initSearchView();
 
         // Check if no view has focus:
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -375,6 +370,42 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
 
         // Check permission to access contacts
         CommonActivityUtils.checkPermissions(CommonActivityUtils.REQUEST_CODE_PERMISSION_MEMBERS_SEARCH, this);
+    }
+
+    /**
+     * Init search view
+     */
+    private void initSearchView() {
+        // init the search view
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        // Remove unwanted left margin
+        LinearLayout searchEditFrame = mSearchView.findViewById(R.id.search_edit_frame);
+        if (searchEditFrame != null) {
+            ViewGroup.MarginLayoutParams searchEditFrameParams = (ViewGroup.MarginLayoutParams) searchEditFrame.getLayoutParams();
+            searchEditFrameParams.leftMargin = 0;
+            searchEditFrame.setLayoutParams(searchEditFrameParams);
+        }
+
+        ImageView searchMagIcon = (ImageView) mSearchView.findViewById(android.support.v7.appcompat.R.id.search_mag_icon);
+        searchMagIcon.setColorFilter(ContextCompat.getColor(this, R.color.tchap_search_bar_text));
+
+        ImageView searchCloseIcon = (ImageView) mSearchView.findViewById(android.support.v7.appcompat.R.id.search_close_btn);
+        searchCloseIcon.setColorFilter(ContextCompat.getColor(this, R.color.tchap_search_bar_text));
+
+        mSearchView.setMaxWidth(Integer.MAX_VALUE);
+        mSearchView.setSubmitButtonEnabled(false);
+        mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        mSearchView.setIconifiedByDefault(false);
+        mSearchView.setOnQueryTextListener(this);
+        mSearchView.setQueryHint(getString(R.string.search_hint));
+        mSearchView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (v != null) {
+                    mSearchView.setIconified(false);
+                }
+            }
+        });
     }
 
     @Override
