@@ -74,10 +74,11 @@ public class RageShake implements SensorEventListener {
         }
     }
 
+    // For the Tchap app, the rage shake feature is disabled in the preferences manager.
     /**
      * Display a dialog to let the user chooses if he would like to send a bnug report.
      */
-    private void promptForReport() {
+    /*private void promptForReport() {
         // Cannot prompt for bug, no active activity.
         if (VectorApp.getCurrentActivity() == null) {
             return;
@@ -112,7 +113,7 @@ public class RageShake implements SensorEventListener {
         } catch (Exception e) {
             Log.e(LOG_TAG, "promptForReport " + e.getMessage());
         }
-    }
+    }*/
 
 
     /**
