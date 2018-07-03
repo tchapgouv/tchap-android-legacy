@@ -28,6 +28,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.ContactsContract;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -98,11 +99,11 @@ public class DinsicUtils {
      * For example in case of "Jean Martin [Modernisation]", this will return "Jean Martin".
      *
      * @param displayName
-     * @return displayName without domain
+     * @return displayName without domain (null if the provided display name is null).
      */
-    public  static String getNameFromDisplayName(String displayName) {
+    public static @Nullable String getNameFromDisplayName(@Nullable String displayName) {
         String myRet = displayName;
-        if (displayName.contains("[")) {
+        if (null != displayName && displayName.contains("[")) {
             myRet = displayName.split("\\[")[0].trim();
         }
         return myRet;
@@ -114,10 +115,10 @@ public class DinsicUtils {
      * @param displayName
      * @return displayName without name, empty string if no domain is available.
      */
-    public  static String getDomainFromDisplayName(String displayName) {
+    public static String getDomainFromDisplayName(@Nullable String displayName) {
         String myRet = "";
 
-        if (displayName.contains("[")) {
+        if (null != displayName && displayName.contains("[")) {
             myRet = displayName.split("\\[")[1];
             if (myRet.contains("]")) {
                 myRet = myRet.split("\\]")[0];
