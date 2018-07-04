@@ -155,8 +155,13 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
         if (!ContactsManager.getInstance().isContactBookAccessRequested()) {
             CommonActivityUtils.checkPermissions(CommonActivityUtils.REQUEST_CODE_PERMISSION_MEMBERS_SEARCH, this);
         }
-
-        initKnownContacts();
+        boolean noSearch = TextUtils.isEmpty(mCurrentFilter);
+        if (noSearch) {
+            initKnownContacts();
+        }
+        else {
+            startRemoteKnownContactsSearch(true);
+        }
     }
 
     @Override
