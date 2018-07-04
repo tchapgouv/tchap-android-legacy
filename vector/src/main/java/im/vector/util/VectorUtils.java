@@ -76,6 +76,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.R;
 import im.vector.VectorApp;
 import im.vector.adapters.ParticipantAdapterItem;
@@ -1096,6 +1097,11 @@ public class VectorUtils {
         // because an user is created for each joined / invited room member event
         for (User user : users) {
             if (!MXCallsManager.isConferenceUserId(user.user_id)) {
+                // Note: We may don't know the display name of the users who left all our common rooms.
+                // Tchap: force a display name if it is undefined.
+                if (null == user.displayname) {
+                    user.displayname = DinsicUtils.getDisplayNameFromUserId(user.user_id);
+                }
                 map.put(user.user_id, new ParticipantAdapterItem(user));
             }
         }
