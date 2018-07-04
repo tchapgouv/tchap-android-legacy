@@ -143,6 +143,8 @@
 
             <include layout="@layout/fragment_tchap_first_forgotten_password" />
 
+            <include layout="@layout/fragment_tchap_message_button" />
+
             <LinearLayout
                 android:id="@+id/main_input_layout"
                 android:layout_width="match_parent"
