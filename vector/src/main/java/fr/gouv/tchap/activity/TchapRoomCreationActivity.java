@@ -321,8 +321,6 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                             break;
                         default:
                             Log.e (LOG_TAG, e.getLocalizedMessage());
-                            mRoomParams.roomAliasName = getRandomString();
-                            createNewRoom();
                             break;
                     }
                 }

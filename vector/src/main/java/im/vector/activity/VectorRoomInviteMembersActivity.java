@@ -331,6 +331,12 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
             });
         }
 
+        // To avoid inviting myself, I do not have to appear in the list of users to invite.
+        if (!mHiddenParticipantItems.contains(mSession.getMyUser())) {
+            ParticipantAdapterItem me = new ParticipantAdapterItem(mSession.getMyUser());
+            mHiddenParticipantItems.add(me);
+        }
+
         mAdapter.setHiddenParticipantItems(mHiddenParticipantItems);
 
         mListView.setAdapter(mAdapter);
