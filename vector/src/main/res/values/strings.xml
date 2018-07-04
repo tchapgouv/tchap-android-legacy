@@ -988,7 +988,7 @@
     <string name="tchap_has_account_no">I do not have\nan account</string>
     <string name="tchap_has_account_yes">I already have\nan account</string>
     <string name="tchap_connection_email">Email</string>
-    <string name="tchap_connection_email_help">If you have an email from the French government, please use it</string>
+    <string name="tchap_connection_email_help">Use your business address</string>
     <string name="tchap_connection_password">Tchap password</string>
     <string name="tchap_connection_password_confirm">Password confirmation</string>
     <string name="tchap_connection_forgotten_email">I have forgotten my password</string>
