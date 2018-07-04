@@ -1446,12 +1446,6 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                     VectorRoomActivity.this.launchFileSelectionIntent();
                 } else if (selectedVal == R.string.option_send_sticker) {
                     startStickerPickerActivity();
-                } else if (selectedVal == R.string.option_take_photo_video) {
-                    if (CommonActivityUtils.checkPermissions(CommonActivityUtils.REQUEST_CODE_PERMISSION_TAKE_PHOTO, VectorRoomActivity.this)) {
-                        launchCamera();
-                    } else {
-                        mCameraPermissionAction = R.string.option_take_photo_video;
-                    }
                 } else if (selectedVal == R.string.option_take_photo) {
                     launchNativeCamera();
                 } else if (selectedVal == R.string.option_take_video) {
@@ -2631,17 +2625,6 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
         startActivityForResult(captureIntent, TAKE_IMAGE_REQUEST_CODE);
     }
 
-    /**
-     * Launch the camera
-     */
-    private void launchCamera() {
-        enableActionBarHeader(HIDE_ACTION_BAR_HEADER);
-
-        Intent intent = new Intent(this, VectorMediasPickerActivity.class);
-        intent.putExtra(VectorMediasPickerActivity.EXTRA_VIDEO_RECORDING_MODE, true);
-        startActivityForResult(intent, TAKE_IMAGE_REQUEST_CODE);
-    }
-
     @Override
     public void onRequestPermissionsResult(int aRequestCode, @NonNull String[] aPermissions, @NonNull int[] aGrantResults) {
         if (0 == aPermissions.length) {
@@ -2661,43 +2644,6 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             }
 
             launchRoomDetails(VectorRoomDetailsActivity.SETTINGS_TAB_INDEX);
-        } else if (aRequestCode == CommonActivityUtils.REQUEST_CODE_PERMISSION_TAKE_PHOTO) {
-            boolean isCameraPermissionGranted = false;
-
-            for (int i = 0; i < aPermissions.length; i++) {
-                Log.d(LOG_TAG, "## onRequestPermissionsResult(): " + aPermissions[i] + "=" + aGrantResults[i]);
-
-                if (Manifest.permission.CAMERA.equals(aPermissions[i])) {
-                    if (PackageManager.PERMISSION_GRANTED == aGrantResults[i]) {
-                        Log.d(LOG_TAG, "## onRequestPermissionsResult(): CAMERA permission granted");
-                        isCameraPermissionGranted = true;
-                    } else {
-                        Log.d(LOG_TAG, "## onRequestPermissionsResult(): CAMERA permission not granted");
-                    }
-                }
-
-                if (Manifest.permission.WRITE_EXTERNAL_STORAGE.equals(aPermissions[i])) {
-                    if (PackageManager.PERMISSION_GRANTED == aGrantResults[i]) {
-                        Log.d(LOG_TAG, "## onRequestPermissionsResult(): WRITE_EXTERNAL_STORAGE permission granted");
-                    } else {
-                        Log.d(LOG_TAG, "## onRequestPermissionsResult(): WRITE_EXTERNAL_STORAGE permission not granted");
-                    }
-                }
-            }
-
-            // Because external storage permission is not mandatory to launch the camera,
-            // external storage permission is not tested.
-            if (isCameraPermissionGranted) {
-                if (R.string.option_take_photo_video == mCameraPermissionAction) {
-                    launchCamera();
-                } else if (R.string.option_take_photo == mCameraPermissionAction) {
-                    launchNativeCamera();
-                } else if (R.string.option_take_video == mCameraPermissionAction) {
-                    launchNativeVideoRecorder();
-                }
-            } else {
-                CommonActivityUtils.displayToast(this, getString(R.string.missing_permissions_warning));
-            }
         } else if (aRequestCode == CommonActivityUtils.REQUEST_CODE_PERMISSION_AUDIO_IP_CALL) {
             if (CommonActivityUtils.onPermissionResultAudioIpCall(this, aPermissions, aGrantResults)) {
                 startIpCall(PreferencesManager.useJitsiConfCall(this), false);

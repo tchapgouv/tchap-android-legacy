@@ -74,7 +74,6 @@ import fr.gouv.tchap.realm.VectorRealmMigration;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.JitsiCallActivity;
 import im.vector.activity.VectorCallViewActivity;
-import im.vector.activity.VectorMediasPickerActivity;
 import im.vector.activity.WidgetActivity;
 import im.vector.contacts.ContactsManager;
 import im.vector.contacts.PIDsRetriever;
@@ -632,8 +631,7 @@ public class VectorApp extends MultiDexApplication {
     private void restartActivity(Activity activity) {
         // avoid restarting activities when it is not required
         // some of them has no text
-        if (!(activity instanceof VectorMediasPickerActivity)
-                && !(activity instanceof VectorCallViewActivity)
+        if (!(activity instanceof VectorCallViewActivity)
                 && !(activity instanceof JitsiCallActivity)
                 && !(activity instanceof WidgetActivity)) {
             activity.startActivity(activity.getIntent());
