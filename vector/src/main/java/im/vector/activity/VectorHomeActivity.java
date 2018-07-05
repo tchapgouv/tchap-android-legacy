@@ -945,7 +945,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                     fragment = TchapContactFragment.newInstance();
                 }
                 mCurrentFragmentTag = TAG_FRAGMENT_PEOPLE;
-                resetFilter();
                 mSearchView.setQueryHint(getString(R.string.home_filter_placeholder_people));
                 break;
             case TAB_POSITION_CONVERSATION:
@@ -955,7 +954,6 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
                     fragment = TchapRoomsFragment.newInstance();
                 }
                 mCurrentFragmentTag = TAG_FRAGMENT_ROOMS;
-                resetFilter();
                 mSearchView.setQueryHint(getString(R.string.home_filter_placeholder_rooms));
                 break;
             /*case R.id.bottom_action_groups:
