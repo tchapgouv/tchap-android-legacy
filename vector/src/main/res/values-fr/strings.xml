@@ -881,7 +881,7 @@ Appareils inconnus :</string>
     <string name="tchap_has_account_no">Je n’ai pas\nde compte</string>
     <string name="tchap_has_account_yes">J’ai un compte</string>
     <string name="tchap_connection_email">Adresse email</string>
-    <string name="tchap_connection_email_help">Si vous avez l’email de l’administation de l’État, utilisez-le</string>
+    <string name="tchap_connection_email_help">Utilisez votre adresse professionnelle</string>
     <string name="tchap_connection_password">Mot de passe Tchap</string>
     <string name="tchap_connection_password_confirm">Confirmer le mot de passe</string>
     <string name="tchap_connection_forgotten_email">J’ai oublié mon mot de passe</string>
