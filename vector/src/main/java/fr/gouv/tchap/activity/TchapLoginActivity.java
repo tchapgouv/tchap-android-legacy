@@ -2584,6 +2584,13 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
             @Override
             public void onSuccess(Platform platform) {
+                // Check whether the returned platform is valid
+                if (null == platform.hs || platform.hs.isEmpty()) {
+                    // The email owner is not able to create a tchap account,
+                    onError(getString(R.string.tchap_register_unauthorized_email));
+                    return;
+                }
+
                 // Store the platform and the corresponding email to detect changes
                 mTchapPlatform = platform;
                 mCurrentEmail = emailAddress;
