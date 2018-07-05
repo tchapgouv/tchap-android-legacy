@@ -233,9 +233,11 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
     private MXLatestChatMessageCache mLatestChatMessageCache;
 
     private View mSendingMessagesLayout;
-    private ImageView mSendImageView;
+    private View mSendCallMessageIconLayout;
+    private ImageView mStartCallIcon;
+    private ImageView mSendMessageIcon;
+    private ImageView mFileToSendIcon;
     private VectorAutoCompleteTextView mEditText;
-    private ImageView mAvatarImageView;
     private View mCanNotPostTextView;
     private ImageView mE2eImageView;
 
@@ -690,8 +692,10 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
         mEditText.setAddColonOnFirstItem(true);
 
         mSendingMessagesLayout = findViewById(R.id.room_sending_message_layout);
-        mSendImageView = findViewById(R.id.room_send_image_view);
-        mSendImageView.setOnClickListener(new View.OnClickListener() {
+        mSendCallMessageIconLayout = findViewById(R.id.ic_start_call_send_message);
+        mStartCallIcon = findViewById(R.id.room_start_call_image_view);
+        mSendMessageIcon = findViewById(R.id.room_send_message_icon);
+        mSendCallMessageIconLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!TextUtils.isEmpty(mEditText.getText())) {
@@ -704,8 +708,16 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                         }
                     }
                 } else {
-                    selectFileToSend();
+                    startCall();
                 }
+            }
+        });
+
+        mFileToSendIcon = findViewById(R.id.room_send_image);
+        mFileToSendIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                selectFileToSend();
             }
         });
 
@@ -785,39 +797,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
         mStartCallLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if ((null != mRoom) && mRoom.isEncrypted() && (mRoom.getActiveMembers().size() > 2)) {
-                    // display the dialog with the info text
-                    AlertDialog.Builder permissionsInfoDialog = new AlertDialog.Builder(VectorRoomActivity.this);
-                    Resources resource = getResources();
-                    permissionsInfoDialog.setMessage(resource.getString(R.string.room_no_conference_call_in_encrypted_rooms));
-                    permissionsInfoDialog.setIcon(android.R.drawable.ic_dialog_alert);
-                    permissionsInfoDialog.setPositiveButton(resource.getString(R.string.ok), null);
-                    permissionsInfoDialog.show();
-
-                } else if (isUserAllowedToStartConfCall()) {
-                    if (mRoom.getActiveMembers().size() > 2) {
-                        AlertDialog.Builder startConfDialog = new AlertDialog.Builder(VectorRoomActivity.this);
-                        startConfDialog.setTitle(R.string.conference_call_warning_title);
-                        startConfDialog.setMessage(R.string.conference_call_warning_message);
-                        startConfDialog.setIcon(android.R.drawable.ic_dialog_alert);
-                        startConfDialog.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                if (PreferencesManager.useJitsiConfCall(VectorRoomActivity.this)) {
-                                    startJitsiCall(true);
-                                } else {
-                                    displayVideoCallIpDialog();
-                                }
-                            }
-                        });
-                        startConfDialog.setNegativeButton(R.string.cancel, null);
-                        startConfDialog.show();
-                    } else {
-                        displayVideoCallIpDialog();
-                    }
-                } else {
-                    displayConfCallNotAllowed();
-                }
+                startCall();
             }
         });
 
@@ -839,8 +819,8 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                     mStopCallLayout.performClick();
                 } else if (mStartCallLayout.getVisibility() == View.VISIBLE) {
                     mStartCallLayout.performClick();
-                } else if (mSendImageView.getVisibility() == View.VISIBLE) {
-                    mSendImageView.performClick();
+                } else if (mSendCallMessageIconLayout.getVisibility() == View.VISIBLE) {
+                    mSendCallMessageIconLayout.performClick();
                 }
             }
         });
@@ -1097,13 +1077,6 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             }
         });
 
-        View avatarLayout = findViewById(R.id.room_self_avatar);
-
-        if (null != avatarLayout) {
-            mAvatarImageView = avatarLayout.findViewById(R.id.avatar_img);
-        }
-
-        refreshSelfAvatar();
 
         if (null != mVectorRoomMediasSender) {
             // in case a "Send as" dialog was in progress when the activity was destroyed (life cycle)
@@ -1130,6 +1103,42 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
         }
 
         Log.d(LOG_TAG, "End of create");
+    }
+
+    private void startCall() {
+        if ((null != mRoom) && mRoom.isEncrypted() && (mRoom.getActiveMembers().size() > 2)) {
+            // display the dialog with the info text
+            AlertDialog.Builder permissionsInfoDialog = new AlertDialog.Builder(VectorRoomActivity.this);
+            Resources resource = getResources();
+            permissionsInfoDialog.setMessage(resource.getString(R.string.room_no_conference_call_in_encrypted_rooms));
+            permissionsInfoDialog.setIcon(android.R.drawable.ic_dialog_alert);
+            permissionsInfoDialog.setPositiveButton(resource.getString(R.string.ok), null);
+            permissionsInfoDialog.show();
+
+        } else if (isUserAllowedToStartConfCall()) {
+            if (mRoom.getActiveMembers().size() > 2) {
+                AlertDialog.Builder startConfDialog = new AlertDialog.Builder(VectorRoomActivity.this);
+                startConfDialog.setTitle(R.string.conference_call_warning_title);
+                startConfDialog.setMessage(R.string.conference_call_warning_message);
+                startConfDialog.setIcon(android.R.drawable.ic_dialog_alert);
+                startConfDialog.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (PreferencesManager.useJitsiConfCall(VectorRoomActivity.this)) {
+                            startJitsiCall(true);
+                        } else {
+                            displayVideoCallIpDialog();
+                        }
+                    }
+                });
+                startConfDialog.setNegativeButton(R.string.cancel, null);
+                startConfDialog.show();
+            } else {
+                displayVideoCallIpDialog();
+            }
+        } else {
+            displayConfCallNotAllowed();
+        }
     }
 
     @Override
@@ -2058,7 +2067,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
 
         // ensure that a message is not sent twice
         // markdownToHtml seems being slow in some cases
-        mSendImageView.setEnabled(false);
+        mSendCallMessageIconLayout.setEnabled(false);
         mIsMarkDowning = true;
 
         VectorApp.markdownToHtml(mEditText.getText().toString().trim(), new VectorMarkdownParser.IVectorMarkdownParserListener() {
@@ -2067,7 +2076,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                 VectorRoomActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        mSendImageView.setEnabled(true);
+                        mSendCallMessageIconLayout.setEnabled(true);
                         mIsMarkDowning = false;
                         enableActionBarHeader(HIDE_ACTION_BAR_HEADER);
                         sendMessage(text, TextUtils.equals(text, HTMLText) ? null : HTMLText, Message.FORMAT_MATRIX_HTML);
@@ -2736,16 +2745,12 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
      */
     private void manageSendMoreButtons() {
         boolean hasText = (mEditText.getText().length() > 0);
-        mSendImageView.setImageResource(hasText ? R.drawable.ic_material_send_green : R.drawable.ic_material_file);
-    }
-
-    /**
-     * Refresh the Account avatar
-     */
-    private void refreshSelfAvatar() {
-        // sanity check
-        if (null != mAvatarImageView) {
-            VectorUtils.loadUserAvatar(this, mSession, mAvatarImageView, mSession.getMyUser());
+        if (hasText == false) {
+            mStartCallIcon.setVisibility(View.VISIBLE);
+            mSendMessageIcon.setVisibility(View.GONE);
+        } else {
+            mStartCallIcon.setVisibility(View.GONE);
+            mSendMessageIcon.setVisibility(View.VISIBLE);
         }
     }
 
