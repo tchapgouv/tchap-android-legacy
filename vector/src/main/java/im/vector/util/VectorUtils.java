@@ -57,7 +57,6 @@ import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
 import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.rest.model.group.Group;
-import org.matrix.androidsdk.rest.model.group.GroupProfile;
 import org.matrix.androidsdk.rest.model.publicroom.PublicRoom;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.User;
@@ -1100,7 +1099,7 @@ public class VectorUtils {
                 // Note: We may don't know the display name of the users who left all our common rooms.
                 // Tchap: force a display name if it is undefined.
                 if (null == user.displayname) {
-                    user.displayname = DinsicUtils.getDisplayNameFromUserId(user.user_id);
+                    user.displayname = DinsicUtils.computeDisplayNameFromUserId(user.user_id);
                 }
                 map.put(user.user_id, new ParticipantAdapterItem(user));
             }

@@ -59,7 +59,6 @@ import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
 import fr.gouv.tchap.activity.TchapLoginActivity;
 import im.vector.activity.RiotAppCompatActivity;
-import im.vector.activity.VectorHomeActivity;
 import im.vector.activity.VectorRoomActivity;
 import im.vector.adapters.ParticipantAdapterItem;
 import im.vector.contacts.Contact;
@@ -132,7 +131,7 @@ public class DinsicUtils {
     }
 
     /**
-     * Get a display name from the tchap user identifier.
+     * Build a display name from the tchap user identifier.
      * We don't extract the domain for the moment in order to not display unexpected information.
      * For example in case of "@jean.martin-modernisation.fr:matrix.org", this will return "Jean Martin".
      *
@@ -140,28 +139,30 @@ public class DinsicUtils {
      * @return displayName without domain, null if the id is not valid.
      */
     @Nullable
-    public static String getDisplayNameFromUserId(@Nullable String tchapUserId) {
+    public static String computeDisplayNameFromUserId(@Nullable String tchapUserId) {
         String displayName = null;
 
         if (null != tchapUserId && MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(tchapUserId).matches()) {
-            int index = tchapUserId.indexOf("-");
+            // Remove first the host from the id by ignoring the first character '@' too.
+            String identifier = tchapUserId.substring(1, tchapUserId.indexOf(":"));
+            int index = identifier.lastIndexOf("-");
             if (-1 != index) {
-                // Retrieve the user name by ignoring the first character '@' of the matrix id
-                displayName = tchapUserId.substring(1, index);
+                // Retrieve the user name
+                displayName = identifier.substring(0, index);
                 String[] components = displayName.split("\\.");
 
                 StringBuilder builder = new StringBuilder();
                 for (String component : components) {
-                    if (component.length() > 0) {
-                        String updatedComponent = component.substring(0, 1).toUpperCase();
-                        if (component.length() > 1) {
-                            updatedComponent += component.substring(1);
+                    if (!component.isEmpty()) {
+                        if (builder.length() > 0) {
+                            // Add space between components
+                            builder.append(" ");
                         }
 
-                        if (builder.toString().isEmpty()) {
-                            builder.append(updatedComponent);
-                        } else {
-                            builder.append(" " + updatedComponent);
+                        // Capitalize the component
+                        builder.append(component.substring(0, 1).toUpperCase());
+                        if (component.length() > 1) {
+                            builder.append(component.substring(1));
                         }
                     }
                 }
@@ -170,11 +171,11 @@ public class DinsicUtils {
                 // TODO: decide if we should append the extracted domain. This is not relevant for
                 // the moment because of the test users.
                 /*// add first term of domain
-                components = tchapUserId.split("-");
+                components = identifier.split("-");
                 if (components.length > 1) {
-                    index = components[1].indexOf(".");
+                    index = components[components.length - 1].indexOf(".");
                     if (-1 != index) {
-                        String domain = components[1].substring(0, index);
+                        String domain = components[components.length - 1].substring(0, index);
                         if (domain.length() > 0) {
                             String formattedDomain = domain.substring(0, 1).toUpperCase();
                             if (domain.length() > 1) {
@@ -614,7 +615,7 @@ public class DinsicUtils {
 
             // Sanity check: force a display name if it is undefined.
             if (null == selectedUser.displayname) {
-                selectedUser.displayname = getDisplayNameFromUserId(selectedUser.user_id);
+                selectedUser.displayname = computeDisplayNameFromUserId(selectedUser.user_id);
             }
             params.put(VectorRoomActivity.EXTRA_TCHAP_USER, selectedUser);
 
