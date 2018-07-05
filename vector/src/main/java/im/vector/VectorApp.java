@@ -1230,7 +1230,7 @@ public class VectorApp extends MultiDexApplication {
      * @return the piwik instance
      */
     private Tracker getPiwikTracker() {
-        if (mPiwikTracker == null) {
+        /*if (mPiwikTracker == null) {
             try {
                 mPiwikTracker = Piwik.getInstance(this).newTracker(new TrackerConfig("https://piwik.riot.im/", 1, "AndroidPiwikTracker"));
                 // sends the tracking information each minute
@@ -1253,7 +1253,7 @@ public class VectorApp extends MultiDexApplication {
             } catch (Throwable t) {
                 Log.e(LOG_TAG, "## getPiwikTracker() : newTracker failed " + t.getMessage());
             }
-        }
+        }*/
 
         return mPiwikTracker;
     }
