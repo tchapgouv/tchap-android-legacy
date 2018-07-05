@@ -52,7 +52,7 @@ public class RoomInvitationViewHolder extends RoomViewHolder {
                        final AbsAdapter.RoomInvitationListener invitationListener, final AbsAdapter.MoreRoomActionListener moreRoomActionListener) {
         super.populateViews(context, session, room, room.isDirectChatInvitation(), true, moreRoomActionListener);
 
-        if (null != room && room.isDirect()) {
+        if (room.isDirectChatInvitation()) {
             vRoomAvatar.setVisibility(View.VISIBLE);
             vRoomAvatarHexagon.setVisibility(View.GONE);
             VectorUtils.loadRoomAvatar(context, session, vRoomAvatar, room);
