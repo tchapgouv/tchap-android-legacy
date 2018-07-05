@@ -43,6 +43,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import fr.gouv.tchap.util.DinsicUtils;
+import fr.gouv.tchap.util.LiveSecurityChecks;
 import im.vector.Matrix;
 import im.vector.R;
 import im.vector.contacts.ContactsManager;
@@ -106,6 +107,9 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
 
     // request the contacts permission
     private boolean mIsContactsPermissionChecked;
+
+    // security
+    private LiveSecurityChecks securityChecks = new LiveSecurityChecks(this);
 
     private final MXEventListener mEventListener = new MXEventListener() {
         @Override
@@ -311,6 +315,8 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        securityChecks.checkOnActivityStart();
 
         if (mSession.isAlive()) {
             // check if the room has been left from another client

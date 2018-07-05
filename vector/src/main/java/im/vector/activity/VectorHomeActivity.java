@@ -108,6 +108,7 @@ import butterknife.BindView;
 import fr.gouv.tchap.activity.TchapLoginActivity;
 import fr.gouv.tchap.activity.TchapRoomCreationActivity;
 import fr.gouv.tchap.activity.TchapPublicRoomSelectionActivity;
+import fr.gouv.tchap.util.LiveSecurityChecks;
 import im.vector.Matrix;
 import im.vector.MyPresenceManager;
 import im.vector.R;
@@ -250,6 +251,9 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
 
     // floating action button dialog
     private AlertDialog mFabDialog;
+
+    // security
+    private LiveSecurityChecks securityChecks = new LiveSecurityChecks(this);
 
     /*
      * *********************************************************************************************
@@ -486,6 +490,9 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     @Override
     protected void onResume() {
         super.onResume();
+
+        securityChecks.checkOnActivityStart();
+
         MyPresenceManager.createPresenceManager(this, Matrix.getInstance(this).getSessions());
         MyPresenceManager.advertiseAllOnline();
 
@@ -772,6 +779,8 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     protected void onPause() {
         super.onPause();
 
+        securityChecks.activityStopped();
+
         // Unregister Broadcast receiver
         hideWaitingView();
         try {
@@ -803,6 +812,8 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        securityChecks.activityStopped();
 
         // release the static instance if it is the current implementation
         if (sharedInstance == this) {

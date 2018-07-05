@@ -143,6 +143,9 @@ public class PreferencesManager {
 
     public static final String SETTINGS_DEACTIVATE_ACCOUNT_KEY = "SETTINGS_DEACTIVATE_ACCOUNT_KEY";
 
+    public static final String SETTINGS_DETECT_ACCESSIBILITY_SERVICE_KEY = "SETTINGS_DETECT_ACCESSIBILITY_SERVICE_KEY";
+    public static final String SETTINGS_DETECT_NOTIFICATION_LISTENER_KEY = "SETTINGS_DETECT_NOTIFICATION_LISTENER_KEY";
+
     private static final int MEDIA_SAVING_3_DAYS = 0;
     private static final int MEDIA_SAVING_1_WEEK = 1;
     private static final int MEDIA_SAVING_1_MONTH = 2;
@@ -211,6 +214,36 @@ public class PreferencesManager {
         }
 
         editor.apply();
+    }
+
+    /**
+     * Tells if we want to check at each start up if some notification listener(s) is active
+     *
+     */
+    public static boolean detectNotificationListener(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_DETECT_NOTIFICATION_LISTENER_KEY, true);
+    }
+
+    public static void putDetectNotificationListener(Context context, boolean asked) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(SETTINGS_DETECT_NOTIFICATION_LISTENER_KEY, asked)
+                .apply();
+    }
+
+    /**
+     * Tells if we want to check at each start up if an accessibility service is active
+     *
+     */
+    public static boolean detectAccessibilityService(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_DETECT_ACCESSIBILITY_SERVICE_KEY, true);
+    }
+
+    public static void putDetectAccessibilityService(Context context, boolean asked) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(SETTINGS_DETECT_ACCESSIBILITY_SERVICE_KEY, asked)
+                .apply();
     }
 
     /**

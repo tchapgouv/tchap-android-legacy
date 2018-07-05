@@ -112,9 +112,11 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import fr.gouv.tchap.activity.AccessibilityServiceDetectionActivity;
 import fr.gouv.tchap.activity.TchapDirectRoomDetailsActivity;
 import fr.gouv.tchap.activity.TchapLoginActivity;
 import fr.gouv.tchap.util.DinsicUtils;
+import fr.gouv.tchap.util.LiveSecurityChecks;
 import im.vector.Matrix;
 import im.vector.R;
 import im.vector.VectorApp;
@@ -304,6 +306,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
         }
     };
 
+
     private String mCallId = null;
 
     // typing event management
@@ -330,6 +333,9 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
 
     // action to do after requesting the camera permission
     private int mCameraPermissionAction;
+
+    // security
+    private LiveSecurityChecks securityChecks = new LiveSecurityChecks(this);
 
     /**
      * Presence and room preview listeners
@@ -1152,6 +1158,9 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
 
     @Override
     public void onDestroy() {
+
+        securityChecks.activityStopped();
+
         if (null != mVectorMessageListFragment) {
             mVectorMessageListFragment.onDestroy();
         }
@@ -1170,6 +1179,8 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
     @Override
     protected void onPause() {
         super.onPause();
+
+        securityChecks.activityStopped();
 
         if (mReadMarkerManager != null) {
             mReadMarkerManager.onPause();
@@ -1205,6 +1216,8 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
     protected void onResume() {
         Log.d(LOG_TAG, "++ Resume the activity");
         super.onResume();
+
+        securityChecks.checkOnActivityStart();
 
         ViewedRoomTracker.getInstance().setMatrixId(mSession.getCredentials().userId);
 

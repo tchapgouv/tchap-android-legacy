@@ -1049,4 +1049,16 @@
     <string name="tab_rooms_title">ROOMS</string>
     <string name="tab_contacts_title">CONTACTS</string>
 
+    <!--security -->
+    <string name="security_dialog_title">Security</string>
+    <string name="detect_accessibility_service">Detect if an accessibility service is active.</string>
+    <string name="accessibility_security_dialog_message">An accessibility service is active. It watches keyboard and windows.</string>
+    <string name="security_dialog_start">Start anyway.</string>
+    <string name="security_dialog_start_an_stop_detecting">Don\'t show anymore.</string>
+    <string name="security_dialog_stop">Stop.</string>
+    <string name="detect_notification_listener">Detect if a notification listener is active.</string>
+    <string name="notification_security_dialog_message">A Notification listener reads the content of message notifications. These notifications listeners are active :</string>
+    <string name="security_dialog_continue">Continue.</string>
+    <string name="accessibility_change_security_dialog_message">An accessibility service has been activated. It watches keyboard and windows.</string>
+    <string name="notification_change_security_dialog_message">A Notification listener reads the content of message notifications. These notifications listeners have been activated :</string>
 </resources>
