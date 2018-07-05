@@ -176,11 +176,10 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
     @OnClick(R.id.rly_hexagon_avatar)
     void addRoomAvatar() {
-        if (!CommonActivityUtils.checkPermissions(CommonActivityUtils.PERMISSION_CAMERA, this)) {
-            
-        } else {
+        if (CommonActivityUtils.checkPermissions(CommonActivityUtils.PERMISSION_CAMERA, this)) {
             openMediasPicker();
         }
+
     }
 
     @Override
@@ -190,12 +189,12 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         if (requestCode == CommonActivityUtils.PERMISSION_CAMERA) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Log.d(LOG_TAG, "## camera permission granted");
-                openMediasPicker();
             } else {
                 Log.d(LOG_TAG, "## camera permission denied");
-                openMediasPicker();
             }
-        }}
+            openMediasPicker();
+        }
+    }
 
     @OnClick(R.id.switch_public_private_rooms)
     void setRoomPrivacy() {
