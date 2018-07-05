@@ -706,13 +706,17 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                         fallbackToRegistrationMode();
                         return true;
                     case MODE_FORGOT_PASSWORD:
-                        mMode = MODE_LOGIN;
                         onClick();
-                        refreshDisplay();
+                        fallbackToLoginMode();
                         return true;
                     case MODE_FORGOT_PASSWORD_WAITING_VALIDATION:
+                        mForgotPid = null;
+                        mMode = MODE_FORGOT_PASSWORD;
+                        refreshDisplay();
+                        return true;
                     case MODE_FORGOT_PASSWORD_WAITING_VALIDATION_2:
-                        // Just intercept
+                        // switch back directly to login screen
+                        fallbackToLoginMode();
                         return true;
                 }
                 break;
@@ -735,9 +739,18 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 cancelEmailPolling();
                 fallbackToRegistrationMode();
                 break;
+            case MODE_FORGOT_PASSWORD:
+                onClick();
+                fallbackToLoginMode();
+                break;
             case MODE_FORGOT_PASSWORD_WAITING_VALIDATION:
+                mForgotPid = null;
+                mMode = MODE_FORGOT_PASSWORD;
+                refreshDisplay();
+                break;
             case MODE_FORGOT_PASSWORD_WAITING_VALIDATION_2:
-                // Just intercept
+                // switch back directly to login screen
+                fallbackToLoginMode();
                 break;
             default:
                 super.onBackPressed();
@@ -793,6 +806,10 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         mRegistrationResponse = null;
         showMainLayout();
         enableLoadingScreen(false);
+
+        // Reset the forgot password text views to prevent user from using an unknown password.
+        mForgotPassword1TextView.setText(null);
+        mForgotPassword2TextView.setText(null);
 
         mMode = MODE_LOGIN;
         refreshDisplay();
@@ -1068,9 +1085,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             Log.d(LOG_TAG, "onForgotOnEmailValidated : go back to login screen");
 
             mIsPasswordResetted = false;
-            mMode = MODE_LOGIN;
-            showMainLayout();
-            refreshDisplay();
+            fallbackToLoginMode();
         } else {
             ProfileRestClient profileRestClient = new ProfileRestClient(hsConfig);
             enableLoadingScreen(true);
@@ -1107,9 +1122,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                         enableLoadingScreen(false);
 
                         if (cancel) {
-                            showMainLayout();
-                            mMode = MODE_LOGIN;
-                            refreshDisplay();
+                            fallbackToLoginMode();
                         }
                     }
                 }
@@ -1473,11 +1486,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                                         }
                                     } else if (e.mStatus == 403) {
                                         // not supported by the server
-                                        /*
-                                        mRegisterButton.setVisibility(View.GONE);
-                                        mMode = MODE_LOGIN;
-                                        refreshDisplay();
-                                        */
                                         // For Tchap, it depends on the email. Stay in the registration screen
                                         refreshDisplay();
                                     }
@@ -1992,7 +2000,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         threePidLayout.setVisibility((mMode == MODE_ACCOUNT_CREATION_THREE_PID) ? View.VISIBLE : View.GONE);
 
         boolean isLoginMode = mMode == MODE_LOGIN;
-        boolean isForgetPasswordMode = (mMode == MODE_FORGOT_PASSWORD) || (mMode == MODE_FORGOT_PASSWORD_WAITING_VALIDATION);
 
         // mButtonsView.setVisibility(View.VISIBLE);
 
