@@ -16,7 +16,6 @@
 
 package fr.gouv.tchap.activity;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -68,8 +67,6 @@ import im.vector.activity.VectorMediasPickerActivity;
 import im.vector.activity.VectorRoomActivity;
 import im.vector.activity.VectorRoomInviteMembersActivity;
 import im.vector.util.VectorUtils;
-
-import static im.vector.activity.CommonActivityUtils.REQUEST_CODE_PERMISSION_ROOM_DETAILS;
 
 public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
@@ -190,7 +187,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if (requestCode == REQUEST_CODE_PERMISSION_ROOM_DETAILS) {
+        if (requestCode == CommonActivityUtils.PERMISSION_CAMERA) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Log.d(LOG_TAG, "## camera permission granted");
                 openMediasPicker();
