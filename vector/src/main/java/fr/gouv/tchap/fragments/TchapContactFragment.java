@@ -134,6 +134,11 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
         mCurrentFilter = mActivity.getSearchQuery();
         mAdapter.onFilterDone(mCurrentFilter);
 
+        // Search in the user directories if a filter is already defined, except if the current user belongs to the E-platform.
+        if (!TextUtils.isEmpty(mCurrentFilter) && !TchapLoginActivity.isUserExternal(mSession)) {
+            startRemoteKnownContactsSearch(true);
+        }
+
         // Hide temporarily this button
         mInviteContactLayout.setVisibility(View.GONE);
         // TODO restore the listener when the feature will be activated
