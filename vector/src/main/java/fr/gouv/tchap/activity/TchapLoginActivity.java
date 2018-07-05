@@ -69,6 +69,7 @@ import org.matrix.androidsdk.util.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
@@ -91,6 +92,8 @@ import im.vector.activity.SplashActivity;
 import im.vector.receiver.VectorRegistrationReceiver;
 import im.vector.receiver.VectorUniversalLinkReceiver;
 import im.vector.services.EventStreamService;
+import okhttp3.CipherSuite;
+import okhttp3.TlsVersion;
 
 /**
  * Displays the login screen.
@@ -1243,7 +1246,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
      * @param aHomeServer     home server url
      */
     private void submitEmailToken(final String aToken, final String aClientSecret, final String aSid, final String aSessionId, final String aHomeServer, final String aIdentityServer) {
-        final HomeServerConnectionConfig homeServerConfig = mServerConfig = new HomeServerConnectionConfig(Uri.parse(aHomeServer), Uri.parse(aIdentityServer), null, new ArrayList<Fingerprint>(), false);
+        final HomeServerConnectionConfig homeServerConfig = mServerConfig = buildHomeServerConfig(Uri.parse(aHomeServer), Uri.parse(aIdentityServer));
         RegistrationManager.getInstance().setHsConfig(homeServerConfig);
         Log.d(LOG_TAG, "## submitEmailToken(): IN");
 
@@ -2022,7 +2025,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     private HomeServerConnectionConfig getHsConfig() {
         try {
             mServerConfig = null;
-            mServerConfig = new HomeServerConnectionConfig(Uri.parse(getHomeServerUrl()), Uri.parse(getIdentityServerUrl()), null, new ArrayList<Fingerprint>(), false);
+            mServerConfig = buildHomeServerConfig(Uri.parse(getHomeServerUrl()), Uri.parse(getIdentityServerUrl()));
         } catch (Exception e) {
             Log.e(LOG_TAG, "getHsConfig fails " + e.getLocalizedMessage());
         }
@@ -2490,7 +2493,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
         // Retrieve the first identity server url by removing it from the list.
         String selectedUrl = identityServerUrls.remove(0);
-        TchapRestClient tchapRestClient = new TchapRestClient(new HomeServerConnectionConfig(Uri.parse(selectedUrl), Uri.parse(selectedUrl), null, new ArrayList<Fingerprint>(), false));
+        TchapRestClient tchapRestClient = new TchapRestClient(buildHomeServerConfig(Uri.parse(selectedUrl), Uri.parse(selectedUrl)));
         tchapRestClient.info(emailAddress, ThreePid.MEDIUM_EMAIL, new ApiCallback<Platform>() {
             @Override
             public void onSuccess(Platform platform) {
@@ -2665,6 +2668,26 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     public static boolean isUserExternal(MXSession session) {
         String myHost = session.getHomeServerConfig().getHomeserverUri().getHost();
         return myHost.contains(".e.");
+    }
+
+    private static HomeServerConnectionConfig buildHomeServerConfig(final Uri homeUri, final Uri identityUri) {
+        HomeServerConnectionConfig res = new HomeServerConnectionConfig(homeUri, identityUri, null, new ArrayList<Fingerprint>(), false);
+
+        res.setShouldAcceptTlsExtensions(false);
+
+        res.setAcceptedTlsVersions(Arrays.asList(TlsVersion.TLS_1_3, TlsVersion.TLS_1_2));
+
+        res.setAcceptedTlsCipherSuites(Arrays.asList(
+                CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+                CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,
+                CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+                CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,
+                CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+                CipherSuite.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+                CipherSuite.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
+                CipherSuite.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256));
+
+        return res;
     }
 
     @OnClick(R.id.fragment_tchap_register_wait_for_email_back)
