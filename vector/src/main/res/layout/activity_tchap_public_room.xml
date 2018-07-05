@@ -17,8 +17,9 @@
             android:id="@+id/home_toolbar"
             style="@style/VectorToolbarStyle"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent">
+            android:layout_height="30dp"
+            android:layout_margin="10dp"
+            android:background="@drawable/tchap_search_bar_style">
 
             <!-- The search view is added in the toolbar not in the menu
                  to ensure that the overflow icon menu is not hidden.-->
@@ -27,12 +28,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="30dp"
                 android:layout_marginBottom="12dp"
-                android:layout_marginLeft="10dp"
+                android:layout_marginLeft="7dp"
                 android:layout_marginRight="10dp"
-                android:layout_marginTop="12dp"
-                style="@style/SearchViewMembers"
-                android:background="@drawable/tchap_search_bar_style"
-                android:clickable="true"/>
+                android:clickable="true" />
         </android.support.v7.widget.Toolbar>
 
         <ProgressBar

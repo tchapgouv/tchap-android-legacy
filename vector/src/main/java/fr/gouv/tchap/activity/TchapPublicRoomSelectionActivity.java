@@ -181,18 +181,19 @@ public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity impl
     private void initViews() {
         // init the search view
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        // Remove unwanted left margin
+        // Remove unwanted left margin before the search icon.
         LinearLayout searchEditFrame = mSearchView.findViewById(R.id.search_edit_frame);
         if (searchEditFrame != null) {
             ViewGroup.MarginLayoutParams searchEditFrameParams = (ViewGroup.MarginLayoutParams) searchEditFrame.getLayoutParams();
-            searchEditFrameParams.leftMargin = 0;
+            searchEditFrameParams.leftMargin = -30;
+            searchEditFrameParams.rightMargin = -15;
             searchEditFrame.setLayoutParams(searchEditFrameParams);
         }
 
-        ImageView searchMagIcon = (ImageView) mSearchView.findViewById(android.support.v7.appcompat.R.id.search_mag_icon);
+        ImageView searchMagIcon = mSearchView.findViewById(android.support.v7.appcompat.R.id.search_mag_icon);
         searchMagIcon.setColorFilter(ContextCompat.getColor(this, R.color.tchap_search_bar_text));
 
-        ImageView searchCloseIcon = (ImageView) mSearchView.findViewById(android.support.v7.appcompat.R.id.search_close_btn);
+        ImageView searchCloseIcon = mSearchView.findViewById(android.support.v7.appcompat.R.id.search_close_btn);
         searchCloseIcon.setColorFilter(ContextCompat.getColor(this, R.color.tchap_search_bar_text));
 
         mSearchView.setMaxWidth(Integer.MAX_VALUE);
@@ -201,14 +202,6 @@ public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity impl
         mSearchView.setIconifiedByDefault(false);
         mSearchView.setOnQueryTextListener(this);
         mSearchView.setQueryHint(getString(R.string.search_hint));
-        mSearchView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (v != null) {
-                    mSearchView.setIconified(false);
-                }
-            }
-        });
     }
 
     /**
