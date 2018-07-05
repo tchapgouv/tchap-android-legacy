@@ -2461,8 +2461,20 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             idServerUrls.add(currentIdServerUrl);
         }
 
-        // Add randomly the known ISes
-        List<String> currentHosts = new ArrayList<>(Arrays.asList(activity.getResources().getStringArray(R.array.identity_server_names)));
+        // Add randomly the preferred known ISes
+        List<String> currentHosts = new ArrayList<>(Arrays.asList(activity.getResources().getStringArray(R.array.preferred_identity_server_names)));
+        while (!currentHosts.isEmpty()) {
+            int index = (new Random()).nextInt(currentHosts.size());
+            String host = currentHosts.remove(index);
+
+            String idServerUrl = activity.getString(R.string.server_url_prefix) + host;
+            if (null == currentIdServerUrl || !idServerUrl.equals(currentIdServerUrl)) {
+                idServerUrls.add(idServerUrl);
+            }
+        }
+
+        // Add randomly the other known ISes
+        currentHosts = new ArrayList<>(Arrays.asList(activity.getResources().getStringArray(R.array.identity_server_names)));
         while (!currentHosts.isEmpty()) {
             int index = (new Random()).nextInt(currentHosts.size());
             String host = currentHosts.remove(index);

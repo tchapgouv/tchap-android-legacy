@@ -4,8 +4,13 @@
 
     <!-- Identity server names -->
     <string-array
-        name="identity_server_names" translatable="false" >
+        name="preferred_identity_server_names" translatable="false" >
         <item>dev-durable.tchap.gouv.fr</item>
+        <item>education.tchap.gouv.fr</item>
+        <item>culture.tchap.gouv.fr</item>
+    </string-array>
+    <string-array
+        name="identity_server_names" translatable="false" >
         <item>dinum.tchap.gouv.fr</item>
         <item>intradef.tchap.gouv.fr</item>
         <item>diplomatie.tchap.gouv.fr</item>
@@ -13,12 +18,10 @@
         <item>agriculture.tchap.gouv.fr</item>
         <item>interieur.tchap.gouv.fr</item>
         <item>social.tchap.gouv.fr</item>
-        <item>education.tchap.gouv.fr</item>
         <item>finances.tchap.gouv.fr</item>
         <item>ssi.tchap.gouv.fr</item>
         <item>pm.tchap.gouv.fr</item>
         <item>elysee.tchap.gouv.fr</item>
-        <item>culture.tchap.gouv.fr</item>
     </string-array>
 
     <!-- Server url prefix -->
