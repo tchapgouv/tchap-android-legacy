@@ -19,7 +19,6 @@ package im.vector.activity
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.os.Build
 import android.os.Bundle
 import android.support.annotation.*
 import android.support.v7.app.AppCompatActivity
@@ -326,10 +325,7 @@ abstract class VectorAppCompatActivity : AppCompatActivity() {
                 .apply { addToRestorables(this) }
     }
 
-    @SuppressLint("ObsoleteSdkInt")
     protected fun applyScreenshotSecurity() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
-        }
+        window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
     }
 }
