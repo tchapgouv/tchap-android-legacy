@@ -304,12 +304,6 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
         mRoom.removeEventListener(mEventListener);
     }
 
-    private void applyScreenshotSecurity() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
-        }
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
