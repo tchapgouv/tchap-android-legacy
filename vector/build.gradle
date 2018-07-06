@@ -189,6 +189,7 @@ dependencies {
 
     implementation 'me.leolin:ShortcutBadger:1.1.2@aar'
 
+    implementation 'com.android.support:support-v4:27.1.1'
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:design:27.1.1'
     implementation 'com.android.support:cardview-v7:27.1.1'
