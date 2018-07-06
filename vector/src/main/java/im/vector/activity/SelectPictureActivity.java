@@ -182,14 +182,16 @@ public class SelectPictureActivity extends AppCompatActivity  {
 
                 // provide the Uri
                 Intent intent = new Intent();
-                if (data.getData() != null)
+                if ((data != null) && (data.getData() != null))
                     intent.setData(data.getData());
                 else
                     if (mLatestTakePictureCameraUri != null)
                         intent.setData(Uri.parse(mLatestTakePictureCameraUri));
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                    intent.setClipData(data.getClipData());
+                    if (data != null) {
+                        intent.setClipData(data.getClipData());
+                    }
                 }
 
                 //intent.putExtras(conData);
