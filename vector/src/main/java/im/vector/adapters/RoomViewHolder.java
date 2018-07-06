@@ -35,12 +35,12 @@ import org.matrix.androidsdk.data.RoomTag;
 import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.util.BingRulesManager;
 import org.matrix.androidsdk.util.Log;
-
 import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import fr.gouv.tchap.util.DinsicUtils;
+import fr.gouv.tchap.util.HexagonMaskView;
 import im.vector.R;
 import im.vector.util.RoomUtils;
 import im.vector.util.VectorUtils;
@@ -54,6 +54,10 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
 
     @BindView(R.id.room_avatar)
     ImageView vRoomAvatar;
+
+    @Nullable
+    @BindView(R.id.room_avatar_hexagon)
+    HexagonMaskView vRoomAvatarHexagon;
 
     @BindView(R.id.room_name)
     TextView vRoomName;
@@ -197,7 +201,20 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
             vSenderDisplayName.setVisibility(View.VISIBLE);
         }
 
-        VectorUtils.loadRoomAvatar(context, session, vRoomAvatar, room);
+        // Check whether an hexagonal avatar shape has been defined in the layout,
+        // in order to use it for a no direct chat room.
+        // For example, this is the case for the invitations display.
+        if (null != vRoomAvatarHexagon && !isDirectChat) {
+            vRoomAvatar.setVisibility(View.GONE);
+            vRoomAvatarHexagon.setVisibility(View.VISIBLE);
+            VectorUtils.loadRoomAvatar(context, session, vRoomAvatarHexagon, room);
+        } else {
+            vRoomAvatar.setVisibility(View.VISIBLE);
+            if (null != vRoomAvatarHexagon) {
+                vRoomAvatarHexagon.setVisibility(View.GONE);
+            }
+            VectorUtils.loadRoomAvatar(context, session, vRoomAvatar, room);
+        }
 
         if (vRoomNameServer != null) {
             // This view holder is for the home page, we have up to two lines to display the name
