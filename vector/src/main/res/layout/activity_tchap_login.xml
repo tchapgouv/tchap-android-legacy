@@ -141,6 +141,10 @@
 
             <include layout="@layout/fragment_tchap_first_login" />
 
+            <include layout="@layout/fragment_tchap_first_forgotten_password" />
+
+            <include layout="@layout/fragment_tchap_message_button" />
+
             <LinearLayout
                 android:id="@+id/main_input_layout"
                 android:layout_width="match_parent"
@@ -149,46 +153,6 @@
                 android:layout_marginRight="16dp"
                 android:layout_marginTop="19dp"
                 android:orientation="vertical">
-
-                <LinearLayout
-                    android:id="@+id/forget_password_inputs_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/auth_reset_password_message" />
-
-                    <EditText
-                        android:id="@+id/forget_email_address"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/auth_email_placeholder"
-                        android:inputType="textEmailAddress"
-                        android:maxLines="1" />
-
-                    <EditText
-                        android:id="@+id/forget_new_password"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:ems="10"
-                        android:hint="@string/auth_new_password_placeholder"
-                        android:inputType="textPassword"
-                        android:maxLines="1" />
-
-                    <EditText
-                        android:id="@+id/forget_confirm_new_password"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:ems="10"
-                        android:hint="@string/auth_repeat_new_password_placeholder"
-                        android:inputType="textPassword"
-                        android:maxLines="1" />
-                </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/three_pid_layout"

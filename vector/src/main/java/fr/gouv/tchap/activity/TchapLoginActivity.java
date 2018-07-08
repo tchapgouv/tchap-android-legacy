@@ -116,6 +116,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     private static final int MODE_ACCOUNT_CREATION_WAIT_FOR_EMAIL = 21;
     private static final int MODE_FORGOT_PASSWORD = 3;
     private static final int MODE_FORGOT_PASSWORD_WAITING_VALIDATION = 4;
+    private static final int MODE_FORGOT_PASSWORD_WAITING_VALIDATION_2 = 7;
     private static final int MODE_ACCOUNT_CREATION_THREE_PID = 5;
     private static final int MODE_START = 6;
 
@@ -174,11 +175,23 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     @BindView(R.id.fragment_tchap_first_register)
     View screenRegister;
 
+    @BindView(R.id.fragment_tchap_first_forgotten_password)
+    View screenForgottenPassword;
+
+    @BindView(R.id.fragment_tchap_first_message_button)
+    View screenMessageButton;
+
     @BindView(R.id.fragment_tchap_first_register_wait_for_email)
     View screenRegisterWaitForEmail;
 
     @BindView(R.id.fragment_tchap_register_wait_for_email_email)
     TextView screenRegisterWaitForEmailEmailTextView;
+
+    @BindView(R.id.fragment_tchap_first_message_button_notice)
+    TextView messageNotice;
+
+    @BindView(R.id.fragment_tchap_first_message_button_submit)
+    Button messageButton;
 
     // forgot password button
     private TextView mForgotPasswordButton;
@@ -214,13 +227,16 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     private TextView mPasswordForgottenTxtView;
 
     // the forgot password email text view
-    private TextView mForgotEmailTextView;
+    @BindView(R.id.fragment_tchap_first_forget_password_email)
+    TextView mForgotEmailTextView;
 
     // the password 1 name
-    private EditText mForgotPassword1TextView;
+    @BindView(R.id.fragment_tchap_first_forget_password_new_password)
+    EditText mForgotPassword1TextView;
 
     // the password 2 name
-    private EditText mForgotPassword2TextView;
+    @BindView(R.id.fragment_tchap_first_forget_password_new_password_confirm)
+    EditText mForgotPassword2TextView;
 
     // the home server text
     //private EditText mHomeServerText;
@@ -462,9 +478,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
         // forgot password
         mPasswordForgottenTxtView = findViewById(R.id.tchap_first_login_password_forgotten);
-        mForgotEmailTextView = findViewById(R.id.forget_email_address);
-        mForgotPassword1TextView = findViewById(R.id.forget_new_password);
-        mForgotPassword2TextView = findViewById(R.id.forget_confirm_new_password);
 
         mHomeServerOptionLayout = findViewById(R.id.homeserver_layout);
         //mHomeServerText = findViewById(R.id.login_matrix_server_url);
@@ -692,6 +705,19 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                         cancelEmailPolling();
                         fallbackToRegistrationMode();
                         return true;
+                    case MODE_FORGOT_PASSWORD:
+                        onClick();
+                        fallbackToLoginMode();
+                        return true;
+                    case MODE_FORGOT_PASSWORD_WAITING_VALIDATION:
+                        mForgotPid = null;
+                        mMode = MODE_FORGOT_PASSWORD;
+                        refreshDisplay();
+                        return true;
+                    case MODE_FORGOT_PASSWORD_WAITING_VALIDATION_2:
+                        // switch back directly to login screen
+                        fallbackToLoginMode();
+                        return true;
                 }
                 break;
         }
@@ -712,6 +738,19 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 // Go back to register screen
                 cancelEmailPolling();
                 fallbackToRegistrationMode();
+                break;
+            case MODE_FORGOT_PASSWORD:
+                onClick();
+                fallbackToLoginMode();
+                break;
+            case MODE_FORGOT_PASSWORD_WAITING_VALIDATION:
+                mForgotPid = null;
+                mMode = MODE_FORGOT_PASSWORD;
+                refreshDisplay();
+                break;
+            case MODE_FORGOT_PASSWORD_WAITING_VALIDATION_2:
+                // switch back directly to login screen
+                fallbackToLoginMode();
                 break;
             default:
                 super.onBackPressed();
@@ -768,6 +807,10 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         showMainLayout();
         enableLoadingScreen(false);
 
+        // Reset the forgot password text views to prevent user from using an unknown password.
+        mForgotPassword1TextView.setText(null);
+        mForgotPassword2TextView.setText(null);
+
         mMode = MODE_LOGIN;
         refreshDisplay();
     }
@@ -815,7 +858,9 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 Log.d(LOG_TAG, "## cancel the registration mode");
                 fallbackToStartMode();
                 return true;
-            } else if ((MODE_FORGOT_PASSWORD == mMode) || (MODE_FORGOT_PASSWORD_WAITING_VALIDATION == mMode)) {
+            } else if ((MODE_FORGOT_PASSWORD == mMode)
+                    || (MODE_FORGOT_PASSWORD_WAITING_VALIDATION == mMode)
+                    || (MODE_FORGOT_PASSWORD_WAITING_VALIDATION_2 == mMode)) {
                 Log.d(LOG_TAG, "## cancel the forgot password mode");
                 fallbackToLoginMode();
                 return true;
@@ -885,7 +930,10 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     /**
      * the user forgot his password
      */
-    private void onForgotPasswordClick() {
+    @OnClick(R.id.fragment_tchap_first_forget_password_submit)
+    void onForgotPasswordClick() {
+        onClick();
+
         // parameters
         final String email = mForgotEmailTextView.getText().toString().trim();
         final String password = mForgotPassword1TextView.getText().toString().trim();
@@ -944,8 +992,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                             enableLoadingScreen(false);
 
                             // refresh the messages
-                            hideMainLayoutAndToast(getResources().getString(R.string.auth_reset_password_email_validation_message, email));
-
                             mMode = MODE_FORGOT_PASSWORD_WAITING_VALIDATION;
                             refreshDisplay();
 
@@ -1039,9 +1085,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             Log.d(LOG_TAG, "onForgotOnEmailValidated : go back to login screen");
 
             mIsPasswordResetted = false;
-            mMode = MODE_LOGIN;
-            showMainLayout();
-            refreshDisplay();
+            fallbackToLoginMode();
         } else {
             ProfileRestClient profileRestClient = new ProfileRestClient(hsConfig);
             enableLoadingScreen(true);
@@ -1057,7 +1101,8 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                         enableLoadingScreen(false);
 
                         // refresh the messages
-                        hideMainLayoutAndToast(getResources().getString(R.string.auth_reset_password_success_message));
+                        mMode = MODE_FORGOT_PASSWORD_WAITING_VALIDATION_2;
+
                         mIsPasswordResetted = true;
                         refreshDisplay();
                     }
@@ -1077,9 +1122,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                         enableLoadingScreen(false);
 
                         if (cancel) {
-                            showMainLayout();
-                            mMode = MODE_LOGIN;
-                            refreshDisplay();
+                            fallbackToLoginMode();
                         }
                     }
                 }
@@ -1443,11 +1486,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                                         }
                                     } else if (e.mStatus == 403) {
                                         // not supported by the server
-                                        /*
-                                        mRegisterButton.setVisibility(View.GONE);
-                                        mMode = MODE_LOGIN;
-                                        refreshDisplay();
-                                        */
                                         // For Tchap, it depends on the email. Stay in the registration screen
                                         refreshDisplay();
                                     }
@@ -1880,6 +1918,8 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 screenRegister.setVisibility(View.GONE);
                 screenRegisterWaitForEmail.setVisibility(View.GONE);
                 screenLogin.setVisibility(View.GONE);
+                screenForgottenPassword.setVisibility(View.GONE);
+                screenMessageButton.setVisibility(View.GONE);
                 break;
             case MODE_ACCOUNT_CREATION:
                 toolbar.setVisibility(View.VISIBLE);
@@ -1888,6 +1928,8 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 screenRegister.setVisibility(View.VISIBLE);
                 screenRegisterWaitForEmail.setVisibility(View.GONE);
                 screenLogin.setVisibility(View.GONE);
+                screenForgottenPassword.setVisibility(View.GONE);
+                screenMessageButton.setVisibility(View.GONE);
                 break;
             case MODE_ACCOUNT_CREATION_WAIT_FOR_EMAIL:
                 toolbar.setVisibility(View.VISIBLE);
@@ -1896,6 +1938,8 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 screenRegister.setVisibility(View.GONE);
                 screenRegisterWaitForEmail.setVisibility(View.VISIBLE);
                 screenLogin.setVisibility(View.GONE);
+                screenForgottenPassword.setVisibility(View.GONE);
+                screenMessageButton.setVisibility(View.GONE);
                 break;
             case MODE_LOGIN:
                 toolbar.setVisibility(View.VISIBLE);
@@ -1904,6 +1948,29 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 screenRegister.setVisibility(View.GONE);
                 screenRegisterWaitForEmail.setVisibility(View.GONE);
                 screenLogin.setVisibility(View.VISIBLE);
+                screenForgottenPassword.setVisibility(View.GONE);
+                screenMessageButton.setVisibility(View.GONE);
+                break;
+            case MODE_FORGOT_PASSWORD:
+                toolbar.setVisibility(View.VISIBLE);
+                toolbar.setTitle(R.string.tchap_connection_title);
+                screenWelcome.setVisibility(View.GONE);
+                screenRegister.setVisibility(View.GONE);
+                screenRegisterWaitForEmail.setVisibility(View.GONE);
+                screenLogin.setVisibility(View.GONE);
+                screenForgottenPassword.setVisibility(View.VISIBLE);
+                screenMessageButton.setVisibility(View.GONE);
+                break;
+            case MODE_FORGOT_PASSWORD_WAITING_VALIDATION:
+            case MODE_FORGOT_PASSWORD_WAITING_VALIDATION_2:
+                toolbar.setVisibility(View.VISIBLE);
+                toolbar.setTitle(R.string.tchap_connection_title);
+                screenWelcome.setVisibility(View.GONE);
+                screenRegister.setVisibility(View.GONE);
+                screenRegisterWaitForEmail.setVisibility(View.GONE);
+                screenLogin.setVisibility(View.GONE);
+                screenForgottenPassword.setVisibility(View.GONE);
+                screenMessageButton.setVisibility(View.VISIBLE);
                 break;
             default:
                 // TODO manage other cases
@@ -1911,21 +1978,31 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 break;
         }
 
+        switch (mMode) {
+            case MODE_FORGOT_PASSWORD_WAITING_VALIDATION:
+                messageNotice.setText(getString(R.string.auth_reset_password_email_validation_message, mCurrentEmail));
+                messageButton.setText(R.string.auth_reset_password_next_step_button);
+                break;
+            case MODE_FORGOT_PASSWORD_WAITING_VALIDATION_2:
+                messageNotice.setText(R.string.auth_reset_password_success_message);
+                messageButton.setText(R.string.auth_return_to_login);
+                break;
+            default:
+                break;
+        }
+
+
         supportInvalidateOptionsMenu();
 
         // views
-        View forgetPasswordLayout = findViewById(R.id.forget_password_inputs_layout);
         View threePidLayout = findViewById(R.id.three_pid_layout);
 
-        forgetPasswordLayout.setVisibility((mMode == MODE_FORGOT_PASSWORD) ? View.VISIBLE : View.GONE);
         threePidLayout.setVisibility((mMode == MODE_ACCOUNT_CREATION_THREE_PID) ? View.VISIBLE : View.GONE);
 
         boolean isLoginMode = mMode == MODE_LOGIN;
-        boolean isForgetPasswordMode = (mMode == MODE_FORGOT_PASSWORD) || (mMode == MODE_FORGOT_PASSWORD_WAITING_VALIDATION);
 
         // mButtonsView.setVisibility(View.VISIBLE);
 
-        //mPasswordForgottenTxtView.setVisibility(isLoginMode ? View.VISIBLE : View.GONE);
         mLoginButton.setVisibility(mMode == MODE_LOGIN ? View.VISIBLE : View.GONE);
         mRegisterButton.setVisibility(mMode == MODE_ACCOUNT_CREATION ? View.VISIBLE : View.GONE);
         mGoLoginButton.setVisibility(mMode == MODE_START ? View.VISIBLE : View.GONE);
@@ -2686,9 +2763,18 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         return myHost.contains(".e.");
     }
 
+    /* ==========================================================================================
+     * UI Events
+     * ========================================================================================== */
+
     @OnClick(R.id.fragment_tchap_register_wait_for_email_back)
     void onEmailNotReceived() {
         cancelEmailPolling();
         fallbackToRegistrationMode();
+    }
+
+    @OnClick(R.id.fragment_tchap_first_message_button_submit)
+    void messageSubmit() {
+        onForgotOnEmailValidated(getHsConfig());
     }
 }

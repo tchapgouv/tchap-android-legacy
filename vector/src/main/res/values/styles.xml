@@ -153,6 +153,13 @@
         <item name="android:textAllCaps">true</item>
     </style>
 
+    <style name="TchapLoginButtonStyle" parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@color/tchap_text_color_light</item>
+    </style>
+
     <style name="VectorSearches.EditText" parent="@style/Widget.AppCompat.EditText">
         <item name="android:textCursorDrawable">@drawable/searches_cursor_background</item>
         <item name="android:background">@android:color/transparent</item>
