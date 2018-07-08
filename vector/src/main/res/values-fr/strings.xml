@@ -886,7 +886,7 @@ Appareils inconnus :</string>
     <string name="tchap_connection_password_confirm">Confirmer le mot de passe</string>
     <string name="tchap_connection_forgotten_email">J’ai oublié mon mot de passe</string>
     <string name="tchap_register_wait_for_email_title">Un email vous a été envoyé</string>
-    <string name="tchap_register_wait_for_email_subtitle">Veuillez l’ouvrir et cliquer sur le lien qui est dedans pour finaliser la vérification</string>
+    <string name="tchap_register_wait_for_email_subtitle">Veuillez l’ouvrir et cliquer sur le lien proposé pour valider votre inscription</string>
     <string name="tchap_register_wait_for_email_no_email">Je n’ai pas reçu l’email!</string>
     <string name="tchap_register_unauthorized_email">Cette adresse e-mail n\'est pas autorisée</string>
 
