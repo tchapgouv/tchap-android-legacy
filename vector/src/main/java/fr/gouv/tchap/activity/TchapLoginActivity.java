@@ -152,16 +152,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     // activity mode
     private int mMode = MODE_START;
 
-    // graphical items
-    // login button
-    private Button mLoginButton;
-
-    // create account button
-    private Button mRegisterButton;
-
-    private Button mGoLoginButton;
-    private Button mGoRegisterButton;
-
     /* ==========================================================================================
      * UI
      * ========================================================================================== */
@@ -193,19 +183,11 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     @BindView(R.id.fragment_tchap_first_message_button_submit)
     Button messageButton;
 
-    // forgot password button
-    private TextView mForgotPasswordButton;
-
-    // The email has been validated
-    private Button mForgotValidateEmailButton;
-
     // the login account name
     private EditText mLoginEmailTextView;
 
     // the login password
     private EditText mLoginPasswordTextView;
-
-    private View mButtonsView;
 
     // if the taps on login button
     // after updating the IS / HS urls
@@ -265,8 +247,8 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     private EditText mEmailAddress;
     //private View mPhoneNumberLayout;
     //private EditText mPhoneNumber;
-    private Button mSubmitThreePidButton;
-    private Button mSkipThreePidButton;
+    //private Button mSubmitThreePidButton;
+    //private Button mSkipThreePidButton;
 
     // Home server options
     private View mHomeServerOptionLayout;
@@ -473,8 +455,8 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         //mPhoneNumber = findViewById(R.id.registration_phone_number_value);
         //EditText phoneNumberCountryCode = findViewById(R.id.registration_phone_number_country);
         //phoneNumberCountryCode.setCompoundDrawablesWithIntrinsicBounds(null, null, CommonActivityUtils.tintDrawable(this, ContextCompat.getDrawable(this, R.drawable.ic_material_expand_more_black), R.attr.settings_icon_tint_color), null);
-        mSubmitThreePidButton = findViewById(R.id.button_submit);
-        mSkipThreePidButton = findViewById(R.id.button_skip);
+        //mSubmitThreePidButton = findViewById(R.id.button_submit);
+        //mSkipThreePidButton = findViewById(R.id.button_skip);
 
         // forgot password
         mPasswordForgottenTxtView = findViewById(R.id.tchap_first_login_password_forgotten);
@@ -483,62 +465,9 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         //mHomeServerText = findViewById(R.id.login_matrix_server_url);
         //mIdentityServerText = findViewById(R.id.login_identity_url);
 
-        mLoginButton = findViewById(R.id.button_login);
-        mRegisterButton = findViewById(R.id.button_register);
-        mGoLoginButton = findViewById(R.id.button_go_login);
-        mGoRegisterButton = findViewById(R.id.button_go_register);
-        mForgotPasswordButton = findViewById(R.id.button_reset_password);
-        mForgotValidateEmailButton = findViewById(R.id.button_forgot_email_validate);
-
         mProgressTextView = findViewById(R.id.flow_progress_message_textview);
 
         mMainLayout = findViewById(R.id.main_input_layout);
-        mButtonsView = findViewById(R.id.login_actions_bar);
-
-        mLoginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onLoginClick();
-            }
-        });
-
-        // account creation handler
-        mRegisterButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onRegisterClick();
-            }
-        });
-
-        mGoLoginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onLoginClick();
-            }
-        });
-
-        // account creation handler
-        mGoRegisterButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onRegisterClick();
-            }
-        });
-
-        // forgot password button
-        mForgotPasswordButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onForgotPasswordClick();
-            }
-        });
-
-        mForgotValidateEmailButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onForgotOnEmailValidated(getHsConfig());
-            }
-        });
 
         // "forgot password?" handler
         mPasswordForgottenTxtView.setOnClickListener(new View.OnClickListener() {
@@ -598,9 +527,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 RegistrationManager.getInstance().attemptRegistration(this, this);
                 onWaitingEmailValidation();
             }
-        } else {
-            // Enable the action buttons by default
-            setActionButtonsEnabled(true);
         }
     }
 
@@ -1238,7 +1164,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 private void errorHandler(String errorMessage) {
                     Log.d(LOG_TAG, "## submitEmailToken(): errorHandler().");
                     enableLoadingScreen(false);
-                    setActionButtonsEnabled(false);
                     showMainLayout();
                     refreshDisplay();
                     Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_LONG).show();
@@ -1397,7 +1322,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                             if (mMode == MODE_ACCOUNT_CREATION) {
                                 Log.e(LOG_TAG, "Network Error: " + e.getMessage(), e);
                                 onError(getString(R.string.login_error_registration_network_error) + " : " + e.getLocalizedMessage());
-                                setActionButtonsEnabled(false);
                             }
                         }
 
@@ -1464,7 +1388,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         mMainLayout.setVisibility(View.GONE);
         mProgressTextView.setVisibility(View.VISIBLE);
         mProgressTextView.setText(text);
-        mButtonsView.setVisibility(View.GONE);
     }
 
     /**
@@ -1473,7 +1396,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     private void showMainLayout() {
         mMainLayout.setVisibility(View.VISIBLE);
         mProgressTextView.setVisibility(View.GONE);
-        // mButtonsView.setVisibility(View.VISIBLE);
     }
 
     //==============================================================================================================
@@ -1504,9 +1426,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
             mMode = MODE_LOGIN;
             refreshDisplay();
-
-            // Enable the action buttons by default
-            setActionButtonsEnabled(true);
             return;
         }
 
@@ -1705,7 +1624,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                     private void onError(String errorMessage) {
                         if (mMode == MODE_LOGIN) {
                             enableLoadingScreen(false);
-                            setActionButtonsEnabled(false);
                             Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_LONG).show();
                         }
                     }
@@ -1938,32 +1856,9 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
         threePidLayout.setVisibility((mMode == MODE_ACCOUNT_CREATION_THREE_PID) ? View.VISIBLE : View.GONE);
 
-        boolean isLoginMode = mMode == MODE_LOGIN;
-
-        // mButtonsView.setVisibility(View.VISIBLE);
-
-        mLoginButton.setVisibility(mMode == MODE_LOGIN ? View.VISIBLE : View.GONE);
-        mRegisterButton.setVisibility(mMode == MODE_ACCOUNT_CREATION ? View.VISIBLE : View.GONE);
-        mGoLoginButton.setVisibility(mMode == MODE_START ? View.VISIBLE : View.GONE);
-        mGoRegisterButton.setVisibility(mMode == MODE_START ? View.VISIBLE : View.GONE);
-        mForgotPasswordButton.setVisibility(mMode == MODE_FORGOT_PASSWORD ? View.VISIBLE : View.GONE);
-        mForgotValidateEmailButton.setVisibility(mMode == MODE_FORGOT_PASSWORD_WAITING_VALIDATION ? View.VISIBLE : View.GONE);
-        mSubmitThreePidButton.setVisibility(mMode == MODE_ACCOUNT_CREATION_THREE_PID ? View.VISIBLE : View.GONE);
-        mSkipThreePidButton.setVisibility(mMode == MODE_ACCOUNT_CREATION_THREE_PID && RegistrationManager.getInstance().canSkip() ? View.VISIBLE : View.GONE);
+        //mSubmitThreePidButton.setVisibility(mMode == MODE_ACCOUNT_CREATION_THREE_PID ? View.VISIBLE : View.GONE);
+        //mSkipThreePidButton.setVisibility(mMode == MODE_ACCOUNT_CREATION_THREE_PID && RegistrationManager.getInstance().canSkip() ? View.VISIBLE : View.GONE);
         mHomeServerOptionLayout.setVisibility(/*mMode == MODE_ACCOUNT_CREATION_THREE_PID ? View.GONE : View.VISIBLE*/ View.GONE);
-
-        // update the button text to the current status
-        // 1 - the user does not warn that he clicks on the email validation
-        // 2 - the password has been resetted and the user is invited to switch to the login screen
-        mForgotValidateEmailButton.setText(mIsPasswordResetted ? R.string.auth_return_to_login : R.string.auth_reset_password_next_step_button);
-
-        @ColorInt final int green = ContextCompat.getColor(this, R.color.vector_green_color);
-        @ColorInt final int white = ContextCompat.getColor(this, android.R.color.white);
-
-        mLoginButton.setBackgroundColor(isLoginMode ? green : white);
-        mLoginButton.setTextColor(!isLoginMode ? green : white);
-        mRegisterButton.setBackgroundColor(!isLoginMode ? green : white);
-        mRegisterButton.setTextColor(isLoginMode ? green : white);
     }
 
     /**
@@ -1972,46 +1867,11 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
      * @param isLoadingScreenVisible true to enable the loading screen, false otherwise
      */
     private void enableLoadingScreen(boolean isLoadingScreenVisible) {
-        // disable register/login buttons when loading screen is displayed
-        setActionButtonsEnabled(!isLoadingScreenVisible);
-
         supportInvalidateOptionsMenu();
 
         if (null != mLoginMaskView) {
             mLoginMaskView.setVisibility(isLoadingScreenVisible ? View.VISIBLE : View.GONE);
         }
-    }
-
-    /**
-     * @param enabled enabled/disabled the action buttons
-     */
-    private void setActionButtonsEnabled(boolean enabled) {
-        boolean isForgotPasswordMode = (mMode == MODE_FORGOT_PASSWORD) || (mMode == MODE_FORGOT_PASSWORD_WAITING_VALIDATION);
-
-
-        // forgot password mode
-        // the register and the login buttons are hidden
-        mRegisterButton.setVisibility((!isForgotPasswordMode && mMode == MODE_ACCOUNT_CREATION) ? View.VISIBLE : View.GONE);
-        mLoginButton.setVisibility((!isForgotPasswordMode && mMode == MODE_LOGIN) ? View.VISIBLE : View.GONE);
-        mGoRegisterButton.setVisibility(!(mMode == MODE_START) ? View.GONE : View.VISIBLE);
-        mGoLoginButton.setVisibility(!(mMode == MODE_START) ? View.GONE : View.VISIBLE);
-
-        mForgotPasswordButton.setVisibility((mMode == MODE_FORGOT_PASSWORD) ? View.VISIBLE : View.GONE);
-        mForgotPasswordButton.setAlpha(enabled ? CommonActivityUtils.UTILS_OPACITY_NONE : CommonActivityUtils.UTILS_OPACITY_HALF);
-        mForgotPasswordButton.setEnabled(enabled);
-
-        mForgotValidateEmailButton.setVisibility((mMode == MODE_FORGOT_PASSWORD_WAITING_VALIDATION) ? View.VISIBLE : View.GONE);
-        mForgotValidateEmailButton.setAlpha(enabled ? CommonActivityUtils.UTILS_OPACITY_NONE : CommonActivityUtils.UTILS_OPACITY_HALF);
-        mForgotValidateEmailButton.setEnabled(enabled);
-
-        // other mode : display the login password button
-        boolean loginEnabled = enabled || (mMode == MODE_ACCOUNT_CREATION);
-        boolean registerEnabled = enabled || (mMode == MODE_LOGIN);
-        mLoginButton.setEnabled(loginEnabled);
-        mRegisterButton.setEnabled(registerEnabled);
-
-        mLoginButton.setAlpha(loginEnabled ? CommonActivityUtils.UTILS_OPACITY_NONE : CommonActivityUtils.UTILS_OPACITY_HALF);
-        mRegisterButton.setAlpha(registerEnabled ? CommonActivityUtils.UTILS_OPACITY_NONE : CommonActivityUtils.UTILS_OPACITY_HALF);
     }
 
     //==============================================================================================================
@@ -2104,7 +1964,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 finish();
             } else if ((resultCode == RESULT_CANCELED) && (FALLBACK_LOGIN_ACTIVITY_REQUEST_CODE == requestCode)) {
                 Log.d(LOG_TAG, "## onActivityResult(): RESULT_CANCELED && FALLBACK_LOGIN_ACTIVITY_REQUEST_CODE");
-                setActionButtonsEnabled(false);
             }
         }
     }
@@ -2150,7 +2009,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             mPhoneNumberLayout.setVisibility(View.GONE);
         }*/
 
-        if (RegistrationManager.getInstance().canSkip()) {
+        /*if (RegistrationManager.getInstance().canSkip()) {
             mSkipThreePidButton.setVisibility(View.VISIBLE);
             mSkipThreePidButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -2171,7 +2030,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             public void onClick(View v) {
                 submitThreePids();
             }
-        });
+        });*/
     }
 
     /**
