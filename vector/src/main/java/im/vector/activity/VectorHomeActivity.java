@@ -1132,8 +1132,11 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
      * Reset the filter
      */
     private void resetFilter() {
-        mSearchView.setQuery("", false);
-        mSearchView.clearFocus();
+        // sanity check to fix crash in log-out
+        if (null != mSearchView) {
+            mSearchView.setQuery("", false);
+            mSearchView.clearFocus();
+        }
         hideKeyboard();
     }
 
