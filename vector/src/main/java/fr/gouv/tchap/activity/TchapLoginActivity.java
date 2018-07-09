@@ -117,7 +117,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     private static final int MODE_FORGOT_PASSWORD = 3;
     private static final int MODE_FORGOT_PASSWORD_WAITING_VALIDATION = 4;
     private static final int MODE_FORGOT_PASSWORD_WAITING_VALIDATION_2 = 7;
-    private static final int MODE_ACCOUNT_CREATION_THREE_PID = 5;
+    //private static final int MODE_ACCOUNT_CREATION_THREE_PID = 5; Tchap: this mode is not used for the moment.
     private static final int MODE_START = 6;
 
     // saved parameters index
@@ -585,6 +585,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         switch (mMode) {
             case MODE_ACCOUNT_CREATION:
             case MODE_LOGIN:
+                Log.d(LOG_TAG, "## fallback to initial screen");
                 mMode = MODE_START;
                 onClick();
                 refreshDisplay();
@@ -595,18 +596,20 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 fallbackToRegistrationMode();
                 break;
             case MODE_FORGOT_PASSWORD:
-                onClick();
-                fallbackToLoginMode();
-                break;
             case MODE_FORGOT_PASSWORD_WAITING_VALIDATION:
-                mForgotPid = null;
-                mMode = MODE_FORGOT_PASSWORD;
-                refreshDisplay();
-                break;
             case MODE_FORGOT_PASSWORD_WAITING_VALIDATION_2:
+                Log.d(LOG_TAG, "## cancel the forgot password mode");
                 // switch back directly to login screen
+                mForgotPid = null;
                 fallbackToLoginMode();
                 break;
+            /*case MODE_ACCOUNT_CREATION_THREE_PID:
+                Log.d(LOG_TAG, "## cancel the three pid mode");
+                cancelEmailPolling();
+                RegistrationManager.getInstance().clearThreePid();
+                mEmailAddress.setText("");
+                //mRegistrationPhoneNumberHandler.reset();
+                fallbackToRegistrationMode();*/
             default:
                 super.onBackPressed();
         }
@@ -702,37 +705,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
         mMode = MODE_ACCOUNT_CREATION;
         refreshDisplay();
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            Log.d(LOG_TAG, "KEYCODE_BACK pressed");
-            if (MODE_ACCOUNT_CREATION == mMode) {
-                Log.d(LOG_TAG, "## cancel the registration mode");
-                fallbackToStartMode();
-                return true;
-            } else if ((MODE_FORGOT_PASSWORD == mMode)
-                    || (MODE_FORGOT_PASSWORD_WAITING_VALIDATION == mMode)
-                    || (MODE_FORGOT_PASSWORD_WAITING_VALIDATION_2 == mMode)) {
-                Log.d(LOG_TAG, "## cancel the forgot password mode");
-                fallbackToLoginMode();
-                return true;
-            } else if ((MODE_ACCOUNT_CREATION_THREE_PID == mMode)) {
-                Log.d(LOG_TAG, "## cancel the three pid mode");
-                cancelEmailPolling();
-                RegistrationManager.getInstance().clearThreePid();
-                mEmailAddress.setText("");
-                //mRegistrationPhoneNumberHandler.reset();
-                fallbackToRegistrationMode();
-                return true;
-            } else if (MODE_LOGIN == mMode) {
-                Log.d(LOG_TAG, "## cancel the login mode");
-                fallbackToStartMode();
-                return true;
-            }
-        }
-        return super.onKeyDown(keyCode, event);
     }
 
     /**
@@ -1839,7 +1811,8 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
         // Tchap: The following view "threePidLayout" is not used for the moment.
         View threePidLayout = findViewById(R.id.three_pid_layout);
-        threePidLayout.setVisibility((mMode == MODE_ACCOUNT_CREATION_THREE_PID) ? View.VISIBLE : View.GONE);
+        threePidLayout.setVisibility(View.GONE);
+        //threePidLayout.setVisibility((mMode == MODE_ACCOUNT_CREATION_THREE_PID) ? View.VISIBLE : View.GONE);
         //mSubmitThreePidButton.setVisibility(mMode == MODE_ACCOUNT_CREATION_THREE_PID ? View.VISIBLE : View.GONE);
         //mSkipThreePidButton.setVisibility(mMode == MODE_ACCOUNT_CREATION_THREE_PID && RegistrationManager.getInstance().canSkip() ? View.VISIBLE : View.GONE);
     }
