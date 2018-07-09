@@ -1277,12 +1277,7 @@ public final class GcmRegistrationManager {
      * @return the sync timeout in ms.
      */
     public int getBackgroundSyncTimeOut() {
-        if ((null == mRegistrationToken) && (null == getStoredRegistrationToken()) && !getGcmSharedPreferences().contains(PREFS_SYNC_DELAY)) {
-            return getGcmSharedPreferences().getInt(PREFS_SYNC_TIMEOUT, 20000);
-        }
-        else {
-            return getGcmSharedPreferences().getInt(PREFS_SYNC_TIMEOUT, 30000);
-        }
+        return getGcmSharedPreferences().getInt(PREFS_SYNC_TIMEOUT, 30000);
     }
 
     /**
