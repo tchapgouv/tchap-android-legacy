@@ -143,9 +143,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     private static final String SAVED_MODE = "SAVED_MODE";
 
     // servers part
-    private static final String SAVED_IS_SERVER_URL_EXPANDED = "SAVED_IS_SERVER_URL_EXPANDED";
-    private static final String SAVED_HOME_SERVER_URL = "SAVED_HOME_SERVER_URL";
-    private static final String SAVED_IDENTITY_SERVER_URL = "SAVED_IDENTITY_SERVER_URL";
     private static final String SAVED_TCHAP_PLATFORM = "SAVED_TCHAP_PLATFORM";
     private static final String SAVED_CONFIG_EMAIL = "SAVED_CONFIG_EMAIL";
 
@@ -188,13 +185,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
     // the login password
     private EditText mLoginPasswordTextView;
-
-    // if the taps on login button
-    // after updating the IS / HS urls
-    // without selecting another item
-    // the IS/HS textviews don't loose the focus
-    // and the flow is not checked.
-    private boolean mIsPendingLogin;
 
     // the creation user name
     private EditText mCreationEmailAddressTextView;
@@ -551,9 +541,8 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 switch (mMode) {
                     case MODE_ACCOUNT_CREATION:
                     case MODE_LOGIN:
-                        mMode = MODE_START;
                         onClick();
-                        refreshDisplay();
+                        fallbackToStartMode();
                         return true;
                     case MODE_ACCOUNT_CREATION_WAIT_FOR_EMAIL:
                         // Go back to register screen
@@ -586,9 +575,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             case MODE_ACCOUNT_CREATION:
             case MODE_LOGIN:
                 Log.d(LOG_TAG, "## fallback to initial screen");
-                mMode = MODE_START;
-                onClick();
-                refreshDisplay();
+                fallbackToStartMode();
                 break;
             case MODE_ACCOUNT_CREATION_WAIT_FOR_EMAIL:
                 // Go back to register screen
@@ -1532,82 +1519,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             });
         } catch (Exception e) {
             Toast.makeText(this, getString(R.string.login_error_invalid_home_server), Toast.LENGTH_SHORT).show();
-            enableLoadingScreen(false);
-        }
-    }
-
-    /**
-     * Check the homeserver flows.
-     * i.e checks if this login page is enough to perform a registration.
-     * else switcth to a fallback page
-     */
-    private void checkLoginFlows() {
-        // check only login flows
-        if (mMode != MODE_LOGIN) {
-            return;
-        }
-
-        try {
-            final HomeServerConnectionConfig hsConfig = getHsConfig();
-
-            // Sanity check
-            if (null != hsConfig) {
-                enableLoadingScreen(true);
-
-                mLoginHandler.getSupportedLoginFlows(TchapLoginActivity.this, hsConfig, new SimpleApiCallback<List<LoginFlow>>() {
-                    @Override
-                    public void onSuccess(List<LoginFlow> flows) {
-                        // stop listening to network state
-                        removeNetworkStateNotificationListener();
-
-                        if (mMode == MODE_LOGIN) {
-                            enableLoadingScreen(false);
-                            boolean isSupported = true;
-
-                            // supported only m.login.password by now
-                            for (LoginFlow flow : flows) {
-                                isSupported &= TextUtils.equals(LoginRestClient.LOGIN_FLOW_TYPE_PASSWORD, flow.type);
-                            }
-
-                            // if not supported, switch to the fallback login
-                            if (!isSupported) {
-                                Intent intent = new Intent(TchapLoginActivity.this, FallbackLoginActivity.class);
-                                intent.putExtra(FallbackLoginActivity.EXTRA_HOME_SERVER_ID, hsConfig.getHomeserverUri().toString());
-                                startActivityForResult(intent, FALLBACK_LOGIN_ACTIVITY_REQUEST_CODE);
-                            } else if (mIsPendingLogin) {
-                                onLoginClick();
-                            }
-                        }
-                    }
-
-                    private void onError(String errorMessage) {
-                        if (mMode == MODE_LOGIN) {
-                            enableLoadingScreen(false);
-                            Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_LONG).show();
-                        }
-                    }
-
-                    @Override
-                    public void onNetworkError(Exception e) {
-                        Log.e(LOG_TAG, "Network Error: " + e.getMessage(), e);
-                        // listen to network state, to resume processing as soon as the network is back
-                        addNetworkStateNotificationListener();
-                        onError(getString(R.string.login_error_unable_login) + " : " + e.getLocalizedMessage());
-                    }
-
-                    @Override
-                    public void onUnexpectedError(Exception e) {
-                        onError(getString(R.string.login_error_unable_login) + " : " + e.getLocalizedMessage());
-                    }
-
-                    @Override
-                    public void onMatrixError(MatrixError e) {
-                        onFailureDuringAuthRequest(e);
-                    }
-                });
-            }
-        } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), getString(R.string.login_error_invalid_home_server), Toast.LENGTH_SHORT).show();
             enableLoadingScreen(false);
         }
     }
