@@ -47,11 +47,9 @@ import com.facebook.stetho.Stetho;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.crypto.MXCryptoConfig;
 import org.matrix.androidsdk.util.Log;
-import org.piwik.sdk.Piwik;
 import org.piwik.sdk.QueryParams;
 import org.piwik.sdk.TrackMe;
 import org.piwik.sdk.Tracker;
-import org.piwik.sdk.TrackerConfig;
 import org.piwik.sdk.extra.CustomVariables;
 import org.piwik.sdk.extra.TrackHelper;
 
@@ -229,7 +227,7 @@ public class VectorApp extends MultiDexApplication {
 
         // Configure e2e encryption to encrypt content for invited members
         MXCryptoConfig cryptoConfig = new MXCryptoConfig();
-        cryptoConfig.mEncryptMessagesForInvitedMembers = true;
+        cryptoConfig.mEnableEncryptionForInvitedMembers = true;
         MXSession.setCryptoConfig(cryptoConfig);
 
         // not the first launch

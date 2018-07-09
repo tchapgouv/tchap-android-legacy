@@ -2,7 +2,7 @@ Changes in Tchap 1.0.3 (2018-xx-xx)
 ===================================================
 
 Improvements:
- * Update matrix-sdk.aar lib - build 1821 - Revision: ad159d58cf62f859c269c6feb4e9e913c7ca3673
+ * Update matrix-sdk.aar lib - build 1833 - Revision: b58d54d58de2735e3e07d8eebdfc435c565c3b72
  * Hide the "inviter des contacts dans Tchap" button #285
 
 Bug Fixes:
