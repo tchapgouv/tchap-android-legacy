@@ -21,8 +21,10 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.content.ContextCompat;
 import android.view.Menu;
@@ -170,11 +172,32 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
     }
 
-    @OnClick(R.id.rly_hexagon_avatar)
-    void addRoomAvatar() {
+    private void openMediasPicker() {
         Intent intent = new Intent(TchapRoomCreationActivity.this, VectorMediasPickerActivity.class);
         intent.putExtra(VectorMediasPickerActivity.EXTRA_AVATAR_MODE, true);
         startActivityForResult(intent, REQ_CODE_UPDATE_ROOM_AVATAR);
+    }
+
+    @OnClick(R.id.rly_hexagon_avatar)
+    void addRoomAvatar() {
+        if (CommonActivityUtils.checkPermissions(CommonActivityUtils.PERMISSION_CAMERA, this)) {
+            openMediasPicker();
+        }
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == CommonActivityUtils.PERMISSION_CAMERA) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.d(LOG_TAG, "## camera permission granted");
+            } else {
+                Log.d(LOG_TAG, "## camera permission denied");
+            }
+            openMediasPicker();
+        }
     }
 
     @OnClick(R.id.switch_public_private_rooms)
