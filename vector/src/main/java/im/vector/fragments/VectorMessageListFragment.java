@@ -220,7 +220,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
         // Prepare media scan manager
         if (hostActivity instanceof RiotAppCompatActivity) {
             RiotAppCompatActivity riotAppCompatActivity = (RiotAppCompatActivity) hostActivity;
-            mMediaScanManager = new MediaScanManager(mSession.getHomeServerConfig(), riotAppCompatActivity.realm);
+            mMediaScanManager = new MediaScanManager(mSession.getMediaScanRestClient(), riotAppCompatActivity.realm);
 
             mMediaScanManager.setListener(new MediaScanManager.MediaScanManagerListener() {
                 @Override

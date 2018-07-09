@@ -486,7 +486,7 @@ public class VectorSettingsPreferencesFragment extends PreferenceFragment implem
                         // Clear media scan database
                         if (getActivity() instanceof RiotAppCompatActivity) {
                             RiotAppCompatActivity riotAppCompatActivity = (RiotAppCompatActivity) getActivity();
-                            MediaScanManager mediaScanManager = new MediaScanManager(mSession.getHomeServerConfig(), riotAppCompatActivity.realm);
+                            MediaScanManager mediaScanManager = new MediaScanManager(mSession.getMediaScanRestClient(), riotAppCompatActivity.realm);
                             mediaScanManager.clearAntiVirusScanResults();
                         }
                     } catch (Exception e) {
