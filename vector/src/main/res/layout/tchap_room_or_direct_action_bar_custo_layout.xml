@@ -10,71 +10,63 @@
         android:id="@+id/header_texts_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginRight="50dp"
-        android:layout_marginEnd="50dp"
-
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        android:orientation="vertical"
-        >
-
+        android:layout_marginEnd="50dp"
+        android:layout_marginRight="50dp"
+        android:orientation="vertical">
 
         <!-- keep singleLine="true" because maxLines="1" truncation is not the expected one.-->
         <TextView
             android:id="@+id/room_action_bar_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:singleLine="true"
             android:gravity="center_horizontal"
+            android:singleLine="true"
             android:textColor="@android:color/black"
-            android:textStyle="bold"
             android:textSize="16sp"
+            android:textStyle="bold"
             tools:text="title" />
 
         <TextView
             android:id="@+id/room_action_bar_topic"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@+id/room_action_bar_title"
             android:ellipsize="end"
-            android:maxLines="1"
             android:gravity="center_horizontal"
+            android:maxLines="1"
             android:textColor="@color/vector_tchap_primary_color"
             android:textSize="12sp"
-            tools:text="topic"
-            android:layout_below="@+id/room_action_bar_title"/>
-
+            tools:text="topic" />
     </RelativeLayout>
 
     <fr.gouv.tchap.util.HexagonMaskView
         android:id="@+id/avatar_h_img"
         android:layout_width="@dimen/chat_avatar_size"
         android:layout_height="@dimen/chat_avatar_size"
-        android:layout_marginRight="5dp"
-        android:layout_marginEnd="5dp"
-        android:maxWidth="@dimen/chat_avatar_size"
-        android:maxHeight="@dimen/chat_avatar_size"
-
-        android:scaleType="centerCrop"
-        android:adjustViewBounds="true"
-        tools:background="#f00"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
+        android:layout_marginEnd="15dp"
+        android:layout_marginRight="15dp"
+        android:adjustViewBounds="true"
+        android:maxHeight="@dimen/chat_avatar_size"
+        android:maxWidth="@dimen/chat_avatar_size"
+        android:scaleType="centerCrop"
         android:visibility="gone"
-        tools:visibility="visible"
-        />
+        tools:background="#f00"
+        tools:visibility="visible" />
+
     <im.vector.view.VectorCircularImageView
         android:id="@+id/avatar_img"
         android:layout_width="@dimen/chat_avatar_size"
         android:layout_height="@dimen/chat_avatar_size"
-        android:layout_marginRight="5dp"
-        android:layout_marginEnd="5dp"
-        tools:background="#00a"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
+        android:layout_marginEnd="15dp"
+        android:layout_marginRight="15dp"
         android:visibility="gone"
-        tools:visibility="visible"
-        />
-
-
-    </RelativeLayout>
+        tools:background="#00a"
+        tools:visibility="visible" />
+</RelativeLayout>
