@@ -1016,7 +1016,7 @@ Voulez-vous en ajouter ?</string>
     <string name="dialog_user_consent_submit">Voir maintenant</string>
 
     <string name="deactivate_account_title">Désactiver le compte</string>
-    <string name="deactivate_account_content">Votre compte sera inutilisable de façon permanente. Vous ne pourrez plus vous connecter et personne ne pourra se réenregistrer avec le même identifiant d\'utilisateur. Le compte quittera tous les salons auxquels il participe et tous ses détails seront supprimés du serveur d\'identité. <b>Cette action est irréversible. </b>
+    <string name="deactivate_account_content">Votre compte sera inutilisable de façon permanente. Vous ne pourrez plus vous connecter. Le compte quittera tous les salons auxquels il participe et tous ses détails seront supprimés du serveur d\'identité. <b>Cette action est irréversible. </b>
 
 Désactiver votre compte <b>ne nous fait pas oublier les messages que vous avez envoyés par défaut</b>. Si vous souhaitez que nous oubliions vos messages, cochez la case ci-dessous.
 
