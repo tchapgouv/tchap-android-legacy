@@ -561,49 +561,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         // set the handler used by the register to poll the server response
         mHandler = new Handler(getMainLooper());
 
-        // Update tchap platform when the email value has potentially changed.
-        mCreationEmailAddressTextView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus) {
-                    // Refresh only in case of change
-                    String emailAddress = mCreationEmailAddressTextView.getText().toString().trim();
-                    if (null == mCurrentEmail || !emailAddress.equals(mCurrentEmail)) {
-                        refreshRegistrationTchapPlatform();
-                    }
-                }
-            }
-        });
-
-        // Check whether the current tchap platform is still valid on email value changes
-        mCreationEmailAddressTextView.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                String emailAddress = editable.toString().trim();
-
-                // Check whether the new text value is a valid email
-                if (!TextUtils.isEmpty(emailAddress) && android.util.Patterns.EMAIL_ADDRESS.matcher(emailAddress).matches()) {
-                    // Update the tchap platform (only if a current platform is already selected and the new email is different from the current one,
-                    // OR if a password has been set and the new email is different from the current one (if any))
-                    if ((null != mCurrentEmail && !emailAddress.equals(mCurrentEmail))
-                            || (mCreationPassword1TextView.getText().length() != 0 && (null == mCurrentEmail || !emailAddress.equals(mCurrentEmail)))) {
-                        refreshRegistrationTchapPlatform();
-                    }
-                } else {
-                    // The current email field is not valid
-                    // Reset the current platform and the potential registration flows (if any)
-                    resetRegistrationTchapPlatform();
-                }
-            }
-        });
-
         // Check whether the application has been resumed from an universal link
         Bundle receivedBundle = (null != intent) ? getIntent().getExtras() : null;
         if (null != receivedBundle) {
@@ -641,9 +598,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 RegistrationManager.getInstance().attemptRegistration(this, this);
                 onWaitingEmailValidation();
             }
-        } else if (mMode == MODE_ACCOUNT_CREATION) {
-            // Update the tchap platform if an email is available
-            refreshRegistrationTchapPlatform();
         } else {
             // Enable the action buttons by default
             setActionButtonsEnabled(true);
@@ -668,13 +622,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        switch (mMode) {
-            case MODE_ACCOUNT_CREATION:
-                menu.findItem(R.id.action_next)
-                        .setEnabled(!TextUtils.isEmpty(mCurrentEmail));
-                break;
-        }
-
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -847,7 +794,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
         mMode = MODE_ACCOUNT_CREATION;
         refreshDisplay();
-        refreshRegistrationTchapPlatform();
     }
 
     @Override
@@ -968,19 +914,20 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             @Override
             public void onSuccess(Platform platform) {
                 Log.d(LOG_TAG, "## onForgotPasswordClick(): discoverTchapPlatform succeeds");
-                // Store the platform and the corresponding email to detect changes
+
+                // Check whether the returned platform is valid
+                if (null == platform.hs || platform.hs.isEmpty()) {
+                    // The email owner is not able to create a tchap account,
+                    Log.e(LOG_TAG, "## onForgotPasswordClick(): invalid platform");
+                    onError(getString(R.string.tchap_register_unauthorized_email));
+                    return;
+                }
+
+                // Store the platform and the corresponding email
                 mTchapPlatform = platform;
                 mCurrentEmail = email;
 
                 final HomeServerConnectionConfig hsConfig = getHsConfig();
-
-                // it might be null if the identity / homeserver urls are invalids
-                if (null == hsConfig) {
-                    Log.e(LOG_TAG, "## onForgotPasswordClick(): invalid platform");
-                    onError(getString(R.string.auth_invalid_email));
-                    return;
-                }
-
                 ProfileRestClient pRest = new ProfileRestClient(hsConfig);
 
                 pRest.forgetPassword(email, new ApiCallback<ThreePid>() {
@@ -1430,10 +1377,8 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             try {
                 final HomeServerConnectionConfig hsConfig = getHsConfig();
 
-                // invalid URL
-                if (null == hsConfig) {
-                    setActionButtonsEnabled(false);
-                } else {
+                // sanity check
+                if (null != hsConfig) {
                     enableLoadingScreen(true);
 
                     mLoginHandler.getSupportedRegistrationFlows(TchapLoginActivity.this, hsConfig, new SimpleApiCallback<HomeServerConnectionConfig>() {
@@ -1595,18 +1540,19 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
             @Override
             public void onSuccess(Platform platform) {
+                // Check whether the returned platform is valid
+                if (null == platform.hs || platform.hs.isEmpty()) {
+                    // The email owner is not able to create a tchap account,
+                    Log.e(LOG_TAG, "## onLoginClick(): invalid platform");
+                    onError(getString(R.string.login_error_unable_login));
+                    return;
+                }
+
                 // Store the platform and the corresponding email to detect changes
                 mTchapPlatform = platform;
                 mCurrentEmail = emailAddress;
 
                 final HomeServerConnectionConfig hsConfig = getHsConfig();
-
-                // it might be null if the identity / homeserver urls are invalids
-                if (null == hsConfig) {
-                    Log.e(LOG_TAG, "## onLoginClick(): invalid platform");
-                    onError(getString(R.string.login_error_unable_login));
-                    return;
-                }
 
                 mLoginHandler.getSupportedLoginFlows(TchapLoginActivity.this, hsConfig, new SimpleApiCallback<List<LoginFlow>>() {
                     @Override
@@ -1731,10 +1677,8 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         try {
             final HomeServerConnectionConfig hsConfig = getHsConfig();
 
-            // invalid URL
-            if (null == hsConfig) {
-                setActionButtonsEnabled(false);
-            } else {
+            // Sanity check
+            if (null != hsConfig) {
                 enableLoadingScreen(true);
 
                 mLoginHandler.getSupportedLoginFlows(TchapLoginActivity.this, hsConfig, new SimpleApiCallback<List<LoginFlow>>() {
@@ -2626,47 +2570,48 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     }
 
     /**
-     * Registration: Reset the current configuration and disable the register button.
+     * The user clicks on the register button.
      */
-    private void resetRegistrationTchapPlatform() {
-        // Disable the register button.
-        setActionButtonsEnabled(false);
-        // Reset the current platform and the registration flows (if any)
-        mCurrentEmail = null;
-        mTchapPlatform = null;
-        mRegistrationResponse = null;
+    @OnClick(R.id.fragment_tchap_first_welcome_register_button)
+    void onRegisterClick() {
+        Log.d(LOG_TAG, "## onRegisterClick(): IN");
+        onClick();
 
-        supportInvalidateOptionsMenu();
-    }
-
-    /**
-     * Registration: refresh the tchap platform from the email address
-     */
-    private void refreshRegistrationTchapPlatform() {
-        // We consider here mMode == MODE_ACCOUNT_CREATION.
-        // Reset the current platform and the registration flows (if any)
-        resetRegistrationTchapPlatform();
-
-        final String emailAddress = mCreationEmailAddressTextView.getText().toString().trim();
-
-        // no email address ?
-        if (TextUtils.isEmpty(emailAddress)) {
+        // the user switches to another mode
+        if (mMode != MODE_ACCOUNT_CREATION) {
+            mMode = MODE_ACCOUNT_CREATION;
+            refreshDisplay();
             return;
         }
 
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(emailAddress).matches()) {
+        // Check the provided email
+        final String emailAddress = mCreationEmailAddressTextView.getText().toString().trim();
+        if (TextUtils.isEmpty(emailAddress) || !android.util.Patterns.EMAIL_ADDRESS.matcher(emailAddress).matches()) {
             Toast.makeText(this, R.string.auth_invalid_email, Toast.LENGTH_SHORT).show();
             return;
         }
 
-        enableLoadingScreen(true);
-        Log.d(LOG_TAG, "## refreshRegistrationTchapPlatform");
+        // Handle parameters
+        final String password = mCreationPassword1TextView.getText().toString().trim();
+        String passwordCheck = mCreationPassword2TextView.getText().toString().trim();
 
+        if (TextUtils.isEmpty(password)) {
+            Toast.makeText(getApplicationContext(), getString(R.string.auth_missing_password), Toast.LENGTH_SHORT).show();
+            return;
+        } else if (password.length() < 6) {
+            Toast.makeText(getApplicationContext(), getString(R.string.auth_invalid_password), Toast.LENGTH_SHORT).show();
+            return;
+        } else if (!TextUtils.equals(password, passwordCheck)) {
+            Toast.makeText(getApplicationContext(), getString(R.string.auth_password_dont_match), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        enableLoadingScreen(true);
+
+        // Retrieve the platform for the selected email
         discoverTchapPlatform(this, emailAddress, new ApiCallback<Platform>() {
             private void onError(String errorMessage) {
                 enableLoadingScreen(false);
-                // Keep disable the register button
-                setActionButtonsEnabled(false);
                 // Notify the user.
                 Toast.makeText(TchapLoginActivity.this, (null == errorMessage) ? getString(R.string.auth_invalid_email) : errorMessage, Toast.LENGTH_LONG).show();
             }
@@ -2675,16 +2620,30 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             public void onSuccess(Platform platform) {
                 // Check whether the returned platform is valid
                 if (null == platform.hs || platform.hs.isEmpty()) {
-                    // The email owner is not able to create a tchap account,
+                    // The email owner is not able to create a tchap account.
+                    Log.e(LOG_TAG, "## onRegisterClick(): unauthorized email");
                     onError(getString(R.string.tchap_register_unauthorized_email));
                     return;
                 }
 
-                // Store the platform and the corresponding email to detect changes
+                // Store the platform and the corresponding email
                 mTchapPlatform = platform;
                 mCurrentEmail = emailAddress;
 
-                enableLoadingScreen(false);
+                RegistrationManager.getInstance().setHsConfig(getHsConfig());
+                // The username is forced by the Tchap server, we don't send it anymore.
+                RegistrationManager.getInstance().setAccountData(null, password);
+
+                RegistrationManager.getInstance().clearThreePid();
+                RegistrationManager.getInstance().addEmailThreePid(new ThreePid(mCurrentEmail, ThreePid.MEDIUM_EMAIL));
+                mIsMailValidationPending = true;
+
+                checkRegistrationFlows(new SimpleApiCallback<Void>() {
+                    @Override
+                    public void onSuccess(Void info) {
+                        RegistrationManager.getInstance().attemptRegistration(TchapLoginActivity.this, TchapLoginActivity.this);
+                    }
+                });
             }
 
             @Override
@@ -2700,54 +2659,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             @Override
             public void onUnexpectedError(Exception e) {
                 onError(e.getLocalizedMessage());
-            }
-        });
-    }
-
-    /**
-     * The user clicks on the register button.
-     */
-    @OnClick(R.id.fragment_tchap_first_welcome_register_button)
-    void onRegisterClick() {
-        Log.d(LOG_TAG, "## onRegisterClick(): IN");
-        onClick();
-
-        // the user switches to another mode
-        if (mMode != MODE_ACCOUNT_CREATION) {
-            mMode = MODE_ACCOUNT_CREATION;
-            refreshDisplay();
-            refreshRegistrationTchapPlatform();
-            return;
-        }
-
-        // Handle parameters
-        String password = mCreationPassword1TextView.getText().toString().trim();
-        String passwordCheck = mCreationPassword2TextView.getText().toString().trim();
-
-        if (TextUtils.isEmpty(password)) {
-            Toast.makeText(getApplicationContext(), getString(R.string.auth_missing_password), Toast.LENGTH_SHORT).show();
-            return;
-        } else if (password.length() < 6) {
-            Toast.makeText(getApplicationContext(), getString(R.string.auth_invalid_password), Toast.LENGTH_SHORT).show();
-            return;
-        } else if (!TextUtils.equals(password, passwordCheck)) {
-            Toast.makeText(getApplicationContext(), getString(R.string.auth_password_dont_match), Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        enableLoadingScreen(true);
-        RegistrationManager.getInstance().setHsConfig(getHsConfig());
-        // The username is forced by the Tchap server, we don't send it anymore.
-        RegistrationManager.getInstance().setAccountData(null, password);
-
-        RegistrationManager.getInstance().clearThreePid();
-        RegistrationManager.getInstance().addEmailThreePid(new ThreePid(mCurrentEmail, ThreePid.MEDIUM_EMAIL));
-        mIsMailValidationPending = true;
-
-        checkRegistrationFlows(new SimpleApiCallback<Void>() {
-            @Override
-            public void onSuccess(Void info) {
-                RegistrationManager.getInstance().attemptRegistration(TchapLoginActivity.this, TchapLoginActivity.this);
             }
         });
     }
