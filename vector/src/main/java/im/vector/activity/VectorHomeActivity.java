@@ -783,6 +783,9 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
 
         // Unregister Broadcast receiver
         hideWaitingView();
+
+        resetFilter();
+
         try {
             unregisterReceiver(mBrdRcvStopWaitingView);
         } catch (Exception e) {
@@ -819,6 +822,8 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         if (sharedInstance == this) {
             sharedInstance = null;
         }
+
+        resetFilter();
     }
 
     @Override
