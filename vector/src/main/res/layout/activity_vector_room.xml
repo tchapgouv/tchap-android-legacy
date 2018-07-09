@@ -33,6 +33,7 @@
         </android.support.v7.widget.Toolbar>
 
     </FrameLayout>
+
     <View
         android:id="@+id/header_bottom_separator"
         android:layout_width="match_parent"
@@ -233,39 +234,37 @@
                 android:layout_alignParentBottom="true"
                 android:layout_marginLeft="16dp">
 
-                <include
-                    android:id="@+id/room_self_avatar"
-                    layout="@layout/vector_room_round_avatar"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_centerVertical="true"
-                    android:layout_marginBottom="8dp"
-                    android:layout_marginTop="8dp" />
-
                 <LinearLayout
                     android:id="@+id/room_sending_message_layout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerInParent="true"
-                    android:layout_toRightOf="@id/room_self_avatar"
                     android:minHeight="56dp">
+
+                    <ImageView
+                        android:id="@+id/room_attached_files_icon"
+                        android:layout_width="38dp"
+                        android:layout_height="56dp"
+                        android:layout_gravity="bottom"
+                        android:contentDescription="@string/send"
+                        android:padding="13dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/tchap_ic_attached_files" />
 
                     <ImageView
                         android:id="@+id/room_encrypted_image_view"
                         android:layout_width="20dp"
                         android:layout_height="12dp"
                         android:layout_gravity="center_vertical"
+                        android:layout_toRightOf="@id/room_attached_files_icon"
                         android:scaleType="fitCenter"
                         android:src="@drawable/e2e_verified"
                         android:tint="?attr/default_icon_tint_color" />
 
                     <im.vector.view.VectorAutoCompleteTextView
                         android:id="@+id/editText_messageBox"
-                        android:layout_width="0dp"
+                        android:layout_width="230dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:layout_marginRight="6dp"
                         android:layout_weight="1"
                         android:background="@android:color/transparent"
                         android:dropDownAnchor="@+id/room_sending_message_layout"
@@ -279,24 +278,32 @@
                         tools:text="line 1" />
 
                     <ImageView
-                        android:id="@+id/room_send_image_view"
+                        android:id="@+id/room_send_message_icon"
                         android:layout_width="38dp"
                         android:layout_height="56dp"
+                        android:layout_alignParentRight="true"
                         android:layout_gravity="bottom"
+                        android:layout_marginLeft="60dp"
+                        android:layout_toRightOf="@id/editText_messageBox"
                         android:contentDescription="@string/send"
                         android:padding="8dp"
                         android:scaleType="fitCenter"
-                        android:src="@drawable/ic_material_file" />
+                        android:src="@drawable/tchap_ic_send_message"
+                        android:visibility="gone"
+                        tools:visibility="visible" />
 
                     <ImageView
                         android:id="@+id/room_start_call_image_view"
                         android:layout_width="38dp"
                         android:layout_height="56dp"
+                        android:layout_alignParentRight="true"
                         android:layout_gravity="bottom"
+                        android:layout_marginLeft="60dp"
+                        android:layout_toRightOf="@id/editText_messageBox"
                         android:contentDescription="@string/call_connecting"
-                        android:padding="8dp"
+                        android:padding="11dp"
                         android:scaleType="fitCenter"
-                        android:src="@drawable/voice_call_start_green"
+                        android:src="@drawable/tchap_ic_start_call"
                         android:visibility="gone"
                         tools:visibility="visible" />
 
@@ -304,7 +311,10 @@
                         android:id="@+id/room_end_call_image_view"
                         android:layout_width="38dp"
                         android:layout_height="56dp"
+                        android:layout_alignParentRight="true"
                         android:layout_gravity="bottom"
+                        android:layout_marginLeft="60dp"
+                        android:layout_toRightOf="@id/editText_messageBox"
                         android:contentDescription="@string/call_ended"
                         android:padding="8dp"
                         android:scaleType="fitCenter"
@@ -326,7 +336,6 @@
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="16dp"
                     android:layout_marginRight="16dp"
-                    android:layout_toRightOf="@id/room_self_avatar"
                     android:text="@string/room_do_not_have_permission_to_post"
                     android:textColor="?attr/riot_primary_text_color"
                     android:textSize="14sp"
