@@ -621,11 +621,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     }
 
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        return super.onPrepareOptionsMenu(menu);
-    }
-
-    @Override
     public boolean onOptionsItemSelected(@Nullable MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_next:
