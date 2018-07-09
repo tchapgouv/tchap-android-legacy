@@ -220,12 +220,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     @BindView(R.id.fragment_tchap_first_forget_password_new_password_confirm)
     EditText mForgotPassword2TextView;
 
-    // the home server text
-    //private EditText mHomeServerText;
-
-    // the identity server text
-    //private EditText mIdentityServerText;
-
     // used to display a UI mask on the screen
     private RelativeLayout mLoginMaskView;
 
@@ -249,9 +243,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     //private EditText mPhoneNumber;
     //private Button mSubmitThreePidButton;
     //private Button mSkipThreePidButton;
-
-    // Home server options
-    private View mHomeServerOptionLayout;
 
     // allowed registration response
     private RegistrationFlowResponse mRegistrationResponse;
@@ -460,10 +451,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
         // forgot password
         mPasswordForgottenTxtView = findViewById(R.id.tchap_first_login_password_forgotten);
-
-        mHomeServerOptionLayout = findViewById(R.id.homeserver_layout);
-        //mHomeServerText = findViewById(R.id.login_matrix_server_url);
-        //mIdentityServerText = findViewById(R.id.login_identity_url);
 
         mProgressTextView = findViewById(R.id.flow_progress_message_textview);
 
@@ -1764,10 +1751,9 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     //==============================================================================================================
 
     /**
-     * Refresh the visibility of mHomeServerText
+     * Refresh Toolbar visibility and title, screen
      */
     private void refreshDisplay() {
-        // Toolbar visibility and title, screen
         switch (mMode) {
             case MODE_START:
                 toolbar.setVisibility(View.GONE);
@@ -1851,14 +1837,11 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
         supportInvalidateOptionsMenu();
 
-        // views
+        // Tchap: The following view "threePidLayout" is not used for the moment.
         View threePidLayout = findViewById(R.id.three_pid_layout);
-
         threePidLayout.setVisibility((mMode == MODE_ACCOUNT_CREATION_THREE_PID) ? View.VISIBLE : View.GONE);
-
         //mSubmitThreePidButton.setVisibility(mMode == MODE_ACCOUNT_CREATION_THREE_PID ? View.VISIBLE : View.GONE);
         //mSkipThreePidButton.setVisibility(mMode == MODE_ACCOUNT_CREATION_THREE_PID && RegistrationManager.getInstance().canSkip() ? View.VISIBLE : View.GONE);
-        mHomeServerOptionLayout.setVisibility(/*mMode == MODE_ACCOUNT_CREATION_THREE_PID ? View.GONE : View.VISIBLE*/ View.GONE);
     }
 
     /**
@@ -2274,7 +2257,10 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
     @Override
     public void onUsernameAvailabilityChecked(boolean isAvailable) {
-        enableLoadingScreen(false);
+        // Tchap do not used checkUsernameAvailability()
+        // This callback is never called
+
+        /*enableLoadingScreen(false);
         if (!isAvailable) {
             showMainLayout();
             Toast.makeText(this, R.string.auth_username_in_use, Toast.LENGTH_LONG).show();
@@ -2289,7 +2275,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 // Start registration
                 createAccount();
             }
-        }
+        }*/
     }
 
 
