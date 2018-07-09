@@ -2,8 +2,12 @@ Changes in Tchap 1.0.3 (2018-xx-xx)
 ===================================================
 
 Improvements:
- * Update matrix-sdk.aar lib - build 1833 - Revision: b58d54d58de2735e3e07d8eebdfc435c565c3b72
+ * Update matrix-sdk.aar lib - build 1834 - Revision: 521dd15efbbdf95e1ab70ed5a33e95656b2fa0ad
+ * Update OLM lib to version 2.3.0.
+ * Antivirus: Encrypt AES keys sent to the antivirus server #122
  * Hide the "inviter des contacts dans Tchap" button #285
+ * Public rooms: turn on the preview by default #262
+ * Encrypt event content for invited members #322
 
 Bug Fixes:
  * My first public "salon" is displayed like a discussion #284
