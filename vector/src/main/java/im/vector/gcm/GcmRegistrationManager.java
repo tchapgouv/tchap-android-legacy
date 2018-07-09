@@ -1277,12 +1277,7 @@ public final class GcmRegistrationManager {
      * @return the sync timeout in ms.
      */
     public int getBackgroundSyncTimeOut() {
-        if ((null == mRegistrationToken) && (null == getStoredRegistrationToken()) && !getGcmSharedPreferences().contains(PREFS_SYNC_DELAY)) {
-            return getGcmSharedPreferences().getInt(PREFS_SYNC_TIMEOUT, 10000);
-        }
-        else{
-            return getGcmSharedPreferences().getInt(PREFS_SYNC_TIMEOUT, 30000);
-        }
+        return getGcmSharedPreferences().getInt(PREFS_SYNC_TIMEOUT, 30000);
     }
 
     /**
@@ -1302,9 +1297,9 @@ public final class GcmRegistrationManager {
     public int getBackgroundSyncDelay() {
         // on riot fdroid version, the default sync delay is about 1 minutes
         // set a large value because many users don't know it can be defined from the settings page
-        // for french gov deployment, default sync delay of 10s
+        // for french gov deployment, default sync delay of 20s
         if ((null == mRegistrationToken) && (null == getStoredRegistrationToken()) && !getGcmSharedPreferences().contains(PREFS_SYNC_DELAY)) {
-            return  10000;
+            return  20000;
         } else {
             int currentValue = 0;
             MXSession session = Matrix.getInstance(mContext).getDefaultSession();
