@@ -47,11 +47,9 @@ import com.facebook.stetho.Stetho;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.crypto.MXCryptoConfig;
 import org.matrix.androidsdk.util.Log;
-import org.piwik.sdk.Piwik;
 import org.piwik.sdk.QueryParams;
 import org.piwik.sdk.TrackMe;
 import org.piwik.sdk.Tracker;
-import org.piwik.sdk.TrackerConfig;
 import org.piwik.sdk.extra.CustomVariables;
 import org.piwik.sdk.extra.TrackHelper;
 
@@ -76,7 +74,6 @@ import fr.gouv.tchap.realm.VectorRealmMigration;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.JitsiCallActivity;
 import im.vector.activity.VectorCallViewActivity;
-import im.vector.activity.VectorMediasPickerActivity;
 import im.vector.activity.WidgetActivity;
 import im.vector.contacts.ContactsManager;
 import im.vector.contacts.PIDsRetriever;
@@ -229,7 +226,7 @@ public class VectorApp extends MultiDexApplication {
 
         // Configure e2e encryption to encrypt content for invited members
         MXCryptoConfig cryptoConfig = new MXCryptoConfig();
-        cryptoConfig.mEncryptMessagesForInvitedMembers = true;
+        cryptoConfig.mEnableEncryptionForInvitedMembers = true;
         MXSession.setCryptoConfig(cryptoConfig);
 
         // not the first launch
@@ -634,8 +631,7 @@ public class VectorApp extends MultiDexApplication {
     private void restartActivity(Activity activity) {
         // avoid restarting activities when it is not required
         // some of them has no text
-        if (!(activity instanceof VectorMediasPickerActivity)
-                && !(activity instanceof VectorCallViewActivity)
+        if (!(activity instanceof VectorCallViewActivity)
                 && !(activity instanceof JitsiCallActivity)
                 && !(activity instanceof WidgetActivity)) {
             activity.startActivity(activity.getIntent());
@@ -1230,7 +1226,7 @@ public class VectorApp extends MultiDexApplication {
      * @return the piwik instance
      */
     private Tracker getPiwikTracker() {
-        if (mPiwikTracker == null) {
+        /*if (mPiwikTracker == null) {
             try {
                 mPiwikTracker = Piwik.getInstance(this).newTracker(new TrackerConfig("https://piwik.riot.im/", 1, "AndroidPiwikTracker"));
                 // sends the tracking information each minute
@@ -1253,7 +1249,7 @@ public class VectorApp extends MultiDexApplication {
             } catch (Throwable t) {
                 Log.e(LOG_TAG, "## getPiwikTracker() : newTracker failed " + t.getMessage());
             }
-        }
+        }*/
 
         return mPiwikTracker;
     }

@@ -11,20 +11,38 @@
         android:layout_width="match_parent"
         android:layout_height="74dp">
 
-        <im.vector.view.VectorCircularImageView
-            android:id="@+id/room_avatar"
-            android:layout_width="@dimen/chat_avatar_size"
-            android:layout_height="@dimen/chat_avatar_size"
+        <LinearLayout
+            android:id="@+id/room_avatar_layout"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="16dp"
-            tools:src="#22000000" />
+            android:layout_marginLeft="16dp">
+
+            <fr.gouv.tchap.util.HexagonMaskView
+                android:id="@+id/room_avatar_hexagon"
+                android:layout_width="@dimen/chat_avatar_size"
+                android:layout_height="@dimen/chat_avatar_size"
+                android:maxWidth="@dimen/chat_avatar_size"
+                android:maxHeight="@dimen/chat_avatar_size"
+                android:scaleType="centerCrop"
+                android:adjustViewBounds="true"
+                android:background="@color/riot_primary_background_color_light"
+                tools:src="#22000000" />
+
+            <im.vector.view.VectorCircularImageView
+                android:id="@+id/room_avatar"
+                android:layout_width="@dimen/chat_avatar_size"
+                android:layout_height="@dimen/chat_avatar_size"
+                tools:src="#22000000"
+                android:visibility="gone"/>
+        </LinearLayout>
 
         <ImageView
             android:id="@+id/room_avatar_direct_chat_icon"
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:layout_alignLeft="@+id/room_avatar"
-            android:layout_alignTop="@+id/room_avatar"
+            android:layout_alignLeft="@+id/room_avatar_layout"
+            android:layout_alignTop="@+id/room_avatar_layout"
             android:layout_marginLeft="30dp"
             android:src="@drawable/icon_person"
             android:visibility="invisible"
@@ -34,7 +52,7 @@
             android:id="@+id/room_avatar_encrypted_icon"
             android:layout_width="15dp"
             android:layout_height="15dp"
-            android:layout_alignBottom="@+id/room_avatar"
+            android:layout_alignBottom="@+id/room_avatar_layout"
             android:layout_toRightOf="@+id/room_avatar_direct_chat_icon"
             android:src="@drawable/e2e_verified"
             android:tint="?attr/default_icon_tint_color"
@@ -47,7 +65,7 @@
             android:layout_centerVertical="true"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="6dp"
-            android:layout_toRightOf="@+id/room_avatar">
+            android:layout_toRightOf="@+id/room_avatar_layout">
 
             <TextView
                 android:id="@+id/room_name"
@@ -88,7 +106,6 @@
                 tools:background="#AAff00ff"
                 tools:text="12" />
         </RelativeLayout>
-
     </RelativeLayout>
 
     <LinearLayout
@@ -121,6 +138,5 @@
             android:text="@string/reject"
             android:textColor="@android:color/white"
             android:textSize="14sp" />
-
     </LinearLayout>
 </RelativeLayout>

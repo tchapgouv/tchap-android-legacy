@@ -652,12 +652,12 @@ class VectorMessagesAdapterHelper {
      */
     public void showStickerDescription(View view, StickerMessage stickerMessage) {
         View stickerDescriptionLayout = view.findViewById(R.id.message_adapter_sticker_layout);
-        ImageView stickerTriangle = view.findViewById(R.id.message_adapter_sticker_triangle);
+        //ImageView stickerTriangle = view.findViewById(R.id.message_adapter_sticker_triangle);
         TextView stickerDescription = view.findViewById(R.id.message_adapter_sticker_description);
 
-        if (null != stickerDescriptionLayout && null != stickerTriangle && null != stickerDescription) {
+        if (null != stickerDescriptionLayout /*&& null != stickerTriangle*/ && null != stickerDescription) {
             stickerDescriptionLayout.setVisibility(View.VISIBLE);
-            stickerTriangle.setVisibility(View.VISIBLE);
+            //stickerTriangle.setVisibility(View.VISIBLE);
             stickerDescription.setVisibility(View.VISIBLE);
             stickerDescription.setText(stickerMessage.body);
         }

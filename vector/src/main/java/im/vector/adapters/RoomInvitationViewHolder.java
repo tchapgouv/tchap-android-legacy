@@ -20,12 +20,12 @@ package im.vector.adapters;
 import android.content.Context;
 import android.view.View;
 import android.widget.Button;
-
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
 
 import butterknife.BindView;
 import im.vector.R;
+
 
 public class RoomInvitationViewHolder extends RoomViewHolder {
 
@@ -41,7 +41,9 @@ public class RoomInvitationViewHolder extends RoomViewHolder {
 
     void populateViews(final Context context, final MXSession session, final Room room,
                        final AbsAdapter.RoomInvitationListener invitationListener, final AbsAdapter.MoreRoomActionListener moreRoomActionListener) {
-        super.populateViews(context, session, room, room.isDirectChatInvitation(), true, moreRoomActionListener);
+        // Caution, we have to consider here isDirect() instead of isDirectChatInvitation(),
+        // in order to handle correctly the case where the user where invited again in an existing direct chat.
+        super.populateViews(context, session, room, room.isDirect(), true, moreRoomActionListener);
 
         vJoinButton.setOnClickListener(new View.OnClickListener() {
             @Override

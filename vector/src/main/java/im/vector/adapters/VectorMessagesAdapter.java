@@ -1701,7 +1701,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             summaryTextView.setVisibility(event.isExpanded() ? View.GONE : View.VISIBLE);
             avatarsLayout.setVisibility(event.isExpanded() ? View.GONE : View.VISIBLE);
 
-            headerTextView.setText(event.isExpanded() ? "collapse" : "expand");
+            headerTextView.setText(event.isExpanded() ? R.string.action_collapse : R.string.action_expand);
 
             if (!event.isExpanded()) {
                 avatarsLayout.setVisibility(View.VISIBLE);
@@ -2598,7 +2598,8 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
         } else if (event.mSentState == Event.SentState.SENT) {
 
             // test if the event can be redacted
-            boolean canBeRedacted = !mIsPreviewMode && !TextUtils.equals(event.getType(), Event.EVENT_TYPE_MESSAGE_ENCRYPTION);
+            // Tchap : redaction is disable for state events
+            boolean canBeRedacted = !mIsPreviewMode && (null == event.stateKey) && !TextUtils.equals(event.getType(), Event.EVENT_TYPE_MESSAGE_ENCRYPTION);
 
             if (canBeRedacted) {
                 // oneself message -> can redact it

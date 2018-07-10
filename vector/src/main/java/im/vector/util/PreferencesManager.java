@@ -125,8 +125,6 @@ public class PreferencesManager {
 
     public static final String SETTINGS_GROUPS_FLAIR_KEY = "SETTINGS_GROUPS_FLAIR_KEY";
 
-    private static final String SETTINGS_USE_NATIVE_CAMERA_PREFERENCE_KEY = "SETTINGS_USE_NATIVE_CAMERA_PREFERENCE_KEY";
-
     public static final String SETTINGS_SHOW_URL_PREVIEW_KEY = "SETTINGS_SHOW_URL_PREVIEW_KEY";
 
     private static final String SETTINGS_VIBRATE_ON_MENTION_KEY = "SETTINGS_VIBRATE_ON_MENTION_KEY";
@@ -142,6 +140,9 @@ public class PreferencesManager {
     private static final String DID_ASK_TO_USE_ANALYTICS_TRACKING_KEY = "DID_ASK_TO_USE_ANALYTICS_TRACKING_KEY";
 
     public static final String SETTINGS_DEACTIVATE_ACCOUNT_KEY = "SETTINGS_DEACTIVATE_ACCOUNT_KEY";
+
+    public static final String SETTINGS_DETECT_ACCESSIBILITY_SERVICE_KEY = "SETTINGS_DETECT_ACCESSIBILITY_SERVICE_KEY";
+    public static final String SETTINGS_DETECT_NOTIFICATION_LISTENER_KEY = "SETTINGS_DETECT_NOTIFICATION_LISTENER_KEY";
 
     private static final int MEDIA_SAVING_3_DAYS = 0;
     private static final int MEDIA_SAVING_1_WEEK = 1;
@@ -214,6 +215,36 @@ public class PreferencesManager {
     }
 
     /**
+     * Tells if we want to check at each start up if some notification listener(s) is active
+     *
+     */
+    public static boolean detectNotificationListener(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_DETECT_NOTIFICATION_LISTENER_KEY, true);
+    }
+
+    public static void putDetectNotificationListener(Context context, boolean asked) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(SETTINGS_DETECT_NOTIFICATION_LISTENER_KEY, asked)
+                .apply();
+    }
+
+    /**
+     * Tells if we want to check at each start up if an accessibility service is active
+     *
+     */
+    public static boolean detectAccessibilityService(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_DETECT_ACCESSIBILITY_SERVICE_KEY, true);
+    }
+
+    public static void putDetectAccessibilityService(Context context, boolean asked) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(SETTINGS_DETECT_ACCESSIBILITY_SERVICE_KEY, asked)
+                .apply();
+    }
+
+    /**
      * Tells if we have already asked the user to disable battery optimisations on android >= M devices.
      *
      * @param context the context
@@ -283,16 +314,6 @@ public class PreferencesManager {
      */
     public static boolean hideAvatarDisplayNameChangeMessages(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_HIDE_AVATAR_DISPLAY_NAME_CHANGES_MESSAGES_KEY, false);
-    }
-
-    /**
-     * Tells the native camera to take a photo or record a video.
-     *
-     * @param context the context
-     * @return true to use the native camera app to record video or take photo.
-     */
-    public static boolean useNativeCamera(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_USE_NATIVE_CAMERA_PREFERENCE_KEY, false);
     }
 
     /**
@@ -674,7 +695,7 @@ public class PreferencesManager {
      * @return true if the rage shake is used
      */
     public static boolean useRageshake(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_USE_RAGE_SHAKE_KEY, true);
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_USE_RAGE_SHAKE_KEY, false);
     }
 
     /**

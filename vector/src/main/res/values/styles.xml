@@ -153,6 +153,13 @@
         <item name="android:textAllCaps">true</item>
     </style>
 
+    <style name="TchapLoginButtonStyle" parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@color/tchap_text_color_light</item>
+    </style>
+
     <style name="VectorSearches.EditText" parent="@style/Widget.AppCompat.EditText">
         <item name="android:textCursorDrawable">@drawable/searches_cursor_background</item>
         <item name="android:background">@android:color/transparent</item>
@@ -747,5 +754,25 @@
         <item name="android:textColor">@color/tchap_text_color_light</item>
         <item name="android:textColorHint">@color/tchap_text_color_light</item>
         <item name="colorAccent">@color/tchap_text_color_light</item>
+    </style>
+
+    <!--  ************************  Startup Dark theme  **************************** -->
+
+    <style name="AppTheme.NoActionBar.Startup.Dark" parent="@style/Theme.Vector.Dark">
+        <!-- disable the overscroll because setOverscrollHeader/Footer don't always work -->
+        <item name="android:overScrollMode">never</item>
+
+        <!-- hide the action bar -->
+        <item name="android:windowActionBar">false</item>
+        <item name="windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:typeface">sans</item>
+        <item name="android:windowBackground">@color/riot_primary_background_color_dark</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar.Swipe.Startup.Dark" parent="@style/AppTheme.NoActionBar.Startup.Dark">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
     </style>
 </resources>

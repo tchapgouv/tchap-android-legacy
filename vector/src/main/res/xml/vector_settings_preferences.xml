@@ -275,9 +275,14 @@
             android:title="@string/settings_labs_matrix_apps" />
 
         <im.vector.preference.VectorSwitchPreference
-            android:key="SETTINGS_USE_NATIVE_CAMERA_PREFERENCE_KEY"
-            android:title="@string/settings_labs_native_camera" />
+            android:defaultValue="true"
+            android:key="SETTINGS_DETECT_ACCESSIBILITY_SERVICE_KEY"
+            android:title="@string/detect_accessibility_service" />
 
+        <im.vector.preference.VectorSwitchPreference
+            android:defaultValue="true"
+            android:key="SETTINGS_DETECT_NOTIFICATION_LISTENER_KEY"
+            android:title="@string/detect_notification_listener" />
     </im.vector.preference.VectorPreferenceCategory>
 
     <im.vector.preference.VectorDividerCategory /-->

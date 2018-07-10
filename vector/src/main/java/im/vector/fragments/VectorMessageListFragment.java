@@ -220,7 +220,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
         // Prepare media scan manager
         if (hostActivity instanceof RiotAppCompatActivity) {
             RiotAppCompatActivity riotAppCompatActivity = (RiotAppCompatActivity) hostActivity;
-            mMediaScanManager = new MediaScanManager(mSession.getHomeServerConfig(), riotAppCompatActivity.realm);
+            mMediaScanManager = new MediaScanManager(mSession.getMediaScanRestClient(), riotAppCompatActivity.realm);
 
             mMediaScanManager.setListener(new MediaScanManager.MediaScanManagerListener() {
                 @Override
@@ -330,7 +330,19 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
 
     @Override
     protected boolean canAddEvent(Event event) {
-        return TextUtils.equals(WidgetsManager.WIDGET_EVENT_TYPE, event.getType()) || super.canAddEvent(event);
+        String type = event.getType();
+
+        return Event.EVENT_TYPE_MESSAGE.equals(type) ||
+                Event.EVENT_TYPE_MESSAGE_ENCRYPTED.equals(type) ||
+                //Event.EVENT_TYPE_MESSAGE_ENCRYPTION.equals(type) ||
+                Event.EVENT_TYPE_STATE_ROOM_NAME.equals(type) ||
+                Event.EVENT_TYPE_STATE_ROOM_TOPIC.equals(type) ||
+                Event.EVENT_TYPE_STATE_ROOM_MEMBER.equals(type) ||
+                Event.EVENT_TYPE_STATE_ROOM_THIRD_PARTY_INVITE.equals(type) ||
+                //Event.EVENT_TYPE_STATE_HISTORY_VISIBILITY.equals(type) ||
+                Event.EVENT_TYPE_STICKER.equals(type) ||
+                (event.isCallEvent() && (!Event.EVENT_TYPE_CALL_CANDIDATES.equals(type))) ||
+                WidgetsManager.WIDGET_EVENT_TYPE.equals(type);
     }
 
     /**

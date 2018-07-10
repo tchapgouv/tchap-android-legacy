@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.support.design.widget.TextInputEditText;
+import android.support.v4.content.ContextCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -61,7 +62,7 @@ import im.vector.Matrix;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.MXCActionBarActivity;
-import im.vector.activity.VectorMediasPickerActivity;
+import im.vector.activity.SelectPictureActivity;
 import im.vector.activity.VectorRoomActivity;
 import im.vector.activity.VectorRoomInviteMembersActivity;
 import im.vector.util.VectorUtils;
@@ -90,6 +91,9 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
     @BindView(R.id.switch_public_private_rooms)
     Switch switchPublicPrivateRoom;
+
+    @BindView(R.id.tv_public_private_room_description)
+    TextView tvPublicPrivateRoomDescription;
 
     private MXSession mSession;
     private Uri mThumbnailUri = null;
@@ -168,22 +172,26 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
     @OnClick(R.id.rly_hexagon_avatar)
     void addRoomAvatar() {
-        Intent intent = new Intent(TchapRoomCreationActivity.this, VectorMediasPickerActivity.class);
-        intent.putExtra(VectorMediasPickerActivity.EXTRA_AVATAR_MODE, true);
+        Intent intent = new Intent(TchapRoomCreationActivity.this, SelectPictureActivity.class);
         startActivityForResult(intent, REQ_CODE_UPDATE_ROOM_AVATAR);
     }
+
 
     @OnClick(R.id.switch_public_private_rooms)
     void setRoomPrivacy() {
         if (switchPublicPrivateRoom.isChecked()) {
             switchPublicPrivateRoom.setChecked(true);
+            tvPublicPrivateRoomDescription.setTextColor(ContextCompat.getColor(this, R.color.vector_fuchsia_color));
             mRoomParams.visibility = RoomState.DIRECTORY_VISIBILITY_PUBLIC;
             mRoomParams.preset = CreateRoomParams.PRESET_PUBLIC_CHAT;
+            mRoomParams.setHistoryVisibility(RoomState.HISTORY_VISIBILITY_WORLD_READABLE);
             Log.d(LOG_TAG, "## public");
         } else {
             switchPublicPrivateRoom.setChecked(false);
+            tvPublicPrivateRoomDescription.setTextColor(ContextCompat.getColor(this, R.color.vector_tchap_text_color_light_grey));
             mRoomParams.visibility = RoomState.DIRECTORY_VISIBILITY_PRIVATE;
             mRoomParams.preset = CreateRoomParams.PRESET_PRIVATE_CHAT;
+            mRoomParams.setHistoryVisibility(null);
             Log.d(LOG_TAG, "## private");
         }
     }
@@ -321,8 +329,6 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                             break;
                         default:
                             Log.e (LOG_TAG, e.getLocalizedMessage());
-                            mRoomParams.roomAliasName = getRandomString();
-                            createNewRoom();
                             break;
                     }
                 }

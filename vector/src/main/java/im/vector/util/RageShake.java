@@ -1,5 +1,6 @@
 /*
  * Copyright 2016 OpenMarket Ltd
+ * Copyright 2018 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +20,11 @@ package im.vector.util;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
-import android.preference.PreferenceManager;
 
 import org.matrix.androidsdk.util.Log;
 
@@ -74,6 +73,7 @@ public class RageShake implements SensorEventListener {
         }
     }
 
+
     /**
      * Display a dialog to let the user chooses if he would like to send a bnug report.
      */
@@ -113,7 +113,6 @@ public class RageShake implements SensorEventListener {
             Log.e(LOG_TAG, "promptForReport " + e.getMessage());
         }
     }
-
 
     /**
      * start the sensor detector
@@ -185,7 +184,8 @@ public class RageShake implements SensorEventListener {
                         mLastShakeTimestamp = System.currentTimeMillis();
 
                         if (PreferencesManager.useRageshake(mContext)) {
-                            promptForReport();
+                            // For the Tchap app, the rage shake feature is disabled in the preferences manager.
+                            //promptForReport();
                         }
                     } else {
                         Log.d(LOG_TAG, "Suppress shaking - not passed interval. Ms to go: " + (mTimeToNextShakeMs -

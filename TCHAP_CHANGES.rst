@@ -1,3 +1,48 @@
+Changes in Tchap 1.0.3 (2018-xx-xx)
+===================================================
+
+Improvements:
+ * Update matrix-sdk.aar lib - build 1835 - Revision: d9644895fdc5ad3af563fbadc8f0f82ae6e0f919
+ * Update OLM lib to version 2.3.0.
+ * Antivirus: Encrypt AES keys sent to the antivirus server #122
+ * Hide the "inviter des contacts dans Tchap" button #285
+ * Public rooms: turn on the preview by default #262
+ * Encrypt event content for invited members #322
+ * Add support for the scanning and downloading of unencrypted thumbnails #278
+ * Rewritten camera + pick files to use standard Android API (thx to @af-anssi) PR #212
+ * Detect accessibility service (thx to @af-anssi) PR #209
+ * Room history: update the design of the text input #267
+ * Room history: remove the display of the state events (history access, encryption) #266
+ * Authentication screen: waiting screen when sign in #300
+ * Authentication screen: restore the forgot password option #216
+ * Authentication screen: change discover strategy #299
+ * Authentication screen: wording when sign in #298
+ * FDroid: change pull parameters #301
+ * Room invite: apply the hexagon shape on avatar for a "salon" #283
+ * Remove the option "Effacer" on the membership event in the room history #310
+ * delete piwic link #291
+ * Display the discussions invites in the Conversations tab #288
+ * Home screen: dismiss the potential search session when a new activity is started #265
+ * Room creation: highlight the caution for public rooms #215
+ * Update the search bar display #271
+ * Code cleaning: Remove useless code in the login activity PR #329
+ * Updates icons for medias and VoIP #332
+ * Hide the "inviter des contacts dans Tchap" button #285
+
+Bug Fixes:
+ * My first public "salon" is displayed like a discussion #284
+ * Some discussions are displayed like a salon (and conversely) in the rooms search result #279
+ * Creation of an infinity of rooms #305
+ * The display name of some users is missing #309
+ * Put the section header title in lower case #328
+ * Handle correctly unauthorized email during registration PR #308
+ * Handle correctly unreachable contacts PR #280
+ * Nouveau salon: media permissions (permission.CAMERA,...) are not checked correctly #282
+ * Unable to give my consent when I reject a room invite #281
+ * Disable Rageshake detection #293
+ * Fix crash with media (images/videos) on Android 4.x #333
+ * An unread badge is displayed on Contact tab by mistake PR #337
+
 Changes in Tchap 1.0.2 (2018-06-29)
 ===================================================
 

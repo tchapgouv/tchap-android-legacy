@@ -97,7 +97,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="send_files_in">Envoyer dans</string>
     <string name="read_receipt">Lu</string>
 
-    <string name="join_room">Rejoindre la conversation</string>
+    <string name="join_room">Rejoindre</string>
     <string name="username">Nom d\'utilisateur</string>
     <string name="create_account">S\'inscrire</string>
     <string name="login">Se connecter</string>
@@ -114,6 +114,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="start_video_call">Nouvel appel vidéo</string>
 
     <string name="option_send_files">Envoyer des fichiers</string>
+    <string name="option_select_image">Choisir une image</string>
     <string name="option_take_photo_video">Prendre une photo ou une vidéo</string>
 
     <string name="auth_login">Je me connecte</string>
@@ -230,7 +231,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="room_participants_action_set_admin">Nommer administrateur</string>
     <string name="room_participants_action_mention">Mentionner</string>
     <string name="room_participants_action_devices_list">Afficher la liste des appareils</string>
-    <string name="people_search_local_contacts">CONTACTS LOCAUX (%d)</string>
+    <string name="people_search_local_contacts">Contacts locaux (%d)</string>
     <string name="people_search_filter_text">Utilisateurs Matrix uniquement</string>
     <string name="people_search_invite_by_id_dialog_title">Inviter un utilisateur par email</string>
     <string name="people_search_invite_by_id_dialog_hint">Email</string>
@@ -284,7 +285,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="room_recents_favourites">FAVORIS</string>
     <string name="room_recents_conversations">CONVERSATIONS</string>
     <string name="room_recents_low_priority">PRIORITÉ BASSE</string>
-    <string name="room_recents_invites">INVITATIONS</string>
+    <string name="room_recents_invites">Invitations</string>
     <string name="room_recents_start_chat">Créer une discussion</string>
     <string name="room_recents_create_room">Créer un salon</string>
     <string name="room_recents_join_room">Rejoindre le salon</string>
@@ -530,7 +531,7 @@ Veuillez nous excuser pour ce désagrément.</string>
     <string name="permissions_rationale_msg_storage">Tchap a besoin d\'accéder à vos photos et vidéos pour envoyer et enregistrer des pièces jointes.
 
 Veuillez autoriser l\'accès dans la prochaine fenêtre contextuelle pour pouvoir envoyer des fichiers depuis votre téléphone.</string>
-    <string name="permissions_rationale_msg_camera">Tchap a besoin d\'accéder à votre appareil photo pour prendre des photos et passer des appels vidéo.</string>
+    <string name="permissions_rationale_msg_camera">Tchap a besoin d\'accéder à votre appareil photo.</string>
     <string name="permissions_rationale_msg_camera_explanation">
 
 Veuillez autoriser l\'accès dans la prochaine fenêtre contextuelle pour pouvoir effectuer l\'appel.</string>
@@ -693,7 +694,7 @@ Appareils inconnus :</string>
 
     <string name="user_directory_header">Répertoire Tchap</string>
 
-    <string name="people_search_user_directory">RÉPERTOIRE UTILISATEUR (%s)</string>
+    <string name="people_search_user_directory">Répertoire utilisateurs (%s)</string>
     <string name="settings_start_on_boot">Lancer au démarrage</string>
     <string name="settings_clear_medias_cache">Vider le cache des médias</string>
     <string name="settings_keep_media">Conserver les médias</string>
@@ -881,13 +882,14 @@ Appareils inconnus :</string>
     <string name="tchap_has_account_no">Je n’ai pas\nde compte</string>
     <string name="tchap_has_account_yes">J’ai un compte</string>
     <string name="tchap_connection_email">Adresse email</string>
-    <string name="tchap_connection_email_help">Si vous avez l’email de l’administation de l’État, utilisez-le</string>
+    <string name="tchap_connection_email_help">Utilisez votre adresse professionnelle</string>
     <string name="tchap_connection_password">Mot de passe Tchap</string>
     <string name="tchap_connection_password_confirm">Confirmer le mot de passe</string>
     <string name="tchap_connection_forgotten_email">J’ai oublié mon mot de passe</string>
     <string name="tchap_register_wait_for_email_title">Un email vous a été envoyé</string>
-    <string name="tchap_register_wait_for_email_subtitle">Veuillez l’ouvrir et cliquer sur le lien qui est dedans pour finaliser la vérification</string>
+    <string name="tchap_register_wait_for_email_subtitle">Veuillez l’ouvrir et cliquer sur le lien proposé pour valider votre inscription</string>
     <string name="tchap_register_wait_for_email_no_email">Je n’ai pas reçu l’email!</string>
+    <string name="tchap_register_unauthorized_email">Cette adresse e-mail n\'est pas autorisée</string>
 
     <string name="tchap_dialog_user_consent_homeserver_name">Tchap</string>
 
@@ -1015,7 +1017,7 @@ Voulez-vous en ajouter ?</string>
     <string name="dialog_user_consent_submit">Voir maintenant</string>
 
     <string name="deactivate_account_title">Désactiver le compte</string>
-    <string name="deactivate_account_content">Votre compte sera inutilisable de façon permanente. Vous ne pourrez plus vous connecter et personne ne pourra se réenregistrer avec le même identifiant d\'utilisateur. Le compte quittera tous les salons auxquels il participe et tous ses détails seront supprimés du serveur d\'identité. <b>Cette action est irréversible. </b>
+    <string name="deactivate_account_content">Votre compte sera inutilisable de façon permanente. Vous ne pourrez plus vous connecter. Le compte quittera tous les salons auxquels il participe et tous ses détails seront supprimés du serveur d\'identité. <b>Cette action est irréversible. </b>
 
 Désactiver votre compte <b>ne nous fait pas oublier les messages que vous avez envoyés par défaut</b>. Si vous souhaitez que nous oubliions vos messages, cochez la case ci-dessous.
 
@@ -1037,5 +1039,21 @@ La visibilité des messages dans Matrix est identique à celle des e-mails. Si n
 
     <string name="tab_rooms_title">CONVERSATIONS</string>
     <string name="tab_contacts_title">CONTACTS</string>
+
+    <!-- accessibility -->
+    <string name="security_dialog_title">Sécurité</string>
+    <string name="detect_accessibility_service">Détecter si un service d\'accessibilité est actif.</string>
+    <string name="accessibility_security_dialog_message">Un service d\'accessibilité est actif. Il observe le clavier et les fenêtres.</string>
+    <string name="security_dialog_start">Démarrer quand même.</string>
+    <string name="security_dialog_start_an_stop_detecting">Ne plus me prévenir.</string>
+    <string name="security_dialog_stop">Sortir.</string>
+    <string name="detect_notification_listener">Détecter si un écouteur de notification est actif.</string>
+    <string name="notification_security_dialog_message">Un écouteur de notification lit le contenu des notifications de message. Les écouteurs suivant sont activés :</string>
+    <string name="security_dialog_continue">Continuer.</string>
+    <string name="accessibility_change_security_dialog_message">Un service d\'accessibilité a été activé. Il observe le clavier et les fenêtres.</string>
+    <string name="notification_change_security_dialog_message">Un écouteur de notification lit le contenu des notifications de message. Les écouteurs suivant ont été activés :</string>
+
+    <string name = "action_expand">afficher</string>
+    <string name = "action_collapse">masquer</string>
 
 </resources>

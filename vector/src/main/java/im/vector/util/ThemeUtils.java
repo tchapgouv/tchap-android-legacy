@@ -52,7 +52,6 @@ import im.vector.activity.VectorBaseSearchActivity;
 import im.vector.activity.VectorCallViewActivity;
 import im.vector.activity.VectorGroupDetailsActivity;
 import im.vector.activity.VectorHomeActivity;
-import im.vector.activity.VectorMediasPickerActivity;
 import im.vector.activity.VectorMediasViewerActivity;
 import im.vector.activity.VectorMemberDetailsActivity;
 import im.vector.activity.VectorPublicRoomsActivity;
@@ -164,8 +163,6 @@ public class ThemeUtils {
                 activity.setTheme(R.style.CallActivityTheme_Dark);
             } else if (activity instanceof VectorHomeActivity) {
                 activity.setTheme(R.style.HomeActivityTheme_Dark);
-            } else if (activity instanceof VectorMediasPickerActivity) {
-                activity.setTheme(R.style.AppTheme_NoActionBar_FullScreen_Dark);
             } else if (activity instanceof VectorMediasViewerActivity) {
                 activity.setTheme(R.style.AppTheme_Dark);
             } else if (activity instanceof VectorMemberDetailsActivity) {
@@ -224,8 +221,6 @@ public class ThemeUtils {
                 activity.setTheme(R.style.CallActivityTheme_Black);
             } else if (activity instanceof VectorHomeActivity) {
                 activity.setTheme(R.style.HomeActivityTheme_Black);
-            } else if (activity instanceof VectorMediasPickerActivity) {
-                activity.setTheme(R.style.AppTheme_NoActionBar_FullScreen_Black);
             } else if (activity instanceof VectorMediasViewerActivity) {
                 activity.setTheme(R.style.AppTheme_Black);
             } else if (activity instanceof VectorMemberDetailsActivity) {

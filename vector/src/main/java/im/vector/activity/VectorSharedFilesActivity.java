@@ -18,7 +18,6 @@
 package im.vector.activity;
 
 import android.content.Intent;
-import android.os.Bundle;
 
 import org.matrix.androidsdk.data.RoomMediaMessage;
 import org.matrix.androidsdk.util.Log;
@@ -29,6 +28,7 @@ import org.matrix.androidsdk.util.ContentUtils;
 import java.io.File;
 import java.util.ArrayList;
 
+import fr.gouv.tchap.activity.NotificationListenerDetectionActivity;
 import fr.gouv.tchap.activity.TchapLoginActivity;
 import im.vector.Matrix;
 import im.vector.R;
@@ -81,7 +81,7 @@ public class VectorSharedFilesActivity extends RiotAppCompatActivity {
                     Log.d(LOG_TAG, "onCreate : go to login screen");
 
                     // don't know what to do, go to the login screen
-                    Intent loginIntent = new Intent(this, TchapLoginActivity.class);
+                    Intent loginIntent = new Intent(this, NotificationListenerDetectionActivity.class);
                     startActivity(loginIntent);
                 }
             } else {

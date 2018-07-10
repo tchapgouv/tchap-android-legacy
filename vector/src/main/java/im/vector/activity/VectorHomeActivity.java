@@ -108,6 +108,7 @@ import butterknife.BindView;
 import fr.gouv.tchap.activity.TchapLoginActivity;
 import fr.gouv.tchap.activity.TchapRoomCreationActivity;
 import fr.gouv.tchap.activity.TchapPublicRoomSelectionActivity;
+import fr.gouv.tchap.util.LiveSecurityChecks;
 import im.vector.Matrix;
 import im.vector.MyPresenceManager;
 import im.vector.R;
@@ -250,6 +251,9 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
 
     // floating action button dialog
     private AlertDialog mFabDialog;
+
+    // security
+    private LiveSecurityChecks securityChecks = new LiveSecurityChecks(this);
 
     /*
      * *********************************************************************************************
@@ -486,6 +490,9 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     @Override
     protected void onResume() {
         super.onResume();
+
+        securityChecks.checkOnActivityStart();
+
         MyPresenceManager.createPresenceManager(this, Matrix.getInstance(this).getSessions());
         MyPresenceManager.advertiseAllOnline();
 
@@ -772,8 +779,13 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     protected void onPause() {
         super.onPause();
 
+        securityChecks.activityStopped();
+
         // Unregister Broadcast receiver
         hideWaitingView();
+
+        resetFilter();
+
         try {
             unregisterReceiver(mBrdRcvStopWaitingView);
         } catch (Exception e) {
@@ -804,10 +816,14 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
     public void onDestroy() {
         super.onDestroy();
 
+        securityChecks.activityStopped();
+
         // release the static instance if it is the current implementation
         if (sharedInstance == this) {
             sharedInstance = null;
         }
+
+        resetFilter();
     }
 
     @Override
@@ -1116,8 +1132,11 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
      * Reset the filter
      */
     private void resetFilter() {
-        mSearchView.setQuery("", false);
-        mSearchView.clearFocus();
+        // sanity check to fix crash in log-out
+        if (null != mSearchView) {
+            mSearchView.setQuery("", false);
+            mSearchView.clearFocus();
+        }
         hideKeyboard();
     }
 
@@ -1458,16 +1477,11 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
 
         List<Room> roomInvites = new ArrayList<>();
         switch (mCurrentMenuId) {
-            case TAB_POSITION_CONTACT:
-                roomInvites.addAll(mDirectChatInvitations);
-                break;
             case TAB_POSITION_CONVERSATION:
+                roomInvites.addAll(mDirectChatInvitations);
                 roomInvites.addAll(mRoomInvitations);
                 break;
             default:
-                roomInvites.addAll(mDirectChatInvitations);
-                roomInvites.addAll(mRoomInvitations);
-                Collections.sort(roomInvites, invitationComparator);
                 break;
         }
 
@@ -1527,32 +1541,22 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
      * @param onSuccessCallback the success callback
      * @return the asynchronous callback
      */
-    private ApiCallback<Void> getForgetLeaveCallback(final String roomId, final SimpleApiCallback<Void> onSuccessCallback) {
+    private ApiCallback<Void> createForgetLeaveCallback(final String roomId, final SimpleApiCallback<Void> onSuccessCallback) {
         return new ApiCallback<Void>() {
             @Override
             public void onSuccess(Void info) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        // clear any pending notification for this room
-                        EventStreamService.cancelNotificationsForRoomId(mSession.getMyUserId(), roomId);
-                        hideWaitingView();
+                // clear any pending notification for this room
+                EventStreamService.cancelNotificationsForRoomId(mSession.getMyUserId(), roomId);
+                hideWaitingView();
 
-                        if (null != onSuccessCallback) {
-                            onSuccessCallback.onSuccess(null);
-                        }
-                    }
-                });
+                if (null != onSuccessCallback) {
+                    onSuccessCallback.onSuccess(null);
+                }
             }
 
             private void onError(final String message) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        hideWaitingView();
-                        Toast.makeText(VectorHomeActivity.this, message, Toast.LENGTH_LONG).show();
-                    }
-                });
+                hideWaitingView();
+                Toast.makeText(VectorHomeActivity.this, message, Toast.LENGTH_LONG).show();
             }
 
             @Override
@@ -1562,7 +1566,12 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
 
             @Override
             public void onMatrixError(MatrixError e) {
-                onError(e.getLocalizedMessage());
+                if (MatrixError.M_CONSENT_NOT_GIVEN.equals(e.errcode)) {
+                    hideWaitingView();
+                    getConsentNotGivenHelper().displayDialog(e);
+                } else {
+                    onError(e.getLocalizedMessage());
+                }
             }
 
             @Override
@@ -1583,7 +1592,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
 
         if (null != room) {
             showWaitingView();
-            room.forget(getForgetLeaveCallback(roomId, onSuccessCallback));
+            room.forget(createForgetLeaveCallback(roomId, onSuccessCallback));
         }
     }
 
@@ -1598,7 +1607,7 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
 
         if (null != room) {
             showWaitingView();
-            room.leave(getForgetLeaveCallback(roomId, onSuccessCallback));
+            room.leave(createForgetLeaveCallback(roomId, onSuccessCallback));
         }
     }
 
@@ -2049,87 +2058,46 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         }
 
         Set<Integer> menuIndexes = new HashSet<>(mBadgeViewByIndex.keySet());
-
-        // the badges are not anymore displayed on the home tab
-        //no more home
-        //menuIndexes.remove(R.id.bottom_action_home);
-
         for (Integer id : menuIndexes) {
-            // use a map because contains is faster
-            HashSet<String> filteredRoomIdsSet = new HashSet<>();
-            //no more favourite
-            /*
-            if (id == R.id.bottom_action_favourites) {
-                List<Room> favRooms = mSession.roomsWithTag(RoomTag.ROOM_TAG_FAVOURITE);
-
-                for (Room room : favRooms) {
-                    filteredRoomIdsSet.add(room.getRoomId());
-                }
-            } else */
-            if (id == TAB_POSITION_CONTACT) {
-                //badge in bottom_people only for invitation
-
-                // Add direct chat invitations
-                for (Room room : roomSummaryByRoom.keySet()) {
-                    if (room.isDirectChatInvitation() && !room.isConferenceUserRoom()) {
-                        filteredRoomIdsSet.add(room.getRoomId());
-                    }
-                }
-
-                // remove the low priority rooms
-                List<Room> lowPriorRooms = mSession.roomsWithTag(RoomTag.ROOM_TAG_LOW_PRIORITY);
-                for (Room room : lowPriorRooms) {
-                    filteredRoomIdsSet.remove(room.getRoomId());
-                }
-
-            } else if (id == TAB_POSITION_CONVERSATION) {
+            // Only the Conversation tab has an unread badge.
+            if (id == TAB_POSITION_CONVERSATION) {
+                // use a map because contains is faster
+                HashSet<String> filteredRoomIdsSet = new HashSet<>();
                 HashSet<String> lowPriorityRoomIds = new HashSet<>(mSession.roomIdsWithTag(RoomTag.ROOM_TAG_LOW_PRIORITY));
 
                 for (Room room : roomSummaryByRoom.keySet()) {
                     if (!room.isConferenceUserRoom() && // not a VOIP conference room
-                            !directChatInvitations.contains(room.getRoomId()) && // not a direct chat invitation
                             !lowPriorityRoomIds.contains(room.getRoomId())) {
                         filteredRoomIdsSet.add(room.getRoomId());
                     }
                 }
-            }
 
-            // compute the badge value and its displays
-            int highlightCount = 0;
-            int roomCount = 0;
+                // compute the badge value and its displays
+                int roomCount = 0;
 
-            for (String roomId : filteredRoomIdsSet) {
-                Room room = store.getRoom(roomId);
+                for (String roomId : filteredRoomIdsSet) {
+                    Room room = store.getRoom(roomId);
 
-                if (null != room) {
-                    highlightCount += room.getHighlightCount();
-
-                    if (room.isInvited()) {
-                        roomCount++;
-                    } else {
-                        int notificationCount = room.getNotificationCount();
-
-                        if (bingRulesManager.isRoomMentionOnly(roomId)) {
-                            notificationCount = room.getHighlightCount();
-                        }
-
-                        if (notificationCount > 0) {
+                    if (null != room) {
+                        if (room.isInvited()) {
                             roomCount++;
+                        } else {
+                            int notificationCount = room.getNotificationCount();
+
+                            if (bingRulesManager.isRoomMentionOnly(roomId)) {
+                                notificationCount = room.getHighlightCount();
+                            }
+
+                            if (notificationCount > 0) {
+                                roomCount++;
+                            }
                         }
                     }
                 }
+
+                //always highligted
+                mBadgeViewByIndex.get(id).updateCounter(roomCount, UnreadCounterBadgeView.HIGHLIGHTED);
             }
-            //always highligted
-            int status = UnreadCounterBadgeView.HIGHLIGHTED;
-//            int status = (0 != highlightCount) ? UnreadCounterBadgeView.HIGHLIGHTED :
-//                    ((0 != roomCount) ? UnreadCounterBadgeView.NOTIFIED : UnreadCounterBadgeView.DEFAULT);
-            //no more favourite
-            /*
-            if (id == R.id.bottom_action_favourites) {
-                mBadgeViewByIndex.get(id).updateText((roomCount > 0) ? "\u2022" : "", status);
-            } else {*/
-            mBadgeViewByIndex.get(id).updateCounter(roomCount, status);
-            //}
         }
     }
 

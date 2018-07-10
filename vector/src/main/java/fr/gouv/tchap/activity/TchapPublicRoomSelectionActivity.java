@@ -25,6 +25,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.SearchView;
@@ -51,20 +52,18 @@ import fr.gouv.tchap.fragments.TchapPublicRoomsFragment;
 /**
  * List all the public rooms by considering all known room directories.
  */
-public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity implements SearchView.OnQueryTextListener {
+public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity implements android.support.v7.widget.SearchView.OnQueryTextListener {
 
     private static final String LOG_TAG = TchapPublicRoomSelectionActivity.class.getSimpleName();
 
     // shared instance
     private static TchapPublicRoomSelectionActivity sharedInstance = null;
 
-
-     private static final String TAG_FRAGMENT_ROOMS = "TAG_FRAGMENT_ROOMS";
+    private static final String TAG_FRAGMENT_ROOMS = "TAG_FRAGMENT_ROOMS";
 
 
     @BindView(R.id.listView_spinner_views)
     View waitingView;
-
 
     private MXSession mSession;
 
@@ -182,14 +181,20 @@ public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity impl
     private void initViews() {
         // init the search view
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        // Remove unwanted left margin
+        // Remove unwanted left margin before the search icon.
         LinearLayout searchEditFrame = mSearchView.findViewById(R.id.search_edit_frame);
         if (searchEditFrame != null) {
             ViewGroup.MarginLayoutParams searchEditFrameParams = (ViewGroup.MarginLayoutParams) searchEditFrame.getLayoutParams();
-            searchEditFrameParams.leftMargin = 0;
+            searchEditFrameParams.leftMargin = -30;
+            searchEditFrameParams.rightMargin = -15;
             searchEditFrame.setLayoutParams(searchEditFrameParams);
         }
-        ImageView searchIcon = mSearchView.findViewById(R.id.search_mag_icon);
+
+        ImageView searchMagIcon = mSearchView.findViewById(android.support.v7.appcompat.R.id.search_mag_icon);
+        searchMagIcon.setColorFilter(ContextCompat.getColor(this, R.color.tchap_search_bar_text));
+
+        ImageView searchCloseIcon = mSearchView.findViewById(android.support.v7.appcompat.R.id.search_close_btn);
+        searchCloseIcon.setColorFilter(ContextCompat.getColor(this, R.color.tchap_search_bar_text));
 
         mSearchView.setMaxWidth(Integer.MAX_VALUE);
         mSearchView.setSubmitButtonEnabled(false);

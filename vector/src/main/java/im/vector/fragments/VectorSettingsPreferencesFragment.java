@@ -33,7 +33,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
-import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
@@ -103,11 +102,10 @@ import im.vector.VectorApp;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.CountryPickerActivity;
 import im.vector.activity.DeactivateAccountActivity;
-import im.vector.activity.LanguagePickerActivity;
 import im.vector.activity.NotificationPrivacyActivity;
 import im.vector.activity.PhoneNumberAdditionActivity;
 import im.vector.activity.RiotAppCompatActivity;
-import im.vector.activity.VectorMediasPickerActivity;
+import im.vector.activity.SelectPictureActivity;
 import im.vector.contacts.ContactsManager;
 import im.vector.gcm.GcmRegistrationManager;
 import im.vector.preference.BingRulePreference;
@@ -118,7 +116,6 @@ import im.vector.preference.VectorGroupPreference;
 import im.vector.preference.VectorSwitchPreference;
 import im.vector.util.PhoneNumberUtils;
 import im.vector.util.PreferencesManager;
-import im.vector.util.ThemeUtils;
 import im.vector.util.VectorUtils;
 
 public class VectorSettingsPreferencesFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -486,7 +483,7 @@ public class VectorSettingsPreferencesFragment extends PreferenceFragment implem
                         // Clear media scan database
                         if (getActivity() instanceof RiotAppCompatActivity) {
                             RiotAppCompatActivity riotAppCompatActivity = (RiotAppCompatActivity) getActivity();
-                            MediaScanManager mediaScanManager = new MediaScanManager(mSession.getHomeServerConfig(), riotAppCompatActivity.realm);
+                            MediaScanManager mediaScanManager = new MediaScanManager(mSession.getMediaScanRestClient(), riotAppCompatActivity.realm);
                             mediaScanManager.clearAntiVirusScanResults();
                         }
                     } catch (Exception e) {
@@ -1363,11 +1360,8 @@ public class VectorSettingsPreferencesFragment extends PreferenceFragment implem
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (CommonActivityUtils.checkPermissions(CommonActivityUtils.REQUEST_CODE_PERMISSION_TAKE_PHOTO, getActivity())) {
-                    Intent intent = new Intent(getActivity(), VectorMediasPickerActivity.class);
-                    intent.putExtra(VectorMediasPickerActivity.EXTRA_AVATAR_MODE, true);
-                    startActivityForResult(intent, VectorUtils.TAKE_IMAGE);
-                }
+                Intent intent = new Intent(getActivity(), SelectPictureActivity.class);
+                startActivityForResult(intent, VectorUtils.TAKE_IMAGE);
             }
         });
     }

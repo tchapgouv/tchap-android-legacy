@@ -169,6 +169,7 @@
     <string name="start_video_call_prompt_msg">Are you sure that you want to start a video call?</string>
 
     <string name="option_send_files">Send files</string>
+    <string name="option_select_image">Select image</string>
     <string name="option_send_sticker">Send sticker</string>
     <string name="option_take_photo_video">Take photo or video</string>
     <string name="option_take_photo">Take photo</string>
@@ -405,8 +406,8 @@
 
     <!-- invitation -->
     <string name="people_search_invite_by_id"><u>Invite by ID</u></string>
-    <string name="people_search_local_contacts">LOCAL CONTACTS (%d)</string>
-    <string name="people_search_user_directory">USER DIRECTORY (%s)</string>
+    <string name="people_search_local_contacts">Local contacts (%d)</string>
+    <string name="people_search_user_directory">User directory (%s)</string>
     <string name="people_search_filter_text">Matrix users only</string>
 
     <string name="people_search_invite_by_id_dialog_title">Invite user by ID</string>
@@ -498,7 +499,7 @@
     <string name="room_recents_favourites">FAVORITES</string>
     <string name="room_recents_conversations">ROOMS</string>
     <string name="room_recents_low_priority">LOW PRIORITY</string>
-    <string name="room_recents_invites">INVITES</string>
+    <string name="room_recents_invites">Invites</string>
     <string name="room_recents_start_chat">Start chat</string>
     <string name="room_recents_create_room">Create room</string>
     <string name="room_recents_join_room">Join room</string>
@@ -620,6 +621,7 @@
     <string name="settings_12_24_timestamps">Show timestamps in 12 hour format (e.g. 2:30pm)</string>
     <string name="settings_hide_join_leave_messages">Hide join/leave messages (invites/kicks/bans unaffected)</string>
     <string name="settings_hide_avatar_display_name_changes_messages">Hide avatar and display name changes</string>
+    <string name="settings_error_message_saving_avatar_on_server">Picture back up failed. \n What do you want to do ?</string>
     <string name="settings_disable_markdown">Disable markdown formatting when sending</string>
     <string name="settings_vibrate_on_mention">Vibrate when mentioning</string>
 
@@ -988,13 +990,14 @@
     <string name="tchap_has_account_no">I do not have\nan account</string>
     <string name="tchap_has_account_yes">I already have\nan account</string>
     <string name="tchap_connection_email">Email</string>
-    <string name="tchap_connection_email_help">If you have an email from the French government, please use it</string>
+    <string name="tchap_connection_email_help">Use your business address</string>
     <string name="tchap_connection_password">Tchap password</string>
     <string name="tchap_connection_password_confirm">Password confirmation</string>
     <string name="tchap_connection_forgotten_email">I have forgotten my password</string>
     <string name="tchap_register_wait_for_email_title">An e-mail has been sent</string>
     <string name="tchap_register_wait_for_email_subtitle">Please open it and click in the link it contains to finalize the verification</string>
     <string name="tchap_register_wait_for_email_no_email">I have not received any e-mail!</string>
+    <string name="tchap_register_unauthorized_email">This email address is unauthorized</string>
 
     <string name="tchap_dialog_user_consent_homeserver_name">Tchap</string>
 
@@ -1049,4 +1052,19 @@
     <string name="tab_rooms_title">ROOMS</string>
     <string name="tab_contacts_title">CONTACTS</string>
 
+    <!--security -->
+    <string name="security_dialog_title">Security</string>
+    <string name="detect_accessibility_service">Detect if an accessibility service is active.</string>
+    <string name="accessibility_security_dialog_message">An accessibility service is active. It watches keyboard and windows.</string>
+    <string name="security_dialog_start">Start anyway.</string>
+    <string name="security_dialog_start_an_stop_detecting">Don\'t show anymore.</string>
+    <string name="security_dialog_stop">Stop.</string>
+    <string name="detect_notification_listener">Detect if a notification listener is active.</string>
+    <string name="notification_security_dialog_message">A Notification listener reads the content of message notifications. These notifications listeners are active :</string>
+    <string name="security_dialog_continue">Continue.</string>
+    <string name="accessibility_change_security_dialog_message">An accessibility service has been activated. It watches keyboard and windows.</string>
+    <string name="notification_change_security_dialog_message">A Notification listener reads the content of message notifications. These notifications listeners have been activated :</string>
+
+    <string name = "action_expand">expand</string>
+    <string name = "action_collapse">collapse</string>
 </resources>

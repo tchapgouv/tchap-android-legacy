@@ -28,6 +28,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.ContactsContract;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -58,7 +59,6 @@ import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
 import fr.gouv.tchap.activity.TchapLoginActivity;
 import im.vector.activity.RiotAppCompatActivity;
-import im.vector.activity.VectorHomeActivity;
 import im.vector.activity.VectorRoomActivity;
 import im.vector.adapters.ParticipantAdapterItem;
 import im.vector.contacts.Contact;
@@ -98,34 +98,97 @@ public class DinsicUtils {
      * For example in case of "Jean Martin [Modernisation]", this will return "Jean Martin".
      *
      * @param displayName
-     * @return displayName without domain
+     * @return displayName without domain (null if the provided display name is null).
      */
-    public  static String getNameFromDisplayName(String displayName) {
+    @Nullable
+    public static String getNameFromDisplayName(@Nullable String displayName) {
         String myRet = displayName;
-        if (displayName.contains("[")) {
+        if (null != displayName && displayName.contains("[")) {
             myRet = displayName.split("\\[")[0].trim();
         }
         return myRet;
     }
+
     /**
      * Get the potential domain name from a display name.
      * For example in case of "Jean Martin [Modernisation]", this will return "Modernisation".
      *
      * @param displayName
-     * @return displayName without name, empty string if no domain is available.
+     * @return displayName without name, null if no domain is available.
      */
-    public  static String getDomainFromDisplayName(String displayName) {
-        String myRet = "";
-
-        if (displayName.contains("[")) {
+    @Nullable
+    public static String getDomainFromDisplayName(@Nullable String displayName) {
+        String myRet = null;
+        if (null != displayName && displayName.contains("[")) {
             myRet = displayName.split("\\[")[1];
             if (myRet.contains("]")) {
-                myRet = myRet.split("\\]")[0];
+                myRet = myRet.split("\\]")[0].trim();
             } else {
-                myRet = "";
+                myRet = null;
             }
         }
-        return myRet.trim();
+        return myRet;
+    }
+
+    /**
+     * Build a display name from the tchap user identifier.
+     * We don't extract the domain for the moment in order to not display unexpected information.
+     * For example in case of "@jean.martin-modernisation.fr:matrix.org", this will return "Jean Martin".
+     *
+     * @param tchapUserId user id
+     * @return displayName without domain, null if the id is not valid.
+     */
+    @Nullable
+    public static String computeDisplayNameFromUserId(@Nullable String tchapUserId) {
+        String displayName = null;
+
+        if (null != tchapUserId && MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(tchapUserId).matches()) {
+            // Remove first the host from the id by ignoring the first character '@' too.
+            String identifier = tchapUserId.substring(1, tchapUserId.indexOf(":"));
+            int index = identifier.lastIndexOf("-");
+            if (-1 != index) {
+                // Retrieve the user name
+                displayName = identifier.substring(0, index);
+                String[] components = displayName.split("\\.");
+
+                StringBuilder builder = new StringBuilder();
+                for (String component : components) {
+                    if (!component.isEmpty()) {
+                        if (builder.length() > 0) {
+                            // Add space between components
+                            builder.append(" ");
+                        }
+
+                        // Capitalize the component
+                        builder.append(component.substring(0, 1).toUpperCase());
+                        if (component.length() > 1) {
+                            builder.append(component.substring(1));
+                        }
+                    }
+                }
+                displayName = builder.toString();
+
+                // TODO: decide if we should append the extracted domain. This is not relevant for
+                // the moment because of the test users.
+                /*// add first term of domain
+                components = identifier.split("-");
+                if (components.length > 1) {
+                    index = components[components.length - 1].indexOf(".");
+                    if (-1 != index) {
+                        String domain = components[components.length - 1].substring(0, index);
+                        if (domain.length() > 0) {
+                            String formattedDomain = domain.substring(0, 1).toUpperCase();
+                            if (domain.length() > 1) {
+                                formattedDomain += domain.substring(1);
+                            }
+                            displayName += " ["+formattedDomain+"]";
+                        }
+                    }
+                }*/
+            }
+        }
+
+        return displayName;
     }
 
     /**
@@ -488,6 +551,14 @@ public class DinsicUtils {
                     tchapUser.user_id = selectedContact.mUserId;
                     tchapUser.avatar_url = selectedContact.mAvatarUrl;
                     tchapUser.displayname = selectedContact.mDisplayName;
+                } else {
+                    // Check whether we know his display name (we may lost it if he left all our common rooms).
+                    if (null == tchapUser.displayname) {
+                        tchapUser.displayname = selectedContact.mDisplayName;
+                    }
+                    if (null == tchapUser.avatar_url) {
+                        tchapUser.avatar_url = selectedContact.mAvatarUrl;
+                    }
                 }
                 startDirectChat(activity, session, tchapUser);
             } else {
@@ -541,7 +612,13 @@ public class DinsicUtils {
             // Display a fake room, the actual room will be created on the first message
             HashMap<String, Object> params = new HashMap<>();
             params.put(VectorRoomActivity.EXTRA_MATRIX_ID, session.getMyUserId());
+
+            // Sanity check: force a display name if it is undefined.
+            if (null == selectedUser.displayname) {
+                selectedUser.displayname = computeDisplayNameFromUserId(selectedUser.user_id);
+            }
             params.put(VectorRoomActivity.EXTRA_TCHAP_USER, selectedUser);
+
             CommonActivityUtils.goToRoomPage(activity, session, params);
         }
     }

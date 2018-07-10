@@ -1,29 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/vector_invite_members_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:focusableInTouchMode="true">
 
-    <SearchView
-        android:id="@+id/external_search_view"
-        style="@style/SearchViewMembers"
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/search_view_external"
+        style="@style/VectorToolbarStyle"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="30dp"
         android:layout_margin="10dp"
-        android:background="@drawable/tchap_search_bar_style"
-        android:clickable="true"
-        android:gravity="center"
-        android:iconifiedByDefault="false"
-        android:queryHint="@string/search"/>
+        android:background="@drawable/tchap_search_bar_style">
+
+        <!-- The search view is added in the toolbar not in the menu
+             to ensure that the overflow icon menu is not hidden.-->
+        <android.support.v7.widget.SearchView
+            android:id="@+id/external_search_view"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_marginBottom="12dp"
+            android:layout_marginLeft="7dp"
+            android:layout_marginRight="10dp"
+            android:clickable="true"
+            android:textAlignment="center" />
+    </android.support.v7.widget.Toolbar>
 
     <RelativeLayout
         android:id="@+id/ly_invite_contacts_by_email"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_below="@+id/external_search_view"
+        android:layout_below="@+id/search_view_external"
         android:layout_marginLeft="24dp"
         android:clickable="true"
         android:visibility="gone"
@@ -48,8 +56,6 @@
             android:textSize="16sp" />
     </RelativeLayout>
 
-
-
     <ExpandableListView
         android:id="@+id/room_details_members_list"
         android:layout_width="match_parent"
@@ -64,11 +70,12 @@
         android:layout_height="match_parent"
         android:background="?attr/waiting_background_color"
         android:visibility="gone">
+
         <ProgressBar
             android:id="@+id/listView_spinner"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_gravity="center"
-            android:visibility="visible"/>
+            android:visibility="visible" />
     </FrameLayout>
 </RelativeLayout>

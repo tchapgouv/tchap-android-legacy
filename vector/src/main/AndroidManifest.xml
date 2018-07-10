@@ -17,19 +17,11 @@
     <!-- for android 4.1.* devices, reported by GA -->
     <uses-permission android:name="android.permission.GET_TASKS" />
 
-    <!-- videocall permissions -->
-    <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <!-- required on android 6.0.0 devices -->
     <uses-permission android:name="android.permission.WRITE_SETTINGS" tools:ignore="ProtectedPermissions"/>
-    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
 
     <!-- shared files from external application -->
     <uses-permission android:name="android.permission.MANAGE_DOCUMENTS" tools:ignore="ProtectedPermissions"/>
-
-    <!-- to be able to turn on display when a notification is received -->
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <!-- start the background sync on boot -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -37,30 +29,7 @@
     <!-- disable the battery optimisation on some devices to let the background sync works -->
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
-    <!-- videocall feature -->
-    <!-- android.permission.CAMERA defines android.hardware.camera -->
-    <uses-feature
-        android:name="android.hardware.camera"
-        android:required="false"
-        tools:replace="required" />
-    <uses-feature
-        android:name="android.hardware.camera.any"
-        android:required="false"
-        tools:replace="required" />
-    <uses-feature
-        android:name="android.hardware.camera.autofocus"
-        android:required="false"
-        tools:replace="required" />
-    <uses-feature
-        android:glEsVersion="0x00020000"
-        android:required="false"
-        tools:replace="required" />
 
-    <!-- android.permission.RECORD_AUDIO defines android.hardware.microphone -->
-    <uses-feature
-        android:name="android.hardware.microphone"
-        android:required="false"
-        tools:replace="required" />
 
     <!-- ShortcutBadger permissions -->
     <uses-permission android:name="com.sec.android.provider.badge.permission.READ" />
@@ -70,22 +39,6 @@
     <uses-permission android:name="com.sonyericsson.home.permission.BROADCAST_BADGE" />
     <uses-permission android:name="com.anddoes.launcher.permission.UPDATE_COUNT" />
     <uses-permission android:name="com.majeur.launcher.permission.UPDATE_BADGE" />
-
-    <!-- bluetooth headset -->
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-
-    <uses-feature
-        android:name="android.hardware.bluetooth"
-        android:required="false"
-        tools:replace="required" />
-
-    <!-- jitsi -->
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-
-    <uses-feature
-        android:name="android.hardware.telephony"
-        android:required="false" />
 
     <application
         android:name=".VectorApp"
@@ -100,15 +53,19 @@
 
         <!-- activities list starts here -->
         <activity
+            android:name="fr.gouv.tchap.activity.NotificationListenerDetectionActivity"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/AppTheme.NoActionBar.Swipe.Startup.Dark">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name="fr.gouv.tchap.activity.TchapLoginActivity"
             android:configChanges="orientation|screenSize"
             android:theme="@style/LoginAppTheme"
             android:windowSoftInputMode="stateHidden|adjustResize">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity android:name="fr.gouv.tchap.activity.TchapRoomCreationActivity"
             android:configChanges="orientation|screenSize"
@@ -130,6 +87,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="im.vector.activity.VectorHomeActivity" />
         </activity>
+        <activity
+            android:name="fr.gouv.tchap.activity.AccessibilityServiceDetectionActivity"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/AppTheme.NoActionBar.Swipe.Startup.Dark"/>
+        <activity
+            android:name=".activity.SelectPictureActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/title_activity_settings"
+            android:theme="@style/AppTheme.NoActionBar.Swipe"/>
         <activity
             android:name=".activity.AccountCreationActivity"
             android:configChanges="orientation|screenSize"
@@ -274,17 +240,6 @@
             android:name=".activity.StickerPickerActivity"
             android:configChanges="orientation|screenSize"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".activity.VectorMediasPickerActivity"
-            android:label="@string/media_picker_both_capture_title"
-            android:launchMode="singleTop"
-            android:parentActivityName=".activity.VectorRoomActivity"
-            android:theme="@style/AppTheme.NoActionBar.FullScreen"
-            android:windowSoftInputMode="stateHidden">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="im.vector.activity.VectorHomeActivity" />
-        </activity>
         <activity
             android:name=".activity.VectorPublicRoomsActivity"
             android:configChanges="orientation|screenSize"

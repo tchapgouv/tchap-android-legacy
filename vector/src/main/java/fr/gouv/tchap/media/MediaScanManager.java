@@ -16,7 +16,6 @@
 
 package fr.gouv.tchap.media;
 
-import org.matrix.androidsdk.HomeServerConnectionConfig;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.client.MediaScanRestClient;
 import org.matrix.androidsdk.rest.model.EncryptedMediaScanBody;
@@ -57,11 +56,11 @@ public class MediaScanManager {
     /**
      * Constructor
      *
-     * @param hsConfig the home server connection config
-     * @param realm    the Realm instance to use.
+     * @param mediaScanRestClient the media scan rest client
+     * @param realm               the Realm instance to use.
      */
-    public MediaScanManager(HomeServerConnectionConfig hsConfig, Realm realm) {
-        mMediaScanRestClient = new MediaScanRestClient(hsConfig);
+    public MediaScanManager(MediaScanRestClient mediaScanRestClient, Realm realm) {
+        mMediaScanRestClient = mediaScanRestClient;
         mMediaScanDao = new MediaScanDao(realm);
     }
 
@@ -106,7 +105,7 @@ public class MediaScanManager {
             }
 
             String domain = mediaServerAndId.substring(0, index);
-            String mediaId = mediaServerAndId.substring(index+1);
+            String mediaId = mediaServerAndId.substring(index + 1);
 
             mMediaScanRestClient.scanUnencryptedFile(domain, mediaId, new ApiCallback<MediaScanResult>() {
                 @Override
@@ -154,7 +153,7 @@ public class MediaScanManager {
      * Get the current scan result of an encrypted media (including antivirus status).
      * Trigger an antivirus scan if it is not already done.
      *
-     * @param mediaInfo  the encrypted media information.
+     * @param mediaInfo the encrypted media information.
      * @return the current scan result of the encrypted media..
      */
     public MediaScan scanEncryptedMedia(final EncryptedFileInfo mediaInfo) {
@@ -212,7 +211,7 @@ public class MediaScanManager {
         return mediaScan;
     }
 
-    private boolean isUpdateRequired (MediaScan mediaScan) {
+    private boolean isUpdateRequired(MediaScan mediaScan) {
         boolean isUpdateRequired = false;
 
         // Consider to launch a new request only if the scan is unknown for the moment.

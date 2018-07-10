@@ -134,7 +134,15 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
         mCurrentFilter = mActivity.getSearchQuery();
         mAdapter.onFilterDone(mCurrentFilter);
 
-        mInviteContactLayout.setOnClickListener(new View.OnClickListener() {
+        // Search in the user directories if a filter is already defined, except if the current user belongs to the E-platform.
+        if (!TextUtils.isEmpty(mCurrentFilter) && !TchapLoginActivity.isUserExternal(mSession)) {
+            startRemoteKnownContactsSearch(true);
+        }
+
+        // Hide temporarily this button
+        mInviteContactLayout.setVisibility(View.GONE);
+        // TODO restore the listener when the feature will be activated
+        /*mInviteContactLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!TchapLoginActivity.isUserExternal(mSession)) {
@@ -147,8 +155,7 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
                     DinsicUtils.alertSimpleMsg(mActivity, getString(R.string.action_forbidden));
                 }
             }
-        });
-
+        });*/
 
         if (!ContactsManager.getInstance().isContactBookAccessRequested()) {
             CommonActivityUtils.checkPermissions(CommonActivityUtils.REQUEST_CODE_PERMISSION_MEMBERS_SEARCH, this);
@@ -169,8 +176,6 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
         initContactsData();
 
         initContactsViews();
-
-        mAdapter.setInvitation(mActivity.getRoomInvitations());
 
         mRecycler.addOnScrollListener(mScrollListener);
     }
@@ -595,7 +600,6 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
         super.onSummariesUpdate();
 
         if (isResumed()) {
-            mAdapter.setInvitation(mActivity.getRoomInvitations());
             initContactsData();
         }
     }
