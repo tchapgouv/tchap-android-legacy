@@ -1053,7 +1053,7 @@ La visibilité des messages dans Matrix est identique à celle des e-mails. Si n
     <string name="accessibility_change_security_dialog_message">Un service d\'accessibilité a été activé. Il observe le clavier et les fenêtres.</string>
     <string name="notification_change_security_dialog_message">Un écouteur de notification lit le contenu des notifications de message. Les écouteurs suivant ont été activés :</string>
 
-    <string name = "action_expand">détailler</string>
-    <string name = "action_collapse">replier</string>
+    <string name = "action_expand">afficher</string>
+    <string name = "action_collapse">masquer</string>
 
 </resources>
