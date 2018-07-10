@@ -25,6 +25,8 @@ Improvements:
  * Home screen: dismiss the potential search session when a new activity is started #265
  * Room creation: highlight the caution for public rooms #215
  * Update the search bar display #271
+ * Code cleaning: Remove useless code in the login activity PR #329
+ * Updates icons for medias and VoIP #332
  * Hide the "inviter des contacts dans Tchap" button #285
 
 Bug Fixes:
@@ -39,6 +41,7 @@ Bug Fixes:
  * Unable to give my consent when I reject a room invite #281
  * Disable Rageshake detection #293
  * Fix crash with media (images/videos) on Android 4.x #333
+ * An unread badge is displayed on Contact tab by mistake PR #337
 
 Changes in Tchap 1.0.2 (2018-06-29)
 ===================================================
