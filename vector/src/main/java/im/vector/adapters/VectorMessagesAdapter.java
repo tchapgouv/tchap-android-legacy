@@ -1701,7 +1701,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             summaryTextView.setVisibility(event.isExpanded() ? View.GONE : View.VISIBLE);
             avatarsLayout.setVisibility(event.isExpanded() ? View.GONE : View.VISIBLE);
 
-            headerTextView.setText(event.isExpanded() ? "collapse" : "expand");
+            headerTextView.setText(event.isExpanded() ? R.string.action_collapse : R.string.action_expand);
 
             if (!event.isExpanded()) {
                 avatarsLayout.setVisibility(View.VISIBLE);
