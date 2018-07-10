@@ -202,6 +202,15 @@ public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity impl
         mSearchView.setIconifiedByDefault(false);
         mSearchView.setOnQueryTextListener(this);
         mSearchView.setQueryHint(getString(R.string.search_hint));
+        mSearchView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (v != null) {
+                    mSearchView.setIconified(false);
+                }
+
+            }
+        });
     }
 
     /**

@@ -1064,4 +1064,7 @@
     <string name="security_dialog_continue">Continue.</string>
     <string name="accessibility_change_security_dialog_message">An accessibility service has been activated. It watches keyboard and windows.</string>
     <string name="notification_change_security_dialog_message">A Notification listener reads the content of message notifications. These notifications listeners have been activated :</string>
+
+    <string name = "action_expand">expand</string>
+    <string name = "action_collapse">collapse</string>
 </resources>

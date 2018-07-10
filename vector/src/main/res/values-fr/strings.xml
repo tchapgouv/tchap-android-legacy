@@ -97,7 +97,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="send_files_in">Envoyer dans</string>
     <string name="read_receipt">Lu</string>
 
-    <string name="join_room">Rejoindre la conversation</string>
+    <string name="join_room">Rejoindre</string>
     <string name="username">Nom d\'utilisateur</string>
     <string name="create_account">S\'inscrire</string>
     <string name="login">Se connecter</string>
@@ -1052,4 +1052,8 @@ La visibilité des messages dans Matrix est identique à celle des e-mails. Si n
     <string name="security_dialog_continue">Continuer.</string>
     <string name="accessibility_change_security_dialog_message">Un service d\'accessibilité a été activé. Il observe le clavier et les fenêtres.</string>
     <string name="notification_change_security_dialog_message">Un écouteur de notification lit le contenu des notifications de message. Les écouteurs suivant ont été activés :</string>
+
+    <string name = "action_expand">détailler</string>
+    <string name = "action_collapse">replier</string>
+
 </resources>
