@@ -541,7 +541,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 switch (mMode) {
                     case MODE_ACCOUNT_CREATION:
                     case MODE_LOGIN:
-                        onClick();
                         fallbackToStartMode();
                         return true;
                     case MODE_ACCOUNT_CREATION_WAIT_FOR_EMAIL:
@@ -550,7 +549,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                         fallbackToRegistrationMode();
                         return true;
                     case MODE_FORGOT_PASSWORD:
-                        onClick();
                         fallbackToLoginMode();
                         return true;
                     case MODE_FORGOT_PASSWORD_WAITING_VALIDATION:
@@ -583,11 +581,15 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 fallbackToRegistrationMode();
                 break;
             case MODE_FORGOT_PASSWORD:
+                fallbackToLoginMode();
+                break;
             case MODE_FORGOT_PASSWORD_WAITING_VALIDATION:
-            case MODE_FORGOT_PASSWORD_WAITING_VALIDATION_2:
-                Log.d(LOG_TAG, "## cancel the forgot password mode");
-                // switch back directly to login screen
                 mForgotPid = null;
+                mMode = MODE_FORGOT_PASSWORD;
+                refreshDisplay();
+                break;
+            case MODE_FORGOT_PASSWORD_WAITING_VALIDATION_2:
+                // switch back directly to login screen
                 fallbackToLoginMode();
                 break;
             /*case MODE_ACCOUNT_CREATION_THREE_PID:
@@ -642,6 +644,8 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
      * It should restore the login UI
      */
     private void fallbackToLoginMode() {
+        onClick();
+
         // display the main layout
         mMainLayout.setVisibility(View.VISIBLE);
 
@@ -655,6 +659,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         // Reset the forgot password text views to prevent user from using an unknown password.
         mForgotPassword1TextView.setText(null);
         mForgotPassword2TextView.setText(null);
+        mForgotPid = null;
 
         mMode = MODE_LOGIN;
         refreshDisplay();
@@ -665,6 +670,8 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
      * It should restore the start UI
      */
     private void fallbackToStartMode() {
+        onClick();
+
         // display the main layout
         mMainLayout.setVisibility(View.VISIBLE);
 
