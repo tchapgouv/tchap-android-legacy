@@ -112,7 +112,6 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import fr.gouv.tchap.activity.AccessibilityServiceDetectionActivity;
 import fr.gouv.tchap.activity.TchapDirectRoomDetailsActivity;
 import fr.gouv.tchap.activity.TchapLoginActivity;
 import fr.gouv.tchap.util.DinsicUtils;
@@ -235,7 +234,8 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
     private MXLatestChatMessageCache mLatestChatMessageCache;
 
     private View mSendingMessagesLayout;
-    private ImageView mSendImageView;
+    private ImageView mSendMessageView;
+    private ImageView mSendAttachedFileView;
     private VectorAutoCompleteTextView mEditText;
     private ImageView mAvatarImageView;
     private View mCanNotPostTextView;
@@ -305,7 +305,6 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             });
         }
     };
-
 
     private String mCallId = null;
 
@@ -695,9 +694,17 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
 
         mEditText.setAddColonOnFirstItem(true);
 
+        mSendAttachedFileView = findViewById(R.id.room_attached_files_icon);
+        mSendAttachedFileView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                selectFileToSend();
+            }
+        });
+
         mSendingMessagesLayout = findViewById(R.id.room_sending_message_layout);
-        mSendImageView = findViewById(R.id.room_send_image_view);
-        mSendImageView.setOnClickListener(new View.OnClickListener() {
+        mSendMessageView = findViewById(R.id.room_send_message_icon);
+        mSendMessageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!TextUtils.isEmpty(mEditText.getText())) {
@@ -710,7 +717,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                         }
                     }
                 } else {
-                    selectFileToSend();
+                    refreshCallButtons(true);
                 }
             }
         });
@@ -845,8 +852,8 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                     mStopCallLayout.performClick();
                 } else if (mStartCallLayout.getVisibility() == View.VISIBLE) {
                     mStartCallLayout.performClick();
-                } else if (mSendImageView.getVisibility() == View.VISIBLE) {
-                    mSendImageView.performClick();
+                } else if (mSendMessageView.getVisibility() == View.VISIBLE) {
+                    mSendMessageView.performClick();
                 }
             }
         });
@@ -1102,12 +1109,6 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                 refreshCallButtons(false);
             }
         });
-
-        View avatarLayout = findViewById(R.id.room_self_avatar);
-
-        if (null != avatarLayout) {
-            mAvatarImageView = avatarLayout.findViewById(R.id.avatar_img);
-        }
 
         refreshSelfAvatar();
 
@@ -2071,7 +2072,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
 
         // ensure that a message is not sent twice
         // markdownToHtml seems being slow in some cases
-        mSendImageView.setEnabled(false);
+        mSendMessageView.setEnabled(false);
         mIsMarkDowning = true;
 
         VectorApp.markdownToHtml(mEditText.getText().toString().trim(), new VectorMarkdownParser.IVectorMarkdownParserListener() {
@@ -2080,7 +2081,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                 VectorRoomActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        mSendImageView.setEnabled(true);
+                        mSendMessageView.setEnabled(true);
                         mIsMarkDowning = false;
                         enableActionBarHeader(HIDE_ACTION_BAR_HEADER);
                         sendMessage(text, TextUtils.equals(text, HTMLText) ? null : HTMLText, Message.FORMAT_MATRIX_HTML);
@@ -2749,7 +2750,11 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
      */
     private void manageSendMoreButtons() {
         boolean hasText = (mEditText.getText().length() > 0);
-        mSendImageView.setImageResource(hasText ? R.drawable.ic_material_send_green : R.drawable.ic_material_file);
+        if (hasText) {
+            mSendMessageView.setVisibility(View.VISIBLE);
+        } else {
+            mSendMessageView.setVisibility(View.GONE);
+        }
     }
 
     /**
