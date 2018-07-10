@@ -114,6 +114,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="start_video_call">Nouvel appel vidéo</string>
 
     <string name="option_send_files">Envoyer des fichiers</string>
+    <string name="option_select_image">Choisir une image</string>
     <string name="option_take_photo_video">Prendre une photo ou une vidéo</string>
 
     <string name="auth_login">Je me connecte</string>

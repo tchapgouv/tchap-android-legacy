@@ -81,21 +81,4 @@ public class VectorSettingsActivity extends MXCActionBarActivity {
         // FIXME This is not necessary, if Fragment.startActivityForResult is used (and it should be used)
         mFragment.onActivityResult(requestCode, resultCode, data);
     }
-
-    @Override
-    public void onRequestPermissionsResult(int aRequestCode, @NonNull String[] aPermissions, @NonNull int[] aGrantResults) {
-        if (aRequestCode == CommonActivityUtils.REQUEST_CODE_PERMISSION_TAKE_PHOTO) {
-            boolean granted = false;
-
-            for (int i = 0; i < aGrantResults.length; i++) {
-                granted |= (PackageManager.PERMISSION_GRANTED == aGrantResults[i]);
-            }
-
-            if (granted) {
-                Intent intent = new Intent(this, VectorMediasPickerActivity.class);
-                intent.putExtra(VectorMediasPickerActivity.EXTRA_AVATAR_MODE, true);
-                startActivityForResult(intent, VectorUtils.TAKE_IMAGE);
-            }
-        }
-    }
 }
