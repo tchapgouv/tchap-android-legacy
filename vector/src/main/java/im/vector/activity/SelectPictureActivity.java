@@ -18,9 +18,11 @@
 package im.vector.activity;
 
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.provider.MediaStore;
 import android.content.ContentValues;
 
@@ -31,6 +33,7 @@ import android.support.v4.app.FragmentManager;
 import android.net.Uri;
 import android.os.Build;
 import android.content.Intent;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -79,14 +82,14 @@ public class SelectPictureActivity extends AppCompatActivity  {
         };
 
         icons = new Integer[]{
-                R.drawable.ic_material_file,
+                R.drawable.tchap_ic_attached_files,
                 //R.drawable.ic_send_sticker,
-                R.drawable.ic_material_camera,
+                R.drawable.tchap_ic_camera,
         };
 
         fragment = IconAndTextDialogTchapFragment.newInstance(icons, messages,
                 ThemeUtils.getColor(this, R.attr.riot_primary_background_color),
-                ThemeUtils.getColor(this, R.attr.riot_primary_text_color));
+                ContextCompat.getColor(this, R.color.tchap_text_color_light));
 
         fragment.setOnClickListener(new IconAndTextDialogTchapFragment.OnItemClickListener() {
             @Override
@@ -96,12 +99,51 @@ public class SelectPictureActivity extends AppCompatActivity  {
                 if (selectedVal == R.string.option_select_image) {
                     launchImageSelectionIntent();
                 } else if (selectedVal == R.string.option_take_photo) {
-                    launchNativeCamera();
+                    // Check permission
+                    if (CommonActivityUtils.checkPermissions(CommonActivityUtils.REQUEST_CODE_PERMISSION_TAKE_PHOTO, SelectPictureActivity.this)) {
+                        launchNativeCamera();
+                    }
                 }
             }
         });
 
         fragment.show(fm,TAG_FRAGMENT_SELECT_PICTURE);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int aRequestCode, @NonNull String[] aPermissions, @NonNull int[] aGrantResults) {
+        if (aRequestCode == CommonActivityUtils.REQUEST_CODE_PERMISSION_TAKE_PHOTO) {
+            boolean isCameraPermissionGranted = false;
+
+            for (int i = 0; i < aPermissions.length; i++) {
+                Log.d(LOG_TAG, "## onRequestPermissionsResult(): " + aPermissions[i] + "=" + aGrantResults[i]);
+
+                if (Manifest.permission.CAMERA.equals(aPermissions[i])) {
+                    if (PackageManager.PERMISSION_GRANTED == aGrantResults[i]) {
+                        Log.d(LOG_TAG, "## onRequestPermissionsResult(): CAMERA permission granted");
+                        isCameraPermissionGranted = true;
+                    } else {
+                        Log.d(LOG_TAG, "## onRequestPermissionsResult(): CAMERA permission not granted");
+                    }
+                }
+
+                if (Manifest.permission.WRITE_EXTERNAL_STORAGE.equals(aPermissions[i])) {
+                    if (PackageManager.PERMISSION_GRANTED == aGrantResults[i]) {
+                        Log.d(LOG_TAG, "## onRequestPermissionsResult(): WRITE_EXTERNAL_STORAGE permission granted");
+                    } else {
+                        Log.d(LOG_TAG, "## onRequestPermissionsResult(): WRITE_EXTERNAL_STORAGE permission not granted");
+                    }
+                }
+            }
+
+            // Because external storage permission is not mandatory to launch the camera,
+            // external storage permission is not tested.
+            if (isCameraPermissionGranted) {
+                launchNativeCamera();
+            } else {
+                CommonActivityUtils.displayToast(this, getString(R.string.missing_permissions_warning));
+            }
+        }
     }
 
     /**

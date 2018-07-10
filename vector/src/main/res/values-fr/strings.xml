@@ -531,7 +531,7 @@ Veuillez nous excuser pour ce désagrément.</string>
     <string name="permissions_rationale_msg_storage">Tchap a besoin d\'accéder à vos photos et vidéos pour envoyer et enregistrer des pièces jointes.
 
 Veuillez autoriser l\'accès dans la prochaine fenêtre contextuelle pour pouvoir envoyer des fichiers depuis votre téléphone.</string>
-    <string name="permissions_rationale_msg_camera">Tchap a besoin d\'accéder à votre appareil photo pour prendre des photos et passer des appels vidéo.</string>
+    <string name="permissions_rationale_msg_camera">Tchap a besoin d\'accéder à votre appareil photo.</string>
     <string name="permissions_rationale_msg_camera_explanation">
 
 Veuillez autoriser l\'accès dans la prochaine fenêtre contextuelle pour pouvoir effectuer l\'appel.</string>

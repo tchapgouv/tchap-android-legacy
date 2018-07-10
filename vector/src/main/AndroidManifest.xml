@@ -4,6 +4,9 @@
     package="im.vector"
     android:installLocation="auto">
 
+    <!-- camera permission is required even for the native camera -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -95,7 +98,7 @@
             android:name=".activity.SelectPictureActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_settings"
-            android:theme="@style/AppTheme.NoActionBar.Swipe.Dark"/>
+            android:theme="@style/AppTheme.NoActionBar.Swipe"/>
         <activity
             android:name=".activity.AccountCreationActivity"
             android:configChanges="orientation|screenSize"
