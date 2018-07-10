@@ -1,4 +1,4 @@
-Changes in Tchap 1.0.3 (2018-xx-xx)
+Changes in Tchap 1.0.3 (2018-07-10)
 ===================================================
 
 Improvements:
