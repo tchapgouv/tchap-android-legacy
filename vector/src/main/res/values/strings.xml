@@ -405,8 +405,8 @@
 
     <!-- invitation -->
     <string name="people_search_invite_by_id"><u>Invite by ID</u></string>
-    <string name="people_search_local_contacts">LOCAL CONTACTS (%d)</string>
-    <string name="people_search_user_directory">USER DIRECTORY (%s)</string>
+    <string name="people_search_local_contacts">Local contacts (%d)</string>
+    <string name="people_search_user_directory">User directory (%s)</string>
     <string name="people_search_filter_text">Matrix users only</string>
 
     <string name="people_search_invite_by_id_dialog_title">Invite user by ID</string>
@@ -498,7 +498,7 @@
     <string name="room_recents_favourites">FAVORITES</string>
     <string name="room_recents_conversations">ROOMS</string>
     <string name="room_recents_low_priority">LOW PRIORITY</string>
-    <string name="room_recents_invites">INVITES</string>
+    <string name="room_recents_invites">Invites</string>
     <string name="room_recents_start_chat">Start chat</string>
     <string name="room_recents_create_room">Create room</string>
     <string name="room_recents_join_room">Join room</string>
