@@ -230,7 +230,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="room_participants_action_set_admin">Nommer administrateur</string>
     <string name="room_participants_action_mention">Mentionner</string>
     <string name="room_participants_action_devices_list">Afficher la liste des appareils</string>
-    <string name="people_search_local_contacts">CONTACTS LOCAUX (%d)</string>
+    <string name="people_search_local_contacts">Contacts locaux (%d)</string>
     <string name="people_search_filter_text">Utilisateurs Matrix uniquement</string>
     <string name="people_search_invite_by_id_dialog_title">Inviter un utilisateur par email</string>
     <string name="people_search_invite_by_id_dialog_hint">Email</string>
@@ -284,7 +284,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="room_recents_favourites">FAVORIS</string>
     <string name="room_recents_conversations">CONVERSATIONS</string>
     <string name="room_recents_low_priority">PRIORITÉ BASSE</string>
-    <string name="room_recents_invites">INVITATIONS</string>
+    <string name="room_recents_invites">Invitations</string>
     <string name="room_recents_start_chat">Créer une discussion</string>
     <string name="room_recents_create_room">Créer un salon</string>
     <string name="room_recents_join_room">Rejoindre le salon</string>
@@ -693,7 +693,7 @@ Appareils inconnus :</string>
 
     <string name="user_directory_header">Répertoire Tchap</string>
 
-    <string name="people_search_user_directory">RÉPERTOIRE UTILISATEUR (%s)</string>
+    <string name="people_search_user_directory">Répertoire utilisateurs (%s)</string>
     <string name="settings_start_on_boot">Lancer au démarrage</string>
     <string name="settings_clear_medias_cache">Vider le cache des médias</string>
     <string name="settings_keep_media">Conserver les médias</string>
