@@ -137,12 +137,12 @@
                     android:orientation="vertical"
                     android:visibility="gone">
 
-                    <ImageView
+                    <!--ImageView
                         android:id="@+id/message_adapter_sticker_triangle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="10dp"
-                        android:background="@drawable/sticker_description_triangle" />
+                        android:background="@drawable/sticker_description_triangle" /-->
 
                     <TextView
                         android:id="@+id/message_adapter_sticker_description"
