@@ -1428,15 +1428,15 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
         };
 
         final Integer[] icons = new Integer[]{
-                R.drawable.ic_material_file,
+                R.drawable.tchap_ic_attached_files,
                 //R.drawable.ic_send_sticker,
-                R.drawable.ic_material_camera,
-                R.drawable.ic_material_videocam,
+                R.drawable.tchap_ic_camera,
+                R.drawable.tchap_ic_video,
         };
 
         fragment = IconAndTextDialogFragment.newInstance(icons, messages,
                 ThemeUtils.getColor(VectorRoomActivity.this, R.attr.riot_primary_background_color),
-                ThemeUtils.getColor(VectorRoomActivity.this, R.attr.riot_primary_text_color));
+                ContextCompat.getColor(VectorRoomActivity.this, R.color.tchap_text_color_light));
         fragment.setOnClickListener(new IconAndTextDialogFragment.OnItemClickListener() {
             @Override
             public void onItemClick(IconAndTextDialogFragment dialogFragment, int position) {
@@ -1823,12 +1823,12 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
         // hide the header room
         enableActionBarHeader(HIDE_ACTION_BAR_HEADER);
 
-        final Integer[] lIcons = new Integer[]{R.drawable.voice_call_green, R.drawable.video_call_green};
+        final Integer[] lIcons = new Integer[]{R.drawable.tchap_ic_start_call, R.drawable.tchap_ic_video};
         final Integer[] lTexts = new Integer[]{R.string.action_voice_call, R.string.action_video_call};
 
         IconAndTextDialogFragment fragment = IconAndTextDialogFragment.newInstance(lIcons, lTexts,
                 ThemeUtils.getColor(this, R.attr.riot_primary_background_color),
-                ThemeUtils.getColor(this, R.attr.riot_primary_text_color));
+                ContextCompat.getColor(VectorRoomActivity.this, R.color.tchap_text_color_light));
         fragment.setOnClickListener(new IconAndTextDialogFragment.OnItemClickListener() {
             @Override
             public void onItemClick(IconAndTextDialogFragment dialogFragment, int position) {
