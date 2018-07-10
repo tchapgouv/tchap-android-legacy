@@ -404,6 +404,18 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         mSearchView.setIconifiedByDefault(false);
         mSearchView.setOnQueryTextListener(this);
         mSearchView.setQueryHint(getString(R.string.search_hint));
+        //necessary for getting focus when click on search icon:
+        //------------------------------------------------------
+        mSearchView.setOnQueryTextListener(this);
+        mSearchView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (v != null) {
+                    mSearchView.setIconified(false);
+                }
+
+            }
+        });
     }
 
     @Override
