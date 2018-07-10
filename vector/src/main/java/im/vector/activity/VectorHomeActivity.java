@@ -2058,87 +2058,46 @@ public class VectorHomeActivity extends RiotAppCompatActivity implements SearchV
         }
 
         Set<Integer> menuIndexes = new HashSet<>(mBadgeViewByIndex.keySet());
-
-        // the badges are not anymore displayed on the home tab
-        //no more home
-        //menuIndexes.remove(R.id.bottom_action_home);
-
         for (Integer id : menuIndexes) {
-            // use a map because contains is faster
-            HashSet<String> filteredRoomIdsSet = new HashSet<>();
-            //no more favourite
-            /*
-            if (id == R.id.bottom_action_favourites) {
-                List<Room> favRooms = mSession.roomsWithTag(RoomTag.ROOM_TAG_FAVOURITE);
-
-                for (Room room : favRooms) {
-                    filteredRoomIdsSet.add(room.getRoomId());
-                }
-            } else */
-            if (id == TAB_POSITION_CONTACT) {
-                //badge in bottom_people only for invitation
-
-                // Add direct chat invitations
-                for (Room room : roomSummaryByRoom.keySet()) {
-                    if (room.isDirectChatInvitation() && !room.isConferenceUserRoom()) {
-                        filteredRoomIdsSet.add(room.getRoomId());
-                    }
-                }
-
-                // remove the low priority rooms
-                List<Room> lowPriorRooms = mSession.roomsWithTag(RoomTag.ROOM_TAG_LOW_PRIORITY);
-                for (Room room : lowPriorRooms) {
-                    filteredRoomIdsSet.remove(room.getRoomId());
-                }
-
-            } else if (id == TAB_POSITION_CONVERSATION) {
+            // Only the Conversation tab has an unread badge.
+            if (id == TAB_POSITION_CONVERSATION) {
+                // use a map because contains is faster
+                HashSet<String> filteredRoomIdsSet = new HashSet<>();
                 HashSet<String> lowPriorityRoomIds = new HashSet<>(mSession.roomIdsWithTag(RoomTag.ROOM_TAG_LOW_PRIORITY));
 
                 for (Room room : roomSummaryByRoom.keySet()) {
                     if (!room.isConferenceUserRoom() && // not a VOIP conference room
-                            !directChatInvitations.contains(room.getRoomId()) && // not a direct chat invitation
                             !lowPriorityRoomIds.contains(room.getRoomId())) {
                         filteredRoomIdsSet.add(room.getRoomId());
                     }
                 }
-            }
 
-            // compute the badge value and its displays
-            int highlightCount = 0;
-            int roomCount = 0;
+                // compute the badge value and its displays
+                int roomCount = 0;
 
-            for (String roomId : filteredRoomIdsSet) {
-                Room room = store.getRoom(roomId);
+                for (String roomId : filteredRoomIdsSet) {
+                    Room room = store.getRoom(roomId);
 
-                if (null != room) {
-                    highlightCount += room.getHighlightCount();
-
-                    if (room.isInvited()) {
-                        roomCount++;
-                    } else {
-                        int notificationCount = room.getNotificationCount();
-
-                        if (bingRulesManager.isRoomMentionOnly(roomId)) {
-                            notificationCount = room.getHighlightCount();
-                        }
-
-                        if (notificationCount > 0) {
+                    if (null != room) {
+                        if (room.isInvited()) {
                             roomCount++;
+                        } else {
+                            int notificationCount = room.getNotificationCount();
+
+                            if (bingRulesManager.isRoomMentionOnly(roomId)) {
+                                notificationCount = room.getHighlightCount();
+                            }
+
+                            if (notificationCount > 0) {
+                                roomCount++;
+                            }
                         }
                     }
                 }
+
+                //always highligted
+                mBadgeViewByIndex.get(id).updateCounter(roomCount, UnreadCounterBadgeView.HIGHLIGHTED);
             }
-            //always highligted
-            int status = UnreadCounterBadgeView.HIGHLIGHTED;
-//            int status = (0 != highlightCount) ? UnreadCounterBadgeView.HIGHLIGHTED :
-//                    ((0 != roomCount) ? UnreadCounterBadgeView.NOTIFIED : UnreadCounterBadgeView.DEFAULT);
-            //no more favourite
-            /*
-            if (id == R.id.bottom_action_favourites) {
-                mBadgeViewByIndex.get(id).updateText((roomCount > 0) ? "\u2022" : "", status);
-            } else {*/
-            mBadgeViewByIndex.get(id).updateCounter(roomCount, status);
-            //}
         }
     }
 
