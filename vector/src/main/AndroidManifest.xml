@@ -4,9 +4,6 @@
     package="im.vector"
     android:installLocation="auto">
 
-    <!-- camera permission is required even for the native camera -->
-    <uses-permission android:name="android.permission.CAMERA" />
-
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
