@@ -67,6 +67,12 @@ public class NotificationListenerDetectionActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Disable temporarily the notification listener check until verifying the behavior in all use cases.
+        finish(true);
+        return;
+
+        /*
         StringBuilder string_builder = null;
         String message = "";
 
@@ -76,7 +82,6 @@ public class NotificationListenerDetectionActivity extends AppCompatActivity {
             finish(true);
             return;
         }
-
 
         notificationListenerNames = getListeningServiceAppName(getApplicationContext(), getContentResolver());
 
@@ -124,6 +129,7 @@ public class NotificationListenerDetectionActivity extends AppCompatActivity {
                     }
                 })
                 .show();
+        */
     }
 
     private void finish(boolean startNext) {
