@@ -1,3 +1,9 @@
+Changes in Tchap 1.0.4 (2018-07-11)
+===================================================
+
+Improvement:
+ * Disable temporarily the notification listener check PR #339
+
 Changes in Tchap 1.0.3 (2018-07-10)
 ===================================================
 
