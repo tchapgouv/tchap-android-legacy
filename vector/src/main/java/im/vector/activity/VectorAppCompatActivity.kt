@@ -17,7 +17,6 @@
 
 package im.vector.activity
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.support.annotation.*
@@ -326,6 +325,8 @@ abstract class VectorAppCompatActivity : AppCompatActivity() {
     }
 
     protected fun applyScreenshotSecurity() {
-        window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        if (!BuildConfig.DEBUG) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        }
     }
 }
