@@ -32,6 +32,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
@@ -750,7 +751,8 @@ public class CommonActivityUtils {
             String permissionType;
 
             // retrieve the permissions to be granted according to the request code bit map
-            if (PERMISSION_CAMERA == (aPermissionsToBeGrantedBitMap & PERMISSION_CAMERA)) {
+            if (PERMISSION_CAMERA == (aPermissionsToBeGrantedBitMap & PERMISSION_CAMERA)
+                    && hasToAskForCameraPermission(aCallingActivity)) {
                 permissionType = Manifest.permission.CAMERA;
                 isRequestPermissionRequired |= updatePermissionsToBeGranted(aCallingActivity, permissionListAlreadyDenied, permissionsListToBeGranted, permissionType);
             }
@@ -920,6 +922,33 @@ public class CommonActivityUtils {
             }
         }
         return isPermissionGranted;
+    }
+
+    /**
+     * On Android M, we need to ask permission to use the camera, only if the permission is
+     * also in the Manifest
+     *
+     * @return true if the Camera permission is present in the Manifest file
+     */
+    private static boolean hasToAskForCameraPermission(Context context) {
+        final String packageName = context.getPackageName();
+        try {
+            final PackageInfo packageInfo = context.getPackageManager().getPackageInfo(packageName, PackageManager.GET_PERMISSIONS);
+            final String[] declaredPermissions = packageInfo.requestedPermissions;
+            if (declaredPermissions != null && declaredPermissions.length > 0) {
+                for (String p : declaredPermissions) {
+                    if (Manifest.permission.CAMERA.equals(p)) {
+                        // Found
+                        return true;
+                    }
+                }
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e(LOG_TAG, "Error " + e.getMessage(), e);
+        }
+
+        // Not found or error
+        return false;
     }
 
     /**

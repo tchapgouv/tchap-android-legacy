@@ -1447,9 +1447,17 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                 } else if (selectedVal == R.string.option_send_sticker) {
                     startStickerPickerActivity();
                 } else if (selectedVal == R.string.option_take_photo) {
-                    launchNativeCamera();
+                    if (CommonActivityUtils.checkPermissions(CommonActivityUtils.REQUEST_CODE_PERMISSION_TAKE_PHOTO, VectorRoomActivity.this)) {
+                        launchNativeCamera();
+                    } else {
+                        mCameraPermissionAction = R.string.option_take_photo;
+                    }
                 } else if (selectedVal == R.string.option_take_video) {
-                    launchNativeVideoRecorder();
+                    if (CommonActivityUtils.checkPermissions(CommonActivityUtils.REQUEST_CODE_PERMISSION_TAKE_PHOTO, VectorRoomActivity.this)) {
+                        launchNativeVideoRecorder();
+                    } else {
+                        mCameraPermissionAction = R.string.option_take_video;
+                    }
                 }
             }
         });
@@ -2629,6 +2637,41 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
     public void onRequestPermissionsResult(int aRequestCode, @NonNull String[] aPermissions, @NonNull int[] aGrantResults) {
         if (0 == aPermissions.length) {
             Log.e(LOG_TAG, "## onRequestPermissionsResult(): cancelled " + aRequestCode);
+        } else if (aRequestCode == CommonActivityUtils.REQUEST_CODE_PERMISSION_TAKE_PHOTO) {
+            boolean isCameraPermissionGranted = false;
+
+            for (int i = 0; i < aPermissions.length; i++) {
+                Log.d(LOG_TAG, "## onRequestPermissionsResult(): " + aPermissions[i] + "=" + aGrantResults[i]);
+
+                if (Manifest.permission.CAMERA.equals(aPermissions[i])) {
+                    if (PackageManager.PERMISSION_GRANTED == aGrantResults[i]) {
+                        Log.d(LOG_TAG, "## onRequestPermissionsResult(): CAMERA permission granted");
+                        isCameraPermissionGranted = true;
+                    } else {
+                        Log.d(LOG_TAG, "## onRequestPermissionsResult(): CAMERA permission not granted");
+                    }
+                }
+
+                if (Manifest.permission.WRITE_EXTERNAL_STORAGE.equals(aPermissions[i])) {
+                    if (PackageManager.PERMISSION_GRANTED == aGrantResults[i]) {
+                        Log.d(LOG_TAG, "## onRequestPermissionsResult(): WRITE_EXTERNAL_STORAGE permission granted");
+                    } else {
+                        Log.d(LOG_TAG, "## onRequestPermissionsResult(): WRITE_EXTERNAL_STORAGE permission not granted");
+                    }
+                }
+            }
+
+            // Because external storage permission is not mandatory to launch the camera,
+            // external storage permission is not tested.
+            if (isCameraPermissionGranted) {
+                if (R.string.option_take_photo == mCameraPermissionAction) {
+                    launchNativeCamera();
+                } else if (R.string.option_take_video == mCameraPermissionAction) {
+                    launchNativeVideoRecorder();
+                }
+            } else {
+                CommonActivityUtils.displayToast(this, getString(R.string.missing_permissions_warning));
+            }
         } else if (aRequestCode == CommonActivityUtils.REQUEST_CODE_PERMISSION_AUDIO_IP_CALL) {
             if (CommonActivityUtils.onPermissionResultAudioIpCall(this, aPermissions, aGrantResults)) {
                 startIpCall(PreferencesManager.useJitsiConfCall(this), false);
