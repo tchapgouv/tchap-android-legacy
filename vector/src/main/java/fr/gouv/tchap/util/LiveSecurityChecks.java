@@ -53,7 +53,8 @@ public class LiveSecurityChecks {
         stopped_before_starting = false;
 
         checkAccessibilityChange();
-        checkNotificationListenerChange();
+        // Disable temporarily the check on the notification listener change until verifying the behavior in all use cases.
+        //checkNotificationListenerChange();
     }
 
     protected void checkAccessibilityChange() {
@@ -111,7 +112,7 @@ public class LiveSecurityChecks {
             notificationMessageBuilder.append("\n").append("- ").append(s);
         }
 
-        String message = attachedActivity.getResources().getString(R.string.notification_security_dialog_message) +
+        String message = attachedActivity.getResources().getString(R.string.notification_change_security_dialog_message) +
                 notificationMessageBuilder.toString();
 
         new AlertDialog.Builder(attachedActivity)
