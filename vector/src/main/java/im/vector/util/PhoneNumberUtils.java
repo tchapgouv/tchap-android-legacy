@@ -109,22 +109,24 @@ public class PhoneNumberUtils {
      */
     public static List<CountryPhoneData> getCountriesWithIndicator() {
         if (mCountryIndicatorList == null) {
-            mCountryIndicatorList = new ArrayList<>();
+            List data = new ArrayList<>();
 
             buildCountryCodesList();
             for (Map.Entry<String, String> entry : mCountryNameByCC.entrySet()) {
                 final int indicator = PhoneNumberUtil.getInstance().getCountryCodeForRegion(entry.getKey());
                 if (indicator > 0) {
-                    mCountryIndicatorList.add(new CountryPhoneData(entry.getKey(), entry.getValue(), indicator));
+                    data.add(new CountryPhoneData(entry.getKey(), entry.getValue(), indicator));
                 }
             }
             // sort by human display names
-            Collections.sort(mCountryIndicatorList, new Comparator<CountryPhoneData>() {
+            Collections.sort(data, new Comparator<CountryPhoneData>() {
                 @Override
                 public int compare(CountryPhoneData lhs, CountryPhoneData rhs) {
                     return lhs.getCountryName().compareTo(rhs.getCountryName());
                 }
             });
+
+            mCountryIndicatorList = data;
         }
 
         return mCountryIndicatorList;

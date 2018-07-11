@@ -875,9 +875,8 @@ public class CommonActivityUtils {
 
                         if (null != resource) {
                             permissionsInfoDialog.setTitle(resource.getString(R.string.permissions_rationale_popup_title));
+                            permissionsInfoDialog.setMessage(resource.getString(R.string.permissions_msg_contacts_warning_other_androids));
                         }
-
-                        permissionsInfoDialog.setMessage(resource.getString(R.string.permissions_msg_contacts_warning_other_androids));
 
                         // gives the contacts book access
                         permissionsInfoDialog.setPositiveButton(aCallingActivity.getString(R.string.yes), new DialogInterface.OnClickListener() {

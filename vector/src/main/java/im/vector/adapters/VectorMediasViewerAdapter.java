@@ -629,7 +629,9 @@ public class VectorMediasViewerAdapter extends PagerAdapter {
                 }
 
                 // update the source
-                videoView.setVideoPath(dstFile.getAbsolutePath());
+                if (null != dstFile) {
+                    videoView.setVideoPath(dstFile.getAbsolutePath());
+                }
                 // hide the thumbnail
                 displayVideoThumbnail(pageView, false);
 
@@ -889,7 +891,9 @@ public class VectorMediasViewerAdapter extends PagerAdapter {
                 imageHeight = options.outHeight;
 
                 imageStream.close();
-                fullSizeBitmap.recycle();
+                if (null != fullSizeBitmap) {
+                    fullSizeBitmap.recycle();
+                }
             } catch (Exception e) {
                 Log.e(LOG_TAG, "## computeCss() : failed " + e.getMessage());
             }

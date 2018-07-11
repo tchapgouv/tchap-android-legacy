@@ -82,26 +82,28 @@ public class FallbackLoginActivity extends RiotAppCompatActivity {
         android.webkit.CookieManager cookieManager = android.webkit.CookieManager.getInstance();
 
         // clear the cookies must be cleared
-        if ((null != cookieManager) && !cookieManager.hasCookies()) {
-            launchWebView();
-        } else if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.LOLLIPOP) {
-            try {
-                cookieManager.removeAllCookie();
-            } catch (Exception e) {
-                Log.e(LOG_TAG, " cookieManager.removeAllCookie() fails " + e.getLocalizedMessage());
-            }
-            launchWebView();
-        } else {
-            try {
-                cookieManager.removeAllCookies(new ValueCallback<Boolean>() {
-                    @Override
-                    public void onReceiveValue(Boolean value) {
-                        launchWebView();
-                    }
-                });
-            } catch (Exception e) {
-                Log.e(LOG_TAG, " cookieManager.removeAllCookie() fails " + e.getLocalizedMessage());
+        if (null != cookieManager) {
+            if (!cookieManager.hasCookies()) {
                 launchWebView();
+            } else if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.LOLLIPOP) {
+                try {
+                    cookieManager.removeAllCookie();
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, " cookieManager.removeAllCookie() fails " + e.getLocalizedMessage());
+                }
+                launchWebView();
+            } else {
+                try {
+                    cookieManager.removeAllCookies(new ValueCallback<Boolean>() {
+                        @Override
+                        public void onReceiveValue(Boolean value) {
+                            launchWebView();
+                        }
+                    });
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, " cookieManager.removeAllCookie() fails " + e.getLocalizedMessage());
+                    launchWebView();
+                }
             }
         }
     }
