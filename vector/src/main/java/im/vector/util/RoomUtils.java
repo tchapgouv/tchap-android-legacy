@@ -493,7 +493,6 @@ public class RoomUtils {
 
         if (room.isLeft()) {
             popup.getMenu().setGroupVisible(R.id.active_room_actions, false);
-            popup.getMenu().setGroupVisible(R.id.add_shortcut_actions, false);
             popup.getMenu().setGroupVisible(R.id.historical_room_actions, true);
 
             if (historicalRoomActionListener != null) {
@@ -509,18 +508,6 @@ public class RoomUtils {
             }
         } else {
             popup.getMenu().setGroupVisible(R.id.active_room_actions, true);
-
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-                popup.getMenu().setGroupVisible(R.id.add_shortcut_actions, false);
-            } else {
-                ShortcutManager manager = context.getSystemService(ShortcutManager.class);
-
-                if (!manager.isRequestPinShortcutSupported()) {
-                    popup.getMenu().setGroupVisible(R.id.add_shortcut_actions, false);
-                } else {
-                    popup.getMenu().setGroupVisible(R.id.add_shortcut_actions, true);
-                }
-            }
 
             popup.getMenu().setGroupVisible(R.id.historical_room_actions, false);
 
@@ -611,10 +598,6 @@ public class RoomUtils {
                                 } else {
                                     moreActionListener.onLeaveRoom(session, room.getRoomId());
                                 }
-                                break;
-                            }
-                            case R.id.ic_action_add_homescreen_shortcut: {
-                                moreActionListener.addHomeScreenShortcut(session, room.getRoomId());
                                 break;
                             }
                         }
