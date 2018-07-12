@@ -46,8 +46,8 @@ import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.annotation.AttrRes;
 import android.support.annotation.ColorInt;
-import android.support.annotation.Nullable;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -751,8 +751,10 @@ public class CommonActivityUtils {
             String permissionType;
 
             // retrieve the permissions to be granted according to the request code bit map
+            // Camera permission may or may not be present in the Manifest, depending on build variant. If not present, there is
+            // no need to request it to the user
             if (PERMISSION_CAMERA == (aPermissionsToBeGrantedBitMap & PERMISSION_CAMERA)
-                    && hasToAskForCameraPermission(aCallingActivity)) {
+                    && hasToAskForPermission(aCallingActivity, Manifest.permission.CAMERA)) {
                 permissionType = Manifest.permission.CAMERA;
                 isRequestPermissionRequired |= updatePermissionsToBeGranted(aCallingActivity, permissionListAlreadyDenied, permissionsListToBeGranted, permissionType);
             }
@@ -925,19 +927,21 @@ public class CommonActivityUtils {
     }
 
     /**
-     * On Android M, we need to ask permission to use the camera, only if the permission is
-     * also in the Manifest
+     * On Android M, we need to ask permission to the user, only if the permission is also in the Manifest.
+     * For example depending on the build variant, the permission CAMERA may or may not be present in the Manifest.
      *
-     * @return true if the Camera permission is present in the Manifest file
+     * @param context            the Android context
+     * @param searchedPermission the permission to search for in the Manifest
+     * @return true if the searched permission is present in the Manifest file
      */
-    private static boolean hasToAskForCameraPermission(Context context) {
+    private static boolean hasToAskForPermission(Context context, String searchedPermission) {
         final String packageName = context.getPackageName();
         try {
             final PackageInfo packageInfo = context.getPackageManager().getPackageInfo(packageName, PackageManager.GET_PERMISSIONS);
             final String[] declaredPermissions = packageInfo.requestedPermissions;
             if (declaredPermissions != null && declaredPermissions.length > 0) {
                 for (String p : declaredPermissions) {
-                    if (Manifest.permission.CAMERA.equals(p)) {
+                    if (searchedPermission.equals(p)) {
                         // Found
                         return true;
                     }
