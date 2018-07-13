@@ -941,7 +941,7 @@ public class VectorUtils {
                     } else if ((null == user) && (null != updatedUser)) {
                         Log.d(LOG_TAG, "Got the user presence : " + userId);
                         isUpdated = true;
-                    } else if (!TextUtils.equals(fPresence, updatedUser.presence)) {
+                    } else if ((null != updatedUser) && !TextUtils.equals(fPresence, updatedUser.presence)) {
                         isUpdated = true;
                         Log.d(LOG_TAG, "Got some new user presence info : " + userId);
                         Log.d(LOG_TAG, "currently_active : " + updatedUser.currently_active);
@@ -1037,7 +1037,7 @@ public class VectorUtils {
                     } else if ((null == user) && (null != updatedUser)) {
                         Log.d(LOG_TAG, "Got the user presence : " + userId);
                         isUpdated = true;
-                    } else if (!TextUtils.equals(fPresence, updatedUser.presence)) {
+                    } else if ((null != updatedUser) && !TextUtils.equals(fPresence, updatedUser.presence)) {
                         isUpdated = true;
                         Log.d(LOG_TAG, "Got some new user presence info : " + userId);
                         Log.d(LOG_TAG, "currently_active : " + updatedUser.currently_active);
