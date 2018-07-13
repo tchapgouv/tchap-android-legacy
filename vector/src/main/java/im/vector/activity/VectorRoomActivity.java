@@ -2232,11 +2232,19 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
         if (null != mTchapUser) {
             // Here we create a new direct chat with the selected user, and post the message.
             if (!TchapLoginActivity.isUserExternal(mSession)) {
+
+                // ensure that the room is not created several times
+                // the room creation is slow
+                mSendMessageView.setEnabled(false);
+                mSendAttachedFileView.setEnabled(false);
                 showWaitingView();
+
                 mSession.createDirectMessageRoom(mTchapUser.user_id, new ApiCallback<String>() {
                     @Override
                     public void onSuccess(final String roomId) {
                         hideWaitingView();
+                        // We don't need to enable mSendMessageView and mSendAttachedFileView,
+                        // we are leaving the activity
 
                         HashMap<String, Object> params = new HashMap<>();
                         params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
@@ -2252,10 +2260,17 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
                     }
 
                     private void onError(final String message) {
-                        if (null != message) {
-                            Toast.makeText(VectorRoomActivity.this, message, Toast.LENGTH_LONG).show();
-                        }
-                        hideWaitingView();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (null != message) {
+                                    Toast.makeText(VectorRoomActivity.this, message, Toast.LENGTH_LONG).show();
+                                }
+                                mSendMessageView.setEnabled(true);
+                                mSendAttachedFileView.setEnabled(true);
+                                hideWaitingView();
+                            }
+                        });
                     }
 
                     @Override
