@@ -283,7 +283,11 @@ public class TchapPublicRoomsFragment extends AbsHomeFragment {
 
                     @Override
                     public void onMatrixError(MatrixError e) {
-                        onError();
+                        if (MatrixError.M_CONSENT_NOT_GIVEN.equals(e.errcode) && isAdded()) {
+                            mActivity.getConsentNotGivenHelper().displayDialog(e);
+                        } else {
+                            onError();
+                        }
                     }
 
                     @Override
@@ -411,7 +415,6 @@ public class TchapPublicRoomsFragment extends AbsHomeFragment {
                             else {
                                 initPublicRoomsCascade(displayOnTop, hostIndex+1);
                             }
-
                         }
                     }
 
@@ -438,7 +441,12 @@ public class TchapPublicRoomsFragment extends AbsHomeFragment {
 
                     @Override
                     public void onMatrixError(MatrixError e) {
-                        onError(e.getLocalizedMessage());
+                        if (MatrixError.M_CONSENT_NOT_GIVEN.equals(e.errcode) && isAdded()) {
+                            hidePublicRoomsLoadingView();
+                            mActivity.getConsentNotGivenHelper().displayDialog(e);
+                        } else {
+                            onError(e.getLocalizedMessage());
+                        }
                     }
 
                     @Override
@@ -454,7 +462,7 @@ public class TchapPublicRoomsFragment extends AbsHomeFragment {
         for (int i=0;i<mCurrentHosts.size();i++) {
             PublicRoomsManager myPRM = new PublicRoomsManager();
             myPRM.setSession(mSession);
-           mPublicRoomsManagers.add(myPRM);
+            mPublicRoomsManagers.add(myPRM);
         }
     }
 
@@ -470,6 +478,7 @@ public class TchapPublicRoomsFragment extends AbsHomeFragment {
         showPublicRoomsLoadingView();
         cascadeForwardPaginate(0);
     }
+
     private void cascadeForwardPaginate(final int hostIndex) {
 
         boolean isForwarding = mPublicRoomsManagers.get(hostIndex).forwardPaginate(new ApiCallback<List<PublicRoom>>() {
@@ -540,6 +549,5 @@ public class TchapPublicRoomsFragment extends AbsHomeFragment {
     private void removePublicRoomsListener() {
         mRecycler.removeOnScrollListener(null);
     }
-
 
 }
