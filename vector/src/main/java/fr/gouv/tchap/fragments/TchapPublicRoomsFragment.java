@@ -283,7 +283,11 @@ public class TchapPublicRoomsFragment extends AbsHomeFragment {
 
                     @Override
                     public void onMatrixError(MatrixError e) {
-                        onError();
+                        if (MatrixError.M_CONSENT_NOT_GIVEN.equals(e.errcode)) {
+                            mActivity.getConsentNotGivenHelper().displayDialog(e);
+                        } else {
+                            onError();
+                        }
                     }
 
                     @Override
@@ -454,7 +458,7 @@ public class TchapPublicRoomsFragment extends AbsHomeFragment {
         for (int i=0;i<mCurrentHosts.size();i++) {
             PublicRoomsManager myPRM = new PublicRoomsManager();
             myPRM.setSession(mSession);
-           mPublicRoomsManagers.add(myPRM);
+            mPublicRoomsManagers.add(myPRM);
         }
     }
 
@@ -540,6 +544,5 @@ public class TchapPublicRoomsFragment extends AbsHomeFragment {
     private void removePublicRoomsListener() {
         mRecycler.removeOnScrollListener(null);
     }
-
 
 }
