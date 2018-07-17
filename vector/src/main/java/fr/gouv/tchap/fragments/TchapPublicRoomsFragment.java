@@ -283,7 +283,7 @@ public class TchapPublicRoomsFragment extends AbsHomeFragment {
 
                     @Override
                     public void onMatrixError(MatrixError e) {
-                        if (MatrixError.M_CONSENT_NOT_GIVEN.equals(e.errcode)) {
+                        if (MatrixError.M_CONSENT_NOT_GIVEN.equals(e.errcode) && isAdded()) {
                             mActivity.getConsentNotGivenHelper().displayDialog(e);
                         } else {
                             onError();
