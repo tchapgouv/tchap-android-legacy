@@ -493,12 +493,12 @@ public class CommonActivityUtils {
     }
 
     /**
-     * Start LoginActivity in a new task, and clear any other existing task
+     * Start TchapLoginActivity in a new task, and clear any other existing task
      *
      * @param activity the current Activity
      */
     public static void startLoginActivityNewTask(Activity activity) {
-        Intent intent = new Intent(activity, LoginActivity.class);
+        Intent intent = new Intent(activity, TchapLoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         activity.startActivity(intent);
     }
