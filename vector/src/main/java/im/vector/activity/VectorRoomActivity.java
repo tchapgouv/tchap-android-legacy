@@ -1651,6 +1651,14 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             mSearchInRoomMenuItem = menu.findItem(R.id.ic_action_search_in_room);
             mUseMatrixAppsMenuItem = null; //will be reconnected later menu.findItem(R.id.ic_action_matrix_apps);
 
+            if (null != mRoom) {
+                RoomMember member = mRoom.getMember(mSession.getMyUserId());
+                // kicked / banned room
+                if ((null != member) && member.kickedOrBanned() && null != menu.findItem(R.id.ic_action_room_leave)) {
+                    menu.findItem(R.id.ic_action_room_leave).setVisible(false);
+                }
+            }
+
             // hide / show the unsent / resend all entries.
             refreshNotificationsArea();
         }
@@ -3566,9 +3574,12 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             invitationTextView.setText(getString(R.string.has_been_kicked, VectorUtils.getRoomDisplayName(this, mSession, mRoom), mRoom.getLiveState().getMemberName(member.mSender)));
         }
 
+        // On mobile side, the modal to allow to add a reason to ban/kick someone isn't yet implemented
+        // That's why, we don't display the TextView "Motif :" for now.
         TextView subInvitationTextView = findViewById(R.id.room_preview_subinvitation_textview);
-        subInvitationTextView.setText(getString(R.string.reason_colon, member.reason));
-
+        if (null != member.reason) {
+            subInvitationTextView.setText(getString(R.string.reason_colon, member.reason));
+        }
 
         Button joinButton = findViewById(R.id.button_join_room);
 

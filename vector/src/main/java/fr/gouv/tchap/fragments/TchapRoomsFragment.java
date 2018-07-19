@@ -242,12 +242,7 @@ public class TchapRoomsFragment extends AbsHomeFragment implements AbsHomeFragme
                             }
                         }
                     } else {
-                        RoomMember me = room.getMember(mSession.getMyUserId());
-                        // In the list of rooms to display in the conversation tab,
-                        // do not add rooms from which the user has been excluded (kicked or banned).
-                        if ((null != me) && !me.kickedOrBanned()) {
-                            mRooms.add(room);
-                        }
+                        mRooms.add(room);
                     }
                 }
             }
