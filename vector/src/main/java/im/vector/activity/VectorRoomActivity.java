@@ -1651,13 +1651,13 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
             mSearchInRoomMenuItem = menu.findItem(R.id.ic_action_search_in_room);
             mUseMatrixAppsMenuItem = null; //will be reconnected later menu.findItem(R.id.ic_action_matrix_apps);
 
-            if (null != mRoom) {
+            /*if (null != mRoom) {
                 RoomMember member = mRoom.getMember(mSession.getMyUserId());
                 // kicked / banned room
-                if ((null != member) && member.kickedOrBanned() && null != menu.findItem(R.id.ic_action_room_leave)) {
+                if ((null != member) && member.kickedOrBanned()) {
                     menu.findItem(R.id.ic_action_room_leave).setVisible(false);
                 }
-            }
+            }*/
 
             // hide / show the unsent / resend all entries.
             refreshNotificationsArea();
