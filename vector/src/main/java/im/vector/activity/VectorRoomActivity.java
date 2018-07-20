@@ -3579,6 +3579,8 @@ public class VectorRoomActivity extends MXCActionBarActivity implements MatrixMe
         TextView subInvitationTextView = findViewById(R.id.room_preview_subinvitation_textview);
         if (null != member.reason) {
             subInvitationTextView.setText(getString(R.string.reason_colon, member.reason));
+        } else {
+            subInvitationTextView.setText("");
         }
 
         Button joinButton = findViewById(R.id.button_join_room);
