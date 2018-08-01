@@ -231,8 +231,7 @@
                 android:id="@+id/room_bottom_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_marginLeft="16dp">
+                android:layout_alignParentBottom="true">
 
                 <LinearLayout
                     android:id="@+id/room_sending_message_layout"
@@ -246,6 +245,7 @@
                         android:layout_height="56dp"
                         android:layout_gravity="bottom"
                         android:contentDescription="@string/send"
+                        android:layout_marginLeft="5dp"
                         android:padding="13dp"
                         android:scaleType="fitCenter"
                         android:src="@drawable/tchap_ic_attached_files" />
@@ -298,7 +298,7 @@
                         android:layout_height="56dp"
                         android:layout_alignParentRight="true"
                         android:layout_gravity="bottom"
-                        android:layout_marginLeft="60dp"
+                        android:layout_marginLeft="70dp"
                         android:layout_toRightOf="@id/editText_messageBox"
                         android:contentDescription="@string/call_connecting"
                         android:padding="11dp"

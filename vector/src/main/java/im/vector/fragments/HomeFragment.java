@@ -263,6 +263,7 @@ public class HomeFragment extends AbsHomeFragment implements HomeRoomAdapter.OnS
     private void initData() {
         if ((null == mSession) || (null == mSession.getDataHandler())) {
             Log.e(LOG_TAG, "## initData() : null session");
+            return;
         }
 
         final List<Room> favourites = new ArrayList<>();

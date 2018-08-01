@@ -80,7 +80,7 @@ public class VectorContentProvider extends ContentProvider {
                 privateFile = new File(getContext().getFilesDir(), uri.getPath());
             }
 
-            if (privateFile.exists()) {
+            if ((null != privateFile) && privateFile.exists()) {
                 return ParcelFileDescriptor.open(privateFile, ParcelFileDescriptor.MODE_READ_ONLY);
             }
         } catch (Exception e) {

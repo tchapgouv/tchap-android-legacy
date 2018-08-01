@@ -510,7 +510,9 @@ public class RoomUtils {
         } else {
             popup.getMenu().setGroupVisible(R.id.active_room_actions, true);
 
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            // In Tchap, we disable this feature
+            popup.getMenu().setGroupVisible(R.id.add_shortcut_actions, false);
+            /*if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
                 popup.getMenu().setGroupVisible(R.id.add_shortcut_actions, false);
             } else {
                 ShortcutManager manager = context.getSystemService(ShortcutManager.class);
@@ -520,7 +522,7 @@ public class RoomUtils {
                 } else {
                     popup.getMenu().setGroupVisible(R.id.add_shortcut_actions, true);
                 }
-            }
+            }*/
 
             popup.getMenu().setGroupVisible(R.id.historical_room_actions, false);
 

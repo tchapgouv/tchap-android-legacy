@@ -38,7 +38,6 @@ import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
-import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
 import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.search.SearchUsersResponse;
@@ -54,7 +53,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import im.vector.Matrix;
 import im.vector.R;
 import im.vector.VectorApp;
 import im.vector.activity.CommonActivityUtils;
@@ -707,7 +705,6 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                     break;
                 }
             }
-
             mFirstEntry = firstEntry;
         } else {
             mFirstEntry = null;
@@ -738,6 +735,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
             mParticipantsListsList.add(firstEntryList);
             mFirstEntryPosition = 0;
         }
+
         if (ContactsManager.getInstance().isContactBookAccessAllowed()) {
             mLocalContactsSectionPosition = mFirstEntryPosition + 1;
             mKnownContactsSectionPosition = mLocalContactsSectionPosition + 1;
@@ -757,7 +755,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
             mKnownContactsSectionPosition = mFirstEntryPosition + 1;
         }
 
-        if (!TextUtils.isEmpty(mPattern)) {
+        if (!mContactsFilter.equals(VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY) && !TextUtils.isEmpty(mPattern)) {
             if ((roomContactsList.size() > 0) && sort) {
                 Collections.sort(roomContactsList, mSortMethod);
             }

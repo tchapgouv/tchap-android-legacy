@@ -1,3 +1,15 @@
+Changes in Tchap 1.0.5 (2018-07-13)
+===================================================
+
+Improvement:
+ * Fix some problems found by FindBugs PR #248
+ * Updating the margin of the room sending message layout PR #343
+ * Removing the option to create a room shortcut on the phone's home screen PR #344
+
+Bug Fixes:
+ * Multiple invites sent when I try to start a conversation #345
+ * Search in invite contacts screen : do not display user directory section #195
+
 Changes in Tchap 1.0.4 (2018-07-11)
 ===================================================
 

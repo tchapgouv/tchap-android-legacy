@@ -645,10 +645,12 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
         if (null != mRemoveMembersMenuItem) {
             mRemoveMembersMenuItem.setVisible(mIsMultiSelectionMode);
 
-            if (null != mAddMembersButton && !RoomUtils.isDirectChat(mSession, mRoom.getRoomId())) {
-                mAddMembersButton.setVisibility(mIsMultiSelectionMode ? View.GONE : View.VISIBLE);
-            } else {
-                mAddMembersButton.setVisibility(View.GONE);
+            if (null != mAddMembersButton) {
+                if (!RoomUtils.isDirectChat(mSession, mRoom.getRoomId())) {
+                    mAddMembersButton.setVisibility(mIsMultiSelectionMode ? View.GONE : View.VISIBLE);
+                } else {
+                    mAddMembersButton.setVisibility(View.GONE);
+                }
             }
         }
 

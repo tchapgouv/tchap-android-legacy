@@ -32,6 +32,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
@@ -45,8 +46,8 @@ import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.annotation.AttrRes;
 import android.support.annotation.ColorInt;
-import android.support.annotation.Nullable;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -492,12 +493,12 @@ public class CommonActivityUtils {
     }
 
     /**
-     * Start LoginActivity in a new task, and clear any other existing task
+     * Start TchapLoginActivity in a new task, and clear any other existing task
      *
      * @param activity the current Activity
      */
     public static void startLoginActivityNewTask(Activity activity) {
-        Intent intent = new Intent(activity, LoginActivity.class);
+        Intent intent = new Intent(activity, TchapLoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         activity.startActivity(intent);
     }
@@ -750,7 +751,10 @@ public class CommonActivityUtils {
             String permissionType;
 
             // retrieve the permissions to be granted according to the request code bit map
-            if (PERMISSION_CAMERA == (aPermissionsToBeGrantedBitMap & PERMISSION_CAMERA)) {
+            // Camera permission may or may not be present in the Manifest, depending on build variant. If not present, there is
+            // no need to request it to the user
+            if (PERMISSION_CAMERA == (aPermissionsToBeGrantedBitMap & PERMISSION_CAMERA)
+                    && hasToAskForPermission(aCallingActivity, Manifest.permission.CAMERA)) {
                 permissionType = Manifest.permission.CAMERA;
                 isRequestPermissionRequired |= updatePermissionsToBeGranted(aCallingActivity, permissionListAlreadyDenied, permissionsListToBeGranted, permissionType);
             }
@@ -875,9 +879,8 @@ public class CommonActivityUtils {
 
                         if (null != resource) {
                             permissionsInfoDialog.setTitle(resource.getString(R.string.permissions_rationale_popup_title));
+                            permissionsInfoDialog.setMessage(resource.getString(R.string.permissions_msg_contacts_warning_other_androids));
                         }
-
-                        permissionsInfoDialog.setMessage(resource.getString(R.string.permissions_msg_contacts_warning_other_androids));
 
                         // gives the contacts book access
                         permissionsInfoDialog.setPositiveButton(aCallingActivity.getString(R.string.yes), new DialogInterface.OnClickListener() {
@@ -921,6 +924,35 @@ public class CommonActivityUtils {
             }
         }
         return isPermissionGranted;
+    }
+
+    /**
+     * On Android M, we need to ask permission to the user, only if the permission is also in the Manifest.
+     * For example depending on the build variant, the permission CAMERA may or may not be present in the Manifest.
+     *
+     * @param context            the Android context
+     * @param searchedPermission the permission to search for in the Manifest
+     * @return true if the searched permission is present in the Manifest file
+     */
+    private static boolean hasToAskForPermission(Context context, String searchedPermission) {
+        final String packageName = context.getPackageName();
+        try {
+            final PackageInfo packageInfo = context.getPackageManager().getPackageInfo(packageName, PackageManager.GET_PERMISSIONS);
+            final String[] declaredPermissions = packageInfo.requestedPermissions;
+            if (declaredPermissions != null && declaredPermissions.length > 0) {
+                for (String p : declaredPermissions) {
+                    if (searchedPermission.equals(p)) {
+                        // Found
+                        return true;
+                    }
+                }
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e(LOG_TAG, "Error " + e.getMessage(), e);
+        }
+
+        // Not found or error
+        return false;
     }
 
     /**

@@ -974,9 +974,11 @@ public class VectorRoomSummaryAdapter extends BaseExpandableListAdapter {
      * @param roomsListCount the new public rooms count
      */
     public void setPublicRoomsCount(Integer roomsListCount) {
-        if (roomsListCount != mPublicRoomsCount) {
-            mPublicRoomsCount = roomsListCount;
-            super.notifyDataSetChanged();
+        if ((null != mPublicRoomsCount) && (null != roomsListCount)) {
+            if (!mPublicRoomsCount.equals(roomsListCount)) {
+                mPublicRoomsCount = roomsListCount;
+                super.notifyDataSetChanged();
+            }
         }
     }
 
@@ -993,9 +995,11 @@ public class VectorRoomSummaryAdapter extends BaseExpandableListAdapter {
      * @param roomsListCount the new public rooms count
      */
     public void setMatchedPublicRoomsCount(Integer roomsListCount) {
-        if (roomsListCount != mMatchedPublicRoomsCount) {
-            mMatchedPublicRoomsCount = roomsListCount;
-            super.notifyDataSetChanged();
+        if ((null != mMatchedPublicRoomsCount) && (null != roomsListCount)) {
+            if (!mMatchedPublicRoomsCount.equals(roomsListCount)) {
+                mMatchedPublicRoomsCount = roomsListCount;
+                super.notifyDataSetChanged();
+            }
         }
     }
 
