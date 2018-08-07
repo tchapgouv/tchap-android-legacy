@@ -1,3 +1,13 @@
+Changes in Tchap 1.0.6 (2018-08-07)
+===================================================
+
+Bug Fixes:
+ * On joining public room for the first time: terms and conditions error #347
+ * The app crashes when a user deletes his account #351
+ * After a user is excluded from a room, he can still view it in the list of conversation #349
+ * DinsicUtils: the method `isFromFrenchGov()` is not relevant anymore #149
+ * Settings - Keys export/import dialog: the button label is not readable #358
+
 Changes in Tchap 1.0.5 (2018-07-13)
 ===================================================
 
