@@ -18,6 +18,7 @@
 package im.vector.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
@@ -28,11 +29,17 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.chauthai.swipereveallayout.SwipeRevealLayout;
+
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomSummary;
 import org.matrix.androidsdk.data.RoomTag;
 import org.matrix.androidsdk.data.store.IMXStore;
+import org.matrix.androidsdk.rest.callback.ApiCallback;
+import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
+import org.matrix.androidsdk.rest.model.MatrixError;
+import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.util.BingRulesManager;
 import org.matrix.androidsdk.util.Log;
 import java.util.Set;
@@ -42,6 +49,7 @@ import butterknife.ButterKnife;
 import fr.gouv.tchap.util.DinsicUtils;
 import fr.gouv.tchap.util.HexagonMaskView;
 import im.vector.R;
+import im.vector.activity.SplashActivity;
 import im.vector.util.RoomUtils;
 import im.vector.util.VectorUtils;
 
@@ -99,6 +107,26 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.room_more_action_anchor)
     @Nullable
     View vRoomMoreActionAnchor;
+
+    @BindView(R.id.room_swipe_layout)
+    @Nullable
+    public SwipeRevealLayout swipeLayout;
+
+    @BindView(R.id.room_item_view)
+    @Nullable
+    public View roomItemView;
+
+    @BindView(R.id.swipe_layout_pin)
+    @Nullable
+    View vPinSwipeLayout;
+
+    @BindView(R.id.swipe_layout_silent)
+    @Nullable
+    View vSilentSwipeLayout;
+
+    @BindView(R.id.swipe_layout_exit)
+    @Nullable
+    View vExitSwipeLayout;
 
     public RoomViewHolder(final View itemView) {
         super(itemView);
@@ -281,7 +309,61 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
             });
         }
 
-        BingRulesManager.RoomNotificationState roomNotificationState = session.getDataHandler().getBingRulesManager().getRoomNotificationState(room.getRoomId());
+        final Set<String> tags = room.getAccountData().getKeys();
+        final boolean isFavorite = tags != null && tags.contains(RoomTag.ROOM_TAG_FAVOURITE);
+        final BingRulesManager.RoomNotificationState roomNotificationState = session.getDataHandler().getBingRulesManager().getRoomNotificationState(room.getRoomId());
+        RoomMember member = room.getMember(session.getMyUserId());
+        final boolean isBannedKickedRoom = (null != member) && member.kickedOrBanned();
+
+        if (null != vPinSwipeLayout) {
+            vPinSwipeLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (isFavorite) {
+                        updateTag(session, room.getRoomId(), null, null);
+                    } else {
+                        updateTag(session, room.getRoomId(), null, RoomTag.ROOM_TAG_FAVOURITE);
+                    }
+                }
+            });
+        }
+
+        if (null != vSilentSwipeLayout) {
+            vSilentSwipeLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (null != vRoomNotificationMute) {
+                        if (vRoomNotificationMute.getVisibility() == View.VISIBLE) {
+                            vRoomNotificationMute.setVisibility(View.GONE);
+                        } else {
+                            vRoomNotificationMute.setVisibility(View.VISIBLE);
+                        }
+                        swipeLayout.close(true);
+                    }
+
+                    if (roomNotificationState.equals(BingRulesManager.RoomNotificationState.MUTE)) {
+                        onUpdateRoomNotificationsState(context, session, room.getRoomId(), BingRulesManager.RoomNotificationState.ALL_MESSAGES);
+                    } else {
+                        onUpdateRoomNotificationsState(context, session, room.getRoomId(), BingRulesManager.RoomNotificationState.MUTE);
+                    }
+                }
+            });
+        }
+
+        if (null != vExitSwipeLayout) {
+            vExitSwipeLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    swipeLayout.close(true);
+                    if (isBannedKickedRoom) {
+                        onForgetRoom(session, room.getRoomId(), mRoomSuccessListener);
+                    } else {
+                        onRejectInvitation(session, room.getRoomId(), mRoomSuccessListener);
+                    }
+                }
+            });
+        }
+
         if (null != vRoomNotificationMute) {
             if (roomNotificationState.equals(BingRulesManager.RoomNotificationState.MUTE)) {
                 vRoomNotificationMute.setVisibility(View.VISIBLE);
@@ -302,4 +384,112 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
             }
         }
     }
+
+
+    /**
+     * Change the tag of the given room with the provided one
+     *
+     * @param roomId
+     * @param newTagOrder
+     * @param newTag
+     */
+    private void updateTag(final MXSession session, final String roomId, Double newTagOrder, final String newTag) {
+        //TODO Swipe : handle errors
+
+        RoomUtils.updateRoomTag(session, roomId, newTagOrder, newTag, new ApiCallback<Void>() {
+            @Override
+            public void onSuccess(Void info) {
+                swipeLayout.close(true);
+            }
+
+            @Override
+            public void onNetworkError(Exception e) {
+
+            }
+
+            @Override
+            public void onMatrixError(MatrixError e) {
+
+            }
+
+            @Override
+            public void onUnexpectedError(Exception e) {
+
+            }
+        });
+    }
+
+    private void onUpdateRoomNotificationsState(final Context context, final MXSession session, final String roomId, final BingRulesManager.RoomNotificationState state) {
+        //TODO Swipe : handle errors
+
+        session.getDataHandler().getBingRulesManager().updateRoomNotificationState(roomId, state, new BingRulesManager.onBingRuleUpdateListener() {
+            @Override
+            public void onBingRuleUpdateSuccess() {
+                Intent intent = new Intent(context, SplashActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                context.startActivity(intent);
+            }
+
+            @Override
+            public void onBingRuleUpdateFailure(final String errorMessage) {
+
+            }
+        });
+    }
+
+    /**
+     * Trigger the room leave / invitation reject.
+     *
+     * @param roomId            the room id
+     * @param onSuccessCallback the success asynchronous callback
+     */
+    private void onRejectInvitation(final MXSession session, final String roomId, final SimpleApiCallback<Void> onSuccessCallback) {
+        //TODO Swipe : handle errors
+
+        Room room = session.getDataHandler().getRoom(roomId);
+
+        if (null != room) {
+            room.leave(mRoomSuccessListener);
+        }
+    }
+
+    /**
+     * Trigger the room forget
+     *
+     * @param roomId            the room id
+     * @param onSuccessCallback the success asynchronous callback
+     */
+    private void onForgetRoom(final  MXSession session, final String roomId, final SimpleApiCallback<Void> onSuccessCallback) {
+        //TODO Swipe : handle errors
+
+        Room room = session.getDataHandler().getRoom(roomId);
+
+        if (null != room) {
+            room.forget(mRoomSuccessListener);
+        }
+    }
+
+    private final SimpleApiCallback<Void> mRoomSuccessListener = new SimpleApiCallback<Void>() {
+        //TODO Swipe : handle errors
+
+        @Override
+        public void onSuccess(Void info) {
+            swipeLayout.close(true);
+        }
+
+        @Override
+        public void onMatrixError(MatrixError e) {
+
+        }
+
+        @Override
+        public void onNetworkError(Exception e) {
+
+        }
+
+        @Override
+        public void onUnexpectedError(Exception e) {
+
+        }
+    };
 }
