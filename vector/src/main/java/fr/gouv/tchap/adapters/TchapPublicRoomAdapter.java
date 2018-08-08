@@ -66,8 +66,8 @@ public class TchapPublicRoomAdapter extends AbsAdapter {
      * *********************************************************************************************
      */
 
-    public TchapPublicRoomAdapter(final Context context, final OnSelectItemListener listener, final RoomInvitationListener invitationListener, final MoreRoomActionListener moreActionListener) {
-        super(context, invitationListener, moreActionListener);
+    public TchapPublicRoomAdapter(final Context context, final OnSelectItemListener listener) {
+        super(context);
 
         mListener = listener;
 

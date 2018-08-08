@@ -46,7 +46,6 @@ import im.vector.PublicRoomsManager;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.RiotAppCompatActivity;
-import im.vector.fragments.AbsHomeFragment;
 import fr.gouv.tchap.fragments.TchapPublicRoomsFragment;
 
 /**
@@ -282,8 +281,8 @@ public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity impl
     private void applyFilter(final String pattern) {
         Fragment fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_ROOMS);
 
-        if (fragment instanceof AbsHomeFragment) {
-            ((AbsHomeFragment) fragment).applyFilter(pattern.trim());
+        if (fragment instanceof TchapPublicRoomsFragment) {
+            ((TchapPublicRoomsFragment) fragment).applyFilter(pattern.trim());
         }
 
         //TODO add listener to know when filtering is done and dismiss the keyboard
