@@ -136,16 +136,6 @@
                     android:textSize="12sp"
                     tools:text="First message of the room is a bit too long to be displayed" />
 
-                <!--<ImageView
-                    android:id="@+id/room_more_action_ic"
-                    android:layout_width="15dp"
-                    android:layout_height="15dp"
-                    android:layout_alignBottom="@+id/room_name"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignTop="@+id/room_name"
-                    android:src="@drawable/vector_actions_9b"
-                    android:visibility="visible" />-->
-
                 <TextView
                     android:id="@+id/room_update_date"
                     android:layout_width="wrap_content"
@@ -157,20 +147,6 @@
                     android:textSize="12sp"
                     tools:text="14 Mar" />
             </RelativeLayout>
-
-            <View
-                android:id="@+id/room_more_action_anchor"
-                android:layout_width="1dp"
-                android:layout_height="1dp"
-                android:layout_alignParentRight="true"
-                android:layout_marginRight="20dp"
-                android:visibility="gone" />
-
-            <View
-                android:id="@+id/room_more_action_click_area"
-                android:layout_width="40dp"
-                android:layout_height="match_parent"
-                android:layout_alignParentRight="true" />
         </RelativeLayout>
     </FrameLayout>
 </com.chauthai.swipereveallayout.SwipeRevealLayout>
