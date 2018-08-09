@@ -18,7 +18,6 @@
 package im.vector.adapters;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
@@ -28,28 +27,23 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.chauthai.swipereveallayout.SwipeRevealLayout;
-
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomSummary;
 import org.matrix.androidsdk.data.RoomTag;
 import org.matrix.androidsdk.data.store.IMXStore;
-import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
 import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.util.BingRulesManager;
 import org.matrix.androidsdk.util.Log;
 import java.util.Set;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import fr.gouv.tchap.util.DinsicUtils;
 import fr.gouv.tchap.util.HexagonMaskView;
 import im.vector.R;
-import im.vector.activity.SplashActivity;
 import im.vector.util.RoomUtils;
 import im.vector.util.VectorUtils;
 
@@ -300,6 +294,7 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
                     } else {
                         updateTag(session, room.getRoomId(), null, RoomTag.ROOM_TAG_FAVOURITE);
                     }
+                    swipeLayout.close(true);
                 }
             });
         }
@@ -308,6 +303,12 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
             vSilentSwipeLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (roomNotificationState.equals(BingRulesManager.RoomNotificationState.MUTE)) {
+                        updateRoomNotificationsState(context, session, room.getRoomId(), BingRulesManager.RoomNotificationState.ALL_MESSAGES);
+                    } else {
+                        updateRoomNotificationsState(context, session, room.getRoomId(), BingRulesManager.RoomNotificationState.MUTE);
+                    }
+
                     if (null != vRoomNotificationMute) {
                         if (vRoomNotificationMute.getVisibility() == View.VISIBLE) {
                             vRoomNotificationMute.setVisibility(View.GONE);
@@ -315,12 +316,6 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
                             vRoomNotificationMute.setVisibility(View.VISIBLE);
                         }
                         swipeLayout.close(true);
-                    }
-
-                    if (roomNotificationState.equals(BingRulesManager.RoomNotificationState.MUTE)) {
-                        onUpdateRoomNotificationsState(context, session, room.getRoomId(), BingRulesManager.RoomNotificationState.ALL_MESSAGES);
-                    } else {
-                        onUpdateRoomNotificationsState(context, session, room.getRoomId(), BingRulesManager.RoomNotificationState.MUTE);
                     }
                 }
             });
@@ -330,22 +325,13 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
             vExitSwipeLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    swipeLayout.close(true);
                     if (isBannedKickedRoom) {
-                        onForgetRoom(session, room.getRoomId(), mRoomSuccessListener);
+                        forgetRoom(session, room.getRoomId());
                     } else {
-                        onRejectInvitation(session, room.getRoomId(), mRoomSuccessListener);
+                        leaveRoom(session, room.getRoomId());
                     }
                 }
             });
-        }
-
-        if (null != vRoomNotificationMute) {
-            if (roomNotificationState.equals(BingRulesManager.RoomNotificationState.MUTE)) {
-                vRoomNotificationMute.setVisibility(View.VISIBLE);
-            } else {
-                vRoomNotificationMute.setVisibility(View.GONE);
-            }
         }
 
         if (null != room && null != vRoomPinFavorite) {
@@ -361,7 +347,6 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
         }
     }
 
-
     /**
      * Change the tag of the given room with the provided one
      *
@@ -372,38 +357,16 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
     private void updateTag(final MXSession session, final String roomId, Double newTagOrder, final String newTag) {
         //TODO Swipe : handle errors
 
-        RoomUtils.updateRoomTag(session, roomId, newTagOrder, newTag, new ApiCallback<Void>() {
-            @Override
-            public void onSuccess(Void info) {
-                swipeLayout.close(true);
-            }
-
-            @Override
-            public void onNetworkError(Exception e) {
-
-            }
-
-            @Override
-            public void onMatrixError(MatrixError e) {
-
-            }
-
-            @Override
-            public void onUnexpectedError(Exception e) {
-
-            }
-        });
+        RoomUtils.updateRoomTag(session, roomId, newTagOrder, newTag, new SimpleApiCallback<Void>());
     }
 
-    private void onUpdateRoomNotificationsState(final Context context, final MXSession session, final String roomId, final BingRulesManager.RoomNotificationState state) {
+    private void updateRoomNotificationsState(final Context context, final MXSession session, final String roomId, final BingRulesManager.RoomNotificationState state) {
         //TODO Swipe : handle errors
 
         session.getDataHandler().getBingRulesManager().updateRoomNotificationState(roomId, state, new BingRulesManager.onBingRuleUpdateListener() {
             @Override
             public void onBingRuleUpdateSuccess() {
-                Intent intent = new Intent(context, SplashActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                context.startActivity(intent);
+
             }
 
             @Override
@@ -417,9 +380,8 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
      * Trigger the room leave / invitation reject.
      *
      * @param roomId            the room id
-     * @param onSuccessCallback the success asynchronous callback
      */
-    private void onRejectInvitation(final MXSession session, final String roomId, final SimpleApiCallback<Void> onSuccessCallback) {
+    private void leaveRoom(final MXSession session, final String roomId) {
         //TODO Swipe : handle errors
 
         Room room = session.getDataHandler().getRoom(roomId);
@@ -433,9 +395,8 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
      * Trigger the room forget
      *
      * @param roomId            the room id
-     * @param onSuccessCallback the success asynchronous callback
      */
-    private void onForgetRoom(final  MXSession session, final String roomId, final SimpleApiCallback<Void> onSuccessCallback) {
+    private void forgetRoom(final  MXSession session, final String roomId) {
         //TODO Swipe : handle errors
 
         Room room = session.getDataHandler().getRoom(roomId);
