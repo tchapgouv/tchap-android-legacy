@@ -100,14 +100,6 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.room_avatar_encrypted_icon)
     View vRoomEncryptedIcon;
 
-    @BindView(R.id.room_more_action_click_area)
-    @Nullable
-    View vRoomMoreActionClickArea;
-
-    @BindView(R.id.room_more_action_anchor)
-    @Nullable
-    View vRoomMoreActionAnchor;
-
     @BindView(R.id.room_swipe_layout)
     @Nullable
     public SwipeRevealLayout swipeLayout;
@@ -291,22 +283,6 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
 
         if (vRoomTimestamp != null) {
             vRoomTimestamp.setText(RoomUtils.getRoomTimestamp(context, roomSummary.getLatestReceivedEvent()));
-        }
-
-        if (vRoomMoreActionClickArea != null && vRoomMoreActionAnchor != null) {
-            vRoomMoreActionClickArea.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (null != moreRoomActionListener) {
-                        // In this case, we have a feedback issue because the notification mode change
-                        // is handled by an async task (with a very long delay).
-                        // We have overridden onMoreActionClick by onTchapMoreActionClick
-                        // in order to set the visibility of the vRoomNotificationMute on the notification option click
-                        // in RoomUtils.
-                        moreRoomActionListener.onTchapMoreActionClick(vRoomMoreActionAnchor, room, vRoomNotificationMute);
-                    }
-                }
-            });
         }
 
         final Set<String> tags = room.getAccountData().getKeys();
