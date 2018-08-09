@@ -171,6 +171,7 @@ public class TchapPublicRoomsFragment extends VectorBaseFragment {
     public void applyFilter(final String pattern) {
         if (TextUtils.isEmpty(pattern)) {
             if (mCurrentFilter != null) {
+                // Reset the filter
                 mAdapter.getFilter().filter("", new Filter.FilterListener() {
                     @Override
                     public void onFilterComplete(int count) {
