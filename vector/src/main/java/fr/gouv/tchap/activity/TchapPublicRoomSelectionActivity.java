@@ -60,7 +60,6 @@ public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity impl
 
     private static final String TAG_FRAGMENT_ROOMS = "TAG_FRAGMENT_ROOMS";
 
-
     @BindView(R.id.listView_spinner_views)
     View waitingView;
 
@@ -68,9 +67,6 @@ public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity impl
 
     @BindView(R.id.drawer_layout_public_room)
     DrawerLayout mDrawerLayout;
-
-    @BindView(R.id.home_recents_sync_in_progress)
-    ProgressBar mSyncInProgressView;
 
     @BindView(R.id.search_view)
     SearchView mSearchView;
@@ -118,6 +114,8 @@ public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity impl
         }
 
         this.setTitle(R.string.room_join_public_room_alt_title);
+
+        setWaitingView(waitingView);
 
         sharedInstance = this;
 

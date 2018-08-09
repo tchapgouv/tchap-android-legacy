@@ -71,7 +71,6 @@ public class TchapPublicRoomAdapter extends AbsAdapter {
 
         mListener = listener;
 
-
         mPublicRoomsSection = new PublicRoomsAdapterSection(context, context.getString(R.string.rooms_directory_header),
                 -1, R.layout.adapter_item_public_room_view,
                 TYPE_HEADER_PUBLIC_ROOM, TYPE_PUBLIC_ROOM, new ArrayList<PublicRoom>(), null);
@@ -101,17 +100,15 @@ public class TchapPublicRoomAdapter extends AbsAdapter {
 
         View itemView;
 
-        if (viewType == TYPE_HEADER_PUBLIC_ROOM) {
-            //TODO replace by a empty view ?
-            itemView = inflater.inflate(R.layout.adapter_section_header_public_room, viewGroup, false);
-            itemView.setBackgroundColor(Color.MAGENTA);
-            return new HeaderViewHolder(itemView);
-        } else {
-            switch (viewType) {
-                case TYPE_PUBLIC_ROOM:
-                    itemView = inflater.inflate(R.layout.adapter_item_public_room_view, viewGroup, false);
-                    return new PublicRoomViewHolder(itemView);
-            }
+        switch (viewType) {
+            case TYPE_HEADER_PUBLIC_ROOM:
+                // Note: We don't want a section header,
+                // that is why the header layout_height is null in xml file.
+                itemView = inflater.inflate(R.layout.adapter_section_header_public_room, viewGroup, false);
+                return new HeaderViewHolder(itemView);
+            case TYPE_PUBLIC_ROOM:
+                itemView = inflater.inflate(R.layout.adapter_item_public_room_view, viewGroup, false);
+                return new PublicRoomViewHolder(itemView);
         }
         return null;
     }
