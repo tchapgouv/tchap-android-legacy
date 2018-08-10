@@ -27,6 +27,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.chauthai.swipereveallayout.SwipeRevealLayout;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
@@ -34,7 +36,6 @@ import org.matrix.androidsdk.data.RoomSummary;
 import org.matrix.androidsdk.data.RoomTag;
 import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
-import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.util.BingRulesManager;
 import org.matrix.androidsdk.util.Log;
@@ -290,9 +291,9 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
                 @Override
                 public void onClick(View v) {
                     if (isFavorite) {
-                        updateTag(session, room.getRoomId(), null, null);
+                        RoomUtils.updateRoomTag(session, room.getRoomId(), null, null, new SimpleApiCallback<Void>(context, v));
                     } else {
-                        updateTag(session, room.getRoomId(), null, RoomTag.ROOM_TAG_FAVOURITE);
+                        RoomUtils.updateRoomTag(session, room.getRoomId(), null, RoomTag.ROOM_TAG_FAVOURITE, new SimpleApiCallback<Void>(context, v));
                     }
                     swipeLayout.close(true);
                 }
@@ -303,20 +304,28 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
             vSilentSwipeLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (roomNotificationState.equals(BingRulesManager.RoomNotificationState.MUTE)) {
-                        updateRoomNotificationsState(context, session, room.getRoomId(), BingRulesManager.RoomNotificationState.ALL_MESSAGES);
-                    } else {
-                        updateRoomNotificationsState(context, session, room.getRoomId(), BingRulesManager.RoomNotificationState.MUTE);
-                    }
-
                     if (null != vRoomNotificationMute) {
+                        // Consider the current visibility of the notification mode icon (bell)
+                        // which is updated synchronously at each click.
+                        // By this way we don't depend on the current room notification state which
+                        // is updated with delay
                         if (vRoomNotificationMute.getVisibility() == View.VISIBLE) {
+                            updateRoomNotificationsState(context, session, room.getRoomId(), BingRulesManager.RoomNotificationState.ALL_MESSAGES);
                             vRoomNotificationMute.setVisibility(View.GONE);
                         } else {
+                            updateRoomNotificationsState(context, session, room.getRoomId(), BingRulesManager.RoomNotificationState.MUTE);
                             vRoomNotificationMute.setVisibility(View.VISIBLE);
                         }
-                        swipeLayout.close(true);
+                    } else {
+                        // Consider here the current room notification state.
+                        // CAUTION: this state is updated with delay at each change.
+                        if (roomNotificationState.equals(BingRulesManager.RoomNotificationState.MUTE)) {
+                            updateRoomNotificationsState(context, session, room.getRoomId(), BingRulesManager.RoomNotificationState.ALL_MESSAGES);
+                        } else {
+                            updateRoomNotificationsState(context, session, room.getRoomId(), BingRulesManager.RoomNotificationState.MUTE);
+                        }
                     }
+                    swipeLayout.close(true);
                 }
             });
         }
@@ -326,10 +335,11 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
                 @Override
                 public void onClick(View v) {
                     if (isBannedKickedRoom) {
-                        forgetRoom(session, room.getRoomId());
+                        room.forget(new SimpleApiCallback<Void>(context, v));
                     } else {
-                        leaveRoom(session, room.getRoomId());
+                        room.leave(new SimpleApiCallback<Void>(context, v));
                     }
+                    swipeLayout.close(true);
                 }
             });
         }
@@ -345,24 +355,17 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
                 vRoomPinFavorite.setVisibility(View.INVISIBLE);
             }
         }
-    }
 
-    /**
-     * Change the tag of the given room with the provided one
-     *
-     * @param roomId
-     * @param newTagOrder
-     * @param newTag
-     */
-    private void updateTag(final MXSession session, final String roomId, Double newTagOrder, final String newTag) {
-        //TODO Swipe : handle errors
-
-        RoomUtils.updateRoomTag(session, roomId, newTagOrder, newTag, new SimpleApiCallback<Void>());
+        if (null != vRoomNotificationMute) {
+            if (roomNotificationState.equals(BingRulesManager.RoomNotificationState.MUTE)) {
+                vRoomNotificationMute.setVisibility(View.VISIBLE);
+            } else {
+                vRoomNotificationMute.setVisibility(View.GONE);
+            }
+        }
     }
 
     private void updateRoomNotificationsState(final Context context, final MXSession session, final String roomId, final BingRulesManager.RoomNotificationState state) {
-        //TODO Swipe : handle errors
-
         session.getDataHandler().getBingRulesManager().updateRoomNotificationState(roomId, state, new BingRulesManager.onBingRuleUpdateListener() {
             @Override
             public void onBingRuleUpdateSuccess() {
@@ -371,62 +374,20 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
 
             @Override
             public void onBingRuleUpdateFailure(final String errorMessage) {
+                // TODO display error message : Toast ?
+                Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show();
 
+                if (null != vRoomNotificationMute) {
+                    final BingRulesManager.RoomNotificationState roomNotificationState = session.getDataHandler().getBingRulesManager().getRoomNotificationState(roomId);
+
+
+                    if (roomNotificationState.equals(BingRulesManager.RoomNotificationState.MUTE)) {
+                        vRoomNotificationMute.setVisibility(View.VISIBLE);
+                    } else {
+                        vRoomNotificationMute.setVisibility(View.GONE);
+                    }
+                }
             }
         });
     }
-
-    /**
-     * Trigger the room leave / invitation reject.
-     *
-     * @param roomId            the room id
-     */
-    private void leaveRoom(final MXSession session, final String roomId) {
-        //TODO Swipe : handle errors
-
-        Room room = session.getDataHandler().getRoom(roomId);
-
-        if (null != room) {
-            room.leave(mRoomSuccessListener);
-        }
-    }
-
-    /**
-     * Trigger the room forget
-     *
-     * @param roomId            the room id
-     */
-    private void forgetRoom(final  MXSession session, final String roomId) {
-        //TODO Swipe : handle errors
-
-        Room room = session.getDataHandler().getRoom(roomId);
-
-        if (null != room) {
-            room.forget(mRoomSuccessListener);
-        }
-    }
-
-    private final SimpleApiCallback<Void> mRoomSuccessListener = new SimpleApiCallback<Void>() {
-        //TODO Swipe : handle errors
-
-        @Override
-        public void onSuccess(Void info) {
-            swipeLayout.close(true);
-        }
-
-        @Override
-        public void onMatrixError(MatrixError e) {
-
-        }
-
-        @Override
-        public void onNetworkError(Exception e) {
-
-        }
-
-        @Override
-        public void onUnexpectedError(Exception e) {
-
-        }
-    };
 }
