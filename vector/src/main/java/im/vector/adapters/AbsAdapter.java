@@ -99,7 +99,7 @@ public abstract class AbsAdapter extends AbsFilterableAdapter {
         mSections = new ArrayList<>();
     }
 
-    AbsAdapter(final Context context) {
+    protected AbsAdapter(final Context context) {
         super(context);
         registerAdapterDataObserver(new AdapterDataObserver());
         mSections = new ArrayList<>();
