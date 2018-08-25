@@ -25,14 +25,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 
-import org.matrix.androidsdk.adapters.MessageRow;
 import org.matrix.androidsdk.adapters.AbstractMessagesAdapter;
+import org.matrix.androidsdk.adapters.MessageRow;
 import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.rest.model.message.FileMessage;
 import org.matrix.androidsdk.rest.model.message.Message;
 import org.matrix.androidsdk.util.JsonUtils;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import im.vector.activity.VectorMediasViewerActivity;
 import im.vector.adapters.VectorMessagesAdapter;
@@ -102,7 +103,7 @@ public class VectorSearchRoomsFilesListFragment extends VectorSearchMessagesList
                 // Video and images are displayed inside a medias slider.
                 if (Message.MSGTYPE_IMAGE.equals(message.msgtype) || (Message.MSGTYPE_VIDEO.equals(message.msgtype))) {
                     // Retrieve the trusted slidable medias
-                    ArrayList<SlidableMediaInfo> mediaMessagesList = listSlidableMessages();
+                    List<SlidableMediaInfo> mediaMessagesList = listSlidableMessages();
                     int listPosition = getMediaMessagePosition(mediaMessagesList, message);
 
                     if (listPosition >= 0) {
@@ -111,7 +112,7 @@ public class VectorSearchRoomsFilesListFragment extends VectorSearchMessagesList
                         viewImageIntent.putExtra(VectorMediasViewerActivity.EXTRA_MATRIX_ID, mSession.getCredentials().userId);
                         viewImageIntent.putExtra(VectorMediasViewerActivity.KEY_THUMBNAIL_WIDTH, mAdapter.getMaxThumbnailWidth());
                         viewImageIntent.putExtra(VectorMediasViewerActivity.KEY_THUMBNAIL_HEIGHT, mAdapter.getMaxThumbnailHeight());
-                        viewImageIntent.putExtra(VectorMediasViewerActivity.KEY_INFO_LIST, mediaMessagesList);
+                        viewImageIntent.putExtra(VectorMediasViewerActivity.KEY_INFO_LIST, (ArrayList) mediaMessagesList);
                         viewImageIntent.putExtra(VectorMediasViewerActivity.KEY_INFO_LIST_INDEX, listPosition);
 
                         getActivity().startActivity(viewImageIntent);

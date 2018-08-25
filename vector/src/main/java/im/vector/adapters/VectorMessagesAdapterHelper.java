@@ -1,5 +1,6 @@
 /*
  * Copyright 2017 Vector Creations Ltd
+ * Copyright 2018 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@ package im.vector.adapters;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.support.annotation.Nullable;
 import android.text.Html;
 import android.text.Spannable;
@@ -48,12 +50,12 @@ import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.rest.model.MatrixError;
+import org.matrix.androidsdk.rest.model.ReceiptData;
+import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.URLPreview;
 import org.matrix.androidsdk.rest.model.group.Group;
 import org.matrix.androidsdk.rest.model.group.GroupProfile;
 import org.matrix.androidsdk.rest.model.message.Message;
-import org.matrix.androidsdk.rest.model.ReceiptData;
-import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.message.StickerMessage;
 import org.matrix.androidsdk.util.EventDisplay;
 import org.matrix.androidsdk.util.JsonUtils;
@@ -77,7 +79,6 @@ import im.vector.VectorApp;
 import im.vector.listeners.IMessagesAdapterActionsListener;
 import im.vector.util.MatrixLinkMovementMethod;
 import im.vector.util.MatrixURLSpan;
-import im.vector.util.PreferencesManager;
 import im.vector.util.RiotEventDisplay;
 import im.vector.util.ThemeUtils;
 import im.vector.util.VectorImageGetter;
@@ -227,11 +228,11 @@ class VectorMessagesAdapterHelper {
      */
     private void refreshGroupFlairView(final View groupFlairView, final Event event, final Set<String> groupIdsSet, final String tag) {
         Log.d(LOG_TAG, "## refreshGroupFlairView () : " + event.sender + " allows flair to " + groupIdsSet);
-        Log.d(LOG_TAG, "## refreshGroupFlairView () : room related groups " + mRoom.getLiveState().getRelatedGroups());
+        Log.d(LOG_TAG, "## refreshGroupFlairView () : room related groups " + mRoom.getState().getRelatedGroups());
 
         if (!groupIdsSet.isEmpty()) {
             // keeps only the intersections
-            groupIdsSet.retainAll(mRoom.getLiveState().getRelatedGroups());
+            groupIdsSet.retainAll(mRoom.getState().getRelatedGroups());
         }
 
         Log.d(LOG_TAG, "## refreshGroupFlairView () : group ids to display " + groupIdsSet);
@@ -246,7 +247,7 @@ class VectorMessagesAdapterHelper {
 
             groupFlairView.setVisibility(View.VISIBLE);
 
-            ArrayList<ImageView> imageViews = new ArrayList<>();
+            List<ImageView> imageViews = new ArrayList<>();
 
             imageViews.add((ImageView) (groupFlairView.findViewById(R.id.message_avatar_group_1).findViewById(R.id.avatar_img)));
             imageViews.add((ImageView) (groupFlairView.findViewById(R.id.message_avatar_group_2).findViewById(R.id.avatar_img)));
@@ -299,7 +300,7 @@ class VectorMessagesAdapterHelper {
 
                         @Override
                         public void onNetworkError(Exception e) {
-                            Log.e(LOG_TAG, "## refreshGroupFlairView () : get profile of " + groupId + " failed " + e.getMessage());
+                            Log.e(LOG_TAG, "## refreshGroupFlairView () : get profile of " + groupId + " failed " + e.getMessage(), e);
                             refresh(null);
                         }
 
@@ -311,7 +312,7 @@ class VectorMessagesAdapterHelper {
 
                         @Override
                         public void onUnexpectedError(Exception e) {
-                            Log.e(LOG_TAG, "## refreshGroupFlairView () : get profile of " + groupId + " failed " + e.getMessage());
+                            Log.e(LOG_TAG, "## refreshGroupFlairView () : get profile of " + groupId + " failed " + e.getMessage(), e);
                             refresh(null);
                         }
                     });
@@ -365,7 +366,7 @@ class VectorMessagesAdapterHelper {
         }
 
         // Check whether there are some related groups to this room
-        if (mRoom.getLiveState().getRelatedGroups().isEmpty()) {
+        if (mRoom.getState().getRelatedGroups().isEmpty()) {
             Log.d(LOG_TAG, "## refreshGroupFlairView () : no related group");
             groupFlairView.setVisibility(View.GONE);
             return;
@@ -390,7 +391,7 @@ class VectorMessagesAdapterHelper {
 
                 @Override
                 public void onNetworkError(Exception e) {
-                    Log.e(LOG_TAG, "## refreshGroupFlairView failed " + e.getMessage());
+                    Log.e(LOG_TAG, "## refreshGroupFlairView failed " + e.getMessage(), e);
                 }
 
                 @Override
@@ -400,7 +401,7 @@ class VectorMessagesAdapterHelper {
 
                 @Override
                 public void onUnexpectedError(Exception e) {
-                    Log.e(LOG_TAG, "## refreshGroupFlairView failed " + e.getMessage());
+                    Log.e(LOG_TAG, "## refreshGroupFlairView failed " + e.getMessage(), e);
                 }
             });
         }
@@ -725,7 +726,7 @@ class VectorMessagesAdapterHelper {
 
         avatarsListView.setVisibility(View.VISIBLE);
 
-        ArrayList<View> imageViews = new ArrayList<>();
+        List<View> imageViews = new ArrayList<>();
 
         imageViews.add(avatarsListView.findViewById(R.id.message_avatar_receipt_1).findViewById(R.id.avatar_img));
         imageViews.add(avatarsListView.findViewById(R.id.message_avatar_receipt_2).findViewById(R.id.avatar_img));
@@ -789,7 +790,8 @@ class VectorMessagesAdapterHelper {
 
         if (null != downloadProgressLayout) {
             ViewGroup.MarginLayoutParams downloadProgressLayoutParams = (ViewGroup.MarginLayoutParams) downloadProgressLayout.getLayoutParams();
-            downloadProgressLayoutParams.setMargins(marginLeft, downloadProgressLayoutParams.topMargin, downloadProgressLayoutParams.rightMargin, downloadProgressLayoutParams.bottomMargin);
+            downloadProgressLayoutParams.setMargins(marginLeft, downloadProgressLayoutParams.topMargin,
+                    downloadProgressLayoutParams.rightMargin, downloadProgressLayoutParams.bottomMargin);
             downloadProgressLayout.setLayoutParams(downloadProgressLayoutParams);
         }
 
@@ -797,7 +799,8 @@ class VectorMessagesAdapterHelper {
 
         if (null != uploadProgressLayout) {
             ViewGroup.MarginLayoutParams uploadProgressLayoutParams = (ViewGroup.MarginLayoutParams) uploadProgressLayout.getLayoutParams();
-            uploadProgressLayoutParams.setMargins(marginLeft, uploadProgressLayoutParams.topMargin, uploadProgressLayoutParams.rightMargin, uploadProgressLayoutParams.bottomMargin);
+            uploadProgressLayoutParams.setMargins(marginLeft, uploadProgressLayoutParams.topMargin,
+                    uploadProgressLayoutParams.rightMargin, uploadProgressLayoutParams.bottomMargin);
             uploadProgressLayout.setLayoutParams(uploadProgressLayoutParams);
         }
     }
@@ -914,7 +917,7 @@ class VectorMessagesAdapterHelper {
             return;
         }
 
-        textView.setBackgroundColor(ThemeUtils.getColor(mContext, R.attr.markdown_block_background_color));
+        textView.setBackgroundColor(ThemeUtils.INSTANCE.getColor(mContext, R.attr.markdown_block_background_color));
     }
 
     /**
@@ -972,7 +975,7 @@ class VectorMessagesAdapterHelper {
     CharSequence convertToHtml(String htmlFormattedText) {
         final HtmlTagHandler htmlTagHandler = new HtmlTagHandler();
         htmlTagHandler.mContext = mContext;
-        htmlTagHandler.setCodeBlockBackgroundColor(ThemeUtils.getColor(mContext, R.attr.markdown_block_background_color));
+        htmlTagHandler.setCodeBlockBackgroundColor(ThemeUtils.INSTANCE.getColor(mContext, R.attr.markdown_block_background_color));
 
         CharSequence sequence;
 
@@ -982,7 +985,14 @@ class VectorMessagesAdapterHelper {
 
             // the links are not yet supported by ConsoleHtmlTagHandler
             // the markdown tables are not properly supported
-            sequence = Html.fromHtml(htmlFormattedText, mImageGetter, isCustomizable ? htmlTagHandler : null);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                sequence = Html.fromHtml(htmlFormattedText,
+                        Html.FROM_HTML_SEPARATOR_LINE_BREAK_LIST_ITEM,
+                        mImageGetter,
+                        isCustomizable ? htmlTagHandler : null);
+            } else {
+                sequence = Html.fromHtml(htmlFormattedText, mImageGetter, isCustomizable ? htmlTagHandler : null);
+            }
 
             // sanity check
             if (!TextUtils.isEmpty(sequence)) {
@@ -1062,7 +1072,10 @@ class VectorMessagesAdapterHelper {
             EventDisplay display = new RiotEventDisplay(context, event, roomState);
             return event.hasContentFields() && (display.getTextualDisplay() != null);
         } else if (TextUtils.equals(WidgetsManager.WIDGET_EVENT_TYPE, event.getType())) {
-            return PreferencesManager.useMatrixApps(context);
+            // Matrix apps are enabled
+            return true;
+        } else if (Event.EVENT_TYPE_STATE_ROOM_CREATE.equals(eventType)) {
+            return roomState.hasPredecessor();
         }
         return false;
     }
@@ -1071,7 +1084,7 @@ class VectorMessagesAdapterHelper {
     // HTML management
     //================================================================================
 
-    private final HashMap<String, String> mHtmlMap = new HashMap<>();
+    private final Map<String, String> mHtmlMap = new HashMap<>();
 
     /**
      * Retrieves the sanitised html.
@@ -1119,7 +1132,7 @@ class VectorMessagesAdapterHelper {
         String html = htmlString;
         Matcher matcher = mHtmlPatter.matcher(htmlString);
 
-        HashSet<String> tagsToRemove = new HashSet<>();
+        Set<String> tagsToRemove = new HashSet<>();
 
         while (matcher.find()) {
 
@@ -1131,7 +1144,7 @@ class VectorMessagesAdapterHelper {
                     tagsToRemove.add(tag);
                 }
             } catch (Exception e) {
-                Log.e(LOG_TAG, "sanitiseHTML failed " + e.getLocalizedMessage());
+                Log.e(LOG_TAG, "sanitiseHTML failed " + e.getLocalizedMessage(), e);
             }
         }
 
@@ -1160,9 +1173,8 @@ class VectorMessagesAdapterHelper {
      * *********************************************************************************************
      */
     private final Map<String, List<String>> mExtractedUrls = new HashMap<>();
-    private final Map<String, URLPreview> mUrlsPreview = new HashMap<>();
+    private final Map<String, URLPreview> mUrlsPreviews = new HashMap<>();
     private final Set<String> mPendingUrls = new HashSet<>();
-    private final Set<String> mDismissedPreviews = new HashSet<>();
 
     /**
      * Retrieves the webUrl extracted from a text
@@ -1185,7 +1197,7 @@ class VectorMessagesAdapterHelper {
                         list.add(value);
                     }
                 } catch (Exception e) {
-                    Log.e(LOG_TAG, "## extractWebUrl() " + e.getMessage());
+                    Log.e(LOG_TAG, "## extractWebUrl() " + e.getMessage(), e);
                 }
             }
 
@@ -1237,19 +1249,24 @@ class VectorMessagesAdapterHelper {
             final String downloadKey = url.hashCode() + "---";
             String displayKey = url + "<----->" + id;
 
-            if (UrlPreviewView.didUrlPreviewDismiss(displayKey)) {
+            if (!mSession.isURLPreviewEnabled()) {
+                if (!mUrlsPreviews.containsKey(downloadKey)) {
+                    mUrlsPreviews.put(downloadKey, null);
+                    mAdapter.notifyDataSetChanged();
+                }
+            } else if (UrlPreviewView.Companion.didUrlPreviewDismiss(displayKey)) {
                 Log.d(LOG_TAG, "## manageURLPreviews() : " + displayKey + " has been dismissed");
             } else if (mPendingUrls.contains(url)) {
                 // please wait
-            } else if (!mUrlsPreview.containsKey(downloadKey)) {
+            } else if (!mUrlsPreviews.containsKey(downloadKey)) {
                 mPendingUrls.add(url);
                 mSession.getEventsApiClient().getURLPreview(url, System.currentTimeMillis(), new ApiCallback<URLPreview>() {
                     @Override
                     public void onSuccess(URLPreview urlPreview) {
                         mPendingUrls.remove(url);
 
-                        if (!mUrlsPreview.containsKey(downloadKey)) {
-                            mUrlsPreview.put(downloadKey, urlPreview);
+                        if (!mUrlsPreviews.containsKey(downloadKey)) {
+                            mUrlsPreviews.put(downloadKey, urlPreview);
                             mAdapter.notifyDataSetChanged();
                         }
                     }
@@ -1271,7 +1288,7 @@ class VectorMessagesAdapterHelper {
                 });
             } else {
                 UrlPreviewView previewView = new UrlPreviewView(mContext);
-                previewView.setUrlPreview(mContext, mSession, mUrlsPreview.get(downloadKey), displayKey);
+                previewView.setUrlPreview(mContext, mSession, mUrlsPreviews.get(downloadKey), displayKey);
                 urlsPreviewLayout.addView(previewView);
             }
         }

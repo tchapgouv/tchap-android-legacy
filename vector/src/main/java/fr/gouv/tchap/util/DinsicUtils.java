@@ -623,9 +623,9 @@ public class DinsicUtils {
         // This information will be useful to consider or not the new joined room as a direct chat (see processDirectMessageRoom).
         RoomMember roomMember = room.getMember(session.getMyUserId());
         if (null != roomMember && null != roomMember.thirdPartyInvite && null == roomPreviewData.getRoomState()) {
-            if (null != room.getLiveState().memberWithThirdPartyInviteToken(roomMember.thirdPartyInvite.signed.token)) {
+            if (null != room.getState().memberWithThirdPartyInviteToken(roomMember.thirdPartyInvite.signed.token)) {
                 Log.d(LOG_TAG, "## joinRoom: save third party invites in the room preview.");
-                roomPreviewData.setRoomState(room.getLiveState());
+                roomPreviewData.setRoomState(room.getState());
             }
         }
 
@@ -654,14 +654,14 @@ public class DinsicUtils {
 
                 if (!isDirectInvite) {
                     // Consider here the 3rd party invites for which the is_direct flag is not available.
-                    Collection<RoomThirdPartyInvite> thirdPartyInvites = room.getLiveState().thirdPartyInvites();
+                    Collection<RoomThirdPartyInvite> thirdPartyInvites = room.getState().thirdPartyInvites();
                     // Consider the case where only one invite has been observed.
                     if (thirdPartyInvites.size() == 1) {
                         Log.d(LOG_TAG, "## onNewJoinedRoom(): Consider the third party invite");
                         RoomThirdPartyInvite invite = thirdPartyInvites.iterator().next();
 
                         // Check whether the user has accepted this third party invite or not
-                        RoomMember roomMember = room.getLiveState().memberWithThirdPartyInviteToken(invite.token);
+                        RoomMember roomMember = room.getState().memberWithThirdPartyInviteToken(invite.token);
                         if (null != roomMember && roomMember.getUserId().equals(myUserId)) {
                             isDirectInvite = true;
                         } else if (null != roomPreviewData.getRoomState()){

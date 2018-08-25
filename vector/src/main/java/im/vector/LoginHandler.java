@@ -1,6 +1,7 @@
 /*
  * Copyright 2016 OpenMarket Ltd
  * Copyright 2017 Vector Creations Ltd
+ * Copyright 2018 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,18 +32,11 @@ import org.matrix.androidsdk.rest.model.login.Credentials;
 import org.matrix.androidsdk.rest.model.login.LoginFlow;
 import org.matrix.androidsdk.rest.model.login.RegistrationParams;
 import org.matrix.androidsdk.rest.model.pid.ThreePid;
-import org.matrix.androidsdk.ssl.CertUtil;
-import org.matrix.androidsdk.ssl.Fingerprint;
-import org.matrix.androidsdk.ssl.UnrecognizedCertificateException;
-import org.matrix.androidsdk.util.Log;
 
 import java.util.Collection;
 import java.util.List;
 
-
 public class LoginHandler {
-    private static final String LOG_TAG = LoginHandler.class.getSimpleName();
-
     /**
      * The account login / creation succeeds so create the dedicated session and store it.
      *
@@ -51,7 +45,10 @@ public class LoginHandler {
      * @param credentials the credentials
      * @param callback    the callback
      */
-    private void onRegistrationDone(Context appCtx, HomeServerConnectionConfig hsConfig, Credentials credentials, SimpleApiCallback<HomeServerConnectionConfig> callback) {
+    private void onRegistrationDone(Context appCtx,
+                                    HomeServerConnectionConfig hsConfig,
+                                    Credentials credentials,
+                                    ApiCallback<HomeServerConnectionConfig> callback) {
         // sanity check - GA issue
         if (TextUtils.isEmpty(credentials.userId)) {
             callback.onMatrixError(new MatrixError(MatrixError.FORBIDDEN, "No user id"));
@@ -87,9 +84,13 @@ public class LoginHandler {
      * @param password           The password;
      * @param callback           The callback.
      */
-    public void login(Context ctx, final HomeServerConnectionConfig hsConfig, final String username,
-                      final String phoneNumber, final String phoneNumberCountry, final String password,
-                      final SimpleApiCallback<HomeServerConnectionConfig> callback) {
+    public void login(Context ctx,
+                      final HomeServerConnectionConfig hsConfig,
+                      final String username,
+                      final String phoneNumber,
+                      final String phoneNumberCountry,
+                      final String password,
+                      final ApiCallback<HomeServerConnectionConfig> callback) {
         final Context appCtx = ctx.getApplicationContext();
 
         callLogin(ctx, hsConfig, username, phoneNumber, phoneNumberCountry, password, new UnrecognizedCertApiCallback<Credentials>(hsConfig, callback) {
@@ -115,9 +116,13 @@ public class LoginHandler {
      * @param password
      * @param callback
      */
-    private void callLogin(final Context ctx, final HomeServerConnectionConfig hsConfig, final String username,
-                           final String phoneNumber, final String phoneNumberCountry,
-                           final String password, final SimpleApiCallback<Credentials> callback) {
+    private void callLogin(final Context ctx,
+                           final HomeServerConnectionConfig hsConfig,
+                           final String username,
+                           final String phoneNumber,
+                           final String phoneNumberCountry,
+                           final String password,
+                           final ApiCallback<Credentials> callback) {
         LoginRestClient client = new LoginRestClient(hsConfig);
         String deviceName = ctx.getString(R.string.login_mobile_device);
 
@@ -141,7 +146,7 @@ public class LoginHandler {
      * @param hsConfig the home server config.
      * @param callback the supported flows list callback.
      */
-    public void getSupportedLoginFlows(Context ctx, final HomeServerConnectionConfig hsConfig, final SimpleApiCallback<List<LoginFlow>> callback) {
+    public void getSupportedLoginFlows(Context ctx, final HomeServerConnectionConfig hsConfig, final ApiCallback<List<LoginFlow>> callback) {
         final Context appCtx = ctx.getApplicationContext();
         LoginRestClient client = new LoginRestClient(hsConfig);
 
@@ -160,7 +165,9 @@ public class LoginHandler {
      * @param hsConfig the home server config.
      * @param callback the supported flows list callback.
      */
-    public void getSupportedRegistrationFlows(Context ctx, final HomeServerConnectionConfig hsConfig, final SimpleApiCallback<HomeServerConnectionConfig> callback) {
+    public void getSupportedRegistrationFlows(Context ctx,
+                                              final HomeServerConnectionConfig hsConfig,
+                                              final ApiCallback<HomeServerConnectionConfig> callback) {
         register(ctx, hsConfig, new RegistrationParams(), callback);
     }
 
@@ -171,7 +178,10 @@ public class LoginHandler {
      * @param hsConfig the home server config.
      * @param callback the supported flows list callback.
      */
-    private void register(Context ctx, final HomeServerConnectionConfig hsConfig, final RegistrationParams params, final SimpleApiCallback<HomeServerConnectionConfig> callback) {
+    private void register(Context ctx,
+                          final HomeServerConnectionConfig hsConfig,
+                          final RegistrationParams params,
+                          final ApiCallback<HomeServerConnectionConfig> callback) {
         final Context appCtx = ctx.getApplicationContext();
         LoginRestClient client = new LoginRestClient(hsConfig);
 
@@ -201,8 +211,11 @@ public class LoginHandler {
      * @param aSid              the server identity session id
      * @param aRespCallback     asynchronous callback response
      */
-    public void submitEmailTokenValidation(final Context aCtx, final HomeServerConnectionConfig aHomeServerConfig,
-                                           final String aToken, final String aClientSecret, final String aSid,
+    public void submitEmailTokenValidation(final Context aCtx,
+                                           final HomeServerConnectionConfig aHomeServerConfig,
+                                           final String aToken,
+                                           final String aClientSecret,
+                                           final String aSid,
                                            final ApiCallback<Boolean> aRespCallback) {
         final ThreePid pid = new ThreePid(null, ThreePid.MEDIUM_EMAIL);
         ThirdPidRestClient restClient = new ThirdPidRestClient(aHomeServerConfig);

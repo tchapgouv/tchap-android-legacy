@@ -512,15 +512,14 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
      * ========================================================================================== */
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public int getMenuRes() {
         switch (mMode) {
             case MODE_ACCOUNT_CREATION:
             case MODE_LOGIN:
-                getMenuInflater().inflate(R.menu.tchap_menu_next, menu);
-                break;
+                return R.menu.tchap_menu_next;
         }
 
-        return super.onCreateOptionsMenu(menu);
+        return -1;
     }
 
     @Override

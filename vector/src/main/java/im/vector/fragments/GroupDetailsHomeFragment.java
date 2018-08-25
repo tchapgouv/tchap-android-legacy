@@ -1,5 +1,6 @@
 /*
  * Copyright 2017 Vector Creations Ltd
+ * Copyright 2018 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +17,9 @@
 
 package im.vector.fragments;
 
+import android.os.Build;
 import android.os.Bundle;
-
 import android.support.v4.content.ContextCompat;
-
 import android.text.Html;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -33,6 +33,7 @@ import org.matrix.androidsdk.rest.model.group.Group;
 import butterknife.BindView;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
+import im.vector.util.ThemeUtils;
 import im.vector.util.VectorImageGetter;
 import im.vector.util.VectorUtils;
 
@@ -115,8 +116,10 @@ public class GroupDetailsHomeFragment extends GroupDetailsBaseFragment {
      */
     @Override
     protected void initViews() {
-        mGroupMembersIconView.setImageDrawable(CommonActivityUtils.tintDrawableWithColor(ContextCompat.getDrawable(mActivity, R.drawable.riot_tab_groups), mGroupMembersTextView.getCurrentTextColor()));
-        mGroupRoomsIconView.setImageDrawable(CommonActivityUtils.tintDrawableWithColor(ContextCompat.getDrawable(mActivity, R.drawable.riot_tab_rooms), mGroupMembersTextView.getCurrentTextColor()));
+        mGroupMembersIconView.setImageDrawable(ThemeUtils.INSTANCE.tintDrawableWithColor(ContextCompat.getDrawable(mActivity, R.drawable.riot_tab_groups),
+                mGroupMembersTextView.getCurrentTextColor()));
+        mGroupRoomsIconView.setImageDrawable(ThemeUtils.INSTANCE.tintDrawableWithColor(ContextCompat.getDrawable(mActivity, R.drawable.riot_tab_rooms),
+                mGroupMembersTextView.getCurrentTextColor()));
     }
 
     /*
@@ -139,8 +142,8 @@ public class GroupDetailsHomeFragment extends GroupDetailsBaseFragment {
         int roomCount = (null != group.getGroupRooms()) ? group.getGroupRooms().getEstimatedRoomCount() : 0;
         int memberCount = (null != group.getGroupUsers()) ? group.getGroupUsers().getEstimatedUsersCount() : 1;
 
-        mGroupRoomsTextView.setText((1 == roomCount) ? getString(R.string.group_one_room) : getString(R.string.group_rooms, roomCount));
-        mGroupMembersTextView.setText((1 == memberCount) ? getString(R.string.group_one_member) : getString(R.string.group_members, memberCount));
+        mGroupRoomsTextView.setText(getResources().getQuantityString(R.plurals.group_rooms, roomCount, roomCount));
+        mGroupMembersTextView.setText(getResources().getQuantityString(R.plurals.group_members, memberCount, memberCount));
 
         if (!TextUtils.isEmpty(group.getLongDescription())) {
             mGroupHtmlTextView.setVisibility(View.VISIBLE);
@@ -158,7 +161,7 @@ public class GroupDetailsHomeFragment extends GroupDetailsBaseFragment {
     private void refreshLongDescription() {
         if (null != mGroupHtmlTextView) {
             Group group = mActivity.getGroup();
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 mGroupHtmlTextView.setText(Html.fromHtml(group.getLongDescription(), Html.FROM_HTML_MODE_LEGACY, mImageGetter, null));
             } else {
                 mGroupHtmlTextView.setText(Html.fromHtml(group.getLongDescription(), mImageGetter, null));

@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-    <string name="resouces_language">eu</string>
-    <string name="resouces_country">ES</string>
+    <string name="resources_language">eu</string>
+    <string name="resources_country_code">ES</string>
 
     <string name="title_activity_home">Mezuak</string>
     <string name="title_activity_room">Gela</string>
@@ -39,7 +39,6 @@
     <string name="room_no_conference_call_in_encrypted_rooms">Konferentzia deiak ez daude onartuta zifratutako geletan</string>
     <string name="send_anyway">Bidali hala ere</string>
     <string name="or">edo</string>
-    <string name="and">eta</string>
     <string name="invite">Gonbidatu</string>
 
     <string name="action_sign_out">Amaitu saioa</string>
@@ -84,9 +83,9 @@ Hautatu esportatu babes-kopia bat egiteko saioa amaitu aurretik.</string>
     <string name="no_room_placeholder">Gelarik ez</string>
     <string name="no_public_room_placeholder">Ez dago gela publikorik eskuragarri</string>
     <plurals name="public_room_nb_users">
-	<item quantity="one">Erabiltzaile 1</item>
-	<item quantity="other">%d erabiltzaile</item>
-</plurals>
+        <item quantity="one">Erabiltzaile 1</item>
+        <item quantity="other">%d erabiltzaile</item>
+    </plurals>
 
     <string name="send_bug_report_include_logs">Bidali egunkariak</string>
     <string name="send_bug_report_include_crash_logs">Bidali kraskatze egunkariak</string>
@@ -94,7 +93,7 @@ Hautatu esportatu babes-kopia bat egiteko saioa amaitu aurretik.</string>
     <string name="send_bug_report">Arazte-txostena</string>
     <string name="send_bug_report_description">Azaldu akatsa. Zer egin duzu? Zer espero zenuen? Zer gertatu da benetan?</string>
     <string name="send_bug_report_placeholder">Azaldu zure arazoa hemen</string>
-    <string name="send_bug_report_logs_description">Akatsak aztertzeari begira, bezero honen egunkariak arazte-txosten honekin batera bidaliko dira. Goiko testua besterik ez baduzu bidali nahi, desmarkatu:</string>
+    <string name="send_bug_report_logs_description">Akatsak aztertzeari begira, bezero honen egunkariak arazte-txosten honekin batera bidaliko dira. Arazte-txosten hau, egunkariak eta pantaila-argazkia barne, ez dira publikoki ikusgai egongo. Goiko testua besterik ez baduzu bidali nahi, desmarkatu:</string>
     <string name="send_bug_report_alert_message">Telefonoa amorruz astintzen zabiltzala dirudi. Akats baten berri eman nahi duzu?</string>
     <string name="send_bug_report_app_crashed">Azken aldian aplikazioa kraskatu da. Kraskatze txostena bidali nahi duzu?</string>
 
@@ -112,8 +111,6 @@ Hautatu esportatu babes-kopia bat egiteko saioa amaitu aurretik.</string>
     <string name="logout">Amaitu saioa</string>
     <string name="hs_url">Hasiera zerbitzariaren URL-a</string>
     <string name="identity_url">Identitate zerbitzariaren URLa</string>
-    <string name="user">erabiltzailea</string>
-    <string name="users">erabiltzaileak</string>
     <string name="search">Bilatu</string>
 
     <string name="start_new_chat">Hasi txat berria</string>
@@ -246,7 +243,7 @@ Baimendu sarbidea hurrengo laster-leihoan deia egin ahal izateko.</string>
     <string name="permissions_action_not_performed_missing_permissions">Ez da ekintza burutu baimenak falta direlako</string>
 
     <string name="media_slider_saved">Gordeta</string>
-    <string name="media_slider_saved_message">Gorde deskargetan</string>
+    <string name="media_slider_saved_message">Gorde deskargetan?</string>
     <string name="yes">BAI</string>
     <string name="no">EZ</string>
     <string name="_continue">Jarraitu</string>
@@ -291,11 +288,6 @@ Gailuek ezin izango dute gelara elkartu aurreko historiala deszifratu.
 
 Zifratutako mezuak ez dira zifratzea oraindik ezarrita ez duten beste gailuetan ikusiko.</string>
 
-    <string name="format_time_s">s</string>
-    <string name="format_time_m">m</string>
-    <string name="format_time_h">h</string>
-    <string name="format_time_d">e</string>
-
     <string name="room_participants_leave_prompt_title">Atera gelatik</string>
     <string name="room_participants_leave_prompt_msg">Ziur gelatik atera nahi duzula?</string>
     <string name="room_participants_remove_prompt_msg">Ziur %s txat honetatik kendu nahi duzula?</string>
@@ -304,8 +296,6 @@ Zifratutako mezuak ez dira zifratzea oraindik ezarrita ez duten beste gailuetan 
     <string name="room_participants_online">Konektatuta</string>
     <string name="room_participants_offline">Deskonektatuta</string>
     <string name="room_participants_idle">Inaktibo</string>
-    <string name="room_participants_now">orain</string>
-    <string name="room_participants_ago">duela</string>
 
     <string name="room_participants_header_admin_tools">KUDEAKETA TRESNAK</string>
     <string name="room_participants_header_call">DEIA</string>
@@ -377,12 +367,13 @@ Ziur zaude?</string>
     <string name="room_details_people">Jendea</string>
     <string name="room_details_files">Fitxategiak</string>
     <string name="room_details_settings">Ezarpenak</string>
-    <string name="room_details_selected">hautatuta</string>
     <string name="room_details_people_invited_group_name">GONBIDATUTA</string>
     <string name="room_details_people_present_group_name">ELKARTUTA</string>
 
     <string name="room_event_action_report_prompt_reason">Eduki hau salatzeko arrazoia</string>
-    <string name="room_event_action_report_prompt_ignore_user">"Erabiltzaile honen mezu guztiak  ezkutatu nahi dituzu?"</string>
+    <string name="room_event_action_report_prompt_ignore_user">"Erabiltzaile honen mezu guztiak  ezkutatu nahi dituzu?
+
+Kontuan izan ekintza honek aplikazioa berrabiaraziko duela eta denbora bat beharko lukeela."</string>
     <string name="room_event_action_cancel_upload">Utzi igoera</string>
     <string name="room_event_action_cancel_download">Utzi deskarga</string>
 
@@ -412,8 +403,6 @@ Ziur zaude?</string>
     <string name="room_recents_join_room_prompt">Idatzi gelaren IDa edo ezizena</string>
 
     <string name="directory_search_results_title">Arakatu direktorioa</string>
-    <string name="directory_search_room">gela %1$d</string>
-    <string name="directory_search_room_for">gela %1$d aurkitu da %2$s bilaketarako</string>
     <string name="directory_searching_title">Direktorioa bilatzen..</string>
 
     <string name="room_settings_favourite">Gogokoa</string>
@@ -515,7 +504,9 @@ Jarraitzeko, idatzi zure pasahitza.</string>
     <string name="settings_confirm_password">berretsi pasahitza</string>
     <string name="settings_fail_to_update_password">Huts egin du pasahitza eguneratzean</string>
     <string name="settings_password_updated">Zure pasahitza eguneratu da</string>
-    <string name="settings_unignore_user">%s erabiltzailearen mezu guztiak erakutsi?</string>
+    <string name="settings_unignore_user">%s erabiltzailearen mezu guztiak erakutsi?
+
+Kontuan izan ekintza honek aplikazioa berrabiaraziko duela eta denbora bat beharko lukeela.</string>
 
     <string name="settings_delete_notification_targets_confirmation">Ziur jakinarazpenen helburu hau kendu nahi duzula?</string>
 
@@ -653,7 +644,8 @@ Jarraitzeko, idatzi zure pasahitza.</string>
 
     <string name="encryption_information_verify_device">Egiaztatu gailua</string>
     <string name="encryption_information_verify_device_warning">" Gailu hau fidagarria dela egiaztatzeko, kontaktatu bere jabea beste medio bat erabiliz (adib. aurrez aurre edo telefonoz deituz) eta galdetu beraien erabiltzaile-ezarpenetan bere gailurako ikusten duen gakoa hemen beheko bera den:"</string>
-    <string name="encryption_information_verify_device_warning2">Bera bada, sakatu beheko egiaztatu botoia. EZ bada, beste inor gailua antzematen dago eta blokeatu botoia sakatu beharko zenuke.
+    <string name="encryption_information_verify_device_warning2">Bat badator bada, sakatu beheko egiaztatu botoia. 
+Ez badator bat, beste inor gailua antzematen dago eta zerrenda beltzean sartu beharko zenuke.
 Etorkizunean egiaztaketa metodoa hobetuko da.</string>
     <string name="encryption_information_verify_key_match">Gakoak bat datozela egiaztatu dut</string>
 
@@ -724,7 +716,7 @@ Zifratutako mezuak ez dira zifratzea oraindik ezarrita ez duten beste gailuetan 
     <string name="settings_labs_create_conference_with_jitsi">Sortu konferentzia deiak jitsi bidez</string>
     <string name="widget_delete_message_confirmation">Ziur trepeta ezabatu nahi duzula?</string>
 
-    // Widget Integration Manager
+    <!-- Widget Integration Manager -->
     <string name="widget_integration_unable_to_create">Ezin izan da trepeta sortu.</string>
     <string name="widget_integration_failed_to_send_request">Eskariaren bidalketak huts egin du.</string>
     <string name="widget_integration_positive_power_level">Botere maila osoko zenbaki positibo bat izan behar da.</string>
@@ -746,22 +738,22 @@ Zifratutako mezuak ez dira zifratzea oraindik ezarrita ez duten beste gailuetan 
 
     <string name="settings_labs_native_camera">Erabili kamera natiboa</string>
 
-    // share keys
+    <!-- share keys -->
     <string name="you_added_a_new_device">\'%s\' gailu berria gehitu duzu, eta zifratze-gakoak eskatzen ari da.</string>
     <string name="your_unverified_device_requesting">Egiaztatu gabeko zure \'%s\' gailua zifratze-gakoak eskatzen ari da.</string>
     <string name="start_verification">Hasi egiaztaketa</string>
     <string name="share_without_verifying">Partekatu egiaztatu gabe</string>
     <string name="ignore_request">Ezikusi eskaria</string>
 
-    // conference call
+    <!-- conference call -->
     <string name="conference_call_warning_title">Abisua!</string>
     <string name="conference_call_warning_message">Konferentzia deiak garapenean daude eta agian ez dabiltza behar bezala.</string>
 
-    // slash commands
+    <!-- slash commands -->
     <string name="command_error">Komandoaren errorea</string>
     <string name="unrecognized_command">Komando ezezaguna: %s</string>
 
-    // notification statuses
+    <!-- notification statuses -->
     <string name="notification_off">Ez</string>
     <string name="notification_on">Bai</string>
     <string name="notification_noisy">Zaratatsua</string>
@@ -818,7 +810,7 @@ Zifratutako mezuak ez dira zifratzea oraindik ezarrita ez duten beste gailuetan 
     <string name="community_id">Komunitatearen IDa</string>
     <string name="community_id_hint">adibidea</string>
 
-    // group details
+    <!-- group details -->
     <string name="group_details_home">Hasiera</string>
     <string name="group_details_people">Jendea</string>
     <string name="group_details_rooms">Gelak</string>
@@ -830,11 +822,6 @@ Zifratutako mezuak ez dira zifratzea oraindik ezarrita ez duten beste gailuetan 
     <string name="filter_group_members">Iragazi taldeko kideak</string>
     <string name="filter_group_rooms">Iragazi taldeko gelak</string>
 
-    <string name="group_one_member">kide 1</string>
-    <string name="group_members">%d kide</string>
-
-    <string name="group_one_room">gela 1</string>
-    <string name="group_rooms">%d gela</string>
     <string name="group_no_long_description">Komunitatearen administratzaileak ez du deskripzio luzerik eman komunitate honentzat.</string>
 
     <string name="has_been_kicked">%1$s gelatik kanporatu zaitu %2$s erabiltzaileak</string>
@@ -902,7 +889,7 @@ Zifratutako mezuak ez dira zifratzea oraindik ezarrita ez duten beste gailuetan 
 	<item quantity="other">%d trepeta aktibo</item>
 </plurals>
 
-    // Widget Integration Manager
+    <!-- Widget Integration Manager -->
     <string name="receipt_avatar">Hartzailearen abatarra</string>
     <string name="notice_avatar">Jakinarazpen abatarra</string>
     <string name="avatar">Abatarra</string>
@@ -953,7 +940,60 @@ Baten bat gehitu orain?</string>
 
 Kontua desaktibatzean <b>ez dira zuk bidalitako mezuak ahaztuko.</b> Mezuak ahaztea nahi baduzu markatu beheko kutxa.
 
-Matrix-eko mezuen ikusgaitasuna e-mail sistemaren antekoa da. Guk zure mezuak ahaztean ez dizkiogu erabiltzaile berriei edo izena eman ez dutenei erakutsiko, baina jada zure mezuak jaso diztuzten erregistratutako erabiltzaileen bere kopia izaten jarraituko dute.</string>
+Matrix-eko mezuen ikusgaitasuna e-mail sistemaren antekoa da. Guk zure mezuak ahaztean ez dizkiogu erabiltzaile berriei edo izena eman ez dutenei erakutsiko, baina jada zure mezuak jaso dituzten erregistratutako erabiltzaileen bere kopia izaten jarraituko dute.</string>
     <string name="deactivate_account_delete_checkbox">Ahaztu bidali ditudan mezu guztiak kontua desaktibatzean (Abisua: Honekin etorkizuneko erabiltzaileek elkarrizketaren bertsio ez oso bat ikusiko dute)</string>
     <string name="deactivate_account_prompt_password">Jarraitzeko, sartu zure pasahitza:</string>
+    <string name="dialog_title_third_party_licences">Hirugarrengoen lizentziak</string>
+
+    <string name="download">Deskargatu</string>
+    <string name="speak">Hitz egin</string>
+    <string name="clear">Garbitu</string>
+    <string name="e2e_re_request_encryption_key"><u>Berriro eskatu zifratze-gakoak</u> zure beste gailuetatik.</string>
+
+    <string name="e2e_re_request_encryption_key_sent">Gako eskaria bidalita.</string>
+
+    <string name="e2e_re_request_encryption_key_dialog_title">Eskaria bidalita</string>
+    <string name="e2e_re_request_encryption_key_dialog_content">Abiatu Riot beste mezua deszifratu dezakeen gailu batean, gailu honetara gakoak bidali ditzan.</string>
+
+    <string name="lock_screen_hint">Idatzi hemen…</string>
+
+    <string name="option_send_voice">Bidali ahotsa</string>
+
+    <string name="go_on_with">jarraitu honekin…</string>
+    <string name="error_no_external_application_found">Ez da ekintza hau burutzeko kanpo aplikaziorik aurkitu.</string>
+
+    <string name="settings_labs_enable_send_voice">Bidali ahots mezua (Hirugarrengoen kanpo aplikazio bat behar da ahots-mezuak grabatzeko)</string>
+
+    <string name="error_empty_field_your_password">Sartu zure pasahitza.</string>
+
+<string name="send_bug_report_description_in_english">Ahal dela idatzi deskripzioa ingelesez.</string>
+    <string name="room_participants_action_unignore_prompt">Erakutsi erabiltzaile honen mezu guztiak?
+
+Kontuan izan ekintza honek aplikazioa berrabiaraziko duela eta denbora bat beharko lukeela.</string>
+    <string name="room_message_placeholder_reply_to_encrypted">Zifratutako erantzuna bidalita…</string>
+    <string name="room_message_placeholder_reply_to_not_encrypted">Bidali erantzuna (zifratu gabea)…</string>
+    <string name="settings_preview_media_before_sending">Aurreikusi multimedia bidali aurretik</string>
+
+    <string name="settings_without_flair">Ez zara inongo komunitateren kide orain.</string>
+
+    <string name="settings_labs_keyboard_options_to_send_message">Erabili teklatuaren enter tekla mezua bidaltzeko</string>
+    <string name="command_description_emote">Ekintza bistaratzen du</string>
+    <string name="command_description_ban_user">Debekatu id zehatz bat duen erabiltzailea</string>
+    <string name="command_description_unban_user">Kendu debekua id zehatz bat duen erabiltzaileari</string>
+    <string name="command_description_op_user">Zehaztu erabiltzaile baten botere maila</string>
+    <string name="command_description_invite_user">Id zehatz bat duen erabiltzailea oraingo gelara gonbidatzen du</string>
+    <string name="command_description_join_room">Gelara elkartzen da emandako ezizenarekin</string>
+    <string name="command_description_part_room">Atera gelatik</string>
+    <string name="command_description_topic">Ezarri gelaren mintzagaia</string>
+    <string name="command_description_kick_user">Id zehatz bat duen erabiltzailea kanporatzen du</string>
+    <string name="command_description_nick">Zure pantaila-izena aldatzen du</string>
+    <string name="command_description_markdown">Markdown bai/ez</string>
+    <string name="command_description_clear_scalar_token">Matrix aplikazioen kudeaketa konpontzeko</string>
+
+    <string name="room_tombstone_versioned_description">Gela hau ordeztu da eta ez dago jada aktibo</string>
+    <string name="room_tombstone_continuation_link">Elkarrizketak hemen darrai</string>
+    <string name="room_tombstone_continuation_description">Gela hau aurreko elkarrizketa baten jarraipena da</string>
+    <string name="room_tombstone_predecessor_link">Egin klik hemen mezu zaharragoak ikusteko</string>
+
+<string name="command_description_deop_user">Id zehatz bat duen erabiltzaileari maila jaisten dio</string>
     </resources>

@@ -40,6 +40,7 @@ import org.matrix.androidsdk.util.Log;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import im.vector.Matrix;
@@ -48,12 +49,16 @@ import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.VectorHomeActivity;
 import im.vector.activity.VectorRoomActivity;
 import im.vector.adapters.AbsAdapter;
+import im.vector.util.HomeRoomsViewModel;
 import im.vector.util.RoomUtils;
 
 /**
  * Abstract fragment providing the universal search
  */
-public abstract class AbsHomeFragment extends VectorBaseFragment implements AbsAdapter.RoomInvitationListener, AbsAdapter.MoreRoomActionListener, RoomUtils.MoreActionListener {
+public abstract class AbsHomeFragment extends VectorBaseFragment implements
+        AbsAdapter.RoomInvitationListener,
+        AbsAdapter.MoreRoomActionListener,
+        RoomUtils.MoreActionListener {
 
     private static final String LOG_TAG = AbsHomeFragment.class.getSimpleName();
     private static final String CURRENT_FILTER = "CURRENT_FILTER";
@@ -71,13 +76,14 @@ public abstract class AbsHomeFragment extends VectorBaseFragment implements AbsA
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
             // warn only if there is dy i.e the list has been really scrolled not refreshed
             if ((null != mActivity) && (0 != dy)) {
-                mActivity.hideFloatingActionButton(AbsHomeFragment.this.getTag());
+                mActivity.hideFloatingActionButton(getTag());
             }
         }
     };
 
     protected int mPrimaryColor = -1;
     protected int mSecondaryColor = -1;
+
 
     /*
      * *********************************************************************************************
@@ -96,12 +102,10 @@ public abstract class AbsHomeFragment extends VectorBaseFragment implements AbsA
     @CallSuper
     public void onActivityCreated(final Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
         if (getActivity() instanceof VectorHomeActivity) {
             mActivity = (VectorHomeActivity) getActivity();
         }
         mSession = Matrix.getInstance(getActivity()).getDefaultSession();
-
         if (savedInstanceState != null && savedInstanceState.containsKey(CURRENT_FILTER)) {
             mCurrentFilter = savedInstanceState.getString(CURRENT_FILTER);
         }
@@ -111,8 +115,12 @@ public abstract class AbsHomeFragment extends VectorBaseFragment implements AbsA
     @CallSuper
     public void onResume() {
         super.onResume();
-        if ((mPrimaryColor != -1) && (null != mActivity)) {
-            mActivity.updateTabStyle(mPrimaryColor, mSecondaryColor != -1 ? mSecondaryColor : mPrimaryColor);
+        if (mActivity != null) {
+            if (mPrimaryColor != -1) {
+                mActivity.updateTabStyle(mPrimaryColor, mSecondaryColor != -1 ? mSecondaryColor : mPrimaryColor);
+            }
+            final HomeRoomsViewModel.Result result = mActivity.getRoomsViewModel().getResult();
+            onRoomResultUpdated(result);
         }
     }
 
@@ -120,7 +128,7 @@ public abstract class AbsHomeFragment extends VectorBaseFragment implements AbsA
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.ic_action_mark_all_as_read:
-                Log.e(LOG_TAG, "onOptionsItemSelected mark all as read");
+                Log.d(LOG_TAG, "onOptionsItemSelected mark all as read");
                 onMarkAllAsRead();
                 return true;
         }
@@ -308,8 +316,11 @@ public abstract class AbsHomeFragment extends VectorBaseFragment implements AbsA
 
     /**
      * A room summary has been updated
+     *
+     * @param result
      */
-    public void onSummariesUpdate() {
+    public void onRoomResultUpdated(final HomeRoomsViewModel.Result result) {
+        //no-op
     }
 
     /**
@@ -343,7 +354,7 @@ public abstract class AbsHomeFragment extends VectorBaseFragment implements AbsA
             CommonActivityUtils.specificUpdateBadgeUnreadCount(mSession, getContext());
 
             // Launch corresponding room activity
-            HashMap<String, Object> params = new HashMap<>();
+            Map<String, Object> params = new HashMap<>();
             params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
             params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
 
@@ -430,15 +441,7 @@ public abstract class AbsHomeFragment extends VectorBaseFragment implements AbsA
                 if ((null != mActivity) && !mActivity.isFinishing()) {
                     mActivity.hideWaitingView();
                     mActivity.refreshUnreadBadges();
-
-                    // if the fragment is still the active one
-                    if (isResumed()) {
-                        // refresh it
-                        onSummariesUpdate();
-                    } else {
-                        // refresh the displayed one
-                        mActivity.dispatchOnSummariesUpdate();
-                    }
+                    mActivity.onRoomDataUpdated();
                 }
             }
 

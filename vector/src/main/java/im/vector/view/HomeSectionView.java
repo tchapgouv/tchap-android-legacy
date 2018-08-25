@@ -109,7 +109,7 @@ public class HomeSectionView extends RelativeLayout {
         GradientDrawable shape = new GradientDrawable();
         shape.setShape(GradientDrawable.RECTANGLE);
         shape.setCornerRadius(100);
-        shape.setColor(ThemeUtils.getColor(getContext(), R.attr.activity_bottom_gradient_color));
+        shape.setColor(ThemeUtils.INSTANCE.getColor(getContext(), R.attr.activity_bottom_gradient_color));
         mBadge.setBackground(shape);
 
         mHeader.setOnClickListener(new OnClickListener() {
@@ -141,7 +141,7 @@ public class HomeSectionView extends RelativeLayout {
                 mRecyclerView.setVisibility(hasNoResult ? GONE : VISIBLE);
                 mPlaceHolder.setVisibility(hasNoResult ? VISIBLE : GONE);
             } catch (Exception e) {
-                Log.e(LOG_TAG, "## onDataUpdated() failed " + e.getMessage());
+                Log.e(LOG_TAG, "## onDataUpdated() failed " + e.getMessage(), e);
             }
         }
     }

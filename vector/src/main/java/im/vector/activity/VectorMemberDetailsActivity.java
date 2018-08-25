@@ -18,12 +18,12 @@
  */
 package im.vector.activity;
 
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.ExifInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.MenuItem;
@@ -34,6 +34,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.jetbrains.annotations.NotNull;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.call.IMXCall;
 import org.matrix.androidsdk.crypto.MXCryptoError;
@@ -57,6 +58,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import fr.gouv.tchap.activity.TchapContactActionBarActivity;
 import im.vector.Matrix;
@@ -65,13 +67,18 @@ import im.vector.adapters.VectorMemberDetailsAdapter;
 import im.vector.adapters.VectorMemberDetailsDevicesAdapter;
 import im.vector.fragments.VectorUnknownDevicesFragment;
 import im.vector.util.CallsManager;
+import im.vector.util.MatrixSdkExtensionsKt;
+import im.vector.util.PermissionsToolsKt;
 import im.vector.util.VectorUtils;
 import fr.gouv.tchap.util.DinsicUtils;
+import kotlin.Pair;
 
 /**
  * VectorMemberDetailsActivity displays the member information and allows to perform some dedicated actions.
  */
-public class VectorMemberDetailsActivity extends TchapContactActionBarActivity implements VectorMemberDetailsAdapter.IEnablingActions, VectorMemberDetailsDevicesAdapter.IDevicesAdapterListener {
+public class VectorMemberDetailsActivity extends TchapContactActionBarActivity implements
+        VectorMemberDetailsAdapter.IEnablingActions,
+        VectorMemberDetailsDevicesAdapter.IDevicesAdapterListener {
     private static final String LOG_TAG = VectorMemberDetailsActivity.class.getSimpleName();
 
     public static final String EXTRA_ROOM_ID = "EXTRA_ROOM_ID";
@@ -113,7 +120,7 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
     private RoomMember mRoomMember; // room member corresponding to mMemberId
     private MXSession mSession;
     private User mUser;
-    //private ArrayList<MemberDetailsAdapter.AdapterMemberActionItems> mActionItemsArrayList;
+    //private List<MemberDetailsAdapter.AdapterMemberActionItems> mActionItemsArrayList;
     private VectorMemberDetailsAdapter mListViewAdapter;
     private VectorMemberDetailsDevicesAdapter mDevicesListViewAdapter;
 
@@ -139,7 +146,7 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
     private final ApiCallback<String> mCreateDirectMessageCallBack = new ApiCallback<String>() {
         @Override
         public void onSuccess(String roomId) {
-            HashMap<String, Object> params = new HashMap<>();
+            Map<String, Object> params = new HashMap<>();
             params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
             params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
             params.put(VectorRoomActivity.EXTRA_EXPAND_ROOM_HEADER, true);
@@ -171,7 +178,7 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
     private final MXEventListener mLiveEventsListener = new MXEventListener() {
         @Override
         public void onLiveEvent(final Event event, RoomState roomState) {
-            VectorMemberDetailsActivity.this.runOnUiThread(new Runnable() {
+            runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     String eventType = event.getType();
@@ -180,7 +187,7 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
                     // check if there is a member update
                     if ((Event.EVENT_TYPE_STATE_ROOM_MEMBER.equals(eventType)) || (Event.EVENT_TYPE_STATE_ROOM_POWER_LEVELS.equals(eventType))) {
                         // update only if it is the current user
-                        VectorMemberDetailsActivity.this.runOnUiThread(new Runnable() {
+                        runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 if (checkRoomMemberStatus()) {
@@ -204,7 +211,7 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
                     // pop to the home activity
                     Intent intent = new Intent(VectorMemberDetailsActivity.this, VectorHomeActivity.class);
                     intent.setFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP | android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                    VectorMemberDetailsActivity.this.startActivity(intent);
+                    startActivity(intent);
                 }
             });
         }
@@ -215,7 +222,7 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
         public void onPresenceUpdate(Event event, final User user) {
             if (mMemberId.equals(user.user_id)) {
                 // Someone's presence has changed, reprocess the whole list
-                VectorMemberDetailsActivity.this.runOnUiThread(new Runnable() {
+                runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         // display an avatar it it was not used
@@ -273,7 +280,7 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
         mSession.mCallsManager.createCallInRoom(mRoom.getRoomId(), isVideo, new ApiCallback<IMXCall>() {
             @Override
             public void onSuccess(final IMXCall call) {
-                VectorMemberDetailsActivity.this.runOnUiThread(new Runnable() {
+                runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         final Intent intent = new Intent(VectorMemberDetailsActivity.this, VectorCallViewActivity.class);
@@ -281,10 +288,10 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
                         intent.putExtra(VectorCallViewActivity.EXTRA_MATRIX_ID, mSession.getCredentials().userId);
                         intent.putExtra(VectorCallViewActivity.EXTRA_CALL_ID, call.getCallId());
 
-                        VectorMemberDetailsActivity.this.runOnUiThread(new Runnable() {
+                        runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                VectorMemberDetailsActivity.this.startActivity(intent);
+                                startActivity(intent);
                             }
                         });
                     }
@@ -293,8 +300,8 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
 
             @Override
             public void onNetworkError(Exception e) {
-                CommonActivityUtils.displayToast(VectorMemberDetailsActivity.this, e.getLocalizedMessage());
-                Log.e(LOG_TAG, "## startCall() failed " + e.getMessage());
+                Toast.makeText(VectorMemberDetailsActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                Log.e(LOG_TAG, "## startCall() failed " + e.getMessage(), e);
             }
 
             @Override
@@ -303,25 +310,28 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
                     MXCryptoError cryptoError = (MXCryptoError) e;
 
                     if (MXCryptoError.UNKNOWN_DEVICES_CODE.equals(cryptoError.errcode)) {
-                        CommonActivityUtils.displayUnknownDevicesDialog(mSession, VectorMemberDetailsActivity.this, (MXUsersDevicesMap<MXDeviceInfo>) cryptoError.mExceptionData, new VectorUnknownDevicesFragment.IUnknownDevicesSendAnywayListener() {
-                            @Override
-                            public void onSendAnyway() {
-                                startCall(isVideo);
-                            }
-                        });
+                        CommonActivityUtils.displayUnknownDevicesDialog(mSession,
+                                VectorMemberDetailsActivity.this,
+                                (MXUsersDevicesMap<MXDeviceInfo>) cryptoError.mExceptionData,
+                                new VectorUnknownDevicesFragment.IUnknownDevicesSendAnywayListener() {
+                                    @Override
+                                    public void onSendAnyway() {
+                                        startCall(isVideo);
+                                    }
+                                });
 
                         return;
                     }
                 }
 
-                CommonActivityUtils.displayToast(VectorMemberDetailsActivity.this, e.getLocalizedMessage());
+                Toast.makeText(VectorMemberDetailsActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                 Log.e(LOG_TAG, "## startCall() failed " + e.getMessage());
             }
 
             @Override
             public void onUnexpectedError(Exception e) {
-                CommonActivityUtils.displayToast(VectorMemberDetailsActivity.this, e.getLocalizedMessage());
-                Log.e(LOG_TAG, "## startCall() failed " + e.getMessage());
+                Toast.makeText(VectorMemberDetailsActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                Log.e(LOG_TAG, "## startCall() failed " + e.getMessage(), e);
             }
         });
     }
@@ -335,27 +345,29 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
      * @param aIsVideoCall true if video call, false if audio call
      */
     private void startCheckCallPermissions(boolean aIsVideoCall) {
-        int requestCode = CommonActivityUtils.REQUEST_CODE_PERMISSION_AUDIO_IP_CALL;
+        final int requestCode;
 
         if (aIsVideoCall) {
-            requestCode = CommonActivityUtils.REQUEST_CODE_PERMISSION_VIDEO_IP_CALL;
+            requestCode = PermissionsToolsKt.PERMISSION_REQUEST_CODE_VIDEO_CALL;
+        } else {
+            requestCode = PermissionsToolsKt.PERMISSION_REQUEST_CODE_AUDIO_CALL;
         }
 
-        if (CommonActivityUtils.checkPermissions(requestCode, this)) {
+        if (PermissionsToolsKt.checkPermissions(requestCode, this, requestCode)) {
             startCall(aIsVideoCall);
         }
     }
 
     @Override
-    public void onRequestPermissionsResult(int aRequestCode, @NonNull String[] aPermissions, @NonNull int[] aGrantResults) {
-        if (0 == aPermissions.length) {
-            Log.e(LOG_TAG, "## onRequestPermissionsResult(): cancelled " + aRequestCode);
-        } else if (aRequestCode == CommonActivityUtils.REQUEST_CODE_PERMISSION_AUDIO_IP_CALL) {
-            if (CommonActivityUtils.onPermissionResultAudioIpCall(this, aPermissions, aGrantResults)) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (0 == permissions.length) {
+            Log.e(LOG_TAG, "## onRequestPermissionsResult(): cancelled " + requestCode);
+        } else if (requestCode == PermissionsToolsKt.PERMISSION_REQUEST_CODE_AUDIO_CALL) {
+            if (PermissionsToolsKt.onPermissionResultAudioIpCall(this, grantResults)) {
                 startCall(false);
             }
-        } else if (aRequestCode == CommonActivityUtils.REQUEST_CODE_PERMISSION_VIDEO_IP_CALL) {
-            if (CommonActivityUtils.onPermissionResultVideoIpCall(this, aPermissions, aGrantResults)) {
+        } else if (requestCode == PermissionsToolsKt.PERMISSION_REQUEST_CODE_VIDEO_CALL) {
+            if (PermissionsToolsKt.onPermissionResultVideoIpCall(this, grantResults)) {
                 startCall(true);
             }
         }
@@ -363,10 +375,10 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
 
     @Override
     public void selectRoom(final Room aRoom) {
-        VectorMemberDetailsActivity.this.runOnUiThread(new Runnable() {
+        runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                HashMap<String, Object> params = new HashMap<>();
+                Map<String, Object> params = new HashMap<>();
                 params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
                 params.put(VectorRoomActivity.EXTRA_ROOM_ID, aRoom.getRoomId());
 
@@ -383,9 +395,10 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
             return;
         }
 
-        final ArrayList<String> idsList = new ArrayList<>();
+        final List<String> idsList = new ArrayList<>();
 
-        String displayName = (null == mRoomMember) ? mMemberId : (TextUtils.isEmpty(mRoomMember.displayname) ? mRoomMember.getUserId() : mRoomMember.displayname);
+        String displayName = (null == mRoomMember) ?
+                mMemberId : (TextUtils.isEmpty(mRoomMember.displayname) ? mRoomMember.getUserId() : mRoomMember.displayname);
 
         switch (aActionType) {
             case ITEM_ACTION_DEVICES:
@@ -442,7 +455,7 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
             case ITEM_ACTION_SET_DEFAULT_POWER_LEVEL:
                 if (null != mRoom) {
                     int defaultPowerLevel = 0;
-                    PowerLevels powerLevels = mRoom.getLiveState().getPowerLevels();
+                    PowerLevels powerLevels = mRoom.getState().getPowerLevels();
 
                     if (null != powerLevels) {
                         defaultPowerLevel = powerLevels.users_default;
@@ -478,11 +491,8 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
                 break;
 
             case ITEM_ACTION_IGNORE: {
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-                alertDialogBuilder.setMessage(getString(R.string.room_participants_action_ignore) + " ?");
-
-                // set dialog message
-                alertDialogBuilder
+                new AlertDialog.Builder(this)
+                        .setMessage(R.string.room_event_action_report_prompt_ignore_user)
                         .setCancelable(false)
                         .setPositiveButton(R.string.ok,
                                 new DialogInterface.OnClickListener() {
@@ -529,22 +539,15 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
                                     public void onClick(DialogInterface dialog, int id) {
                                         dialog.cancel();
                                     }
-                                });
-
-                // create alert dialog
-                AlertDialog alertDialog = alertDialogBuilder.create();
-                // show it
-                alertDialog.show();
+                                })
+                        .show();
 
                 break;
             }
 
             case ITEM_ACTION_UNIGNORE: {
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-                alertDialogBuilder.setMessage(getString(R.string.room_participants_action_unignore) + " ?");
-
-                // set dialog message
-                alertDialogBuilder
+                new AlertDialog.Builder(this)
+                        .setMessage(R.string.room_participants_action_unignore_prompt)
                         .setCancelable(false)
                         .setPositiveButton(R.string.ok,
                                 new DialogInterface.OnClickListener() {
@@ -591,12 +594,8 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
                                     public void onClick(DialogInterface dialog, int id) {
                                         dialog.cancel();
                                     }
-                                });
-
-                // create alert dialog
-                AlertDialog alertDialog = alertDialogBuilder.create();
-                // show it
-                alertDialog.show();
+                                })
+                        .show();
                 break;
             }
             case ITEM_ACTION_MENTION:
@@ -690,12 +689,8 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
         if (android.R.id.home == item.getItemId()) {
             if (View.VISIBLE == mDevicesListView.getVisibility()) {
                 setScreenDevicesListVisibility(View.GONE);
-            } else {
-                // don't use the default parent activity defined in the manifest file.
-                // close this activity when the home button is pressed
-                onBackPressed();
+                return true;
             }
-            return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -715,8 +710,8 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
 
             // check the member whose details are displayed, is present in the query response
             if (aDevicesInfoMap.getMap().containsKey(mMemberId)) {
-                HashMap<String, MXDeviceInfo> memberDevicesInfo = new HashMap<>(aDevicesInfoMap.getMap().get(mMemberId));
-                ArrayList<MXDeviceInfo> deviceInfoList = new ArrayList<>(memberDevicesInfo.values());
+                Map<String, MXDeviceInfo> memberDevicesInfo = new HashMap<>(aDevicesInfoMap.getMap().get(mMemberId));
+                List<MXDeviceInfo> deviceInfoList = new ArrayList<>(memberDevicesInfo.values());
 
                 mDevicesListViewAdapter.addAll(deviceInfoList);
             } else {
@@ -740,7 +735,7 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
      * @param callback      the callback with the created event
      */
     private void updateUserPowerLevels(final String userId, final int newPowerLevel, final ApiCallback<Void> callback) {
-        PowerLevels powerLevels = mRoom.getLiveState().getPowerLevels();
+        PowerLevels powerLevels = mRoom.getState().getPowerLevels();
         int currentSelfPowerLevel = 0;
 
         if (null != powerLevels) {
@@ -764,7 +759,6 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
                             dialog.dismiss();
                         }
                     })
-                    .create()
                     .show();
         } else {
             mRoom.updateUserPowerLevels(userId, newPowerLevel, callback);
@@ -804,8 +798,8 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
     /**
      * @return the list of supported actions (ITEM_ACTION_XX)
      */
-    private ArrayList<Integer> supportedActionsList() {
-        ArrayList<Integer> supportedActions = new ArrayList<>();
+    private List<Integer> supportedActionsList() {
+        List<Integer> supportedActions = new ArrayList<>();
 
         if (!mSession.isAlive()) {
             Log.e(LOG_TAG, "supportedActionsList : the session is not anymore valid");
@@ -821,7 +815,7 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
         int adminCount = 0;
 
         if (null != mRoom) {
-            powerLevels = mRoom.getLiveState().getPowerLevels();
+            powerLevels = mRoom.getState().getPowerLevels();
         }
 
         if (mMemberAvatarBadgeImageView != null) {
@@ -862,7 +856,9 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
             }
 
             // Check whether the user is admin (in this case he may reduce his power level to become moderator or less, EXCEPT if he is the only admin).
-            if ((adminCount > 1) && (null != powerLevels) && (selfPowerLevel >= powerLevels.minimumPowerLevelForSendingEventAsStateEvent(Event.EVENT_TYPE_STATE_ROOM_POWER_LEVELS))) {
+            if ((adminCount > 1)
+                    && (null != powerLevels)
+                    && (selfPowerLevel >= powerLevels.minimumPowerLevelForSendingEventAsStateEvent(Event.EVENT_TYPE_STATE_ROOM_POWER_LEVELS))) {
                 // Check whether the user is admin (in this case he may reduce his power level to become moderator).
                 if (selfPowerLevel >= VECTOR_ROOM_ADMIN_LEVEL) {
                     supportedActions.add(ITEM_ACTION_SET_MODERATOR);
@@ -888,7 +884,8 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
                 if (TextUtils.equals(membership, RoomMember.MEMBERSHIP_INVITE) || TextUtils.equals(membership, RoomMember.MEMBERSHIP_JOIN)) {
 
                     // update power level
-                    if ((selfPowerLevel >= powerLevels.minimumPowerLevelForSendingEventAsStateEvent(Event.EVENT_TYPE_STATE_ROOM_POWER_LEVELS)) && (selfPowerLevel > memberPowerLevel)) {
+                    if ((selfPowerLevel >= powerLevels.minimumPowerLevelForSendingEventAsStateEvent(Event.EVENT_TYPE_STATE_ROOM_POWER_LEVELS))
+                            && (selfPowerLevel > memberPowerLevel)) {
 
                         // Check whether user is admin
                         if (selfPowerLevel >= VECTOR_ROOM_ADMIN_LEVEL) {
@@ -917,7 +914,7 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
 
                     if (TextUtils.equals(membership, RoomMember.MEMBERSHIP_JOIN)) {
                         // if the member is already admin, then disable the action
-                        int maxPowerLevel = CommonActivityUtils.getRoomMaxPowerLevel(mRoom);
+                        int maxPowerLevel = MatrixSdkExtensionsKt.getRoomMaxPowerLevel(mRoom);
 
                         if ((selfPowerLevel == maxPowerLevel) && (memberPowerLevel != maxPowerLevel)) {
                             supportedActions.add(ITEM_ACTION_SET_ADMIN);
@@ -982,93 +979,93 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
             List<VectorMemberDetailsAdapter.AdapterMemberActionItems> directMessagesActions = new ArrayList<>();
             List<VectorMemberDetailsAdapter.AdapterMemberActionItems> devicesActions = new ArrayList<>();
 
-            ArrayList<Integer> supportedActionsList = supportedActionsList();
+            List<Integer> supportedActionsList = supportedActionsList();
 
             if (supportedActionsList.indexOf(ITEM_ACTION_START_VOICE_CALL) >= 0) {
                 imageResource = R.drawable.voice_call_black;
-                actionText = getResources().getString(R.string.start_voice_call);
+                actionText = getString(R.string.start_voice_call);
                 callActions.add(new VectorMemberDetailsAdapter.AdapterMemberActionItems(imageResource, actionText, ITEM_ACTION_START_VOICE_CALL));
             }
 
             if (supportedActionsList.indexOf(ITEM_ACTION_START_VIDEO_CALL) >= 0) {
                 imageResource = R.drawable.video_call_black;
-                actionText = getResources().getString(R.string.start_video_call);
+                actionText = getString(R.string.start_video_call);
                 callActions.add(new VectorMemberDetailsAdapter.AdapterMemberActionItems(imageResource, actionText, ITEM_ACTION_START_VIDEO_CALL));
             }
 
             if (supportedActionsList.indexOf(ITEM_ACTION_INVITE) >= 0) {
                 imageResource = R.drawable.ic_person_add_black;
-                actionText = getResources().getString(R.string.room_participants_action_invite);
+                actionText = getString(R.string.room_participants_action_invite);
                 adminActions.add(new VectorMemberDetailsAdapter.AdapterMemberActionItems(imageResource, actionText, ITEM_ACTION_INVITE));
             }
 
             // build the leave item
             if (supportedActionsList.indexOf(ITEM_ACTION_LEAVE) >= 0) {
                 imageResource = R.drawable.vector_leave_room_black;
-                actionText = getResources().getString(R.string.room_participants_action_leave);
+                actionText = getString(R.string.room_participants_action_leave);
                 uncategorizedActions.add(new VectorMemberDetailsAdapter.AdapterMemberActionItems(imageResource, actionText, ITEM_ACTION_LEAVE));
             }
 
             // build the "make admin" item
             if (supportedActionsList.indexOf(ITEM_ACTION_SET_ADMIN) >= 0) {
                 imageResource = R.drawable.ic_verified_user_black;
-                actionText = getResources().getString(R.string.room_participants_action_set_admin);
+                actionText = getString(R.string.room_participants_action_set_admin);
                 adminActions.add(new VectorMemberDetailsAdapter.AdapterMemberActionItems(imageResource, actionText, ITEM_ACTION_SET_ADMIN));
             }
 
             // build the "moderator" item
             if (supportedActionsList.indexOf(ITEM_ACTION_SET_MODERATOR) >= 0) {
                 imageResource = R.drawable.ic_verified_user_black;
-                actionText = getResources().getString(R.string.room_participants_action_set_moderator);
+                actionText = getString(R.string.room_participants_action_set_moderator);
                 adminActions.add(new VectorMemberDetailsAdapter.AdapterMemberActionItems(imageResource, actionText, ITEM_ACTION_SET_MODERATOR));
             }
 
             // build the "default" item
             if (supportedActionsList.indexOf(ITEM_ACTION_SET_DEFAULT_POWER_LEVEL) >= 0) {
                 imageResource = R.drawable.ic_verified_user_black;
-                actionText = getResources().getString(R.string.room_participants_action_set_default_power_level);
+                actionText = getString(R.string.room_participants_action_set_default_power_level);
                 adminActions.add(new VectorMemberDetailsAdapter.AdapterMemberActionItems(imageResource, actionText, ITEM_ACTION_SET_DEFAULT_POWER_LEVEL));
             }
 
             // build the "remove from" item (ban)
             if (supportedActionsList.indexOf(ITEM_ACTION_KICK) >= 0) {
                 imageResource = R.drawable.ic_remove_circle_outline_red;
-                actionText = getResources().getString(R.string.room_participants_action_remove);
+                actionText = getString(R.string.room_participants_action_remove);
                 adminActions.add(new VectorMemberDetailsAdapter.AdapterMemberActionItems(imageResource, actionText, ITEM_ACTION_KICK));
             }
 
             // build the "block" item (block)
             if (supportedActionsList.indexOf(ITEM_ACTION_BAN) >= 0) {
                 imageResource = R.drawable.ic_block_black;
-                actionText = getResources().getString(R.string.room_participants_action_ban);
+                actionText = getString(R.string.room_participants_action_ban);
                 adminActions.add(new VectorMemberDetailsAdapter.AdapterMemberActionItems(imageResource, actionText, ITEM_ACTION_BAN));
             }
 
             // build the "unblock" item (unblock)
             if (supportedActionsList.indexOf(ITEM_ACTION_UNBAN) >= 0) {
                 imageResource = R.drawable.ic_block_black;
-                actionText = getResources().getString(R.string.room_participants_action_unban);
+                actionText = getString(R.string.room_participants_action_unban);
                 adminActions.add(new VectorMemberDetailsAdapter.AdapterMemberActionItems(imageResource, actionText, ITEM_ACTION_UNBAN));
             }
 
             // build the "ignore" item
             if (supportedActionsList.indexOf(ITEM_ACTION_IGNORE) >= 0) {
                 imageResource = R.drawable.ic_person_outline_black;
-                actionText = getResources().getString(R.string.room_participants_action_ignore);
+                actionText = getString(R.string.room_participants_action_ignore);
                 uncategorizedActions.add(new VectorMemberDetailsAdapter.AdapterMemberActionItems(imageResource, actionText, ITEM_ACTION_IGNORE));
             }
 
             // build the "unignore" item
             if (supportedActionsList.indexOf(ITEM_ACTION_UNIGNORE) >= 0) {
                 imageResource = R.drawable.ic_person_black;
-                actionText = getResources().getString(R.string.room_participants_action_unignore);
+                actionText = getString(R.string.room_participants_action_unignore);
                 uncategorizedActions.add(new VectorMemberDetailsAdapter.AdapterMemberActionItems(imageResource, actionText, ITEM_ACTION_UNIGNORE));
             }
 
             // build the "mention" item
             if (supportedActionsList.indexOf(ITEM_ACTION_MENTION) >= 0) {
                 imageResource = R.drawable.ic_comment_black;
-                actionText = getResources().getString(R.string.room_participants_action_mention);
+                actionText = getString(R.string.room_participants_action_mention);
                 uncategorizedActions.add(new VectorMemberDetailsAdapter.AdapterMemberActionItems(imageResource, actionText, ITEM_ACTION_MENTION));
             }
 
@@ -1080,7 +1077,7 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
             // don't show devices list if the member isn't a matrix user
             if (mUser != null && MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(mMemberId).matches()) {
                 imageResource = R.drawable.ic_devices_info;
-                actionText = getResources().getString(R.string.room_participants_action_devices_list);
+                actionText = getString(R.string.room_participants_action_devices_list);
                 devicesActions.add(new VectorMemberDetailsAdapter.AdapterMemberActionItems(imageResource, actionText, ITEM_ACTION_DEVICES));
                 mListViewAdapter.setDevicesActionsList(devicesActions);
             }
@@ -1097,7 +1094,7 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
             }
 
             imageResource = R.drawable.ic_add_black;
-            actionText = getResources().getString(R.string.start_new_chat);
+            actionText = getString(R.string.start_new_chat);
             directMessagesActions.add(new VectorMemberDetailsAdapter.AdapterMemberActionItems(imageResource, actionText, ITEM_ACTION_START_CHAT));
 
             mListViewAdapter.setDirectCallsActionsList(directMessagesActions);
@@ -1135,7 +1132,7 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
             List<VectorMemberDetailsAdapter.AdapterMemberActionItems> callActions = new ArrayList<>();
             List<VectorMemberDetailsAdapter.AdapterMemberActionItems> directMessagesActions = new ArrayList<>();
 
-            ArrayList<Integer> supportedActionsList = supportedActionsList();
+            List<Integer> supportedActionsList = supportedActionsList();
 
             if (supportedActionsList.indexOf(ITEM_ACTION_DIALOG) >= 0) {
                 imageResource = R.drawable.ic_comment_black;
@@ -1212,7 +1209,6 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
             }
 
 
-
             mListViewAdapter.setUncategorizedActionsList(uncategorizedActions);
             mListViewAdapter.setAdminActionsList(adminActions);
             mListViewAdapter.setCallActionsList(callActions);
@@ -1226,7 +1222,7 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
                 devicesActions.add(new VectorMemberDetailsAdapter.AdapterMemberActionItems(imageResource, actionText, ITEM_ACTION_DEVICES));
                 mListViewAdapter.setDevicesActionsList(devicesActions);
             }*/
-            
+
             mListViewAdapter.notifyDataSetChanged();
 
             mExpandableListView.post(new Runnable() {
@@ -1240,6 +1236,12 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
                 }
             });
         }
+    }
+
+    @NotNull
+    @Override
+    public Pair getOtherThemes() {
+        return new Pair(R.style.AppTheme_NoActionBar_Dark, R.style.AppTheme_NoActionBar_Black);
     }
 
     @Override
@@ -1274,7 +1276,7 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
             // use a toolbar instead of the actionbar
             // to be able to display a large header
             android.support.v7.widget.Toolbar toolbar = findViewById(R.id.room_toolbar);
-            this.setSupportActionBar(toolbar);
+            setSupportActionBar(toolbar);
 
             if (null != getSupportActionBar()) {
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -1303,7 +1305,8 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
             }
 
             // setup the expandable list view
-            mListViewAdapter = new VectorMemberDetailsAdapter(this, mSession, R.layout.vector_adapter_member_details_items, R.layout.adapter_item_vector_recent_header);
+            mListViewAdapter = new VectorMemberDetailsAdapter(this,
+                    mSession, R.layout.vector_adapter_member_details_items, R.layout.adapter_item_vector_recent_header);
             mListViewAdapter.setActionListener(this);
 
             mExpandableListView = findViewById(R.id.member_details_actions_list_view);
@@ -1411,7 +1414,8 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
 
         if (!TextUtils.isEmpty(avatarUrl)) {
             mFullMemberAvatarLayout.setVisibility(View.VISIBLE);
-            mSession.getMediasCache().loadBitmap(mSession.getHomeServerConfig(), mFullMemberAvatarImageView, avatarUrl, 0, ExifInterface.ORIENTATION_UNDEFINED, null, null);
+            mSession.getMediasCache().loadBitmap(mSession.getHomeServerConfig(),
+                    mFullMemberAvatarImageView, avatarUrl, 0, ExifInterface.ORIENTATION_UNDEFINED, null, null);
         }
     }
 
@@ -1602,7 +1606,7 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
      * @param aIsProgressBarDisplayed true to show the progress bar screen, false to hide it
      */
     private void enableProgressBarView(boolean aIsProgressBarDisplayed) {
-        if(aIsProgressBarDisplayed) {
+        if (aIsProgressBarDisplayed) {
             showWaitingView();
         } else {
             hideWaitingView();
@@ -1677,7 +1681,8 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
     public void OnVerifyDeviceClick(MXDeviceInfo aDeviceInfo) {
         switch (aDeviceInfo.mVerified) {
             case MXDeviceInfo.DEVICE_VERIFICATION_VERIFIED:
-                mSession.getCrypto().setDeviceVerification(MXDeviceInfo.DEVICE_VERIFICATION_UNVERIFIED, aDeviceInfo.deviceId, mMemberId, mDevicesVerificationCallback);
+                mSession.getCrypto()
+                        .setDeviceVerification(MXDeviceInfo.DEVICE_VERIFICATION_UNVERIFIED, aDeviceInfo.deviceId, mMemberId, mDevicesVerificationCallback);
                 break;
 
             case MXDeviceInfo.DEVICE_VERIFICATION_UNVERIFIED:
@@ -1690,9 +1695,11 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
     @Override
     public void OnBlockDeviceClick(MXDeviceInfo aDeviceInfo) {
         if (aDeviceInfo.mVerified == MXDeviceInfo.DEVICE_VERIFICATION_BLOCKED) {
-            mSession.getCrypto().setDeviceVerification(MXDeviceInfo.DEVICE_VERIFICATION_UNVERIFIED, aDeviceInfo.deviceId, aDeviceInfo.userId, mDevicesVerificationCallback);
+            mSession.getCrypto()
+                    .setDeviceVerification(MXDeviceInfo.DEVICE_VERIFICATION_UNVERIFIED, aDeviceInfo.deviceId, aDeviceInfo.userId, mDevicesVerificationCallback);
         } else {
-            mSession.getCrypto().setDeviceVerification(MXDeviceInfo.DEVICE_VERIFICATION_BLOCKED, aDeviceInfo.deviceId, aDeviceInfo.userId, mDevicesVerificationCallback);
+            mSession.getCrypto()
+                    .setDeviceVerification(MXDeviceInfo.DEVICE_VERIFICATION_BLOCKED, aDeviceInfo.deviceId, aDeviceInfo.userId, mDevicesVerificationCallback);
         }
 
         mDevicesListViewAdapter.notifyDataSetChanged();

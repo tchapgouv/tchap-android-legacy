@@ -44,6 +44,8 @@ public class PreferencesManager {
 
     private static final String LOG_TAG = PreferencesManager.class.getSimpleName();
 
+    public static final String VERSION_BUILD = "VERSION_BUILD";
+
     public static final String SETTINGS_MESSAGES_SENT_BY_BOT_PREFERENCE_KEY = "SETTINGS_MESSAGES_SENT_BY_BOT_PREFERENCE_KEY_2";
     public static final String SETTINGS_CHANGE_PASSWORD_PREFERENCE_KEY = "SETTINGS_CHANGE_PASSWORD_PREFERENCE_KEY";
     public static final String SETTINGS_VERSION_PREFERENCE_KEY = "SETTINGS_VERSION_PREFERENCE_KEY";
@@ -74,7 +76,8 @@ public class PreferencesManager {
     public static final String SETTINGS_SET_SYNC_TIMEOUT_PREFERENCE_KEY = "SETTINGS_SET_SYNC_TIMEOUT_PREFERENCE_KEY";
     public static final String SETTINGS_SET_SYNC_DELAY_PREFERENCE_KEY = "SETTINGS_SET_SYNC_DELAY_PREFERENCE_KEY";
     public static final String SETTINGS_ROOM_SETTINGS_LABS_END_TO_END_PREFERENCE_KEY = "SETTINGS_ROOM_SETTINGS_LABS_END_TO_END_PREFERENCE_KEY";
-    public static final String SETTINGS_ROOM_SETTINGS_LABS_END_TO_END_IS_ACTIVE_PREFERENCE_KEY = "SETTINGS_ROOM_SETTINGS_LABS_END_TO_END_IS_ACTIVE_PREFERENCE_KEY";
+    public static final String SETTINGS_ROOM_SETTINGS_LABS_END_TO_END_IS_ACTIVE_PREFERENCE_KEY
+            = "SETTINGS_ROOM_SETTINGS_LABS_END_TO_END_IS_ACTIVE_PREFERENCE_KEY";
     public static final String SETTINGS_PROFILE_PICTURE_PREFERENCE_KEY = "SETTINGS_PROFILE_PICTURE_PREFERENCE_KEY";
     public static final String SETTINGS_CONTACTS_PHONEBOOK_COUNTRY_PREFERENCE_KEY = "SETTINGS_CONTACTS_PHONEBOOK_COUNTRY_PREFERENCE_KEY";
     public static final String SETTINGS_INTERFACE_LANGUAGE_PREFERENCE_KEY = "SETTINGS_INTERFACE_LANGUAGE_PREFERENCE_KEY";
@@ -118,12 +121,13 @@ public class PreferencesManager {
     public static final String SETTINGS_INTERFACE_TEXT_SIZE_KEY = "SETTINGS_INTERFACE_TEXT_SIZE_KEY";
 
     private static final String SETTINGS_USE_JITSI_CONF_PREFERENCE_KEY = "SETTINGS_USE_JITSI_CONF_PREFERENCE_KEY";
-    private static final String SETTINGS_USE_MATRIX_APPS_PREFERENCE_KEY = "SETTINGS_USE_MATRIX_APPS_PREFERENCE_KEY";
 
     private static final String SETTINGS_NOTIFICATION_RINGTONE_PREFERENCE_KEY = "SETTINGS_NOTIFICATION_RINGTONE_PREFERENCE_KEY";
     public static final String SETTINGS_NOTIFICATION_RINGTONE_SELECTION_PREFERENCE_KEY = "SETTINGS_NOTIFICATION_RINGTONE_SELECTION_PREFERENCE_KEY";
 
     public static final String SETTINGS_GROUPS_FLAIR_KEY = "SETTINGS_GROUPS_FLAIR_KEY";
+
+    private static final String SETTINGS_ENABLE_SEND_VOICE_FEATURE_PREFERENCE_KEY = "SETTINGS_ENABLE_SEND_VOICE_FEATURE_PREFERENCE_KEY";
 
     public static final String SETTINGS_SHOW_URL_PREVIEW_KEY = "SETTINGS_SHOW_URL_PREVIEW_KEY";
 
@@ -131,6 +135,8 @@ public class PreferencesManager {
 
     // Analytics keys (Piwik, Matomo, etc.)
     public static final String SETTINGS_USE_ANALYTICS_KEY = "SETTINGS_USE_ANALYTICS_KEY";
+
+    private static final String SETTINGS_PREVIEW_MEDIA_BEFORE_SENDING_KEY = "SETTINGS_PREVIEW_MEDIA_BEFORE_SENDING_KEY";
 
     public static final String SETTINGS_USE_RAGE_SHAKE_KEY = "SETTINGS_USE_RAGE_SHAKE_KEY";
 
@@ -159,6 +165,7 @@ public class PreferencesManager {
             SETTINGS_HIDE_AVATAR_DISPLAY_NAME_CHANGES_MESSAGES_KEY,
             SETTINGS_MEDIA_SAVING_PERIOD_KEY,
             SETTINGS_MEDIA_SAVING_PERIOD_SELECTED_KEY,
+            SETTINGS_PREVIEW_MEDIA_BEFORE_SENDING_KEY,
 
             SETTINGS_PIN_UNREAD_MESSAGES_PREFERENCE_KEY,
             SETTINGS_PIN_MISSED_NOTIFICATIONS_PREFERENCE_KEY,
@@ -166,7 +173,6 @@ public class PreferencesManager {
             SETTINGS_START_ON_BOOT_PREFERENCE_KEY,
             SETTINGS_INTERFACE_TEXT_SIZE_KEY,
             SETTINGS_USE_JITSI_CONF_PREFERENCE_KEY,
-            SETTINGS_USE_MATRIX_APPS_PREFERENCE_KEY,
             SETTINGS_NOTIFICATION_RINGTONE_PREFERENCE_KEY,
             SETTINGS_NOTIFICATION_RINGTONE_SELECTION_PREFERENCE_KEY,
 
@@ -268,7 +274,7 @@ public class PreferencesManager {
 
     /**
      * Tells if the application ignores battery optimizations.
-     *
+     * <p>
      * Ignoring them allows the app to run in background to make background sync with the homeserver.
      * This user option appears on Android M but Android O enforces its usage and kills apps not
      * authorised by the user to run in background.
@@ -314,6 +320,16 @@ public class PreferencesManager {
      */
     public static boolean hideAvatarDisplayNameChangeMessages(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_HIDE_AVATAR_DISPLAY_NAME_CHANGES_MESSAGES_KEY, false);
+    }
+
+    /**
+     * Tells if the send voice feature is enabled.
+     *
+     * @param context the context
+     * @return true if the send voice feature is enabled.
+     */
+    public static boolean isSendVoiceFeatureEnabled(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_ENABLE_SEND_VOICE_FEATURE_PREFERENCE_KEY, false);
     }
 
     /**
@@ -363,7 +379,7 @@ public class PreferencesManager {
             try {
                 uri = Uri.parse(url);
             } catch (Exception e) {
-                Log.e(LOG_TAG, "## getNotificationRingTone() : Uri.parse failed");
+                Log.e(LOG_TAG, "## getNotificationRingTone() : Uri.parse failed", e);
             }
         }
 
@@ -405,7 +421,7 @@ public class PreferencesManager {
                 name = name.substring(0, name.lastIndexOf("."));
             }
         } catch (Exception e) {
-            Log.e(LOG_TAG, "## getNotificationRingToneName() failed() : " + e.getMessage());
+            Log.e(LOG_TAG, "## getNotificationRingToneName() failed() : " + e.getMessage(), e);
         } finally {
             if (cursor != null) {
                 cursor.close();
@@ -433,16 +449,6 @@ public class PreferencesManager {
      */
     public static boolean useJitsiConfCall(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_USE_JITSI_CONF_PREFERENCE_KEY, false);
-    }
-
-    /**
-     * Tells if the matrix apps are supported.
-     *
-     * @param context the context
-     * @return true if the matrix apps are supported.
-     */
-    public static boolean useMatrixApps(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_USE_MATRIX_APPS_PREFERENCE_KEY, false);
     }
 
     /**
@@ -653,7 +659,7 @@ public class PreferencesManager {
     /**
      * To call if the user has been asked for analytics tracking.
      *
-     * @param context   the context
+     * @param context the context
      */
     public static void setDidAskToUseAnalytics(Context context) {
         PreferenceManager.getDefaultSharedPreferences(context)
@@ -678,7 +684,7 @@ public class PreferencesManager {
     /**
      * Enable or disable the analytics tracking.
      *
-     * @param context   the context
+     * @param context      the context
      * @param useAnalytics true to enable the analytics tracking
      */
     public static void setUseAnalytics(Context context, boolean useAnalytics) {
@@ -686,6 +692,16 @@ public class PreferencesManager {
                 .edit()
                 .putBoolean(SETTINGS_USE_ANALYTICS_KEY, useAnalytics)
                 .apply();
+    }
+
+    /**
+     * Tells if media should be previewed before sending
+     *
+     * @param context the context
+     * @return true to preview media
+     */
+    public static boolean previewMediaWhenSending(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_PREVIEW_MEDIA_BEFORE_SENDING_KEY, false);
     }
 
     /**

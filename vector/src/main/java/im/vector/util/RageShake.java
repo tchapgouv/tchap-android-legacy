@@ -17,7 +17,6 @@
 
 package im.vector.util;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.hardware.Sensor;
@@ -25,6 +24,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
+import android.support.v7.app.AlertDialog;
 
 import org.matrix.androidsdk.util.Log;
 
@@ -107,10 +107,9 @@ public class RageShake implements SensorEventListener {
                             dialog.dismiss();
                         }
                     })
-                    .create()
                     .show();
         } catch (Exception e) {
-            Log.e(LOG_TAG, "promptForReport " + e.getMessage());
+            Log.e(LOG_TAG, "promptForReport " + e.getMessage(), e);
         }
     }
 

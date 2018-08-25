@@ -2,8 +2,8 @@
 <resources>
     <!-- use to retrieve the supported languages list -->
     <!-- should the same value as the file name -->
-    <string name="resouces_language">fr</string>
-    <string name="resouces_country">FR</string>
+    <string name="resources_language">fr</string>
+    <string name="resources_country_code">FR</string>
 
     <string name="title_activity_home">Messages</string>
     <string name="title_activity_settings">Paramètres</string>
@@ -36,7 +36,6 @@
     <string name="device_information">Informations sur l\'appareil</string>
     <string name="room_no_conference_call_in_encrypted_rooms">Les téléconférences ne sont pas prises en charge dans les salons chiffrées</string>
     <string name="or">ou</string>
-    <string name="and">et</string>
     <string name="invite">Inviter</string>
 
     <string name="action_sign_out">Se déconnecter</string>
@@ -104,8 +103,6 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="logout">Se déconnecter</string>
     <string name="hs_url">URL du serveur d\'accueil</string>
     <string name="identity_url">URL du serveur d\'identité</string>
-    <string name="user">utilisateur</string>
-    <string name="users">utilisateurs</string>
     <string name="search">Rechercher</string>
 
     <string name="start_new_chat">Nouvelle discussion</string>
@@ -186,7 +183,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="media_picker_cannot_record_video">Impossible d\'enregistrer une vidéo</string>
 
     <string name="media_slider_saved">Enregistré</string>
-    <string name="media_slider_saved_message">Enregistrer dans les téléchargements</string>
+    <string name="media_slider_saved_message">Enregistrer dans les téléchargements ?</string>
     <string name="yes">OUI</string>
     <string name="no">NON</string>
     <string name="_continue">Continuer</string>
@@ -213,8 +210,8 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
 
     <string name="room_participants_online">En ligne</string>
     <string name="room_participants_offline">Hors ligne</string>
-    <string name="room_participants_now">maintenant</string>
-    <string name="room_participants_ago">depuis</string>
+    <string name="room_participants_now">%1$s maintenant</string>
+    <string name="room_participants_ago">%1$s depuis %2$s</string>
 
     <string name="room_participants_header_admin_tools">OUTILS DE L\'ADMINISTRATEUR</string>
     <string name="room_participants_header_call">APPEL</string>
@@ -472,7 +469,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     </plurals>
 
     <string name="send_bug_report_description">Veuillez décrire l\'erreur. Qu\'avez-vous fait ? Quel était le comportement attendu ? Que s\'est-il réellement passé ?</string>
-    <string name="send_bug_report_logs_description">Afin de diagnostiquer les problèmes, les journaux de ce client seront envoyés avec ce rapport d\'erreur. Si vous préférez envoyer le texte ci-dessus uniquement, veuillez décochez :</string>
+    <string name="send_bug_report_logs_description">Afin de diagnostiquer les problèmes, les journaux de ce client seront envoyés avec ce rapport d\'erreur. Ce rapport d\'erreur, y compris les journaux et la capture d\'écran, ne seront pas visibles publiquement. Si vous préférez envoyer le texte ci-dessus uniquement, veuillez décochez :</string>
     <string name="send_bug_report_alert_message">Vous semblez secouer le téléphone avec frustration. Souhaitez-vous soumettre un rapport d\'erreur ?</string>
     <string name="send_bug_report_app_crashed">L\'application s\'est arrêtée anormalement la dernière fois. Souhaitez-vous soumettre un rapport d’erreur ?</string>
 
@@ -596,9 +593,12 @@ En êtes-vous sûr(e) ?</string>
     <string name="ssl_expected_existing_expl">Le certificat n\'est plus celui qui a été approuvé par votre téléphone. Le serveur a peut-être renouvelé son certificat. Contactez l\'administrateur du serveur pour lui demander l\'empreinte de son certificat.</string>
     <string name="ssl_only_accept">Acceptez le certificat UNIQUEMENT si l\'administrateur du serveur a publié une empreinte correspondant à celle ci-dessus.</string>
     <string name="malformed_id">Identifiant au mauvais format. Une adresse e-mail ou un identifiant Matrix au format \"@utilisateur:domaine\" est attendu</string>
-    <string name="room_event_action_report_prompt_ignore_user">Voulez-vous cacher tous les messages de cet utilisateur ?</string>
+    <string name="room_event_action_report_prompt_ignore_user">Voulez-vous cacher tous les messages de cet utilisateur ?
+
+Veuillez noter que cette action redémarrera l\'application et pourra prendre un certain temps.</string>
     <string name="room_displayname_two_members">%1$s et %2$s</string>
     <string name="room_recents_join_room_prompt">Saisissez un identifiant ou un alias de salon</string>
+
     <string name="settings_turn_screen_on">Allumer l\'écran pendant 3 secondes</string>
 
     <string name="settings_invited_to_room">Quand je suis invité à une conversation</string>
@@ -610,7 +610,9 @@ Pour continuer, veuillez saisir votre mot de passe.</string>
     <string name="account_email_validation_message">Vérifiez votre e-mail et cliquez sur le lien qu\'il contient. Une fois cela fait, cliquez sur continuer.</string>
     <string name="account_email_validation_error">Impossible de vérifier l\'adresse e-mail. Vérifiez votre e-mail et cliquez sur le lien qu\'il contient. Une fois cela fait, cliquez sur continuer</string>
 
-    <string name="settings_unignore_user">Afficher tous les messages de %s ?</string>
+    <string name="settings_unignore_user">Afficher tous les messages de %s ?
+
+Veuillez noter que cette action redémarrera l\'application et pourra prendre un certain temps.</string>
 
     <string name="settings_delete_notification_targets_confirmation">Voulez-vous vraiment supprimer cette cible de notification ?</string>
 
@@ -664,7 +666,9 @@ Les messages chiffrés ne seront pas visibles sur les clients qui n\'ont pas enc
     <string name="encryption_never_send_to_unverified_devices_summary">Ne jamais envoyer de messages chiffrés aux appareils non vérifiés depuis cet appareil</string>
 
     <string name="encryption_information_verify_device_warning">" Pour vérifier que cet appareil est de confiance, contactez son propriétaire en utilisant un autre moyen (par exemple en personne ou par téléphone) et demandez-lui si la clé qu\'il voit dans ses paramètres utilisateur pour cet appareil correspond à la clé ci-dessous :"</string>
-    <string name="encryption_information_verify_device_warning2">Si elle correspond, appuyez sur le bouton Vérifier ci-dessous. Si ce n\'est pas le cas, quelqu\'un d\'autre intercepte cet appareil et vous devriez probablement le bloquer. À l\'avenir, ce processus de vérification sera plus évolué.</string>
+    <string name="encryption_information_verify_device_warning2">Si elle correspond, appuyez sur le bouton Vérifier ci-dessous.
+Si ce n\'est pas le cas, quelqu\'un d\'autre intercepte cet appareil et vous devriez probablement le bloquer.
+À l\'avenir, ce processus de vérification sera plus évolué.</string>
     <string name="encryption_information_verify_key_match">Je confirme que les clés correspondent</string>
 
     <string name="e2e_enabling_on_app_update">Tchap prend désormais en charge le chiffrement de bout en bout, mais vous devez vous reconnecter pour l\'activer.
@@ -740,7 +744,7 @@ Appareils inconnus :</string>
     <string name="settings_labs_create_conference_with_jitsi">Créer des appels en téléconférence avec jitsi</string>
     <string name="widget_delete_message_confirmation">Voulez-vous vraiment supprimer ce widget ?</string>
 
-    // Widget Integration Manager
+    <!-- Widget Integration Manager -->
     <string name="widget_integration_unable_to_create">Impossible de créer le widget.</string>
     <string name="widget_integration_failed_to_send_request">Échec de l\'envoi de la requête.</string>
     <string name="widget_integration_positive_power_level">Le rang doit être un entier positif.</string>
@@ -771,17 +775,17 @@ Appareils inconnus :</string>
     <string name="settings_opt_out_of_analytics_summary">Tchap collecte des données anonymes pour nous permettre d\'améliorer l\'application.</string>
     <string name="settings_labs_native_camera">Utiliser la caméra native</string>
 
-    // share keys
+    <!-- share keys -->
     <string name="title_activity_bug_report">Rapport d\'erreur</string>
 
     <string name="conference_call_warning_title">Attention !</string>
     <string name="conference_call_warning_message">L\'appel en téléconférence est en cours de développement et peut ne pas être fiable.</string>
 
-    // slash commands
+    <!-- slash commands -->
     <string name="command_error">Erreur de commande</string>
     <string name="unrecognized_command">Commande non reconnue : %s</string>
 
-    // notification statuses
+    <!-- notification statuses -->
     <string name="notification_off">Désactivé</string>
     <string name="notification_on">Activé</string>
     <string name="notification_noisy">Notification sonore</string>
@@ -903,6 +907,7 @@ Appareils inconnus :</string>
 
     <string name="group_one_room">Une conversation</string>
     <string name="group_rooms">%d conversations</string>
+
     <string name="group_no_long_description">L\'administrateur de cette communauté n\'a pas encore fourni de description.</string>
 
     <string name="has_been_kicked">%2$s vous a exclu de %1$s</string>
@@ -964,7 +969,7 @@ Appareils inconnus :</string>
         <item quantity="other">%d gadgets actifs</item>
     </plurals>
 
-    // Widget Integration Manager
+    <!-- Widget Integration Manager -->
     <string name="avatar">Avatar</string>
 
     <plurals name="membership_changes">
@@ -973,7 +978,7 @@ Appareils inconnus :</string>
     </plurals>
 
     <string name="open_chat_header">Développer l\'entête</string>
-    <string name="receipt_avatar">Réception de l\'avatar</string>
+    <string name="receipt_avatar">Avatar de réception</string>
     <string name="settings_notification_privacy">Confidentialité des notifications</string>
     <string name="settings_notification_privacy_warning">Tchap fonctionne en arrière-plan pour que le contenu du message de notification reste privé. Vous pouvez désactiver cette option pour réduire l\'utilisation de la batterie.</string>
     <string name="settings_notification_privacy_normal">Normal</string>
@@ -993,8 +998,7 @@ Appareils inconnus :</string>
     <string name="startup_notification_privacy_button_grant">Ce fonctionnement me convient</string>
     <string name="startup_notification_privacy_button_other">Je choisis une autre option</string>
 
-    <string name="notice_avatar">Avatar de l\'annonce</string>
-
+    <string name="notice_avatar">Avatar d’avertissement</string>
     <string name="title_activity_choose_sticker">Envoyer un sticker</string>
 
     <string name="option_send_sticker">Envoyer un sticker</string>
@@ -1024,6 +1028,59 @@ La visibilité des messages dans Matrix est identique à celle des e-mails. Si n
     <string name="deactivate_account_delete_checkbox">Veuillez oublier tous les messages que j\'ai envoyé quand mon compte sera désactivé (Avertissement : les futurs utilisateurs verront une version incomplète des conversations)</string>
     <string name="deactivate_account_prompt_password">Pour continuer, veuillez renseigner votre mot de passe :</string>
     <string name="deactivate_account_submit">Désactiver le compte</string>
+
+    <string name="dialog_title_third_party_licences">Licences tierces</string>
+
+    <string name="download">Télécharger</string>
+    <string name="speak">Parler</string>
+    <string name="clear">Effacer</string>
+    <string name="e2e_re_request_encryption_key"><u>Redemander les clés de chiffrement</u> à vos autres appareils.</string>
+
+    <string name="e2e_re_request_encryption_key_sent">Demande de clé envoyée.</string>
+
+    <string name="e2e_re_request_encryption_key_dialog_title">Demande envoyée</string>
+    <string name="e2e_re_request_encryption_key_dialog_content">Veuillez lancer Riot sur un autre appareil qui peut déchiffrer le message pour qu\'il puisse envoyer les clés à cet appareil.</string>
+
+    <string name="lock_screen_hint">Tapez ici…</string>
+
+    <string name="option_send_voice">Envoyer votre voix</string>
+
+    <string name="go_on_with">continuer avec…</string>
+    <string name="error_no_external_application_found">Désolé, aucune application externe n\'a été trouvée pour effectuer cette action.</string>
+
+    <string name="settings_labs_enable_send_voice">Envoyer un message vocal (nécessite une application tierce pour enregistrer des messages vocaux)</string>
+
+    <string name="error_empty_field_your_password">Veuillez renseigner votre mot de passe.</string>
+
+    <string name="send_bug_report_description_in_english">Si possible, veuillez écrire la description en anglais.</string>
+    <string name="room_participants_action_unignore_prompt">Afficher tous les messages de cet utilisateur ?
+
+Veuillez noter que cette action redémarrera l\'application et pourra prendre un certain temps.</string>
+    <string name="room_message_placeholder_reply_to_encrypted">Envoyer une réponse chiffrée…</string>
+    <string name="room_message_placeholder_reply_to_not_encrypted">Envoyer une réponse (non chiffrée)…</string>
+    <string name="settings_preview_media_before_sending">Prévisualiser le média avant de l\'envoyer</string>
+
+    <string name="settings_without_flair">Vous n\'êtes pour le moment membre d\'aucune communauté.</string>
+
+    <string name="settings_labs_keyboard_options_to_send_message">Utiliser la touche Entrée du clavier pour envoyer un message</string>
+    <string name="command_description_emote">Affiche une action</string>
+    <string name="command_description_ban_user">Banni l\'utilisateur avec l\'identifiant fourni</string>
+    <string name="command_description_unban_user">Révoque le bannissement du l\'utilisateur avec l\'identifiant fourni</string>
+    <string name="command_description_op_user">Défini le rang d\'un utilisateur</string>
+    <string name="command_description_deop_user">Enlève le rang d\'opérateur de l\'utilisateur avec l\'identifiant fourni</string>
+    <string name="command_description_invite_user">Invite l\'utilisateur avec l\'identifiant fourni dans le salon actuel</string>
+    <string name="command_description_join_room">Rejoint le salon avec l\'alias fourni</string>
+    <string name="command_description_part_room">Quitte le salon</string>
+    <string name="command_description_topic">Défini le sujet du salon</string>
+    <string name="command_description_kick_user">Exclu l\'utilisateur avec l\'identifiant fourni</string>
+    <string name="command_description_nick">Change le surnom affiché</string>
+    <string name="command_description_markdown">Markdown activé/désactivé</string>
+    <string name="command_description_clear_scalar_token">Pour réparer la gestion des applications Matrix</string>
+
+    <string name="room_tombstone_versioned_description">Ce salon a été remplacé et n\'est plus actif</string>
+    <string name="room_tombstone_continuation_link">La conversation continue ici</string>
+    <string name="room_tombstone_continuation_description">Ce salon est la suite d\'une autre conversation</string>
+    <string name="room_tombstone_predecessor_link">Cliquer ici pour voir les vieux messages</string>
 
     // Overrided sdk's strings
     <string name="notice_room_name_changed">%1$s a changé le nom du salon en : %2$s</string>

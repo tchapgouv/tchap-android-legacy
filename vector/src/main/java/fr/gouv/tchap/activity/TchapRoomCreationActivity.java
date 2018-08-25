@@ -120,9 +120,8 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.tchap_menu_next, menu);
-        return true;
+    public int getMenuRes() {
+        return R.menu.tchap_menu_next;
     }
 
     @Override
