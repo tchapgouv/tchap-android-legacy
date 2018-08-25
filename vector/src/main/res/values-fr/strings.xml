@@ -200,10 +200,24 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="room_title_one_member">1 membre</string>
     <string name="room_e2e_alert_title">Attention !</string>
     <string name="room_creation_forbidden">Vous n\'êtes pas autorisé à créer ce salon</string>
-    <string name="format_time_s">s</string>
-    <string name="format_time_m">m</string>
-    <string name="format_time_h">h</string>
-    <string name="format_time_d">j</string>
+
+    <!--  Time -->
+    <plurals name="format_time_s">
+        <item quantity="one">1s</item>
+        <item quantity="other">%ds</item>
+    </plurals>
+    <plurals name="format_time_m">
+        <item quantity="one">1m</item>
+        <item quantity="other">%dm</item>
+    </plurals>
+    <plurals name="format_time_h">
+        <item quantity="one">1h</item>
+        <item quantity="other">%dh</item>
+    </plurals>
+    <plurals name="format_time_d">
+        <item quantity="one">1j</item>
+        <item quantity="other">%dj</item>
+    </plurals>
 
     <string name="room_participants_leave_prompt_title">Quitter la conversation</string>
     <string name="room_participants_create">Créer</string>
@@ -256,7 +270,10 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="room_details_files">FICHIERS</string>
     <string name="room_details_files_title">Fichiers partagés</string>
     <string name="room_details_settings">PARAMETRES</string>
-    <string name="room_details_selected">choisi</string>
+    <plurals name="room_details_selected">
+        <item quantity="one">1 sélectionné</item>
+        <item quantity="other">%d sélectionnés</item>
+    </plurals>
     <string name="room_details_people_invited_group_name">INVITÉS</string>
     <string name="room_details_people_present_group_name">MEMBRES</string>
 
@@ -902,11 +919,15 @@ Appareils inconnus :</string>
     <string name="filter_group_members">Filtrer les membres du groupe</string>
     <string name="filter_group_rooms">Filtrer les conversations du groupe</string>
 
-    <string name="group_one_member">Un membre</string>
-    <string name="group_members">%d membres</string>
+    <plurals name="group_members">
+        <item quantity="one">1 membre</item>
+        <item quantity="other">%d membres</item>
+    </plurals>
 
-    <string name="group_one_room">Une conversation</string>
-    <string name="group_rooms">%d conversations</string>
+    <plurals name="group_rooms">
+        <item quantity="one">1 conversation</item>
+        <item quantity="other">%d conversations</item>
+    </plurals>
 
     <string name="group_no_long_description">L\'administrateur de cette communauté n\'a pas encore fourni de description.</string>
 

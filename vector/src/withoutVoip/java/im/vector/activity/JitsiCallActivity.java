@@ -22,7 +22,7 @@ import android.view.View;
 import butterknife.BindView;
 import im.vector.R;
 
-public class JitsiCallActivity extends RiotAppCompatActivity {
+public class JitsiCallActivity extends VectorAppCompatActivity {
     private static final String LOG_TAG = JitsiCallActivity.class.getSimpleName();
 
     /**

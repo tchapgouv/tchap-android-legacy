@@ -706,8 +706,8 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                 try {
                     task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
                     // Clear media scan database
-                    if (activity is RiotAppCompatActivity) {
-                        val riotAppCompatActivity = activity as RiotAppCompatActivity
+                    if (activity is VectorAppCompatActivity) {
+                        val riotAppCompatActivity = activity as VectorAppCompatActivity
                         val mediaScanManager = MediaScanManager(mSession.mediaScanRestClient, riotAppCompatActivity.realm)
                         mediaScanManager.clearAntiVirusScanResults()
                     }
@@ -1196,7 +1196,8 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {
                 REQUEST_NOTIFICATION_RINGTONE -> {
-                    PreferencesManager.setNotificationRingTone(activity, data?.getParcelableExtra<Parcelable>(RingtoneManager.EXTRA_RINGTONE_PICKED_URI) as Uri)
+                    PreferencesManager.setNotificationRingTone(activity,
+                            data?.getParcelableExtra<Parcelable>(RingtoneManager.EXTRA_RINGTONE_PICKED_URI) as Uri?)
 
                     // test if the selected ring tone can be played
                     if (null == PreferencesManager.getNotificationRingToneName(activity)) {
@@ -1244,7 +1245,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                                                     if (null != activity) {
                                                         activity.runOnUiThread {
                                                             hideLoadingView()
-                                                            (activity as RiotAppCompatActivity).consentNotGivenHelper.displayDialog(e)
+                                                            (activity as VectorAppCompatActivity).consentNotGivenHelper.displayDialog(e)
                                                         }
                                                     }
                                                 } else {

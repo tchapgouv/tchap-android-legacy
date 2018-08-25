@@ -44,7 +44,7 @@ import io.realm.Realm
 /**
  * Parent class for all Activities in Vector application
  */
-abstract class RiotAppCompatActivity : AppCompatActivity() {
+abstract class VectorAppCompatActivity : AppCompatActivity() {
 
     lateinit var realm: Realm
 

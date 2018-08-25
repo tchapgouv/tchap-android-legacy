@@ -64,7 +64,7 @@ import kotlin.Pair;
 /**
  * Displays the historical rooms list
  */
-public class HistoricalRoomsActivity extends RiotAppCompatActivity implements
+public class HistoricalRoomsActivity extends VectorAppCompatActivity implements
         SearchView.OnQueryTextListener,
         HomeRoomAdapter.OnSelectRoomListener,
         AbsAdapter.MoreRoomActionListener,

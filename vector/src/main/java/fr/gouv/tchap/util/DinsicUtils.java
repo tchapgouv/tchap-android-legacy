@@ -58,7 +58,7 @@ import java.util.Set;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
 import fr.gouv.tchap.activity.TchapLoginActivity;
-import im.vector.activity.RiotAppCompatActivity;
+import im.vector.activity.VectorAppCompatActivity;
 import im.vector.activity.VectorRoomActivity;
 import im.vector.adapters.ParticipantAdapterItem;
 import im.vector.contacts.Contact;
@@ -341,7 +341,7 @@ public class DinsicUtils {
      * @param canCreate create the direct chat if it does not exist.
      * @return boolean that says if the direct chat room is found or not
      */
-    public static boolean openDirectChat(final RiotAppCompatActivity activity, String participantId, final MXSession session, boolean canCreate) {
+    public static boolean openDirectChat(final VectorAppCompatActivity activity, String participantId, final MXSession session, boolean canCreate) {
         Room existingRoom = isDirectChatRoomAlreadyExist(participantId, session, true);
         boolean succeeded = false;
 
@@ -515,7 +515,7 @@ public class DinsicUtils {
      * @param session   the current session
      * @param selectedContact the selected contact
      */
-    public static void startDirectChat (final RiotAppCompatActivity activity, final MXSession session, final ParticipantAdapterItem selectedContact) {
+    public static void startDirectChat (final VectorAppCompatActivity activity, final MXSession session, final ParticipantAdapterItem selectedContact) {
         if (selectedContact.mIsValid) {
             // Tell if contact is tchap user
             if (MXSession.isUserId(selectedContact.mUserId)) {
@@ -578,7 +578,7 @@ public class DinsicUtils {
      * @param session       the current session
      * @param selectedUser  the selected tchap user
      */
-    public static void startDirectChat(final RiotAppCompatActivity activity, final MXSession session, User selectedUser) {
+    public static void startDirectChat(final VectorAppCompatActivity activity, final MXSession session, User selectedUser) {
         // Consider here that the provided id is a correct matrix identifier, we don't check again
         // Try first to open an existing direct chat
         if (!openDirectChat(activity, selectedUser.user_id, session, false)) {

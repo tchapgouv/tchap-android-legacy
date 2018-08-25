@@ -45,13 +45,13 @@ import im.vector.MyPresenceManager;
 import im.vector.PublicRoomsManager;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
-import im.vector.activity.RiotAppCompatActivity;
 import fr.gouv.tchap.fragments.TchapPublicRoomsFragment;
+import im.vector.activity.VectorAppCompatActivity;
 
 /**
  * List all the public rooms by considering all known room directories.
  */
-public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity implements android.support.v7.widget.SearchView.OnQueryTextListener {
+public class TchapPublicRoomSelectionActivity extends VectorAppCompatActivity implements android.support.v7.widget.SearchView.OnQueryTextListener {
 
     private static final String LOG_TAG = TchapPublicRoomSelectionActivity.class.getSimpleName();
 

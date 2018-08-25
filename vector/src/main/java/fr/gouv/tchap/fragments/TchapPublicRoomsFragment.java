@@ -48,7 +48,7 @@ import im.vector.Matrix;
 import im.vector.PublicRoomsManager;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
-import im.vector.activity.RiotAppCompatActivity;
+import im.vector.activity.VectorAppCompatActivity;
 import im.vector.activity.VectorRoomActivity;
 import im.vector.adapters.AdapterSection;
 import im.vector.fragments.VectorBaseFragment;
@@ -61,7 +61,7 @@ public class TchapPublicRoomsFragment extends VectorBaseFragment {
     private static final String LOG_TAG = TchapPublicRoomsFragment.class.getSimpleName();
     private static final String CURRENT_FILTER = "CURRENT_FILTER";
 
-    protected RiotAppCompatActivity mActivity;
+    protected VectorAppCompatActivity mActivity;
 
     protected String mCurrentFilter;
 
@@ -104,8 +104,8 @@ public class TchapPublicRoomsFragment extends VectorBaseFragment {
     public void onActivityCreated(final Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        if (getActivity() instanceof RiotAppCompatActivity) {
-            mActivity = (RiotAppCompatActivity) getActivity();
+        if (getActivity() instanceof VectorAppCompatActivity) {
+            mActivity = (VectorAppCompatActivity) getActivity();
         }
         mSession = Matrix.getInstance(getActivity()).getDefaultSession();
 

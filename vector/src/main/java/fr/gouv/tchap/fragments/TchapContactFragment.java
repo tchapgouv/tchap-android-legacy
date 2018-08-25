@@ -51,7 +51,7 @@ import butterknife.BindView;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
 import fr.gouv.tchap.activity.TchapLoginActivity;
-import im.vector.activity.RiotAppCompatActivity;
+import im.vector.activity.VectorAppCompatActivity;
 import im.vector.adapters.ParticipantAdapterItem;
 import fr.gouv.tchap.adapters.TchapContactAdapter;
 import im.vector.contacts.Contact;
@@ -276,7 +276,7 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
 
             @Override
             public void onSelectItem(ParticipantAdapterItem contact, int position) {
-                DinsicUtils.startDirectChat((RiotAppCompatActivity) getActivity(), mSession, contact);
+                DinsicUtils.startDirectChat((VectorAppCompatActivity) getActivity(), mSession, contact);
             }
         }, this, this);
         mRecycler.setAdapter(mAdapter);

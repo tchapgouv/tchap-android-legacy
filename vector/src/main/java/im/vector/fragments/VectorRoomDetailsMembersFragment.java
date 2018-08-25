@@ -290,14 +290,14 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
 
         @Override
         public void onMatrixError(final MatrixError e) {
-            if (getRiotActivity() != null && MatrixError.M_CONSENT_NOT_GIVEN.equals(e.errcode)) {
-                getRiotActivity().runOnUiThread(
+            if (getVectorActivity() != null && MatrixError.M_CONSENT_NOT_GIVEN.equals(e.errcode)) {
+                getVectorActivity().runOnUiThread(
                         new Runnable() {
                             @Override
                             public void run() {
                                 mProgressView.setVisibility(View.GONE);
 
-                                getRiotActivity().getConsentNotGivenHelper().displayDialog(e);
+                                getVectorActivity().getConsentNotGivenHelper().displayDialog(e);
                             }
                         }
                 );
@@ -746,9 +746,9 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
 
                     @Override
                     public void onMatrixError(final MatrixError e) {
-                        if (getRiotActivity() != null) {
+                        if (getVectorActivity() != null) {
                             if (MatrixError.M_CONSENT_NOT_GIVEN.equals(e.errcode)) {
-                                getRiotActivity().getConsentNotGivenHelper().displayDialog(e);
+                                getVectorActivity().getConsentNotGivenHelper().displayDialog(e);
                             } else {
                                 Toast.makeText(getActivity(), e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                                 kickNext();
@@ -952,13 +952,13 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
 
                                     @Override
                                     public void onMatrixError(final MatrixError e) {
-                                        if (getRiotActivity() != null && MatrixError.M_CONSENT_NOT_GIVEN.equals(e.errcode)) {
-                                            getRiotActivity().runOnUiThread(new Runnable() {
+                                        if (getVectorActivity() != null && MatrixError.M_CONSENT_NOT_GIVEN.equals(e.errcode)) {
+                                            getVectorActivity().runOnUiThread(new Runnable() {
                                                 @Override
                                                 public void run() {
                                                     mProgressView.setVisibility(View.GONE);
 
-                                                    getRiotActivity().getConsentNotGivenHelper().displayDialog(e);
+                                                    getVectorActivity().getConsentNotGivenHelper().displayDialog(e);
                                                 }
                                             });
                                         } else {
