@@ -39,6 +39,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -49,6 +50,7 @@ import java.util.Date;
 import org.matrix.androidsdk.adapters.IconAndTextAdapter;
 import org.matrix.androidsdk.util.Log;
 
+import im.vector.util.PermissionsToolsKt;
 import im.vector.util.ThemeUtils;
 import im.vector.R;
 
@@ -88,7 +90,7 @@ public class SelectPictureActivity extends AppCompatActivity  {
         };
 
         fragment = IconAndTextDialogTchapFragment.newInstance(icons, messages,
-                ThemeUtils.getColor(this, R.attr.riot_primary_background_color),
+                ThemeUtils.INSTANCE.getColor(this, R.attr.riot_primary_background_color),
                 ContextCompat.getColor(this, R.color.tchap_text_color_light));
 
         fragment.setOnClickListener(new IconAndTextDialogTchapFragment.OnItemClickListener() {
@@ -100,7 +102,7 @@ public class SelectPictureActivity extends AppCompatActivity  {
                     launchImageSelectionIntent();
                 } else if (selectedVal == R.string.option_take_photo) {
                     // Check permission
-                    if (CommonActivityUtils.checkPermissions(CommonActivityUtils.REQUEST_CODE_PERMISSION_TAKE_PHOTO, SelectPictureActivity.this)) {
+                    if (PermissionsToolsKt.checkPermissions(PermissionsToolsKt.PERMISSIONS_FOR_TAKING_PHOTO, SelectPictureActivity.this, PermissionsToolsKt.PERMISSION_REQUEST_CODE_LAUNCH_NATIVE_CAMERA)) {
                         launchNativeCamera();
                     }
                 }
@@ -112,7 +114,7 @@ public class SelectPictureActivity extends AppCompatActivity  {
 
     @Override
     public void onRequestPermissionsResult(int aRequestCode, @NonNull String[] aPermissions, @NonNull int[] aGrantResults) {
-        if (aRequestCode == CommonActivityUtils.REQUEST_CODE_PERMISSION_TAKE_PHOTO) {
+        if (aRequestCode == PermissionsToolsKt.PERMISSION_REQUEST_CODE_LAUNCH_NATIVE_CAMERA) {
             boolean isCameraPermissionGranted = false;
 
             for (int i = 0; i < aPermissions.length; i++) {
@@ -141,7 +143,7 @@ public class SelectPictureActivity extends AppCompatActivity  {
             if (isCameraPermissionGranted) {
                 launchNativeCamera();
             } else {
-                CommonActivityUtils.displayToast(this, getString(R.string.missing_permissions_warning));
+                Toast.makeText(this, getString(R.string.missing_permissions_warning), Toast.LENGTH_SHORT).show();
             }
         }
     }

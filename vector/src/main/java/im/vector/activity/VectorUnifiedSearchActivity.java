@@ -24,10 +24,10 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.fragments.MatrixMessageListFragment;
@@ -37,6 +37,7 @@ import im.vector.Matrix;
 import im.vector.R;
 import im.vector.adapters.VectorUnifiedSearchFragmentPagerAdapter;
 import im.vector.contacts.ContactsManager;
+import im.vector.util.PermissionsToolsKt;
 
 /**
  * Displays a generic activity search method
@@ -127,7 +128,7 @@ public class VectorUnifiedSearchActivity extends VectorBaseSearchActivity implem
 
                 if (0 != permissions) {
                     // Check permission to access contacts
-                    CommonActivityUtils.checkPermissions(permissions, VectorUnifiedSearchActivity.this);
+                    PermissionsToolsKt.checkPermissions(permissions, VectorUnifiedSearchActivity.this, PermissionsToolsKt.PERMISSION_REQUEST_CODE);
                 }
                 searchAccordingToSelectedTab();
             }
@@ -207,17 +208,6 @@ public class VectorUnifiedSearchActivity extends VectorBaseSearchActivity implem
         searchAccordingToSelectedTab();
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            // ignore the parent activity from manifest to avoid going to the home history
-            case android.R.id.home:
-                finish();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
     /**
      * Reset the UI to its init state:
      * - "waiting while searching" screen disabled
@@ -263,16 +253,17 @@ public class VectorUnifiedSearchActivity extends VectorBaseSearchActivity implem
                     : View.GONE);
 
             // display the "no result" text only if the researched text is not empty
-            mNoResultsTxtView.setVisibility(((0 == nbrMessages) && !TextUtils.isEmpty(mPatternToSearchEditText.getText().toString())) ? View.VISIBLE : View.GONE);
+            mNoResultsTxtView.setVisibility(((0 == nbrMessages)
+                    && !TextUtils.isEmpty(mPatternToSearchEditText.getText().toString())) ? View.VISIBLE : View.GONE);
         }
     }
 
     @Override
-    public void onRequestPermissionsResult(int aRequestCode, @NonNull String[] aPermissions, @NonNull int[] aGrantResults) {
-        if (0 == aPermissions.length) {
-            Log.e(LOG_TAG, "## onRequestPermissionsResult(): cancelled " + aRequestCode);
-        } else if (aRequestCode == CommonActivityUtils.REQUEST_CODE_PERMISSION_MEMBERS_SEARCH) {
-            if (PackageManager.PERMISSION_GRANTED == aGrantResults[0]) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (0 == permissions.length) {
+            Log.d(LOG_TAG, "## onRequestPermissionsResult(): cancelled " + requestCode);
+        } else if (requestCode == PermissionsToolsKt.PERMISSION_REQUEST_CODE) {
+            if (PackageManager.PERMISSION_GRANTED == grantResults[0]) {
                 Log.d(LOG_TAG, "## onRequestPermissionsResult(): READ_CONTACTS permission granted");
                 // trigger a contacts book refresh
                 ContactsManager.getInstance().refreshLocalContactsSnapshot();
@@ -280,7 +271,7 @@ public class VectorUnifiedSearchActivity extends VectorBaseSearchActivity implem
                 searchAccordingToSelectedTab();
             } else {
                 Log.d(LOG_TAG, "## onRequestPermissionsResult(): READ_CONTACTS permission not granted");
-                CommonActivityUtils.displayToast(this, getString(R.string.missing_permissions_warning));
+                Toast.makeText(this, R.string.missing_permissions_warning, Toast.LENGTH_SHORT).show();
             }
         }
     }

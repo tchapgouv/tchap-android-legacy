@@ -18,7 +18,7 @@
 package fr.gouv.tchap.fragments;
 
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
+import android.support.annotation.CallSuper;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -30,6 +30,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.Toast;
 
+import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomPreviewData;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
@@ -43,19 +44,28 @@ import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
+import im.vector.Matrix;
 import im.vector.PublicRoomsManager;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
+import im.vector.activity.VectorAppCompatActivity;
 import im.vector.activity.VectorRoomActivity;
 import im.vector.adapters.AdapterSection;
-import im.vector.fragments.AbsHomeFragment;
+import im.vector.fragments.VectorBaseFragment;
 import im.vector.view.EmptyViewItemDecoration;
 import im.vector.view.SectionView;
 import im.vector.view.SimpleDividerItemDecoration;
 import fr.gouv.tchap.adapters.TchapPublicRoomAdapter;
 
-public class TchapPublicRoomsFragment extends AbsHomeFragment {
+public class TchapPublicRoomsFragment extends VectorBaseFragment {
     private static final String LOG_TAG = TchapPublicRoomsFragment.class.getSimpleName();
+    private static final String CURRENT_FILTER = "CURRENT_FILTER";
+
+    protected VectorAppCompatActivity mActivity;
+
+    protected String mCurrentFilter;
+
+    protected MXSession mSession;
 
     private boolean mMorePublicRooms = false;
     @BindView(R.id.recyclerview)
@@ -94,13 +104,20 @@ public class TchapPublicRoomsFragment extends AbsHomeFragment {
     public void onActivityCreated(final Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        mPrimaryColor = ContextCompat.getColor(getActivity(), R.color.tab_rooms);
-        mSecondaryColor = ContextCompat.getColor(getActivity(), R.color.tab_rooms_secondary);
+        if (getActivity() instanceof VectorAppCompatActivity) {
+            mActivity = (VectorAppCompatActivity) getActivity();
+        }
+        mSession = Matrix.getInstance(getActivity()).getDefaultSession();
+
+        if (savedInstanceState != null && savedInstanceState.containsKey(CURRENT_FILTER)) {
+            mCurrentFilter = savedInstanceState.getString(CURRENT_FILTER);
+        }
+
         String userHSName = mSession.getMyUserId().substring(mSession.getMyUserId().indexOf(":") + 1);
         List<String> servers = Arrays.asList(getResources().getStringArray(R.array.room_directory_servers));
         mCurrentHosts = new ArrayList<>();
         boolean isUserHSNameAdded = false;
-        for (int i=0;i<servers.size();i++) {
+        for (int i = 0; i < servers.size(); i++) {
             if (servers.get(i).compareTo(userHSName) == 0) {
                 mCurrentHosts.add(null);
                 isUserHSNameAdded = true;
@@ -121,59 +138,23 @@ public class TchapPublicRoomsFragment extends AbsHomeFragment {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-
-        if (null != mActivity) {
-            mAdapter.setInvitation(mActivity.getRoomInvitations());
-        }
-        mRecycler.addOnScrollListener(mScrollListener);
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(CURRENT_FILTER, mCurrentFilter);
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        mRecycler.removeOnScrollListener(mScrollListener);
-    }
-
-    /*
-     * *********************************************************************************************
-     * Abstract methods implementation
-     * *********************************************************************************************
-     */
-
-    @Override
-    protected List<Room> getRooms() {
-        return new ArrayList<>(mRooms);
+    @CallSuper
+    public void onDestroyView() {
+        super.onDestroyView();
+        mCurrentFilter = null;
     }
 
     @Override
-    protected void onFilter(String pattern, final OnFilterListener listener) {
-        mAdapter.getFilter().filter(pattern, new Filter.FilterListener() {
-            @Override
-            public void onFilterComplete(int count) {
-                Log.i(LOG_TAG, "onFilterComplete " + count);
-                if (listener != null) {
-                    listener.onFilterDone(count);
-                }
-
-                // trigger the public rooms search to avoid unexpected list refresh
-                initPublicRooms(false);
-            }
-        });
-    }
-
-    @Override
-    protected void onResetFilter() {
-        mAdapter.getFilter().filter("", new Filter.FilterListener() {
-            @Override
-            public void onFilterComplete(int count) {
-                Log.i(LOG_TAG, "onResetFilter " + count);
-
-                // trigger the public rooms search to avoid unexpected list refresh
-                initPublicRooms(false);
-            }
-        });
+    @CallSuper
+    public void onDetach() {
+        super.onDetach();
+        mActivity = null;
     }
 
     /*
@@ -182,6 +163,39 @@ public class TchapPublicRoomsFragment extends AbsHomeFragment {
      * *********************************************************************************************
      */
 
+    /**
+     * Apply the filter
+     *
+     * @param pattern
+     */
+    public void applyFilter(final String pattern) {
+        if (TextUtils.isEmpty(pattern)) {
+            if (mCurrentFilter != null) {
+                // Reset the filter
+                mAdapter.getFilter().filter("", new Filter.FilterListener() {
+                    @Override
+                    public void onFilterComplete(int count) {
+                        Log.i(LOG_TAG, "onResetFilter " + count);
+
+                        // trigger the public rooms search to avoid unexpected list refresh
+                        initPublicRooms(false);
+                    }
+                });
+                mCurrentFilter = null;
+            }
+        } else if (!TextUtils.equals(mCurrentFilter, pattern)) {
+            mAdapter.getFilter().filter(pattern, new Filter.FilterListener() {
+                @Override
+                public void onFilterComplete(int count) {
+                    Log.i(LOG_TAG, "onFilterComplete " + count);
+                    mCurrentFilter = pattern;
+
+                    // trigger the public rooms search to avoid unexpected list refresh
+                    initPublicRooms(false);
+                }
+            });
+        }
+    }
 
     /*
      * *********************************************************************************************
@@ -198,14 +212,14 @@ public class TchapPublicRoomsFragment extends AbsHomeFragment {
         mAdapter = new TchapPublicRoomAdapter(getActivity(), new TchapPublicRoomAdapter.OnSelectItemListener() {
             @Override
             public void onSelectItem(Room room, int position) {
-                openRoom(room);
+                // Ignore this case here. Only public rooms is handled here.
             }
 
             @Override
             public void onSelectItem(PublicRoom publicRoom) {
                 onPublicRoomSelected(publicRoom);
             }
-        }, this, this);
+        });
         mRecycler.setAdapter(mAdapter);
     }
 
@@ -283,7 +297,7 @@ public class TchapPublicRoomsFragment extends AbsHomeFragment {
 
                     @Override
                     public void onMatrixError(MatrixError e) {
-                        if (MatrixError.M_CONSENT_NOT_GIVEN.equals(e.errcode) && isAdded()) {
+                        if (MatrixError.M_CONSENT_NOT_GIVEN.equals(e.errcode) && isAdded() && null != mActivity) {
                             mActivity.getConsentNotGivenHelper().displayDialog(e);
                         } else {
                             onError();
@@ -337,43 +351,22 @@ public class TchapPublicRoomsFragment extends AbsHomeFragment {
     };
 
     /**
-     * Display the public rooms loading view
-     */
-    private void showPublicRoomsLoadingView() {
-        if (mAdapter.getSectionViewForSectionIndex(mAdapter.getSectionsCount() - 1) != null) {
-            mAdapter.getSectionViewForSectionIndex(mAdapter.getSectionsCount() - 1).showLoadingView();
-        }
-    }
-
-    /**
-     * Hide the public rooms loading view
-     */
-    private void hidePublicRoomsLoadingView() {
-        if (mAdapter.getSectionViewForSectionIndex(mAdapter.getSectionsCount() - 1) != null) {
-            mAdapter.getSectionViewForSectionIndex(mAdapter.getSectionsCount() - 1).hideLoadingView();
-        }
-    }
-
-    /**
      * Init the public rooms.
      *
      * @param displayOnTop true to display the public rooms in full screen
      */
     private void initPublicRooms(final boolean displayOnTop) {
-        showPublicRoomsLoadingView();
-
         mAdapter.setNoMorePublicRooms(false);
+        mAdapter.setPublicRooms(null);
+        mMorePublicRooms = false;
+        if (null != mActivity) {
+            mActivity.showWaitingView();
+        }
+
         initPublicRoomsCascade(displayOnTop, 0);
     }
 
     private void initPublicRoomsCascade(final boolean displayOnTop, final int hostIndex) {
-        if (hostIndex == 0) {
-            mAdapter.setNoMorePublicRooms(false);
-            mAdapter.setPublicRooms(null);
-            mMorePublicRooms = false;
-            showPublicRoomsLoadingView();
-        }
-
         if (mPublicRoomsManagers == null) {
             mPublicRoomsManagers = new ArrayList<>();
             initPublicRoomsManagers();
@@ -409,8 +402,9 @@ public class TchapPublicRoomsFragment extends AbsHomeFragment {
                                     });
                                 }
 
-                                hidePublicRoomsLoadingView();
-
+                                if (null != mActivity) {
+                                    mActivity.hideWaitingView();
+                                }
                             }
                             else {
                                 initPublicRoomsCascade(displayOnTop, hostIndex+1);
@@ -426,7 +420,9 @@ public class TchapPublicRoomsFragment extends AbsHomeFragment {
                             if (hostIndex == mCurrentHosts.size()-1) {
                                 mAdapter.setNoMorePublicRooms(!mMorePublicRooms);
                                 addPublicRoomsListener();
-                                hidePublicRoomsLoadingView();
+                                if (null != mActivity) {
+                                    mActivity.hideWaitingView();
+                                }
                             }
                             else {
                                 initPublicRoomsCascade(displayOnTop, hostIndex+1);
@@ -441,8 +437,8 @@ public class TchapPublicRoomsFragment extends AbsHomeFragment {
 
                     @Override
                     public void onMatrixError(MatrixError e) {
-                        if (MatrixError.M_CONSENT_NOT_GIVEN.equals(e.errcode) && isAdded()) {
-                            hidePublicRoomsLoadingView();
+                        if (MatrixError.M_CONSENT_NOT_GIVEN.equals(e.errcode) && isAdded() && null != mActivity) {
+                            mActivity.hideWaitingView();
                             mActivity.getConsentNotGivenHelper().displayDialog(e);
                         } else {
                             onError(e.getLocalizedMessage());
@@ -475,7 +471,9 @@ public class TchapPublicRoomsFragment extends AbsHomeFragment {
                 return;
             }
         mMorePublicRooms = false;
-        showPublicRoomsLoadingView();
+        if (null != mActivity) {
+            mActivity.showWaitingView();
+        }
         cascadeForwardPaginate(0);
     }
 
@@ -492,7 +490,9 @@ public class TchapPublicRoomsFragment extends AbsHomeFragment {
                     mAdapter.addPublicRooms(publicRooms);
                 }
                 if (hostIndex == mCurrentHosts.size()-1) {
-                    hidePublicRoomsLoadingView();
+                    if (null != mActivity) {
+                        mActivity.hideWaitingView();
+                    }
                     if (!mMorePublicRooms) {
                         mAdapter.setNoMorePublicRooms(true);
                         removePublicRoomsListener();
@@ -509,7 +509,9 @@ public class TchapPublicRoomsFragment extends AbsHomeFragment {
                     Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
                 }
                 if (hostIndex == mCurrentHosts.size()) {
-                    hidePublicRoomsLoadingView();
+                    if (null != mActivity) {
+                        mActivity.hideWaitingView();
+                    }
                 }
                 else {
                     cascadeForwardPaginate(hostIndex+1);
@@ -531,8 +533,12 @@ public class TchapPublicRoomsFragment extends AbsHomeFragment {
                 onError(e.getLocalizedMessage());
             }
         });
-        if (!isForwarding)
-            hidePublicRoomsLoadingView();
+
+        if (!isForwarding) {
+            if (null != mActivity) {
+                mActivity.hideWaitingView();
+            }
+        }
 
     }
 

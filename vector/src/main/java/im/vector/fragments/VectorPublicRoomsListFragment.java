@@ -1,7 +1,8 @@
 /*
  * Copyright 2015 OpenMarket Ltd
  * Copyright 2017 Vector Creations Ltd
- * 
+ * Copyright 2018 New Vector Ltd
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,12 +18,8 @@
 
 package im.vector.fragments;
 
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.text.TextUtils;
-
-import org.matrix.androidsdk.util.Log;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,7 +33,13 @@ import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomPreviewData;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.model.MatrixError;
+import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.publicroom.PublicRoom;
+import org.matrix.androidsdk.util.Log;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import im.vector.Matrix;
 import im.vector.PublicRoomsManager;
@@ -45,9 +48,6 @@ import im.vector.VectorApp;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.VectorRoomActivity;
 import im.vector.adapters.VectorPublicRoomsAdapter;
-
-import java.util.HashMap;
-import java.util.List;
 
 public class VectorPublicRoomsListFragment extends VectorBaseFragment {
     private static final String LOG_TAG = VectorPublicRoomsListFragment.class.getSimpleName();
@@ -140,31 +140,30 @@ public class VectorPublicRoomsListFragment extends VectorBaseFragment {
                 if (null != publicRoom.roomId) {
                     final RoomPreviewData roomPreviewData = new RoomPreviewData(mSession, publicRoom.roomId, null, publicRoom.getAlias(), null);
 
-                    Room room = mSession.getDataHandler().getRoom(publicRoom.roomId, false);
+                    // Check whether the room exists to handled the cases where the user is invited or he has joined.
+                    // CAUTION: the room may exist whereas the user membership is neither invited nor joined.
+                    final Room room = mSession.getDataHandler().getRoom(publicRoom.roomId, false);
+                    if (null != room && room.hasMembership(RoomMember.MEMBERSHIP_INVITE)) {
+                        Log.d(LOG_TAG, "manageRoom : the user is invited -> display the preview " + VectorApp.getCurrentActivity());
+                        CommonActivityUtils.previewRoom(getActivity(), roomPreviewData);
+                    } else if (null != room && room.hasMembership(RoomMember.MEMBERSHIP_JOIN)) {
+                        Log.d(LOG_TAG, "manageRoom : the user joined the room -> open the room");
+                        final Map<String, Object> params = new HashMap<>();
+                        params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
+                        params.put(VectorRoomActivity.EXTRA_ROOM_ID, publicRoom.roomId);
 
-                    // if the room exists
-                    if (null != room) {
-                        // either the user is invited
-                        if (room.isInvited()) {
-                            Log.d(LOG_TAG, "manageRoom : the user is invited -> display the preview " + VectorApp.getCurrentActivity());
-                            CommonActivityUtils.previewRoom(getActivity(), roomPreviewData);
-                        } else {
-                            Log.d(LOG_TAG, "manageRoom : open the room");
-                            HashMap<String, Object> params = new HashMap<>();
-                            params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
-                            params.put(VectorRoomActivity.EXTRA_ROOM_ID, publicRoom.roomId);
-
-                            if (!TextUtils.isEmpty(publicRoom.name)) {
-                                params.put(VectorRoomActivity.EXTRA_DEFAULT_NAME, publicRoom.name);
-                            }
-
-                            if (!TextUtils.isEmpty(publicRoom.topic)) {
-                                params.put(VectorRoomActivity.EXTRA_DEFAULT_TOPIC, publicRoom.topic);
-                            }
-
-                            CommonActivityUtils.goToRoomPage(getActivity(), mSession, params);
+                        if (!TextUtils.isEmpty(publicRoom.name)) {
+                            params.put(VectorRoomActivity.EXTRA_DEFAULT_NAME, publicRoom.name);
                         }
+
+                        if (!TextUtils.isEmpty(publicRoom.topic)) {
+                            params.put(VectorRoomActivity.EXTRA_DEFAULT_TOPIC, publicRoom.topic);
+                        }
+
+                        CommonActivityUtils.goToRoomPage(getActivity(), mSession, params);
                     } else {
+                        // Display a preview by default.
+                        Log.d(LOG_TAG, "manageRoom : display the preview");
                         mInitializationSpinnerView.setVisibility(View.VISIBLE);
 
                         roomPreviewData.fetchPreviewData(new ApiCallback<Void>() {

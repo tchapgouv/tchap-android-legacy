@@ -27,8 +27,6 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
-
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -51,6 +49,8 @@ import im.vector.fragments.VectorRoomDetailsMembersFragment;
 import im.vector.fragments.VectorRoomSettingsFragment;
 import im.vector.fragments.VectorSearchRoomFilesListFragment;
 import im.vector.util.VectorUtils;
+import im.vector.util.MatrixSdkExtensionsKt;
+import im.vector.util.PermissionsToolsKt;
 
 /**
  * This class implements the room details screen, using a tab UI pattern.
@@ -120,7 +120,7 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
                     // pop to the home activity
                     Intent intent = new Intent(VectorRoomDetailsActivity.this, VectorHomeActivity.class);
                     intent.setFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP | android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                    VectorRoomDetailsActivity.this.startActivity(intent);
+                    startActivity(intent);
                 }
             });
         }
@@ -262,31 +262,21 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
 
 
     @Override
-    public void onRequestPermissionsResult(int aRequestCode, @NonNull String[] aPermissions, @NonNull int[] aGrantResults) {
-        if (0 == aPermissions.length) {
-            Log.e(LOG_TAG, "## onRequestPermissionsResult(): cancelled " + aRequestCode);
-        } else if (aRequestCode == CommonActivityUtils.REQUEST_CODE_PERMISSION_MEMBER_DETAILS) {
-            if (Manifest.permission.READ_CONTACTS.equals(aPermissions[0])) {
-                if (PackageManager.PERMISSION_GRANTED == aGrantResults[0]) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (0 == permissions.length) {
+            Log.d(LOG_TAG, "## onRequestPermissionsResult(): cancelled " + requestCode);
+        } else if (requestCode == PermissionsToolsKt.PERMISSION_REQUEST_CODE) {
+            if (Manifest.permission.READ_CONTACTS.equals(permissions[0])) {
+                if (PackageManager.PERMISSION_GRANTED == grantResults[0]) {
                     Log.d(LOG_TAG, "## onRequestPermissionsResult(): READ_CONTACTS permission granted");
                 } else {
                     Log.w(LOG_TAG, "## onRequestPermissionsResult(): READ_CONTACTS permission not granted");
-                    CommonActivityUtils.displayToast(this, getString(R.string.missing_permissions_warning));
+                    Toast.makeText(this, R.string.missing_permissions_warning, Toast.LENGTH_SHORT).show();
                 }
 
                 ContactsManager.getInstance().refreshLocalContactsSnapshot();
             }
         }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -324,7 +314,7 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
                 // pop to the home activity
                 Intent intent = new Intent(VectorRoomDetailsActivity.this, VectorHomeActivity.class);
                 intent.setFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP | android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                VectorRoomDetailsActivity.this.startActivity(intent);
+                startActivity(intent);
                 return;
             }
 
@@ -361,7 +351,6 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
         }
     }
 
-
     /**
      * Called when a tab enters the selected state.
      *
@@ -392,22 +381,23 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
 
             if (!mIsContactsPermissionChecked) {
                 mIsContactsPermissionChecked = true;
-                CommonActivityUtils.checkPermissions(CommonActivityUtils.REQUEST_CODE_PERMISSION_MEMBER_DETAILS, this);
+                PermissionsToolsKt.checkPermissions(PermissionsToolsKt.PERMISSIONS_FOR_MEMBER_DETAILS, this, PermissionsToolsKt.PERMISSION_REQUEST_CODE);
             }
         } else if (myPosition == SETTINGS_TAB_INDEX) {
-            int permissionToBeGranted = CommonActivityUtils.REQUEST_CODE_PERMISSION_ROOM_DETAILS;
+            int permissionToBeGranted = PermissionsToolsKt.PERMISSIONS_FOR_ROOM_DETAILS;
             onTabSelectSettingsFragment();
 
             // remove camera permission request if the user has not enough power level
-            if (!CommonActivityUtils.isPowerLevelEnoughForAvatarUpdate(mRoom, mSession)) {
-                permissionToBeGranted &= ~CommonActivityUtils.PERMISSION_CAMERA;
+            if (!MatrixSdkExtensionsKt.isPowerLevelEnoughForAvatarUpdate(mRoom, mSession)) {
+                permissionToBeGranted &= ~PermissionsToolsKt.PERMISSION_CAMERA;
             }
-            CommonActivityUtils.checkPermissions(permissionToBeGranted, this);
+            PermissionsToolsKt.checkPermissions(permissionToBeGranted, this, PermissionsToolsKt.PERMISSION_REQUEST_CODE);
             mCurrentTabIndex = SETTINGS_TAB_INDEX;
         } else if (myPosition == FILE_TAB_INDEX) {
             mSearchFilesFragment = (VectorSearchRoomFilesListFragment) getSupportFragmentManager().findFragmentByTag(TAG_FRAGMENT_FILES_DETAILS);
             if (null == mSearchFilesFragment) {
-                mSearchFilesFragment = VectorSearchRoomFilesListFragment.newInstance(mSession.getCredentials().userId, mRoomId, org.matrix.androidsdk.R.layout.fragment_matrix_message_list_fragment);
+                mSearchFilesFragment = VectorSearchRoomFilesListFragment.newInstance(mSession.getCredentials().userId,
+                        mRoomId, org.matrix.androidsdk.R.layout.fragment_matrix_message_list_fragment);
                 ft.replace(R.id.room_details_fragment_container, mSearchFilesFragment, TAG_FRAGMENT_FILES_DETAILS)
                         .commit();
                 Log.d(LOG_TAG, "## onTabSelected() file frag replace");
@@ -423,7 +413,6 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
             mCurrentTabIndex = SETTINGS_TAB_INDEX;
             Log.w(LOG_TAG, "## onTabSelected() unknown tab selected!!");
         }
-
     }
 
     /**
@@ -471,10 +460,16 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
             public void run() {
                 if (null == mRoomSettingsFragment) {
                     mRoomSettingsFragment = VectorRoomSettingsFragment.newInstance(mMatrixId, mRoomId);
-                    getFragmentManager().beginTransaction().replace(R.id.room_details_fragment_container, mRoomSettingsFragment, TAG_FRAGMENT_SETTINGS_ROOM_DETAIL).commit();
+                    getFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.room_details_fragment_container, mRoomSettingsFragment, TAG_FRAGMENT_SETTINGS_ROOM_DETAIL)
+                            .commit();
                     Log.d(LOG_TAG, "## onTabSelectSettingsFragment() settings frag replace");
                 } else {
-                    getFragmentManager().beginTransaction().attach(mRoomSettingsFragment).commit();
+                    getFragmentManager()
+                            .beginTransaction()
+                            .attach(mRoomSettingsFragment)
+                            .commit();
                     Log.d(LOG_TAG, "## onTabSelectSettingsFragment() settings frag attach");
                 }
             }

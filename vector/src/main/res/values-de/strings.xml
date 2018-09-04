@@ -2,8 +2,8 @@
 <resources>
     <!-- use to retrieve the supported languages list -->
     <!-- should the same value as the file name -->
-    <string name="resouces_language">de</string>
-    <string name="resouces_country">DE</string>
+    <string name="resources_language">de</string>
+    <string name="resources_country_code">DE</string>
 
     <!-- titles -->
     <string name="title_activity_home">Nachrichten</string>
@@ -43,7 +43,6 @@
     <string name="room_no_conference_call_in_encrypted_rooms">Konferenzgespräche werden in verschlüsselten Räumen nicht unterstützt</string>
     <string name="send_anyway">Trotzdem senden</string>
     <string name="or">oder</string>
-    <string name="and">und</string>
     <string name="invite">Einladen</string>
 
     <!-- actions -->
@@ -94,9 +93,9 @@
     <string name="no_room_placeholder">Keine Räume</string>
     <string name="no_public_room_placeholder">Keine öffentl. Räume verfügbar</string>
     <plurals name="public_room_nb_users">
-	<item quantity="one">1 Benutzer</item>
-	<item quantity="other">%d Benutzer</item>
-</plurals>
+        <item quantity="one">1 Benutzer</item>
+        <item quantity="other">%d Benutzer</item>
+    </plurals>
 
     <string name="send_bug_report_include_logs">Logdateien übermitteln</string>
     <string name="send_bug_report_include_crash_logs">Absturzberichte übermitteln</string>
@@ -104,7 +103,7 @@
     <string name="send_bug_report">Problem melden</string>
     <string name="send_bug_report_description">Bitte beschreibe das Problem. Was hast du genau gemacht? Was sollte passieren? Was passierte tatsächlich?</string>
     <string name="send_bug_report_placeholder">Problembeschreibung</string>
-    <string name="send_bug_report_logs_description">Um Probleme diagnostizieren zu können, werden Logdateien dieses Matrix-Clients zusammen mit dem Fehlerbericht übermittelt. Wenn du nur den oben eingegebenen Text senden möchtest, bitte die nachfolgenden Haken entsprechend entfernen:</string>
+    <string name="send_bug_report_logs_description">Um Probleme diagnostizieren zu können, werden Protokolle dieses Matrix-Clients zusammen mit dem Fehlerbericht übermittelt. Dieser Fehlerbericht wird, wie die Protokolle und Screenshot, nicht öffentlich sichtbar sein. Wenn du nur den oben eingegebenen Text senden möchtest, bitte die nachfolgenden Haken entsprechend entfernen:</string>
     <string name="send_bug_report_alert_message">Du scheinst dein Telefon frustriert zu schütteln. Möchtest du einen Fehlerbericht senden?</string>
     <string name="send_bug_report_sent">Der Fehlerbericht wurde erfolgreich übermittelt</string>
     <string name="send_bug_report_failed">Der Fehlerbericht konnte nicht übermittelt werden (%s)</string>
@@ -121,8 +120,6 @@
     <string name="logout">Abmelden</string>
     <string name="hs_url">Home-Server-URL</string>
     <string name="identity_url">Identitätsserver-URL</string>
-    <string name="user">Benutzer</string>
-    <string name="users">Benutzer</string>
     <string name="search">Suchen</string>
 
     <string name="start_new_chat">Neuen Chat starten</string>
@@ -277,7 +274,7 @@ Soll Riot der Zugriff auf deine Kontakte erlaubt werden?</string>
 
     <!-- medias slider string -->
     <string name="media_slider_saved">Gespeichert</string>
-    <string name="media_slider_saved_message">In Downloads speichern</string>
+    <string name="media_slider_saved_message">In Downloads speichern?</string>
     <string name="yes">Ja</string>
     <string name="no">Nein</string>
     <string name="_continue">Fortsetzen</string>
@@ -306,12 +303,6 @@ Du möchtest dich evtl. mit einem anderen Account anmelden oder diese E-Mail-Adr
     <string name="room_e2e_alert_title">Achtung!</string>
     <string name="room_e2e_alert_message">Ende-zu-Ende-Verschlüsselung ist im Beta-Stadium und funktioniert möglicherweise nicht zuverlässig.\n\nDu solltest noch nicht darauf vertrauen, dass deine Daten richtig abgesichert werden.\n\nGeräte sind noch nicht in der Lage, den Chatverlauf vor dem Hinzufügen des Geräts zu entschlüsseln.\n\nVerschlüsselte Nachrichten werden auf Geräten, die Verschlüsselung noch nicht implementiert haben, nicht sichtbar sein.</string>
 
-    <!--  Time -->
-    <string name="format_time_s">s</string>
-    <string name="format_time_m">m</string>
-    <string name="format_time_h">h</string>
-    <string name="format_time_d">d</string>
-
     <!--  Chat participants -->
     <string name="room_participants_leave_prompt_title">Raum verlassen</string>
     <string name="room_participants_leave_prompt_msg">Bist du sicher, dass du den Raum verlassen möchtest?</string>
@@ -321,8 +312,6 @@ Du möchtest dich evtl. mit einem anderen Account anmelden oder diese E-Mail-Adr
     <string name="room_participants_online">Online</string>
     <string name="room_participants_offline">Offline</string>
     <string name="room_participants_idle">Untätig</string>
-    <string name="room_participants_now">jetzt</string>
-    <string name="room_participants_ago">zuvor</string>
 
     <string name="room_participants_header_admin_tools">ADMIN-WERKZEUGE</string>
     <string name="room_participants_header_call">ANRUFE</string>
@@ -393,14 +382,15 @@ Bist du sicher?</string>
     <string name="room_details_people">Personen</string>
     <string name="room_details_files">Dateien</string>
     <string name="room_details_settings">Einstellungen</string>
-    <string name="room_details_selected">ausgewählt</string>
     <string name="malformed_id">Ungültige ID. Eine E-Mail-Adresse oder eine Matrix-ID (\'@localpart:domain\') ist erforderlich</string>
     <string name="room_details_people_invited_group_name">EINGELADEN</string>
     <string name="room_details_people_present_group_name">TEILNEHMER</string>
 
     <!-- Room events -->
     <string name="room_event_action_report_prompt_reason">Grund für das Melden dieses Inhalts</string>
-    <string name="room_event_action_report_prompt_ignore_user">Möchtest du alle Nachrichten dieses Nutzers verbergen?</string>
+    <string name="room_event_action_report_prompt_ignore_user">Möchtest du alle Nachrichten dieses Nutzers verbergen?
+
+Beachte: Diese Aktion wird die App neu starten und einige Zeit brauchen.</string>
     <string name="room_event_action_cancel_upload">Upload abbrechen</string>
     <string name="room_event_action_cancel_download">Download abbrechen</string>
 
@@ -434,8 +424,6 @@ Bist du sicher?</string>
 
     <!-- Directory -->
     <string name="directory_search_results_title">Verzeichnis durchsuchen</string>
-    <string name="directory_search_room">%1$d Raum</string>
-    <string name="directory_search_room_for">%1$d Raum gefunden für %2$s</string>
     <string name="directory_searching_title">Verzeichnis wird durchsucht..</string>
 
     <!-- home room settings -->
@@ -536,7 +524,9 @@ Bist du sicher?</string>
     <string name="settings_confirm_password">Neues Passwort wiederholen</string>
     <string name="settings_fail_to_update_password">Ändern des Passworts fehlgeschlagen</string>
     <string name="settings_password_updated">Dein Passwort wurde aktualisiert</string>
-    <string name="settings_unignore_user">Alle Nachrichten von %s anzeigen?</string>
+    <string name="settings_unignore_user">Alle Nachrichten von %s anzeigen?
+
+Beachte: Diese Aktion wird die App neu starten und einige Zeit brauchen.</string>
 
     <string name="settings_delete_notification_targets_confirmation">Bist du sicher, dass du dieses Benachrichtigungsziel entfernen möchtest?</string>
 
@@ -688,7 +678,8 @@ Verschlüsselte Nachrichten werden auf Matrix-Clients, auf denen die Verschlüss
 
     <string name="encryption_information_verify_device">Gerät verifizieren</string>
     <string name="encryption_information_verify_device_warning">" Um zu verifizieren, dass diesem Gerät vertraut werden kann, kontaktiere bitte den Besitzer des Gerätes über andere Kommunikationsmittel (z. B. persönlich oder telefonisch) und vergewissere dich, ob der Schüssel, den er in seinen Benutzereinstellungen für dieses Gerät sieht, mit folgendem übereinstimmt:"</string>
-    <string name="encryption_information_verify_device_warning2">Wenn er übereinstimmt, drücke unten den Bestätigen-Button. Stimmt er nicht überein, überwacht jemand anderes dieses Gerät und du solltest ggf. den Blockieren-Button drücken.
+    <string name="encryption_information_verify_device_warning2">Wenn er übereinstimmt, drücke unten den Bestätigen-Button.
+Stimmt er nicht überein, überwacht jemand anderes dieses Gerät und du solltest ggf. den Blockieren-Button drücken.
 In Zukunft wird dieser Bestätigungsprozess noch komfortabler gestaltet.</string>
     <string name="encryption_information_verify_key_match">Ja, die Schlüssel stimmen überein</string>
 
@@ -760,7 +751,7 @@ Unbekannte Geräte:</string>
     <string name="settings_labs_create_conference_with_jitsi">Konferenzgespräche mit jitsi durchführen</string>
     <string name="widget_delete_message_confirmation">Soll das Widget wirklich gelöscht werden?</string>
 
-    // Widget Integration Manager
+    <!-- Widget Integration Manager -->
     <string name="widget_integration_unable_to_create">Widget konnte nicht erstellt werden.</string>
     <string name="widget_integration_positive_power_level">Berechtigungslevel muss eine positive ganze Zahl sein.</string>
     <string name="widget_integration_must_be_in_room">Du bist nicht Mitglied in diesem Raum.</string>
@@ -798,7 +789,7 @@ Unbekannte Geräte:</string>
 
     <string name="settings_labs_native_camera">Systemeigene Kamera verwenden</string>
 
-    // share keys
+    <!-- share keys -->
     <string name="share_without_verifying">Ohne Verifizierung teilen</string>
     <string name="ignore_request">Anfrage ignorieren</string>
 
@@ -809,11 +800,11 @@ Unbekannte Geräte:</string>
     <string name="conference_call_warning_title">Warnung!</string>
     <string name="conference_call_warning_message">Konferenzgespräche werden noch entwickelt und sind vielleicht nicht zuverlässig.</string>
 
-    // slash commands
+    <!-- slash commands -->
     <string name="command_error">Befehlsfehler</string>
     <string name="unrecognized_command">Unbekanntes Kommando: %s</string>
 
-    // notification statuses
+    <!-- notification statuses -->
     <string name="notification_off">Aus</string>
     <string name="notification_on">An</string>
     <string name="notification_noisy">Laut</string>
@@ -863,7 +854,7 @@ Unbekannte Geräte:</string>
     <string name="community_id">Community-ID</string>
     <string name="community_id_hint">Beispiel</string>
 
-    // group details
+    <!-- group details -->
     <string name="group_details_home">Startseite</string>
     <string name="group_details_people">Personen</string>
     <string name="group_details_rooms">Räume</string>
@@ -875,11 +866,6 @@ Unbekannte Geräte:</string>
     <string name="filter_group_members">Filter Gruppen-Mitglieder</string>
     <string name="filter_group_rooms">Filter Gruppen-Räume</string>
 
-    <string name="group_one_member">1 Mitglied</string>
-    <string name="group_members">%d Mitglieder</string>
-
-    <string name="group_one_room">1 Raum</string>
-    <string name="group_rooms">%d Räume</string>
     <string name="group_no_long_description">Der Community-Administrator hat keine lange Beschreibung für diese Community zur Verfügung gestellt.</string>
 
     <string name="has_been_kicked">Du wurdest von %2$s aus %1$s gekickt</string>
@@ -940,7 +926,7 @@ Unbekannte Geräte:</string>
 	<item quantity="other">%d aktive Widgets</item>
 </plurals>
 
-    // Widget Integration Manager
+    <!-- Widget Integration Manager -->
     <string name="avatar">Profilbild</string>
 
 <plurals name="membership_changes">
@@ -1002,4 +988,57 @@ Die Sichtbarkeit deiner Nachrichten ist ähnlich zu E-Mails: Wenn wir deine Nach
     <string name="deactivate_account_prompt_password">Um fortzufahren, bitte Password eingeben:</string>
     <string name="deactivate_account_submit">Account deaktivieren</string>
 
-</resources>
+<string name="dialog_title_third_party_licences">Drittanbieter-Lizenzen</string>
+
+    <string name="download">Download</string>
+    <string name="speak">Sprechen</string>
+    <string name="clear">Löschen</string>
+    <string name="e2e_re_request_encryption_key">Verschlüsselungsschlüssel von deinen anderen Geräten <u>erneut anfragen</u>.</string>
+
+    <string name="e2e_re_request_encryption_key_sent">Schlüsselanfrage gesendet.</string>
+
+    <string name="e2e_re_request_encryption_key_dialog_title">Anfrage gesendet</string>
+    <string name="e2e_re_request_encryption_key_dialog_content">Bitte öffne Riot auf einem anderen Gerät, das die Nachricht entschlüsseln kann, damit es diesem Gerät die Schlüssel senden kann.</string>
+
+    <string name="lock_screen_hint">Hier tippen…</string>
+
+    <string name="option_send_voice">Sende Sprache</string>
+
+    <string name="go_on_with">fortfahren mit…</string>
+    <string name="error_no_external_application_found">Es wurde keine externe Anwendung gefunden, um diese Aktion auszuführen.</string>
+
+    <string name="settings_labs_enable_send_voice">Sprachnachrichten (erfordert eine externe Anwendung um Sprachnachrichten aufzuzeichnen)</string>
+
+    <string name="error_empty_field_your_password">Bitte gebe dein Passwort ein.</string>
+
+<string name="send_bug_report_description_in_english">Wenn möglich, beschreibe bitte in Englisch.</string>
+    <string name="room_message_placeholder_reply_to_encrypted">Sende verschlüsselte Antwort…</string>
+    <string name="room_message_placeholder_reply_to_not_encrypted">Sende unverschlüsselte Antwort…</string>
+    <string name="settings_preview_media_before_sending">Zeige Medien vor dem Senden</string>
+
+    <string name="settings_without_flair">Du bist aktuell kein Mitglied einer Community.</string>
+
+    <string name="settings_labs_keyboard_options_to_send_message">Benutze die Enter-Taste der Tastatur zum Senden</string>
+    <string name="command_description_emote">Zeigt Aktionen</string>
+    <string name="command_description_ban_user">Bannt Benutzer mit angegebener ID</string>
+    <string name="command_description_unban_user">Hebt die Verbannung des Benutzers mit angegebener ID auf</string>
+    <string name="command_description_op_user">Bestimmt das Berechtigungslevel des Benutzers</string>
+    <string name="command_description_deop_user">Setzt Berechtigungen des Benutzers zurück</string>
+    <string name="command_description_invite_user">Lädt Benutzer mit angegebener Kennung in den aktuellen Raum ein</string>
+    <string name="command_description_join_room">Tritt dem Raum mit angegebenen Alias bei</string>
+    <string name="command_description_part_room">Verlasse Raum</string>
+    <string name="command_description_topic">Setzt das Raum-Thema</string>
+    <string name="command_description_kick_user">Kickt Benutzer mit angegebener ID</string>
+    <string name="command_description_nick">Ändert deinen Anzeigenamen</string>
+    <string name="command_description_markdown">(De-)Aktiviert Markdown</string>
+    <string name="command_description_clear_scalar_token">Setzt Matrix-App-Token zurück</string>
+
+    <string name="room_tombstone_versioned_description">Dieser Raum wurde ersetzt und ist nicht länger aktiv</string>
+    <string name="room_tombstone_continuation_link">Die Konversation wird hier fortgesetzt</string>
+    <string name="room_tombstone_continuation_description">Dieser Raum ist die Fortsetzung einer anderen Konversation</string>
+    <string name="room_tombstone_predecessor_link">Klicke hier um die älteren Nachrichten zu sehen</string>
+
+<string name="room_participants_action_unignore_prompt">Zeige alle Nachrichten dieses Benutzers?
+
+Beachte: Diese Aktion wird die App neu starten und einige Zeit brauchen.</string>
+    </resources>

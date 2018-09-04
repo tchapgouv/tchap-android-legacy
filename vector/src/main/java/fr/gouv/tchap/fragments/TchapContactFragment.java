@@ -51,7 +51,7 @@ import butterknife.BindView;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
 import fr.gouv.tchap.activity.TchapLoginActivity;
-import im.vector.activity.RiotAppCompatActivity;
+import im.vector.activity.VectorAppCompatActivity;
 import im.vector.adapters.ParticipantAdapterItem;
 import fr.gouv.tchap.adapters.TchapContactAdapter;
 import im.vector.contacts.Contact;
@@ -59,6 +59,8 @@ import im.vector.contacts.ContactsManager;
 import im.vector.contacts.PIDsRetriever;
 import im.vector.fragments.AbsHomeFragment;
 import fr.gouv.tchap.util.DinsicUtils;
+import im.vector.util.HomeRoomsViewModel;
+import im.vector.util.PermissionsToolsKt;
 import im.vector.util.VectorUtils;
 import im.vector.view.EmptyViewItemDecoration;
 import im.vector.view.SimpleDividerItemDecoration;
@@ -158,7 +160,7 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
         });*/
 
         if (!ContactsManager.getInstance().isContactBookAccessRequested()) {
-            CommonActivityUtils.checkPermissions(CommonActivityUtils.REQUEST_CODE_PERMISSION_MEMBERS_SEARCH, this);
+            PermissionsToolsKt.checkPermissions(PermissionsToolsKt.PERMISSIONS_FOR_MEMBERS_SEARCH, this, PermissionsToolsKt.PERMISSION_REQUEST_CODE);
         }
 
         initKnownContacts();
@@ -197,7 +199,7 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == CommonActivityUtils.REQUEST_CODE_PERMISSION_MEMBERS_SEARCH) {
+        if (requestCode == PermissionsToolsKt.PERMISSION_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 ContactsManager.getInstance().refreshLocalContactsSnapshot();
             } else {
@@ -274,7 +276,7 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
 
             @Override
             public void onSelectItem(ParticipantAdapterItem contact, int position) {
-                DinsicUtils.startDirectChat((RiotAppCompatActivity) getActivity(), mSession, contact);
+                DinsicUtils.startDirectChat((VectorAppCompatActivity) getActivity(), mSession, contact);
             }
         }, this, this);
         mRecycler.setAdapter(mAdapter);
@@ -522,9 +524,7 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
      */
 
     @Override
-    public void onSummariesUpdate() {
-        super.onSummariesUpdate();
-
+    public void onRoomResultUpdated(final HomeRoomsViewModel.Result result) {
         if (isResumed()) {
             initContactsData();
         }

@@ -63,7 +63,10 @@ public class RoomAdapter extends AbsAdapter {
      * *********************************************************************************************
      */
 
-    public RoomAdapter(final Context context, final OnSelectItemListener listener, final RoomInvitationListener invitationListener, final MoreRoomActionListener moreActionListener) {
+    public RoomAdapter(final Context context,
+                       final OnSelectItemListener listener,
+                       final RoomInvitationListener invitationListener,
+                       final MoreRoomActionListener moreActionListener) {
         super(context, invitationListener, moreActionListener);
 
         mListener = listener;

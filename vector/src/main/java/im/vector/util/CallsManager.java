@@ -1,5 +1,6 @@
 /*
  * Copyright 2014 OpenMarket Ltd
+ * Copyright 2018 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,6 +48,7 @@ import im.vector.R;
 import im.vector.VectorApp;
 import im.vector.activity.VectorCallViewActivity;
 import im.vector.activity.VectorHomeActivity;
+import im.vector.notifications.NotificationUtils;
 import im.vector.services.EventStreamService;
 
 /**
@@ -79,7 +81,8 @@ public class CallsManager {
     private String mPrevCallState;
     private boolean mIsStoppedByUser;
 
-    private final HeadsetConnectionReceiver.OnHeadsetStatusUpdateListener mOnHeadsetStatusUpdateListener = new HeadsetConnectionReceiver.OnHeadsetStatusUpdateListener() {
+    private final HeadsetConnectionReceiver.OnHeadsetStatusUpdateListener mOnHeadsetStatusUpdateListener
+            = new HeadsetConnectionReceiver.OnHeadsetStatusUpdateListener() {
 
         private void onHeadsetUpdate(boolean isBTHeadsetUpdate) {
             if (null != mActiveCall) {
@@ -229,7 +232,10 @@ public class CallsManager {
                     switch (state) {
                         case IMXCall.CALL_STATE_CREATED:
                             if (mActiveCall.isIncoming()) {
-                                EventStreamService.getInstance().displayIncomingCallNotification(mActiveCall.getSession(), mActiveCall.getRoom(), null, mActiveCall.getCallId(), null);
+                                if (EventStreamService.getInstance() != null) {
+                                    EventStreamService.getInstance().displayIncomingCallNotification(mActiveCall.getSession(),
+                                            mActiveCall.getRoom(), null, mActiveCall.getCallId(), null);
+                                }
                                 startRinging();
                             }
                             break;
@@ -244,7 +250,10 @@ public class CallsManager {
                             break;
 
                         case IMXCall.CALL_STATE_CONNECTED:
-                            EventStreamService.getInstance().displayCallInProgressNotification(mActiveCall.getSession(), mActiveCall.getRoom(), mActiveCall.getCallId());
+                            if (EventStreamService.getInstance() != null) {
+                                EventStreamService.getInstance().displayCallInProgressNotification(mActiveCall.getSession(),
+                                        mActiveCall.getRoom(), mActiveCall.getCallId());
+                            }
                             mCallSoundsManager.stopSounds();
                             requestAudioFocus();
 
@@ -474,7 +483,7 @@ public class CallsManager {
         if ((null != mActiveCall) && !hasActiveCall) {
             Log.e(LOG_TAG, "## checkDeadCalls() : fix an infinite ringing");
 
-            if (null != EventStreamService.getInstance()) {
+            if (EventStreamService.getInstance() != null) {
                 EventStreamService.getInstance().hideCallNotifications();
             }
 
@@ -528,9 +537,15 @@ public class CallsManager {
     }
 
     /**
-     * Start the ringing tone
+     * Start the ringing tone, if the phone is not in "do not disturb" mode
      */
     private void startRinging() {
+        if (NotificationUtils.INSTANCE.isDoNotDisturbModeOn(mContext)) {
+            Log.w(LOG_TAG, "Do not ring because DO NOT DISTURB MODE is on");
+            mCallSoundsManager.startRingingSilently();
+            return;
+        }
+
         requestAudioFocus();
         mCallSoundsManager.startRinging(R.raw.ring, RING_TONE_START_RINGING);
     }
@@ -642,7 +657,9 @@ public class CallsManager {
             mCallView = null;
             mLocalVideoLayoutConfig = null;
 
-            EventStreamService.getInstance().hideCallNotifications();
+            if (EventStreamService.getInstance() != null) {
+                EventStreamService.getInstance().hideCallNotifications();
+            }
         }
     }
 }

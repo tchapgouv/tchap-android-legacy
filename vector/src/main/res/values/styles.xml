@@ -340,7 +340,6 @@
     <style name="LoginAppTheme" parent="AppTheme.NoActionBar">
         <item name="android:editTextStyle">@style/LoginEditTextStyle</item>
         <item name="android:buttonStyle">@style/LoginButtonStyle</item>
-
         <item name="colorAccent">?attr/editTextColor</item>
 
         <item name="colorControlNormal">@color/tchap_text_color_light</item>
@@ -348,13 +347,16 @@
         <item name="colorControlHighlight">@color/tchap_text_color_light</item>
     </style>
 
+    <style name="AppTheme.Dialog.Light" parent="Theme.AppCompat.Light.Dialog.Alert" />
+
+
     <style name="CountryPickerTheme" parent="AppTheme.NoActionBar">
         <item name="editTextColor">@android:color/white</item>
         <item name="android:editTextColor">@android:color/white</item>
         <item name="android:textColorHint">?attr/activity_bottom_gradient_color</item>
     </style>
 
-    <style name="DirectoryPickerTheme" parent="AppTheme.NoActionBar"></style>
+    <style name="DirectoryPickerTheme" parent="AppTheme.NoActionBar" />
 
     <!-- searches activity -->
     <style name="SearchesAppTheme" parent="AppTheme">
@@ -533,7 +535,7 @@
         <item name="android:textColorHint">?attr/activity_bottom_gradient_color</item>
     </style>
 
-    <style name="DirectoryPickerTheme.Dark" parent="AppTheme.NoActionBar.Dark"></style>
+    <style name="DirectoryPickerTheme.Dark" parent="AppTheme.NoActionBar.Dark" />
 
     <style name="SearchesAppTheme.Dark" parent="AppTheme.Dark">
         <!-- custom action bar -->
@@ -690,7 +692,7 @@
         <item name="android:textColorHint">?attr/activity_bottom_gradient_color</item>
     </style>
 
-    <style name="DirectoryPickerTheme.Black" parent="AppTheme.NoActionBar.Black"></style>
+    <style name="DirectoryPickerTheme.Black" parent="AppTheme.NoActionBar.Black" />
 
     <style name="SearchesAppTheme.Black" parent="AppTheme.Black">
         <!-- custom action bar -->
@@ -746,8 +748,8 @@
         <item name="editTextColor">?attr/riot_primary_text_color</item>
         <item name="android:editTextColor">?attr/riot_primary_text_color</item>
     </style>
-
-    <style name="Vector_Lock_Black" parent="Vector_Lock_Dark"></style>
+    
+    <style name="Vector_Lock_Black" parent="Vector_Lock_Dark" />
 
     <style name="TchapTextInputLayout" parent="TextAppearance.AppCompat">
         <item name="android:textSize">13.5sp</item>
@@ -775,4 +777,14 @@
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
     </style>
+
+    <style name="Floating_Actions_Menu">
+        <item name="android:background">@drawable/vector_background_fab_label</item>
+        <item name="android:textColor">?attr/riot_primary_text_color</item>
+    </style>
+
+    <style name="Floating_Actions_Menu.Light">
+        <item name="android:background">@drawable/vector_background_fab_label_light</item>
+    </style>
+
 </resources>

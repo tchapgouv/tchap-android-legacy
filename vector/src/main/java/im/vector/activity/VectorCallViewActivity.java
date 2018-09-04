@@ -45,6 +45,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
+import org.jetbrains.annotations.NotNull;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.call.CallSoundsManager;
 import org.matrix.androidsdk.call.IMXCall;
@@ -56,6 +57,7 @@ import org.matrix.androidsdk.crypto.data.MXUsersDevicesMap;
 import org.matrix.androidsdk.util.Log;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -63,13 +65,16 @@ import im.vector.Matrix;
 import im.vector.R;
 import im.vector.VectorApp;
 import im.vector.util.CallsManager;
+import im.vector.util.PermissionsToolsKt;
 import im.vector.util.VectorUtils;
+import im.vector.util.ViewUtilKt;
 import im.vector.view.VectorPendingCallView;
+import kotlin.Pair;
 
 /**
  * VectorCallViewActivity is the call activity.
  */
-public class VectorCallViewActivity extends RiotAppCompatActivity implements SensorEventListener {
+public class VectorCallViewActivity extends VectorAppCompatActivity implements SensorEventListener {
     private static final String LOG_TAG = VectorCallViewActivity.class.getSimpleName();
 
     public static final String EXTRA_MATRIX_ID = "CallViewActivity.EXTRA_MATRIX_ID";
@@ -100,9 +105,9 @@ public class VectorCallViewActivity extends RiotAppCompatActivity implements Sen
     // video screen management
     private Timer mVideoFadingEdgesTimer;
     private TimerTask mVideoFadingEdgesTimerTask;
-    private static final short FADE_IN_DURATION = 250;
-    private static final short FADE_OUT_DURATION = 2000;
-    private static final short VIDEO_FADING_TIMER = 5000;
+    private static final int FADE_IN_DURATION = 250;
+    private static final int FADE_OUT_DURATION = 2000;
+    private static final int VIDEO_FADING_TIMER = 5000;
 
     // video display size
     private VideoLayoutConfiguration mLocalVideoLayoutConfig;
@@ -129,7 +134,6 @@ public class VectorCallViewActivity extends RiotAppCompatActivity implements Sen
 
     private IMXCall mCall;
     private CallsManager mCallsManager;
-    private int mPermissionCode;
 
     // on Samsung devices, the application is suspended when the screen is turned off
     // so the call must not be suspended
@@ -138,7 +142,7 @@ public class VectorCallViewActivity extends RiotAppCompatActivity implements Sen
         @Override
         public void onStateDidChange(String state) {
             final String fState = state;
-            VectorCallViewActivity.this.runOnUiThread(new Runnable() {
+            runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     Log.d(LOG_TAG, "## onStateDidChange(): new state=" + fState);
@@ -293,7 +297,8 @@ public class VectorCallViewActivity extends RiotAppCompatActivity implements Sen
         if (null != mCallView) {
             // insert the call view above the avatar
             RelativeLayout layout = findViewById(R.id.call_layout);
-            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+            RelativeLayout.LayoutParams params
+                    = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
             params.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
             layout.removeView(mCallView);
             layout.setVisibility(View.VISIBLE);
@@ -309,6 +314,12 @@ public class VectorCallViewActivity extends RiotAppCompatActivity implements Sen
             // init as GONE, will be displayed according to call states..
             mCall.setVisibility(View.GONE);
         }
+    }
+
+    @NotNull
+    @Override
+    public Pair getOtherThemes() {
+        return new Pair(R.style.CallActivityTheme_Dark, R.style.CallActivityTheme_Black);
     }
 
     @Override
@@ -355,8 +366,8 @@ public class VectorCallViewActivity extends RiotAppCompatActivity implements Sen
         // UI binding
         mHangUpImageView = findViewById(R.id.hang_up_button);
         mSpeakerSelectionView = findViewById(R.id.call_speaker_view);
-        mAvatarView = VectorCallViewActivity.this.findViewById(R.id.call_other_member);
-        mMuteMicImageView = VectorCallViewActivity.this.findViewById(R.id.mute_audio);
+        mAvatarView = findViewById(R.id.call_other_member);
+        mMuteMicImageView = findViewById(R.id.mute_audio);
         mHeaderPendingCallView = findViewById(R.id.header_pending_callview);
         mSwitchRearFrontCameraImageView = findViewById(R.id.call_switch_camera_view);
         mMuteLocalCameraView = findViewById(R.id.mute_local_camera);
@@ -378,12 +389,12 @@ public class VectorCallViewActivity extends RiotAppCompatActivity implements Sen
 
         mainContainerLayoutView.setOnTouchListener(mMainViewTouchListener);
 
-        ImageView roomLinkImageView = VectorCallViewActivity.this.findViewById(R.id.room_chat_link);
+        ImageView roomLinkImageView = findViewById(R.id.room_chat_link);
         roomLinkImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // simulate a back button press
-                VectorCallViewActivity.this.finish();
+                finish();
                 startRoomActivity();
             }
         });
@@ -465,7 +476,7 @@ public class VectorCallViewActivity extends RiotAppCompatActivity implements Sen
             }
         } else {
             // create the callview asap
-            this.runOnUiThread(new Runnable() {
+            runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     if (null != mCall.getCallView()) {
@@ -485,8 +496,6 @@ public class VectorCallViewActivity extends RiotAppCompatActivity implements Sen
             });
         }
 
-        ImageView avatarView = findViewById(R.id.call_other_member);
-
         // the avatar side must be the half of the min screen side
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
@@ -494,19 +503,21 @@ public class VectorCallViewActivity extends RiotAppCompatActivity implements Sen
 
         int side = Math.min(size.x, size.y) / 2;
 
-        RelativeLayout.LayoutParams avatarLayoutParams = (RelativeLayout.LayoutParams) avatarView.getLayoutParams();
+        RelativeLayout.LayoutParams avatarLayoutParams = (RelativeLayout.LayoutParams) mAvatarView.getLayoutParams();
         avatarLayoutParams.height = side;
         avatarLayoutParams.width = side;
 
-        avatarView.setLayoutParams(avatarLayoutParams);
+        mAvatarView.setLayoutParams(avatarLayoutParams);
 
-        VectorUtils.loadCallAvatar(this, mSession, avatarView, mCall.getRoom());
+        VectorUtils.loadCallAvatar(this, mSession, mAvatarView, mCall.getRoom());
 
         mIncomingCallTabbar.setVisibility(CallsManager.getSharedInstance().isRinging() && mCall.isIncoming() ? View.VISIBLE : View.GONE);
-        mPermissionCode = mCall.isVideo() ? CommonActivityUtils.REQUEST_CODE_PERMISSION_VIDEO_IP_CALL : CommonActivityUtils.REQUEST_CODE_PERMISSION_AUDIO_IP_CALL;
+
+        final int permissions = mCall.isVideo() ? PermissionsToolsKt.PERMISSIONS_FOR_VIDEO_IP_CALL : PermissionsToolsKt.PERMISSIONS_FOR_AUDIO_IP_CALL;
+        final int requestCode = mCall.isVideo() ? PermissionsToolsKt.PERMISSION_REQUEST_CODE_VIDEO_CALL : PermissionsToolsKt.PERMISSION_REQUEST_CODE_AUDIO_CALL;
 
         // the user can only accept if the dedicated permissions are granted
-        mAcceptIncomingCallButton.setVisibility(CommonActivityUtils.checkPermissions(mPermissionCode, this) ? View.VISIBLE : View.GONE);
+        mAcceptIncomingCallButton.setVisibility(PermissionsToolsKt.checkPermissions(permissions, this, requestCode) ? View.VISIBLE : View.GONE);
         mAcceptIncomingCallButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -524,10 +535,13 @@ public class VectorCallViewActivity extends RiotAppCompatActivity implements Sen
             }
         });
 
-        this.runOnUiThread(new Runnable() {
+        runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                CommonActivityUtils.displayUnknownDevicesDialog(mSession, VectorCallViewActivity.this, (MXUsersDevicesMap<MXDeviceInfo>) intent.getSerializableExtra(VectorCallViewActivity.EXTRA_UNKNOWN_DEVICES), null);
+                CommonActivityUtils.displayUnknownDevicesDialog(mSession,
+                        VectorCallViewActivity.this,
+                        (MXUsersDevicesMap<MXDeviceInfo>) intent.getSerializableExtra(VectorCallViewActivity.EXTRA_UNKNOWN_DEVICES),
+                        null);
             }
         });
 
@@ -551,7 +565,7 @@ public class VectorCallViewActivity extends RiotAppCompatActivity implements Sen
             backButtonView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    VectorCallViewActivity.this.onBackPressed();
+                    onBackPressed();
                 }
             });
 
@@ -625,16 +639,13 @@ public class VectorCallViewActivity extends RiotAppCompatActivity implements Sen
     }
 
     @Override
-    public void onRequestPermissionsResult(int aRequestCode, @NonNull String[] aPermissions, @NonNull int[] aGrantResults) {
-        if (aRequestCode == mPermissionCode) {
-
-            if (CommonActivityUtils.REQUEST_CODE_PERMISSION_VIDEO_IP_CALL == aRequestCode) {
-                // the user can only accept if the dedicated permissions are granted
-                mAcceptIncomingCallButton.setVisibility(CommonActivityUtils.onPermissionResultVideoIpCall(this, aPermissions, aGrantResults) ? View.VISIBLE : View.GONE);
-            } else {
-                // the user can only accept if the dedicated permissions are granted
-                mAcceptIncomingCallButton.setVisibility(CommonActivityUtils.onPermissionResultAudioIpCall(this, aPermissions, aGrantResults) ? View.VISIBLE : View.GONE);
-            }
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == PermissionsToolsKt.PERMISSION_REQUEST_CODE_VIDEO_CALL) {
+            // the user can only accept if the dedicated permissions are granted
+            mAcceptIncomingCallButton.setVisibility(PermissionsToolsKt.onPermissionResultVideoIpCall(this, grantResults) ? View.VISIBLE : View.GONE);
+        } else if (requestCode == PermissionsToolsKt.PERMISSION_REQUEST_CODE_AUDIO_CALL) {
+            // the user can only accept if the dedicated permissions are granted
+            mAcceptIncomingCallButton.setVisibility(PermissionsToolsKt.onPermissionResultAudioIpCall(this, grantResults) ? View.VISIBLE : View.GONE);
         }
     }
 
@@ -701,7 +712,7 @@ public class VectorCallViewActivity extends RiotAppCompatActivity implements Sen
             CallsManager.getSharedInstance().setCallActivity(this);
             CallSoundsManager.getSharedInstance(this).addAudioConfigurationListener(mAudioConfigListener);
         } else {
-            this.finish();
+            finish();
         }
     }
 
@@ -781,7 +792,7 @@ public class VectorCallViewActivity extends RiotAppCompatActivity implements Sen
             String roomId = mCall.getRoom().getRoomId();
 
             if (null != VectorApp.getCurrentActivity()) {
-                HashMap<String, Object> params = new HashMap<>();
+                Map<String, Object> params = new HashMap<>();
                 params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mMatrixId);
                 params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
                 CommonActivityUtils.goToRoomPage(VectorApp.getCurrentActivity(), mSession, params);
@@ -847,7 +858,7 @@ public class VectorCallViewActivity extends RiotAppCompatActivity implements Sen
     /**
      * Set the fading effect on the view above the UI video.
      *
-     * @param aOpacity      UTILS_OPACITY_FULL to fade out, UTILS_OPACITY_NONE to fade in
+     * @param aOpacity      UTILS_OPACITY_NONE to fade out, UTILS_OPACITY_FULL to fade in
      * @param aAnimDuration animation duration in milliseconds
      */
     private void fadeVideoEdge(final float aOpacity, int aAnimDuration) {
@@ -859,13 +870,16 @@ public class VectorCallViewActivity extends RiotAppCompatActivity implements Sen
 
         if (null != mButtonsContainerView) {
             if (aOpacity != mButtonsContainerView.getAlpha()) {
-                mButtonsContainerView.animate().alpha(aOpacity).setDuration(aAnimDuration).setInterpolator(new AccelerateInterpolator()).setListener(new AnimatorListenerAdapter() {
+                mButtonsContainerView.animate()
+                        .alpha(aOpacity)
+                        .setDuration(aAnimDuration)
+                        .setInterpolator(new AccelerateInterpolator()).setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
                         super.onAnimationEnd(animation);
 
                         // set to GONE after the fade out, so buttons can not not be accessed by the user
-                        if (CommonActivityUtils.UTILS_OPACITY_FULL == aOpacity) {
+                        if (ViewUtilKt.UTILS_OPACITY_NONE == aOpacity) {
                             mButtonsContainerView.setVisibility(View.GONE);
                         } else {
                             // restore visibility after fade in
@@ -881,14 +895,14 @@ public class VectorCallViewActivity extends RiotAppCompatActivity implements Sen
      * Remove the views (buttons settings + pending call view) above the video call with a fade out animation.
      */
     private void fadeOutVideoEdge() {
-        fadeVideoEdge(CommonActivityUtils.UTILS_OPACITY_FULL, FADE_OUT_DURATION);
+        fadeVideoEdge(ViewUtilKt.UTILS_OPACITY_NONE, FADE_OUT_DURATION);
     }
 
     /**
      * Restore the views (buttons settings + pending call view) above the video call with a fade in animation.
      */
     private void fadeInVideoEdge() {
-        fadeVideoEdge(CommonActivityUtils.UTILS_OPACITY_NONE, FADE_IN_DURATION);
+        fadeVideoEdge(ViewUtilKt.UTILS_OPACITY_FULL, FADE_IN_DURATION);
     }
 
     //==============================================================================================================
@@ -923,7 +937,7 @@ public class VectorCallViewActivity extends RiotAppCompatActivity implements Sen
             screenHeight -= actionBarHeight;
         }
 
-        View mMenuButtonsContainerView = VectorCallViewActivity.this.findViewById(R.id.hang_up_button);
+        View mMenuButtonsContainerView = findViewById(R.id.hang_up_button);
         ViewGroup.LayoutParams layout = mMenuButtonsContainerView.getLayoutParams();
 
         if (0 == mLocalVideoLayoutConfig.mWidth) {
@@ -981,7 +995,8 @@ public class VectorCallViewActivity extends RiotAppCompatActivity implements Sen
      */
     private void refreshMuteMicButton() {
         // update icon
-        int iconId = CallSoundsManager.getSharedInstance(this).isMicrophoneMute() ? R.drawable.ic_material_mic_off_pink_red : R.drawable.ic_material_mic_off_grey;
+        int iconId = CallSoundsManager.getSharedInstance(this).isMicrophoneMute() ? R.drawable.ic_material_mic_off_pink_red
+                : R.drawable.ic_material_mic_off_grey;
         mMuteMicImageView.setImageResource(iconId);
     }
 
@@ -990,7 +1005,8 @@ public class VectorCallViewActivity extends RiotAppCompatActivity implements Sen
      */
     public void refreshSpeakerButton() {
         // update icon
-        int iconId = CallSoundsManager.getSharedInstance(this).isSpeakerphoneOn() ? R.drawable.ic_material_speaker_phone_pink_red : R.drawable.ic_material_speaker_phone_grey;
+        int iconId = CallSoundsManager.getSharedInstance(this).isSpeakerphoneOn() ? R.drawable.ic_material_speaker_phone_pink_red
+                : R.drawable.ic_material_speaker_phone_grey;
         mSpeakerSelectionView.setImageResource(iconId);
     }
 
@@ -1113,7 +1129,7 @@ public class VectorCallViewActivity extends RiotAppCompatActivity implements Sen
                 if (mCall.isIncoming()) {
                     mCall.answer();
                     mIncomingCallTabbar.setVisibility(View.GONE);
-                 }
+                }
                 break;
             default:
                 // nothing to do..
@@ -1161,13 +1177,13 @@ public class VectorCallViewActivity extends RiotAppCompatActivity implements Sen
             try {
                 mField = PowerManager.class.getClass().getField("PROXIMITY_SCREEN_OFF_WAKE_LOCK").getInt(null);
             } catch (Throwable ignored) {
-                Log.e(LOG_TAG, "## initScreenManagement " + ignored.getMessage());
+                Log.e(LOG_TAG, "## initScreenManagement " + ignored.getMessage(), ignored);
             }
 
             PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
             mWakeLock = powerManager.newWakeLock(mField, getLocalClassName());
         } catch (Exception e) {
-            Log.e(LOG_TAG, "## initScreenManagement() : failed " + e.getMessage());
+            Log.e(LOG_TAG, "## initScreenManagement() : failed " + e.getMessage(), e);
         }
     }
 
@@ -1185,7 +1201,7 @@ public class VectorCallViewActivity extends RiotAppCompatActivity implements Sen
                 mIsScreenOff = true;
             }
         } catch (Exception e) {
-            Log.e(LOG_TAG, "## turnScreenOff() failed");
+            Log.e(LOG_TAG, "## turnScreenOff() failed", e);
         }
 
         // set the back light level to the minimum
@@ -1206,7 +1222,7 @@ public class VectorCallViewActivity extends RiotAppCompatActivity implements Sen
                 mWakeLock.release();
             }
         } catch (Exception e) {
-            Log.e(LOG_TAG, "## turnScreenOn() failed");
+            Log.e(LOG_TAG, "## turnScreenOn() failed", e);
         }
 
         mIsScreenOff = false;

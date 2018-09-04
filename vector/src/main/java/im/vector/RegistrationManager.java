@@ -49,7 +49,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import im.vector.activity.CommonActivityUtils;
+import im.vector.util.UrlUtilKt;
 
 public class RegistrationManager {
     private static final String LOG_TAG = RegistrationManager.class.getSimpleName();
@@ -101,10 +101,10 @@ public class RegistrationManager {
     private boolean mShowThreePidWarning;
 
     /*
-    * *********************************************************************************************
-    * Singleton
-    * *********************************************************************************************
-    */
+     * *********************************************************************************************
+     * Singleton
+     * *********************************************************************************************
+     */
 
     public static RegistrationManager getInstance() {
         if (sInstance == null) {
@@ -117,10 +117,10 @@ public class RegistrationManager {
     }
 
     /*
-    * *********************************************************************************************
-    * Public methods
-    * *********************************************************************************************
-    */
+     * *********************************************************************************************
+     * Public methods
+     * *********************************************************************************************
+     */
 
     /**
      * Reset singleton values to allow a new registration
@@ -213,6 +213,12 @@ public class RegistrationManager {
                 @Override
                 public void onRegistrationFailed(String message) {
                     listener.onUsernameAvailabilityChecked(!TextUtils.equals(MatrixError.USER_IN_USE, message));
+                }
+
+                @Override
+                public void onResourceLimitExceeded(MatrixError e) {
+                    // Should not happen, consider user is available, registration will fail later on
+                    listener.onUsernameAvailabilityChecked(true);
                 }
             });
         }
@@ -352,6 +358,11 @@ public class RegistrationManager {
                         listener.onRegistrationFailed(message);
                     }
                 }
+
+                @Override
+                public void onResourceLimitExceeded(MatrixError e) {
+                    listener.onResourceLimitExceeded(e);
+                }
             });
         } else {
             // TODO Report this fix in Riot
@@ -381,7 +392,7 @@ public class RegistrationManager {
         }
 
         RegistrationParams registrationParams = new RegistrationParams();
-        registrationParams.auth = getThreePidAuthParams(aClientSecret, CommonActivityUtils.removeUrlScheme(aIdentityServer),
+        registrationParams.auth = getThreePidAuthParams(aClientSecret, UrlUtilKt.removeUrlScheme(aIdentityServer),
                 aSid, LoginRestClient.LOGIN_FLOW_TYPE_EMAIL_IDENTITY, aSessionId);
 
         // Note: username, password and bind_email must not be set in registrationParams
@@ -403,6 +414,11 @@ public class RegistrationManager {
                 } else {
                     listener.onRegistrationFailed(message);
                 }
+            }
+
+            @Override
+            public void onResourceLimitExceeded(MatrixError e) {
+                listener.onResourceLimitExceeded(e);
             }
         });
     }
@@ -561,7 +577,7 @@ public class RegistrationManager {
                     publicKey = recaptchaParams.get(JSON_KEY_PUBLIC_KEY);
 
                 } catch (Exception e) {
-                    Log.e(LOG_TAG, "getCaptchaPublicKey: " + e.getLocalizedMessage());
+                    Log.e(LOG_TAG, "getCaptchaPublicKey: " + e.getLocalizedMessage(), e);
                 }
             }
         }
@@ -637,10 +653,10 @@ public class RegistrationManager {
     }
 
     /*
-    * *********************************************************************************************
-    * Private methods
-    * *********************************************************************************************
-    */
+     * *********************************************************************************************
+     * Private methods
+     * *********************************************************************************************
+     */
 
     /**
      * Get a login rest client
@@ -974,9 +990,11 @@ public class RegistrationManager {
                             RegistrationFlowResponse registrationFlowResponse = JsonUtils.toRegistrationFlowResponse(e.mErrorBodyAsString);
                             setRegistrationFlowResponse(registrationFlowResponse);
                         } catch (Exception castExcept) {
-                            Log.e(LOG_TAG, "JsonUtils.toRegistrationFlowResponse " + castExcept.getLocalizedMessage());
+                            Log.e(LOG_TAG, "JsonUtils.toRegistrationFlowResponse " + castExcept.getLocalizedMessage(), castExcept);
                         }
                         listener.onRegistrationFailed(ERROR_MISSING_STAGE);
+                    } else if (TextUtils.equals(e.errcode, MatrixError.RESOURCE_LIMIT_EXCEEDED)) {
+                        listener.onResourceLimitExceeded(e);
                     } else {
                         listener.onRegistrationFailed("");
                     }
@@ -986,22 +1004,24 @@ public class RegistrationManager {
     }
 
     /*
-    * *********************************************************************************************
-    * Private listeners
-    * *********************************************************************************************
-    */
+     * *********************************************************************************************
+     * Private listeners
+     * *********************************************************************************************
+     */
 
     private interface InternalRegistrationListener {
         void onRegistrationSuccess();
 
         void onRegistrationFailed(String message);
+
+        void onResourceLimitExceeded(MatrixError e);
     }
 
     /*
-    * *********************************************************************************************
-    * Public listeners
-    * *********************************************************************************************
-    */
+     * *********************************************************************************************
+     * Public listeners
+     * *********************************************************************************************
+     */
 
     public interface ThreePidRequestListener {
         void onThreePidRequested(ThreePid pid);
@@ -1027,5 +1047,7 @@ public class RegistrationManager {
         void onWaitingCaptcha();
 
         void onThreePidRequestFailed(String message);
+
+        void onResourceLimitExceeded(MatrixError e);
     }
 }

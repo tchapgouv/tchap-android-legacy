@@ -23,6 +23,7 @@ import android.graphics.Bitmap
 import android.os.Build
 import android.support.annotation.CallSuper
 import android.webkit.*
+import androidx.core.widget.toast
 import butterknife.BindView
 import com.google.gson.reflect.TypeToken
 import im.vector.Matrix
@@ -48,7 +49,7 @@ import java.util.*
  *
  * Layout MUST contains a WebView with ID 'widget_webview'
  */
-abstract class AbstractWidgetActivity : RiotAppCompatActivity() {
+abstract class AbstractWidgetActivity : VectorAppCompatActivity() {
 
     /* ==========================================================================================
      * UI
@@ -89,7 +90,7 @@ abstract class AbstractWidgetActivity : RiotAppCompatActivity() {
             }
 
             private fun onError(errorMessage: String) {
-                CommonActivityUtils.displayToast(this@AbstractWidgetActivity, errorMessage)
+                toast(errorMessage)
                 finish()
             }
 
@@ -135,7 +136,8 @@ abstract class AbstractWidgetActivity : RiotAppCompatActivity() {
                 }
 
                 override fun onConsoleMessage(consoleMessage: ConsoleMessage): Boolean {
-                    Log.e(LOG_TAG, "## onConsoleMessage() : " + consoleMessage.message() + " line " + consoleMessage.lineNumber() + " source Id " + consoleMessage.sourceId())
+                    Log.e(LOG_TAG, "## onConsoleMessage() : " + consoleMessage.message()
+                            + " line " + consoleMessage.lineNumber() + " source Id " + consoleMessage.sourceId())
                     return super.onConsoleMessage(consoleMessage)
                 }
             }
@@ -232,7 +234,7 @@ abstract class AbstractWidgetActivity : RiotAppCompatActivity() {
                 sendError(getString(R.string.widget_integration_failed_to_send_request), eventData)
             }
         } catch (e: Exception) {
-            Log.e(LOG_TAG, "## onWidgetMessage() : failed " + e.message)
+            Log.e(LOG_TAG, "## onWidgetMessage() : failed " + e.message, e)
             sendError(getString(R.string.widget_integration_failed_to_send_request), eventData)
         }
     }
@@ -304,7 +306,7 @@ abstract class AbstractWidgetActivity : RiotAppCompatActivity() {
                 mWebView.evaluateJavascript(functionLine, null)
             }
         } catch (e: Exception) {
-            Log.e(LOG_TAG, "## sendResponse() failed " + e.message)
+            Log.e(LOG_TAG, "## sendResponse() failed " + e.message, e)
         }
     }
 
@@ -341,7 +343,7 @@ abstract class AbstractWidgetActivity : RiotAppCompatActivity() {
             try {
                 jsString = "JSON.parse('" + JsonUtils.getGson(false).toJson(response) + "')"
             } catch (e: Exception) {
-                Log.e(LOG_TAG, "## sendObjectResponse() : toJson failed " + e.message)
+                Log.e(LOG_TAG, "## sendObjectResponse() : toJson failed " + e.message, e)
             }
 
         }
@@ -425,7 +427,7 @@ abstract class AbstractWidgetActivity : RiotAppCompatActivity() {
                     onWidgetMessage(objectAsMap)
                 }
             } catch (e: Exception) {
-                Log.e(LOG_TAG, "## onWidgetEvent() failed " + e.message)
+                Log.e(LOG_TAG, "## onWidgetEvent() failed " + e.message, e)
             }
 
         }
@@ -440,7 +442,7 @@ abstract class AbstractWidgetActivity : RiotAppCompatActivity() {
                                                private val mDescription: String) :
             ApiCallback<T> {
 
-        override fun onSuccess(info: T) {
+        override fun onSuccess(info: T?) {
             Log.d(LOG_TAG, "$mDescription succeeds")
             sendSuccess(mEventData)
         }

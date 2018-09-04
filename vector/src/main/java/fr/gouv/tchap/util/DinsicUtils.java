@@ -58,7 +58,7 @@ import java.util.Set;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
 import fr.gouv.tchap.activity.TchapLoginActivity;
-import im.vector.activity.RiotAppCompatActivity;
+import im.vector.activity.VectorAppCompatActivity;
 import im.vector.activity.VectorRoomActivity;
 import im.vector.adapters.ParticipantAdapterItem;
 import im.vector.contacts.Contact;
@@ -341,7 +341,7 @@ public class DinsicUtils {
      * @param canCreate create the direct chat if it does not exist.
      * @return boolean that says if the direct chat room is found or not
      */
-    public static boolean openDirectChat(final RiotAppCompatActivity activity, String participantId, final MXSession session, boolean canCreate) {
+    public static boolean openDirectChat(final VectorAppCompatActivity activity, String participantId, final MXSession session, boolean canCreate) {
         Room existingRoom = isDirectChatRoomAlreadyExist(participantId, session, true);
         boolean succeeded = false;
 
@@ -515,7 +515,7 @@ public class DinsicUtils {
      * @param session   the current session
      * @param selectedContact the selected contact
      */
-    public static void startDirectChat (final RiotAppCompatActivity activity, final MXSession session, final ParticipantAdapterItem selectedContact) {
+    public static void startDirectChat (final VectorAppCompatActivity activity, final MXSession session, final ParticipantAdapterItem selectedContact) {
         if (selectedContact.mIsValid) {
             // Tell if contact is tchap user
             if (MXSession.isUserId(selectedContact.mUserId)) {
@@ -578,7 +578,7 @@ public class DinsicUtils {
      * @param session       the current session
      * @param selectedUser  the selected tchap user
      */
-    public static void startDirectChat(final RiotAppCompatActivity activity, final MXSession session, User selectedUser) {
+    public static void startDirectChat(final VectorAppCompatActivity activity, final MXSession session, User selectedUser) {
         // Consider here that the provided id is a correct matrix identifier, we don't check again
         // Try first to open an existing direct chat
         if (!openDirectChat(activity, selectedUser.user_id, session, false)) {
@@ -623,9 +623,9 @@ public class DinsicUtils {
         // This information will be useful to consider or not the new joined room as a direct chat (see processDirectMessageRoom).
         RoomMember roomMember = room.getMember(session.getMyUserId());
         if (null != roomMember && null != roomMember.thirdPartyInvite && null == roomPreviewData.getRoomState()) {
-            if (null != room.getLiveState().memberWithThirdPartyInviteToken(roomMember.thirdPartyInvite.signed.token)) {
+            if (null != room.getState().memberWithThirdPartyInviteToken(roomMember.thirdPartyInvite.signed.token)) {
                 Log.d(LOG_TAG, "## joinRoom: save third party invites in the room preview.");
-                roomPreviewData.setRoomState(room.getLiveState());
+                roomPreviewData.setRoomState(room.getState());
             }
         }
 
@@ -654,14 +654,14 @@ public class DinsicUtils {
 
                 if (!isDirectInvite) {
                     // Consider here the 3rd party invites for which the is_direct flag is not available.
-                    Collection<RoomThirdPartyInvite> thirdPartyInvites = room.getLiveState().thirdPartyInvites();
+                    Collection<RoomThirdPartyInvite> thirdPartyInvites = room.getState().thirdPartyInvites();
                     // Consider the case where only one invite has been observed.
                     if (thirdPartyInvites.size() == 1) {
                         Log.d(LOG_TAG, "## onNewJoinedRoom(): Consider the third party invite");
                         RoomThirdPartyInvite invite = thirdPartyInvites.iterator().next();
 
                         // Check whether the user has accepted this third party invite or not
-                        RoomMember roomMember = room.getLiveState().memberWithThirdPartyInviteToken(invite.token);
+                        RoomMember roomMember = room.getState().memberWithThirdPartyInviteToken(invite.token);
                         if (null != roomMember && roomMember.getUserId().equals(myUserId)) {
                             isDirectInvite = true;
                         } else if (null != roomPreviewData.getRoomState()){

@@ -45,14 +45,13 @@ import im.vector.MyPresenceManager;
 import im.vector.PublicRoomsManager;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
-import im.vector.activity.RiotAppCompatActivity;
-import im.vector.fragments.AbsHomeFragment;
 import fr.gouv.tchap.fragments.TchapPublicRoomsFragment;
+import im.vector.activity.VectorAppCompatActivity;
 
 /**
  * List all the public rooms by considering all known room directories.
  */
-public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity implements android.support.v7.widget.SearchView.OnQueryTextListener {
+public class TchapPublicRoomSelectionActivity extends VectorAppCompatActivity implements android.support.v7.widget.SearchView.OnQueryTextListener {
 
     private static final String LOG_TAG = TchapPublicRoomSelectionActivity.class.getSimpleName();
 
@@ -61,7 +60,6 @@ public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity impl
 
     private static final String TAG_FRAGMENT_ROOMS = "TAG_FRAGMENT_ROOMS";
 
-
     @BindView(R.id.listView_spinner_views)
     View waitingView;
 
@@ -69,9 +67,6 @@ public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity impl
 
     @BindView(R.id.drawer_layout_public_room)
     DrawerLayout mDrawerLayout;
-
-    @BindView(R.id.home_recents_sync_in_progress)
-    ProgressBar mSyncInProgressView;
 
     @BindView(R.id.search_view)
     SearchView mSearchView;
@@ -119,6 +114,8 @@ public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity impl
         }
 
         this.setTitle(R.string.room_join_public_room_alt_title);
+
+        setWaitingView(waitingView);
 
         sharedInstance = this;
 
@@ -282,8 +279,8 @@ public class TchapPublicRoomSelectionActivity extends RiotAppCompatActivity impl
     private void applyFilter(final String pattern) {
         Fragment fragment = mFragmentManager.findFragmentByTag(TAG_FRAGMENT_ROOMS);
 
-        if (fragment instanceof AbsHomeFragment) {
-            ((AbsHomeFragment) fragment).applyFilter(pattern.trim());
+        if (fragment instanceof TchapPublicRoomsFragment) {
+            ((TchapPublicRoomsFragment) fragment).applyFilter(pattern.trim());
         }
 
         //TODO add listener to know when filtering is done and dismiss the keyboard

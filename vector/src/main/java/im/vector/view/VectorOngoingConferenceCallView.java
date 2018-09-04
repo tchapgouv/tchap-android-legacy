@@ -1,6 +1,7 @@
 /* 
  * Copyright 2016 OpenMarket Ltd
- * 
+ * Copyright 2018 New Vector Ltd
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,25 +25,23 @@ import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.UnderlineSpan;
 import android.util.AttributeSet;
-
-import org.matrix.androidsdk.call.IMXCallsManagerListener;
-import org.matrix.androidsdk.call.MXCallsManagerListener;
-import org.matrix.androidsdk.util.Log;
-
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import org.matrix.androidsdk.MXSession;
+import org.matrix.androidsdk.call.IMXCall;
+import org.matrix.androidsdk.call.IMXCallsManagerListener;
+import org.matrix.androidsdk.call.MXCallsManager;
+import org.matrix.androidsdk.call.MXCallsManagerListener;
+import org.matrix.androidsdk.data.Room;
+import org.matrix.androidsdk.util.Log;
+
+import java.util.List;
+
 import im.vector.R;
 import im.vector.widgets.Widget;
 import im.vector.widgets.WidgetsManager;
-
-import org.matrix.androidsdk.MXSession;
-import org.matrix.androidsdk.call.IMXCall;
-import org.matrix.androidsdk.call.MXCallsManager;
-import org.matrix.androidsdk.data.Room;
-
-import java.util.List;
 
 /**
  * This class displays if there is an ongoing conference call.
@@ -149,7 +148,7 @@ public class VectorOngoingConferenceCallView extends RelativeLayout {
                     try {
                         mCallClickListener.onVoiceCallClick(mActiveWidget);
                     } catch (Exception e) {
-                        Log.e(LOG_TAG, "## initView() : onVoiceCallClick failed " + e.getMessage());
+                        Log.e(LOG_TAG, "## initView() : onVoiceCallClick failed " + e.getMessage(), e);
                     }
                 }
             }
@@ -162,7 +161,7 @@ public class VectorOngoingConferenceCallView extends RelativeLayout {
                     try {
                         mCallClickListener.onVideoCallClick(mActiveWidget);
                     } catch (Exception e) {
-                        Log.e(LOG_TAG, "## initView() : onVideoCallClick failed " + e.getMessage());
+                        Log.e(LOG_TAG, "## initView() : onVideoCallClick failed " + e.getMessage(), e);
                     }
                 }
             }
@@ -203,7 +202,7 @@ public class VectorOngoingConferenceCallView extends RelativeLayout {
                     try {
                         mCallClickListener.onCloseWidgetClick(mActiveWidget);
                     } catch (Exception e) {
-                        Log.e(LOG_TAG, "## initView() : onCloseWidgetClick failed " + e.getMessage());
+                        Log.e(LOG_TAG, "## initView() : onCloseWidgetClick failed " + e.getMessage(), e);
                     }
                 }
             }
@@ -244,7 +243,7 @@ public class VectorOngoingConferenceCallView extends RelativeLayout {
                     try {
                         mCallClickListener.onActiveWidgetUpdate();
                     } catch (Exception e) {
-                        Log.e(LOG_TAG, "## refresh() : onActiveWidgetUpdate failed " + e.getMessage());
+                        Log.e(LOG_TAG, "## refresh() : onActiveWidgetUpdate failed " + e.getMessage(), e);
                     }
                 }
             }
@@ -253,7 +252,8 @@ public class VectorOngoingConferenceCallView extends RelativeLayout {
             setVisibility(((!MXCallsManager.isCallInProgress(call) && mRoom.isOngoingConferenceCall()) || (null != mActiveWidget)) ? View.VISIBLE : View.GONE);
 
             // show the close widget button if the user is allowed to do it
-            mCloseWidgetIcon.setVisibility(((null != mActiveWidget) && (null == WidgetsManager.getSharedInstance().checkWidgetPermission(mSession, mRoom))) ? View.VISIBLE : View.GONE);
+            mCloseWidgetIcon.setVisibility(((null != mActiveWidget) && (null == WidgetsManager.getSharedInstance().checkWidgetPermission(mSession, mRoom))) ?
+                    View.VISIBLE : View.GONE);
         }
     }
 

@@ -19,14 +19,14 @@ package im.vector.activity;
 
 import android.content.Intent;
 
-import org.matrix.androidsdk.data.RoomMediaMessage;
-import org.matrix.androidsdk.util.Log;
-
 import org.matrix.androidsdk.MXSession;
+import org.matrix.androidsdk.data.RoomMediaMessage;
 import org.matrix.androidsdk.util.ContentUtils;
+import org.matrix.androidsdk.util.Log;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import fr.gouv.tchap.activity.NotificationListenerDetectionActivity;
 import fr.gouv.tchap.activity.TchapLoginActivity;
@@ -36,7 +36,7 @@ import im.vector.R;
 /**
  * Dummy activity used to manage the shared
  */
-public class VectorSharedFilesActivity extends RiotAppCompatActivity {
+public class VectorSharedFilesActivity extends VectorAppCompatActivity {
     private static final String LOG_TAG = VectorSharedFilesActivity.class.getSimpleName();
 
     private final String SHARED_FOLDER = "VectorShared";
@@ -71,7 +71,7 @@ public class VectorSharedFilesActivity extends RiotAppCompatActivity {
                         isLaunched = session.getDataHandler().getStore().isReady();
                     }
                 } catch (Exception e) {
-                    Log.e(LOG_TAG, "## onCreate() : failed " + e.getMessage());
+                    Log.e(LOG_TAG, "## onCreate() : failed " + e.getMessage(), e);
                 }
 
                 // go to the home screen if the application is launched
@@ -120,7 +120,7 @@ public class VectorSharedFilesActivity extends RiotAppCompatActivity {
 
         sharedFolder.mkdir();
 
-        ArrayList<RoomMediaMessage> cachedFiles = new ArrayList<>(RoomMediaMessage.listRoomMediaMessages(intent));
+        List<RoomMediaMessage> cachedFiles = new ArrayList<>(RoomMediaMessage.listRoomMediaMessages(intent));
 
         if (null != cachedFiles) {
             for (RoomMediaMessage sharedDataItem : cachedFiles) {
@@ -143,7 +143,7 @@ public class VectorSharedFilesActivity extends RiotAppCompatActivity {
         if (0 != cachedFiles.size()) {
             Intent shareIntent = new Intent();
             shareIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
-            shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, cachedFiles);
+            shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, (ArrayList) cachedFiles);
             shareIntent.setExtrasClassLoader(RoomMediaMessage.class.getClassLoader());
             shareIntent.setType("*/*");
 

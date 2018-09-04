@@ -1,17 +1,111 @@
-Changes in Riot 0.8.11 (2018-XX-XX)
+Changes in Riot 0.8.14 (2018-XX-XX)
 ===================================================
 
 Features:
- -
+ - Manage server quota notices (#2440)
 
 Improvements:
- -
+ - Do not ask permission to write external storage at startup (#2483)
+ - Update settings icon and transparent logo for notifications and navigation drawer (#2492)
+ - URL previews are no longer requested from the server when displaying URL previews is disabled (PR #2514)
+ - Fix some plural and puzzle strings, and remove other unused ones (#2444)
+ - Manage System Alerts in a dedicated section
+
+Other changes:
+ - Upgrade olm-sdk.aar from version 2.2.2 to version 2.3.0
+ - move PieFractionView from the SDK to the client (#2525)
 
 Bugfix:
- -
+ - Fix media sharing (#2530)
+ - Fix notification sound issue in settings (#2524)
+ - Disable app icon badge for "listen for event" notification (#2104)
 
 Translations:
  -
+
+Build:
+ -
+
+Changes in Riot 0.8.13 (2018-08-09)
+===================================================
+
+Features:
+ - Resurrect performance metrics (#2391)
+ - Telemetry to report incidence of UISIs (#2330)
+ - Add a previewer for previewing media before sending it into the room (#1742|#2445)
+ - Implements ReplyTo feature (#2390)
+ - Add auto completion for slash commands (#2384)
+ - Support Room Versioning (#2441)
+
+Improvements:
+ - Update matrix-sdk.aar lib (v0.9.7).
+ - Piwik: Update the way how stats are reported (#2402)
+ - Improve BugReport screen: display a preview of the screenshot (#2318)
+ - In the settings, move theme settings just below "language" (#2439)
+ - Improve the display of the sources of the message in the dialog (#2348)
+ - Improve the display of the buttons and the reason in the room preview (#2352)
+ - In the flair section on settings, notify the user when he has no flair (#2430)
+ - Improve GDPR consent webview management (#2491)
+ - Support external keyboard to send messages for recent devices (#220, #1279)
+ - When user ignores or un-ignores someone, notify that the app will restart (#2437)
+
+Other changes:
+ - Remove dependency to `android-gif-drawable` lib and use Glide to animate logo on Splashscreen (#2421)
+ - Keep only Room.getState() method and remove Room.getLiveState() because they are similar (matrix-org/matrix-android-sdk#310)
+
+Bugfix:
+ - Fix issue on incoming call screen when "Do not disturb mode" is active (#2417)
+ - Fix issue when selecting sound for notifications in the settings
+ - Fix issue when changing device name in the settings (#2416)
+ - Fix issue on verifying device, update the wording of the description message (#1067)
+ - Messages with code blocks show other HTML as plain text (#2280)
+ - Message with <p> was sometimes not properly formatted (#2275)
+ - Fix notification issue when Riot is not started (#2451)
+ - Fix Unable to add Matrix apps (#2466)
+ - Riot auto joined a public room (#2472)
+ - Remove last traces of Firebase analytics (#2481)
+ - code blocks are escaped and therefore hard readable (#2484)
+ - Restore the navigation of the back button in the public rooms preview header (#2473)
+ - Fix issue on preference screen: device lists was not displayed (#2409)
+ - Ensure notification has a title (#2242)
+
+Changes in Riot 0.8.12 (2018-07-06)
+===================================================
+
+Bugfix:
+ - Fix issue on vanished favorite and low priority room (#2413)
+
+Changes in Riot 0.8.11 (2018-07-03)
+===================================================
+
+Features:
+ - Re-request keys manually for encrypted events (#2319)
+ - Add option to send voice message to a room, using a third application to record message.
+   To enable in the Labs settings (PR #1762)
+
+Improvements:
+ - Update matrix-sdk.aar lib (v0.9.6).
+ - New Floating Action Menu in Home screen (PR #2335)
+ - Add spacing to device keys (#2314)
+ - use apply() instead of commit() to save shared prefs (#2231)
+ - Do not ring if "Do Not Disturb" is active (#1072)
+ - Manage the "consent not given" error when declining a room invite
+
+Other changes:
+ - Remove "Matrix application" activation from the Lab section in the settings (#2341)
+
+Bugfix:
+ - Remove black borders on 18:9 phone (#2063)
+ - Auto dismiss the join/reject room notification when user select an action (#2354)
+ - Fix some crashes reported by the PlayStore (#2380, #2382, #2383, #2395)
+ - Fix issues in UrlPreviews (#2312)
+
+Translations:
+ - Galician thanks to Miguel Branco
+
+Build:
+ - Add script to check code quality
+ - Travis will now check if CHANGES.rst has been modified for each PR
 
 Changes in Riot 0.8.10 (2018-01-06)
 ===================================================

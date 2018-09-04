@@ -88,6 +88,7 @@ import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.FallbackLoginActivity;
 import im.vector.activity.MXCActionBarActivity;
 import im.vector.activity.SplashActivity;
+import im.vector.dialogs.ResourceLimitDialogHelper;
 import im.vector.receiver.VectorRegistrationReceiver;
 import im.vector.receiver.VectorUniversalLinkReceiver;
 import im.vector.services.EventStreamService;
@@ -270,6 +271,8 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             }
         }
     };
+
+    private ResourceLimitDialogHelper mResourceLimitDialogHelper;
 
     private boolean mIsWaitingNetworkConnection = false;
 
@@ -455,9 +458,14 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             }
         });
 
-        if (!isFirstCreation()) {
-            restoreSavedData(getSavedInstanceState());
+        if (isFirstCreation()) {
+            mResourceLimitDialogHelper = new ResourceLimitDialogHelper(this, null);
+        } else {
+            final Bundle savedInstanceState = getSavedInstanceState();
+            mResourceLimitDialogHelper = new ResourceLimitDialogHelper(this, savedInstanceState);
+            restoreSavedData(savedInstanceState);
         }
+        addToRestorables(mResourceLimitDialogHelper);
 
         refreshDisplay();
 
@@ -512,15 +520,14 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
      * ========================================================================================== */
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public int getMenuRes() {
         switch (mMode) {
             case MODE_ACCOUNT_CREATION:
             case MODE_LOGIN:
-                getMenuInflater().inflate(R.menu.tchap_menu_next, menu);
-                break;
+                return R.menu.tchap_menu_next;
         }
 
-        return super.onCreateOptionsMenu(menu);
+        return -1;
     }
 
     @Override
@@ -984,32 +991,37 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
      * @param matrixError the matrix error
      */
     private void onFailureDuringAuthRequest(MatrixError matrixError) {
-        String message = matrixError.getLocalizedMessage();
         enableLoadingScreen(false);
 
-        // detect if it is a Matrix SDK issue
-        String errCode = matrixError.errcode;
+        final String errCode = matrixError.errcode;
 
-        if (null != errCode) {
+        if (MatrixError.RESOURCE_LIMIT_EXCEEDED.equals(errCode)) {
+            Log.e(LOG_TAG, "## onFailureDuringAuthRequest(): RESOURCE_LIMIT_EXCEEDED");
+            mResourceLimitDialogHelper.displayDialog(matrixError);
+        } else {
+            final String message;
+
             if (TextUtils.equals(errCode, MatrixError.FORBIDDEN)) {
-                message = getResources().getString(R.string.login_error_forbidden);
+                message = getString(R.string.login_error_forbidden);
             } else if (TextUtils.equals(errCode, MatrixError.UNKNOWN_TOKEN)) {
-                message = getResources().getString(R.string.login_error_unknown_token);
+                message = getString(R.string.login_error_unknown_token);
             } else if (TextUtils.equals(errCode, MatrixError.BAD_JSON)) {
-                message = getResources().getString(R.string.login_error_bad_json);
+                message = getString(R.string.login_error_bad_json);
             } else if (TextUtils.equals(errCode, MatrixError.NOT_JSON)) {
-                message = getResources().getString(R.string.login_error_not_json);
+                message = getString(R.string.login_error_not_json);
             } else if (TextUtils.equals(errCode, MatrixError.LIMIT_EXCEEDED)) {
-                message = getResources().getString(R.string.login_error_limit_exceeded);
+                message = getString(R.string.login_error_limit_exceeded);
             } else if (TextUtils.equals(errCode, MatrixError.USER_IN_USE)) {
-                message = getResources().getString(R.string.login_error_user_in_use);
+                message = getString(R.string.login_error_user_in_use);
             } else if (TextUtils.equals(errCode, MatrixError.LOGIN_EMAIL_URL_NOT_YET)) {
-                message = getResources().getString(R.string.login_error_login_email_not_yet);
+                message = getString(R.string.login_error_login_email_not_yet);
+            } else {
+                message = matrixError.getLocalizedMessage();
             }
-        }
 
-        Log.e(LOG_TAG, "## onFailureDuringAuthRequest(): Msg= \"" + message + "\"");
-        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+            Log.e(LOG_TAG, "## onFailureDuringAuthRequest(): Msg= \"" + message + "\"");
+            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+        }
     }
 
     /**
@@ -2167,6 +2179,12 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 createAccount();
             }
         }*/
+    }
+
+    @Override
+    public void onResourceLimitExceeded(MatrixError e) {
+        enableLoadingScreen(false);
+        mResourceLimitDialogHelper.displayDialog(e);
     }
 
 

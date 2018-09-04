@@ -2,8 +2,8 @@
 <resources>
     <!-- use to retrieve the supported languages list -->
     <!-- should the same value as the file name -->
-    <string name="resouces_language">nl</string>
-    <string name="resouces_country">VS</string>
+    <string name="resources_language">nl</string>
+    <string name="resources_country_code">VS</string>
 
     <!-- titles -->
     <string name="title_activity_home">Berichten</string>
@@ -43,7 +43,6 @@
     <string name="room_no_conference_call_in_encrypted_rooms">Vergadergesprekken zijn niet ondersteund in versleutelde ruimtes</string>
     <string name="send_anyway">Toch sturen</string>
     <string name="or">of</string>
-    <string name="and">en</string>
     <string name="invite">Uitnodigen</string>
 
     <!-- actions -->
@@ -105,7 +104,7 @@ Selecteer exporteren om de versleutelingssleutels op te slaan voordat je uitlogt
     <string name="send_bug_report">Foutmelding</string>
     <string name="send_bug_report_description">Beschrijf de fout. Wat deed je? Wat verwachtte je dat er zou gebeuren? Wat gebeurde er echt?</string>
     <string name="send_bug_report_placeholder">Beschrijf hier je probleem</string>
-    <string name="send_bug_report_logs_description">Om het probleem te kunnen diagnoseren, worden logboeken van deze applicatie met de foutmelding verstuurd. Als je liever alleen de bovenstaande tekst verstuurd, haal dan het vinkje weg:</string>
+    <string name="send_bug_report_logs_description">Om het probleem te kunnen diagnosticeren, worden logboeken van deze applicatie met de foutmelding verstuurd. Deze foutmelding, inclusief de logboeken en schermafbeelding, zullen niet publiekelijk zichtbaar zijn. Als je liever alleen de bovenstaande tekst verstuurt, haal dan het vinkje weg:</string>
     <string name="send_bug_report_alert_message">Het ziet er naar uit dat je de telefoon in frustratie schudt. Wil je een foutmelding indienen?</string>
     <string name="send_bug_report_sent">De foutmelding is succesvol verstuurd</string>
     <string name="send_bug_report_failed">Het is niet gelukt de foutmelding te versturen (%s)</string>
@@ -113,7 +112,7 @@ Selecteer exporteren om de versleutelingssleutels op te slaan voordat je uitlogt
     <string name="send_bug_report_app_crashed">De applicatie was de vorige keer gecrasht. Wil je een foutmelding indienen?</string>
 
     <string name="send_files_in">Versturen als</string>
-    <string name="read_receipt">Lees</string>
+    <string name="read_receipt">Gelezen</string>
 
     <string name="join_room">Ruimte toetreden</string>
     <string name="username">Gebruikersnaam</string>
@@ -122,8 +121,6 @@ Selecteer exporteren om de versleutelingssleutels op te slaan voordat je uitlogt
     <string name="logout">Uitloggen</string>
     <string name="hs_url">Thuisserver URL</string>
     <string name="identity_url">Identiteit server URL</string>
-    <string name="user">gebruiker</string>
-    <string name="users">gebruikers</string>
     <string name="search">Zoek</string>
 
     <string name="start_new_chat">Start Nieuwe Chat</string>
@@ -200,7 +197,9 @@ Selecteer exporteren om de versleutelingssleutels op te slaan voordat je uitlogt
     <string name="login_error_login_email_not_yet">Er is nog niet op de link in de e-mail geklikt</string>
 
     <!-- crypto warnings -->
-    <string name="e2e_need_log_in_again">Je moet opnieuw inloggen om eind-tot-eind versleuteling sleutels te genereren voor dit apparaat en om de publieke sleutel naar de thuisserver te sturen.\nDit is eenmalig.\nExcuses voor het ongemak.</string>
+    <string name="e2e_need_log_in_again">Je moet opnieuw inloggen om end-to-endbeveiligingssleutels te genereren voor dit apparaat en om de publieke sleutel naar de thuisserver te sturen.
+Dit is eenmalig.
+Excuses voor het ongemak.</string>
 
     <!-- read receipts list Screen -->
     <string name="read_receipts_list">Gelezen berichten</string>
@@ -264,7 +263,7 @@ Sta toegang toe op de volgende pop-up om bestanden vanaf je telefoon te sturen.<
 
     <!-- medias slider string -->
     <string name="media_slider_saved">Opgeslagen</string>
-    <string name="media_slider_saved_message">In downloads opslaan</string>
+    <string name="media_slider_saved_message">In downloads opslaan?</string>
     <string name="yes">JA</string>
     <string name="no">NEE</string>
     <string name="_continue">Ga verder</string>
@@ -290,13 +289,13 @@ Sta toegang toe op de volgende pop-up om bestanden vanaf je telefoon te sturen.<
     <string name="room_creation_add_member">Deelnemer toevoegen</string>
     <string name="room_title_one_member">1 deelnemer</string>
     <string name="room_e2e_alert_title">Waarschuwing!</string>
-    <string name="room_e2e_alert_message">Eind-tot-eind versleuteling is nog in beta en kan onbetrouwbaar zijn.\n\nHet is beter om het nog niet met gevoelige gegevens te vertrouwen.\n\nApparaten kunnen nog niet de geschiedenis van voordat ze de ruimte betraden ontsleutelen.\n\nVersleutelde berichten zullen nog niet zichtbaar zijn op applicaties die geen versleuteling ondersteunen.</string>
+    <string name="room_e2e_alert_message">End-to-endbeveiliging is in bèta en kan onbetrouwbaar zijn.
 
-    <!--  Time -->
-    <string name="format_time_s">s</string>
-    <string name="format_time_m">m</string>
-    <string name="format_time_h">u</string>
-    <string name="format_time_d">d</string>
+Het is beter om het nog niet met gevoelige gegevens te vertrouwen.
+
+Apparaten kunnen de geschiedenis van voordat ze de ruimte betraden nog niet ontsleutelen.
+
+Versleutelde berichten zullen nog niet zichtbaar zijn op programma\'s die geen versleuteling ondersteunen.</string>
 
     <!--  Chat participants -->
     <string name="room_participants_leave_prompt_title">Ruimte verlaten</string>
@@ -307,8 +306,6 @@ Sta toegang toe op de volgende pop-up om bestanden vanaf je telefoon te sturen.<
     <string name="room_participants_online">Online</string>
     <string name="room_participants_offline">Offline</string>
     <string name="room_participants_idle">Afwezig</string>
-    <string name="room_participants_now">nu</string>
-    <string name="room_participants_ago">geleden</string>
 
     <string name="room_participants_header_admin_tools">BEHEERDER GEREEDSCHAPPEN</string>
     <string name="room_participants_header_call">OPROEP</string>
@@ -378,14 +375,15 @@ Sta toegang toe op de volgende pop-up om bestanden vanaf je telefoon te sturen.<
     <string name="room_details_people">Personen</string>
     <string name="room_details_files">Bestanden</string>
     <string name="room_details_settings">Instellingen</string>
-    <string name="room_details_selected">geselecteerd</string>
     <string name="malformed_id">Incorrecte ID. Het moet een e-mailadres of een Matrix ID moeten zijn dat lijkt op \'@localpart:domein\'</string>
     <string name="room_details_people_invited_group_name">UITGENODIGD</string>
     <string name="room_details_people_present_group_name">TOEGETREDEN</string>
 
     <!-- Room events -->
     <string name="room_event_action_report_prompt_reason">Reden voor het aangeven van deze content</string>
-    <string name="room_event_action_report_prompt_ignore_user">Wil je alle berichten van deze gebruiker onzichtbaar maken?</string>
+    <string name="room_event_action_report_prompt_ignore_user">Wil je alle berichten van deze gebruiker onzichtbaar maken?
+
+Let op: deze actie zal de app opnieuw opstarten, en kan enige tijd kosten.</string>
     <string name="room_event_action_cancel_upload">Upload annuleren</string>
     <string name="room_event_action_cancel_download">Download annuleren</string>
 
@@ -419,8 +417,6 @@ Sta toegang toe op de volgende pop-up om bestanden vanaf je telefoon te sturen.<
 
     <!-- Directory -->
     <string name="directory_search_results_title">Adresboek doorbladeren</string>
-    <string name="directory_search_room">%1$d ruimte</string>
-    <string name="directory_search_room_for">%1$d ruimte gevonden voor %2$s</string>
     <string name="directory_searching_title">Adresboek doorzoeken..</string>
 
     <!-- home room settings -->
@@ -522,7 +518,9 @@ Sta toegang toe op de volgende pop-up om bestanden vanaf je telefoon te sturen.<
     <string name="settings_confirm_password">wachtwoord bevestigen</string>
     <string name="settings_fail_to_update_password">Wachtwoord wijziging is mislukt</string>
     <string name="settings_password_updated">Je wachtwoord is gewijzigd</string>
-    <string name="settings_unignore_user">Alle berichten van %s laten zien?</string>
+    <string name="settings_unignore_user">Alle berichten van %s laten zien?
+
+Let op: deze actie zal de app opnieuw opstarten, en kan enige tijd kosten.</string>
 
     <string name="settings_delete_notification_targets_confirmation">Weet je zeker dat je dit notificatiedoel wilt verwijderen?</string>
 
@@ -570,7 +568,7 @@ Sta toegang toe op de volgende pop-up om bestanden vanaf je telefoon te sturen.<
     <string name="room_settings_read_history_entry_anyone">Iedereen</string>
     <string name="room_settings_read_history_entry_members_only_option_time_shared">Alleen deelnemers (vanaf de tijd dat deze optie is geselecteerd)</string>
     <string name="room_settings_read_history_entry_members_only_invited">Alleen deelnemers (vanaf de tijd dat ze worden uitgenodigd)</string>
-    <string name="room_settings_read_history_entry_members_only_joined">Alleen deelnemers (vanaf de tijd dat ze deelnemen)</string>
+    <string name="room_settings_read_history_entry_members_only_joined">Alleen deelnemers (vanaf de tijd dat ze toetreden)</string>
 
     <!-- Room settings: "Who can access this room?" (access rule) -->
     <string name="room_settings_room_access_warning">Om naar een ruimte te verwijzen moeten het een adres hebben.</string>
@@ -587,9 +585,9 @@ Sta toegang toe op de volgende pop-up om bestanden vanaf je telefoon te sturen.<
     <string name="room_settings_addresses_pref_title">Adressen</string>
     <string name="room_settings_labs_pref_title">Labs</string>
     <string name="room_settings_labs_warning_message">Dit zijn experimentele functies die op onverwachte manieren kunnen breken. Wees behoedzaam bij het gebruik van deze functies.</string>
-    <string name="room_settings_labs_end_to_end">Eind-tot-Eind Versleuteling</string>
+    <string name="room_settings_labs_end_to_end">End-to-endbeveiliging</string>
     <string name="room_settings_labs_end_to_end_warnings">Je moet uitloggen om de versleuteling aan te zetten.</string>
-    <string name="room_settings_labs_end_to_end_is_active">Eind-tot-Eind versleuteling is actief</string>
+    <string name="room_settings_labs_end_to_end_is_active">End-to-endbeveiliging is actief</string>
     <string name="room_settings_never_send_to_unverified_devices_title">Alleen naar geverifieerde apparaten versturen</string>
     <string name="room_settings_never_send_to_unverified_devices_summary">Nooit in deze ruimte niet geverifieerde apparaten berichten sturen vanaf dit apparaat.</string>
 
@@ -611,7 +609,15 @@ Sta toegang toe op de volgende pop-up om bestanden vanaf je telefoon te sturen.<
     <string name="room_settings_addresses_e2e_disabled">Versleuteling is uit in deze ruimte.</string>
     <string name="room_settings_addresses_e2e_encryption_warning">Zet versleuteling aan \n(waarschuwing: dit kan niet meer uitgezet worden!)</string>
     <string name="room_settings_addresses_e2e_prompt_title">Waarschuwing!</string>
-    <string name="room_settings_addresses_e2e_prompt_message">Eind-tot-eind versleuteling is experimenteel en kan onbetrouwbaar zijn.\n\nHet is beter om het nog niet met gevoelige gegevens te vertrouwen.\n\nApparaten kunnen nog niet de geschiedenis van voordat ze de ruimte betraden kunnen ontsleutelen.\n\nZodra de versleuteling aan staat kan het niet meer worden uitgezet (voor nu).\n\nVersleutelde berichten zullen nog niet zichtbaar zijn op applicaties die geen versleuteling ondersteunen.</string>
+    <string name="room_settings_addresses_e2e_prompt_message">End-to-endbeveiliging is experimenteel en kan onbetrouwbaar zijn.
+
+Het is beter om het nog niet met gevoelige gegevens te vertrouwen.
+
+Apparaten kunnen de geschiedenis van voordat ze de ruimte betraden nog niet ontsleutelen.
+
+Zodra de versleuteling aan staat kan het (voorlopig) niet worden uitgezet.
+
+Versleutelde berichten zullen nog niet zichtbaar zijn op programma\'s die geen versleuteling ondersteunen.</string>
 
     <!-- Directory -->
     <string name="directory_title">Adresboek</string>
@@ -620,12 +626,12 @@ Sta toegang toe op de volgende pop-up om bestanden vanaf je telefoon te sturen.<
     <string name="failed_to_load_timeline_position">%s probeerde een specifiek punt in de geschiedenis van deze ruimte te laden, maar kon het niet vinden.</string>
 
     <!-- encryption dialog -->
-    <string name="encryption_information_title">Eind-tot-eind versleuteling informatie</string>
+    <string name="encryption_information_title">Informatie over end-to-endbeveilig</string>
 
-    <string name="encryption_information_device_info">Evenement informatie</string>
-    <string name="encryption_information_user_id">Gebruiker id</string>
-    <string name="encryption_information_curve25519_identity_key">Curve25519 identiteitssleutel</string>
-    <string name="encryption_information_claimed_ed25519_fingerprint_key">Geclaimde Ed25519 vingerafdrukssleutel</string>
+    <string name="encryption_information_device_info">Evenementsinformatie</string>
+    <string name="encryption_information_user_id">Gebruikers-ID</string>
+    <string name="encryption_information_curve25519_identity_key">Curve25519-identiteitssleutel</string>
+    <string name="encryption_information_claimed_ed25519_fingerprint_key">Geclaimde Ed25519-sleutel-vingerafdruk</string>
     <string name="encryption_information_algorithm">Algoritme</string>
     <string name="encryption_information_session_id">Sessie ID</string>
     <string name="encryption_information_decryption_error">Ontsleutelingsfout</string>
@@ -667,12 +673,13 @@ Sta toegang toe op de volgende pop-up om bestanden vanaf je telefoon te sturen.<
 
     <string name="encryption_information_verify_device">Verifïeer apparaat</string>
     <string name="encryption_information_verify_device_warning"> Om te verifïeren dat dit apparaat vertrouwd kan worden, contacteer de eigenaar via een andere methode (bijv. persoonlijk of via een telefoontje) en vraag diegene of de sleutel die ze zien in hun Gebruikersinstellingen van dit apparaat overeenkomt met de sleutel hieronder:</string>
-    <string name="encryption_information_verify_device_warning2">Als het overeenkomt, druk op de verifïeren knop hieronder. Als het niet overeenkomt, dan onderschept iemand anders het apparaat en wil je waarschijnlijk in plaats daar van op de blokkeren knop drukken.\nIn de toekomst zal dit verificatie proces wat meer worden vermakkelijkt.</string>
+    <string name="encryption_information_verify_device_warning2">Als het overeenkomt, druk op de knop \'verifiëren\' hieronder. Als het niet overeenkomt, dan onderschept iemand anders het apparaat en hoor je deze te blokkeren.
+In de toekomst zal dit verificatieproces wat makkelijker gemaakt worden.</string>
     <string name="encryption_information_verify_key_match">Ik verifïeer dat de sleutels overeenkomen</string>
 
-    <string name="e2e_enabling_on_app_update">Riot ondersteund nu eind-tot-eind versleuteling maar je moet opnieuw inloggen om het aan te zetten.
+    <string name="e2e_enabling_on_app_update">Riot ondersteunt nu end-to-endbeveiliging maar je moet opnieuw inloggen om het aan te zetten.
 
-Je kan het nu of later doen vanaf de applicatie instellingen.</string>
+Je kan het nu, of later, doen vanuit de programma-instellingen.</string>
 
     <!-- unknown devices management -->
     <string name="unknown_devices_alert_title">Deze ruimte bevat onbekende apparaten</string>
@@ -742,7 +749,7 @@ Je kan het nu of later doen vanaf de applicatie instellingen.</string>
     <string name="settings_labs_create_conference_with_jitsi">Maak vergadergesprekken met jitsi</string>
     <string name="widget_delete_message_confirmation">Weet je zeker dat je deze widget wilt verwijderen?</string>
 
-    // Widget Integration Manager
+    <!-- Widget Integration Manager -->
     <string name="widget_integration_unable_to_create">Niet mogelijk om de widget te maken.</string>
     <string name="widget_integration_failed_to_send_request">Niet gelukt om een verzoek te verzenden.</string>
     <string name="widget_integration_positive_power_level">Het machtsniveau moet een positief en heel getal zijn.</string>
@@ -771,22 +778,22 @@ Je kan het nu of later doen vanaf de applicatie instellingen.</string>
 
     <string name="settings_labs_native_camera">Gebruik de systeem camera</string>
 
-    // share keys
+    <!-- share keys -->
     <string name="you_added_a_new_device">Je hebt een nieuw apparaat toegevoegd \'%s\', dat versleutelingssleutels aanvraagt.</string>
     <string name="your_unverified_device_requesting">Je niet geverifieerde apparaat \'%s\' vraagt versleutelingssleutels aan.</string>
     <string name="start_verification">Verificatie starten</string>
     <string name="share_without_verifying">Delen zonder te verifiëren</string>
     <string name="ignore_request">Verzoek negeren</string>
 
-    // conference call
+    <!-- conference call -->
     <string name="conference_call_warning_title">Waarschuwing!</string>
     <string name="conference_call_warning_message">Vergadergesprekken zijn in ontwikkeling en kunnen dus kuren vertonen.</string>
 
-    // slash commands
+    <!-- slash commands -->
     <string name="command_error">Besturingssignaal fout</string>
     <string name="unrecognized_command">Onbekend besturingssignaal: %s</string>
 
-    // notification statuses
+    <!-- notification statuses -->
     <string name="notification_off">Uit</string>
     <string name="notification_on">Aan</string>
     <string name="notification_noisy">Luidruchtig</string>
@@ -886,7 +893,7 @@ Je kan het nu of later doen vanaf de applicatie instellingen.</string>
 	<item quantity="other">%d actieve widgets</item>
 </plurals>
 
-    // Widget Integration Manager
+    <!-- Widget Integration Manager -->
     <string name="create">Creëer</string>
     <string name="create_community">Gemeenschap Aanmaken</string>
     <string name="community_name">Gemeenschapsnaam</string>
@@ -894,7 +901,7 @@ Je kan het nu of later doen vanaf de applicatie instellingen.</string>
     <string name="community_id">Gemeenschaps-ID</string>
     <string name="community_id_hint">voorbeeld</string>
 
-    // group details
+    <!-- group details -->
     <string name="group_details_home">Home</string>
     <string name="group_details_people">Personen</string>
     <string name="group_details_rooms">Ruimtes</string>
@@ -906,11 +913,6 @@ Je kan het nu of later doen vanaf de applicatie instellingen.</string>
     <string name="filter_group_members">Groepsleden filteren</string>
     <string name="filter_group_rooms">Groepsruimtes filteren</string>
 
-    <string name="group_one_member">1 lid</string>
-    <string name="group_members">%d leden</string>
-
-    <string name="group_one_room">1 ruimte</string>
-    <string name="group_rooms">%d ruimtes</string>
     <string name="group_no_long_description">De gemeenschapsadministrator heeft geen lange beschrijving gegeven voor deze gemeenschap.</string>
 
     <string name="has_been_kicked">Je bent uit %1$s gezet door %2$s</string>
@@ -975,5 +977,56 @@ De zichtbaarheid van berichten in Matrix is hetzelfde als in e-mail. Het vergete
     <string name="deactivate_account_delete_checkbox">Vergeet alle berichten die ik heb verstuurd wanneer mijn account gedeactiveerd is (<b>Waarschuwing:</b> dit zal er voor zorgen dat toekomstige gebruikers een incompleet beeld krijgen van gesprekken)</string>
     <string name="deactivate_account_prompt_password">Om verder te gaan, voer je wachtwoord in:</string>
     <string name="deactivate_account_submit">Account Deactiveren</string>
+
+<string name="dialog_title_third_party_licences">Licenties van derde partijen</string>
+
+    <string name="download">Download</string>
+    <string name="speak">Spreek</string>
+    <string name="e2e_re_request_encryption_key"><u>Vraag beveiligingssleutels opnieuw aan</u> van je andere apparaten.</string>
+
+    <string name="e2e_re_request_encryption_key_sent">Sleutel aanvraag verstuurd.</string>
+
+    <string name="e2e_re_request_encryption_key_dialog_title">Aanvraag verstuurd</string>
+    <string name="e2e_re_request_encryption_key_dialog_content">Start Riot alstublieft op een ander apparaat dat het bericht kan ontsleutelen zodat deze de sleutels kan sturen naar dit apparaat.</string>
+
+    <string name="lock_screen_hint">Typ hier…</string>
+
+    <string name="clear">Opschonen</string>
+    <string name="option_send_voice">Stembericht versturen</string>
+
+    <string name="go_on_with">doorgaan met…</string>
+    <string name="error_no_external_application_found">Sorry, er is geen externe applicatie gevonden om deze actie te voltooien.</string>
+
+    <string name="settings_labs_enable_send_voice">Verstuur stembericht (heeft een externe applicatie nodig om stemberichten op te nemen)</string>
+
+    <string name="error_empty_field_your_password">Vul alstublieft uw wachtwoord in.</string>
+
+<string name="send_bug_report_description_in_english">Indien mogelijk, schrijf alstublieft een omschrijving in het engels.</string>
+    <string name="room_message_placeholder_reply_to_encrypted">Verstuur een versleutelde reactie…</string>
+    <string name="room_message_placeholder_reply_to_not_encrypted">Verstuur een reactie (onversleuteld)…</string>
+    <string name="settings_preview_media_before_sending">Bekijk media voor het versturen</string>
+
+    <string name="settings_without_flair">Je bent momenteel geen lid van een community.</string>
+
+    <string name="settings_labs_keyboard_options_to_send_message">Gebruik de enterknop van het toetsenbord om een bericht te versturen</string>
+    <string name="command_description_emote">Vertoon actie</string>
+    <string name="room_participants_action_unignore_prompt">Alle berichten van deze gebruiker tonen?
+
+Let op: deze actie zal de app opnieuw opstarten, en kan enige tijd kosten.</string>
+    <string name="command_description_ban_user">Gebruiker met gegeven ID verbannen</string>
+    <string name="command_description_unban_user">Heft de verbanning van de gebruiker met gegeven ID op</string>
+    <string name="command_description_op_user">Machtsniveau van gebruiker instellen</string>
+    <string name="command_description_deop_user">Rechten van gebruiker met gegeven ID afpakken</string>
+    <string name="command_description_invite_user">Gebruiker met gegeven ID in de huidige ruimte uitnodigen</string>
+    <string name="command_description_join_room">Ruimte met gegeven alias toetreden</string>
+    <string name="command_description_part_room">Ruimte verlaten</string>
+    <string name="command_description_topic">Onderwerp van de ruimte instellen</string>
+    <string name="command_description_kick_user">Gebruiker met gegeven ID eruit sturen</string>
+    <string name="command_description_nick">Je weergavenaam aanpassen</string>
+    <string name="command_description_markdown">Markdown aan/uit</string>
+    <string name="room_tombstone_versioned_description">Deze ruimte is vervangen en is niet langer actief</string>
+    <string name="room_tombstone_continuation_link">Het gesprek wordt hier voortgezet</string>
+    <string name="room_tombstone_continuation_description">Deze ruimte is een voortzetting van een ander gesprek</string>
+    <string name="room_tombstone_predecessor_link">Klik hier om oudere berichten te zien</string>
 
 </resources>

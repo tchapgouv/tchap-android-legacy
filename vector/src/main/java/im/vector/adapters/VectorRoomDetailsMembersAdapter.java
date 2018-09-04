@@ -1,5 +1,6 @@
 /*
  * Copyright 2015 OpenMarket Ltd
+ * Copyright 2018 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,8 +38,8 @@ import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.db.MXMediasCache;
 import org.matrix.androidsdk.rest.model.PowerLevels;
 import org.matrix.androidsdk.rest.model.RoomMember;
-import org.matrix.androidsdk.rest.model.pid.RoomThirdPartyInvite;
 import org.matrix.androidsdk.rest.model.User;
+import org.matrix.androidsdk.rest.model.pid.RoomThirdPartyInvite;
 import org.matrix.androidsdk.util.Log;
 
 import java.util.ArrayList;
@@ -46,6 +47,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.R;
@@ -116,11 +119,11 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
     private final int mGroupLayoutResourceId;
 
     private boolean mIsMultiSelectionMode;
-    private ArrayList<String> mSelectedUserIds = new ArrayList<>();
+    private List<String> mSelectedUserIds = new ArrayList<>();
 
-    private ArrayList<ArrayList<ParticipantAdapterItem>> mRoomMembersListByGroupPosition;
+    private List<List<ParticipantAdapterItem>> mRoomMembersListByGroupPosition;
 
-    private ArrayList<String> mDisplayNamesList = new ArrayList<>();
+    private List<String> mDisplayNamesList = new ArrayList<>();
 
     private int mGroupIndexInvitedMembers = -1;  // "Invited" index
     private int mGroupIndexPresentMembers = -1; // "Favourites" index
@@ -181,7 +184,12 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
      * @param aRoomId                      the room id
      * @param aMediasCache                 the medias cache
      */
-    public VectorRoomDetailsMembersAdapter(Context aContext, int aChildLayoutResourceId, int aGroupHeaderLayoutResourceId, MXSession aSession, String aRoomId, MXMediasCache aMediasCache) {
+    public VectorRoomDetailsMembersAdapter(Context aContext,
+                                           int aChildLayoutResourceId,
+                                           int aGroupHeaderLayoutResourceId,
+                                           MXSession aSession,
+                                           String aRoomId,
+                                           MXMediasCache aMediasCache) {
         mContext = aContext;
         mLayoutInflater = LayoutInflater.from(aContext);
         mChildLayoutResourceId = aChildLayoutResourceId;// R.layout.adapter_item_vector_add_participants
@@ -244,7 +252,7 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
     /**
      * @return the list of selected user ids
      */
-    public ArrayList<String> getSelectedUserIds() {
+    public List<String> getSelectedUserIds() {
         return mSelectedUserIds;
     }
 
@@ -301,17 +309,17 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
                 ParticipantAdapterItem participantItem;
 
                 final boolean isSearchEnabled = isSearchModeEnabled();
-                final ArrayList<ParticipantAdapterItem> presentMembersList = new ArrayList<>();
-                final ArrayList<ArrayList<ParticipantAdapterItem>> roomMembersListByGroupPosition = new ArrayList<>();
-                final ArrayList<String> displayNamesList = new ArrayList<>();
+                final List<ParticipantAdapterItem> presentMembersList = new ArrayList<>();
+                final List<List<ParticipantAdapterItem>> roomMembersListByGroupPosition = new ArrayList<>();
+                final List<String> displayNamesList = new ArrayList<>();
 
                 // retrieve the room members
-                final ArrayList<ParticipantAdapterItem> actualParticipants = new ArrayList<>();
-                final ArrayList<ParticipantAdapterItem> invitedMembers = new ArrayList<>();
+                final List<ParticipantAdapterItem> actualParticipants = new ArrayList<>();
+                final List<ParticipantAdapterItem> invitedMembers = new ArrayList<>();
 
                 Collection<RoomMember> activeMembers = mRoom.getActiveMembers();
                 String myUserId = mSession.getMyUserId();
-                final PowerLevels powerLevels = mRoom.getLiveState().getPowerLevels();
+                final PowerLevels powerLevels = mRoom.getState().getPowerLevels();
 
                 // search loop to extract the following members: current user, invited, administrator and others
                 for (RoomMember member : activeMembers) {
@@ -341,11 +349,11 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
                 }
 
                 // add 3rd party invite
-                Collection<RoomThirdPartyInvite> thirdPartyInvites = mRoom.getLiveState().thirdPartyInvites();
+                Collection<RoomThirdPartyInvite> thirdPartyInvites = mRoom.getState().thirdPartyInvites();
 
                 for (RoomThirdPartyInvite invite : thirdPartyInvites) {
                     // If the home server has converted the 3pid invite into a room member, do not show it
-                    if (null == mRoom.getLiveState().memberWithThirdPartyInviteToken(invite.token)) {
+                    if (null == mRoom.getState().memberWithThirdPartyInviteToken(invite.token)) {
                         ParticipantAdapterItem participant = new ParticipantAdapterItem(invite.display_name, "", null, true);
 
                         if ((!isSearchEnabled) || participant.contains(mSearchPattern)) {
@@ -358,7 +366,7 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
 
                 // Comparator to order members alphabetically
                 final Comparator<ParticipantAdapterItem> comparator = new Comparator<ParticipantAdapterItem>() {
-                    private final HashMap<String, User> usersMap = new HashMap<>();
+                    private final Map<String, User> usersMap = new HashMap<>();
 
                     /**
                      * Get an user snapshot from an user id.
@@ -464,7 +472,7 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
                 try {
                     Collections.sort(actualParticipants, comparator);
                 } catch (Exception e) {
-                    Log.e(LOG_TAG, "## updateRoomMembersDataModel failed while sorting " + e.getMessage());
+                    Log.e(LOG_TAG, "## updateRoomMembersDataModel failed while sorting " + e.getMessage(), e);
 
                     if (TextUtils.equals(fPattern, mSearchPattern)) {
 
@@ -515,7 +523,7 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
                                 try {
                                     aSearchListener.onSearchEnd(getItemsCount(), isSearchEnabled);
                                 } catch (Exception e) {
-                                    Log.e(LOG_TAG, "## updateRoomMembersDataModel() : onSearchEnd fails " + e.getMessage());
+                                    Log.e(LOG_TAG, "## updateRoomMembersDataModel() : onSearchEnd fails " + e.getMessage(), e);
                                 }
                             }
 
@@ -534,8 +542,8 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
     /**
      * @return the participant User Ids except oneself.
      */
-    public ArrayList<String> getUserIdsList() {
-        ArrayList<String> idsListRetValue = new ArrayList<>();
+    public List<String> getUserIdsList() {
+        List<String> idsListRetValue = new ArrayList<>();
 
         if (mGroupIndexPresentMembers >= 0) {
             int listSize = mRoomMembersListByGroupPosition.get(mGroupIndexPresentMembers).size();
@@ -564,9 +572,9 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
         String retValue;
 
         if (mGroupIndexInvitedMembers == aGroupPosition) {
-            retValue = mContext.getResources().getString(R.string.room_details_people_invited_group_name);
+            retValue = mContext.getString(R.string.room_details_people_invited_group_name);
         } else if (mGroupIndexPresentMembers == aGroupPosition) {
-            retValue = mContext.getResources().getString(R.string.room_details_people_present_group_name);
+            retValue = mContext.getString(R.string.room_details_people_present_group_name);
         } else {
             // unknown section - should not happen
             retValue = "??";
@@ -612,7 +620,7 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
                 countRetValue = mRoomMembersListByGroupPosition.get(aGroupPosition).size();
             }
         } catch (Exception ex) {
-            Log.e(LOG_TAG, "## getChildrenCount(): Exception Msg=" + ex.getMessage());
+            Log.e(LOG_TAG, "## getChildrenCount(): Exception Msg=" + ex.getMessage(), ex);
         }
 
         return countRetValue;
@@ -699,7 +707,8 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
             viewHolder.mMemberAvatarImageView.setImageBitmap(participant.getAvatarBitmap());
         } else {
             if (TextUtils.isEmpty(participant.mUserId)) {
-                VectorUtils.loadUserAvatar(mContext, mSession, viewHolder.mMemberAvatarImageView, participant.mAvatarUrl, participant.mDisplayName, participant.mDisplayName);
+                VectorUtils.loadUserAvatar(mContext,
+                        mSession, viewHolder.mMemberAvatarImageView, participant.mAvatarUrl, participant.mDisplayName, participant.mDisplayName);
             } else {
 
                 // try to provide a better display for a participant when the user is known.
@@ -717,7 +726,8 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
                     }
                 }
 
-                VectorUtils.loadUserAvatar(mContext, mSession, viewHolder.mMemberAvatarImageView, participant.mAvatarUrl, participant.mUserId, participant.mDisplayName);
+                VectorUtils.loadUserAvatar(mContext,
+                        mSession, viewHolder.mMemberAvatarImageView, participant.mAvatarUrl, participant.mUserId, participant.mDisplayName);
             }
         }
 
@@ -749,7 +759,7 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
 
         PowerLevels powerLevels = null;
         if (null != mRoom) {
-            if (null != (powerLevels = mRoom.getLiveState().getPowerLevels())) {
+            if (null != (powerLevels = mRoom.getState().getPowerLevels())) {
                 if (powerLevels.getUserPowerLevel(participant.mUserId) >= CommonActivityUtils.UTILS_POWER_LEVEL_ADMIN) {
                     viewHolder.mMemberAvatarBadgeImageView.setVisibility(View.VISIBLE);
                     viewHolder.mMemberAvatarBadgeImageView.setImageResource(R.drawable.admin_icon);
@@ -776,7 +786,7 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
                             mOnParticipantsListener.onRemoveClick(participant);
                         }
                     } catch (Exception e) {
-                        Log.e(LOG_TAG, "## Delete action listener: Exception Msg=" + e.getMessage());
+                        Log.e(LOG_TAG, "## Delete action listener: Exception Msg=" + e.getMessage(), e);
                     }
                 }
             }
@@ -903,7 +913,7 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
             });
         }
 
-        int backgroundColor = ThemeUtils.getColor(mContext, R.attr.riot_primary_background_color);
+        int backgroundColor = ThemeUtils.INSTANCE.getColor(mContext, R.attr.riot_primary_background_color);
 
         viewHolder.mSwipeCellLayout.setBackgroundColor(backgroundColor);
 

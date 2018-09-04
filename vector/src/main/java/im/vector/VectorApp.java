@@ -25,7 +25,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -38,7 +37,6 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
-import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Pair;
 
@@ -47,22 +45,15 @@ import com.facebook.stetho.Stetho;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.crypto.MXCryptoConfig;
 import org.matrix.androidsdk.util.Log;
-import org.piwik.sdk.QueryParams;
-import org.piwik.sdk.TrackMe;
-import org.piwik.sdk.Tracker;
-import org.piwik.sdk.extra.CustomVariables;
-import org.piwik.sdk.extra.TrackHelper;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -75,11 +66,16 @@ import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.JitsiCallActivity;
 import im.vector.activity.VectorCallViewActivity;
 import im.vector.activity.WidgetActivity;
+import im.vector.analytics.Analytics;
+import im.vector.analytics.AppAnalytics;
+import im.vector.analytics.e2e.DecryptionFailureTracker;
 import im.vector.contacts.ContactsManager;
 import im.vector.contacts.PIDsRetriever;
 import im.vector.gcm.GcmRegistrationManager;
 import im.vector.services.EventStreamService;
+import im.vector.settings.FontScale;
 import im.vector.util.CallsManager;
+import im.vector.util.PermissionsToolsKt;
 import im.vector.util.PhoneNumberUtils;
 import im.vector.util.PreferencesManager;
 import im.vector.util.RageShake;
@@ -128,10 +124,8 @@ public class VectorApp extends MultiDexApplication {
     /**
      * Google analytics information.
      */
-    public static int VERSION_BUILD = -1;
     private static String VECTOR_VERSION_STRING = "";
     private static String SDK_VERSION_STRING = "";
-    private static String SHORT_VERSION = "";
 
     /**
      * Tells if there a pending call whereas the application is backgrounded.
@@ -141,7 +135,7 @@ public class VectorApp extends MultiDexApplication {
     /**
      * Monitor the created activities to detect memory leaks.
      */
-    private final ArrayList<String> mCreatedActivities = new ArrayList<>();
+    private final List<String> mCreatedActivities = new ArrayList<>();
 
     /**
      * Markdown parser
@@ -152,6 +146,9 @@ public class VectorApp extends MultiDexApplication {
      * Calls manager
      */
     private CallsManager mCallsManager;
+
+    private Analytics mAppAnalytics;
+    private DecryptionFailureTracker mDecryptionFailureTracker;
 
     /**
      * @return the current instance
@@ -174,8 +171,11 @@ public class VectorApp extends MultiDexApplication {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (!TextUtils.equals(Locale.getDefault().toString(), getApplicationLocale().toString())) {
-                Log.d(LOG_TAG, "## onReceive() : the locale has been updated to " + Locale.getDefault().toString() + ", restore the expected value " + getApplicationLocale().toString());
-                updateApplicationSettings(getApplicationLocale(), getFontScale(), ThemeUtils.getApplicationTheme(context));
+                Log.d(LOG_TAG, "## onReceive() : the locale has been updated to " + Locale.getDefault().toString()
+                        + ", restore the expected value " + getApplicationLocale().toString());
+                updateApplicationSettings(getApplicationLocale(),
+                        FontScale.INSTANCE.getFontScalePrefValue(),
+                        ThemeUtils.INSTANCE.getApplicationTheme(context));
 
                 if (null != getCurrentActivity()) {
                     restartActivity(getCurrentActivity());
@@ -209,25 +209,14 @@ public class VectorApp extends MultiDexApplication {
 
         instance = this;
         mCallsManager = new CallsManager(this);
+        // Tchap disable analytics
+        mAppAnalytics = new AppAnalytics(this);//new PiwikAnalytics(this));
+        mDecryptionFailureTracker = new DecryptionFailureTracker(mAppAnalytics);
+
         mActivityTransitionTimer = null;
         mActivityTransitionTimerTask = null;
 
-        try {
-            PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-            VERSION_BUILD = packageInfo.versionCode;
-        } catch (PackageManager.NameNotFoundException e) {
-            Log.e(LOG_TAG, "fails to retrieve the package info " + e.getMessage());
-        }
-
         VECTOR_VERSION_STRING = Matrix.getInstance(this).getVersion(true, true);
-
-        // init the REST client
-        MXSession.initUserAgent(getApplicationContext());
-
-        // Configure e2e encryption to encrypt content for invited members
-        MXCryptoConfig cryptoConfig = new MXCryptoConfig();
-        cryptoConfig.mEnableEncryptionForInvitedMembers = true;
-        MXSession.setCryptoConfig(cryptoConfig);
 
         // not the first launch
         if (null != Matrix.getInstance(this).getDefaultSession()) {
@@ -235,13 +224,6 @@ public class VectorApp extends MultiDexApplication {
         } else {
             SDK_VERSION_STRING = "";
         }
-
-        try {
-            PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-            SHORT_VERSION = pInfo.versionName;
-        } catch (Exception e) {
-        }
-
         mLogsDirectoryFile = new File(getCacheDir().getAbsolutePath() + "/logs");
 
         org.matrix.androidsdk.util.Log.setLogDirectory(mLogsDirectoryFile);
@@ -260,14 +242,21 @@ public class VectorApp extends MultiDexApplication {
 
         mRageShake = new RageShake(this);
 
-        this.registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
+        // init the REST client
+        MXSession.initUserAgent(getApplicationContext());
+
+        // Configure e2e encryption to encrypt content for invited members
+        MXCryptoConfig cryptoConfig = new MXCryptoConfig();
+        cryptoConfig.mEnableEncryptionForInvitedMembers = true;
+        MXSession.setCryptoConfig(cryptoConfig);
+
+        registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
             final Map<String, String> mLocalesByActivity = new HashMap<>();
 
             @Override
             public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
                 Log.d(LOG_TAG, "onActivityCreated " + activity);
                 mCreatedActivities.add(activity.toString());
-                ThemeUtils.setActivityTheme(activity);
                 // piwik
                 onNewScreen(activity);
             }
@@ -283,7 +272,9 @@ public class VectorApp extends MultiDexApplication {
              * @return the local status value
              */
             private String getActivityLocaleStatus(Activity activity) {
-                return getApplicationLocale().toString() + "_" + getFontScale() + "_" + ThemeUtils.getApplicationTheme(activity);
+                return getApplicationLocale().toString()
+                        + "_" + FontScale.INSTANCE.getFontScalePrefValue()
+                        + "_" + ThemeUtils.INSTANCE.getApplicationTheme(activity);
             }
 
             @Override
@@ -297,7 +288,8 @@ public class VectorApp extends MultiDexApplication {
                     String prevActivityLocale = mLocalesByActivity.get(activityKey);
 
                     if (!TextUtils.equals(prevActivityLocale, getActivityLocaleStatus(activity))) {
-                        Log.d(LOG_TAG, "## onActivityResumed() : restart the activity " + activity + " because of the locale update from " + prevActivityLocale + " to " + getActivityLocaleStatus(activity));
+                        Log.d(LOG_TAG, "## onActivityResumed() : restart the activity " + activity
+                                + " because of the locale update from " + prevActivityLocale + " to " + getActivityLocaleStatus(activity));
                         restartActivity(activity);
                         return;
                     }
@@ -305,12 +297,15 @@ public class VectorApp extends MultiDexApplication {
 
                 // it should never happen as there is a broadcast receiver (mLanguageReceiver)
                 if (!TextUtils.equals(Locale.getDefault().toString(), getApplicationLocale().toString())) {
-                    Log.d(LOG_TAG, "## onActivityResumed() : the locale has been updated to " + Locale.getDefault().toString() + ", restore the expected value " + getApplicationLocale().toString());
-                    updateApplicationSettings(getApplicationLocale(), getFontScale(), ThemeUtils.getApplicationTheme(activity));
+                    Log.d(LOG_TAG, "## onActivityResumed() : the locale has been updated to " + Locale.getDefault().toString()
+                            + ", restore the expected value " + getApplicationLocale().toString());
+                    updateApplicationSettings(getApplicationLocale(),
+                            FontScale.INSTANCE.getFontScalePrefValue(),
+                            ThemeUtils.INSTANCE.getApplicationTheme(activity));
                     restartActivity(activity);
                 }
 
-                listPermissionStatuses();
+                PermissionsToolsKt.logPermissionStatuses(VectorApp.this);
             }
 
             @Override
@@ -348,25 +343,29 @@ public class VectorApp extends MultiDexApplication {
             mMarkdownParser = new VectorMarkdownParser(this);
         } catch (Exception e) {
             // reported by GA
-            Log.e(LOG_TAG, "cannot create the mMarkdownParser " + e.getMessage());
+            Log.e(LOG_TAG, "cannot create the mMarkdownParser " + e.getMessage(), e);
         }
 
         // track external language updates
         // local update from the settings
         // or screen rotation !
-        VectorApp.getInstance().registerReceiver(mLanguageReceiver, new IntentFilter(Intent.ACTION_LOCALE_CHANGED));
-        VectorApp.getInstance().registerReceiver(mLanguageReceiver, new IntentFilter(Intent.ACTION_CONFIGURATION_CHANGED));
+        registerReceiver(mLanguageReceiver, new IntentFilter(Intent.ACTION_LOCALE_CHANGED));
+        registerReceiver(mLanguageReceiver, new IntentFilter(Intent.ACTION_CONFIGURATION_CHANGED));
 
         PreferencesManager.fixMigrationIssues(this);
         initApplicationLocale();
+        visitSessionVariables();
     }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         if (!TextUtils.equals(Locale.getDefault().toString(), getApplicationLocale().toString())) {
-            Log.d(LOG_TAG, "## onConfigurationChanged() : the locale has been updated to " + Locale.getDefault().toString() + ", restore the expected value " + getApplicationLocale().toString());
-            updateApplicationSettings(getApplicationLocale(), getFontScale(), ThemeUtils.getApplicationTheme(this));
+            Log.d(LOG_TAG, "## onConfigurationChanged() : the locale has been updated to " + Locale.getDefault().toString()
+                    + ", restore the expected value " + getApplicationLocale().toString());
+            updateApplicationSettings(getApplicationLocale(),
+                    FontScale.INSTANCE.getFontScalePrefValue(),
+                    ThemeUtils.INSTANCE.getApplicationTheme(this));
         }
     }
 
@@ -405,7 +404,7 @@ public class VectorApp extends MultiDexApplication {
         }
 
         // the sessions are not anymore seen as "online"
-        ArrayList<MXSession> sessions = Matrix.getInstance(this).getSessions();
+        List<MXSession> sessions = Matrix.getInstance(this).getSessions();
 
         for (MXSession session : sessions) {
             if (session.isAlive()) {
@@ -460,19 +459,20 @@ public class VectorApp extends MultiDexApplication {
                             mActivityTransitionTimer = null;
                         }
                     } catch (Exception e) {
-                        Log.e(LOG_TAG, "## startActivityTransitionTimer() failed " + e.getMessage());
+                        Log.e(LOG_TAG, "## startActivityTransitionTimer() failed " + e.getMessage(), e);
                     }
 
                     if (null != mCurrentActivity) {
                         Log.e(LOG_TAG, "## startActivityTransitionTimer() : the timer expires but there is an active activity.");
                     } else {
-                        VectorApp.this.mIsInBackground = true;
+                        mIsInBackground = true;
                         mIsCallingInBackground = (null != mCallsManager.getActiveCall());
 
                         // if there is a pending call
                         // the application is not suspended
                         if (!mIsCallingInBackground) {
-                            Log.d(LOG_TAG, "Suspend the application because there was no resumed activity within " + (MAX_ACTIVITY_TRANSITION_TIME_MS / 1000) + " seconds");
+                            Log.d(LOG_TAG, "Suspend the application because there was no resumed activity within "
+                                    + (MAX_ACTIVITY_TRANSITION_TIME_MS / 1000) + " seconds");
                             CommonActivityUtils.displayMemoryInformation(null, " app suspended");
                             suspendApp();
                         } else {
@@ -492,26 +492,6 @@ public class VectorApp extends MultiDexApplication {
             }
         }
     }
-
-    /**
-     * List the used permissions statuses.
-     */
-    private void listPermissionStatuses() {
-        if (Build.VERSION.SDK_INT >= 23) {
-            final List<String> permissions = Arrays.asList(
-                    android.Manifest.permission.CAMERA,
-                    android.Manifest.permission.RECORD_AUDIO,
-                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    android.Manifest.permission.READ_CONTACTS);
-
-            Log.d(LOG_TAG, "## listPermissionStatuses() : list the permissions used by the app");
-            for (String permission : permissions) {
-                Log.d(LOG_TAG, "Status of [" + permission + "] : " +
-                        ((PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(instance, permission)) ? "PERMISSION_GRANTED" : "PERMISSION_DENIED"));
-            }
-        }
-    }
-
 
     /**
      * Stop the background detection.
@@ -610,6 +590,20 @@ public class VectorApp extends MultiDexApplication {
     }
 
     /**
+     * @return the analytics app instance
+     */
+    public Analytics getAnalytics() {
+        return mAppAnalytics;
+    }
+
+    /**
+     * @return the DecryptionFailureTracker instance
+     */
+    public DecryptionFailureTracker getDecryptionFailureTracker() {
+        return mDecryptionFailureTracker;
+    }
+
+    /**
      * @return the current active activity
      */
     public static Activity getCurrentActivity() {
@@ -700,7 +694,7 @@ public class VectorApp extends MultiDexApplication {
     /**
      * syncing sessions
      */
-    private static final HashSet<MXSession> mSyncingSessions = new HashSet<>();
+    private static final Set<MXSession> mSyncingSessions = new HashSet<>();
 
     /**
      * Add a session in the syncing sessions list
@@ -768,10 +762,10 @@ public class VectorApp extends MultiDexApplication {
      * Clear the crash status
      */
     public void clearAppCrashStatus() {
-        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(VectorApp.getInstance());
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.remove(PREFS_CRASH_KEY);
-        editor.commit();
+        PreferenceManager.getDefaultSharedPreferences(VectorApp.getInstance())
+                .edit()
+                .remove(PREFS_CRASH_KEY)
+                .apply();
     }
 
     //==============================================================================================================
@@ -784,37 +778,8 @@ public class VectorApp extends MultiDexApplication {
     private static final String APPLICATION_LOCALE_COUNTRY_KEY = "APPLICATION_LOCALE_COUNTRY_KEY";
     private static final String APPLICATION_LOCALE_VARIANT_KEY = "APPLICATION_LOCALE_VARIANT_KEY";
     private static final String APPLICATION_LOCALE_LANGUAGE_KEY = "APPLICATION_LOCALE_LANGUAGE_KEY";
-    private static final String APPLICATION_FONT_SCALE_KEY = "APPLICATION_FONT_SCALE_KEY";
-
-    private static final String FONT_SCALE_TINY = "FONT_SCALE_TINY";
-    private static final String FONT_SCALE_SMALL = "FONT_SCALE_SMALL";
-    private static final String FONT_SCALE_NORMAL = "FONT_SCALE_NORMAL";
-    private static final String FONT_SCALE_LARGE = "FONT_SCALE_LARGE";
-    private static final String FONT_SCALE_LARGER = "FONT_SCALE_LARGER";
-    private static final String FONT_SCALE_LARGEST = "FONT_SCALE_LARGEST";
-    private static final String FONT_SCALE_HUGE = "FONT_SCALE_HUGE";
 
     private static final Locale mApplicationDefaultLanguage = new Locale("fr", "FR");
-
-    private static final Map<Float, String> mPrefKeyByFontScale = new LinkedHashMap<Float, String>() {{
-        put(0.70f, FONT_SCALE_TINY);
-        put(0.85f, FONT_SCALE_SMALL);
-        put(1.00f, FONT_SCALE_NORMAL);
-        put(1.15f, FONT_SCALE_LARGE);
-        put(1.30f, FONT_SCALE_LARGER);
-        put(1.45f, FONT_SCALE_LARGEST);
-        put(1.60f, FONT_SCALE_HUGE);
-    }};
-
-    private static final Map<String, Integer> mFontTextScaleIdByPrefKey = new LinkedHashMap<String, Integer>() {{
-        put(FONT_SCALE_TINY, R.string.tiny);
-        put(FONT_SCALE_SMALL, R.string.small);
-        put(FONT_SCALE_NORMAL, R.string.normal);
-        put(FONT_SCALE_LARGE, R.string.large);
-        put(FONT_SCALE_LARGER, R.string.larger);
-        put(FONT_SCALE_LARGEST, R.string.largest);
-        put(FONT_SCALE_HUGE, R.string.huge);
-    }};
 
     /**
      * Init the application locale from the saved one
@@ -822,8 +787,8 @@ public class VectorApp extends MultiDexApplication {
     private static void initApplicationLocale() {
         Context context = VectorApp.getInstance();
         Locale locale = getApplicationLocale();
-        float fontScale = getFontScaleValue();
-        String theme = ThemeUtils.getApplicationTheme(context);
+        float fontScale = FontScale.INSTANCE.getFontScale();
+        String theme = ThemeUtils.INSTANCE.getApplicationTheme(context);
 
         Locale.setDefault(locale);
         Configuration config = new Configuration(context.getResources().getConfiguration());
@@ -832,7 +797,7 @@ public class VectorApp extends MultiDexApplication {
         context.getResources().updateConfiguration(config, context.getResources().getDisplayMetrics());
 
         // init the theme
-        ThemeUtils.setApplicationTheme(context, theme);
+        ThemeUtils.INSTANCE.setApplicationTheme(context, theme);
 
         // init the known locales in background
         AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
@@ -845,88 +810,6 @@ public class VectorApp extends MultiDexApplication {
 
         // should never crash
         task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-    }
-
-    /**
-     * Get the font scale
-     *
-     * @return the font scale
-     */
-    public static String getFontScale() {
-        Context context = VectorApp.getInstance();
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        String scalePreferenceKey;
-
-        if (!preferences.contains(APPLICATION_FONT_SCALE_KEY)) {
-            float fontScale = context.getResources().getConfiguration().fontScale;
-
-            scalePreferenceKey = FONT_SCALE_NORMAL;
-
-            if (mPrefKeyByFontScale.containsKey(fontScale)) {
-                scalePreferenceKey = mPrefKeyByFontScale.get(fontScale);
-            }
-
-            SharedPreferences.Editor editor = preferences.edit();
-            editor.putString(APPLICATION_FONT_SCALE_KEY, scalePreferenceKey);
-            editor.commit();
-        } else {
-            scalePreferenceKey = preferences.getString(APPLICATION_FONT_SCALE_KEY, FONT_SCALE_NORMAL);
-        }
-
-        return scalePreferenceKey;
-    }
-
-    /**
-     * Provides the font scale value
-     *
-     * @return the font scale
-     */
-    private static float getFontScaleValue() {
-        String fontScale = getFontScale();
-
-        if (mPrefKeyByFontScale.containsValue(fontScale)) {
-            for (Map.Entry<Float, String> entry : mPrefKeyByFontScale.entrySet()) {
-                if (TextUtils.equals(entry.getValue(), fontScale)) {
-                    return entry.getKey();
-                }
-            }
-        }
-
-        return 1.0f;
-    }
-
-    /**
-     * Provides the font scale description
-     *
-     * @return the font description
-     */
-    public static String getFontScaleDescription() {
-        Context context = VectorApp.getInstance();
-        String fontScale = getFontScale();
-
-        if (mFontTextScaleIdByPrefKey.containsKey(fontScale)) {
-            return context.getString(mFontTextScaleIdByPrefKey.get(fontScale));
-        }
-
-        return context.getString(R.string.normal);
-    }
-
-    /**
-     * Update the font size from the locale description.
-     *
-     * @param fontScaleDescription the font scale description
-     */
-    public static void updateFontScale(String fontScaleDescription) {
-        Context context = VectorApp.getInstance();
-        for (Map.Entry<String, Integer> entry : mFontTextScaleIdByPrefKey.entrySet()) {
-            if (TextUtils.equals(context.getString(entry.getValue()), fontScaleDescription)) {
-                saveFontScale(entry.getKey());
-            }
-        }
-
-        Configuration config = new Configuration(context.getResources().getConfiguration());
-        config.fontScale = getFontScaleValue();
-        context.getResources().updateConfiguration(config, context.getResources().getDisplayMetrics());
     }
 
     /**
@@ -943,9 +826,9 @@ public class VectorApp extends MultiDexApplication {
             Locale.setDefault(mApplicationDefaultLanguage);
             locale = mApplicationDefaultLanguage;
 
-            // detect if the default language is used
-            /*String defaultStringValue = getString(context, mApplicationDefaultLanguage, R.string.resouces_country);
-            if (TextUtils.equals(defaultStringValue, getString(context, locale, R.string.resouces_country))) {
+            /*// detect if the default language is used
+            String defaultStringValue = getString(context, mApplicationDefaultLanguage, R.string.resources_country_code);
+            if (TextUtils.equals(defaultStringValue, getString(context, locale, R.string.resources_country_code))) {
                 locale = mApplicationDefaultLanguage;
             }*/
 
@@ -974,7 +857,7 @@ public class VectorApp extends MultiDexApplication {
             Resources resources = packageManager.getResourcesForApplication("android");
             locale = resources.getConfiguration().locale;
         } catch (Exception e) {
-            Log.e(LOG_TAG, "## getDeviceLocale() failed " + e.getMessage());
+            Log.e(LOG_TAG, "## getDeviceLocale() failed " + e.getMessage(), e);
         }
 
         return locale;
@@ -985,9 +868,8 @@ public class VectorApp extends MultiDexApplication {
      */
     private static void saveApplicationLocale(Locale locale) {
         Context context = VectorApp.getInstance();
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 
-        SharedPreferences.Editor editor = preferences.edit();
+        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
 
         String language = locale.getLanguage();
         if (!TextUtils.isEmpty(language)) {
@@ -1010,23 +892,7 @@ public class VectorApp extends MultiDexApplication {
             editor.remove(APPLICATION_LOCALE_VARIANT_KEY);
         }
 
-        editor.commit();
-    }
-
-    /**
-     * Save the new font scale
-     *
-     * @param textScale the text scale
-     */
-    private static void saveFontScale(String textScale) {
-        Context context = VectorApp.getInstance();
-
-        if (!TextUtils.isEmpty(textScale)) {
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-            SharedPreferences.Editor editor = preferences.edit();
-            editor.putString(APPLICATION_FONT_SCALE_KEY, textScale);
-            editor.commit();
-        }
+        editor.apply();
     }
 
     /**
@@ -1035,7 +901,7 @@ public class VectorApp extends MultiDexApplication {
      * @param locale
      */
     public static void updateApplicationLocale(Locale locale) {
-        updateApplicationSettings(locale, getFontScale(), ThemeUtils.getApplicationTheme(VectorApp.getInstance()));
+        updateApplicationSettings(locale, FontScale.INSTANCE.getFontScalePrefValue(), ThemeUtils.INSTANCE.getApplicationTheme(VectorApp.getInstance()));
     }
 
     /**
@@ -1044,8 +910,10 @@ public class VectorApp extends MultiDexApplication {
      * @param theme the new theme
      */
     public static void updateApplicationTheme(String theme) {
-        ThemeUtils.setApplicationTheme(VectorApp.getInstance(), theme);
-        updateApplicationSettings(getApplicationLocale(), getFontScale(), ThemeUtils.getApplicationTheme(VectorApp.getInstance()));
+        ThemeUtils.INSTANCE.setApplicationTheme(VectorApp.getInstance(), theme);
+        updateApplicationSettings(getApplicationLocale(),
+                FontScale.INSTANCE.getFontScalePrefValue(),
+                ThemeUtils.INSTANCE.getApplicationTheme(VectorApp.getInstance()));
     }
 
     /**
@@ -1060,15 +928,15 @@ public class VectorApp extends MultiDexApplication {
         Context context = VectorApp.getInstance();
 
         saveApplicationLocale(locale);
-        saveFontScale(textSize);
+        FontScale.INSTANCE.saveFontScale(textSize);
         Locale.setDefault(locale);
 
         Configuration config = new Configuration(context.getResources().getConfiguration());
         config.locale = locale;
-        config.fontScale = getFontScaleValue();
+        config.fontScale = FontScale.INSTANCE.getFontScale();
         context.getResources().updateConfiguration(config, context.getResources().getDisplayMetrics());
 
-        ThemeUtils.setApplicationTheme(context, theme);
+        ThemeUtils.INSTANCE.setApplicationTheme(context, theme);
         PhoneNumberUtils.onLocaleUpdate();
     }
 
@@ -1085,7 +953,7 @@ public class VectorApp extends MultiDexApplication {
             Resources resources = context.getResources();
             Locale locale = getApplicationLocale();
             Configuration configuration = resources.getConfiguration();
-            configuration.fontScale = getFontScaleValue();
+            configuration.fontScale = FontScale.INSTANCE.getFontScale();
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 configuration.setLocale(locale);
@@ -1100,7 +968,7 @@ public class VectorApp extends MultiDexApplication {
                 return context;
             }
         } catch (Exception e) {
-            Log.e(LOG_TAG, "## getLocalisedContext() failed : " + e.getMessage());
+            Log.e(LOG_TAG, "## getLocalisedContext() failed : " + e.getMessage(), e);
         }
 
         return context;
@@ -1123,7 +991,7 @@ public class VectorApp extends MultiDexApplication {
             try {
                 result = context.createConfigurationContext(config).getText(resourceId).toString();
             } catch (Exception e) {
-                Log.e(LOG_TAG, "## getString() failed : " + e.getMessage());
+                Log.e(LOG_TAG, "## getString() failed : " + e.getMessage(), e);
                 // use the default one
                 result = context.getString(resourceId);
             }
@@ -1160,11 +1028,12 @@ public class VectorApp extends MultiDexApplication {
                 final Locale[] availableLocales = Locale.getAvailableLocales();
 
                 for (Locale locale : availableLocales) {
-                    knownLocalesSet.add(new Pair<>(getString(context, locale, R.string.resouces_language), getString(context, locale, R.string.resouces_country)));
+                    knownLocalesSet.add(new Pair<>(getString(context, locale, R.string.resources_language),
+                            getString(context, locale, R.string.resources_country_code)));
                 }
             } catch (Exception e) {
-                Log.e(LOG_TAG, "## getApplicationLocales() : failed " + e.getMessage());
-                knownLocalesSet.add(new Pair<>(context.getString(R.string.resouces_language), context.getString(R.string.resouces_country)));
+                Log.e(LOG_TAG, "## getApplicationLocales() : failed " + e.getMessage(), e);
+                knownLocalesSet.add(new Pair<>(context.getString(R.string.resources_language), context.getString(R.string.resources_country_code)));
             }
 
             for (Pair<String, String> knownLocale : knownLocalesSet) {
@@ -1202,77 +1071,22 @@ public class VectorApp extends MultiDexApplication {
     }
 
     //==============================================================================================================
-    // Piwik management
+    // Analytics management
     //==============================================================================================================
 
-    // the piwik tracker
-    private Tracker mPiwikTracker;
-
     /**
-     * Set the visit variable
-     *
-     * @param trackMe
-     * @param id
-     * @param name
-     * @param value
+     * Send session custom variables
      */
-    private static final void visitVariables(TrackMe trackMe, int id, String name, String value) {
-        CustomVariables customVariables = new CustomVariables(trackMe.get(QueryParams.VISIT_SCOPE_CUSTOM_VARIABLES));
-        customVariables.put(id, name, value);
-        trackMe.set(QueryParams.VISIT_SCOPE_CUSTOM_VARIABLES, customVariables.toString());
-    }
+    private void visitSessionVariables() {
+        mAppAnalytics.visitVariable(1, "App Platform", "Android Platform");
+        mAppAnalytics.visitVariable(2, "App Version", BuildConfig.VERSION_NAME);
+        mAppAnalytics.visitVariable(4, "Chosen Language", getApplicationLocale().toString());
 
-    /**
-     * @return the piwik instance
-     */
-    private Tracker getPiwikTracker() {
-        /*if (mPiwikTracker == null) {
-            try {
-                mPiwikTracker = Piwik.getInstance(this).newTracker(new TrackerConfig("https://piwik.riot.im/", 1, "AndroidPiwikTracker"));
-                // sends the tracking information each minute
-                // the app might be killed in background
-                mPiwikTracker.setDispatchInterval(30 * 1000);
-
-                //
-                TrackMe trackMe = mPiwikTracker.getDefaultTrackMe();
-
-                visitVariables(trackMe, 1, "App Platform", "Android Platform");
-                visitVariables(trackMe, 2, "App Version", SHORT_VERSION);
-                visitVariables(trackMe, 4, "Chosen Language", getApplicationLocale().toString());
-
-                if (null != Matrix.getInstance(this).getDefaultSession()) {
-                    MXSession session = Matrix.getInstance(this).getDefaultSession();
-
-                    visitVariables(trackMe, 7, "Homeserver URL", session.getHomeServerConfig().getHomeserverUri().toString());
-                    visitVariables(trackMe, 8, "Identity Server URL", session.getHomeServerConfig().getIdentityServerUri().toString());
-                }
-            } catch (Throwable t) {
-                Log.e(LOG_TAG, "## getPiwikTracker() : newTracker failed " + t.getMessage());
-            }
-        }*/
-
-        return mPiwikTracker;
-    }
-
-
-    /**
-     * Add the stats variables to the piwik screen.
-     *
-     * @return the piwik screen
-     */
-    private TrackHelper.Screen addCustomVariables(TrackHelper.Screen screen) {
-        screen.variable(1, "App Platform", "Android Platform");
-        screen.variable(2, "App Version", SHORT_VERSION);
-        screen.variable(4, "Chosen Language", getApplicationLocale().toString());
-
-        if (null != Matrix.getInstance(this).getDefaultSession()) {
-            MXSession session = Matrix.getInstance(this).getDefaultSession();
-
-            screen.variable(7, "Homeserver URL", session.getHomeServerConfig().getHomeserverUri().toString());
-            screen.variable(8, "Identity Server URL", session.getHomeServerConfig().getIdentityServerUri().toString());
+        final MXSession session = Matrix.getInstance(this).getDefaultSession();
+        if (session != null) {
+            mAppAnalytics.visitVariable(7, "Homeserver URL", session.getHomeServerConfig().getHomeserverUri().toString());
+            mAppAnalytics.visitVariable(8, "Identity Server URL", session.getHomeServerConfig().getIdentityServerUri().toString());
         }
-
-        return screen;
     }
 
     /**
@@ -1281,34 +1095,18 @@ public class VectorApp extends MultiDexApplication {
      * @param activity the new activity
      */
     private void onNewScreen(Activity activity) {
-        if (PreferencesManager.useAnalytics(this)) {
-            Tracker tracker = getPiwikTracker();
-            if (null != tracker) {
-                try {
-                    TrackHelper.Screen screen = TrackHelper.track().screen("/android/" + Matrix.getApplicationName() + "/" + this.getString(R.string.flavor_description) + "/" + SHORT_VERSION + "/" + activity.getClass().getName().replace(".", "/"));
-                    addCustomVariables(screen).with(tracker);
-                } catch (Throwable t) {
-                    Log.e(LOG_TAG, "## onNewScreen() : failed " + t.getMessage());
-                }
-            }
-        }
+        final String screenPath = "/android/" + Matrix.getApplicationName()
+                + "/" + getString(R.string.flavor_description)
+                + "/" + BuildConfig.VERSION_NAME
+                + "/" + activity.getClass().getName().replace(".", "/");
+        mAppAnalytics.trackScreen(screenPath, null);
     }
-
 
     /**
      * The application is paused.
      */
     private void onAppPause() {
-        if (PreferencesManager.useAnalytics(this)) {
-            Tracker tracker = getPiwikTracker();
-            if (null != tracker) {
-                try {
-                    // force to send the pending actions
-                    tracker.dispatch();
-                } catch (Throwable t) {
-                    Log.e(LOG_TAG, "## onAppPause() : failed " + t.getMessage());
-                }
-            }
-        }
+        mDecryptionFailureTracker.dispatch();
+        mAppAnalytics.forceDispatch();
     }
 }

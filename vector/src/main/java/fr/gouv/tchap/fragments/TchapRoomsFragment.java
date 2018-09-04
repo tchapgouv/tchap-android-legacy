@@ -28,20 +28,17 @@ import android.view.ViewGroup;
 import android.widget.Filter;
 
 import org.matrix.androidsdk.data.Room;
-import org.matrix.androidsdk.data.RoomSummary;
-import org.matrix.androidsdk.data.RoomTag;
-import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 
 import butterknife.BindView;
 import im.vector.R;
 import im.vector.fragments.AbsHomeFragment;
+import im.vector.util.HomeRoomsViewModel;
 import im.vector.view.EmptyViewItemDecoration;
 import im.vector.view.SimpleDividerItemDecoration;
 import fr.gouv.tchap.adapters.TchapRoomAdapter;
@@ -99,7 +96,6 @@ public class TchapRoomsFragment extends AbsHomeFragment implements AbsHomeFragme
     public void onResume() {
         super.onResume();
 
-        refreshRooms();
         if (null != mActivity) {
             mAdapter.setInvitation(mActivity.getRoomInvitations());
         }
@@ -155,11 +151,9 @@ public class TchapRoomsFragment extends AbsHomeFragment implements AbsHomeFragme
      */
 
     @Override
-    public void onSummariesUpdate() {
-        super.onSummariesUpdate();
-
+    public void onRoomResultUpdated(final HomeRoomsViewModel.Result result) {
         if (isResumed()) {
-            refreshRooms();
+            refreshRooms(result.getJoinedRooms());
             mAdapter.setInvitation(mActivity.getRoomInvitations());
         }
     }
@@ -196,55 +190,29 @@ public class TchapRoomsFragment extends AbsHomeFragment implements AbsHomeFragme
     /**
      * Init the rooms display
      */
-    private void refreshRooms() {
-        if ((null == mSession) || (null == mSession.getDataHandler())) {
-            Log.e(LOG_TAG, "## refreshRooms() : null session");
-            return;
-        }
-
-        IMXStore store = mSession.getDataHandler().getStore();
-
-        if (null == store) {
-            Log.e(LOG_TAG, "## refreshRooms() : null store");
-            return;
-        }
-
-        // update/retrieve the complete summary list
-        List<RoomSummary> roomSummaries = new ArrayList<>(store.getSummaries());
-        HashSet<String> lowPriorityRoomIds = new HashSet<>(mSession.roomIdsWithTag(RoomTag.ROOM_TAG_LOW_PRIORITY));
+    private void refreshRooms(List<Room> allJoinedRooms) {
 
         mRooms.clear();
 
-        for (RoomSummary summary : roomSummaries) {
-            // don't display the invitations
-            if (!summary.isInvited()) {
-                Room room = store.getRoom(summary.getRoomId());
+        for (Room room : allJoinedRooms) {
+            // Hide the rooms created to invite some non-tchap contact by email.
+            if (room.isDirect()) {
+                Collection<RoomMember> members = room.getMembers();
+                for (RoomMember member : members) {
+                    if (member.getUserId().equals(mSession.getMyUserId())) {
+                        continue;
+                    }
 
-                // test
-                if ((null != room) && // if the room still exists,even if it's a direct room
-                        !room.isConferenceUserRoom() && // not a VOIP conference room
-                        !lowPriorityRoomIds.contains(room.getRoomId())) {
-                    // In the case of Tchap, we hide the direct chat in which the other member is a 3PID invite.
-
-                    if (room.isDirect()) {
-                        Collection<RoomMember> members = room.getMembers();
-                        for (RoomMember member : members) {
-                            if (member.getUserId().equals(mSession.getMyUserId())) {
-                                continue;
-                            }
-
-                            // Check whether there is no pending 3PID invite for this member.
-                            if (null == member.getThirdPartyInviteToken()) {
-                                mRooms.add(room);
-                                // Break here the loop on members in case of a wrong direct chat
-                                // (with several members)
-                                break;
-                            }
-                        }
-                    } else {
+                    // Check whether there is no pending 3PID invite for this member.
+                    if (null == member.getThirdPartyInviteToken()) {
                         mRooms.add(room);
+                        // Break here the loop on members in case of a wrong direct chat
+                        // (with several members)
+                        break;
                     }
                 }
+            } else {
+                mRooms.add(room);
             }
         }
         mAdapter.setRooms(mRooms);
@@ -267,6 +235,5 @@ public class TchapRoomsFragment extends AbsHomeFragment implements AbsHomeFragme
     @Override
     public void onRoomForgot(String roomId) {
         // there is no sync event when a room is forgotten
-        refreshRooms();
     }
 }

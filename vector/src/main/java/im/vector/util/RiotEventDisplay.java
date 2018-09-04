@@ -1,7 +1,8 @@
 /*
  * Copyright 2016 OpenMarket Ltd
  * Copyright 2017 Vector Creations Ltd
- * 
+ * Copyright 2018 New Vector Ltd
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,11 +22,12 @@ import android.text.TextUtils;
 
 import com.google.gson.JsonObject;
 
+import org.matrix.androidsdk.MXSession;
+import org.matrix.androidsdk.crypto.MXCryptoError;
 import org.matrix.androidsdk.data.RoomState;
 import org.matrix.androidsdk.interfaces.HtmlToolbox;
 import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.rest.model.EventContent;
-
 import org.matrix.androidsdk.util.EventDisplay;
 import org.matrix.androidsdk.util.JsonUtils;
 import org.matrix.androidsdk.util.Log;
@@ -36,8 +38,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import im.vector.Matrix;
 import im.vector.R;
-
+import im.vector.VectorApp;
 import im.vector.widgets.WidgetContent;
 import im.vector.widgets.WidgetsManager;
 
@@ -62,6 +65,7 @@ public class RiotEventDisplay extends EventDisplay {
      * @param displayNameColor the display name highlighted color.
      * @return The text or null if it isn't possible.
      */
+    @Override
     public CharSequence getTextualDisplay(Integer displayNameColor) {
         CharSequence text = null;
 
@@ -91,7 +95,8 @@ public class RiotEventDisplay extends EventDisplay {
                         }
                     }
 
-                    String type = (null != closingWidgetEvent) ? WidgetContent.toWidgetContent(closingWidgetEvent.getContentAsJsonObject()).getHumanName() : "undefined";
+                    String type = (null != closingWidgetEvent) ?
+                            WidgetContent.toWidgetContent(closingWidgetEvent.getContentAsJsonObject()).getHumanName() : "undefined";
                     text = mContext.getString(R.string.event_formatter_widget_removed, type, senderDisplayName);
                 } else {
                     String type = WidgetContent.toWidgetContent(mEvent.getContentAsJsonObject()).getHumanName();
@@ -100,9 +105,15 @@ public class RiotEventDisplay extends EventDisplay {
             } else {
                 text = super.getTextualDisplay(displayNameColor);
             }
+            if (mEvent.getCryptoError() != null) {
+                final MXSession session = Matrix.getInstance(mContext).getDefaultSession();
+                VectorApp.getInstance()
+                        .getDecryptionFailureTracker()
+                        .reportUnableToDecryptError(mEvent, mRoomState, session.getMyUserId());
+            }
 
         } catch (Exception e) {
-            Log.e(LOG_TAG, "getTextualDisplay() " + e.getMessage());
+            Log.e(LOG_TAG, "getTextualDisplay() " + e.getMessage(), e);
         }
 
         return text;

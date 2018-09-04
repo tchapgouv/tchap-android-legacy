@@ -1,5 +1,6 @@
 /*
  * Copyright 2017 Vector Creations Ltd
+ * Copyright 2018 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -131,7 +132,9 @@ public class RoomDirectoryAdapter extends RecyclerView.Adapter<RoomDirectoryAdap
             vDescriptionTextView.setText(description);
             vDescriptionTextView.setVisibility(!TextUtils.isEmpty(description) ? View.VISIBLE : View.GONE);
 
-            setAvatar(vAvatarView, server.getAvatarUrl(), server.isIncludedAllNetworks() ? null : vServerTextView.getContext().getResources().getDrawable(R.drawable.network_matrix));
+            setAvatar(vAvatarView,
+                    server.getAvatarUrl(),
+                    server.isIncludedAllNetworks() ? null : vServerTextView.getContext().getResources().getDrawable(R.drawable.network_matrix));
 
             vMainView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -204,7 +207,7 @@ public class RoomDirectoryAdapter extends RecyclerView.Adapter<RoomDirectoryAdap
                     URL url = new URL(avatarURL);
                     bitmap = BitmapFactory.decodeStream((InputStream) url.getContent());
                 } catch (Exception e) {
-                    Log.e(LOG_TAG, "## downloadAvatar() : cannot load the avatar " + avatarURL);
+                    Log.e(LOG_TAG, "## downloadAvatar() : cannot load the avatar " + avatarURL, e);
                 }
                 return bitmap;
             }
@@ -233,7 +236,7 @@ public class RoomDirectoryAdapter extends RecyclerView.Adapter<RoomDirectoryAdap
         try {
             task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         } catch (Exception e) {
-            Log.e(LOG_TAG, "## downloadAvatar() failed " + e.getMessage());
+            Log.e(LOG_TAG, "## downloadAvatar() failed " + e.getMessage(), e);
             task.cancel(true);
         }
     }

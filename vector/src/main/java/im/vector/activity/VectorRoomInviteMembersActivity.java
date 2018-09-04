@@ -45,19 +45,16 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.listeners.MXEventListener;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.rest.model.MatrixError;
-import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.rest.model.pid.ThreePid;
 import org.matrix.androidsdk.util.Log;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -73,6 +70,7 @@ import im.vector.contacts.Contact;
 import im.vector.contacts.ContactsManager;
 import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.notifications.NotificationUtils;
+import im.vector.util.PermissionsToolsKt;
 import im.vector.util.VectorUtils;
 import im.vector.view.VectorAutoCompleteTextView;
 
@@ -106,9 +104,6 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
 
     // add an extra to precise the type of filter we want to display contacts
     public static final String EXTRA_CONTACTS_FILTER = "EXTRA_CONTACTS_FILTER";
-
-    // on devices >= android O, we need to define a channel for each notifications
-    private static final String SILENT_NOTIFICATION_CHANNEL_ID = "NotificationUtils.SILENT_NOTIFICATION_CHANNEL_ID";
 
     // This enum is used to define the behavior of the activity on the contact selection and/or on the action selection:
     // START_DIRECT_CHAT: the multi-selection is disabled, when a contact is selected a direct chat is opened to chat with him.
@@ -375,7 +370,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         }
 
         // Check permission to access contacts
-        CommonActivityUtils.checkPermissions(CommonActivityUtils.REQUEST_CODE_PERMISSION_MEMBERS_SEARCH, this);
+        PermissionsToolsKt.checkPermissions(PermissionsToolsKt.PERMISSIONS_FOR_MEMBERS_SEARCH, this, PermissionsToolsKt.PERMISSION_REQUEST_CODE);
     }
 
     /**
@@ -417,10 +412,9 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.tchap_room_invite_member_menu, menu);
+    public int getMenuRes() {
         hideKeyboard();
-        return true;
+        return R.menu.tchap_room_invite_member_menu;
     }
 
     @Override
@@ -516,17 +510,17 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
     }
 
     @Override
-    public void onRequestPermissionsResult(int aRequestCode, @NonNull String[] aPermissions, @NonNull int[] aGrantResults) {
-        if (0 == aPermissions.length) {
-            Log.e(LOG_TAG, "## onRequestPermissionsResult(): cancelled " + aRequestCode);
-        } else if (aRequestCode == CommonActivityUtils.REQUEST_CODE_PERMISSION_MEMBERS_SEARCH) {
-            if (PackageManager.PERMISSION_GRANTED == aGrantResults[0]) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (0 == permissions.length) {
+            Log.d(LOG_TAG, "## onRequestPermissionsResult(): cancelled " + requestCode);
+        } else if (requestCode == PermissionsToolsKt.PERMISSION_REQUEST_CODE) {
+            if (PackageManager.PERMISSION_GRANTED == grantResults[0]) {
                 Log.d(LOG_TAG, "## onRequestPermissionsResult(): READ_CONTACTS permission granted");
                 ContactsManager.getInstance().refreshLocalContactsSnapshot();
                 onPatternUpdate(false);
             } else {
                 Log.d(LOG_TAG, "## onRequestPermissionsResult(): READ_CONTACTS permission not granted");
-                CommonActivityUtils.displayToast(this, getString(R.string.missing_permissions_warning));
+                Toast.makeText(this, R.string.missing_permissions_warning, Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -590,29 +584,29 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
     private void displayInviteByUserId() {
         View dialogLayout = getLayoutInflater().inflate(R.layout.dialog_invite_by_id, null);
 
-        final AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-        dialog.setTitle(R.string.people_search_invite_by_id_dialog_title);
-        dialog.setView(dialogLayout);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setTitle(R.string.people_search_invite_by_id_dialog_title)
+                .setView(dialogLayout);
 
         final VectorAutoCompleteTextView inviteTextView = dialogLayout.findViewById(R.id.invite_by_id_edit_text);
         // Tchap : only email is accepted so disable autocompletion
         // inviteTextView.initAutoCompletion(mSession);
 
-        dialog.setPositiveButton(R.string.invite, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // will be overridden to avoid dismissing the dialog while displaying the progress
-            }
-        });
+        final AlertDialog inviteDialog = builder
+                .setPositiveButton(R.string.invite, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // will be overridden to avoid dismissing the dialog while displaying the progress
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .show();
 
-        dialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-        final AlertDialog inviteDialog = dialog.show();
         final Button inviteButton = inviteDialog.getButton(AlertDialog.BUTTON_POSITIVE);
 
         if (null != inviteButton) {
@@ -906,23 +900,23 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         SpannableString text = new SpannableString(getResources().getQuantityString(R.plurals.tchap_succes_invite__notification, mSuccessCount, mSuccessCount));
         Toast.makeText(VectorRoomInviteMembersActivity.this, text + " \n" + getString(R.string.tchap_send_invite_confirmation), Toast.LENGTH_SHORT).show();
 
-        Intent intent = new Intent(this, VectorHomeActivity.class);
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        NotificationUtils.addNotificationChannels(this);
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, SILENT_NOTIFICATION_CHANNEL_ID);
-        builder.setAutoCancel(true)
-                .setDefaults(Notification.FLAG_LOCAL_ONLY)
-                .setWhen(System.currentTimeMillis())
-                .setSmallIcon(R.drawable.logo_tchap_transparent)
-                .setTicker(text)
-                .setContentTitle(text)
-                .setContentText(getString(R.string.tchap_send_invite_confirmation))
-                .setDefaults(Notification.DEFAULT_LIGHTS| Notification.DEFAULT_SOUND)
-                .setContentIntent(contentIntent)
-                .setContentInfo("Info");
-
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(1, builder.build());
+        // @TODO FIXME create a new function in NotificationUtils to handle the local notif on sent invitations
+//        Intent intent = new Intent(this, VectorHomeActivity.class);
+//        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+//
+//        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, SILENT_NOTIFICATION_CHANNEL_ID);
+//        builder.setAutoCancel(true)
+//                .setDefaults(Notification.FLAG_LOCAL_ONLY)
+//                .setWhen(System.currentTimeMillis())
+//                .setSmallIcon(R.drawable.logo_tchap_transparent)
+//                .setTicker(text)
+//                .setContentTitle(text)
+//                .setContentText(getString(R.string.tchap_send_invite_confirmation))
+//                .setDefaults(Notification.DEFAULT_LIGHTS| Notification.DEFAULT_SOUND)
+//                .setContentIntent(contentIntent)
+//                .setContentInfo("Info");
+//
+//        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+//        notificationManager.notify(1, builder.build());
     }
 }

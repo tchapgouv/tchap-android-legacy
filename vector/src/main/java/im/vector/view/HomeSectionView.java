@@ -109,7 +109,7 @@ public class HomeSectionView extends RelativeLayout {
         GradientDrawable shape = new GradientDrawable();
         shape.setShape(GradientDrawable.RECTANGLE);
         shape.setCornerRadius(100);
-        shape.setColor(ThemeUtils.getColor(getContext(), R.attr.activity_bottom_gradient_color));
+        shape.setColor(ThemeUtils.INSTANCE.getColor(getContext(), R.attr.activity_bottom_gradient_color));
         mBadge.setBackground(shape);
 
         mHeader.setOnClickListener(new OnClickListener() {
@@ -141,7 +141,7 @@ public class HomeSectionView extends RelativeLayout {
                 mRecyclerView.setVisibility(hasNoResult ? GONE : VISIBLE);
                 mPlaceHolder.setVisibility(hasNoResult ? VISIBLE : GONE);
             } catch (Exception e) {
-                Log.e(LOG_TAG, "## onDataUpdated() failed " + e.getMessage());
+                Log.e(LOG_TAG, "## onDataUpdated() failed " + e.getMessage(), e);
             }
         }
     }
@@ -193,8 +193,10 @@ public class HomeSectionView extends RelativeLayout {
      * @param invitationListener   listener for invite buttons
      * @param moreActionListener   listener for room menu
      */
-    public void setupRoomRecyclerView(final RecyclerView.LayoutManager layoutManager, @LayoutRes final int itemResId,
-                                      final boolean nestedScrollEnabled, final HomeRoomAdapter.OnSelectRoomListener onSelectRoomListener,
+    public void setupRoomRecyclerView(final RecyclerView.LayoutManager layoutManager,
+                                      @LayoutRes final int itemResId,
+                                      final boolean nestedScrollEnabled,
+                                      final HomeRoomAdapter.OnSelectRoomListener onSelectRoomListener,
                                       final AbsAdapter.RoomInvitationListener invitationListener,
                                       final AbsAdapter.MoreRoomActionListener moreActionListener) {
         mRecyclerView.setLayoutManager(layoutManager);
