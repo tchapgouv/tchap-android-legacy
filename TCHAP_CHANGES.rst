@@ -1,3 +1,14 @@
+Changes in Tchap 1.0.7 (2018-09-04)
+===================================================
+
+Improvements:
+ * Update matrix-sdk.aar lib - build 1875 - Revision: ccf12449b8f09b06a7a8f501b9d7a382270b2305
+ * Rebase from vector-im/riot-android #364
+ 
+Bug Fixes:
+ * Public Rooms: the loading wheel is missing #362
+ * A discussion is considered as a salon after I left and joined it again #356
+
 Changes in Tchap 1.0.6 (2018-08-07)
 ===================================================
 
