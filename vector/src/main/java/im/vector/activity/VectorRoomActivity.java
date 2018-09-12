@@ -279,9 +279,6 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
     private MenuItem mSearchInRoomMenuItem;
     private MenuItem mUseMatrixAppsMenuItem;
 
-    @Nullable
-    private MatrixError mResourceLimitExceededError;
-
     // medias sending helper
     private VectorRoomMediasSender mVectorRoomMediasSender;
 
@@ -357,11 +354,10 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
 
         @Override
         public void onSyncError(MatrixError matrixError) {
-            if (MatrixError.RESOURCE_LIMIT_EXCEEDED.equals(matrixError.errcode) && mResourceLimitExceededError == null) {
-                mResourceLimitExceededError = matrixError;
-                checkSendEventStatus();
-                refreshNotificationsArea();
-            }
+            mSyncInProgressView.setVisibility(View.GONE);
+
+            checkSendEventStatus();
+            refreshNotificationsArea();
         }
 
         @Override
@@ -390,11 +386,9 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
         @Override
         public void onLiveEventsChunkProcessed(String fromToken, String toToken) {
             mSyncInProgressView.setVisibility(View.GONE);
-            if (mResourceLimitExceededError != null) {
-                mResourceLimitExceededError = null;
-                checkSendEventStatus();
-                refreshNotificationsArea();
-            }
+
+            checkSendEventStatus();
+            refreshNotificationsArea();
         }
     };
 
@@ -671,6 +665,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
 
                 if (EditorInfo.IME_ACTION_DONE == imeActionId) {
                     tchapSendTextMessage();
+                    return true;
                 }
 
                 if ((null != keyEvent) && !keyEvent.isShiftPressed() && keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER
@@ -823,7 +818,6 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
                         .setPositiveButton(R.string.remove, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
                                 showWaitingView();
 
                                 WidgetsManager.getSharedInstance().closeWidget(mSession, mRoom, widget.getWidgetId(), new ApiCallback<Void>() {
@@ -1774,7 +1768,17 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
         mSendMessageView.setEnabled(false);
         mIsMarkDowning = true;
 
-        VectorApp.markdownToHtml(mEditText.getText().toString().trim(), new VectorMarkdownParser.IVectorMarkdownParserListener() {
+        String textToSend = mEditText.getText().toString().trim();
+
+        final boolean handleSlashCommand;
+        if (textToSend.startsWith("\\/")) {
+            handleSlashCommand = false;
+            textToSend = textToSend.substring(1);
+        } else {
+            handleSlashCommand = true;
+        }
+
+        VectorApp.markdownToHtml(textToSend, new VectorMarkdownParser.IVectorMarkdownParserListener() {
             @Override
             public void onMarkdownParsed(final String text, final String htmlText) {
                 runOnUiThread(new Runnable() {
@@ -1783,7 +1787,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
                         mSendMessageView.setEnabled(true);
                         mIsMarkDowning = false;
                         enableActionBarHeader(HIDE_ACTION_BAR_HEADER);
-                        sendMessage(text, TextUtils.equals(text, htmlText) ? null : htmlText, Message.FORMAT_MATRIX_HTML);
+                        sendMessage(text, TextUtils.equals(text, htmlText) ? null : htmlText, Message.FORMAT_MATRIX_HTML, handleSlashCommand);
                         mEditText.setText("");
                     }
                 });
@@ -1794,13 +1798,15 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
     /**
      * Send a text message with its formatted format
      *
-     * @param body          the text message.
-     * @param formattedBody the formatted message
-     * @param format        the message format
+     * @param body               the text message.
+     * @param formattedBody      the formatted message
+     * @param format             the message format
+     * @param handleSlashCommand true to try to handle a Slash command
      */
-    public void sendMessage(String body, String formattedBody, String format) {
+    public void sendMessage(String body, String formattedBody, String format, boolean handleSlashCommand) {
         if (!TextUtils.isEmpty(body)) {
-            if (!SlashCommandsParser.manageSplashCommand(this, mSession, mRoom, body, formattedBody, format)) {
+            if (!handleSlashCommand
+                    || !SlashCommandsParser.manageSplashCommand(this, mSession, mRoom, body, formattedBody, format)) {
                 Event currentSelectedEvent = mVectorMessageListFragment.getCurrentSelectedEvent();
 
                 cancelSelectionMode();
@@ -2279,7 +2285,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
     private void launchFileSelectionIntent() {
         enableActionBarHeader(HIDE_ACTION_BAR_HEADER);
 
-        ExternalApplicationsUtilKt.openFileSelection(this, REQUEST_FILES_REQUEST_CODE);
+        ExternalApplicationsUtilKt.openFileSelection(this, null, true, REQUEST_FILES_REQUEST_CODE);
     }
 
     private void startStickerPickerActivity() {
@@ -2478,6 +2484,10 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
             } else {
                 // another user
                 if (TextUtils.isEmpty(mEditText.getText())) {
+                    // Ensure displayName will not be interpreted as a Slash command
+                    if (text.startsWith("/")) {
+                        mEditText.append("\\");
+                    }
                     mEditText.append(sanitizeDisplayname(text) + ": ");
                 } else {
                     mEditText.getText().insert(mEditText.getSelectionStart(), sanitizeDisplayname(text) + " ");
@@ -2602,12 +2612,15 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
         if ((null == mSession.getDataHandler()) || (null == mRoom) || (null != sRoomPreviewData)) {
             return;
         }
+
+        MatrixError resourceLimitExceededError = mSession.getDataHandler().getResourceLimitExceededError();
+
         NotificationAreaView.State state = NotificationAreaView.State.Default.INSTANCE;
         boolean hasUnsentEvent = false;
         if (!mIsUnreadPreviewMode && !TextUtils.isEmpty(mEventId)) {
             state = NotificationAreaView.State.Hidden.INSTANCE;
-        } else if (mResourceLimitExceededError != null) {
-            state = new NotificationAreaView.State.ResourceLimitExceededError(mResourceLimitExceededError);
+        } else if (resourceLimitExceededError != null) {
+            state = new NotificationAreaView.State.ResourceLimitExceededError(resourceLimitExceededError);
         } else if (!Matrix.getInstance(this).isConnected()) {
             state = NotificationAreaView.State.ConnectionError.INSTANCE;
         } else if (mIsUnreadPreviewMode) {
@@ -2907,7 +2920,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
             canSendMessage = (powerLevels != null && powerLevels.maySendMessage(mMyUserId));
         }
         if (canSendMessage) {
-            canSendMessage = mResourceLimitExceededError == null;
+            canSendMessage = mSession.getDataHandler().getResourceLimitExceededError() == null;
         }
         return canSendMessage;
     }
@@ -2923,7 +2936,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
                 mBottomSeparator.setVisibility(View.VISIBLE);
                 mSendingMessagesLayout.setVisibility(View.VISIBLE);
                 mCanNotPostTextView.setVisibility(View.GONE);
-            } else if (mRoom.getState().isVersioned() || mResourceLimitExceededError != null) {
+            } else if (mRoom.getState().isVersioned() || mSession.getDataHandler().getResourceLimitExceededError() != null) {
                 mBottomSeparator.setVisibility(View.GONE);
                 mBottomLayout.getLayoutParams().height = 0;
             } else {

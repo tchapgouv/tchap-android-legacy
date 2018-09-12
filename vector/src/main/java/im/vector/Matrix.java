@@ -647,12 +647,14 @@ public class Matrix {
         }*/
 
         final MXDataHandler dataHandler = new MXDataHandler(store, credentials);
-        final MXSession session = new MXSession(hsConfig, dataHandler, mAppContext);
+        final MXSession session = new MXSession.Builder(hsConfig, dataHandler, context)
+                .withPushServerUrl(context.getString(R.string.push_server_url))
+                .withMetricsListener(metricsListener)
+                .build();
 
         // Turn on the anti-virus server
         session.getContentManager().configureAntiVirusScanner(true);
 
-        session.setMetricsListener(metricsListener);
         dataHandler.setMetricsListener(metricsListener);
         dataHandler.setRequestNetworkErrorListener(new MXDataHandler.RequestNetworkErrorListener() {
 

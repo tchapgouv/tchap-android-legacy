@@ -83,9 +83,6 @@ public class HistoricalRoomsActivity extends VectorAppCompatActivity implements
     @BindView(R.id.historical_toolbar)
     Toolbar mToolbar;
 
-    @BindView(R.id.historical_waiting_view)
-    View waitingView;
-
     // historical adapter
     private HomeRoomAdapter mHistoricalAdapter;
 
@@ -168,6 +165,9 @@ public class HistoricalRoomsActivity extends VectorAppCompatActivity implements
      */
 
     private void initViews() {
+        // Waiting View
+        setWaitingView(findViewById(R.id.historical_waiting_view));
+
         // Toolbar
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

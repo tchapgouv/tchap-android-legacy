@@ -395,8 +395,6 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
             return;
         }
 
-        final List<String> idsList = new ArrayList<>();
-
         String displayName = (null == mRoomMember) ?
                 mMemberId : (TextUtils.isEmpty(mRoomMember.displayname) ? mRoomMember.getUserId() : mRoomMember.displayname);
 
@@ -499,6 +497,8 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
                                     public void onClick(DialogInterface dialog, int id) {
                                         enableProgressBarView(CommonActivityUtils.UTILS_DISPLAY_PROGRESS_BAR);
 
+                                        final List<String> idsList = new ArrayList<>();
+
                                         if (null != mRoomMember) {
                                             idsList.add(mRoomMember.getUserId());
                                         } else if (null != mMemberId) {
@@ -534,12 +534,7 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
                                         }
                                     }
                                 })
-                        .setNegativeButton(R.string.cancel,
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        dialog.cancel();
-                                    }
-                                })
+                        .setNegativeButton(R.string.cancel, null)
                         .show();
 
                 break;
@@ -552,7 +547,7 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
                         .setPositiveButton(R.string.ok,
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int id) {
-                                        enableProgressBarView(CommonActivityUtils.UTILS_DISPLAY_PROGRESS_BAR);
+                                        final List<String> idsList = new ArrayList<>();
 
                                         if (null != mRoomMember) {
                                             idsList.add(mRoomMember.getUserId());
@@ -589,12 +584,7 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
                                         }
                                     }
                                 })
-                        .setNegativeButton(R.string.cancel,
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        dialog.cancel();
-                                    }
-                                })
+                        .setNegativeButton(R.string.cancel, null)
                         .show();
                 break;
             }
@@ -749,16 +739,10 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
                     .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
                             mRoom.updateUserPowerLevels(userId, newPowerLevel, callback);
                         }
                     })
-                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    })
+                    .setNegativeButton(R.string.no, null)
                     .show();
         } else {
             mRoom.updateUserPowerLevels(userId, newPowerLevel, callback);

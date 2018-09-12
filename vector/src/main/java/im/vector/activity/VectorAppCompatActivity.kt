@@ -168,7 +168,6 @@ abstract class VectorAppCompatActivity : AppCompatActivity() {
             menuInflater.inflate(menuRes, menu)
             ThemeUtils.tintMenuIcons(menu, ThemeUtils.getColor(this, getMenuTint()))
             return true
-
         }
 
         return super.onCreateOptionsMenu(menu)
@@ -220,6 +219,12 @@ abstract class VectorAppCompatActivity : AppCompatActivity() {
     //==============================================================================================
 
     var waitingView: View? = null
+        set(value) {
+            field = value
+
+            // Ensure this view is clickable to catch UI events
+            value?.isClickable = true
+        }
 
     /**
      * Tells if the waiting view is currently displayed

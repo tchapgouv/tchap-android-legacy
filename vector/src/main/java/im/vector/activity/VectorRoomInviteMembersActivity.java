@@ -599,12 +599,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                         // will be overridden to avoid dismissing the dialog while displaying the progress
                     }
                 })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                })
+                .setNegativeButton(R.string.cancel, null)
                 .show();
 
         final Button inviteButton = inviteDialog.getButton(AlertDialog.BUTTON_POSITIVE);

@@ -1365,10 +1365,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             int end = spannable.getSpanEnd(quoteSpan);
             int flags = spannable.getSpanFlags(quoteSpan);
             spannable.removeSpan(quoteSpan);
-            spannable.setSpan(new VectorQuoteSpan(mContext),
-                    start,
-                    end,
-                    flags);
+            spannable.setSpan(new VectorQuoteSpan(mContext), start, end, flags);
         }
     }
 
