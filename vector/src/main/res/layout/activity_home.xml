@@ -136,9 +136,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:tint="@android:color/white"
-                app:fab_icon="@drawable/ic_person_black_24dp"
+                app:fab_icon="@drawable/tchap_ic_new_discussion"
                 app:fab_size="mini"
-                app:fab_title="@string/room_recents_start_chat"
+                app:fab_title="@string/start_new_chat"
                 tools:fab_colorNormal="@color/vector_fuchsia_color"
                 tools:fab_colorPressed="@color/vector_fuchsia_color" />
 
@@ -146,9 +146,9 @@
                 android:id="@+id/button_create_room"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:fab_icon="@drawable/ic_add_white"
+                app:fab_icon="@drawable/tchap_ic_new_room"
                 app:fab_size="mini"
-                app:fab_title="@string/room_recents_create_room"
+                app:fab_title="@string/tchap_room_creation_title"
                 tools:fab_colorNormal="@color/vector_fuchsia_color"
                 tools:fab_colorPressed="@color/vector_fuchsia_color" />
 
@@ -156,9 +156,9 @@
                 android:id="@+id/button_join_room"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:fab_icon="@drawable/riot_tab_rooms"
+                app:fab_icon="@drawable/tchap_ic_join_public"
                 app:fab_size="mini"
-                app:fab_title="@string/room_recents_join_room"
+                app:fab_title="@string/room_join_public_room_title"
                 tools:fab_colorNormal="@color/vector_fuchsia_color"
                 tools:fab_colorPressed="@color/vector_fuchsia_color" />
 

@@ -1188,17 +1188,17 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
         }
 
         mFabStartChat.setIconDrawable(ThemeUtils.INSTANCE.tintDrawableWithColor(
-                ContextCompat.getDrawable(this, R.drawable.ic_person_black_24dp),
+                ContextCompat.getDrawable(this, R.drawable.tchap_ic_new_discussion),
                 ContextCompat.getColor(this, android.R.color.white)
         ));
 
         mFabCreateRoom.setIconDrawable(ThemeUtils.INSTANCE.tintDrawableWithColor(
-                ContextCompat.getDrawable(this, R.drawable.ic_add_white),
+                ContextCompat.getDrawable(this, R.drawable.tchap_ic_new_room),
                 ContextCompat.getColor(this, android.R.color.white)
         ));
 
         mFabJoinRoom.setIconDrawable(ThemeUtils.INSTANCE.tintDrawableWithColor(
-                ContextCompat.getDrawable(this, R.drawable.riot_tab_rooms),
+                ContextCompat.getDrawable(this, R.drawable.tchap_ic_join_public),
                 ContextCompat.getColor(this, android.R.color.white)
         ));
 
