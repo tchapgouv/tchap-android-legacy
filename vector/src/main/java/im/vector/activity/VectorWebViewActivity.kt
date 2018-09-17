@@ -72,6 +72,9 @@ class VectorWebViewActivity : VectorAppCompatActivity() {
             allowFileAccessFromFileURLs = true
             allowUniversalAccessFromFileURLs = true
 
+            allowFileAccess = false
+            allowContentAccess = false
+
             displayZoomControls = false
         }
 

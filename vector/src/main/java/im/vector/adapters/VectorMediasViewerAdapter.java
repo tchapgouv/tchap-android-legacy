@@ -357,6 +357,8 @@ public class VectorMediasViewerAdapter extends PagerAdapter {
                 imageInfo.mEncryptedFileInfo);
 
         webView.getSettings().setDisplayZoomControls(false);
+        webView.getSettings().setAllowUniversalAccessFromFileURLs(false);
+        webView.getSettings().setAllowContentAccess(false);
 
         if (null != downloadId) {
             pieFractionView.setVisibility(View.VISIBLE);
@@ -443,6 +445,9 @@ public class VectorMediasViewerAdapter extends PagerAdapter {
         final ImageView thumbView = view.findViewById(R.id.media_slider_video_thumbnail);
 
         imageWebView.getSettings().setDisplayZoomControls(false);
+
+        imageWebView.getSettings().setAllowUniversalAccessFromFileURLs(false);
+        imageWebView.getSettings().setAllowContentAccess(false);
 
         imageWebView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override

@@ -75,6 +75,11 @@ public class AccountCreationActivity extends VectorAppCompatActivity {
         final WebView webView = findViewById(R.id.account_creation_webview);
         webView.getSettings().setJavaScriptEnabled(true);
 
+        webView.getSettings().setAllowFileAccessFromFileURLs(false);
+        webView.getSettings().setAllowUniversalAccessFromFileURLs(false);
+        webView.getSettings().setAllowFileAccess(false);
+        webView.getSettings().setAllowContentAccess(false);
+
         Intent intent = getIntent();
 
         mHomeServerUrl = "https://matrix.org/";

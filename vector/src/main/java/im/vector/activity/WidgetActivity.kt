@@ -250,6 +250,9 @@ class WidgetActivity : VectorAppCompatActivity() {
                 it.allowFileAccessFromFileURLs = true
                 it.allowUniversalAccessFromFileURLs = true
 
+                it.allowFileAccess = false
+                it.allowContentAccess = false
+
                 it.displayZoomControls = false
             }
 
