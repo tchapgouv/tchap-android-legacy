@@ -38,9 +38,8 @@ import im.vector.dialogs.ConsentNotGivenHelper
 import im.vector.receiver.DebugReceiver
 import im.vector.util.AssetReader
 import im.vector.util.ThemeUtils
-import org.matrix.androidsdk.util.Log
-
 import io.realm.Realm
+import org.matrix.androidsdk.util.Log
 
 /**
  * Parent class for all Activities in Vector application
@@ -281,6 +280,15 @@ abstract class VectorAppCompatActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Forbid screenshots or video recording of the screen
+     */
+    protected fun applyScreenshotSecurity() {
+        if (!BuildConfig.DEBUG) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        }
+    }
+
     /* ==========================================================================================
      * PRIVATE METHODS
      * ========================================================================================== */
@@ -322,11 +330,5 @@ abstract class VectorAppCompatActivity : AppCompatActivity() {
     val consentNotGivenHelper by lazy {
         ConsentNotGivenHelper(this, savedInstanceState)
                 .apply { addToRestorables(this) }
-    }
-
-    protected fun applyScreenshotSecurity() {
-        if (!BuildConfig.DEBUG) {
-            window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
-        }
     }
 }
