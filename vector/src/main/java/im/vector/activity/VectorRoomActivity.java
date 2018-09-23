@@ -265,6 +265,9 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
     @BindView(R.id.room_notifications_area)
     NotificationAreaView mNotificationsArea;
 
+    @BindView(R.id.close_reply)
+    View closeReply;
+
     private String mLatestTypingMessage;
     private Boolean mIsScrolledToTheBottom;
     private Event mLatestDisplayedEvent; // the event at the bottom of the list
@@ -274,6 +277,17 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
     // room preview
     @BindView(R.id.room_preview_info_layout)
     View mRoomPreviewLayout;
+
+    //reply area
+    @BindView(R.id.room_reply_area)
+    View mRoomReplyArea;
+
+    @BindView(R.id.reply_to_sender)
+    TextView mReplySenderName;
+
+    @BindView(R.id.room_reply_message)
+    TextView mReplyMessage;
+
 
     private MenuItem mResendUnsentMenuItem;
     private MenuItem mResendDeleteMenuItem;
@@ -1009,6 +1023,14 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
                 }
             }
         });
+
+        closeReply.setOnClickListener(new View.OnClickListener() {
+                 @Override
+                 public void onClick(View v) {
+                     mVectorMessageListFragment.onContentClick(0);
+                 }
+        });
+
         Log.d(LOG_TAG, "End of create");
     }
 
@@ -1246,10 +1268,31 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
             // User can reply to this event
             mEditText.setHint((mRoom.isEncrypted() && mSession.isCryptoEnabled()) ?
                     R.string.room_message_placeholder_reply_to_encrypted : R.string.room_message_placeholder_reply_to_not_encrypted);
+            mRoomReplyArea.setVisibility(View.VISIBLE);
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(mEditText, InputMethodManager.SHOW_IMPLICIT);
+            //imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_NOT_ALWAYS);
+
+            String mySender = "";
+            RoomState state = null;
+            if (mRoom!=null) state = mRoom.getState();
+            if (state!=null && selectedEvent!= null && selectedEvent.getSender()!= null)
+                mySender = state.getMemberName(selectedEvent.getSender());
+            mReplySenderName.setText(mySender);
+            Event myEvent = selectedEvent;
+            String myBody = "";
+            if (selectedEvent.isEncrypted())
+                myEvent = selectedEvent.getClearEvent();
+            Message message = JsonUtils.toMessage(myEvent.getContent());
+            if (message!=null)
+                myBody = message.body;
+            mReplyMessage.setText(myBody);
+
         } else {
             // default hint
             mEditText.setHint((mRoom.isEncrypted() && mSession.isCryptoEnabled()) ?
                     R.string.room_message_placeholder_encrypted : R.string.room_message_placeholder_not_encrypted);
+            mRoomReplyArea.setVisibility(View.GONE);
         }
     }
 
