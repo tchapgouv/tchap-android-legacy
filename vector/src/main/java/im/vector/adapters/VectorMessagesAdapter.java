@@ -2275,7 +2275,6 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                     if (!mIsSearchMode) {
                         onMessageClick(event, getEventText(contentView, event, msgType), convertView.findViewById(R.id.messagesAdapter_action_anchor));
 
-                        onEventTap(event);
                         return true;
                     }
                 }
