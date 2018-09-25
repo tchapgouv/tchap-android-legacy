@@ -1125,7 +1125,10 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
      * @param aHomeServer     home server url
      */
     private void submitEmailToken(final String aToken, final String aClientSecret, final String aSid, final String aSessionId, final String aHomeServer, final String aIdentityServer) {
-        final HomeServerConnectionConfig homeServerConfig = mServerConfig = new HomeServerConnectionConfig(Uri.parse(aHomeServer), Uri.parse(aIdentityServer), null, new ArrayList<Fingerprint>(), false);
+        final HomeServerConnectionConfig homeServerConfig = mServerConfig = new HomeServerConnectionConfig.Builder()
+                .withHomeServerUri(Uri.parse(aHomeServer))
+                .withIdentityServerUri(Uri.parse(aIdentityServer))
+                .build();
         RegistrationManager.getInstance().setHsConfig(homeServerConfig);
         Log.d(LOG_TAG, "## submitEmailToken(): IN");
 
@@ -1790,7 +1793,10 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     private HomeServerConnectionConfig getHsConfig() {
         try {
             mServerConfig = null;
-            mServerConfig = new HomeServerConnectionConfig(Uri.parse(getHomeServerUrl()), Uri.parse(getIdentityServerUrl()), null, new ArrayList<Fingerprint>(), false);
+            mServerConfig = new HomeServerConnectionConfig.Builder()
+                    .withHomeServerUri(Uri.parse(getHomeServerUrl()))
+                    .withIdentityServerUri(Uri.parse(getIdentityServerUrl()))
+                    .build();
         } catch (Exception e) {
             Log.e(LOG_TAG, "getHsConfig fails " + e.getLocalizedMessage());
         }
@@ -2278,7 +2284,10 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
         // Retrieve the first identity server url by removing it from the list.
         String selectedUrl = identityServerUrls.remove(0);
-        TchapRestClient tchapRestClient = new TchapRestClient(new HomeServerConnectionConfig(Uri.parse(selectedUrl), Uri.parse(selectedUrl), null, new ArrayList<Fingerprint>(), false));
+        TchapRestClient tchapRestClient = new TchapRestClient(new HomeServerConnectionConfig.Builder()
+                .withHomeServerUri(Uri.parse(selectedUrl))
+                .withIdentityServerUri(Uri.parse(selectedUrl))
+                .build();
         tchapRestClient.info(emailAddress, ThreePid.MEDIUM_EMAIL, new ApiCallback<Platform>() {
             @Override
             public void onSuccess(Platform platform) {
