@@ -1018,7 +1018,8 @@
     <string name="tchap_room_creation_avatar">Add an avatar</string>
     <string name="tchap_room_creation_name">Name this room</string>
     <string name="tchap_room_creation_public">Make this room public</string>
-    <string name="tchap_room_creation_public_private_info">A public room can be joined by any member of the Tchap community provided that has been accepted.</string>
+    <string name="tchap_room_creation_disable_federation">Limit access to this room to members of my department</string>
+    <string name="tchap_room_creation_public_info">A public room can be joined by any member of the Tchap community, it must not contain any sensitive data.</string>
     <string name="tchap_room_invite_member_title">Add to the room</string>
     <string name="tchap_room_invite_member_action">Add</string>
     <string name="tchap_room_creation_save_avatar_failed">Failed to save picture.\n Do you want to retry?</string>
