@@ -1027,6 +1027,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
         closeReply.setOnClickListener(new View.OnClickListener() {
                  @Override
                  public void onClick(View v) {
+                     // cancel the selection mode.
                      mVectorMessageListFragment.onContentClick(0);
                  }
         });
@@ -1269,24 +1270,21 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
             mEditText.setHint((mRoom.isEncrypted() && mSession.isCryptoEnabled()) ?
                     R.string.room_message_placeholder_reply_to_encrypted : R.string.room_message_placeholder_reply_to_not_encrypted);
             mRoomReplyArea.setVisibility(View.VISIBLE);
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.showSoftInput(mEditText, InputMethodManager.SHOW_IMPLICIT);
-            //imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_NOT_ALWAYS);
 
-            String mySender = "";
-            RoomState state = null;
-            if (mRoom!=null) state = mRoom.getState();
-            if (state!=null && selectedEvent!= null && selectedEvent.getSender()!= null)
-                mySender = state.getMemberName(selectedEvent.getSender());
-            mReplySenderName.setText(mySender);
+            String selectedEventSender = "";
+            RoomState state = mRoom.getState();
+            if (state != null && selectedEvent.getSender() != null)
+                selectedEventSender = state.getMemberName(selectedEvent.getSender());
+            mReplySenderName.setText(selectedEventSender);
+
             Event myEvent = selectedEvent;
-            String myBody = "";
+            String selectedEventBody = "";
             if (selectedEvent.isEncrypted())
                 myEvent = selectedEvent.getClearEvent();
             Message message = JsonUtils.toMessage(myEvent.getContent());
-            if (message!=null)
-                myBody = message.body;
-            mReplyMessage.setText(myBody);
+            if (message != null)
+                selectedEventBody = message.body;
+            mReplyMessage.setText(selectedEventBody);
 
         } else {
             // default hint
