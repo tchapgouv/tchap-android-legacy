@@ -109,7 +109,7 @@ public class DinsicUtils {
     /**
      * Build a display name from the tchap user identifier.
      * We don't extract the domain for the moment in order to not display unexpected information.
-     * For example in case of "@jean.martin-modernisation.fr:matrix.org", this will return "Jean Martin".
+     * For example in case of "@jean-philippe.martin-modernisation.fr:matrix.org", this will return "Jean-Philippe Martin".
      *
      * @param tchapUserId user id
      * @return displayName without domain, null if the id is not valid.
@@ -135,7 +135,23 @@ public class DinsicUtils {
                             builder.append(" ");
                         }
 
-                        // Capitalize the component
+                        // Check whether the component contains some '-'
+                        if (-1 != component.indexOf("-")) {
+                            // Capitalize each sub component
+                            String[] subComponents = component.split("-");
+                            for (int i = 0; i < subComponents.length - 1; i++) {
+                                String subComponent = subComponents[i];
+                                builder.append(subComponent.substring(0, 1).toUpperCase());
+                                if (subComponent.length() > 1) {
+                                    builder.append(subComponent.substring(1));
+                                }
+                                builder.append("-");
+                            }
+                            // Retrieve the last sub-component
+                            component = subComponents[subComponents.length - 1];
+                        }
+
+                        // Capitalize the component (or the last sub-component)
                         builder.append(component.substring(0, 1).toUpperCase());
                         if (component.length() > 1) {
                             builder.append(component.substring(1));

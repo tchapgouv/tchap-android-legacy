@@ -77,6 +77,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.activity.SelectPictureActivity;
 import im.vector.Matrix;
 import im.vector.R;
@@ -1496,8 +1497,9 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
                 VectorCustomActionEditTextPreference preference = new VectorCustomActionEditTextPreference(getActivity());
 
                 final String userId = member.getUserId();
+                final String displayName = DinsicUtils.computeDisplayNameFromUserId(userId);
 
-                preference.setTitle(userId);
+                preference.setTitle(displayName);
                 preference.setKey(BANNED_PREFERENCE_KEY_BASE + userId);
 
                 preference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -1505,6 +1507,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
                     public boolean onPreferenceClick(Preference preference) {
                         Intent startRoomInfoIntent = new Intent(getActivity(), VectorMemberDetailsActivity.class);
                         startRoomInfoIntent.putExtra(VectorMemberDetailsActivity.EXTRA_MEMBER_ID, userId);
+                        startRoomInfoIntent.putExtra(VectorMemberDetailsActivity.EXTRA_MEMBER_DISPLAY_NAME, displayName);
                         startRoomInfoIntent.putExtra(VectorMemberDetailsActivity.EXTRA_ROOM_ID, mRoom.getRoomId());
                         startRoomInfoIntent.putExtra(VectorMemberDetailsActivity.EXTRA_MATRIX_ID, mSession.getCredentials().userId);
                         getActivity().startActivity(startRoomInfoIntent);
