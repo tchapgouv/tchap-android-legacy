@@ -164,7 +164,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
     private TchapRoomAvatarPreference mRoomPhotoAvatar;
     private EditTextPreference mRoomNameEditTxt;
     private EditTextPreference mRoomTopicEditTxt;
-    private Preference removeFromDirectoryPreference;
+    private Preference mRemoveFromDirectoryPreference;
     private CheckBoxPreference mRoomDirectoryVisibilitySwitch;
     private ListPreference mRoomTagListPreference;
     private VectorListPreference mRoomAccessRulesListPreference;
@@ -490,11 +490,11 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
         }
 
         // Remove the room from the rooms directory
-        removeFromDirectoryPreference = findPreference(PREF_KEY_REMOVE_FROM_ROOMS_DIRECTORY);
+        mRemoveFromDirectoryPreference = findPreference(PREF_KEY_REMOVE_FROM_ROOMS_DIRECTORY);
 
-        if (null != removeFromDirectoryPreference) {
-            removeFromDirectoryPreference.setEnabled(false);
-            removeFromDirectoryPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+        if (null != mRemoveFromDirectoryPreference) {
+            mRemoveFromDirectoryPreference.setEnabled(false);
+            mRemoveFromDirectoryPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     new AlertDialog.Builder(getActivity())
@@ -768,14 +768,14 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
                                 enableSharedPreferenceListener(true);
                             }
 
-                            if (null != removeFromDirectoryPreference) {
+                            if (null != mRemoveFromDirectoryPreference) {
                                 if (isPublicRoom) {
-                                    removeFromDirectoryPreference.setEnabled(true);
+                                    mRemoveFromDirectoryPreference.setEnabled(true);
                                 } else {
                                     // Remove this option
                                     PreferenceScreen preferenceScreen = getPreferenceScreen();
-                                    preferenceScreen.removePreference(removeFromDirectoryPreference);
-                                    removeFromDirectoryPreference = null;
+                                    preferenceScreen.removePreference(mRemoveFromDirectoryPreference);
+                                    mRemoveFromDirectoryPreference = null;
                                 }
                             }
                         }
@@ -851,12 +851,12 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
         if (null != mRoomTopicEditTxt)
             mRoomTopicEditTxt.setEnabled(canUpdateTopic && isConnected);
 
-        if (null != removeFromDirectoryPreference) {
+        if (null != mRemoveFromDirectoryPreference) {
             if (!isAdmin || !isConnected) {
                 // Remove this option
                 PreferenceScreen preferenceScreen = getPreferenceScreen();
-                preferenceScreen.removePreference(removeFromDirectoryPreference);
-                removeFromDirectoryPreference = null;
+                preferenceScreen.removePreference(mRemoveFromDirectoryPreference);
+                mRemoveFromDirectoryPreference = null;
             }
         }
 
