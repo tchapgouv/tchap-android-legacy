@@ -46,11 +46,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
-import com.google.android.gms.security.ProviderInstaller;
-
 import org.jetbrains.annotations.Nullable;
 import org.matrix.androidsdk.HomeServerConnectionConfig;
 import org.matrix.androidsdk.MXSession;
@@ -91,6 +86,7 @@ import im.vector.activity.FallbackLoginActivity;
 import im.vector.activity.MXCActionBarActivity;
 import im.vector.activity.SplashActivity;
 import im.vector.dialogs.ResourceLimitDialogHelper;
+import im.vector.gcm.GCMHelper;
 import im.vector.receiver.VectorRegistrationReceiver;
 import im.vector.receiver.VectorUniversalLinkReceiver;
 import im.vector.services.EventStreamService;
@@ -651,16 +647,9 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     protected void onResume() {
         super.onResume();
 
-        // Ensure we have the last version of GooglePlay services, or TLS 1.2 could not work, especially on Android < 5.0
-        try {
-            ProviderInstaller.installIfNeeded(this);
-        } catch (GooglePlayServicesRepairableException e) {
-            // Prompt the user to install/update/enable Google Play services.
-            GoogleApiAvailability.getInstance().showErrorNotification(this, e.getConnectionStatusCode());
-        } catch (GooglePlayServicesNotAvailableException e) {
-            // Indicates a non-recoverable error: let the user know.
-            Log.e(LOG_TAG, "GooglePlayServicesNotAvailableException", e);
-        }
+        // Ensure we have the last version of GooglePlay services (not for F-Droid version then),
+        // or TLS 1.2 could not work, especially on Android < 5.0
+        GCMHelper.checkLastVersion(this);
     }
 
     /**
