@@ -119,6 +119,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
     private static final String PREF_KEY_ROOM_HISTORY_READABILITY_LIST = "roomReadHistoryRulesList";
     private static final String PREF_KEY_ROOM_NOTIFICATIONS_LIST = "roomNotificationPreference";
     private static final String PREF_KEY_ROOM_LEAVE = "roomLeave";
+    private static final String PREF_KEY_REMOVE_FROM_ROOMS_DIRECTORY = "removeFromRoomsDirectory";
     private static final String PREF_KEY_ROOM_INTERNAL_ID = "roomInternalId";
     private static final String PREF_KEY_ADDRESSES = "addresses";
     private static final String PREF_KEY_ADVANCED = "advanced";
@@ -163,6 +164,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
     private TchapRoomAvatarPreference mRoomPhotoAvatar;
     private EditTextPreference mRoomNameEditTxt;
     private EditTextPreference mRoomTopicEditTxt;
+    private Preference mRemoveFromDirectoryPreference;
     private CheckBoxPreference mRoomDirectoryVisibilitySwitch;
     private ListPreference mRoomTagListPreference;
     private VectorListPreference mRoomAccessRulesListPreference;
@@ -210,19 +212,19 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
         @Override
         public void onNetworkError(Exception e) {
             Log.w(LOG_TAG, "##NetworkError " + e.getLocalizedMessage());
-            onDone(e.getLocalizedMessage(), DO_NOT_UPDATE_UI);
+            onDone(e.getLocalizedMessage(), UPDATE_UI);
         }
 
         @Override
         public void onMatrixError(MatrixError e) {
             Log.w(LOG_TAG, "##MatrixError " + e.getLocalizedMessage());
-            onDone(e.getLocalizedMessage(), DO_NOT_UPDATE_UI);
+            onDone(e.getLocalizedMessage(), UPDATE_UI);
         }
 
         @Override
         public void onUnexpectedError(Exception e) {
             Log.w(LOG_TAG, "##UnexpectedError " + e.getLocalizedMessage());
-            onDone(e.getLocalizedMessage(), DO_NOT_UPDATE_UI);
+            onDone(e.getLocalizedMessage(), UPDATE_UI);
         }
     };
 
@@ -487,6 +489,30 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
             });
         }
 
+        // Remove the room from the rooms directory
+        mRemoveFromDirectoryPreference = findPreference(PREF_KEY_REMOVE_FROM_ROOMS_DIRECTORY);
+
+        if (null != mRemoveFromDirectoryPreference) {
+            mRemoveFromDirectoryPreference.setEnabled(false);
+            mRemoveFromDirectoryPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    new AlertDialog.Builder(getActivity())
+                            .setTitle(R.string.dialog_title_warning)
+                            .setMessage(R.string.tchap_room_settings_remove_from_directory_prompt_msg)
+                            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    removeFromRoomsDirectory();
+                                }
+                            })
+                            .setNegativeButton(R.string.cancel, null)
+                            .show();
+                    return true;
+                }
+            });
+        }
+
         // init the room avatar: session and room
         mRoomPhotoAvatar.setConfiguration(mSession, mRoom);
         mRoomPhotoAvatar.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -504,6 +530,71 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
         enableSharedPreferenceListener(true);
 
         setRetainInstance(true);
+    }
+
+    private void removeFromRoomsDirectory () {
+        displayLoadingView();
+
+        // The room will become private
+        // The encryption is then enabled by default
+        // The new members can access only on invite
+
+        // Update first the joinrule to INVITE
+        mRoom.updateJoinRules(RoomState.JOIN_RULE_INVITE, new ApiCallback<Void>() {
+
+            @Override
+            public void onSuccess(Void info) {
+                // Turn on the encryption in this room (if this is not already done)
+                if (!mRoom.isEncrypted()) {
+                    mRoom.enableEncryptionWithAlgorithm(MXCryptoAlgorithms.MXCRYPTO_ALGORITHM_MEGOLM, new ApiCallback<Void>() {
+
+                        @Override
+                        public void onSuccess(Void info) {
+                            // Remove the room from the room directory
+                            mRoom.updateDirectoryVisibility(RoomState.DIRECTORY_VISIBILITY_PRIVATE, mUpdateCallback);
+                        }
+
+                        @Override
+                        public void onNetworkError(Exception e) {
+                            onRemoveFromDirectoryError(e.getLocalizedMessage());
+                        }
+
+                        @Override
+                        public void onMatrixError(MatrixError e) {
+                            onRemoveFromDirectoryError(e.getLocalizedMessage());
+                        }
+
+                        @Override
+                        public void onUnexpectedError(Exception e) {
+                            onRemoveFromDirectoryError(e.getLocalizedMessage());
+                        }
+                    });
+                } else {
+                    // Remove the room from the room directory
+                    mRoom.updateDirectoryVisibility(RoomState.DIRECTORY_VISIBILITY_PRIVATE, mUpdateCallback);
+                }
+            }
+
+            @Override
+            public void onNetworkError(Exception e) {
+                onRemoveFromDirectoryError(e.getLocalizedMessage());
+            }
+
+            @Override
+            public void onMatrixError(MatrixError e) {
+                onRemoveFromDirectoryError(e.getLocalizedMessage());
+            }
+
+            @Override
+            public void onUnexpectedError(Exception e) {
+                onRemoveFromDirectoryError(e.getLocalizedMessage());
+            }
+        });
+    }
+
+    private void onRemoveFromDirectoryError(final String errorMessage) {
+        hideLoadingView(UPDATE_UI);
+        Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -573,8 +664,6 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
             mRoom.addEventListener(mEventListener);
             updateUi();
 
-            updateRoomDirectoryVisibilityAsync();
-
             refreshAddresses();
             refreshFlair();
             refreshBannedMembersList();
@@ -623,17 +712,12 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
                 // disable listener during preferences update, otherwise it will
                 // be seen as a user action..
                 enableSharedPreferenceListener(false);
-            }
-        });
-
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
                 // set settings UI values
                 updatePreferenceUiValues();
-
                 // re enable preferences listener..
                 enableSharedPreferenceListener(true);
+
+                updateRoomDirectoryVisibilityAsync();
             }
         });
     }
@@ -657,7 +741,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
      * must performed.
      */
     private void updateRoomDirectoryVisibilityAsync() {
-        if ((null == mRoom) || (null == mRoomDirectoryVisibilitySwitch)) {
+        if (null == mRoom) {
             Log.w(LOG_TAG, "## updateRoomDirectoryVisibilityUi(): not processed due to invalid parameters");
         } else {
             displayLoadingView();
@@ -673,13 +757,27 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
                             // update is done here below..
                             hideLoadingView(DO_NOT_UPDATE_UI);
 
-                            // set checked status
-                            // Note: the preference listener is disabled when the switch is updated, otherwise it will be seen
-                            // as a user action on the preference
-                            boolean isChecked = RoomState.DIRECTORY_VISIBILITY_PUBLIC.equals(aVisibilityValue);
-                            enableSharedPreferenceListener(false);
-                            mRoomDirectoryVisibilitySwitch.setChecked(isChecked);
-                            enableSharedPreferenceListener(true);
+                            boolean isPublicRoom = RoomState.DIRECTORY_VISIBILITY_PUBLIC.equals(aVisibilityValue);
+
+                            if (null != mRoomDirectoryVisibilitySwitch) {
+                                // set checked status
+                                // Note: the preference listener is disabled when the switch is updated, otherwise it will be seen
+                                // as a user action on the preference
+                                enableSharedPreferenceListener(false);
+                                mRoomDirectoryVisibilitySwitch.setChecked(isPublicRoom);
+                                enableSharedPreferenceListener(true);
+                            }
+
+                            if (null != mRemoveFromDirectoryPreference) {
+                                if (isPublicRoom) {
+                                    mRemoveFromDirectoryPreference.setEnabled(true);
+                                } else {
+                                    // Remove this option
+                                    PreferenceScreen preferenceScreen = getPreferenceScreen();
+                                    preferenceScreen.removePreference(mRemoveFromDirectoryPreference);
+                                    mRemoveFromDirectoryPreference = null;
+                                }
+                            }
                         }
                     });
                 }
@@ -753,6 +851,15 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
         if (null != mRoomTopicEditTxt)
             mRoomTopicEditTxt.setEnabled(canUpdateTopic && isConnected);
 
+        if (null != mRemoveFromDirectoryPreference) {
+            if (!isAdmin || !isConnected) {
+                // Remove this option
+                PreferenceScreen preferenceScreen = getPreferenceScreen();
+                preferenceScreen.removePreference(mRemoveFromDirectoryPreference);
+                mRemoveFromDirectoryPreference = null;
+            }
+        }
+
         // room present in the directory list: admin only
         if (null != mRoomDirectoryVisibilitySwitch)
             mRoomDirectoryVisibilitySwitch.setEnabled(isAdmin && isConnected);
@@ -810,13 +917,6 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
             mRoomTopicEditTxt.setSummary(value);
             mRoomTopicEditTxt.setText(value);
         }
-
-        // update room directory visibility
-//        if (null != mRoomDirectoryVisibilitySwitch) {
-//            boolean isRoomPublic = TextUtils.equals(mRoom.getVisibility()/*getState().visibility ou .isPublic()*/, RoomState.DIRECTORY_VISIBILITY_PUBLIC);
-//            if (isRoomPublic !isRoomPublic= mRoomDirectoryVisibilitySwitch.isChecked())
-//                mRoomDirectoryVisibilitySwitch.setChecked(isRoomPublic);
-//        }
 
         // check if fragment is added to its Activity before calling getResources().
         // getResources() may throw an exception ".. not attached to Activity"

@@ -866,6 +866,10 @@ Appareils inconnus :</string>
     <string name="tchap_scan_media_untrusted_content">Fichier Bloqué</string>
     <string name="tchap_scan_media_untrusted_content_message">Le document (%s) a été filtré par la politique de sécurité</string>
 
+    // tchap room settings
+    <string name="tchap_room_settings_remove_from_directory">Retirer ce salon de la liste des salons publics</string>
+    <string name="tchap_room_settings_remove_from_directory_prompt_msg"><b>Cette action est irréversible.</b>\nVoulez-vous vraiment retirer ce salon des salons publics ?</string>
+
     // group details
     <string name="group_details_home">Accueil</string>
     <string name="group_details_people">Personnes</string>
