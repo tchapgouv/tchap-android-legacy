@@ -110,10 +110,41 @@
                 android:layout_marginTop="13dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="7dp"
-                android:text="@string/tchap_room_creation_public_private_info"
+                android:text="@string/tchap_room_creation_public_info"
                 android:textSize="12sp"
+                android:paddingBottom="10dp"
                 android:textColor="@color/vector_tchap_text_color_light_grey"
                 tools:text="Un salon public peut être rejoint par n'importe quel membre de la communauté Tchap, il ne doit contenir aucune donnée sensible."/>
+
+            <LinearLayout
+                android:id="@+id/ll_federation_option"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:descendantFocusability="beforeDescendants"
+                android:focusableInTouchMode="true"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="7dp"
+                android:orientation="horizontal"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <TextView
+                    android:id="@+id/tv_federation"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/tchap_room_creation_disable_federation"
+                    android:textSize="15sp"
+                    android:paddingBottom="3dp"
+                    android:textColor="@color/vector_tchap_text_color_dark"/>
+
+                <Switch
+                    android:id="@+id/switch_disable_federation"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="false"/>
+            </LinearLayout>
+
         </LinearLayout>
 
         <FrameLayout
