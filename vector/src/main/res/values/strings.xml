@@ -1047,7 +1047,11 @@
     <string name="tchap_scan_media_in_progress">Antivirus Scanning</string>
     <string name="tchap_scan_media_untrusted_content">Infected File</string>
     <string name="tchap_scan_media_untrusted_content_message">The file (%s) has been blocked</string>
-    
+
+    // tchap room settings
+    <string name="tchap_room_settings_remove_from_directory">Remove this room from the rooms directory</string>
+    <string name="tchap_room_settings_remove_from_directory_prompt_msg"><b>This action is irreversible.</b>\nAre you sure you want to remove this room from the rooms directory?</string>
+
     <!-- group details -->
     <string name="group_details_home">Home</string>
     <string name="group_details_people">People</string>
