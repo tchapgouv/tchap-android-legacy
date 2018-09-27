@@ -338,6 +338,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                             Toast.makeText(TchapRoomCreationActivity.this, message, Toast.LENGTH_LONG).show();
                         }
                         hideWaitingView();
+                        invalidateOptionsMenu();
                     }
                 });
             }
@@ -366,7 +367,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                             createNewRoom();
                             break;
                         default:
-                            Log.e (LOG_TAG, e.getLocalizedMessage());
+                            onError(e.getLocalizedMessage());
                             break;
                     }
                 }

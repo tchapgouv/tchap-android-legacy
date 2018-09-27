@@ -452,18 +452,19 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem item = menu.findItem(R.id.action_invite_members);
-
-        item.setEnabled(!mUserIdsToInvite.isEmpty());
-
+        
         switch (mActionMode) {
             case START_DIRECT_CHAT:
                 item.setTitle("");
+                item.setEnabled(!mUserIdsToInvite.isEmpty());
                 break;
             case RETURN_SELECTED_USER_IDS:
                 item.setTitle(R.string.tchap_room_invite_member_action);
+                item.setEnabled(true);
                 break;
             case SEND_INVITE:
                 item.setTitle(R.string.invite);
+                item.setEnabled(!mUserIdsToInvite.isEmpty());
                 break;
         }
 
