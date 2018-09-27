@@ -32,14 +32,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
-import android.support.annotation.ColorInt;
 import android.support.design.widget.TextInputEditText;
-import android.support.v4.content.ContextCompat;
-import android.text.Editable;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.view.KeyEvent;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -90,6 +85,7 @@ import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.FallbackLoginActivity;
 import im.vector.activity.MXCActionBarActivity;
 import im.vector.activity.SplashActivity;
+import im.vector.gcm.GCMHelper;
 import im.vector.features.hhs.ResourceLimitDialogHelper;
 import im.vector.receiver.VectorRegistrationReceiver;
 import im.vector.receiver.VectorUniversalLinkReceiver;
@@ -650,6 +646,10 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     @Override
     protected void onResume() {
         super.onResume();
+
+        // Ensure we have the last version of GooglePlay services (not for F-Droid version then),
+        // or TLS 1.2 could not work, especially on Android < 5.0
+        GCMHelper.checkLastVersion(this);
     }
 
     /**
@@ -1125,7 +1125,11 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
      * @param aHomeServer     home server url
      */
     private void submitEmailToken(final String aToken, final String aClientSecret, final String aSid, final String aSessionId, final String aHomeServer, final String aIdentityServer) {
-        final HomeServerConnectionConfig homeServerConfig = mServerConfig = new HomeServerConnectionConfig(Uri.parse(aHomeServer), Uri.parse(aIdentityServer), null, new ArrayList<Fingerprint>(), false);
+        final HomeServerConnectionConfig homeServerConfig = mServerConfig = new HomeServerConnectionConfig.Builder()
+                .withHomeServerUri(Uri.parse(aHomeServer))
+                .withIdentityServerUri(Uri.parse(aIdentityServer))
+                .withTlsLimitations(true, Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT)
+                .build();
         RegistrationManager.getInstance().setHsConfig(homeServerConfig);
         Log.d(LOG_TAG, "## submitEmailToken(): IN");
 
@@ -1790,7 +1794,11 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     private HomeServerConnectionConfig getHsConfig() {
         try {
             mServerConfig = null;
-            mServerConfig = new HomeServerConnectionConfig(Uri.parse(getHomeServerUrl()), Uri.parse(getIdentityServerUrl()), null, new ArrayList<Fingerprint>(), false);
+            mServerConfig = new HomeServerConnectionConfig.Builder()
+                    .withHomeServerUri(Uri.parse(getHomeServerUrl()))
+                    .withIdentityServerUri(Uri.parse(getIdentityServerUrl()))
+                    .withTlsLimitations(true, Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT)
+                    .build();
         } catch (Exception e) {
             Log.e(LOG_TAG, "getHsConfig fails " + e.getLocalizedMessage());
         }
@@ -2278,7 +2286,11 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
         // Retrieve the first identity server url by removing it from the list.
         String selectedUrl = identityServerUrls.remove(0);
-        TchapRestClient tchapRestClient = new TchapRestClient(new HomeServerConnectionConfig(Uri.parse(selectedUrl), Uri.parse(selectedUrl), null, new ArrayList<Fingerprint>(), false));
+        TchapRestClient tchapRestClient = new TchapRestClient(new HomeServerConnectionConfig.Builder()
+                .withHomeServerUri(Uri.parse(selectedUrl))
+                .withIdentityServerUri(Uri.parse(selectedUrl))
+                .withTlsLimitations(true, Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT)
+                .build());
         tchapRestClient.info(emailAddress, ThreePid.MEDIUM_EMAIL, new ApiCallback<Platform>() {
             @Override
             public void onSuccess(Platform platform) {

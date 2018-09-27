@@ -1,6 +1,7 @@
 /*
  * Copyright 2014 OpenMarket Ltd
  * Copyright 2017 Vector Creations Ltd
+ * Copyright 2018 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +17,17 @@
  */
 package im.vector.gcm;
 
-import org.matrix.androidsdk.util.Log;
+import android.content.Context;
 
-import com.google.firebase.FirebaseApp;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.security.ProviderInstaller;
 import com.google.firebase.iid.FirebaseInstanceId;
 
-import im.vector.VectorApp;
+import org.matrix.androidsdk.util.Log;
 
-class GCMHelper {
+public class GCMHelper {
     private static final String LOG_TAG = GCMHelper.class.getSimpleName();
 
     /**
@@ -43,6 +47,23 @@ class GCMHelper {
             FirebaseInstanceId.getInstance().deleteInstanceId();
         } catch (Exception e) {
             Log.e(LOG_TAG, "##clearRegistrationToken() failed " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Check that we have the last version of Google Play Services
+     *
+     * @param context
+     */
+    public static void checkLastVersion(Context context) {
+        try {
+            ProviderInstaller.installIfNeeded(context);
+        } catch (GooglePlayServicesRepairableException e) {
+            // Prompt the user to install/update/enable Google Play services.
+            GoogleApiAvailability.getInstance().showErrorNotification(context, e.getConnectionStatusCode());
+        } catch (GooglePlayServicesNotAvailableException e) {
+            // Indicates a non-recoverable error: let the user know.
+            Log.e(LOG_TAG, "GooglePlayServicesNotAvailableException", e);
         }
     }
 }
