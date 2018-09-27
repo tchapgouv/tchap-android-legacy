@@ -136,7 +136,7 @@ public class DinsicUtils {
                         }
 
                         // Check whether the component contains some '-'
-                        if (-1 != component.indexOf("-")) {
+                        if (component.contains("-")) {
                             // Capitalize each sub component
                             String[] subComponents = component.split("-");
                             for (int i = 0; i < subComponents.length - 1; i++) {
