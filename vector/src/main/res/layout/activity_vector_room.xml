@@ -342,11 +342,70 @@
                 android:layout_alignParentLeft="true"
                 android:background="?attr/room_activity_divider_color" />
 
+            <RelativeLayout
+                android:id="@+id/room_reply_area"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_above="@id/bottom_separator"
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:visibility="invisible">
+
+                <TextView
+                    android:id="@+id/reply_to_sender"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginTop="4dp"
+                    android:singleLine="true"
+                    android:text=""
+                    android:textColor="@color/tchap_text_color_light"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_toLeftOf="@+id/close_reply"
+                    />
+
+                <TextView
+                    android:id="@+id/room_reply_message"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_below="@id/reply_to_sender"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginTop="4dp"
+                    android:singleLine="true"
+                    android:text=""
+                    android:layout_toLeftOf="@+id/close_reply"
+                    />
+                <ImageView
+                    android:id="@+id/close_reply"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_alignTop="@+id/reply_to_sender"
+                    android:layout_alignBottom="@+id/room_reply_message"
+                    android:layout_alignParentRight="true"
+                    android:contentDescription="@string/action_close"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp"
+                    android:src="@drawable/vector_leave_room_black"
+                    android:tint="?attr/message_text_color" />
+                
+            </RelativeLayout>
+
+            <View
+                android:id="@+id/room_reply_separator"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_above="@id/room_reply_area"
+                android:background="?attr/room_header_divider_color" />
+
+
             <im.vector.view.NotificationAreaView
                 android:id="@+id/room_notifications_area"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_above="@id/bottom_separator"
+                android:layout_above="@id/room_reply_separator"
                 android:minHeight="42dp"
                 android:paddingBottom="8dp"
                 android:paddingTop="8dp"
