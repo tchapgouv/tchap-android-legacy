@@ -822,6 +822,9 @@ class VectorMessagesAdapterHelper {
         if (start >= 0 && end >= 0) {
             int flags = strBuilder.getSpanFlags(span);
 
+            // Tchap: the pillview are not clikable for the moment
+            // We have to replace the matrix.to use.
+
             if (PillView.isPillable(span.getURL())) {
                 final String key = span.getURL() + " " + isHighlighted;
                 Drawable drawable = mPillsDrawableCache.get(key);
@@ -856,17 +859,18 @@ class VectorMessagesAdapterHelper {
                     drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
                     strBuilder.setSpan(imageSpan, start, end, flags);
                 }
+            } else {
+                ClickableSpan clickable = new ClickableSpan() {
+                    public void onClick(View view) {
+                        if (null != mEventsListener) {
+                            mEventsListener.onURLClick(Uri.parse(span.getURL()));
+                        }
+                    }
+                };
+
+                strBuilder.setSpan(clickable, start, end, flags);
             }
 
-            ClickableSpan clickable = new ClickableSpan() {
-                public void onClick(View view) {
-                    if (null != mEventsListener) {
-                        mEventsListener.onURLClick(Uri.parse(span.getURL()));
-                    }
-                }
-            };
-
-            strBuilder.setSpan(clickable, start, end, flags);
             strBuilder.removeSpan(span);
         }
     }

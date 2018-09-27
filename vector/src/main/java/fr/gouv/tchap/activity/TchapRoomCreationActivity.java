@@ -48,6 +48,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import butterknife.BindView;
@@ -91,6 +92,12 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
     @BindView(R.id.switch_public_private_rooms)
     Switch switchPublicPrivateRoom;
+
+    @BindView(R.id.ll_federation_option)
+    View federationOption;
+
+    @BindView(R.id.switch_disable_federation)
+    Switch switchDisableFederation;
 
     @BindView(R.id.tv_public_private_room_description)
     TextView tvPublicPrivateRoomDescription;
@@ -179,19 +186,35 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     @OnClick(R.id.switch_public_private_rooms)
     void setRoomPrivacy() {
         if (switchPublicPrivateRoom.isChecked()) {
-            switchPublicPrivateRoom.setChecked(true);
             tvPublicPrivateRoomDescription.setTextColor(ContextCompat.getColor(this, R.color.vector_fuchsia_color));
             mRoomParams.visibility = RoomState.DIRECTORY_VISIBILITY_PUBLIC;
             mRoomParams.preset = CreateRoomParams.PRESET_PUBLIC_CHAT;
             mRoomParams.setHistoryVisibility(RoomState.HISTORY_VISIBILITY_WORLD_READABLE);
             Log.d(LOG_TAG, "## public");
+            federationOption.setVisibility(View.VISIBLE);
         } else {
-            switchPublicPrivateRoom.setChecked(false);
             tvPublicPrivateRoomDescription.setTextColor(ContextCompat.getColor(this, R.color.vector_tchap_text_color_light_grey));
             mRoomParams.visibility = RoomState.DIRECTORY_VISIBILITY_PRIVATE;
             mRoomParams.preset = CreateRoomParams.PRESET_PRIVATE_CHAT;
             mRoomParams.setHistoryVisibility(null);
             Log.d(LOG_TAG, "## private");
+            // Remove potential change related to the federation
+            switchDisableFederation.setChecked(false);
+            federationOption.setVisibility(View.GONE);
+            mRoomParams.creation_content = null;
+        }
+    }
+
+    @OnClick(R.id.switch_disable_federation)
+    void setRoomFederation() {
+        if (switchDisableFederation.isChecked()) {
+            Map<String, Object> params = new HashMap<>();
+            params.put("m.federate", false);
+            mRoomParams.creation_content = params;
+            Log.d(LOG_TAG, "## not federated");
+        } else {
+            mRoomParams.creation_content = null;
+            Log.d(LOG_TAG, "## federated");
         }
     }
 

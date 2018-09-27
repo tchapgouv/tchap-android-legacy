@@ -982,15 +982,15 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
      */
     private fun onPasswordUpdateClick() {
         activity.runOnUiThread {
-            val view = activity.layoutInflater.inflate(R.layout.fragment_dialog_change_password, null)
+            val view = activity.layoutInflater.inflate(R.layout.dialog_change_password, null)
 
             val oldPasswordText = view.findViewById<EditText>(R.id.change_password_old_pwd_text)
             val newPasswordText = view.findViewById<EditText>(R.id.change_password_new_pwd_text)
             val confirmNewPasswordText = view.findViewById<EditText>(R.id.change_password_confirm_new_pwd_text)
 
             val dialog = AlertDialog.Builder(activity)
-                    .setView(view)
                     .setTitle(R.string.settings_change_password)
+                    .setView(view)
                     .setPositiveButton(R.string.save) { dialog, which ->
                         if (null != activity) {
                             val imm = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -1850,8 +1850,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 
     private fun displayTextSizeSelection(activity: Activity) {
         val inflater = activity.layoutInflater
-
-        val layout = inflater.inflate(R.layout.text_size_selection, null)
+        val layout = inflater.inflate(R.layout.dialog_select_text_size, null)
 
         val dialog = AlertDialog.Builder(activity)
                 .setTitle(R.string.font_size)
@@ -1864,7 +1863,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 
         val childCount = linearLayout.childCount
 
-        val scaleText = FontScale.getFontScalePrefValue()
+        val scaleText = FontScale.getFontScaleDescription()
 
         for (i in 0 until childCount) {
             val v = linearLayout.getChildAt(i)
@@ -1990,7 +1989,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
         val deviceId = mSession.credentials.deviceId
 
         // device name
-        if (null != aMyDeviceInfo && !TextUtils.isEmpty(aMyDeviceInfo.display_name)) {
+        if (null != aMyDeviceInfo) {
             cryptoInfoDeviceNamePreference.summary = aMyDeviceInfo.display_name
 
             cryptoInfoDeviceNamePreference.onPreferenceClickListener = Preference.OnPreferenceClickListener {
@@ -2197,7 +2196,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
     private fun displayDeviceDetailsDialog(aDeviceInfo: DeviceInfo?) {
         val builder = AlertDialog.Builder(activity)
         val inflater = activity.layoutInflater
-        val layout = inflater.inflate(R.layout.devices_details_settings, null)
+        val layout = inflater.inflate(R.layout.dialog_device_details, null)
 
         if (null != aDeviceInfo) {
             //device ID
@@ -2261,17 +2260,24 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
      * @param aDeviceInfoToRename device info
      */
     private fun displayDeviceRenameDialog(aDeviceInfoToRename: DeviceInfo) {
-        val input = EditText(activity)
+        val inflater = activity.layoutInflater
+        val layout = inflater.inflate(R.layout.dialog_base_edit_text, null)
+
+        val input = layout.findViewById<EditText>(R.id.edit_text)
         input.setText(aDeviceInfoToRename.display_name)
 
         AlertDialog.Builder(activity)
                 .setTitle(R.string.devices_details_device_name)
-                .setView(input)
+                .setView(layout)
                 .setPositiveButton(R.string.ok) { dialog, which ->
                     displayLoadingView()
 
-                    mSession.setDeviceName(aDeviceInfoToRename.device_id, input.text.toString(), object : ApiCallback<Void> {
+                    val newName = input.text.toString()
+
+                    mSession.setDeviceName(aDeviceInfoToRename.device_id, newName, object : ApiCallback<Void> {
                         override fun onSuccess(info: Void?) {
+                            hideLoadingView()
+
                             // search which preference is updated
                             val count = mDevicesListSettingsCategory.preferenceCount
 
@@ -2279,17 +2285,17 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                                 val pref = mDevicesListSettingsCategory.getPreference(i) as VectorCustomActionEditTextPreference
 
                                 if (TextUtils.equals(aDeviceInfoToRename.device_id, pref.title)) {
-                                    pref.summary = input.text
+                                    pref.summary = newName
                                 }
                             }
 
                             // detect if the updated device is the current account one
-                            val pref = findPreference(PreferencesManager.SETTINGS_ENCRYPTION_INFORMATION_DEVICE_ID_PREFERENCE_KEY)
-                            if (TextUtils.equals(pref.summary, aDeviceInfoToRename.device_id)) {
-                                findPreference(PreferencesManager.SETTINGS_ENCRYPTION_INFORMATION_DEVICE_NAME_PREFERENCE_KEY).summary = input.text
+                            if (TextUtils.equals(cryptoInfoDeviceIdPreference.summary, aDeviceInfoToRename.device_id)) {
+                                cryptoInfoDeviceNamePreference.summary = newName
                             }
 
-                            hideLoadingView()
+                            // Also change the display name in aDeviceInfoToRename, in case of multiple renaming
+                            aDeviceInfoToRename.display_name = newName
                         }
 
                         override fun onNetworkError(e: Exception) {
@@ -2353,14 +2359,13 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                 deleteDevice(aDeviceInfoToDelete.device_id)
             } else {
                 val inflater = activity.layoutInflater
-                val layout = inflater.inflate(R.layout.devices_settings_delete, null)
+                val layout = inflater.inflate(R.layout.dialog_device_delete, null)
                 val passwordEditText = layout.findViewById<EditText>(R.id.delete_password)
 
                 AlertDialog.Builder(activity)
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .setTitle(R.string.devices_delete_dialog_title)
                         .setView(layout)
-
                         .setPositiveButton(R.string.devices_delete_submit_button_label, DialogInterface.OnClickListener { dialog, which ->
                             if (TextUtils.isEmpty(passwordEditText.toString())) {
                                 activity.applicationContext.toast(R.string.error_empty_field_your_password)

@@ -1488,7 +1488,7 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
             mUser.displayname = getIntent().getStringExtra(EXTRA_MEMBER_DISPLAY_NAME);
 
             if (TextUtils.isEmpty(mUser.displayname)) {
-                mUser.displayname = mMemberId;
+                mUser.displayname = DinsicUtils.computeDisplayNameFromUserId(mMemberId);
             }
 
             mUser.avatar_url = getIntent().getStringExtra(EXTRA_MEMBER_AVATAR_URL);

@@ -836,7 +836,8 @@ Appareils inconnus :</string>
     <string name="tchap_room_creation_avatar">Ajouter \n une photo</string>
     <string name="tchap_room_creation_name">Nommer le salon</string>
     <string name="tchap_room_creation_public">Rendre ce salon public</string>
-    <string name="tchap_room_creation_public_private_info">Un salon public peut être rejoint par n\'importe quel membre de la communauté Tchap, il ne doit contenir aucune donnée sensible.</string>
+    <string name="tchap_room_creation_disable_federation">Limiter l\'accès à ce salon aux membres de votre ministère</string>
+    <string name="tchap_room_creation_public_info">Un salon public peut être rejoint par n\'importe quel membre de la communauté Tchap, il ne doit contenir aucune donnée sensible.</string>
     <string name="tchap_room_invite_member_title">Ajouter au salon</string>
     <string name="tchap_room_invite_member_action">Ajouter</string>
     <string name="tchap_room_creation_save_avatar_failed">La sauvegarde de la photo du salon a échoué. \n Que souhaitez-vous faire ?</string>
@@ -865,6 +866,10 @@ Appareils inconnus :</string>
     <string name="tchap_scan_media_in_progress">Analyse Antivirus</string>
     <string name="tchap_scan_media_untrusted_content">Fichier Bloqué</string>
     <string name="tchap_scan_media_untrusted_content_message">Le document (%s) a été filtré par la politique de sécurité</string>
+
+    // tchap room settings
+    <string name="tchap_room_settings_remove_from_directory">Retirer ce salon de la liste des salons publics</string>
+    <string name="tchap_room_settings_remove_from_directory_prompt_msg"><b>Cette action est irréversible.</b>\nVoulez-vous vraiment retirer ce salon des salons publics ?</string>
 
     // group details
     <string name="group_details_home">Accueil</string>

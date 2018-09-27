@@ -19,7 +19,6 @@ package im.vector.adapters;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
@@ -678,6 +677,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
 
         if (row != null) {
             remove(row);
+            mEventRowMap.remove(eventId);
         }
     }
 
@@ -854,7 +854,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             MessageRow row = getItem(i);
             Event event = row.getEvent();
 
-            if ((null != event) && (event.isUndeliverable() || event.isUnkownDevice())) {
+            if ((null != event) && (event.isUndelivered() || event.isUnknownDevice())) {
                 undeliverableEvents.add(row);
                 remove(row);
                 i--;
@@ -1218,7 +1218,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
         TextView tsTextView = VectorMessagesAdapterHelper.setTimestampValue(convertView, getFormattedTimestamp(event));
 
         if (null != tsTextView) {
-            if (row.getEvent().isUndeliverable() || row.getEvent().isUnkownDevice()) {
+            if (row.getEvent().isUndelivered() || row.getEvent().isUnknownDevice()) {
                 tsTextView.setTextColor(mNotSentMessageTextColor);
             } else {
                 tsTextView.setTextColor(ThemeUtils.INSTANCE.getColor(mContext, R.attr.default_text_light_color));
@@ -1328,7 +1328,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                 textColor = mEncryptingMessageTextColor;
             } else if (row.getEvent().isSending() || row.getEvent().isUnsent()) {
                 textColor = mSendingMessageTextColor;
-            } else if (row.getEvent().isUndeliverable() || row.getEvent().isUnkownDevice()) {
+            } else if (row.getEvent().isUndelivered() || row.getEvent().isUnknownDevice()) {
                 textColor = mNotSentMessageTextColor;
             } else {
                 textColor = shouldHighlighted ? mHighlightMessageTextColor : mDefaultMessageTextColor;
@@ -1455,43 +1455,30 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             Event event = row.getEvent();
             Message message = null;
 
-            int waterMarkResourceId = -1;
-
+            boolean videoContent = false;
             if (type == ROW_TYPE_IMAGE) {
-
                 ImageMessage imageMessage = JsonUtils.toImageMessage(event.getContent());
-
-                if ("image/gif".equals(imageMessage.getMimeType())) {
-                    waterMarkResourceId = R.drawable.filetype_gif;
+                if (imageMessage.getMimeType().equals("image/gif")) {
+                    videoContent = true;
                 }
                 message = imageMessage;
-
             } else if (type == ROW_TYPE_VIDEO) {
-
+                videoContent = true;
                 message = JsonUtils.toVideoMessage(event.getContent());
-                waterMarkResourceId = R.drawable.filetype_video;
-
             } else if (type == ROW_TYPE_STICKER) {
-
                 StickerMessage stickerMessage = JsonUtils.toStickerMessage(event.getContent());
                 message = stickerMessage;
             }
 
-            // display a type watermark
-            final ImageView imageTypeView = convertView.findViewById(R.id.messagesAdapter_image_type);
-
-            if (null == imageTypeView) {
+            // display a play icon for video content
+            final ImageView playCircleView = convertView.findViewById(R.id.messagesAdapter_play_circle);
+            if (null == playCircleView) {
                 Log.e(LOG_TAG, "getImageVideoView : invalid layout");
                 return convertView;
             }
-
-            imageTypeView.setBackgroundColor(Color.TRANSPARENT);
-
-            if (waterMarkResourceId > 0) {
-                imageTypeView.setImageBitmap(BitmapFactory.decodeResource(getContext().getResources(), waterMarkResourceId));
-                imageTypeView.setVisibility(View.VISIBLE);
-            } else {
-                imageTypeView.setVisibility(View.GONE);
+            playCircleView.setVisibility(View.GONE);
+            if (videoContent) {
+                playCircleView.setVisibility(View.VISIBLE);
             }
 
             if (null != message) {
@@ -1632,7 +1619,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                 textColor = mEncryptingMessageTextColor;
             } else if (row.getEvent().isSending() || row.getEvent().isUnsent()) {
                 textColor = mSendingMessageTextColor;
-            } else if (row.getEvent().isUndeliverable() || row.getEvent().isUnkownDevice()) {
+            } else if (row.getEvent().isUndelivered() || row.getEvent().isUnknownDevice()) {
                 textColor = mNotSentMessageTextColor;
             } else {
                 textColor = mDefaultMessageTextColor;
@@ -2275,7 +2262,6 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                     if (!mIsSearchMode) {
                         onMessageClick(event, getEventText(contentView, event, msgType), convertView.findViewById(R.id.messagesAdapter_action_anchor));
 
-                        onEventTap(event);
                         return true;
                     }
                 }
@@ -2323,7 +2309,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
 
                 int type = getItemViewType(position);
 
-                if ((type == ROW_TYPE_IMAGE) || (type == ROW_TYPE_VIDEO)) {
+                if ((type == ROW_TYPE_IMAGE) || (type == ROW_TYPE_VIDEO) || (type == ROW_TYPE_STICKER)) {
                     View bodyLayoutView = inflatedView.findViewById(R.id.messagesAdapter_body_layout);
                     ViewGroup.MarginLayoutParams bodyLayout = (ViewGroup.MarginLayoutParams) bodyLayoutView.getLayoutParams();
                     ViewGroup.MarginLayoutParams e2eIconViewLayout = (ViewGroup.MarginLayoutParams) e2eIconView.getLayoutParams();
@@ -2741,7 +2727,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
         if (event.canBeResent()) {
             menu.findItem(R.id.ic_action_vector_resend_message).setVisible(true);
 
-            if (event.isUndeliverable() || event.isUnkownDevice()) {
+            if (event.isUndelivered() || event.isUnknownDevice()) {
                 menu.findItem(R.id.ic_action_vector_redact_message).setVisible(true);
             }
         } else if (event.mSentState == Event.SentState.SENT) {
