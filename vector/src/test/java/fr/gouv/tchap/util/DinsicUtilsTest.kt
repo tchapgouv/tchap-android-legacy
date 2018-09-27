@@ -16,29 +16,29 @@
 
 package fr.gouv.tchap.util
 
-import junit.framework.Assert
+import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class DinsicUtilsTest {
 
     @Test
     fun DinsicUtils_computeDisplayNameFromUserId_simple() {
-        Assert.assertEquals("Jean Martin", DinsicUtils.computeDisplayNameFromUserId("@jean.martin-modernisation.fr:matrix.org"))
+        assertEquals("Jean Martin", DinsicUtils.computeDisplayNameFromUserId("@jean.martin-modernisation.fr:matrix.org"))
     }
 
     @Test
     fun DinsicUtils_computeDisplayNameFromUserId_dash() {
-        Assert.assertEquals("Jean-Philippe Martin", DinsicUtils.computeDisplayNameFromUserId("@jean-philippe.martin-modernisation.fr:matrix.org"))
+        assertEquals("Jean-Philippe Martin", DinsicUtils.computeDisplayNameFromUserId("@jean-philippe.martin-modernisation.fr:matrix.org"))
     }
 
     @Test
     fun DinsicUtils_computeDisplayNameFromUserId_dashes() {
-        Assert.assertEquals("Jean Martin De-La-Rampe", DinsicUtils.computeDisplayNameFromUserId("@jean.martin.de-la-rampe-modernisation.gouv.fr:a.tchap.gouv.fr"))
+        assertEquals("Jean Martin De-La-Rampe", DinsicUtils.computeDisplayNameFromUserId("@jean.martin.de-la-rampe-modernisation.gouv.fr:a.tchap.gouv.fr"))
     }
 
     // It fails for the moment
     @Test
     fun DinsicUtils_computeDisplayNameFromUserId_dash_in_domain() {
-        Assert.assertEquals("Jerome Ploquin4", DinsicUtils.computeDisplayNameFromUserId("@jerome.ploquin4.developpement-durable.gouv.fr:a.tchap.gouv.fr"))
+        assertEquals("Jerome Ploquin4", DinsicUtils.computeDisplayNameFromUserId("@jerome.ploquin4.developpement-durable.gouv.fr:a.tchap.gouv.fr"))
     }
 }
