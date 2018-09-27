@@ -90,7 +90,7 @@ import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.FallbackLoginActivity;
 import im.vector.activity.MXCActionBarActivity;
 import im.vector.activity.SplashActivity;
-import im.vector.dialogs.ResourceLimitDialogHelper;
+import im.vector.features.hhs.ResourceLimitDialogHelper;
 import im.vector.receiver.VectorRegistrationReceiver;
 import im.vector.receiver.VectorUniversalLinkReceiver;
 import im.vector.services.EventStreamService;

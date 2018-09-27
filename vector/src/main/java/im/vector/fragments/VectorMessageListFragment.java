@@ -474,7 +474,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
 
         EncryptedEventContent encryptedEventContent = JsonUtils.toEncryptedEventContent(event.getWireContent().getAsJsonObject());
 
-        View layout = inflater.inflate(R.layout.encrypted_event_info, null);
+        View layout = inflater.inflate(R.layout.dialog_encryption_info, null);
 
         TextView textView;
 
@@ -664,7 +664,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
                             .setPositiveButton(R.string.ok,
                                     new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int id) {
-                                            if (event.isUndeliverable() || event.isUnkownDevice()) {
+                                            if (event.isUndelivered() || event.isUnknownDevice()) {
                                                 // delete from the store
                                                 mSession.getDataHandler().deleteRoomEvent(event);
 

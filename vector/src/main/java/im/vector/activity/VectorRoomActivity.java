@@ -37,7 +37,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.style.ClickableSpan;
@@ -112,6 +111,8 @@ import im.vector.R;
 import im.vector.VectorApp;
 import im.vector.ViewedRoomTracker;
 import im.vector.activity.util.RequestCodesKt;
+import im.vector.features.hhs.LimitResourceState;
+import im.vector.features.hhs.ResourceLimitEventListener;
 import im.vector.fragments.VectorMessageListFragment;
 import im.vector.fragments.VectorUnknownDevicesFragment;
 import im.vector.listeners.IMessagesAdapterActionsListener;
@@ -361,6 +362,8 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
 
     // security
     private LiveSecurityChecks securityChecks = new LiveSecurityChecks(this);
+
+    private ResourceLimitEventListener mResourceLimitEventListener;
 
     /**
      * Presence and room preview listeners
@@ -619,6 +622,12 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
             finish();
             return;
         }
+        mResourceLimitEventListener = new ResourceLimitEventListener(mSession.getDataHandler(), new ResourceLimitEventListener.Callback() {
+            @Override
+            public void onResourceLimitStateChanged() {
+                refreshNotificationsArea();
+            }
+        });
 
         String roomId = intent.getStringExtra(EXTRA_ROOM_ID);
 
@@ -1004,6 +1013,11 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
             }
 
             @Override
+            public void resendUnsentEvents() {
+                mVectorMessageListFragment.resendUnsentMessages();
+            }
+
+            @Override
             public void deleteUnsentEvents() {
                 mVectorMessageListFragment.deleteUnsentEvents();
             }
@@ -1097,6 +1111,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
             // GA reports a null dataHandler instance event if it seems impossible
             if (null != mSession.getDataHandler()) {
                 mSession.getDataHandler().removeListener(mGlobalEventListener);
+                mSession.getDataHandler().removeListener(mResourceLimitEventListener);
             }
         }
 
@@ -1161,6 +1176,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
         }
 
         mSession.getDataHandler().addListener(mGlobalEventListener);
+        mSession.getDataHandler().addListener(mResourceLimitEventListener);
 
         Matrix.getInstance(this).addNetworkEventListener(mNetworkEventListener);
 
@@ -2609,44 +2625,6 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
     //================================================================================
 
     /**
-     * Track the cancel all click.
-     */
-    private class cancelAllClickableSpan extends ClickableSpan {
-        @Override
-        public void onClick(View widget) {
-            mVectorMessageListFragment.deleteUnsentEvents();
-            refreshNotificationsArea();
-        }
-
-        @Override
-        public void updateDrawState(TextPaint ds) {
-            super.updateDrawState(ds);
-            ds.setColor(ContextCompat.getColor(VectorRoomActivity.this, R.color.vector_fuchsia_color));
-            ds.bgColor = 0;
-            ds.setUnderlineText(true);
-        }
-    }
-
-    /**
-     * Track the resend all click.
-     */
-    private class resendAllClickableSpan extends ClickableSpan {
-        @Override
-        public void onClick(View widget) {
-            mVectorMessageListFragment.resendUnsentMessages();
-            refreshNotificationsArea();
-        }
-
-        @Override
-        public void updateDrawState(TextPaint ds) {
-            super.updateDrawState(ds);
-            ds.setColor(ContextCompat.getColor(VectorRoomActivity.this, R.color.vector_fuchsia_color));
-            ds.bgColor = 0;
-            ds.setUnderlineText(true);
-        }
-    }
-
-    /**
      * Refresh the notifications area.
      */
     private void refreshNotificationsArea() {
@@ -2655,21 +2633,25 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
         if ((null == mSession.getDataHandler()) || (null == mRoom) || (null != sRoomPreviewData)) {
             return;
         }
-
-        MatrixError resourceLimitExceededError = mSession.getDataHandler().getResourceLimitExceededError();
-
+        final LimitResourceState limitResourceState = mResourceLimitEventListener.getLimitResourceState();
+        final MatrixError hardResourceLimitExceededError = mSession.getDataHandler().getResourceLimitExceededError();
+        final MatrixError softResourceLimitExceededError = limitResourceState.softErrorOrNull();
+        
         NotificationAreaView.State state = NotificationAreaView.State.Default.INSTANCE;
         boolean hasUnsentEvent = false;
+
         if (!mIsUnreadPreviewMode && !TextUtils.isEmpty(mEventId)) {
             state = NotificationAreaView.State.Hidden.INSTANCE;
-        } else if (resourceLimitExceededError != null) {
-            state = new NotificationAreaView.State.ResourceLimitExceededError(resourceLimitExceededError);
+        } else if (hardResourceLimitExceededError != null) {
+            state = new NotificationAreaView.State.ResourceLimitExceededError(false, hardResourceLimitExceededError);
+        } else if (softResourceLimitExceededError != null) {
+            state = new NotificationAreaView.State.ResourceLimitExceededError(true, softResourceLimitExceededError);
         } else if (!Matrix.getInstance(this).isConnected()) {
             state = NotificationAreaView.State.ConnectionError.INSTANCE;
         } else if (mIsUnreadPreviewMode) {
             state = NotificationAreaView.State.UnreadPreview.INSTANCE;
         } else {
-            final List<Event> undeliveredEvents = mSession.getDataHandler().getStore().getUndeliverableEvents(mRoom.getRoomId());
+            final List<Event> undeliveredEvents = mSession.getDataHandler().getStore().getUndeliveredEvents(mRoom.getRoomId());
             final List<Event> unknownDeviceEvents = mSession.getDataHandler().getStore().getUnknownDeviceEvents(mRoom.getRoomId());
             boolean hasUndeliverableEvents = (undeliveredEvents != null) && (undeliveredEvents.size() > 0);
             boolean hasUnknownDeviceEvents = (unknownDeviceEvents != null) && (unknownDeviceEvents.size() > 0);
@@ -3471,16 +3453,14 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
         }
 
         LayoutInflater inflater = LayoutInflater.from(this);
+        View dialogView = inflater.inflate(R.layout.dialog_base_edit_text, null);
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        alertDialogBuilder
+                .setTitle(R.string.room_info_room_name)
+                .setView(dialogView);
 
-        View dialogView = inflater.inflate(R.layout.dialog_text_edittext, null);
-        alertDialogBuilder.setView(dialogView);
-
-        TextView titleText = dialogView.findViewById(R.id.dialog_title);
-        titleText.setText(R.string.room_info_room_name);
-
-        final EditText textInput = dialogView.findViewById(R.id.dialog_edit_text);
+        final EditText textInput = dialogView.findViewById(R.id.edit_text);
         textInput.setText(mRoom.getState().name);
 
         // set dialog message
@@ -3538,16 +3518,14 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
         }
 
         LayoutInflater inflater = LayoutInflater.from(this);
+        View dialogView = inflater.inflate(R.layout.dialog_base_edit_text, null);
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        alertDialogBuilder
+                .setTitle(R.string.room_info_room_topic)
+                .setView(dialogView);
 
-        View dialogView = inflater.inflate(R.layout.dialog_text_edittext, null);
-        alertDialogBuilder.setView(dialogView);
-
-        TextView titleText = dialogView.findViewById(R.id.dialog_title);
-        titleText.setText(R.string.room_info_room_topic);
-
-        final EditText textInput = dialogView.findViewById(R.id.dialog_edit_text);
+        final EditText textInput = dialogView.findViewById(R.id.edit_text);
         textInput.setText(mRoom.getState().topic);
 
         // set dialog message
