@@ -836,7 +836,7 @@ Appareils inconnus :</string>
     <string name="tchap_room_creation_avatar">Ajouter \n une photo</string>
     <string name="tchap_room_creation_name">Nommer le salon</string>
     <string name="tchap_room_creation_public">Rendre ce salon public</string>
-    <string name="tchap_room_creation_disable_federation">Limiter l\'accès à ce salon aux membres de votre ministère</string>
+    <string name="tchap_room_creation_disable_federation">Limiter l\'accès à ce salon aux membres du domaine \"%s\"</string>
     <string name="tchap_room_creation_public_info">Un salon public peut être rejoint par n\'importe quel membre de la communauté Tchap, il ne doit contenir aucune donnée sensible.</string>
     <string name="tchap_room_invite_member_title">Ajouter au salon</string>
     <string name="tchap_room_invite_member_action">Ajouter</string>

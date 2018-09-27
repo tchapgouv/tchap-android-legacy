@@ -96,6 +96,9 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     @BindView(R.id.ll_federation_option)
     View federationOption;
 
+    @BindView(R.id.tv_disable_federation)
+    TextView disableFederationText;
+
     @BindView(R.id.switch_disable_federation)
     Switch switchDisableFederation;
 
@@ -124,6 +127,19 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         switchPublicPrivateRoom.setChecked(false);
         mRoomParams.visibility = RoomState.DIRECTORY_VISIBILITY_PRIVATE;
         mRoomParams.preset = CreateRoomParams.PRESET_PRIVATE_CHAT;
+
+        // Prepare disable federation label by adding the hs domain of the current user.
+        String userHSDomain = mSession.getMyUserId().substring(mSession.getMyUserId().indexOf(":") + 1);
+        if (userHSDomain.contains(".")) {
+            userHSDomain = userHSDomain.split("\\.")[0];
+        }
+        // Capitalize the domain
+        StringBuilder builder = new StringBuilder();
+        builder.append(userHSDomain.substring(0, 1).toUpperCase());
+        if (userHSDomain.length() > 1) {
+            builder.append(userHSDomain.substring(1));
+        }
+        disableFederationText.setText(getString(R.string.tchap_room_creation_disable_federation, builder.toString()));
     }
 
     @Override
