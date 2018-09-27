@@ -1128,7 +1128,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         final HomeServerConnectionConfig homeServerConfig = mServerConfig = new HomeServerConnectionConfig.Builder()
                 .withHomeServerUri(Uri.parse(aHomeServer))
                 .withIdentityServerUri(Uri.parse(aIdentityServer))
-                .withTlsLimitations(true)
+                .withTlsLimitations(true, Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT)
                 .build();
         RegistrationManager.getInstance().setHsConfig(homeServerConfig);
         Log.d(LOG_TAG, "## submitEmailToken(): IN");
@@ -1797,7 +1797,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             mServerConfig = new HomeServerConnectionConfig.Builder()
                     .withHomeServerUri(Uri.parse(getHomeServerUrl()))
                     .withIdentityServerUri(Uri.parse(getIdentityServerUrl()))
-                    .withTlsLimitations(true)
+                    .withTlsLimitations(true, Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT)
                     .build();
         } catch (Exception e) {
             Log.e(LOG_TAG, "getHsConfig fails " + e.getLocalizedMessage());
@@ -2289,7 +2289,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         TchapRestClient tchapRestClient = new TchapRestClient(new HomeServerConnectionConfig.Builder()
                 .withHomeServerUri(Uri.parse(selectedUrl))
                 .withIdentityServerUri(Uri.parse(selectedUrl))
-                .withTlsLimitations(true)
+                .withTlsLimitations(true, Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT)
                 .build());
         tchapRestClient.info(emailAddress, ThreePid.MEDIUM_EMAIL, new ApiCallback<Platform>() {
             @Override
