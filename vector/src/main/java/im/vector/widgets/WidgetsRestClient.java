@@ -18,6 +18,7 @@ package im.vector.widgets;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
 
 import org.matrix.androidsdk.HomeServerConnectionConfig;
 import org.matrix.androidsdk.RestClient;
@@ -35,6 +36,7 @@ class WidgetsRestClient extends RestClient<WidgetsApi> {
     public WidgetsRestClient(Context context) {
         super(new HomeServerConnectionConfig.Builder()
                         .withHomeServerUri(Uri.parse(context.getString(R.string.integrations_rest_url)))
+                        .withTlsLimitations(true, Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT)
                         .build(),
                 WidgetsApi.class,
                 "api/",

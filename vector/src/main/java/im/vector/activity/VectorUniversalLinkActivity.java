@@ -22,6 +22,7 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
@@ -134,6 +135,7 @@ public class VectorUniversalLinkActivity extends VectorAppCompatActivity {
         final HomeServerConnectionConfig homeServerConfig = new HomeServerConnectionConfig.Builder()
                 .withHomeServerUri(Uri.parse(ISUrl))
                 .withIdentityServerUri(Uri.parse(ISUrl))
+                .withTlsLimitations(true, Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT)
                 .build();
 
         String token = aMapParams.get(VectorRegistrationReceiver.KEY_MAIL_VALIDATION_TOKEN);
