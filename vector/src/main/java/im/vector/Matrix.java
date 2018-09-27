@@ -75,7 +75,7 @@ import io.realm.Realm;
  */
 public class Matrix {
     // Set to true to enable local file encryption
-    private static final boolean CONFIG_ENABLE_LOCAL_FILE_ENCRYPTION = false;
+    private static final boolean CONFIG_ENABLE_LOCAL_FILE_ENCRYPTION = true;
 
     // the log tag
     private static final String LOG_TAG = Matrix.class.getSimpleName();
