@@ -245,7 +245,8 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                 // 1) when all contacts are displaying
                 // 2) when no tchap users are displaying
                 if (contact.getEmails().isEmpty() &&
-                        mContactsFilter != VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY) {
+                        (mContactsFilter == VectorRoomInviteMembersActivity.ContactsFilter.ALL ||
+                                mContactsFilter == VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY)) {
                     Contact dummyContact = new Contact(contact.getContactId());
                     dummyContact.setDisplayName(contact.getDisplayName());
                     dummyContact.addEmailAdress(mContext.getString(R.string.no_email));
@@ -265,6 +266,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                             // Consider the contact filter here
                             switch (mContactsFilter) {
                                 case TCHAP_ONLY:
+                                case FEDERATED_TCHAP_ONLY:
                                     if (null == mxid) {
                                         // we ignore this email and go to the next one if any
                                         continue;
@@ -720,6 +722,20 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
             mFirstEntry = firstEntry;
         } else {
             mFirstEntry = null;
+        }
+
+        if (mContactsFilter.equals(VectorRoomInviteMembersActivity.ContactsFilter.FEDERATED_TCHAP_ONLY)) {
+            // Remove all the users which are not federated
+            // TODO improve the handling of this filter by removing not federated users during the participants list building.
+            String userHSName = mSession.getMyUserId().substring(mSession.getMyUserId().indexOf(":") + 1);
+            for (int index = 0; index < participantItemList.size();) {
+                ParticipantAdapterItem participant = participantItemList.get(index);
+                // Note: participant.mUserId cannot be null here
+                if (!participant.mUserId.substring(participant.mUserId.indexOf(":") + 1).equals(userHSName))
+                    participantItemList.remove(participant);
+                else
+                    index ++;
+            }
         }
 
         // split the participants in sections

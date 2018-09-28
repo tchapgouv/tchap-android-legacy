@@ -228,6 +228,19 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
             params.put("m.federate", false);
             mRoomParams.creation_content = params;
             Log.d(LOG_TAG, "## not federated");
+
+            if (!mParticipantsIds.isEmpty()) {
+                // Remove the potential selected users who don't belong to the user HS
+                String userHSName = mSession.getMyUserId().substring(mSession.getMyUserId().indexOf(":") + 1);
+
+                for (int index = 0; index < mParticipantsIds.size();) {
+                    String selectedUserId = mParticipantsIds.get(index);
+                    if (!selectedUserId.substring(selectedUserId.indexOf(":") + 1).equals(userHSName))
+                        mParticipantsIds.remove(selectedUserId);
+                    else
+                        index ++;
+                }
+            }
         } else {
             mRoomParams.creation_content = null;
             Log.d(LOG_TAG, "## federated");
@@ -270,7 +283,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                 if (resultCode == RESULT_OK) {
                     // We have retrieved the list of members to invite from RoomInviteMembersActivity.
                     // This list can not be empty because the add button for the members selection is only activated if at least 1 member is selected.
-                    // This list contains only matrixIds because the RoomInviteMembersActivity was opened in TCHAP_ONLY mode.
+                    // This list contains only matrixIds because the RoomInviteMembersActivity was opened in TCHAP_ONLY or FEDERATED_TCHAP_ONLY mode.
                     showWaitingView();
                     invalidateOptionsMenu();
                     mRoomParams.invite = mParticipantsIds;
@@ -522,7 +535,11 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         Intent intent = new Intent(TchapRoomCreationActivity.this, VectorRoomInviteMembersActivity.class);
         intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
         intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_ACTION_ACTIVITY_MODE, VectorRoomInviteMembersActivity.ActionMode.RETURN_SELECTED_USER_IDS);
-        intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY);
+        // Check whether the federation has been disabled to limit the invitation to the federated users
+        if (null == mRoomParams.creation_content)
+            intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY);
+        else
+            intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.FEDERATED_TCHAP_ONLY);
 
         if (!mParticipantsIds.isEmpty()) {
             intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_IN_SELECTED_USER_IDS, (Serializable) mParticipantsIds);
