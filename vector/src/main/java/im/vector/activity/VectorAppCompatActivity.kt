@@ -25,6 +25,7 @@ import android.support.v7.widget.Toolbar
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.WindowManager
 import androidx.core.view.isVisible
 import butterknife.BindView
 import butterknife.ButterKnife
@@ -37,9 +38,8 @@ import im.vector.dialogs.ConsentNotGivenHelper
 import im.vector.receiver.DebugReceiver
 import im.vector.util.AssetReader
 import im.vector.util.ThemeUtils
-import org.matrix.androidsdk.util.Log
-
 import io.realm.Realm
+import org.matrix.androidsdk.util.Log
 
 /**
  * Parent class for all Activities in Vector application
@@ -168,7 +168,6 @@ abstract class VectorAppCompatActivity : AppCompatActivity() {
             menuInflater.inflate(menuRes, menu)
             ThemeUtils.tintMenuIcons(menu, ThemeUtils.getColor(this, getMenuTint()))
             return true
-
         }
 
         return super.onCreateOptionsMenu(menu)
@@ -220,6 +219,12 @@ abstract class VectorAppCompatActivity : AppCompatActivity() {
     //==============================================================================================
 
     var waitingView: View? = null
+        set(value) {
+            field = value
+
+            // Ensure this view is clickable to catch UI events
+            value?.isClickable = true
+        }
 
     /**
      * Tells if the waiting view is currently displayed
@@ -272,6 +277,15 @@ abstract class VectorAppCompatActivity : AppCompatActivity() {
         supportActionBar?.let {
             it.setDisplayShowHomeEnabled(true)
             it.setDisplayHomeAsUpEnabled(true)
+        }
+    }
+
+    /**
+     * Forbid screenshots or video recording of the screen
+     */
+    protected fun applyScreenshotSecurity() {
+        if (!BuildConfig.DEBUG) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         }
     }
 

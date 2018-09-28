@@ -70,6 +70,33 @@ public class DinsicUtils {
     private static final String LOG_TAG = "DinsicUtils";
 
     /**
+     * Get the homeserver name of a user identifier.
+     * For example in case of "@jean-philippe.martin-modernisation.fr:matrix.test.org", this will return "matrix.test.org".
+     */
+    public static String getHomeServerNameFromUserId (String userId) {
+        return userId.substring(userId.indexOf(":") + 1);
+    }
+
+    /**
+     * Get the Tchap display name for the homeserver of a user identifier.
+     * The returned name is capitalize.
+     * For example in case of "@jean-philippe.martin-modernisation.fr:matrix.test.org", this will return "Matrix".
+     */
+    public static String getHomeServerDisplayNameFromUserId (String userId) {
+        String userHSName = DinsicUtils.getHomeServerNameFromUserId(userId);
+        if (userHSName.contains(".")) {
+            userHSName = userHSName.split("\\.")[0];
+        }
+        // Capitalize the domain
+        StringBuilder builder = new StringBuilder();
+        builder.append(userHSName.substring(0, 1).toUpperCase());
+        if (userHSName.length() > 1) {
+            builder.append(userHSName.substring(1));
+        }
+        return builder.toString();
+    }
+
+    /**
      * Get name part of a display name by removing the domain part if any.
      * For example in case of "Jean Martin [Modernisation]", this will return "Jean Martin".
      *
@@ -109,7 +136,7 @@ public class DinsicUtils {
     /**
      * Build a display name from the tchap user identifier.
      * We don't extract the domain for the moment in order to not display unexpected information.
-     * For example in case of "@jean.martin-modernisation.fr:matrix.org", this will return "Jean Martin".
+     * For example in case of "@jean-philippe.martin-modernisation.fr:matrix.org", this will return "Jean-Philippe Martin".
      *
      * @param tchapUserId user id
      * @return displayName without domain, null if the id is not valid.
@@ -135,7 +162,23 @@ public class DinsicUtils {
                             builder.append(" ");
                         }
 
-                        // Capitalize the component
+                        // Check whether the component contains some '-'
+                        if (component.contains("-")) {
+                            // Capitalize each sub component
+                            String[] subComponents = component.split("-");
+                            for (int i = 0; i < subComponents.length - 1; i++) {
+                                String subComponent = subComponents[i];
+                                builder.append(subComponent.substring(0, 1).toUpperCase());
+                                if (subComponent.length() > 1) {
+                                    builder.append(subComponent.substring(1));
+                                }
+                                builder.append("-");
+                            }
+                            // Retrieve the last sub-component
+                            component = subComponents[subComponents.length - 1];
+                        }
+
+                        // Capitalize the component (or the last sub-component)
                         builder.append(component.substring(0, 1).toUpperCase());
                         if (component.length() > 1) {
                             builder.append(component.substring(1));

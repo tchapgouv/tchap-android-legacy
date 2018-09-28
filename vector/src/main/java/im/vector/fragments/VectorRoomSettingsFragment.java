@@ -77,6 +77,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.activity.SelectPictureActivity;
 import im.vector.Matrix;
 import im.vector.R;
@@ -119,6 +120,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
     private static final String PREF_KEY_ROOM_HISTORY_READABILITY_LIST = "roomReadHistoryRulesList";
     private static final String PREF_KEY_ROOM_NOTIFICATIONS_LIST = "roomNotificationPreference";
     private static final String PREF_KEY_ROOM_LEAVE = "roomLeave";
+    private static final String PREF_KEY_REMOVE_FROM_ROOMS_DIRECTORY = "removeFromRoomsDirectory";
     private static final String PREF_KEY_ROOM_INTERNAL_ID = "roomInternalId";
     private static final String PREF_KEY_ADDRESSES = "addresses";
     private static final String PREF_KEY_ADVANCED = "advanced";
@@ -163,6 +165,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
     private TchapRoomAvatarPreference mRoomPhotoAvatar;
     private EditTextPreference mRoomNameEditTxt;
     private EditTextPreference mRoomTopicEditTxt;
+    private Preference mRemoveFromDirectoryPreference;
     private CheckBoxPreference mRoomDirectoryVisibilitySwitch;
     private ListPreference mRoomTagListPreference;
     private VectorListPreference mRoomAccessRulesListPreference;
@@ -210,19 +213,19 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
         @Override
         public void onNetworkError(Exception e) {
             Log.w(LOG_TAG, "##NetworkError " + e.getLocalizedMessage());
-            onDone(e.getLocalizedMessage(), DO_NOT_UPDATE_UI);
+            onDone(e.getLocalizedMessage(), UPDATE_UI);
         }
 
         @Override
         public void onMatrixError(MatrixError e) {
             Log.w(LOG_TAG, "##MatrixError " + e.getLocalizedMessage());
-            onDone(e.getLocalizedMessage(), DO_NOT_UPDATE_UI);
+            onDone(e.getLocalizedMessage(), UPDATE_UI);
         }
 
         @Override
         public void onUnexpectedError(Exception e) {
             Log.w(LOG_TAG, "##UnexpectedError " + e.getLocalizedMessage());
-            onDone(e.getLocalizedMessage(), DO_NOT_UPDATE_UI);
+            onDone(e.getLocalizedMessage(), UPDATE_UI);
         }
     };
 
@@ -435,7 +438,6 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
                             .setPositiveButton(R.string.leave, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
                                     displayLoadingView();
 
                                     mRoom.leave(new ApiCallback<Void>() {
@@ -481,12 +483,31 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
 
                                 }
                             })
-                            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            .setNegativeButton(R.string.cancel, null)
+                            .show();
+                    return true;
+                }
+            });
+        }
+
+        // Remove the room from the rooms directory
+        mRemoveFromDirectoryPreference = findPreference(PREF_KEY_REMOVE_FROM_ROOMS_DIRECTORY);
+
+        if (null != mRemoveFromDirectoryPreference) {
+            mRemoveFromDirectoryPreference.setEnabled(false);
+            mRemoveFromDirectoryPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    new AlertDialog.Builder(getActivity())
+                            .setTitle(R.string.dialog_title_warning)
+                            .setMessage(R.string.tchap_room_settings_remove_from_directory_prompt_msg)
+                            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
+                                    removeFromRoomsDirectory();
                                 }
                             })
+                            .setNegativeButton(R.string.cancel, null)
                             .show();
                     return true;
                 }
@@ -510,6 +531,71 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
         enableSharedPreferenceListener(true);
 
         setRetainInstance(true);
+    }
+
+    private void removeFromRoomsDirectory () {
+        displayLoadingView();
+
+        // The room will become private
+        // The encryption is then enabled by default
+        // The new members can access only on invite
+
+        // Update first the joinrule to INVITE
+        mRoom.updateJoinRules(RoomState.JOIN_RULE_INVITE, new ApiCallback<Void>() {
+
+            @Override
+            public void onSuccess(Void info) {
+                // Turn on the encryption in this room (if this is not already done)
+                if (!mRoom.isEncrypted()) {
+                    mRoom.enableEncryptionWithAlgorithm(MXCryptoAlgorithms.MXCRYPTO_ALGORITHM_MEGOLM, new ApiCallback<Void>() {
+
+                        @Override
+                        public void onSuccess(Void info) {
+                            // Remove the room from the room directory
+                            mRoom.updateDirectoryVisibility(RoomState.DIRECTORY_VISIBILITY_PRIVATE, mUpdateCallback);
+                        }
+
+                        @Override
+                        public void onNetworkError(Exception e) {
+                            onRemoveFromDirectoryError(e.getLocalizedMessage());
+                        }
+
+                        @Override
+                        public void onMatrixError(MatrixError e) {
+                            onRemoveFromDirectoryError(e.getLocalizedMessage());
+                        }
+
+                        @Override
+                        public void onUnexpectedError(Exception e) {
+                            onRemoveFromDirectoryError(e.getLocalizedMessage());
+                        }
+                    });
+                } else {
+                    // Remove the room from the room directory
+                    mRoom.updateDirectoryVisibility(RoomState.DIRECTORY_VISIBILITY_PRIVATE, mUpdateCallback);
+                }
+            }
+
+            @Override
+            public void onNetworkError(Exception e) {
+                onRemoveFromDirectoryError(e.getLocalizedMessage());
+            }
+
+            @Override
+            public void onMatrixError(MatrixError e) {
+                onRemoveFromDirectoryError(e.getLocalizedMessage());
+            }
+
+            @Override
+            public void onUnexpectedError(Exception e) {
+                onRemoveFromDirectoryError(e.getLocalizedMessage());
+            }
+        });
+    }
+
+    private void onRemoveFromDirectoryError(final String errorMessage) {
+        hideLoadingView(UPDATE_UI);
+        Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -579,8 +665,6 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
             mRoom.addEventListener(mEventListener);
             updateUi();
 
-            updateRoomDirectoryVisibilityAsync();
-
             refreshAddresses();
             refreshFlair();
             refreshBannedMembersList();
@@ -629,17 +713,12 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
                 // disable listener during preferences update, otherwise it will
                 // be seen as a user action..
                 enableSharedPreferenceListener(false);
-            }
-        });
-
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
                 // set settings UI values
                 updatePreferenceUiValues();
-
                 // re enable preferences listener..
                 enableSharedPreferenceListener(true);
+
+                updateRoomDirectoryVisibilityAsync();
             }
         });
     }
@@ -663,7 +742,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
      * must performed.
      */
     private void updateRoomDirectoryVisibilityAsync() {
-        if ((null == mRoom) || (null == mRoomDirectoryVisibilitySwitch)) {
+        if (null == mRoom) {
             Log.w(LOG_TAG, "## updateRoomDirectoryVisibilityUi(): not processed due to invalid parameters");
         } else {
             displayLoadingView();
@@ -679,13 +758,27 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
                             // update is done here below..
                             hideLoadingView(DO_NOT_UPDATE_UI);
 
-                            // set checked status
-                            // Note: the preference listener is disabled when the switch is updated, otherwise it will be seen
-                            // as a user action on the preference
-                            boolean isChecked = RoomState.DIRECTORY_VISIBILITY_PUBLIC.equals(aVisibilityValue);
-                            enableSharedPreferenceListener(false);
-                            mRoomDirectoryVisibilitySwitch.setChecked(isChecked);
-                            enableSharedPreferenceListener(true);
+                            boolean isPublicRoom = RoomState.DIRECTORY_VISIBILITY_PUBLIC.equals(aVisibilityValue);
+
+                            if (null != mRoomDirectoryVisibilitySwitch) {
+                                // set checked status
+                                // Note: the preference listener is disabled when the switch is updated, otherwise it will be seen
+                                // as a user action on the preference
+                                enableSharedPreferenceListener(false);
+                                mRoomDirectoryVisibilitySwitch.setChecked(isPublicRoom);
+                                enableSharedPreferenceListener(true);
+                            }
+
+                            if (null != mRemoveFromDirectoryPreference) {
+                                if (isPublicRoom) {
+                                    mRemoveFromDirectoryPreference.setEnabled(true);
+                                } else {
+                                    // Remove this option
+                                    PreferenceScreen preferenceScreen = getPreferenceScreen();
+                                    preferenceScreen.removePreference(mRemoveFromDirectoryPreference);
+                                    mRemoveFromDirectoryPreference = null;
+                                }
+                            }
                         }
                     });
                 }
@@ -759,6 +852,15 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
         if (null != mRoomTopicEditTxt)
             mRoomTopicEditTxt.setEnabled(canUpdateTopic && isConnected);
 
+        if (null != mRemoveFromDirectoryPreference) {
+            if (!isAdmin || !isConnected) {
+                // Remove this option
+                PreferenceScreen preferenceScreen = getPreferenceScreen();
+                preferenceScreen.removePreference(mRemoveFromDirectoryPreference);
+                mRemoveFromDirectoryPreference = null;
+            }
+        }
+
         // room present in the directory list: admin only
         if (null != mRoomDirectoryVisibilitySwitch)
             mRoomDirectoryVisibilitySwitch.setEnabled(isAdmin && isConnected);
@@ -816,13 +918,6 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
             mRoomTopicEditTxt.setSummary(value);
             mRoomTopicEditTxt.setText(value);
         }
-
-        // update room directory visibility
-//        if (null != mRoomDirectoryVisibilitySwitch) {
-//            boolean isRoomPublic = TextUtils.equals(mRoom.getVisibility()/*getState().visibility ou .isPublic()*/, RoomState.DIRECTORY_VISIBILITY_PUBLIC);
-//            if (isRoomPublic !isRoomPublic= mRoomDirectoryVisibilitySwitch.isChecked())
-//                mRoomDirectoryVisibilitySwitch.setChecked(isRoomPublic);
-//        }
 
         // check if fragment is added to its Activity before calling getResources().
         // getResources() may throw an exception ".. not attached to Activity"
@@ -1402,8 +1497,9 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
                 VectorCustomActionEditTextPreference preference = new VectorCustomActionEditTextPreference(getActivity());
 
                 final String userId = member.getUserId();
+                final String displayName = DinsicUtils.computeDisplayNameFromUserId(userId);
 
-                preference.setTitle(userId);
+                preference.setTitle(displayName);
                 preference.setKey(BANNED_PREFERENCE_KEY_BASE + userId);
 
                 preference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -1411,6 +1507,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
                     public boolean onPreferenceClick(Preference preference) {
                         Intent startRoomInfoIntent = new Intent(getActivity(), VectorMemberDetailsActivity.class);
                         startRoomInfoIntent.putExtra(VectorMemberDetailsActivity.EXTRA_MEMBER_ID, userId);
+                        startRoomInfoIntent.putExtra(VectorMemberDetailsActivity.EXTRA_MEMBER_DISPLAY_NAME, displayName);
                         startRoomInfoIntent.putExtra(VectorMemberDetailsActivity.EXTRA_ROOM_ID, mRoom.getRoomId());
                         startRoomInfoIntent.putExtra(VectorMemberDetailsActivity.EXTRA_MATRIX_ID, mSession.getCredentials().userId);
                         getActivity().startActivity(startRoomInfoIntent);
@@ -1476,16 +1573,16 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
      * @return true if the user is allowed.
      */
     private boolean canUpdateFlair() {
-        boolean canUpdateAliases = false;
+        boolean canUpdateFlair = false;
 
         PowerLevels powerLevels = mRoom.getState().getPowerLevels();
 
         if (null != powerLevels) {
             int powerLevel = powerLevels.getUserPowerLevel(mSession.getMyUserId());
-            canUpdateAliases = powerLevel >= powerLevels.minimumPowerLevelForSendingEventAsStateEvent(Event.EVENT_TYPE_STATE_RELATED_GROUPS);
+            canUpdateFlair = powerLevel >= powerLevels.minimumPowerLevelForSendingEventAsStateEvent(Event.EVENT_TYPE_STATE_RELATED_GROUPS);
         }
 
-        return canUpdateAliases;
+        return canUpdateFlair;
     }
 
     /**
@@ -1577,16 +1674,11 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
     // Aliases management
     //================================================================================
 
-    private final ApiCallback mAliasUpdatesCallback = new ApiCallback<Void>() {
+    private final ApiCallback<Void> mAliasUpdatesCallback = new ApiCallback<Void>() {
         @Override
         public void onSuccess(Void info) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    hideLoadingView(false);
-                    refreshAddresses();
-                }
-            });
+            hideLoadingView(false);
+            refreshAddresses();
         }
 
         /**
@@ -1594,14 +1686,9 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
          * @param errorMessage the error message
          */
         private void onError(final String errorMessage) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT).show();
-                    hideLoadingView(false);
-                    refreshAddresses();
-                }
-            });
+            Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT).show();
+            hideLoadingView(false);
+            refreshAddresses();
         }
 
         @Override
@@ -1655,11 +1742,17 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
         ThemeUtils.INSTANCE.tintMenuIcons(menu, ThemeUtils.INSTANCE.getColor(context, R.attr.icon_tint_on_light_action_bar_color));
 
         String canonicalAlias = mRoom.getState().alias;
-        boolean canUpdateAliases = canUpdateAliases();
+        final boolean canUpdateCanonicalAlias = canUpdateCanonicalAlias();
 
-        menu.findItem(R.id.ic_action_vector_delete_alias).setVisible(canUpdateAliases);
-        menu.findItem(R.id.ic_action_vector_set_as_main_address).setVisible(canUpdateAliases && !TextUtils.equals(roomAlias, canonicalAlias));
-        menu.findItem(R.id.ic_action_vector_unset_main_address).setVisible(canUpdateAliases && TextUtils.equals(roomAlias, canonicalAlias));
+        /*
+         * For alias, it seems that you can only delete alias you have created, even if the Admin has set it as canonical.
+         * So let the server answer if it's possible to delete an alias.
+         *
+         * For canonical alias, you need to have the right power level, so keep the test
+         */
+        menu.findItem(R.id.ic_action_vector_delete_alias).setVisible(true);
+        menu.findItem(R.id.ic_action_vector_set_as_main_address).setVisible(canUpdateCanonicalAlias && !TextUtils.equals(roomAlias, canonicalAlias));
+        menu.findItem(R.id.ic_action_vector_unset_main_address).setVisible(canUpdateCanonicalAlias && TextUtils.equals(roomAlias, canonicalAlias));
 
         // display the menu
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
@@ -1676,42 +1769,22 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
                                     mRoom.updateCanonicalAlias(null, mAliasUpdatesCallback);
                                 }
                             })
-                            .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    // nothing
-                                }
-                            })
+                            .setNegativeButton(R.string.no, null)
                             .show();
                 } else if (item.getItemId() == R.id.ic_action_vector_set_as_main_address) {
                     displayLoadingView();
                     mRoom.updateCanonicalAlias(roomAlias, mAliasUpdatesCallback);
                 } else if (item.getItemId() == R.id.ic_action_vector_delete_alias) {
                     displayLoadingView();
-                    mRoom.removeAlias(roomAlias, new ApiCallback<Void>() {
+                    mRoom.removeAlias(roomAlias, new SimpleApiCallback<Void>(mAliasUpdatesCallback) {
                         @Override
                         public void onSuccess(Void info) {
-                            // when there is only one alias, it becomes the main alias.
-                            if (mRoom.getAliases().size() == 1) {
+                            // when there is only one alias, it becomes the canonical alias.
+                            if (mRoom.getAliases().size() == 1 && canUpdateCanonicalAlias) {
                                 mRoom.updateCanonicalAlias(mRoom.getAliases().get(0), mAliasUpdatesCallback);
                             } else {
                                 mAliasUpdatesCallback.onSuccess(info);
                             }
-                        }
-
-                        @Override
-                        public void onNetworkError(Exception e) {
-                            mAliasUpdatesCallback.onNetworkError(e);
-                        }
-
-                        @Override
-                        public void onMatrixError(MatrixError e) {
-                            mAliasUpdatesCallback.onMatrixError(e);
-                        }
-
-                        @Override
-                        public void onUnexpectedError(Exception e) {
-                            mAliasUpdatesCallback.onUnexpectedError(e);
                         }
                     });
                 } else if (item.getItemId() == R.id.ic_action_vector_room_url) {
@@ -1728,21 +1801,21 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
     }
 
     /**
-     * Tells if the current user can updates the room aliases.
+     * Tells if the current user can updates the room canonical alias.
      *
-     * @return true if the user is allowed.
+     * @return true if the user is allowed to update the canonical alias.
      */
-    private boolean canUpdateAliases() {
-        boolean canUpdateAliases = false;
+    private boolean canUpdateCanonicalAlias() {
+        boolean canUpdateCanonicalAlias = false;
 
         PowerLevels powerLevels = mRoom.getState().getPowerLevels();
 
         if (null != powerLevels) {
             int powerLevel = powerLevels.getUserPowerLevel(mSession.getMyUserId());
-            canUpdateAliases = powerLevel >= powerLevels.minimumPowerLevelForSendingEventAsStateEvent(Event.EVENT_TYPE_STATE_ROOM_ALIASES);
+            canUpdateCanonicalAlias = powerLevel >= powerLevels.minimumPowerLevelForSendingEventAsStateEvent(Event.EVENT_TYPE_STATE_CANONICAL_ALIAS);
         }
 
-        return canUpdateAliases;
+        return canUpdateCanonicalAlias;
     }
 
     /**
@@ -1804,71 +1877,50 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
             }
         }
 
-        if (canUpdateAliases()) {
-            // display the "add addresses" entry
-            EditTextPreference addAddressPreference = new EditTextPreference(getActivity());
-            addAddressPreference.setTitle(R.string.room_settings_addresses_add_new_address);
-            addAddressPreference.setDialogTitle(R.string.room_settings_addresses_add_new_address);
-            addAddressPreference.setKey(ADD_ADDRESSES_PREFERENCE_KEY);
-            addAddressPreference.setIcon(ThemeUtils.INSTANCE.tintDrawable(getActivity(),
-                    ContextCompat.getDrawable(getActivity(), R.drawable.ic_add_black), R.attr.settings_icon_tint_color));
+        // Everyone can add an alias: display the "add address" entry
+        EditTextPreference addAddressPreference = new EditTextPreference(getActivity());
+        addAddressPreference.setTitle(R.string.room_settings_addresses_add_new_address);
+        addAddressPreference.setDialogTitle(R.string.room_settings_addresses_add_new_address);
+        addAddressPreference.setKey(ADD_ADDRESSES_PREFERENCE_KEY);
+        addAddressPreference.setIcon(ThemeUtils.INSTANCE.tintDrawable(getActivity(),
+                ContextCompat.getDrawable(getActivity(), R.drawable.ic_add_black), R.attr.settings_icon_tint_color));
 
-            addAddressPreference.setOnPreferenceChangeListener(
-                    new Preference.OnPreferenceChangeListener() {
-                        @Override
-                        public boolean onPreferenceChange(Preference preference, Object newValue) {
-                            final String newAddress = ((String) newValue).trim();
+        addAddressPreference.setOnPreferenceChangeListener(
+                new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+                        final String newAddress = ((String) newValue).trim();
 
-                            // ignore empty alias
-                            if (!TextUtils.isEmpty(newAddress)) {
-                                if (!MXSession.isRoomAlias(newAddress)) {
-                                    new AlertDialog.Builder(getActivity())
-                                            .setTitle(R.string.room_settings_addresses_invalid_format_dialog_title)
-                                            .setMessage(getString(R.string.room_settings_addresses_invalid_format_dialog_body, newAddress))
-                                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                                @Override
-                                                public void onClick(DialogInterface dialog, int which) {
-                                                }
-                                            })
-                                            .show();
-                                } else if (aliases.indexOf(newAddress) < 0) {
-                                    getActivity().runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            displayLoadingView();
-                                            mRoom.addAlias(newAddress, new ApiCallback<Void>() {
-                                                @Override
-                                                public void onSuccess(Void info) {
-                                                    // when there is only one alias, it becomes the main alias.
-                                                    if (mRoom.getAliases().size() == 1) {
-                                                        mRoom.updateCanonicalAlias(mRoom.getAliases().get(0), mAliasUpdatesCallback);
-                                                    } else {
-                                                        mAliasUpdatesCallback.onSuccess(info);
-                                                    }
-                                                }
-
-                                                @Override
-                                                public void onNetworkError(Exception e) {
-                                                    mAliasUpdatesCallback.onNetworkError(e);
-                                                }
-
-                                                @Override
-                                                public void onMatrixError(MatrixError e) {
-                                                    mAliasUpdatesCallback.onMatrixError(e);
-                                                }
-
-                                                @Override
-                                                public void onUnexpectedError(Exception e) {
-                                                    mAliasUpdatesCallback.onUnexpectedError(e);
-                                                }
-                                            });
+                        // ignore empty alias
+                        if (!TextUtils.isEmpty(newAddress)) {
+                            if (!MXSession.isRoomAlias(newAddress)) {
+                                new AlertDialog.Builder(getActivity())
+                                        .setTitle(R.string.room_settings_addresses_invalid_format_dialog_title)
+                                        .setMessage(getString(R.string.room_settings_addresses_invalid_format_dialog_body, newAddress))
+                                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                            }
+                                        })
+                                        .show();
+                            } else if (aliases.indexOf(newAddress) < 0) {
+                                displayLoadingView();
+                                mRoom.addAlias(newAddress, new SimpleApiCallback<Void>(mAliasUpdatesCallback) {
+                                    @Override
+                                    public void onSuccess(Void info) {
+                                        // when there is only one alias, it becomes the canonical alias.
+                                        if (mRoom.getAliases().size() == 1 && canUpdateCanonicalAlias()) {
+                                            mRoom.updateCanonicalAlias(mRoom.getAliases().get(0), mAliasUpdatesCallback);
+                                        } else {
+                                            mAliasUpdatesCallback.onSuccess(info);
                                         }
-                                    });
-                                }
+                                    }
+                                });
                             }
-                            return false;
                         }
-                    });
+                        return false;
+                    }
+                });
 
             mAddressesSettingsCategory.addPreference(addAddressPreference);
         }
@@ -2034,7 +2086,6 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
                                     .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
-                                            dialog.dismiss();
                                             encryptSwitchPreference.setChecked(false);
                                         }
                                     })

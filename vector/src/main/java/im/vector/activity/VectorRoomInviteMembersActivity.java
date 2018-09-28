@@ -116,7 +116,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
     // This enum is used to filter the displayed contacts.
     // Note: the Tchap users for who a discussion (direct chat) exists will be considered as local contacts.
     // This means they will appear in the local contacts section.
-    public enum ContactsFilter { ALL, TCHAP_ONLY, NO_TCHAP_ONLY }
+    public enum ContactsFilter { ALL, TCHAP_ONLY, FEDERATED_TCHAP_ONLY, NO_TCHAP_ONLY }
     private ContactsFilter mContactsFilter = ContactsFilter.ALL;
 
     // account data
@@ -138,7 +138,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
 
     // The list of the identifiers of the current selected contacts
     // The type of these identifiers depends on the mContactsFilter:
-    // - matrix id when mContactsFilter = ContactsFilter.TCHAP_ONLY
+    // - matrix id when mContactsFilter = ContactsFilter.TCHAP_ONLY or ContactsFilter.FEDERATED_TCHAP_ONLY
     // - email address when mContactsFilter = ContactsFilter.NO_TCHAP_ONLY
     // - both in the other cases
     ArrayList<String> mUserIdsToInvite = new ArrayList<>();
@@ -452,19 +452,22 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem item = menu.findItem(R.id.action_invite_members);
-
-        item.setEnabled(!mUserIdsToInvite.isEmpty());
-
+        
         switch (mActionMode) {
             case START_DIRECT_CHAT:
                 item.setTitle("");
+                item.setEnabled(!mUserIdsToInvite.isEmpty());
                 break;
             case RETURN_SELECTED_USER_IDS:
                 item.setTitle(R.string.tchap_room_invite_member_action);
+                item.setEnabled(true);
                 break;
             case SEND_INVITE:
                 item.setTitle(R.string.invite);
+                item.setEnabled(!mUserIdsToInvite.isEmpty());
                 break;
+            default:
+                item.setEnabled(true);
         }
 
         return super.onPrepareOptionsMenu(menu);
@@ -599,12 +602,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                         // will be overridden to avoid dismissing the dialog while displaying the progress
                     }
                 })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                })
+                .setNegativeButton(R.string.cancel, null)
                 .show();
 
         final Button inviteButton = inviteDialog.getButton(AlertDialog.BUTTON_POSITIVE);

@@ -35,6 +35,7 @@ import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.util.Log;
 
+import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.R;
 import im.vector.VectorApp;
 import im.vector.util.VectorUtils;
@@ -92,12 +93,11 @@ public class PillView extends LinearLayout {
      * @return the url
      */
     private static String getLinkedUrl(String url) {
-        // Tchap disable matrix.to for the moment
-        /*boolean isSupported = (null != url) && url.startsWith("https://matrix.to/#/");
+        boolean isSupported = (null != url) && url.startsWith("https://matrix.to/#/");
 
         if (isSupported) {
             return url.substring("https://matrix.to/#/".length());
-        }*/
+        }
 
         return null;
     }
@@ -123,17 +123,23 @@ public class PillView extends LinearLayout {
     public void initData(final CharSequence text, final String url, final MXSession session, OnUpdateListener listener) {
         mOnUpdateListener = listener;
         mAvatarView.setOnUpdateListener(listener);
-        mTextView.setText(text.toString());
+
+        String textString = text.toString();
+        if (MXSession.isUserId(textString)) {
+            mTextView.setText(DinsicUtils.computeDisplayNameFromUserId(textString));
+        } else {
+            mTextView.setText(textString);
+        }
 
         TypedArray a = getContext().getTheme()
-                .obtainStyledAttributes(new int[]{MXSession.isRoomAlias(text.toString()) ? R.attr.pill_background_room_alias : R.attr.pill_background_user_id});
+                .obtainStyledAttributes(new int[]{MXSession.isRoomAlias(textString) ? R.attr.pill_background_room_alias : R.attr.pill_background_user_id});
         int attributeResourceId = a.getResourceId(0, 0);
         a.recycle();
 
         mPillLayout.setBackground(ContextCompat.getDrawable(getContext(), attributeResourceId));
 
         a = getContext().getTheme()
-                .obtainStyledAttributes(new int[]{MXSession.isRoomAlias(text.toString()) ? R.attr.pill_text_color_room_alias : R.attr.pill_text_color_user_id});
+                .obtainStyledAttributes(new int[]{MXSession.isRoomAlias(textString) ? R.attr.pill_text_color_room_alias : R.attr.pill_text_color_user_id});
         attributeResourceId = a.getResourceId(0, 0);
         a.recycle();
         mTextView.setTextColor(ContextCompat.getColor(getContext(), attributeResourceId));
@@ -146,6 +152,7 @@ public class PillView extends LinearLayout {
             if (null == user) {
                 user = new User();
                 user.user_id = linkedUrl;
+                user.displayname = DinsicUtils.computeDisplayNameFromUserId(linkedUrl);
             }
 
             VectorUtils.loadUserAvatar(VectorApp.getInstance(), session, mAvatarView, user);

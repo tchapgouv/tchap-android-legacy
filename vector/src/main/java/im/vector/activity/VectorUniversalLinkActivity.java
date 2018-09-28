@@ -22,6 +22,9 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -30,10 +33,8 @@ import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
 import org.matrix.androidsdk.rest.model.MatrixError;
-import org.matrix.androidsdk.ssl.Fingerprint;
 import org.matrix.androidsdk.util.Log;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -88,7 +89,7 @@ public class VectorUniversalLinkActivity extends VectorAppCompatActivity {
                                     @Override
                                     public void onSuccess(Void info) {
                                         Log.d(LOG_TAG, "## onCreate(): logout succeeded");
-                                        sendBroadcast(myBroadcastIntent);
+                                        LocalBroadcastManager.getInstance(VectorUniversalLinkActivity.this).sendBroadcast(myBroadcastIntent);
                                         finish();
                                     }
                                 });
@@ -115,7 +116,7 @@ public class VectorUniversalLinkActivity extends VectorAppCompatActivity {
 
             myBroadcastIntent.setAction(intentAction);
             myBroadcastIntent.setData(getIntent().getData());
-            sendBroadcast(myBroadcastIntent);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(myBroadcastIntent);
             finish();
         }
     }
@@ -131,8 +132,11 @@ public class VectorUniversalLinkActivity extends VectorAppCompatActivity {
 
         String ISUrl = uri.getScheme() + "://" + uri.getHost();
 
-        final HomeServerConnectionConfig homeServerConfig =
-                new HomeServerConnectionConfig(Uri.parse(ISUrl), Uri.parse(ISUrl), null, new ArrayList<Fingerprint>(), false);
+        final HomeServerConnectionConfig homeServerConfig = new HomeServerConnectionConfig.Builder()
+                .withHomeServerUri(Uri.parse(ISUrl))
+                .withIdentityServerUri(Uri.parse(ISUrl))
+                .withTlsLimitations(true, Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT)
+                .build();
 
         String token = aMapParams.get(VectorRegistrationReceiver.KEY_MAIL_VALIDATION_TOKEN);
         String clientSecret = aMapParams.get(VectorRegistrationReceiver.KEY_MAIL_VALIDATION_CLIENT_SECRET);

@@ -37,7 +37,7 @@ import java.util.List;
 public class PublicRoomsManager {
     private static final String LOG_TAG = PublicRoomsManager.class.getSimpleName();
 
-    public static final int PUBLIC_ROOMS_LIMIT = 20;
+    public static final int PUBLIC_ROOMS_LIMIT = -1;
 
     public interface PublicRoomsManagerListener {
         /**

@@ -46,7 +46,7 @@
             android:paddingBottom="7dp"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
-            android:theme="@style/AppTheme.NoActionBar"
+            android:theme="@style/AppTheme.NoActionBar.Light"
             app:tabGravity="fill"
             app:tabIndicatorColor="@color/riot_primary_background_color_light"
             app:tabMaxWidth="0dp"
@@ -103,26 +103,6 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/listView_pending_callview" />
 
-        <FrameLayout
-            android:id="@+id/listView_spinner_views"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="?attr/waiting_background_color"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/listView_pending_callview">
-
-            <ProgressBar
-                android:id="@+id/listView_spinner"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:visibility="visible" />
-
-        </FrameLayout>
-
         <!-- Elevate above BottomNavigationView (above lollipop). -->
         <View
             android:id="@+id/floating_action_menu_touch_guard"
@@ -156,9 +136,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:tint="@android:color/white"
-                app:fab_icon="@drawable/ic_person_black_24dp"
+                app:fab_icon="@drawable/tchap_ic_new_discussion"
                 app:fab_size="mini"
-                app:fab_title="@string/room_recents_start_chat"
+                app:fab_title="@string/start_new_chat"
                 tools:fab_colorNormal="@color/vector_fuchsia_color"
                 tools:fab_colorPressed="@color/vector_fuchsia_color" />
 
@@ -166,9 +146,9 @@
                 android:id="@+id/button_create_room"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:fab_icon="@drawable/ic_add_white"
+                app:fab_icon="@drawable/tchap_ic_new_room"
                 app:fab_size="mini"
-                app:fab_title="@string/room_recents_create_room"
+                app:fab_title="@string/tchap_room_creation_title"
                 tools:fab_colorNormal="@color/vector_fuchsia_color"
                 tools:fab_colorPressed="@color/vector_fuchsia_color" />
 
@@ -176,13 +156,34 @@
                 android:id="@+id/button_join_room"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:fab_icon="@drawable/riot_tab_rooms"
+                app:fab_icon="@drawable/tchap_ic_join_public"
                 app:fab_size="mini"
-                app:fab_title="@string/room_recents_join_room"
+                app:fab_title="@string/room_join_public_room_title"
                 tools:fab_colorNormal="@color/vector_fuchsia_color"
                 tools:fab_colorPressed="@color/vector_fuchsia_color" />
 
         </com.getbase.floatingactionbutton.FloatingActionsMenu>
+
+        <FrameLayout
+            android:id="@+id/listView_spinner_views"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="?attr/waiting_background_color"
+            android:elevation="14dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/listView_pending_callview">
+
+            <ProgressBar
+                android:id="@+id/listView_spinner"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:visibility="visible" />
+
+        </FrameLayout>
 
     </android.support.constraint.ConstraintLayout>
 

@@ -48,12 +48,14 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import butterknife.BindView;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
 
+import fr.gouv.tchap.util.DinsicUtils;
 import fr.gouv.tchap.util.HexagonMaskView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -92,6 +94,15 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     @BindView(R.id.switch_public_private_rooms)
     Switch switchPublicPrivateRoom;
 
+    @BindView(R.id.ll_federation_option)
+    View federationOption;
+
+    @BindView(R.id.tv_disable_federation)
+    TextView disableFederationText;
+
+    @BindView(R.id.switch_disable_federation)
+    Switch switchDisableFederation;
+
     @BindView(R.id.tv_public_private_room_description)
     TextView tvPublicPrivateRoomDescription;
 
@@ -117,6 +128,10 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         switchPublicPrivateRoom.setChecked(false);
         mRoomParams.visibility = RoomState.DIRECTORY_VISIBILITY_PRIVATE;
         mRoomParams.preset = CreateRoomParams.PRESET_PRIVATE_CHAT;
+
+        // Prepare disable federation label by adding the hs display name of the current user.
+        String userHSDomain = DinsicUtils.getHomeServerDisplayNameFromUserId(mSession.getMyUserId());
+        disableFederationText.setText(getString(R.string.tchap_room_creation_disable_federation, userHSDomain));
     }
 
     @Override
@@ -179,19 +194,49 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     @OnClick(R.id.switch_public_private_rooms)
     void setRoomPrivacy() {
         if (switchPublicPrivateRoom.isChecked()) {
-            switchPublicPrivateRoom.setChecked(true);
             tvPublicPrivateRoomDescription.setTextColor(ContextCompat.getColor(this, R.color.vector_fuchsia_color));
             mRoomParams.visibility = RoomState.DIRECTORY_VISIBILITY_PUBLIC;
             mRoomParams.preset = CreateRoomParams.PRESET_PUBLIC_CHAT;
             mRoomParams.setHistoryVisibility(RoomState.HISTORY_VISIBILITY_WORLD_READABLE);
             Log.d(LOG_TAG, "## public");
+            federationOption.setVisibility(View.VISIBLE);
         } else {
-            switchPublicPrivateRoom.setChecked(false);
             tvPublicPrivateRoomDescription.setTextColor(ContextCompat.getColor(this, R.color.vector_tchap_text_color_light_grey));
             mRoomParams.visibility = RoomState.DIRECTORY_VISIBILITY_PRIVATE;
             mRoomParams.preset = CreateRoomParams.PRESET_PRIVATE_CHAT;
             mRoomParams.setHistoryVisibility(null);
             Log.d(LOG_TAG, "## private");
+            // Remove potential change related to the federation
+            switchDisableFederation.setChecked(false);
+            federationOption.setVisibility(View.GONE);
+            mRoomParams.creation_content = null;
+        }
+    }
+
+    @OnClick(R.id.switch_disable_federation)
+    void setRoomFederation() {
+        if (switchDisableFederation.isChecked()) {
+            Map<String, Object> params = new HashMap<>();
+            params.put("m.federate", false);
+            mRoomParams.creation_content = params;
+            Log.d(LOG_TAG, "## not federated");
+
+            if (!mParticipantsIds.isEmpty()) {
+                // Remove the potential selected users who don't belong to the user HS
+                String currentUserHS = DinsicUtils.getHomeServerNameFromUserId(mSession.getMyUserId());
+
+                for (int index = 0; index < mParticipantsIds.size();) {
+                    String selectedUserId = mParticipantsIds.get(index);
+                    if (!DinsicUtils.getHomeServerNameFromUserId(selectedUserId).equals(currentUserHS)) {
+                        mParticipantsIds.remove(selectedUserId);
+                    } else {
+                        index++;
+                    }
+                }
+            }
+        } else {
+            mRoomParams.creation_content = null;
+            Log.d(LOG_TAG, "## federated");
         }
     }
 
@@ -231,7 +276,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                 if (resultCode == RESULT_OK) {
                     // We have retrieved the list of members to invite from RoomInviteMembersActivity.
                     // This list can not be empty because the add button for the members selection is only activated if at least 1 member is selected.
-                    // This list contains only matrixIds because the RoomInviteMembersActivity was opened in TCHAP_ONLY mode.
+                    // This list contains only matrixIds because the RoomInviteMembersActivity was opened in TCHAP_ONLY or FEDERATED_TCHAP_ONLY mode.
                     showWaitingView();
                     invalidateOptionsMenu();
                     mRoomParams.invite = mParticipantsIds;
@@ -299,6 +344,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                             Toast.makeText(TchapRoomCreationActivity.this, message, Toast.LENGTH_LONG).show();
                         }
                         hideWaitingView();
+                        invalidateOptionsMenu();
                     }
                 });
             }
@@ -327,7 +373,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                             createNewRoom();
                             break;
                         default:
-                            Log.e (LOG_TAG, e.getLocalizedMessage());
+                            onError(e.getLocalizedMessage());
                             break;
                     }
                 }
@@ -482,7 +528,12 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         Intent intent = new Intent(TchapRoomCreationActivity.this, VectorRoomInviteMembersActivity.class);
         intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
         intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_ACTION_ACTIVITY_MODE, VectorRoomInviteMembersActivity.ActionMode.RETURN_SELECTED_USER_IDS);
-        intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY);
+        // Check whether the federation has been disabled to limit the invitation to the federated users
+        if (null == mRoomParams.creation_content) {
+            intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY);
+        } else {
+            intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.FEDERATED_TCHAP_ONLY);
+        }
 
         if (!mParticipantsIds.isEmpty()) {
             intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_IN_SELECTED_USER_IDS, (Serializable) mParticipantsIds);

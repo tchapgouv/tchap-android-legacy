@@ -17,6 +17,7 @@
 package im.vector.util
 
 import android.app.Activity
+import android.app.Fragment
 import android.content.ActivityNotFoundException
 import android.content.ContentValues
 import android.content.Context
@@ -25,9 +26,12 @@ import android.net.Uri
 import android.os.Build
 import android.provider.Browser
 import android.provider.MediaStore
+import android.support.v4.content.FileProvider
 import androidx.core.widget.toast
+import im.vector.BuildConfig
 import im.vector.R
 import org.matrix.androidsdk.util.Log
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -78,21 +82,24 @@ fun openSoundRecorder(activity: Activity, requestCode: Int) {
 /**
  * Open file selection activity
  */
-fun openFileSelection(activity: Activity, requestCode: Int) {
-    val fileIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-        Intent(Intent.ACTION_OPEN_DOCUMENT)
-    } else {
-        Intent(Intent.ACTION_GET_CONTENT)
-    }
-
+fun openFileSelection(activity: Activity,
+                      fragment: Fragment?,
+                      allowMultipleSelection: Boolean,
+                      requestCode: Int) {
+    val fileIntent = Intent(Intent.ACTION_GET_CONTENT)
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-        fileIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+        fileIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, allowMultipleSelection)
     }
 
+    fileIntent.addCategory(Intent.CATEGORY_OPENABLE);
     fileIntent.type = "*/*"
 
     try {
-        activity.startActivityForResult(fileIntent, requestCode)
+        fragment
+                ?.startActivityForResult(fileIntent, requestCode)
+                ?: run {
+                    activity.startActivityForResult(fileIntent, requestCode)
+                }
     } catch (activityNotFoundException: ActivityNotFoundException) {
         activity.toast(R.string.error_no_external_application_found)
     }
@@ -202,6 +209,29 @@ fun sendMailTo(address: String, subject: String? = null, message: String? = null
  */
 fun openUri(activity: Activity, uri: String) {
     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uri))
+
+    try {
+        activity.startActivity(intent)
+    } catch (activityNotFoundException: ActivityNotFoundException) {
+        activity.toast(R.string.error_no_external_application_found)
+    }
+}
+
+/**
+ * Send media to a third party application.
+ *
+ * @param activity       the activity
+ * @param savedMediaPath the media path
+ * @param mimeType       the media mime type.
+ */
+fun openMedia(activity: Activity, savedMediaPath: String, mimeType: String) {
+    val file = File(savedMediaPath)
+    val uri = FileProvider.getUriForFile(activity, BuildConfig.APPLICATION_ID + ".fileProvider", file)
+
+    val intent = Intent(Intent.ACTION_VIEW).apply {
+        setDataAndType(uri, mimeType)
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    }
 
     try {
         activity.startActivity(intent)

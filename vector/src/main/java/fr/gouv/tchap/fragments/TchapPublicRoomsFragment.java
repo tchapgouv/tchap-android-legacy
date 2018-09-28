@@ -44,6 +44,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
+import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.Matrix;
 import im.vector.PublicRoomsManager;
 import im.vector.R;
@@ -113,7 +114,7 @@ public class TchapPublicRoomsFragment extends VectorBaseFragment {
             mCurrentFilter = savedInstanceState.getString(CURRENT_FILTER);
         }
 
-        String userHSName = mSession.getMyUserId().substring(mSession.getMyUserId().indexOf(":") + 1);
+        String userHSName = DinsicUtils.getHomeServerNameFromUserId(mSession.getMyUserId());
         List<String> servers = Arrays.asList(getResources().getStringArray(R.array.room_directory_servers));
         mCurrentHosts = new ArrayList<>();
         boolean isUserHSNameAdded = false;

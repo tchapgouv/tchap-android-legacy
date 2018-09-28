@@ -55,7 +55,6 @@ import im.vector.R
 import im.vector.VectorApp
 import im.vector.activity.*
 import im.vector.contacts.ContactsManager
-import im.vector.gcm.GcmRegistrationManager
 import im.vector.preference.*
 import im.vector.settings.FontScale
 import im.vector.util.*
@@ -448,12 +447,20 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                     displayLoadingView()
 
                     Matrix.getInstance(activity)!!.sharedGCMRegistrationManager
-                            .forceSessionsRegistration(object : GcmRegistrationManager.ThirdPartyRegistrationListener {
-                                override fun onSuccess() {
+                            .forceSessionsRegistration(object : ApiCallback<Void> {
+                                override fun onSuccess(info: Void?) {
                                     hideLoadingView()
                                 }
 
-                                override fun onError() {
+                                override fun onMatrixError(e: MatrixError?) {
+                                    hideLoadingView()
+                                }
+
+                                override fun onNetworkError(e: java.lang.Exception?) {
+                                    hideLoadingView()
+                                }
+
+                                override fun onUnexpectedError(e: java.lang.Exception?) {
                                     hideLoadingView()
                                 }
                             })
@@ -797,7 +804,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 
             Matrix.getInstance(context)!!
                     .sharedGCMRegistrationManager
-                    .refreshPushersList(Matrix.getInstance(context)!!.sessions, object : SimpleApiCallback<Void>() {
+                    .refreshPushersList(Matrix.getInstance(context)!!.sessions, object : SimpleApiCallback<Void>(activity) {
                         override fun onSuccess(info: Void?) {
                             refreshPushersList()
                         }
@@ -975,15 +982,15 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
      */
     private fun onPasswordUpdateClick() {
         activity.runOnUiThread {
-            val view = activity.layoutInflater.inflate(R.layout.fragment_dialog_change_password, null)
+            val view = activity.layoutInflater.inflate(R.layout.dialog_change_password, null)
 
             val oldPasswordText = view.findViewById<EditText>(R.id.change_password_old_pwd_text)
             val newPasswordText = view.findViewById<EditText>(R.id.change_password_new_pwd_text)
             val confirmNewPasswordText = view.findViewById<EditText>(R.id.change_password_confirm_new_pwd_text)
 
             val dialog = AlertDialog.Builder(activity)
-                    .setView(view)
                     .setTitle(R.string.settings_change_password)
+                    .setView(view)
                     .setPositiveButton(R.string.save) { dialog, which ->
                         if (null != activity) {
                             val imm = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -1086,7 +1093,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
             // when using GCM
             // need to register on servers
             if (isConnected && gcmMgr.useGCM() && (gcmMgr.isServerRegistered || gcmMgr.isServerUnRegistered)) {
-                val listener = object : GcmRegistrationManager.ThirdPartyRegistrationListener {
+                val listener = object : ApiCallback<Void> {
 
                     private fun onDone() {
                         if (null != activity) {
@@ -1097,11 +1104,23 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                         }
                     }
 
-                    override fun onSuccess() {
+                    override fun onSuccess(info: Void?) {
                         onDone()
                     }
 
-                    override fun onError() {
+                    override fun onMatrixError(e: MatrixError?) {
+                        // Set again the previous state
+                        gcmMgr.setDeviceNotificationsAllowed(isAllowed)
+                        onDone()
+                    }
+
+                    override fun onNetworkError(e: java.lang.Exception?) {
+                        // Set again the previous state
+                        gcmMgr.setDeviceNotificationsAllowed(isAllowed)
+                        onDone()
+                    }
+
+                    override fun onUnexpectedError(e: java.lang.Exception?) {
                         // Set again the previous state
                         gcmMgr.setDeviceNotificationsAllowed(isAllowed)
                         onDone()
@@ -1324,8 +1343,6 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                 .setTitle(R.string.dialog_title_confirmation)
                 .setMessage(dialogMessage)
                 .setPositiveButton(R.string.remove) { dialog, which ->
-                    dialog.dismiss()
-
                     displayLoadingView()
 
                     mSession.myUser.delete3Pid(pid, object : ApiCallback<Void> {
@@ -1350,7 +1367,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                         }
                     })
                 }
-                .setNegativeButton(R.string.cancel) { dialog, which -> dialog.dismiss() }
+                .setNegativeButton(R.string.cancel, null)
                 .show()
     }
 
@@ -1388,8 +1405,6 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                     AlertDialog.Builder(activity)
                             .setMessage(getString(R.string.settings_unignore_user, userId))
                             .setPositiveButton(R.string.yes) { dialog, which ->
-                                dialog.dismiss()
-
                                 displayLoadingView()
 
                                 val idsList = ArrayList<String>()
@@ -1413,7 +1428,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                                     }
                                 })
                             }
-                            .setNegativeButton(R.string.no) { dialog, which -> dialog.dismiss() }
+                            .setNegativeButton(R.string.no, null)
                             .show()
 
                     false
@@ -1474,8 +1489,6 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                                     .setTitle(R.string.dialog_title_confirmation)
                                     .setMessage(R.string.settings_delete_notification_targets_confirmation)
                                     .setPositiveButton(R.string.remove) { dialog, which ->
-                                        dialog.dismiss()
-
                                         displayLoadingView()
                                         gcmRegistrationManager.unregister(mSession, pusher, object : ApiCallback<Void> {
                                             override fun onSuccess(info: Void?) {
@@ -1496,7 +1509,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                                             }
                                         })
                                     }
-                                    .setNegativeButton(R.string.cancel) { dialog, which -> dialog.dismiss() }
+                                    .setNegativeButton(R.string.cancel, null)
                                     .show()
                             true
                         }
@@ -1837,21 +1850,20 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 
     private fun displayTextSizeSelection(activity: Activity) {
         val inflater = activity.layoutInflater
-
-        val layout = inflater.inflate(R.layout.text_size_selection, null)
+        val layout = inflater.inflate(R.layout.dialog_select_text_size, null)
 
         val dialog = AlertDialog.Builder(activity)
                 .setTitle(R.string.font_size)
                 .setView(layout)
-                .setPositiveButton(R.string.ok) { dialog, id -> }
-                .setNegativeButton(R.string.cancel) { dialog, id -> }
+                .setPositiveButton(R.string.ok, null)
+                .setNegativeButton(R.string.cancel, null)
                 .show()
 
         val linearLayout = layout.findViewById<LinearLayout>(R.id.text_selection_group_view)
 
         val childCount = linearLayout.childCount
 
-        val scaleText = FontScale.getFontScalePrefValue()
+        val scaleText = FontScale.getFontScaleDescription()
 
         for (i in 0 until childCount) {
             val v = linearLayout.getChildAt(i)
@@ -1977,7 +1989,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
         val deviceId = mSession.credentials.deviceId
 
         // device name
-        if (null != aMyDeviceInfo && !TextUtils.isEmpty(aMyDeviceInfo.display_name)) {
+        if (null != aMyDeviceInfo) {
             cryptoInfoDeviceNamePreference.summary = aMyDeviceInfo.display_name
 
             cryptoInfoDeviceNamePreference.onPreferenceClickListener = Preference.OnPreferenceClickListener {
@@ -2184,7 +2196,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
     private fun displayDeviceDetailsDialog(aDeviceInfo: DeviceInfo?) {
         val builder = AlertDialog.Builder(activity)
         val inflater = activity.layoutInflater
-        val layout = inflater.inflate(R.layout.devices_details_settings, null)
+        val layout = inflater.inflate(R.layout.dialog_device_details, null)
 
         if (null != aDeviceInfo) {
             //device ID
@@ -2228,7 +2240,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                 builder.setNegativeButton(R.string.delete) { dialog, which -> displayDeviceDeletionDialog(aDeviceInfo) }
             }
 
-            builder.setNeutralButton(R.string.cancel) { dialog, which -> dialog.dismiss() }
+            builder.setNeutralButton(R.string.cancel, null)
                     .setOnKeyListener(DialogInterface.OnKeyListener { dialog, keyCode, event ->
                         if (event.action == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
                             dialog.cancel()
@@ -2248,17 +2260,24 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
      * @param aDeviceInfoToRename device info
      */
     private fun displayDeviceRenameDialog(aDeviceInfoToRename: DeviceInfo) {
-        val input = EditText(activity)
+        val inflater = activity.layoutInflater
+        val layout = inflater.inflate(R.layout.dialog_base_edit_text, null)
+
+        val input = layout.findViewById<EditText>(R.id.edit_text)
         input.setText(aDeviceInfoToRename.display_name)
 
         AlertDialog.Builder(activity)
                 .setTitle(R.string.devices_details_device_name)
-                .setView(input)
+                .setView(layout)
                 .setPositiveButton(R.string.ok) { dialog, which ->
                     displayLoadingView()
 
-                    mSession.setDeviceName(aDeviceInfoToRename.device_id, input.text.toString(), object : ApiCallback<Void> {
+                    val newName = input.text.toString()
+
+                    mSession.setDeviceName(aDeviceInfoToRename.device_id, newName, object : ApiCallback<Void> {
                         override fun onSuccess(info: Void?) {
+                            hideLoadingView()
+
                             // search which preference is updated
                             val count = mDevicesListSettingsCategory.preferenceCount
 
@@ -2266,17 +2285,17 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                                 val pref = mDevicesListSettingsCategory.getPreference(i) as VectorCustomActionEditTextPreference
 
                                 if (TextUtils.equals(aDeviceInfoToRename.device_id, pref.title)) {
-                                    pref.summary = input.text
+                                    pref.summary = newName
                                 }
                             }
 
                             // detect if the updated device is the current account one
-                            val pref = findPreference(PreferencesManager.SETTINGS_ENCRYPTION_INFORMATION_DEVICE_ID_PREFERENCE_KEY)
-                            if (TextUtils.equals(pref.summary, aDeviceInfoToRename.device_id)) {
-                                findPreference(PreferencesManager.SETTINGS_ENCRYPTION_INFORMATION_DEVICE_NAME_PREFERENCE_KEY).summary = input.text
+                            if (TextUtils.equals(cryptoInfoDeviceIdPreference.summary, aDeviceInfoToRename.device_id)) {
+                                cryptoInfoDeviceNamePreference.summary = newName
                             }
 
-                            hideLoadingView()
+                            // Also change the display name in aDeviceInfoToRename, in case of multiple renaming
+                            aDeviceInfoToRename.display_name = newName
                         }
 
                         override fun onNetworkError(e: Exception) {
@@ -2292,7 +2311,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                         }
                     })
                 }
-                .setNegativeButton(R.string.cancel) { dialog, which -> dialog.cancel() }
+                .setNegativeButton(R.string.cancel, null)
                 .show()
     }
 
@@ -2340,14 +2359,13 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                 deleteDevice(aDeviceInfoToDelete.device_id)
             } else {
                 val inflater = activity.layoutInflater
-                val layout = inflater.inflate(R.layout.devices_settings_delete, null)
+                val layout = inflater.inflate(R.layout.dialog_device_delete, null)
                 val passwordEditText = layout.findViewById<EditText>(R.id.delete_password)
 
                 AlertDialog.Builder(activity)
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .setTitle(R.string.devices_delete_dialog_title)
                         .setView(layout)
-
                         .setPositiveButton(R.string.devices_delete_submit_button_label, DialogInterface.OnClickListener { dialog, which ->
                             if (TextUtils.isEmpty(passwordEditText.toString())) {
                                 activity.applicationContext.toast(R.string.error_empty_field_your_password)
@@ -2357,7 +2375,6 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                             deleteDevice(aDeviceInfoToDelete.device_id)
                         })
                         .setNegativeButton(R.string.cancel) { dialog, which ->
-                            dialog.dismiss()
                             hideLoadingView()
                         }
                         .setOnKeyListener(DialogInterface.OnKeyListener { dialog, keyCode, event ->
@@ -2416,9 +2433,12 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 
                 CommonActivityUtils.exportKeys(mSession, passPhrase1EditText.text.toString(), object : ApiCallback<String> {
                     override fun onSuccess(filename: String) {
-                        VectorApp.getInstance().toast(filename)
-
                         hideLoadingView()
+
+                        AlertDialog.Builder(activity)
+                                .setMessage(getString(R.string.encryption_export_saved_as, filename))
+                                .setPositiveButton(R.string.ok, null)
+                                .show()
                     }
 
                     override fun onNetworkError(e: Exception) {
@@ -2444,12 +2464,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
      */
     @SuppressLint("NewApi")
     private fun importKeys() {
-        val fileIntent = Intent(Intent.ACTION_GET_CONTENT)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            fileIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false)
-        }
-        fileIntent.type = "*/*"
-        startActivityForResult(fileIntent, REQUEST_E2E_FILE_REQUEST_CODE)
+        openFileSelection(activity, this, false, REQUEST_E2E_FILE_REQUEST_CODE)
     }
 
     /**
