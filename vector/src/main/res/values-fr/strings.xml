@@ -839,7 +839,7 @@ Appareils inconnus :</string>
     <string name="tchap_room_creation_disable_federation">Limiter l\'accès à ce salon aux membres du domaine \"%s\"</string>
     <string name="tchap_room_creation_public_info">Un salon public peut être rejoint par n\'importe quel membre de la communauté Tchap, il ne doit contenir aucune donnée sensible.</string>
     <string name="tchap_room_invite_member_title">Inviter au salon</string>
-    <string name="tchap_room_invite_member_action">Créer</string>
+    <string name="tchap_room_invite_member_action">Valider</string>
     <string name="tchap_room_creation_save_avatar_failed">La sauvegarde de la photo du salon a échoué. \n Que souhaitez-vous faire ?</string>
 
     // tchap new strings
