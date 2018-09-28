@@ -136,6 +136,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
     private int mKnownContactsSectionPosition = -1;
 
     // flag specifying if we show all peoples or only ones having a matrix user id
+    //@TODO remove this useless flag
     private boolean mShowMatrixUserOnly = false;
 
     // Optional listener to handle contact edition
@@ -730,13 +731,31 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
             if (item == mFirstEntry) {
                 firstEntryList.add(mFirstEntry);
             } else if (null != item.mContact) {
-                if (!mShowMatrixUserOnly || !item.mContact.getMatrixIdMediums().isEmpty()) {
-                    if (!DinsicUtils.participantAlreadyAdded(contactBookList,item))
-                        contactBookList.add(item);
-                }
+                if (!DinsicUtils.participantAlreadyAdded(contactBookList, item))
+                    contactBookList.add(item);
             } else {
-                if (!DinsicUtils.participantAlreadyAdded(roomContactsList,item))
+                if (!DinsicUtils.participantAlreadyAdded(roomContactsList, item))
                     roomContactsList.add(item);
+            }
+        }
+
+        if (!mContactsFilter.equals(VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY) && TextUtils.isEmpty(mPattern)) {
+            // Some TCHAP users may have been selected during a search session
+            // We add them in the current contacts book if they are not present (by creating a fake participant)
+            // in order to display them as selected
+            for (String selectedUserId : mCurrentSelectedUsers) {
+                if (MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(selectedUserId).matches()) {
+                    String displayName;
+                    User user = mSession.getDataHandler().getUser(selectedUserId);
+                    if (null != user)
+                        displayName = user.displayname;
+                    else
+                        displayName = DinsicUtils.computeDisplayNameFromUserId(selectedUserId);
+
+                    ParticipantAdapterItem participant = new ParticipantAdapterItem(displayName, null, selectedUserId, true);
+                    if (!DinsicUtils.participantAlreadyAdded(contactBookList, participant))
+                        contactBookList.add(participant);
+                }
             }
         }
 
@@ -747,24 +766,15 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
             mFirstEntryPosition = 0;
         }
 
-        if (ContactsManager.getInstance().isContactBookAccessAllowed()) {
-            mLocalContactsSectionPosition = mFirstEntryPosition + 1;
-            mKnownContactsSectionPosition = mLocalContactsSectionPosition + 1;
-            // display the local contacts
-            // -> if there are some
-            // -> the PIDS retrieval is in progress
-            // -> the user displays only the matrix id (if there is no contact with matrix Id, it could impossible to deselect the toggle
-            // -> always displays when there is something to search to let the user toggles the matrix id checkbox.
-            if ((contactBookList.size() > 0) || !ContactsManager.getInstance().arePIDsRetrieved() || mShowMatrixUserOnly || !TextUtils.isEmpty(mPattern)) {
-                // Sort also by gouv priority
-                // the contacts are sorted by alphabetical method
+        mLocalContactsSectionPosition = mFirstEntryPosition + 1;
+        mKnownContactsSectionPosition = mLocalContactsSectionPosition + 1;
 
-                Collections.sort(contactBookList, ParticipantAdapterItem.alphaComparator);// tchapAlphaComparator);
-            }
-            mParticipantsListsList.add(contactBookList);
-        } else {
-            mKnownContactsSectionPosition = mFirstEntryPosition + 1;
+        // display the local contacts
+        if (contactBookList.size() > 0) {
+            // the contacts are sorted by alphabetical method
+            Collections.sort(contactBookList, ParticipantAdapterItem.alphaComparator);// tchapAlphaComparator);
         }
+        mParticipantsListsList.add(contactBookList);
 
         if (!mContactsFilter.equals(VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY) && !TextUtils.isEmpty(mPattern)) {
             if ((roomContactsList.size() > 0) && sort) {
