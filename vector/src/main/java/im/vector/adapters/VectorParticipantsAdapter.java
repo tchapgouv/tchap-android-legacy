@@ -136,7 +136,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
     private int mKnownContactsSectionPosition = -1;
 
     // flag specifying if we show all peoples or only ones having a matrix user id
-    //@TODO remove this useless flag
+    // TODO remove this useless flag
     private boolean mShowMatrixUserOnly = false;
 
     // Optional listener to handle contact edition
@@ -244,9 +244,9 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                 // Show contacts without emails only in two cases :
                 // 1) when all contacts are displaying
                 // 2) when no tchap users are displaying
-                if (contact.getEmails().isEmpty() &&
-                        (mContactsFilter == VectorRoomInviteMembersActivity.ContactsFilter.ALL ||
-                                mContactsFilter == VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY)) {
+                if (contact.getEmails().isEmpty()
+                        && (mContactsFilter == VectorRoomInviteMembersActivity.ContactsFilter.ALL
+                        || mContactsFilter == VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY)) {
                     Contact dummyContact = new Contact(contact.getContactId());
                     dummyContact.setDisplayName(contact.getDisplayName());
                     dummyContact.addEmailAdress(mContext.getString(R.string.no_email));
@@ -727,14 +727,15 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
         if (mContactsFilter.equals(VectorRoomInviteMembersActivity.ContactsFilter.FEDERATED_TCHAP_ONLY)) {
             // Remove all the users which are not federated
             // TODO improve the handling of this filter by removing not federated users during the participants list building.
-            String userHSName = mSession.getMyUserId().substring(mSession.getMyUserId().indexOf(":") + 1);
+            String userHSName = DinsicUtils.getHomeServerNameFromUserId(mSession.getMyUserId());
             for (int index = 0; index < participantItemList.size();) {
                 ParticipantAdapterItem participant = participantItemList.get(index);
                 // Note: participant.mUserId cannot be null here
-                if (!participant.mUserId.substring(participant.mUserId.indexOf(":") + 1).equals(userHSName))
+                if (!DinsicUtils.getHomeServerNameFromUserId(participant.mUserId).equals(userHSName)) {
                     participantItemList.remove(participant);
-                else
-                    index ++;
+                } else {
+                    index++;
+                }
             }
         }
 

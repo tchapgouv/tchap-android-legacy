@@ -70,6 +70,33 @@ public class DinsicUtils {
     private static final String LOG_TAG = "DinsicUtils";
 
     /**
+     * Get the homeserver name of a user identifier.
+     * For example in case of "@jean-philippe.martin-modernisation.fr:matrix.test.org", this will return "matrix.test.org".
+     */
+    public static String getHomeServerNameFromUserId (String userId) {
+        return userId.substring(userId.indexOf(":") + 1);
+    }
+
+    /**
+     * Get the Tchap display name for the homeserver of a user identifier.
+     * The returned name is capitalize.
+     * For example in case of "@jean-philippe.martin-modernisation.fr:matrix.test.org", this will return "Matrix".
+     */
+    public static String getHomeServerDisplayNameFromUserId (String userId) {
+        String userHSName = DinsicUtils.getHomeServerNameFromUserId(userId);
+        if (userHSName.contains(".")) {
+            userHSName = userHSName.split("\\.")[0];
+        }
+        // Capitalize the domain
+        StringBuilder builder = new StringBuilder();
+        builder.append(userHSName.substring(0, 1).toUpperCase());
+        if (userHSName.length() > 1) {
+            builder.append(userHSName.substring(1));
+        }
+        return builder.toString();
+    }
+
+    /**
      * Get name part of a display name by removing the domain part if any.
      * For example in case of "Jean Martin [Modernisation]", this will return "Jean Martin".
      *

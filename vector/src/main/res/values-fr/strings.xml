@@ -833,7 +833,7 @@ Appareils inconnus :</string>
     // tchap room creation
     <string name="tchap_room_creation_title">Nouveau salon</string>
     <string name="tchap_action_next">Suivant</string>
-    <string name="tchap_room_creation_avatar">Ajouter \n une photo</string>
+    <string name="tchap_room_creation_avatar">Ajouter\nune photo</string>
     <string name="tchap_room_creation_name">Nommer le salon</string>
     <string name="tchap_room_creation_public">Rendre ce salon public</string>
     <string name="tchap_room_creation_disable_federation">Limiter l\'accès à ce salon aux membres du domaine \"%s\"</string>

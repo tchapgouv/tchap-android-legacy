@@ -466,6 +466,8 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                 item.setTitle(R.string.invite);
                 item.setEnabled(!mUserIdsToInvite.isEmpty());
                 break;
+            default:
+                item.setEnabled(true);
         }
 
         return super.onPrepareOptionsMenu(menu);

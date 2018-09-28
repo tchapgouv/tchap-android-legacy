@@ -55,6 +55,7 @@ import butterknife.BindView;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
 
+import fr.gouv.tchap.util.DinsicUtils;
 import fr.gouv.tchap.util.HexagonMaskView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -128,18 +129,9 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         mRoomParams.visibility = RoomState.DIRECTORY_VISIBILITY_PRIVATE;
         mRoomParams.preset = CreateRoomParams.PRESET_PRIVATE_CHAT;
 
-        // Prepare disable federation label by adding the hs domain of the current user.
-        String userHSDomain = mSession.getMyUserId().substring(mSession.getMyUserId().indexOf(":") + 1);
-        if (userHSDomain.contains(".")) {
-            userHSDomain = userHSDomain.split("\\.")[0];
-        }
-        // Capitalize the domain
-        StringBuilder builder = new StringBuilder();
-        builder.append(userHSDomain.substring(0, 1).toUpperCase());
-        if (userHSDomain.length() > 1) {
-            builder.append(userHSDomain.substring(1));
-        }
-        disableFederationText.setText(getString(R.string.tchap_room_creation_disable_federation, builder.toString()));
+        // Prepare disable federation label by adding the hs display name of the current user.
+        String userHSDomain = DinsicUtils.getHomeServerDisplayNameFromUserId(mSession.getMyUserId());
+        disableFederationText.setText(getString(R.string.tchap_room_creation_disable_federation, userHSDomain));
     }
 
     @Override
@@ -231,14 +223,15 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
             if (!mParticipantsIds.isEmpty()) {
                 // Remove the potential selected users who don't belong to the user HS
-                String userHSName = mSession.getMyUserId().substring(mSession.getMyUserId().indexOf(":") + 1);
+                String currentUserHS = DinsicUtils.getHomeServerNameFromUserId(mSession.getMyUserId());
 
                 for (int index = 0; index < mParticipantsIds.size();) {
                     String selectedUserId = mParticipantsIds.get(index);
-                    if (!selectedUserId.substring(selectedUserId.indexOf(":") + 1).equals(userHSName))
+                    if (!DinsicUtils.getHomeServerNameFromUserId(selectedUserId).equals(currentUserHS)) {
                         mParticipantsIds.remove(selectedUserId);
-                    else
-                        index ++;
+                    } else {
+                        index++;
+                    }
                 }
             }
         } else {
@@ -536,10 +529,11 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
         intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_ACTION_ACTIVITY_MODE, VectorRoomInviteMembersActivity.ActionMode.RETURN_SELECTED_USER_IDS);
         // Check whether the federation has been disabled to limit the invitation to the federated users
-        if (null == mRoomParams.creation_content)
+        if (null == mRoomParams.creation_content) {
             intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY);
-        else
+        } else {
             intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.FEDERATED_TCHAP_ONLY);
+        }
 
         if (!mParticipantsIds.isEmpty()) {
             intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_IN_SELECTED_USER_IDS, (Serializable) mParticipantsIds);
