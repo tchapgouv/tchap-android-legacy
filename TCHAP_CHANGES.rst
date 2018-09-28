@@ -1,3 +1,43 @@
+Changes in Tchap 1.0.8 (2018-09-28)
+===================================================
+
+Improvements:
+ * Configure accepted TLS cipher suites #369
+ * Protect local data in Tchap #366
+ * Forbid screenshots of sensitive content #206
+ * Miscellaneous hardening features #242
+ * Public rooms: configure the federation #129
+ * Improve room creation UI: the room creation is allowed even if no member is selected #377
+ * A public room may become private #368
+ * Improve "reply to" option #371
+ * Update matrix-sdk.aar lib - build 1903 - Revision: b4bfc0750d43ec8a7a1ea1814cc626e1c46f7e0d
+ * Rebase from vector-im/riot-android:
+	 Improvements:
+	  - Minor changes to toolbar style and other UI elements (2529)
+	  - Improvements to dialogs, video messages, and the previewer activity (2583)
+	  - Improve intent to open document (2544)
+	  - Avoid useless dialog for permission (2331)
+	  - Improve wording when exporting keys (2289)
+	  - Upgrade lib libphonenumber from v8.0.1 to 8.9.12
+	  - Upgrade Google firebase libs
+ 
+	 Bugfix:
+	 - Fix crash when opening file with external application (2573)
+	 - Fix issue on settings: unable to rename current device if it has no name (2174)
+	 - Allow anyone to add local alias and to try to delete local alias (1033)
+	 - Fix issue on "Resend all" action (2569)
+	 - Fix messages vanishing when resending them (2508)
+	 - Remove delay for / completion (2576)
+	 - Handle `\/` at the beginning of a message to send a message starting with `/` (658)
+	 - Escape nicknames starting with a forward slash `/` in mentions (2146)
+	 - Improve management of Push feature
+	 - MatrixError mResourceLimitExceededError is now managed in MxDataHandler (vector-im/riot-android#2547 point 2)
+ 
+Bug Fixes:
+ * Bad wording on "+" Menu #370
+ * Room Settings: the matrix id is displayed for the banned users PR #376
+ * Public Rooms: Disable the pagination, display all available rooms
+
 Changes in Tchap 1.0.7 (2018-09-04)
 ===================================================
 
