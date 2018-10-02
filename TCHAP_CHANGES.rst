@@ -1,3 +1,12 @@
+Changes in Tchap 1.0.9 (2018-10-02)
+===================================================
+
+Improvements:
+ * Update matrix-sdk.aar lib - build 1905 - Revision: 941bfe7f7586dc101a39ac9588be0b9b1e2a35dc
+ 
+Bug Fix:
+ * Add retro-compatibility for Android < 20 to be able to negociate a TLS session.
+
 Changes in Tchap 1.0.8 (2018-09-28)
 ===================================================
 
