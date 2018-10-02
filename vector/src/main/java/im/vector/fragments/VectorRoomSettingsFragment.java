@@ -49,6 +49,7 @@ import android.view.ViewGroup;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
+import org.matrix.androidsdk.MXPatterns;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.crypto.MXCryptoAlgorithms;
 import org.matrix.androidsdk.data.Room;
@@ -1646,7 +1647,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
 
                             // ignore empty alias
                             if (!TextUtils.isEmpty(groupId)) {
-                                if (!MXSession.isGroupId(groupId)) {
+                                if (!MXPatterns.isGroupId(groupId)) {
                                     new AlertDialog.Builder(getActivity())
                                             .setTitle(R.string.room_settings_invalid_group_format_dialog_title)
                                             .setMessage(getString(R.string.room_settings_invalid_group_format_dialog_body, groupId))
@@ -1893,7 +1894,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
 
                         // ignore empty alias
                         if (!TextUtils.isEmpty(newAddress)) {
-                            if (!MXSession.isRoomAlias(newAddress)) {
+                            if (!MXPatterns.isRoomAlias(newAddress)) {
                                 new AlertDialog.Builder(getActivity())
                                         .setTitle(R.string.room_settings_addresses_invalid_format_dialog_title)
                                         .setMessage(getString(R.string.room_settings_addresses_invalid_format_dialog_body, newAddress))

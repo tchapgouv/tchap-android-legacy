@@ -34,6 +34,7 @@ import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.matrix.androidsdk.MXPatterns;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.store.IMXStore;
@@ -761,7 +762,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
             // We add them in the current contacts book if they are not present (by creating a fake participant)
             // in order to display them as selected
             for (String selectedUserId : mCurrentSelectedUsers) {
-                if (MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(selectedUserId).matches()) {
+                if (MXPatterns.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(selectedUserId).matches()) {
                     String displayName;
                     User user = mSession.getDataHandler().getUser(selectedUserId);
                     if (null != user)

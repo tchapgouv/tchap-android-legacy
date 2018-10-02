@@ -85,6 +85,7 @@ import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
 import org.jetbrains.annotations.NotNull;
 import org.matrix.androidsdk.MXDataHandler;
+import org.matrix.androidsdk.MXPatterns;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.call.IMXCall;
 import org.matrix.androidsdk.crypto.data.MXDeviceInfo;
@@ -428,7 +429,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
                     final String roomIdOrAlias = params.get(VectorUniversalLinkReceiver.ULINK_ROOM_ID_OR_ALIAS_KEY);
 
                     // it is a room ID ?
-                    if (MXSession.isRoomId(roomIdOrAlias)) {
+                    if (MXPatterns.isRoomId(roomIdOrAlias)) {
                         Log.d(LOG_TAG, "Has a valid universal link to the room ID " + roomIdOrAlias);
                         Room room = mSession.getDataHandler().getRoom(roomIdOrAlias, false);
 
@@ -441,7 +442,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
                             // wait the next sync
                             intent.putExtra(VectorUniversalLinkReceiver.EXTRA_UNIVERSAL_LINK_URI, uri);
                         }
-                    } else if (MXSession.isRoomAlias(roomIdOrAlias)) {
+                    } else if (MXPatterns.isRoomAlias(roomIdOrAlias)) {
                         Log.d(LOG_TAG, "Has a valid universal link of the room Alias " + roomIdOrAlias);
 
                         showWaitingView();

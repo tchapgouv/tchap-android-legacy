@@ -1351,12 +1351,12 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
     }
 
     @Override
-    public void onMessageIdClick(String messageId) {
+    public void onEventIdClick(String eventId) {
         // Tchap disable permalink for the moment
         /*try {
-            onURLClick(Uri.parse(PermalinkUtils.createPermalink(mRoom.getRoomId(), messageId)));
+            onURLClick(Uri.parse(PermalinkUtils.createPermalink(mRoom.getRoomId(), eventId)));
         } catch (Exception e) {
-            Log.e(LOG_TAG, "onRoomIdClick failed " + e.getLocalizedMessage(), e);
+            Log.e(LOG_TAG, "onEventIdClick failed " + e.getLocalizedMessage(), e);
         }*/
     }
 

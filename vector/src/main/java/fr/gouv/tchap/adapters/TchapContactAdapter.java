@@ -29,6 +29,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.matrix.androidsdk.MXPatterns;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
@@ -428,7 +429,7 @@ public class TchapContactAdapter extends AbsAdapter {
             participant.displayAvatar(mSession, vContactAvatar);
 
             // Check whether tchap user are online
-            if (MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(participant.mUserId).matches()) {
+            if (MXPatterns.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(participant.mUserId).matches()) {
                 loadContactPresence(vContactStatus, participant, position);
             } else {
                 vContactStatus.setVisibility(View.GONE);

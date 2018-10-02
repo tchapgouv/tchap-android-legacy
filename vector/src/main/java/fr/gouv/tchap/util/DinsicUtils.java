@@ -34,6 +34,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.widget.Toast;
 
+import org.matrix.androidsdk.MXPatterns;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomEmailInvitation;
@@ -145,7 +146,7 @@ public class DinsicUtils {
     public static String computeDisplayNameFromUserId(@Nullable String tchapUserId) {
         String displayName = null;
 
-        if (null != tchapUserId && MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(tchapUserId).matches()) {
+        if (null != tchapUserId && MXPatterns.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(tchapUserId).matches()) {
             // Remove first the host from the id by ignoring the first character '@' too.
             String identifier = tchapUserId.substring(1, tchapUserId.indexOf(":"));
             int index = identifier.lastIndexOf("-");
@@ -497,7 +498,7 @@ public class DinsicUtils {
                                 if (includeInvite || !isPendingInvite) {
                                     // dinsic: if the member is not already in matrix and just invited he's not active but
                                     // the room can be considered as ok
-                                    if (!MXSession.isUserId(aUserId)) {
+                                    if (!MXPatterns.isUserId(aUserId)) {
                                         Log.d(LOG_TAG, "## isDirectChatRoomAlreadyExist(): for user: " + aUserId + " room id: " + roomId);
                                         return room;
                                     } else {
@@ -561,7 +562,7 @@ public class DinsicUtils {
     public static void startDirectChat (final VectorAppCompatActivity activity, final MXSession session, final ParticipantAdapterItem selectedContact) {
         if (selectedContact.mIsValid) {
             // Tell if contact is tchap user
-            if (MXSession.isUserId(selectedContact.mUserId)) {
+            if (MXPatterns.isUserId(selectedContact.mUserId)) {
                 // The contact is a Tchap user, try to get the corresponding User instance.
                 User tchapUser = session.getDataHandler().getUser(selectedContact.mUserId);
                 // The return value is null if we don't already share a room with him.
@@ -804,7 +805,7 @@ public class DinsicUtils {
 
             for (String key : keysList) {
                 // Check whether this key is an actual user id
-                if (MXSession.isUserId(key)) {
+                if (MXPatterns.isUserId(key)) {
                     // Ignore the current user if he appears in the direct chat map
                     if (key.equals(mSession.getMyUserId())) {
                         continue;

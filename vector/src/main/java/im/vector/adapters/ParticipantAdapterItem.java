@@ -22,6 +22,7 @@ import android.graphics.Bitmap;
 import android.text.TextUtils;
 import android.widget.ImageView;
 
+import org.matrix.androidsdk.MXPatterns;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.rest.model.RoomMember;
@@ -545,7 +546,7 @@ public class ParticipantAdapterItem implements java.io.Serializable {
      */
     public boolean isMatrixUser() {
         if (null != mUserId) {
-            return MXSession.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(mUserId).matches();
+            return MXPatterns.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(mUserId).matches();
         }
         return false;
     }
