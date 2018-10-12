@@ -906,7 +906,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
 //        builder.setAutoCancel(true)
 //                .setDefaults(Notification.FLAG_LOCAL_ONLY)
 //                .setWhen(System.currentTimeMillis())
-//                .setSmallIcon(R.drawable.logo_tchap_transparent)
+//                .setSmallIcon(R.drawable.logo_transparent)
 //                .setTicker(text)
 //                .setContentTitle(text)
 //                .setContentText(getString(R.string.tchap_send_invite_confirmation))
