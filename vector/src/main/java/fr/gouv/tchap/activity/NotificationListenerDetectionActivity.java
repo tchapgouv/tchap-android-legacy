@@ -101,7 +101,7 @@ public class NotificationListenerDetectionActivity extends AppCompatActivity {
 
         new AlertDialog.Builder(this)
                 .setMessage(message + string_builder.toString())
-                .setIcon(R.drawable.message_notification_transparent)
+                .setIcon(R.drawable.logo_transparent)
                 .setTitle(R.string.security_dialog_title)
                 .setPositiveButton(R.string.security_dialog_start, new DialogInterface.OnClickListener() {
                     @Override

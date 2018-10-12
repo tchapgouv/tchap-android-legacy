@@ -67,7 +67,7 @@ public class LiveSecurityChecks {
         if ((!accessibilityServiceActive_at_stop) && accessibilityServiceActive_at_start) {
             new AlertDialog.Builder(attachedActivity)
                     .setMessage(R.string.accessibility_change_security_dialog_message)
-                    .setIcon(R.drawable.message_notification_transparent)
+                    .setIcon(R.drawable.logo_transparent)
                     .setTitle(R.string.security_dialog_title)
                     .setPositiveButton(R.string.security_dialog_continue, null)
                     .setNeutralButton(R.string.security_dialog_start_an_stop_detecting, new DialogInterface.OnClickListener() {
@@ -117,7 +117,7 @@ public class LiveSecurityChecks {
 
         new AlertDialog.Builder(attachedActivity)
                 .setMessage(message)
-                .setIcon(R.drawable.message_notification_transparent)
+                .setIcon(R.drawable.logo_transparent)
                 .setTitle(R.string.security_dialog_title)
                 .setPositiveButton(R.string.security_dialog_continue, null)
                 .setNeutralButton(R.string.security_dialog_start_an_stop_detecting, new DialogInterface.OnClickListener() {

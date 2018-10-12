@@ -46,7 +46,7 @@ public class AccessibilityServiceDetectionActivity extends AppCompatActivity {
 
         new AlertDialog.Builder(this)
                 .setMessage(R.string.accessibility_security_dialog_message)
-                .setIcon(R.drawable.message_notification_transparent)
+                .setIcon(R.drawable.logo_transparent)
                 .setTitle(R.string.security_dialog_title)
                 .setPositiveButton(R.string.security_dialog_start, new DialogInterface.OnClickListener() {
                     @Override
