@@ -196,8 +196,8 @@ public class TchapRoomsFragment extends AbsHomeFragment implements AbsHomeFragme
 
         for (Room room : allJoinedRooms) {
             // Hide the rooms created to invite some non-tchap contact by email.
-            if (room.isDirect()) {
-                Collection<RoomMember> members = room.getMembers();
+            if (room.isDirect() && room.getState().thirdPartyInvites().size() != 0) {
+                Collection<RoomMember> members = room.getState().getDisplayableLoadedMembers();
                 for (RoomMember member : members) {
                     if (member.getUserId().equals(mSession.getMyUserId())) {
                         continue;

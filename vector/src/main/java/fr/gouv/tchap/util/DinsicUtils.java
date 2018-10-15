@@ -42,6 +42,7 @@ import org.matrix.androidsdk.data.RoomPreviewData;
 import org.matrix.androidsdk.data.RoomTag;
 import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
+import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
 import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.User;
@@ -664,7 +665,7 @@ public class DinsicUtils {
         // Patch: Check in the current room state if a third party invite has been accepted by the tchap user.
         // Save this information in the room preview data before joining the room
         // because the room state will be flushed during this operation.
-        // This information will be useful to consider or not the new joined room as a direct chat (see processDirectMessageRoom).
+        // This information will be useful to consider or not the new joined room as a direct chat (see onNewJoinedRoom).
         RoomMember roomMember = room.getMember(session.getMyUserId());
         if (null != roomMember && null != roomMember.thirdPartyInvite && null == roomPreviewData.getRoomState()) {
             if (null != room.getState().memberWithThirdPartyInviteToken(roomMember.thirdPartyInvite.signed.token)) {
@@ -684,70 +685,65 @@ public class DinsicUtils {
      * @param activity         the current activity. This activity is closed when the joined room is valid.
      * @param roomPreviewData  the room preview data
      */
-    public static void onNewJoinedRoom(Activity activity, final RoomPreviewData roomPreviewData) {
-        MXSession session = roomPreviewData.getSession();
+    public static void onNewJoinedRoom(final Activity activity, final RoomPreviewData roomPreviewData) {
+        final MXSession session = roomPreviewData.getSession();
 
         Room room = session.getDataHandler().getRoom(roomPreviewData.getRoomId());
         if (null != room) {
-            // Check first whether this new room is a direct one.
-            String myUserId = session.getMyUserId();
-            Collection<RoomMember> members = room.getMembers();
-
-            if (2 == members.size()) {
-                Boolean isDirectInvite = room.isDirectChatInvitation();
-
-                if (!isDirectInvite) {
-                    // Consider here the 3rd party invites for which the is_direct flag is not available.
-                    Collection<RoomThirdPartyInvite> thirdPartyInvites = room.getState().thirdPartyInvites();
-                    // Consider the case where only one invite has been observed.
-                    if (thirdPartyInvites.size() == 1) {
-                        Log.d(LOG_TAG, "## onNewJoinedRoom(): Consider the third party invite");
-                        RoomThirdPartyInvite invite = thirdPartyInvites.iterator().next();
-
-                        // Check whether the user has accepted this third party invite or not
-                        RoomMember roomMember = room.getState().memberWithThirdPartyInviteToken(invite.token);
-                        if (null != roomMember && roomMember.getUserId().equals(myUserId)) {
-                            isDirectInvite = true;
-                        } else if (null != roomPreviewData.getRoomState()){
-                            // Most of the time the room state is not ready, the pagination is in progress
-                            // Consider here the room state saved in the room preview (before joining the room).
-                            roomMember = roomPreviewData.getRoomState().memberWithThirdPartyInviteToken(invite.token);
-                            if (null != roomMember && roomMember.getUserId().equals(myUserId)) {
-                                isDirectInvite = true;
-                            }
-                        }
-                    }
-                }
-
-                if (isDirectInvite) {
-                    Log.d(LOG_TAG, "## onNewJoinedRoom(): this new joined room is direct");
-                    // test if room is already seen as "direct message"
-                    if (!RoomUtils.isDirectChat(session, roomPreviewData.getRoomId())) {
-                        // search for the second participant
-                        String participantUserId;
-                        for (RoomMember member : members) {
-                            if (!member.getUserId().equals(myUserId)) {
-                                participantUserId = member.getUserId();
-                                CommonActivityUtils.setToggleDirectMessageRoom(session, roomPreviewData.getRoomId(), participantUserId, null);
-                                break;
-                            }
-                        }
-                    } else {
-                        Log.d(LOG_TAG, "## onNewJoinedRoom(): attempt to add an already direct message room");
-                    }
-                }
-            }
-
-            // Then open the room activity for this room.
-            HashMap<String, Object> params = new HashMap<>();
-            params.put(VectorRoomActivity.EXTRA_MATRIX_ID, session.getMyUserId());
+            // Prepare the room activity parameters.
+            final String myUserId = session.getMyUserId();
+            final HashMap<String, Object> params = new HashMap<>();
+            params.put(VectorRoomActivity.EXTRA_MATRIX_ID, myUserId);
             params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomPreviewData.getRoomId());
 
             if (null != roomPreviewData.getEventId()) {
                 params.put(VectorRoomActivity.EXTRA_EVENT_ID, roomPreviewData.getEventId());
             }
 
-            CommonActivityUtils.goToRoomPage(activity, session, params);
+            // Check whether this new room must be added to the user's direct chats before opening it.
+            if (2 == room.getNumberOfMembers() && !room.isDirect()) {
+                Boolean isDirect = false;
+
+                // Consider here the 3rd party invites for which the is_direct flag is not available.
+                // TODO Test this use case when the invite by email will be enabled again.
+                Collection<RoomThirdPartyInvite> thirdPartyInvites = room.getState().thirdPartyInvites();
+                // Consider the case where only one invite has been observed.
+                if (thirdPartyInvites.size() == 1) {
+                    Log.d(LOG_TAG, "## onNewJoinedRoom(): Consider the third party invite");
+                    RoomThirdPartyInvite invite = thirdPartyInvites.iterator().next();
+
+                    // Check whether the user has accepted this third party invite or not
+                    RoomMember roomMember = room.getState().memberWithThirdPartyInviteToken(invite.token);
+                    if (null != roomMember && roomMember.getUserId().equals(myUserId)) {
+                        isDirect = true;
+                    } else if (null != roomPreviewData.getRoomState()){
+                        // Most of the time the room state is not ready, the pagination is in progress
+                        // Consider here the room state saved in the room preview (before joining the room).
+                        roomMember = roomPreviewData.getRoomState().memberWithThirdPartyInviteToken(invite.token);
+                        if (null != roomMember && roomMember.getUserId().equals(myUserId)) {
+                            isDirect = true;
+                        }
+                    }
+                }
+
+                // Check whether we have to update the direct dictionary before opening this room.
+                if (isDirect) {
+                    Log.d(LOG_TAG, "## onNewJoinedRoom(): this new joined room is direct");
+                    CommonActivityUtils.setToggleDirectMessageRoom(session, roomPreviewData.getRoomId(), null, new SimpleApiCallback<Void>() {
+                        @Override
+                        public void onSuccess(Void info) {
+                            // Open the room activity for this room.
+                            CommonActivityUtils.goToRoomPage(activity, session, params);
+                        }
+                    });
+                } else {
+                    // Open the room activity for this room.
+                    CommonActivityUtils.goToRoomPage(activity, session, params);
+                }
+            } else {
+                // Open the room activity for this room.
+                CommonActivityUtils.goToRoomPage(activity, session, params);
+            }
         }
     }
 

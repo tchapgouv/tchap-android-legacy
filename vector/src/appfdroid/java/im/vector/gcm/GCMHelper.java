@@ -25,14 +25,15 @@ public class GCMHelper {
      *
      * @return the registration token.
      */
-    public static String getRegistrationToken() {
+    static String getRegistrationToken() {
         return null;
     }
 
     /**
      * Clear the registration token.
      */
-    public static void clearRegistrationToken() {
+    static void clearRegistrationToken() {
+        // No op
     }
 
     /**

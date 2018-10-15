@@ -35,6 +35,7 @@ import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.util.Log;
+import org.matrix.androidsdk.util.PermalinkUtils;
 
 import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.R;
@@ -42,7 +43,7 @@ import im.vector.VectorApp;
 import im.vector.util.VectorUtils;
 
 /**
- *
+ * A PillView displays a user avatar and a user name in a message
  */
 public class PillView extends LinearLayout {
     private static final String LOG_TAG = PillView.class.getSimpleName();
@@ -88,29 +89,13 @@ public class PillView extends LinearLayout {
     }
 
     /**
-     * Extract the linked URL from the universal link
-     *
-     * @param url the universal link
-     * @return the url
-     */
-    private static String getLinkedUrl(String url) {
-        boolean isSupported = (null != url) && url.startsWith("https://matrix.to/#/");
-
-        if (isSupported) {
-            return url.substring("https://matrix.to/#/".length());
-        }
-
-        return null;
-    }
-
-    /**
      * Tells if a pill can be displayed for this url.
      *
      * @param url the url
      * @return true if a pill can be made.
      */
     public static boolean isPillable(String url) {
-        String linkedUrl = getLinkedUrl(url);
+        String linkedUrl = PermalinkUtils.getLinkedId(url);
 
         return (null != linkedUrl) && (MXPatterns.isRoomAlias(linkedUrl) || MXPatterns.isUserId(linkedUrl));
     }
@@ -122,30 +107,31 @@ public class PillView extends LinearLayout {
      * @param url  the URL
      */
     public void initData(final CharSequence text, final String url, final MXSession session, OnUpdateListener listener) {
+        final String str = text.toString();
+
         mOnUpdateListener = listener;
         mAvatarView.setOnUpdateListener(listener);
 
-        String textString = text.toString();
-        if (MXPatterns.isUserId(textString)) {
-            mTextView.setText(DinsicUtils.computeDisplayNameFromUserId(textString));
+        if (MXPatterns.isUserId(str)) {
+            mTextView.setText(DinsicUtils.computeDisplayNameFromUserId(str));
         } else {
-            mTextView.setText(textString);
+            mTextView.setText(str);
         }
 
         TypedArray a = getContext().getTheme()
-                .obtainStyledAttributes(new int[]{MXPatterns.isRoomAlias(textString) ? R.attr.pill_background_room_alias : R.attr.pill_background_user_id});
+                .obtainStyledAttributes(new int[]{MXPatterns.isRoomAlias(str) ? R.attr.pill_background_room_alias : R.attr.pill_background_user_id});
         int attributeResourceId = a.getResourceId(0, 0);
         a.recycle();
 
         mPillLayout.setBackground(ContextCompat.getDrawable(getContext(), attributeResourceId));
 
         a = getContext().getTheme()
-                .obtainStyledAttributes(new int[]{MXPatterns.isRoomAlias(textString) ? R.attr.pill_text_color_room_alias : R.attr.pill_text_color_user_id});
+                .obtainStyledAttributes(new int[]{MXPatterns.isRoomAlias(str) ? R.attr.pill_text_color_room_alias : R.attr.pill_text_color_user_id});
         attributeResourceId = a.getResourceId(0, 0);
         a.recycle();
         mTextView.setTextColor(ContextCompat.getColor(getContext(), attributeResourceId));
 
-        final String linkedUrl = getLinkedUrl(url);
+        final String linkedUrl = PermalinkUtils.getLinkedId(url);
 
         if (MXPatterns.isUserId(linkedUrl)) {
             User user = session.getDataHandler().getUser(linkedUrl);

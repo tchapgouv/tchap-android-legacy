@@ -1,6 +1,7 @@
 /*
  * Copyright 2017 Vector Creations Ltd
  * Copyright 2018 DINSIC
+ * Copyright 2018 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,18 +30,21 @@ import im.vector.R;
 
 public class RoomInvitationViewHolder extends RoomViewHolder {
 
-    @BindView(R.id.recents_invite_reject_button)
+    @BindView(R.id.room_invite_reject_button)
     Button vRejectButton;
 
-    @BindView(R.id.recents_invite_join_button)
+    @BindView(R.id.room_invite_join_button)
     Button vJoinButton;
 
     RoomInvitationViewHolder(View itemView) {
         super(itemView);
     }
 
-    void populateViews(final Context context, final MXSession session, final Room room,
-                       final AbsAdapter.RoomInvitationListener invitationListener, final AbsAdapter.MoreRoomActionListener moreRoomActionListener) {
+    void populateViews(final Context context,
+                       final MXSession session,
+                       final Room room,
+                       final AbsAdapter.RoomInvitationListener invitationListener,
+                       final AbsAdapter.MoreRoomActionListener moreRoomActionListener) {
         // Caution, we have to consider here isDirect() instead of isDirectChatInvitation(),
         // in order to handle correctly the case where the user where invited again in an existing direct chat.
         super.populateViews(context, session, room, room.isDirect(), true, moreRoomActionListener);

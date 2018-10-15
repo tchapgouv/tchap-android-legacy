@@ -207,6 +207,9 @@ public class VectorApp extends MultiDexApplication {
             Stetho.initializeWithDefaults(this);
         }
 
+        // init the REST client
+        MXSession.initUserAgent(this);
+
         instance = this;
         mCallsManager = new CallsManager(this);
         // Tchap disable analytics
@@ -241,9 +244,6 @@ public class VectorApp extends MultiDexApplication {
         Log.d(LOG_TAG, "----------------------------------------------------------------\n\n\n\n");
 
         mRageShake = new RageShake(this);
-
-        // init the REST client
-        MXSession.initUserAgent(getApplicationContext());
 
         // Configure e2e encryption to encrypt content for invited members
         MXCryptoConfig cryptoConfig = new MXCryptoConfig();

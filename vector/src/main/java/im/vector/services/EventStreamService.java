@@ -71,9 +71,9 @@ import im.vector.notifications.NotifiedEvent;
 import im.vector.notifications.RoomsNotifications;
 import im.vector.receiver.DismissNotificationReceiver;
 import im.vector.util.CallsManager;
-import im.vector.util.PreferencesManager;
 import im.vector.util.RiotEventDisplay;
 import im.vector.util.SystemUtilsKt;
+import im.vector.util.VectorUtils;
 
 /**
  * A foreground service in charge of controlling whether the event stream is running or not.
@@ -768,8 +768,9 @@ public class EventStreamService extends Service {
             // 1- the state is in catchup : the event stream might have gone to sleep between two catchups
             // 2- the thread is suspended
             // 3- the application has been launched by a push so there is no displayed activity
-            canCatchup = (state == StreamAction.CATCHUP) || (state == StreamAction.PAUSE) ||
-                    ((StreamAction.START == state) && (null == VectorApp.getCurrentActivity()));
+            canCatchup = (state == StreamAction.CATCHUP)
+                    || (state == StreamAction.PAUSE)
+                    || ((StreamAction.START == state) && (null == VectorApp.getCurrentActivity()));
         }
 
         if (canCatchup) {
@@ -828,10 +829,10 @@ public class EventStreamService extends Service {
      */
     private boolean shouldDisplayListenForEventsNotification() {
         // fdroid
-        return (!mGcmRegistrationManager.useGCM() ||
+        return (!mGcmRegistrationManager.useGCM()
                 // the GCM registration was not done
-                TextUtils.isEmpty(mGcmRegistrationManager.getCurrentRegistrationToken())
-                        && !mGcmRegistrationManager.isServerRegistered())
+                || TextUtils.isEmpty(mGcmRegistrationManager.getCurrentRegistrationToken())
+                && !mGcmRegistrationManager.isServerRegistered())
                 && mGcmRegistrationManager.isBackgroundSyncAllowed()
                 && mGcmRegistrationManager.areDeviceNotificationsAllowed();
     }
@@ -902,7 +903,7 @@ public class EventStreamService extends Service {
                 notification = NotificationUtils.INSTANCE.buildForegroundServiceNotification(this, R.string.notification_sync_in_progress);
                 break;
             case LISTENING_FOR_EVENTS:
-                notification = NotificationUtils.INSTANCE.buildForegroundServiceNotification(this, R.string.notification_listen_for_events);
+                notification = NotificationUtils.INSTANCE.buildForegroundServiceNotification(this, R.string.notification_listening_for_events);
                 break;
             case INCOMING_CALL:
             case CALL_IN_PROGRESS:
@@ -1642,7 +1643,7 @@ public class EventStreamService extends Service {
     public void displayCallInProgressNotification(MXSession session, Room room, String callId) {
         if (null != callId) {
             Notification notification = NotificationUtils.INSTANCE.buildPendingCallNotification(getApplicationContext(),
-                    room.getName(session.getCredentials().userId), room.getRoomId(), session.getCredentials().userId, callId);
+                    VectorUtils.getRoomDisplayName(this, session, room), room.getRoomId(), session.getCredentials().userId, callId);
             setForegroundNotificationState(ForegroundNotificationState.CALL_IN_PROGRESS, notification);
             mCallIdInProgress = callId;
         }

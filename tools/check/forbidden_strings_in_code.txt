@@ -144,3 +144,11 @@ trim \{ it \<\= \' \' \}
 
 ### Use AlertDialog form v7 compat lib
 android\.app\.AlertDialog
+
+### Put the operator at the beginning of next line
+&&$
+\|\|$
+ ==$
+
+### Use JsonUtils.getBasicGson()
+new Gson\(\)

@@ -15,6 +15,9 @@
  */
 package im.vector.activity
 
+
+import android.content.Context
+import android.content.Intent
 import im.vector.Matrix
 import im.vector.R
 import im.vector.fragments.VectorSettingsPreferencesFragment
@@ -60,7 +63,7 @@ class VectorSettingsActivity : MXCActionBarActivity() {
     }
 
     /**
-     * Keep this code here, cause PreferenceFragment does not extend v4 Fragment
+     * Keep this code here, because PreferenceFragment does not extend v4 Fragment
      */
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         if (allGranted(grantResults)) {
@@ -71,6 +74,12 @@ class VectorSettingsActivity : MXCActionBarActivity() {
     }
 
     companion object {
+        @JvmStatic
+        fun getIntent(context: Context, userId: String) = Intent(context, VectorSettingsActivity::class.java)
+                .apply {
+                    putExtra(MXCActionBarActivity.EXTRA_MATRIX_ID, userId)
+                }
+
         private const val FRAGMENT_TAG = "VectorSettingsPreferencesFragment"
     }
 }

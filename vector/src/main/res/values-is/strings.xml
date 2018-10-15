@@ -7,7 +7,7 @@
     <string name="black_them">Svart þema</string>
 
     <string name="notification_sync_in_progress">Samstilli</string>
-    <string name="notification_listen_for_events">Hlusta eftir atburðum</string>
+    <string name="notification_listening_for_events">Hlusta eftir atburðum</string>
     <string name="notification_noisy_notifications">Háværar tilkynningar</string>
     <string name="notification_silent_notifications">Hljóðlegar tilkynningar</string>
 
@@ -235,10 +235,9 @@
 
     <string name="room_displayname_two_members">%1$s og %2$s</string>
 
-    <string name="room_displayname_many_members">%1$s og %2$s</string>
-    <plurals name="others">
-	<item quantity="one">1 annar</item>
-	<item quantity="other">%d aðrir</item>
+    <plurals name="room_displayname_three_and_more_members">
+	<item quantity="one">%1$s og 1 annar</item>
+	<item quantity="other">%1$s og %d aðrir</item>
 </plurals>
 
     <string name="room_displayname_no_title">Tóm spjallrás</string>
@@ -387,7 +386,7 @@
     <string name="encryption_information_ed25519_fingerprint">Ed25519 fingrafar</string>
 
     <string name="encryption_export_export">Flytja út</string>
-    <string name="encryption_export_enter_passphrase">Settu inn lykilsetningu (passphrase)</string>
+    <string name="encryption_import_enter_passphrase">Settu inn lykilsetningu (passphrase)</string>
     <string name="encryption_export_confirm_passphrase">Staðfestu lykilsetningu</string>
     <string name="encryption_import_import">Flytja inn</string>
     <string name="encryption_information_unknown_device">óþekkt tæki</string>
@@ -595,7 +594,6 @@
     <string name="room_delete_unsent_messages">Eyða ósendum skilaboðum</string>
     <string name="room_do_not_have_permission_to_post">Þú hefur ekki heimild til að senda skilaboð á þessa spjallrás</string>
     <string name="ssl_could_not_verify">Gat ekki sannreynt auðkenni fjartengds þjóns.</string>
-    <string name="ssl_fingerprint_example">00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</string>
 
     <string name="room_details_people_invited_group_name">BOÐIÐ</string>
     <string name="room_details_people_present_group_name">SKRÁÐUR</string>

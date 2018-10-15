@@ -27,22 +27,48 @@ import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.matrix.androidsdk.util.Log;
 
+import com.google.firebase.FirebaseApp;
+
+import im.vector.VectorApp;
+
 public class GCMHelper {
     private static final String LOG_TAG = GCMHelper.class.getSimpleName();
 
     /**
      * Retrieves the FCM registration token.
      */
-    public static String getRegistrationToken() {
-        final String registrationToken = FirebaseInstanceId.getInstance().getToken();
-        Log.d(LOG_TAG, "## getRegistrationToken(): " + registrationToken);
+    static String getRegistrationToken() {
+        String registrationToken = null;
+
+        // Note: FirebaseApp initialization is not necessary, but some users report that application crashes if this is not done
+        // Because of this, we keep the code for the moment.
+        if (null == VectorApp.getInstance()) {
+            Log.e(LOG_TAG, "## getRegistrationToken() : No active application", new Exception("StackTrace"));
+        } else {
+            try {
+                if (null == FirebaseApp.initializeApp(VectorApp.getInstance())) {
+                    Log.e(LOG_TAG, "## getRegistrationToken() : cannot initialise FirebaseApp", new Exception("StackTrace"));
+                }
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "## getRegistrationToken() : init failed " + e.getMessage(), e);
+            }
+        }
+
+        // And we protect the call to getToken()
+        try {
+            registrationToken = FirebaseInstanceId.getInstance().getToken();
+            Log.d(LOG_TAG, "## getRegistrationToken(): " + registrationToken);
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "## getRegistrationToken() : failed " + e.getMessage(), e);
+        }
+
         return registrationToken;
     }
 
     /**
      * Clear the registration token.
      */
-    public static void clearRegistrationToken() {
+    static void clearRegistrationToken() {
         try {
             FirebaseInstanceId.getInstance().deleteInstanceId();
         } catch (Exception e) {

@@ -16,7 +16,7 @@
         android:maxHeight="@dimen/chat_avatar_size"
         android:scaleType="centerCrop"
         android:adjustViewBounds="true"
-        tools:src="#22000000" />
+        tools:src="@tools:sample/avatars" />
 
     <RelativeLayout
         android:layout_width="wrap_content"

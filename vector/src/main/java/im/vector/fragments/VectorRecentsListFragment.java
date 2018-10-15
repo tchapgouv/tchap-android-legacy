@@ -214,7 +214,7 @@ public class VectorRecentsListFragment extends VectorBaseFragment implements
 
                 } else {
                     RoomSummary roomSummary = mAdapter.getRoomSummaryAt(groupPosition, childPosition);
-                    MXSession session = Matrix.getInstance(getActivity()).getSession(roomSummary.getMatrixId());
+                    MXSession session = Matrix.getInstance(getActivity()).getSession(roomSummary.getUserId());
 
                     // sanity check : should never happen
                     // but it happened.
@@ -574,13 +574,13 @@ public class VectorRecentsListFragment extends VectorBaseFragment implements
                         String eventType = event.getType();
 
                         // refresh the UI at the end of the next events chunk
-                        refreshOnChunkEnd |= ((event.roomId != null) && RoomSummary.isSupportedEvent(event)) ||
-                                Event.EVENT_TYPE_STATE_ROOM_MEMBER.equals(eventType) ||
-                                Event.EVENT_TYPE_TAGS.equals(eventType) ||
-                                Event.EVENT_TYPE_REDACTION.equals(eventType) ||
-                                Event.EVENT_TYPE_RECEIPT.equals(eventType) ||
-                                Event.EVENT_TYPE_STATE_ROOM_AVATAR.equals(eventType) ||
-                                Event.EVENT_TYPE_STATE_ROOM_THIRD_PARTY_INVITE.equals(eventType);
+                        refreshOnChunkEnd |= ((event.roomId != null) && RoomSummary.isSupportedEvent(event))
+                                || Event.EVENT_TYPE_STATE_ROOM_MEMBER.equals(eventType)
+                                || Event.EVENT_TYPE_TAGS.equals(eventType)
+                                || Event.EVENT_TYPE_REDACTION.equals(eventType)
+                                || Event.EVENT_TYPE_RECEIPT.equals(eventType)
+                                || Event.EVENT_TYPE_STATE_ROOM_AVATAR.equals(eventType)
+                                || Event.EVENT_TYPE_STATE_ROOM_THIRD_PARTY_INVITE.equals(eventType);
                     }
                 });
             }
@@ -689,7 +689,7 @@ public class VectorRecentsListFragment extends VectorBaseFragment implements
 
         Room room = session.getDataHandler().getRoom(roomId);
         if ((null != room) && (null != room.getState())) {
-            roomAlias = room.getState().getAlias();
+            roomAlias = room.getState().getCanonicalAlias();
         }
 
         final RoomPreviewData roomPreviewData = new RoomPreviewData(mSession, roomId, null, roomAlias, null);
@@ -1095,9 +1095,9 @@ public class VectorRecentsListFragment extends VectorBaseFragment implements
      * @return true if the group is movable.
      */
     private boolean groupIsMovable(int groupPosition) {
-        return mAdapter.isNoTagRoomPosition(groupPosition) ||
-                mAdapter.isFavouriteRoomPosition(groupPosition) ||
-                mAdapter.isLowPriorityRoomPosition(groupPosition);
+        return mAdapter.isNoTagRoomPosition(groupPosition)
+                || mAdapter.isFavouriteRoomPosition(groupPosition)
+                || mAdapter.isLowPriorityRoomPosition(groupPosition);
     }
 
     /**

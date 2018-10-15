@@ -82,7 +82,7 @@ class WidgetActivity : VectorAppCompatActivity() {
      * LIFE CYCLE
      * ========================================================================================== */
 
-    override fun getOtherThemes() = Pair(R.style.AppTheme_NoActionBar_Dark, R.style.AppTheme_NoActionBar_Black)
+    override fun getOtherThemes() = Triple(R.style.AppTheme_NoActionBar_Dark, R.style.AppTheme_NoActionBar_Black, R.style.AppTheme_NoActionBar_Status)
 
     override fun getLayoutRes() = R.layout.activity_widget
 
@@ -163,7 +163,7 @@ class WidgetActivity : VectorAppCompatActivity() {
     internal fun onCloseClick() {
         AlertDialog.Builder(this)
                 .setMessage(R.string.widget_delete_message_confirmation)
-                .setPositiveButton(R.string.remove) { dialog, which ->
+                .setPositiveButton(R.string.remove) { _, _ ->
                     showWaitingView()
                     WidgetsManager.getSharedInstance().closeWidget(mSession, mRoom, mWidget!!.widgetId, object : ApiCallback<Void> {
                         override fun onSuccess(info: Void?) {

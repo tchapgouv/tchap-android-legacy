@@ -241,7 +241,7 @@ public class TchapPublicRoomsFragment extends VectorBaseFragment {
     private void onPublicRoomSelected(final PublicRoom publicRoom) {
         // sanity check
         if (null != publicRoom.roomId) {
-            final RoomPreviewData roomPreviewData = new RoomPreviewData(mSession, publicRoom.roomId, null, publicRoom.getAlias(), null);
+            final RoomPreviewData roomPreviewData = new RoomPreviewData(mSession, publicRoom.roomId, null, publicRoom.canonicalAlias, null);
 
             Room room = mSession.getDataHandler().getRoom(publicRoom.roomId, false);
 
@@ -286,7 +286,7 @@ public class TchapPublicRoomsFragment extends VectorBaseFragment {
                     }
 
                     private void onError() {
-                        roomPreviewData.setRoomState(publicRoom);
+                        roomPreviewData.setPublicRoom(publicRoom);
                         roomPreviewData.setRoomName(publicRoom.name);
                         onDone();
                     }
