@@ -669,7 +669,8 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                                         // Presently, invite a Tchap user by his email is not supported correctly.
                                         // The resulting room is seen as direct for the inviter and not for the receiver.
                                         // Patch : we replace here the email by the retrieved MatrixId.
-                                        emails.set(index, mxId);
+                                        // FIXME the arrays "emails" is not able to store mxId (see inviteNoTchapContactsByEmail)
+                                        // emails.set(index, mxId);
                                         index ++;
                                     }
                                 } else {
