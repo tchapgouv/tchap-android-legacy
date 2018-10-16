@@ -50,6 +50,7 @@ import com.bumptech.glide.Glide
 import com.google.i18n.phonenumbers.NumberParseException
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import fr.gouv.tchap.media.MediaScanManager
+import fr.gouv.tchap.util.DinsicUtils
 import im.vector.Matrix
 import im.vector.R
 import im.vector.VectorApp
@@ -1448,12 +1449,13 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
             for (userId in ignoredUsersList) {
                 val preference = VectorCustomActionEditTextPreference(activity)
 
-                preference.title = userId
+                val displayName = DinsicUtils.computeDisplayNameFromUserId(userId)
+                preference.title = displayName
                 preference.key = IGNORED_USER_KEY_BASE + userId
 
                 preference.onPreferenceClickListener = Preference.OnPreferenceClickListener {
                     AlertDialog.Builder(activity)
-                            .setMessage(getString(R.string.settings_unignore_user, userId))
+                            .setMessage(getString(R.string.settings_unignore_user, displayName))
                             .setPositiveButton(R.string.yes) { _, _ ->
                                 displayLoadingView()
 
