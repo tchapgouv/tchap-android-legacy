@@ -1297,6 +1297,10 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
                     R.string.room_message_placeholder_reply_to_encrypted : R.string.room_message_placeholder_reply_to_not_encrypted);
             mRoomReplyArea.setVisibility(View.VISIBLE);
 
+            // Show the keyboard
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(mEditText, InputMethodManager.SHOW_IMPLICIT);
+
             String selectedEventSender = "";
             RoomState state = mRoom.getState();
             if (state != null && selectedEvent.getSender() != null)
