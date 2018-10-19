@@ -549,6 +549,11 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         mAdapter.setSearchedPattern(pattern, null, new VectorParticipantsAdapter.OnParticipantsSearchListener() {
             @Override
             public void onSearchEnd(final int count) {
+                if (mListView == null) {
+                    // Activity is dead
+                    return;
+                }
+
                 mListView.post(new Runnable() {
                     @Override
                     public void run() {

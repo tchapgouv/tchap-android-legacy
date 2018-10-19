@@ -111,9 +111,9 @@ import im.vector.R;
 import im.vector.VectorApp;
 import im.vector.ViewedRoomTracker;
 import im.vector.activity.util.RequestCodesKt;
+import im.vector.extensions.MatrixSdkExtensionsKt;
 import im.vector.features.hhs.LimitResourceState;
 import im.vector.features.hhs.ResourceLimitEventListener;
-import im.vector.extensions.MatrixSdkExtensionsKt;
 import im.vector.fragments.VectorMessageListFragment;
 import im.vector.fragments.VectorUnknownDevicesFragment;
 import im.vector.listeners.IMessagesAdapterActionsListener;
@@ -1946,7 +1946,9 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
                 intent = new Intent(this, MediaPreviewerActivity.class);
             }
             intent.setExtrasClassLoader(RoomMediaMessage.class.getClassLoader());
-            intent.putExtra(MediaPreviewerActivity.EXTRA_ROOM_TITLE, VectorUtils.getRoomDisplayName(this, mSession, mRoom));
+            if (mRoom != null) {
+                intent.putExtra(MediaPreviewerActivity.EXTRA_ROOM_TITLE, mRoom.getRoomDisplayName(this));
+            }
             if (null != mLatestTakePictureCameraUri) {
                 intent.putExtra(MediaPreviewerActivity.EXTRA_CAMERA_PICTURE_URI, mLatestTakePictureCameraUri);
             }
@@ -2651,7 +2653,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
         final LimitResourceState limitResourceState = mResourceLimitEventListener.getLimitResourceState();
         final MatrixError hardResourceLimitExceededError = mSession.getDataHandler().getResourceLimitExceededError();
         final MatrixError softResourceLimitExceededError = limitResourceState.softErrorOrNull();
-        
+
         NotificationAreaView.State state = NotificationAreaView.State.Default.INSTANCE;
         mHasUnsentEvents = false;
         if (!mIsUnreadPreviewMode && !TextUtils.isEmpty(mEventId)) {
@@ -2788,7 +2790,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
         String topic = null;
         if (null != mRoom) {
             if (mRoom.isDirect()) {
-                topic = DinsicUtils.getDomainFromDisplayName(VectorUtils.getRoomDisplayName(this, mSession, mRoom));
+                topic = DinsicUtils.getDomainFromDisplayName(mRoom.getRoomDisplayName(this));
             } else {
                 topic = getResources().getQuantityString(R.plurals.room_title_members,
                         mRoom.getNumberOfJoinedMembers(), mRoom.getNumberOfJoinedMembers());
@@ -2875,7 +2877,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
     private void setTitle() {
         String titleToApply = mDefaultRoomName;
         if ((null != mSession) && (null != mRoom)) {
-            titleToApply = VectorUtils.getRoomDisplayName(this, mSession, mRoom);
+            titleToApply = mRoom.getRoomDisplayName(this);
             if (mRoom.isDirect()) {
                 titleToApply = DinsicUtils.getNameFromDisplayName(titleToApply);
             }
@@ -3014,11 +3016,9 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
         mRoomPreviewLayout.setVisibility(View.VISIBLE);
 
         if (TextUtils.equals(member.membership, RoomMember.MEMBERSHIP_BAN)) {
-            invitationTextView.setText(getString(R.string.has_been_banned,
-                    VectorUtils.getRoomDisplayName(this, mSession, mRoom), mRoom.getState().getMemberName(member.mSender)));
+            invitationTextView.setText(getString(R.string.has_been_banned, mRoom.getRoomDisplayName(this), mRoom.getState().getMemberName(member.mSender)));
         } else {
-            invitationTextView.setText(getString(R.string.has_been_kicked,
-                    VectorUtils.getRoomDisplayName(this, mSession, mRoom), mRoom.getState().getMemberName(member.mSender)));
+            invitationTextView.setText(getString(R.string.has_been_kicked, mRoom.getRoomDisplayName(this), mRoom.getState().getMemberName(member.mSender)));
         }
 
         // On mobile side, the modal to allow to add a reason to ban/kick someone isn't yet implemented

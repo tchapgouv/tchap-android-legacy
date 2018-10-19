@@ -64,7 +64,7 @@
         <activity
             android:name="fr.gouv.tchap.activity.NotificationListenerDetectionActivity"
             android:configChanges="orientation|screenSize"
-            android:theme="@style/AppTheme.NoActionBar.Swipe.Startup.Dark">
+            android:theme="@style/AppTheme.NoActionBar.Swipe.Dark">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -99,12 +99,12 @@
         <activity
             android:name="fr.gouv.tchap.activity.AccessibilityServiceDetectionActivity"
             android:configChanges="orientation|screenSize"
-            android:theme="@style/AppTheme.NoActionBar.Swipe.Startup.Dark"/>
+            android:theme="@style/AppTheme.NoActionBar.Swipe.Dark"/>
         <activity
             android:name=".activity.SelectPictureActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_settings"
-            android:theme="@style/AppTheme.NoActionBar.Swipe"/>
+            android:theme="@style/AppTheme.NoActionBar.Swipe.Light"/>
         <activity
             android:name=".activity.AccountCreationActivity"
             android:configChanges="orientation|screenSize"
@@ -120,7 +120,7 @@
         <activity
             android:name=".activity.SplashActivity"
             android:configChanges="orientation|screenSize"
-            android:theme="@style/AppTheme.NoActionBar.FullScreen" />
+            android:theme="@style/AppTheme.NoActionBar.FullScreen.Light" />
         <activity
             android:name=".activity.LoggingOutActivity"
             android:configChanges="orientation|screenSize"
@@ -209,7 +209,7 @@
             android:excludeFromRecents="true"
             android:launchMode="singleTop"
             android:taskAffinity=""
-            android:theme="@style/Vector_Lock_Light" />
+            android:theme="@style/Theme.Vector.Lock.Light" />
         <activity
             android:name=".activity.JoinRoomActivity"
             android:clearTaskOnLaunch="true"
@@ -236,11 +236,11 @@
         <activity
             android:name=".activity.JitsiCallActivity"
             android:configChanges="orientation|screenSize"
-            android:theme="@style/AppTheme.NoActionBar.FullScreen" />
+            android:theme="@style/AppTheme.NoActionBar.FullScreen.Light" />
         <activity
             android:name=".activity.WidgetActivity"
             android:configChanges="orientation|screenSize"
-            android:theme="@style/AppTheme.NoActionBar.FullScreen" />
+            android:theme="@style/AppTheme.NoActionBar.FullScreen.Light" />
         <activity
             android:name=".activity.IntegrationManagerActivity"
             android:configChanges="orientation|screenSize"

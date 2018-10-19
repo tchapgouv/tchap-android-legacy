@@ -61,14 +61,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="dummy" />
+                tools:text="dummy" />
 
             <android.support.design.widget.TabItem
                 android:id="@+id/tab_item_contacts"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="dummy" />
+                tools:text="dummy" />
         </android.support.design.widget.TabLayout>
 
         <ProgressBar
