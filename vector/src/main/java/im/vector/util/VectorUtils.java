@@ -19,7 +19,6 @@ package im.vector.util;
 
 import android.annotation.SuppressLint;
 import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -33,23 +32,21 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.support.annotation.Nullable;
 import android.support.v4.util.LruCache;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewParent;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.call.MXCallsManager;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomPreviewData;
-import org.matrix.androidsdk.data.RoomState;
 import org.matrix.androidsdk.db.MXMediasCache;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
@@ -68,14 +65,13 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 import fr.gouv.tchap.util.DinsicUtils;
+import im.vector.Matrix;
 import im.vector.R;
 import im.vector.VectorApp;
 import im.vector.adapters.ParticipantAdapterItem;
@@ -86,22 +82,6 @@ public class VectorUtils {
 
     //public static final int REQUEST_FILES = 0;
     public static final int TAKE_IMAGE = 1;
-
-    //==============================================================================================================
-    // Clipboard helper
-    //==============================================================================================================
-
-    /**
-     * Copy a text to the clipboard.
-     *
-     * @param context the context
-     * @param text    the text to copy
-     */
-    public static void copyToClipboard(Context context, CharSequence text) {
-        ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-        clipboard.setPrimaryClip(ClipData.newPlainText("", text));
-        Toast.makeText(context, context.getString(R.string.copied_to_clipboard), Toast.LENGTH_SHORT).show();
-    }
 
     //==============================================================================================================
     // Rooms methods
@@ -117,13 +97,13 @@ public class VectorUtils {
         String displayName = publicRoom.name;
 
         if (TextUtils.isEmpty(displayName)) {
-            if (publicRoom.getAliases().size() > 0) {
-                displayName = publicRoom.getAliases().get(0);
+            if (publicRoom.aliases != null && !publicRoom.aliases.isEmpty()) {
+                displayName = publicRoom.aliases.get(0);
             } else {
                 displayName = publicRoom.roomId;
             }
-        } else if (!displayName.startsWith("#") && (0 < publicRoom.getAliases().size())) {
-            displayName = displayName + " (" + publicRoom.getAliases().get(0) + ")";
+        } else if (!displayName.startsWith("#") && publicRoom.aliases != null && !publicRoom.aliases.isEmpty()) {
+            displayName = displayName + " (" + publicRoom.aliases.get(0) + ")";
         }
 
         return displayName;
@@ -137,139 +117,27 @@ public class VectorUtils {
      * @param room    the room.
      * @return the calling room display name.
      */
-    public static String getCallingRoomDisplayName(Context context, MXSession session, Room room) {
+    @Nullable
+    public static void getCallingRoomDisplayName(Context context,
+                                                 final MXSession session,
+                                                 final Room room,
+                                                 final ApiCallback<String> callback) {
         if ((null == context) || (null == session) || (null == room)) {
-            return null;
-        }
-
-        Collection<RoomMember> roomMembers = room.getJoinedMembers();
-
-        if (2 == roomMembers.size()) {
-            List<RoomMember> roomMembersList = new ArrayList<>(roomMembers);
-
-            if (TextUtils.equals(roomMembersList.get(0).getUserId(), session.getMyUserId())) {
-                return room.getState().getMemberName(roomMembersList.get(1).getUserId());
-            } else {
-                return room.getState().getMemberName(roomMembersList.get(0).getUserId());
-            }
-        } else {
-            return getRoomDisplayName(context, session, room);
-        }
-    }
-
-    /**
-     * Vector client formats the room display with a different manner than the SDK one.
-     *
-     * @param context the application context.
-     * @param session the room session.
-     * @param room    the room.
-     * @return the room display name.
-     */
-    public static String getRoomDisplayName(Context context, MXSession session, Room room) {
-        // sanity checks
-        if (null == room) {
-            return null;
-        }
-
-        try {
-
-            // this algorithm is the one defined in
-            // https://github.com/matrix-org/matrix-js-sdk/blob/develop/lib/models/room.js#L617
-            // calculateRoomName(room, userId)
-
-            RoomState roomState = room.getState();
-
-            if (!TextUtils.isEmpty(roomState.name)) {
-                return roomState.name;
-            }
-
-            String alias = roomState.alias;
-
-            if (TextUtils.isEmpty(alias) && (roomState.getAliases().size() > 0)) {
-                alias = roomState.getAliases().get(0);
-            }
-
-            if (!TextUtils.isEmpty(alias)) {
-                return alias;
-            }
-
-            String myUserId = session.getMyUserId();
-
-            Collection<RoomMember> members = roomState.getDisplayableMembers();
-            List<RoomMember> othersActiveMembers = new ArrayList<>();
-            List<RoomMember> activeMembers = new ArrayList<>();
-            List<RoomMember> leftMembers = new ArrayList<>();
-
-            for (RoomMember member : members) {
-                if (!TextUtils.equals(member.membership, RoomMember.MEMBERSHIP_LEAVE)) {
-                    if (!TextUtils.equals(member.getUserId(), myUserId)) {
-                        othersActiveMembers.add(member);
-                    }
-                    activeMembers.add(member);
-                } else if (TextUtils.equals(member.membership, RoomMember.MEMBERSHIP_LEAVE)) {
-                    leftMembers.add(member);
-                }
-            }
-
-            Collections.sort(othersActiveMembers, new Comparator<RoomMember>() {
+            callback.onSuccess(null);
+        } else if (room.getNumberOfJoinedMembers() == 2) {
+            room.getJoinedMembersAsync(new SimpleApiCallback<List<RoomMember>>(callback) {
                 @Override
-                public int compare(RoomMember m1, RoomMember m2) {
-                    long diff = m1.getOriginServerTs() - m2.getOriginServerTs();
-
-                    return (diff == 0) ? 0 : ((diff < 0) ? -1 : +1);
+                public void onSuccess(List<RoomMember> members) {
+                    if (TextUtils.equals(members.get(0).getUserId(), session.getMyUserId())) {
+                        callback.onSuccess(room.getState().getMemberName(members.get(1).getUserId()));
+                    } else {
+                        callback.onSuccess(room.getState().getMemberName(members.get(0).getUserId()));
+                    }
                 }
             });
-
-            String displayName;
-
-            if (othersActiveMembers.isEmpty()) {
-                if (activeMembers.size() == 1) {
-                    // Here, the current user is the only member on the room
-                    RoomMember member = activeMembers.get(0);
-
-                    // Consider first the case where the member is invited
-                    if (TextUtils.equals(member.membership, RoomMember.MEMBERSHIP_INVITE)) {
-                        if (!TextUtils.isEmpty(member.mSender)) {
-                            // extract who invited us to the room
-                            displayName = context.getString(R.string.room_displayname_invite_from, roomState.getMemberName(member.mSender));
-                        } else {
-                            displayName = context.getString(R.string.room_displayname_room_invite);
-                        }
-                    }
-                    // Dinsic : we keep the the display name even if the member has left the direct chat
-                    else if (room.isDirect() && !leftMembers.isEmpty()) {
-                        // Here we use member.getName() instead of roomState.getMemberName()
-                        // because we don't need to disambiguate the displayname
-                        displayName = leftMembers.get(0).getName();
-                    }  else {
-                        displayName = context.getString(R.string.room_displayname_no_title);
-                    }
-                } else {
-                    displayName = context.getString(R.string.room_displayname_no_title);
-                }
-            } else if (othersActiveMembers.size() == 1) {
-                RoomMember member = othersActiveMembers.get(0);
-                displayName = roomState.getMemberName(member.getUserId());
-            } else if (othersActiveMembers.size() == 2) {
-                RoomMember member1 = othersActiveMembers.get(0);
-                RoomMember member2 = othersActiveMembers.get(1);
-
-                displayName = context.getString(R.string.room_displayname_two_members,
-                        roomState.getMemberName(member1.getUserId()), roomState.getMemberName(member2.getUserId()));
-            } else {
-                RoomMember member = othersActiveMembers.get(0);
-                displayName = context.getString(R.string.room_displayname_many_members,
-                        roomState.getMemberName(member.getUserId()),
-                        context.getResources().getQuantityString(R.plurals.others,
-                                othersActiveMembers.size() - 1, othersActiveMembers.size() - 1));
-            }
-
-            return displayName;
-        } catch (Exception e) {
-            Log.e(LOG_TAG, "## getRoomDisplayName() failed " + e.getMessage(), e);
+        } else {
+            callback.onSuccess(room.getRoomDisplayName(context));
         }
-
-        return room.getRoomId();
     }
 
     //==============================================================================================================
@@ -462,7 +330,7 @@ public class VectorUtils {
     public static void loadRoomAvatar(Context context, MXSession session, ImageView imageView, Room room) {
         if (null != room) {
             VectorUtils.loadUserAvatar(context,
-                    session, imageView, room.getAvatarUrl(), room.getRoomId(), VectorUtils.getRoomDisplayName(context, session, room));
+                    session, imageView, room.getAvatarUrl(), room.getRoomId(), room.getRoomDisplayName(context));
         }
     }
 
@@ -512,7 +380,7 @@ public class VectorUtils {
 
             String callAvatarUrl = room.getCallAvatarUrl();
             String roomId = room.getRoomId();
-            String displayName = VectorUtils.getRoomDisplayName(context, session, room);
+            String displayName = room.getRoomDisplayName(context);
             int pixelsSide = imageView.getLayoutParams().width;
 
             // when size < 0, it means that the render graph must compute it
@@ -703,7 +571,7 @@ public class VectorUtils {
      * @return the version. an empty string is not found.
      */
     public static String getApplicationVersion(final Context context) {
-        return im.vector.Matrix.getInstance(context).getVersion(false, true);
+        return Matrix.getInstance(context).getVersion(false, true);
     }
 
     /**
@@ -840,20 +708,20 @@ public class VectorUtils {
         } else {
             if (secondsInterval < 60) {
                 formattedString = context.getResources().getQuantityString(R.plurals.format_time_s,
-                                                                           (int) secondsInterval,
-                                                                           (int) secondsInterval);
+                        (int) secondsInterval,
+                        (int) secondsInterval);
             } else if (secondsInterval < 3600) {
                 formattedString = context.getResources().getQuantityString(R.plurals.format_time_m,
-                                                                           (int) (secondsInterval / 60),
-                                                                           (int) (secondsInterval / 60));
+                        (int) (secondsInterval / 60),
+                        (int) (secondsInterval / 60));
             } else if (secondsInterval < 86400) {
                 formattedString = context.getResources().getQuantityString(R.plurals.format_time_h,
-                                                                           (int) (secondsInterval / 3600),
-                                                                           (int) (secondsInterval / 3600));
+                        (int) (secondsInterval / 3600),
+                        (int) (secondsInterval / 3600));
             } else {
                 formattedString = context.getResources().getQuantityString(R.plurals.format_time_d,
-                                                                           (int) (secondsInterval / 86400),
-                                                                           (int) (secondsInterval / 86400));
+                        (int) (secondsInterval / 86400),
+                        (int) (secondsInterval / 86400));
             }
         }
 

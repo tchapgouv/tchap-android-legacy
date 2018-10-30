@@ -32,8 +32,6 @@
     <color name="tchap_presence_status_color">#60ad0d</color>
 
     <!-- home activity tab bar color -->
-    <color name="tab_home">@color/vector_green_color</color>
-    <color name="tab_home_secondary">@color/vector_tchap_primary_color</color>
     <color name="tab_favourites">#BD79CC</color>
     <color name="tab_favourites_secondary">#744C7F</color>
     <color name="tab_people">@color/vector_tchap_primary_color</color>
@@ -51,9 +49,13 @@
     <color name="riot_primary_background_color_light">@android:color/white</color>
     <color name="riot_primary_background_color_dark">#2d2d2d</color>
     <color name="riot_primary_background_color_black">#000000</color>
+    <color name="riot_primary_background_color_status">#eef2f5</color>
 
     <color name="primary_color_light">@color/vector_tchap_primary_color_light</color>
     <color name="primary_color_dark">#353535</color>
+
+    <color name="primary_color_status">#FF586C7B</color>
+    <color name="accent_color_status">#FF465561</color>
 
     <color name="list_divider_color_light">#339D9D9D</color>
     <color name="list_divider_color_dark">#A5A5A5A5</color>
@@ -76,6 +78,7 @@
     <color name="default_text_hint_color_dark">#CCDDDDDD</color>
     <color name="default_text_light_color_dark">#A4A4A4</color>
     <color name="default_button_light_text_dark">#FF747474</color>
+    <color name="riot_primary_text_color_status">#70808D</color>
 
     <!-- Quote Colors -->
     <color name="quote_strip_color">#FFDDDDDD</color>

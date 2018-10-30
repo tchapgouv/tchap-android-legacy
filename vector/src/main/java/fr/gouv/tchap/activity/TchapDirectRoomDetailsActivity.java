@@ -186,7 +186,7 @@ public class TchapDirectRoomDetailsActivity extends TchapContactActionBarActivit
     protected void setTitle() {
         String titleToApply = "";
         if ((null != mSession) && (null != mRoom)) {
-            titleToApply = VectorUtils.getRoomDisplayName(this, mSession, mRoom);
+            titleToApply = mRoom.getRoomDisplayName(this);
             titleToApply = DinsicUtils.getNameFromDisplayName(titleToApply);
         }
         super.setTitle(titleToApply);
@@ -198,7 +198,7 @@ public class TchapDirectRoomDetailsActivity extends TchapContactActionBarActivit
     protected void setTopic() {
         String topic = "";
         if (null != mRoom) {
-            topic = DinsicUtils.getDomainFromDisplayName(VectorUtils.getRoomDisplayName(this, mSession, mRoom));
+            topic = DinsicUtils.getDomainFromDisplayName(mRoom.getRoomDisplayName(this));
         super.setTopic(topic);
         }
     }

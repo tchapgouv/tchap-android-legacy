@@ -1,3 +1,29 @@
+Changes in Tchap 1.0.10 (2018-10-30)
+===================================================
+
+Improvements:
+ * Update matrix-sdk.aar lib - build 1932 - Revision:7050323fa65ed32a301c3cd4fc25dbee60636c00
+ * Show the keyboard by default on event selection.
+ * Rebase from vector-im/riot-android:
+	Improvements:
+	 - Improve certificate pinning management (PR matrix-android-sdk 375)
+	 - Use LocalBroadcastManager when applicable (2595)
+	 - Tapping on profile picture in sidebar opens settings page (2597)
+
+	Bugfix:
+	 - When exporting E2E keys, it isn't clear that you are creating a new password (2626)
+	 - Reply get's lost when moving app in background and back (2581)
+	 - Android 8: crash on device Boot (2615)
+	 - Avoid creation of Gson object (2608)
+	 - Inline code breaks in reply messages (2531)
+ 
+Bug Fixes:
+ * Notifications are disabled on Fdroid after application update #381
+ * Modify transparent logo and update sources to use new file #380
+
+Other:
+ * Disable local file encryption until "Unexpected error on app resume:..."(#383) is fixed.
+ 
 Changes in Tchap 1.0.9 (2018-10-02)
 ===================================================
 

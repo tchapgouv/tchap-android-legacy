@@ -369,26 +369,29 @@ public class RoomUtils {
 
         if (null != roomSummary) {
             if (roomSummary.getLatestReceivedEvent() != null) {
-                eventDisplay = new EventDisplay(context, roomSummary.getLatestReceivedEvent(), roomSummary.getLatestRoomState());
+                eventDisplay = new EventDisplay(context);
                 eventDisplay.setPrependMessagesWithAuthor(false);
-                messageToDisplay = eventDisplay.getTextualDisplay(ThemeUtils.INSTANCE.getColor(context, R.attr.room_notification_text_color));
+                messageToDisplay = eventDisplay.getTextualDisplay(ThemeUtils.INSTANCE.getColor(context, R.attr.room_notification_text_color),
+                        roomSummary.getLatestReceivedEvent(),
+                        roomSummary.getLatestRoomState());
             }
 
             // check if this is an invite
             if (roomSummary.isInvited() && (null != roomSummary.getInviterUserId())) {
+                // TODO Re-write this algorithm, it's so complicated to understand for nothing...
                 RoomState latestRoomState = roomSummary.getLatestRoomState();
                 String inviterUserId = roomSummary.getInviterUserId();
-                String myName = roomSummary.getMatrixId();
+                String myName = roomSummary.getUserId();
 
                 if (null != latestRoomState) {
                     inviterUserId = latestRoomState.getMemberName(inviterUserId);
                     myName = latestRoomState.getMemberName(myName);
                 } else {
-                    inviterUserId = getMemberDisplayNameFromUserId(context, roomSummary.getMatrixId(), inviterUserId);
-                    myName = getMemberDisplayNameFromUserId(context, roomSummary.getMatrixId(), myName);
+                    inviterUserId = getMemberDisplayNameFromUserId(context, roomSummary.getUserId(), inviterUserId);
+                    myName = getMemberDisplayNameFromUserId(context, roomSummary.getUserId(), myName);
                 }
 
-                if (TextUtils.equals(session.getMyUserId(), roomSummary.getMatrixId())) {
+                if (TextUtils.equals(session.getMyUserId(), roomSummary.getUserId())) {
                     messageToDisplay = context.getString(org.matrix.androidsdk.R.string.notice_room_invite_you, inviterUserId);
                 } else {
                     messageToDisplay = context.getString(org.matrix.androidsdk.R.string.notice_room_invite, inviterUserId, myName);
@@ -558,6 +561,7 @@ public class RoomUtils {
                 item.setIcon(null);
             }
 
+            // TODO LazyLoading, current user may be null
             RoomMember member = room.getMember(session.getMyUserId());
             final boolean isBannedKickedRoom = (null != member) && member.kickedOrBanned();
 
@@ -699,7 +703,7 @@ public class RoomUtils {
             return;
         }
 
-        String roomName = VectorUtils.getRoomDisplayName(context, session, room);
+        String roomName = room.getRoomDisplayName(context);
 
         Bitmap bitmap = null;
 
@@ -815,14 +819,15 @@ public class RoomUtils {
      * @param constraint
      * @return filtered rooms
      */
-    public static List<Room> getFilteredRooms(final Context context, final MXSession session,
-                                              final List<Room> roomsToFilter, final CharSequence constraint) {
+    public static List<Room> getFilteredRooms(final Context context,
+                                              final List<Room> roomsToFilter,
+                                              final CharSequence constraint) {
         final String filterPattern = constraint != null ? constraint.toString().trim() : null;
         if (!TextUtils.isEmpty(filterPattern)) {
             List<Room> filteredRoom = new ArrayList<>();
             Pattern pattern = Pattern.compile(Pattern.quote(filterPattern), Pattern.CASE_INSENSITIVE);
             for (final Room room : roomsToFilter) {
-                final String roomName = VectorUtils.getRoomDisplayName(context, session, room);
+                final String roomName = room.getRoomDisplayName(context);
                 if (pattern.matcher(roomName).find()) {
                     filteredRoom.add(room);
                 }

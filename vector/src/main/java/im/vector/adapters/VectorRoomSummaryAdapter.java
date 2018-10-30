@@ -22,6 +22,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -217,11 +218,11 @@ public class VectorRoomSummaryAdapter extends BaseExpandableListAdapter {
      * @param room the room.
      * @return true of the pattern is found.
      */
-    private boolean isMatchedPattern(Room room) {
+    private boolean isMatchedPattern(@NonNull Room room) {
         boolean res = !mIsSearchMode;
 
         if (!TextUtils.isEmpty(mSearchedPattern)) {
-            String roomName = VectorUtils.getRoomDisplayName(mContext, mMxSession, room);
+            String roomName = room.getRoomDisplayName(mContext);
             res = (!TextUtils.isEmpty(roomName) && (roomName.toLowerCase(VectorApp.getApplicationLocale()).contains(mSearchedPattern)));
         }
 
@@ -488,14 +489,14 @@ public class VectorRoomSummaryAdapter extends BaseExpandableListAdapter {
     private Room roomFromRoomSummary(RoomSummary roomSummary) {
         Room roomRetValue;
         MXSession session;
-        String matrixId;
+        String userId;
 
         // sanity check
-        if ((null == roomSummary) || (null == (matrixId = roomSummary.getMatrixId()))) {
+        if ((null == roomSummary) || (null == (userId = roomSummary.getUserId()))) {
             roomRetValue = null;
         }
         // get session and check if the session is active
-        else if (null == (session = Matrix.getMXSession(mContext, matrixId)) || (!session.isAlive())) {
+        else if (null == (session = Matrix.getMXSession(mContext, userId)) || (!session.isAlive())) {
             roomRetValue = null;
         } else {
             roomRetValue = session.getDataHandler().getStore().getRoom(roomSummary.getRoomId());
@@ -752,6 +753,7 @@ public class VectorRoomSummaryAdapter extends BaseExpandableListAdapter {
         int highlightCount = 0;
         int notificationCount = 0;
 
+        String roomName = null;
         if (null != childRoom) {
             highlightCount = childRoom.getHighlightCount();
             notificationCount = childRoom.getNotificationCount();
@@ -759,13 +761,14 @@ public class VectorRoomSummaryAdapter extends BaseExpandableListAdapter {
             if (mMxSession.getDataHandler().getBingRulesManager().isRoomMentionOnly(childRoom.getRoomId())) {
                 notificationCount = highlightCount;
             }
+
+            roomName = childRoom.getRoomDisplayName(mContext);
         }
 
         // get last message to be displayed
         CharSequence lastMsgToDisplay = getChildMessageToDisplay(childRoomSummary);
 
         // display the room avatar
-        final String roomName = VectorUtils.getRoomDisplayName(mContext, mMxSession, childRoom);
         VectorUtils.loadRoomAvatar(mContext, mMxSession, avatarImageView, childRoom);
 
         // display the room name
@@ -915,26 +918,29 @@ public class VectorRoomSummaryAdapter extends BaseExpandableListAdapter {
 
         if (null != aChildRoomSummary) {
             if (aChildRoomSummary.getLatestReceivedEvent() != null) {
-                eventDisplay = new RiotEventDisplay(mContext, aChildRoomSummary.getLatestReceivedEvent(), aChildRoomSummary.getLatestRoomState());
+                eventDisplay = new RiotEventDisplay(mContext);
                 eventDisplay.setPrependMessagesWithAuthor(true);
-                messageToDisplayRetValue = eventDisplay.getTextualDisplay(ThemeUtils.INSTANCE.getColor(mContext, R.attr.riot_primary_text_color));
+                messageToDisplayRetValue = eventDisplay.getTextualDisplay(ThemeUtils.INSTANCE.getColor(mContext, R.attr.riot_primary_text_color),
+                        aChildRoomSummary.getLatestReceivedEvent(),
+                        aChildRoomSummary.getLatestRoomState());
             }
 
             // check if this is an invite
             if (aChildRoomSummary.isInvited() && (null != aChildRoomSummary.getInviterUserId())) {
+                // TODO Re-write this algorithm, it's so complicated to understand for nothing...
                 RoomState latestRoomState = aChildRoomSummary.getLatestRoomState();
                 String inviterUserId = aChildRoomSummary.getInviterUserId();
-                String myName = aChildRoomSummary.getMatrixId();
+                String myName = aChildRoomSummary.getUserId();
 
                 if (null != latestRoomState) {
                     inviterUserId = latestRoomState.getMemberName(inviterUserId);
                     myName = latestRoomState.getMemberName(myName);
                 } else {
-                    inviterUserId = getMemberDisplayNameFromUserId(aChildRoomSummary.getMatrixId(), inviterUserId);
-                    myName = getMemberDisplayNameFromUserId(aChildRoomSummary.getMatrixId(), myName);
+                    inviterUserId = getMemberDisplayNameFromUserId(aChildRoomSummary.getUserId(), inviterUserId);
+                    myName = getMemberDisplayNameFromUserId(aChildRoomSummary.getUserId(), myName);
                 }
 
-                if (TextUtils.equals(mMxSession.getMyUserId(), aChildRoomSummary.getMatrixId())) {
+                if (TextUtils.equals(mMxSession.getMyUserId(), aChildRoomSummary.getUserId())) {
                     messageToDisplayRetValue = mContext.getString(org.matrix.androidsdk.R.string.notice_room_invite_you, inviterUserId);
                 } else {
                     messageToDisplayRetValue = mContext.getString(org.matrix.androidsdk.R.string.notice_room_invite, inviterUserId, myName);

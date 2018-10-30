@@ -45,8 +45,9 @@ import org.matrix.androidsdk.util.Log;
 import im.vector.Matrix;
 import im.vector.R;
 import im.vector.notifications.NotificationUtils;
+import im.vector.util.VectorUtils;
 import im.vector.util.ViewUtilKt;
-import kotlin.Pair;
+import kotlin.Triple;
 
 /**
  * LockScreenActivity is displayed within the notification to send a message without opening the application.
@@ -69,8 +70,8 @@ public class LockScreenActivity extends VectorAppCompatActivity { // do NOT exte
 
     @NotNull
     @Override
-    public Pair getOtherThemes() {
-        return new Pair(R.style.Vector_Lock_Dark, R.style.Vector_Lock_Light);
+    public Triple getOtherThemes() {
+        return new Triple(R.style.Theme_Vector_Lock_Dark, R.style.Theme_Vector_Lock_Light, R.style.Theme_Vector_Lock_Status);
     }
 
     @Override
@@ -127,11 +128,12 @@ public class LockScreenActivity extends VectorAppCompatActivity { // do NOT exte
         final Room room = session.getDataHandler().getRoom(roomId);
 
         // display the room name as title
-        setTitle(room.getName(session.getCredentials().userId));
+        String roomName = room.getRoomDisplayName(this);
+        setTitle(roomName);
 
         ((TextView) findViewById(R.id.lock_screen_sender)).setText(intent.getStringExtra(EXTRA_SENDER_NAME) + " : ");
         ((TextView) findViewById(R.id.lock_screen_body)).setText(intent.getStringExtra(EXTRA_MESSAGE_BODY));
-        ((TextView) findViewById(R.id.lock_screen_room_name)).setText(room.getName(session.getCredentials().userId));
+        ((TextView) findViewById(R.id.lock_screen_room_name)).setText(roomName);
         final ImageButton sendButton = findViewById(R.id.lock_screen_sendbutton);
         final EditText editText = findViewById(R.id.lock_screen_edittext);
 

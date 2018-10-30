@@ -51,7 +51,6 @@ import im.vector.fragments.VectorRoomDetailsMembersFragment;
 import im.vector.fragments.VectorRoomSettingsFragment;
 import im.vector.fragments.VectorSearchRoomFilesListFragment;
 import im.vector.util.VectorUtils;
-import im.vector.util.MatrixSdkExtensionsKt;
 import im.vector.util.PermissionsToolsKt;
 
 /**
@@ -313,7 +312,8 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
 
         if (mSession.isAlive()) {
             // check if the room has been left from another client
-            if ((null == mRoom.getMember(mSession.getMyUserId())) || !mSession.getDataHandler().doesRoomExist(mRoom.getRoomId())) {
+            if ((!mRoom.isJoined() && !mRoom.isInvited())
+                    || !mSession.getDataHandler().doesRoomExist(mRoom.getRoomId())) {
                 // pop to the home activity
                 Intent intent = new Intent(VectorRoomDetailsActivity.this, VectorHomeActivity.class);
                 intent.setFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP | android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -387,14 +387,8 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
                 PermissionsToolsKt.checkPermissions(PermissionsToolsKt.PERMISSIONS_FOR_MEMBER_DETAILS, this, PermissionsToolsKt.PERMISSION_REQUEST_CODE);
             }
         } else if (myPosition == SETTINGS_TAB_INDEX) {
-            int permissionToBeGranted = PermissionsToolsKt.PERMISSIONS_FOR_ROOM_DETAILS;
             onTabSelectSettingsFragment();
 
-            // remove camera permission request if the user has not enough power level
-            if (!MatrixSdkExtensionsKt.isPowerLevelEnoughForAvatarUpdate(mRoom, mSession)) {
-                permissionToBeGranted &= ~PermissionsToolsKt.PERMISSION_CAMERA;
-            }
-            PermissionsToolsKt.checkPermissions(permissionToBeGranted, this, PermissionsToolsKt.PERMISSION_REQUEST_CODE);
             mCurrentTabIndex = SETTINGS_TAB_INDEX;
         } else if (myPosition == FILE_TAB_INDEX) {
             mSearchFilesFragment = (VectorSearchRoomFilesListFragment) getSupportFragmentManager().findFragmentByTag(TAG_FRAGMENT_FILES_DETAILS);
@@ -501,7 +495,7 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
     private void setRoomTitle() {
         String titleToApply = "";
         if ((null != mSession) && (null != mRoom)) {
-            titleToApply = VectorUtils.getRoomDisplayName(this, mSession, mRoom);
+            titleToApply = mRoom.getRoomDisplayName(this);
             titleToApply = DinsicUtils.getNameFromDisplayName(titleToApply);
         }
 

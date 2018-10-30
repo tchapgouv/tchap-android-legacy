@@ -114,8 +114,11 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
      * @param isInvitation           true when the room is an invitation one
      * @param moreRoomActionListener
      */
-    public void populateViews(final Context context, final MXSession session, final Room room,
-                              final boolean isDirectChat, final boolean isInvitation,
+    public void populateViews(final Context context,
+                              final MXSession session,
+                              final Room room,
+                              final boolean isDirectChat,
+                              final boolean isInvitation,
                               final AbsAdapter.MoreRoomActionListener moreRoomActionListener) {
         // sanity check
         if (null == room) {
@@ -188,7 +191,7 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
             vRoomUnreadCount.setVisibility(View.GONE);
         }
 
-        String displayName = VectorUtils.getRoomDisplayName(context, session, room);
+        String displayName = room.getRoomDisplayName(context);
         String roomName = DinsicUtils.getNameFromDisplayName(displayName);
 
         if (null != vRoomDomain) {

@@ -39,7 +39,6 @@ import android.text.method.LinkMovementMethod;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
-import android.text.style.QuoteSpan;
 import android.text.style.StyleSpan;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -64,7 +63,6 @@ import org.matrix.androidsdk.adapters.MessageRow;
 import org.matrix.androidsdk.crypto.MXCryptoError;
 import org.matrix.androidsdk.crypto.data.MXDeviceInfo;
 import org.matrix.androidsdk.data.Room;
-import org.matrix.androidsdk.data.RoomState;
 import org.matrix.androidsdk.db.MXMediasCache;
 import org.matrix.androidsdk.interfaces.HtmlToolbox;
 import org.matrix.androidsdk.rest.model.Event;
@@ -99,19 +97,18 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import fr.gouv.tchap.media.AntiVirusScanStatus;
 import fr.gouv.tchap.media.MediaScanManager;
 import fr.gouv.tchap.model.MediaScan;
 import im.vector.R;
 import im.vector.VectorApp;
+import im.vector.extensions.MatrixSdkExtensionsKt;
 import im.vector.listeners.IMessagesAdapterActionsListener;
 import im.vector.ui.VectorQuoteSpan;
+import im.vector.util.EmojiKt;
 import im.vector.util.EventGroup;
 import im.vector.util.MatrixLinkMovementMethod;
-import im.vector.util.MatrixSdkExtensionsKt;
 import im.vector.util.MatrixURLSpan;
 import im.vector.util.PreferencesManager;
 import im.vector.util.RiotEventDisplay;
@@ -228,29 +225,8 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
     private final boolean mAlwaysShowTimeStamps;
     private final boolean mHideReadReceipts;
 
-    private static final Pattern mEmojisPattern = Pattern.compile("((?:[\uD83C\uDF00-\uD83D\uDDFF]" +
-            "|[\uD83E\uDD00-\uD83E\uDDFF]" +
-            "|[\uD83D\uDE00-\uD83D\uDE4F]" +
-            "|[\uD83D\uDE80-\uD83D\uDEFF]" +
-            "|[\u2600-\u26FF]\uFE0F?" +
-            "|[\u2700-\u27BF]\uFE0F?" +
-            "|\u24C2\uFE0F?" +
-            "|[\uD83C\uDDE6-\uD83C\uDDFF]{1,2}" +
-            "|[\uD83C\uDD70\uD83C\uDD71\uD83C\uDD7E\uD83C\uDD7F\uD83C\uDD8E\uD83C\uDD91-\uD83C\uDD9A]\uFE0F?" +
-            "|[\u0023\u002A\u0030-\u0039]\uFE0F?\u20E3" +
-            "|[\u2194-\u2199\u21A9-\u21AA]\uFE0F?" +
-            "|[\u2B05-\u2B07\u2B1B\u2B1C\u2B50\u2B55]\uFE0F?" +
-            "|[\u2934\u2935]\uFE0F?" +
-            "|[\u3030\u303D]\uFE0F?" +
-            "|[\u3297\u3299]\uFE0F?" +
-            "|[\uD83C\uDE01\uD83C\uDE02\uD83C\uDE1A\uD83C\uDE2F\uD83C\uDE32-\uD83C\uDE3A\uD83C\uDE50\uD83C\uDE51]\uFE0F?" +
-            "|[\u203C\u2049]\uFE0F?" +
-            "|[\u25AA\u25AB\u25B6\u25C0\u25FB-\u25FE]\uFE0F?" +
-            "|[\u00A9\u00AE]\uFE0F?" +
-            "|[\u2122\u2139]\uFE0F?" +
-            "|\uD83C\uDC04\uFE0F?" +
-            "|\uD83C\uDCCF\uFE0F?" +
-            "|[\u231A\u231B\u2328\u23CF\u23E9-\u23F3\u23F8-\u23FA]\uFE0F?))");
+    // Key is member id.
+    private final Map<String, RoomMember> mLiveRoomMembers = new HashMap<>();
 
     // the color depends in the theme
     private final Drawable mPadlockDrawable;
@@ -258,6 +234,8 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
     private VectorImageGetter mImageGetter;
 
     private HtmlToolbox mHtmlToolbox = new HtmlToolbox() {
+        HtmlTagHandler mHtmlTagHandler;
+
         @Override
         public String convert(String html) {
             String sanitised = mHelper.getSanitisedHtml(html);
@@ -278,15 +256,16 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
         @Nullable
         @Override
         public Html.TagHandler getTagHandler(String html) {
-            // the links are not yet supported by ConsoleHtmlTagHandler
             // the markdown tables are not properly supported
-            boolean isCustomizable = !html.contains("<a href=") && !html.contains("<table>");
+            boolean isCustomizable = !html.contains("<table>");
 
             if (isCustomizable) {
-                final HtmlTagHandler htmlTagHandler = new HtmlTagHandler();
-                htmlTagHandler.mContext = mContext;
-                htmlTagHandler.setCodeBlockBackgroundColor(ThemeUtils.INSTANCE.getColor(mContext, R.attr.markdown_block_background_color));
-                return htmlTagHandler;
+                if (mHtmlTagHandler == null) {
+                    mHtmlTagHandler = new HtmlTagHandler();
+                    mHtmlTagHandler.mContext = mContext;
+                    mHtmlTagHandler.setCodeBlockBackgroundColor(ThemeUtils.INSTANCE.getColor(mContext, R.attr.markdown_block_background_color));
+                }
+                return mHtmlTagHandler;
             }
 
             return null;
@@ -898,6 +877,17 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
      * *********************************************************************************************
      */
 
+    public void setLiveRoomMembers(List<RoomMember> roomMembers) {
+        mLiveRoomMembers.clear();
+
+        for (RoomMember roomMember : roomMembers) {
+            mLiveRoomMembers.put(roomMember.getUserId(), roomMember);
+        }
+
+        // Update the Ui (ex: read receipt avatar)
+        notifyDataSetChanged();
+    }
+
     /**
      * Notify the fragment that some bing rules could have been updated.
      */
@@ -1015,47 +1005,6 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
      */
 
     /**
-     * Test if a string contains emojis.
-     * It seems that the regex [emoji_regex]+ does not work.
-     * Some characters like ?, # or digit are accepted.
-     *
-     * @param body the body to test
-     * @return true if the body contains only emojis
-     */
-    private static boolean containsOnlyEmojis(String body) {
-        boolean res = false;
-
-        if (!TextUtils.isEmpty(body)) {
-            Matcher matcher = mEmojisPattern.matcher(body);
-
-            int start = -1;
-            int end = -1;
-
-            while (matcher.find()) {
-                int nextStart = matcher.start();
-
-                // first emoji position
-                if (start < 0) {
-                    if (nextStart > 0) {
-                        return false;
-                    }
-                } else {
-                    // must not have a character between
-                    if (nextStart != end) {
-                        return false;
-                    }
-                }
-                start = nextStart;
-                end = matcher.end();
-            }
-
-            res = (-1 != start) && (end == body.length());
-        }
-
-        return res;
-    }
-
-    /**
      * Convert Event to view type.
      *
      * @param event the event to convert
@@ -1099,7 +1048,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             String msgType = message.msgtype;
 
             if (Message.MSGTYPE_TEXT.equals(msgType)) {
-                if (containsOnlyEmojis(message.body)) {
+                if (EmojiKt.containsOnlyEmojis(message.body)) {
                     viewType = ROW_TYPE_EMOJI;
                 } else if (!TextUtils.isEmpty(message.formatted_body) && mHelper.containsFencedCodeBlocks(message)) {
                     viewType = ROW_TYPE_CODE;
@@ -1123,13 +1072,13 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
         } else if (Event.EVENT_TYPE_STICKER.equals(eventType)) {
             viewType = ROW_TYPE_STICKER;
         } else if (
-                event.isCallEvent() ||
-                        Event.EVENT_TYPE_STATE_HISTORY_VISIBILITY.equals(eventType) ||
-                        Event.EVENT_TYPE_STATE_ROOM_TOPIC.equals(eventType) ||
-                        Event.EVENT_TYPE_STATE_ROOM_MEMBER.equals(eventType) ||
-                        Event.EVENT_TYPE_STATE_ROOM_NAME.equals(eventType) ||
-                        Event.EVENT_TYPE_STATE_ROOM_THIRD_PARTY_INVITE.equals(eventType) ||
-                        Event.EVENT_TYPE_MESSAGE_ENCRYPTION.equals(eventType)) {
+                event.isCallEvent()
+                        || Event.EVENT_TYPE_STATE_HISTORY_VISIBILITY.equals(eventType)
+                        || Event.EVENT_TYPE_STATE_ROOM_TOPIC.equals(eventType)
+                        || Event.EVENT_TYPE_STATE_ROOM_MEMBER.equals(eventType)
+                        || Event.EVENT_TYPE_STATE_ROOM_NAME.equals(eventType)
+                        || Event.EVENT_TYPE_STATE_ROOM_THIRD_PARTY_INVITE.equals(eventType)
+                        || Event.EVENT_TYPE_MESSAGE_ENCRYPTION.equals(eventType)) {
             viewType = ROW_TYPE_ROOM_MEMBER;
 
         } else if (WidgetsManager.WIDGET_EVENT_TYPE.equals(eventType)) {
@@ -1251,7 +1200,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
         if (mHideReadReceipts) {
             mHelper.hideReadReceipts(convertView);
         } else {
-            mHelper.displayReadReceipts(convertView, row, mIsPreviewMode);
+            mHelper.displayReadReceipts(convertView, row, mIsPreviewMode, mLiveRoomMembers);
         }
 
         // selection mode
@@ -1300,15 +1249,9 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                     return convertView;
                 }
 
-                RoomState roomState = row.getRoomState();
+                EventDisplay display = new RiotEventDisplay(mContext, mHtmlToolbox);
 
-                EventDisplay display = new RiotEventDisplay(mContext, event, roomState, mHtmlToolbox);
-                CharSequence textualDisplay = display.getTextualDisplay();
-
-                SpannableString body = new SpannableString((null == textualDisplay) ? "" : textualDisplay);
-
-                // Change to BlockQuote Spannable to customize it
-                replaceQuoteSpans(body);
+                Spannable body = row.getText(new VectorQuoteSpan(mContext), display);
 
                 CharSequence result = mHelper.highlightPattern(body,
                         mPattern,
@@ -1352,22 +1295,6 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
         }
 
         return convertView;
-    }
-
-    /**
-     * Replace all QuoteSpan instances by instances of VectorQuoteSpan
-     *
-     * @param spannable
-     */
-    private void replaceQuoteSpans(Spannable spannable) {
-        QuoteSpan[] quoteSpans = spannable.getSpans(0, spannable.length(), QuoteSpan.class);
-        for (QuoteSpan quoteSpan : quoteSpans) {
-            int start = spannable.getSpanStart(quoteSpan);
-            int end = spannable.getSpanEnd(quoteSpan);
-            int flags = spannable.getSpanFlags(quoteSpan);
-            spannable.removeSpan(quoteSpan);
-            spannable.setSpan(new VectorQuoteSpan(mContext), start, end, flags);
-        }
     }
 
     /**
@@ -1523,12 +1450,11 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
         try {
             MessageRow row = getItem(position);
             Event msg = row.getEvent();
-            RoomState roomState = row.getRoomState();
 
             CharSequence notice;
 
-            EventDisplay display = new RiotEventDisplay(mContext, msg, roomState);
-            notice = display.getTextualDisplay();
+            EventDisplay display = new RiotEventDisplay(mContext);
+            notice = row.getText(null, display);
 
             TextView noticeTextView = convertView.findViewById(R.id.messagesAdapter_body);
 
@@ -1585,7 +1511,6 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
         try {
             MessageRow row = getItem(position);
             Event event = row.getEvent();
-            RoomState roomState = row.getRoomState();
 
             TextView emoteTextView = convertView.findViewById(R.id.messagesAdapter_body);
 
@@ -1595,9 +1520,8 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             }
 
             Message message = JsonUtils.toMessage(event.getContent());
-            String userDisplayName = (null == roomState) ? event.getSender() : roomState.getMemberName(event.getSender());
 
-            String body = "* " + userDisplayName + " " + message.body;
+            CharSequence body = "* " + row.getSenderDisplayName() + " " + message.body;
 
             if (TextUtils.equals(Message.FORMAT_MATRIX_HTML, message.format)) {
                 String htmlString = mHelper.getSanitisedHtml(message.formatted_body);
@@ -1605,7 +1529,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                 if (null != htmlString) {
                     CharSequence sequence = mHelper.convertToHtml(htmlString);
 
-                    body = "* " + userDisplayName + " " + sequence;
+                    body = TextUtils.concat("* ", row.getSenderDisplayName(), " ", sequence);
                 }
             }
 
@@ -1746,7 +1670,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             summaryTextView.setVisibility(event.isExpanded() ? View.GONE : View.VISIBLE);
             avatarsLayout.setVisibility(event.isExpanded() ? View.GONE : View.VISIBLE);
 
-            headerTextView.setText(event.isExpanded() ? R.string.action_collapse : R.string.action_expand);
+            headerTextView.setText(event.isExpanded() ? R.string.merged_events_collapse : R.string.merged_events_expand);
 
             if (!event.isExpanded()) {
                 avatarsLayout.setVisibility(View.VISIBLE);
@@ -1824,8 +1748,8 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             convertView = mLayoutInflater.inflate(mRowTypeToLayoutId.get(ROW_TYPE_VERSIONED_ROOM), parent, false);
         }
         final MessageRow row = getItem(position);
-        final RoomState roomState = row.getRoomState();
-        final RoomCreateContent.Predecessor predecessor = roomState.getRoomCreateContent().predecessor;
+        // In this case, predecessor cannot be null
+        final RoomCreateContent.Predecessor predecessor = row.getRoomCreateContentPredecessor();
 
         final String roomLink = PermalinkUtils.createPermalink(predecessor.roomId);
         final ClickableSpan urlSpan = new MatrixURLSpan(roomLink, MXPatterns.PATTERN_CONTAIN_APP_LINK_PERMALINK_ROOM_ID, mVectorMessagesAdapterEventsListener);
@@ -1978,6 +1902,10 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
         }
 
         boolean isSupported = VectorMessagesAdapterHelper.isDisplayableEvent(mContext, row);
+
+        if (!isSupported) {
+            Log.w(LOG_TAG, "Unsupported row. Event type: " + event.getType());
+        }
 
         if (isSupported && TextUtils.equals(event.getType(), Event.EVENT_TYPE_STATE_ROOM_MEMBER)) {
             RoomMember roomMember = JsonUtils.toRoomMember(event.getContent());
@@ -2421,9 +2349,8 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                 } else {
                     EncryptedEventContent encryptedEventContent = JsonUtils.toEncryptedEventContent(event.getWireContent().getAsJsonObject());
 
-                    if (TextUtils.equals(mSession.getCredentials().deviceId, encryptedEventContent.device_id) &&
-                            TextUtils.equals(mSession.getMyUserId(), event.getSender())
-                            ) {
+                    if (TextUtils.equals(mSession.getCredentials().deviceId, encryptedEventContent.device_id)
+                            && TextUtils.equals(mSession.getMyUserId(), event.getSender())) {
                         e2eIconByEventId.put(event.eventId, R.drawable.e2e_verified);
                         MXDeviceInfo deviceInfo = mSession.getCrypto()
                                 .deviceWithIdentityKey(encryptedEventContent.sender_key, event.getSender(), encryptedEventContent.algorithm);

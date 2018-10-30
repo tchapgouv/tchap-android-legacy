@@ -41,6 +41,7 @@ import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
 import org.matrix.androidsdk.rest.model.CreateRoomParams;
 import org.matrix.androidsdk.rest.model.MatrixError;
+import org.matrix.androidsdk.rest.model.RoomDirectoryVisibility;
 import org.matrix.androidsdk.util.Log;
 import org.matrix.androidsdk.util.ResourceUtils;
 
@@ -126,7 +127,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
         // Initialize default room params as private
         switchPublicPrivateRoom.setChecked(false);
-        mRoomParams.visibility = RoomState.DIRECTORY_VISIBILITY_PRIVATE;
+        mRoomParams.visibility = RoomDirectoryVisibility.DIRECTORY_VISIBILITY_PRIVATE;
         mRoomParams.preset = CreateRoomParams.PRESET_PRIVATE_CHAT;
 
         // Prepare disable federation label by adding the hs display name of the current user.
@@ -195,14 +196,14 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     void setRoomPrivacy() {
         if (switchPublicPrivateRoom.isChecked()) {
             tvPublicPrivateRoomDescription.setTextColor(ContextCompat.getColor(this, R.color.vector_fuchsia_color));
-            mRoomParams.visibility = RoomState.DIRECTORY_VISIBILITY_PUBLIC;
+            mRoomParams.visibility = RoomDirectoryVisibility.DIRECTORY_VISIBILITY_PUBLIC;
             mRoomParams.preset = CreateRoomParams.PRESET_PUBLIC_CHAT;
             mRoomParams.setHistoryVisibility(RoomState.HISTORY_VISIBILITY_WORLD_READABLE);
             Log.d(LOG_TAG, "## public");
             federationOption.setVisibility(View.VISIBLE);
         } else {
             tvPublicPrivateRoomDescription.setTextColor(ContextCompat.getColor(this, R.color.vector_tchap_text_color_light_grey));
-            mRoomParams.visibility = RoomState.DIRECTORY_VISIBILITY_PRIVATE;
+            mRoomParams.visibility = RoomDirectoryVisibility.DIRECTORY_VISIBILITY_PRIVATE;
             mRoomParams.preset = CreateRoomParams.PRESET_PRIVATE_CHAT;
             mRoomParams.setHistoryVisibility(null);
             Log.d(LOG_TAG, "## private");
@@ -279,7 +280,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                     // This list contains only matrixIds because the RoomInviteMembersActivity was opened in TCHAP_ONLY or FEDERATED_TCHAP_ONLY mode.
                     showWaitingView();
                     invalidateOptionsMenu();
-                    mRoomParams.invite = mParticipantsIds;
+                    mRoomParams.invitedUserIds = mParticipantsIds;
                     createNewRoom();
                 } else if (resultCode == RESULT_CANCELED) {
                     invalidateOptionsMenu();

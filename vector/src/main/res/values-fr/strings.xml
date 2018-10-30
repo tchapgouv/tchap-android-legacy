@@ -243,7 +243,6 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="ssl_do_not_trust">Ne pas faire confiance</string>
     <string name="ssl_logout_account">Se déconnecter</string>
     <string name="ssl_remain_offline">Ignorer</string>
-    <string name="ssl_fingerprint_example">00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</string>
 
     <string name="room_details_title">Information sur le salon</string>
     <string name="room_details_people">MEMBRES</string>
@@ -256,10 +255,6 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="room_event_action_report_prompt_reason">Motif du signalement de ce contenu</string>
     <string name="room_event_action_cancel_upload">Annuler l\'envoi</string>
     <string name="room_event_action_cancel_download">Annuler le téléchargement</string>
-
-    <string name="room_displayname_invite_from">Invitation de %s</string>
-    <string name="room_displayname_room_invite">Invitation au salon</string>
-    <string name="room_displayname_no_title">Conversation vide</string>
 
     <string name="search_hint">Rechercher</string>
     <string name="search_members_hint">Filtrer les membres du salon</string>
@@ -357,9 +352,9 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
 
     <string name="account_email_validation_title">Vérification en attente</string>
     <string name="settings_change_password">Changer le mot de passe</string>
-    <string name="settings_old_password">ancien mot de passe</string>
-    <string name="settings_new_password">nouveau mot de passe</string>
-    <string name="settings_confirm_password">confirmez le mot de passe</string>
+    <string name="settings_old_password">Ancien mot de passe</string>
+    <string name="settings_new_password">Nouveau mot de passe</string>
+    <string name="settings_confirm_password">Confirmer le mot de passe</string>
     <string name="settings_fail_to_update_password">Échec de mise à jour du mot de passe</string>
     <string name="settings_password_updated">Votre mot de passe a été mis à jour</string>
     <string name="settings_select_country">Choisissez un pays</string>
@@ -431,8 +426,10 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="encryption_export_e2e_room_keys">Exporter les clés E2E des conversations</string>
     <string name="encryption_export_room_keys">Exporter les clés des conversations</string>
     <string name="encryption_export_export">Exporter</string>
-    <string name="encryption_export_enter_passphrase">Saisir la phrase de passe</string>
-    <string name="encryption_export_confirm_passphrase">Confirmer la phrase de passe</string>
+    <string name="encryption_export_notice">Veuillez saisir une phrase secrète pour chiffrer les clés exportées. Vous aurez besoin de saisir à nouveau cette phrase pour importer les clés.</string>
+    <string name="encryption_export_create_passphrase">Saisir une phrase secrète</string>
+    <string name="encryption_import_enter_passphrase">Saisir la phrase secrète</string>
+    <string name="encryption_export_confirm_passphrase">Confirmer la phrase secrète</string>
     <string name="encryption_import_e2e_room_keys">Importer les clés E2E des conversations</string>
     <string name="encryption_import_room_keys">Importer les clés des conversations</string>
     <string name="encryption_import_import">Importer</string>
@@ -584,12 +581,11 @@ En êtes-vous sûr(e) ?</string>
     <string name="ssl_cert_new_account_expl">Si l\'administrateur du serveur a confirmé que cela était normal, assurez-vous que l\'empreinte ci-dessous correspond à l\'empreinte fournie par l\'administrateur.</string>
     <string name="ssl_unexpected_existing_expl">Le certificat n\'est plus celui qui a été approuvé par votre téléphone. Ce comportement est INATTENDU. Il est recommandé de ne PAS ACCEPTER ce nouveau certificat.</string>
     <string name="ssl_expected_existing_expl">Le certificat n\'est plus celui qui a été approuvé par votre téléphone. Le serveur a peut-être renouvelé son certificat. Contactez l\'administrateur du serveur pour lui demander l\'empreinte de son certificat.</string>
-    <string name="ssl_only_accept">Acceptez le certificat UNIQUEMENT si l\'administrateur du serveur a publié une empreinte correspondant à celle ci-dessus.</string>
+    <string name="ssl_only_accept">Acceptez le certificat uniquement si l\'administrateur du serveur a publié une empreinte correspondant à celle ci-dessus.</string>
     <string name="malformed_id">Identifiant au mauvais format. Une adresse e-mail ou un identifiant Matrix au format \"@utilisateur:domaine\" est attendu</string>
     <string name="room_event_action_report_prompt_ignore_user">Voulez-vous cacher tous les messages de cet utilisateur ?
 
 Veuillez noter que cette action redémarrera l\'application et pourra prendre un certain temps.</string>
-    <string name="room_displayname_two_members">%1$s et %2$s</string>
     <string name="room_recents_join_room_prompt">Saisissez un identifiant ou un alias de salon</string>
 
     <string name="settings_turn_screen_on">Allumer l\'écran pendant 3 secondes</string>
@@ -634,9 +630,9 @@ Veuillez noter que cette action redémarrera l\'application et pourra prendre un
 
     <string name="room_settings_addresses_no_local_addresses">Ce salon n\'a pas d\'adresse locale</string>
     <string name="room_settings_addresses_invalid_format_dialog_body">"\"%s\"  n\'est pas un format valide pour un alias"</string>
-    <string name="room_settings_addresses_disable_main_address_prompt_msg">Vous n\'aurez aucune adresse principale spécifiée. L\'adresse principale par défaut de ce salon sera choisie au hasard</string>
-    <string name="room_settings_addresses_e2e_enabled">Le chiffrement est activé dans ce salon.</string>
-    <string name="room_settings_addresses_e2e_disabled">Le chiffrement est désactivé dans ce salon.</string>
+    <string name="room_settings_addresses_disable_main_address_prompt_msg">Vous n\'aurez aucune adresse principale spécifiée pour ce salon.</string>
+    <string name="room_settings_addresses_e2e_enabled">Le chiffrement est activé sur ce salon.</string>
+    <string name="room_settings_addresses_e2e_disabled">Le chiffrement est désactivé sur ce salon.</string>
     <string name="room_settings_addresses_e2e_encryption_warning">Activer le chiffrement
 (attention : ne peut pas être désactivé ensuite !)</string>
     <string name="room_settings_addresses_e2e_prompt_message">Le chiffrement de bout en bout est en version bêta et peut ne pas être fiable.
@@ -659,9 +655,7 @@ Les messages chiffrés ne seront pas visibles sur les clients qui n\'ont pas enc
     <string name="encryption_never_send_to_unverified_devices_summary">Ne jamais envoyer de messages chiffrés aux appareils non vérifiés depuis cet appareil</string>
 
     <string name="encryption_information_verify_device_warning">Pour vérifier que cet appareil est de confiance, contactez son propriétaire en utilisant un autre moyen (par exemple en personne ou par téléphone) et demandez-lui si la clé qu\'il voit dans ses paramètres utilisateur pour cet appareil correspond à la clé ci-dessous :</string>
-    <string name="encryption_information_verify_device_warning2">Si elle correspond, appuyez sur le bouton Vérifier ci-dessous.
-Si ce n\'est pas le cas, quelqu\'un d\'autre intercepte cet appareil et vous devriez probablement le bloquer.
-À l\'avenir, ce processus de vérification sera plus évolué.</string>
+    <string name="encryption_information_verify_device_warning2">Si elle correspond, appuyez sur le bouton Vérifier ci-dessous. Si ce n\'est pas le cas, quelqu\'un d\'autre intercepte cet appareil et vous devriez probablement le bloquer. À l\'avenir, ce processus de vérification sera plus évolué.</string>
     <string name="encryption_information_verify_key_match">Je confirme que les clés correspondent</string>
 
     <string name="e2e_enabling_on_app_update">Tchap prend désormais en charge le chiffrement de bout en bout, mais vous devez vous reconnecter pour l\'activer.
@@ -721,7 +715,7 @@ Appareils inconnus :</string>
     <string name="black_them">Thème noir</string>
 
     <string name="notification_sync_in_progress">Synchronisation</string>
-    <string name="notification_listen_for_events">Écoute d\'évènements</string>
+    <string name="notification_listening_for_events">Écoute d\'évènements</string>
 
     <string name="login_mobile_device">Portable</string>
 
@@ -925,12 +919,6 @@ Appareils inconnus :</string>
         <item quantity="other">%d nouveaux messages</item>
     </plurals>
 
-    <string name="room_displayname_many_members">%1$s et %2$s</string>
-    <plurals name="others">
-        <item quantity="one">Un autre</item>
-        <item quantity="other">%d autres</item>
-    </plurals>
-
     <string name="list_members">Liste les membres</string>
 
     <plurals name="directory_search_rooms">
@@ -1127,6 +1115,18 @@ Veuillez noter que cette action redémarrera l\'application et pourra prendre un
     <string name="resource_limit_soft_contact">Veuillez %s pour augmenter cette limite.</string>
     <string name="resource_limit_hard_contact">Veuillez %s pour continuer à utiliser ce service.</string>
 
+    <string name="dialog_title_error">Erreur</string>
+
+    <string name="settings_lazy_loading_title">Charger les membres des salons en différé</string>
+    <string name="settings_lazy_loading_description">Améliore les performances en ne chargeant les membres des salons qu\'au premier affichage</string>
+    <string name="error_lazy_loading_not_supported_by_home_server">Votre serveur d\'accueil ne prend pas encore en charge le chargement en différé des membres des salons. Réessayez ultérieurement.</string>
+
+    <string name="unknown_error">Désolé, une erreur est survenue</string>
+
+    <!-- Expand/Collapse room member changes -->
+    <string name="merged_events_expand">afficher</string>
+    <string name="merged_events_collapse">masquer</string>
+
     // Overrided sdk's strings
     <string name="notice_room_name_changed">%1$s a changé le nom du salon en : %2$s</string>
     <string name="notice_made_future_room_visibility">%1$s a rendu l\'historique futur de la conversation visible pour %2$s</string>
@@ -1153,8 +1153,5 @@ Veuillez noter que cette action redémarrera l\'application et pourra prendre un
     <string name="security_dialog_continue">Continuer.</string>
     <string name="accessibility_change_security_dialog_message">Un service d\'accessibilité a été activé. Il observe le clavier et les fenêtres.</string>
     <string name="notification_change_security_dialog_message">Un écouteur de notification lit le contenu des notifications de message. Les écouteurs suivant ont été activés :</string>
-
-    <string name = "action_expand">afficher</string>
-    <string name = "action_collapse">masquer</string>
 
 </resources>

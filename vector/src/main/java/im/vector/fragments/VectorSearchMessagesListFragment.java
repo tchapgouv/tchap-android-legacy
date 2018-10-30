@@ -24,25 +24,20 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
-
-import org.matrix.androidsdk.util.Log;
-
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 
-import org.matrix.androidsdk.adapters.AbstractMessagesAdapter;
-import org.matrix.androidsdk.data.EventTimeline;
+import org.matrix.androidsdk.data.timeline.EventTimeline;
 import org.matrix.androidsdk.data.RoomState;
 import org.matrix.androidsdk.rest.model.Event;
+import org.matrix.androidsdk.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import im.vector.R;
 import im.vector.activity.VectorRoomActivity;
-
+import im.vector.adapters.VectorMessagesAdapter;
 import im.vector.adapters.VectorSearchMessagesListAdapter;
 
 public class VectorSearchMessagesListFragment extends VectorMessageListFragment {
@@ -54,8 +49,6 @@ public class VectorSearchMessagesListFragment extends VectorMessageListFragment 
 
     private View mProgressView = null;
 
-    String mRoomId;
-
     /**
      * static constructor
      *
@@ -64,38 +57,19 @@ public class VectorSearchMessagesListFragment extends VectorMessageListFragment 
      */
     public static VectorSearchMessagesListFragment newInstance(String matrixId, String roomId, int layoutResId) {
         VectorSearchMessagesListFragment frag = new VectorSearchMessagesListFragment();
-        Bundle args = new Bundle();
-        args.putInt(ARG_LAYOUT_ID, layoutResId);
-        args.putString(ARG_MATRIX_ID, matrixId);
-
-        if (null != roomId) {
-            args.putString(ARG_ROOM_ID, roomId);
-        }
-
-        frag.setArguments(args);
+        frag.setArguments(getArguments(matrixId, roomId, layoutResId));
         return frag;
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Bundle args = getArguments();
+    public VectorMessagesAdapter createMessagesAdapter() {
+            VectorSearchMessagesListAdapter vectorSearchMessagesListAdapter = new VectorSearchMessagesListAdapter(mSession, getActivity(), (null == mRoomId), getMXMediasCache());
+            // Add the current media scan manager if any
+            if (null != mMediaScanManager) {
+                vectorSearchMessagesListAdapter.setMediaScanManager(mMediaScanManager);
+            }
 
-        if (null != args) {
-            mRoomId = args.getString(ARG_ROOM_ID, null);
-        }
-
-        return super.onCreateView(inflater, container, savedInstanceState);
-    }
-
-    @Override
-    public AbstractMessagesAdapter createMessagesAdapter() {
-        VectorSearchMessagesListAdapter vectorSearchMessagesListAdapter = new VectorSearchMessagesListAdapter(mSession, getActivity(), (null == mRoomId), getMXMediasCache());
-        // Add the current media scan manager if any
-        if (null != mMediaScanManager) {
-            vectorSearchMessagesListAdapter.setMediaScanManager(mMediaScanManager);
-        }
-
-        return vectorSearchMessagesListAdapter;
+            return vectorSearchMessagesListAdapter;
     }
 
     @Override

@@ -87,19 +87,19 @@ import im.vector.activity.VectorMemberDetailsActivity;
 import im.vector.activity.VectorRoomActivity;
 import im.vector.adapters.VectorMessagesAdapter;
 import im.vector.db.VectorContentProvider;
+import im.vector.extensions.MatrixSdkExtensionsKt;
 import im.vector.listeners.IMessagesAdapterActionsListener;
 import im.vector.receiver.VectorUniversalLinkReceiver;
 import im.vector.util.ExternalApplicationsUtilKt;
-import im.vector.util.MatrixSdkExtensionsKt;
 import im.vector.util.PermissionsToolsKt;
 import im.vector.util.PreferencesManager;
 import im.vector.util.SlidableMediaInfo;
+import im.vector.util.SystemUtilsKt;
 import im.vector.util.ThemeUtils;
 import im.vector.util.VectorImageGetter;
-import im.vector.util.VectorUtils;
 import im.vector.widgets.WidgetsManager;
 
-public class VectorMessageListFragment extends MatrixMessageListFragment implements IMessagesAdapterActionsListener {
+public class VectorMessageListFragment extends MatrixMessageListFragment<VectorMessagesAdapter> implements IMessagesAdapterActionsListener {
     private static final String LOG_TAG = VectorMessageListFragment.class.getSimpleName();
 
     // Data to wait for permission
@@ -170,18 +170,10 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
 
     public static VectorMessageListFragment newInstance(String matrixId, String roomId, String eventId, String previewMode, int layoutResId) {
         VectorMessageListFragment f = new VectorMessageListFragment();
-        Bundle args = new Bundle();
-        args.putInt(ARG_LAYOUT_ID, layoutResId);
-        args.putString(ARG_MATRIX_ID, matrixId);
-        args.putString(ARG_ROOM_ID, roomId);
+        Bundle args = getArguments(matrixId, roomId, layoutResId);
 
-        if (null != eventId) {
-            args.putString(ARG_EVENT_ID, eventId);
-        }
-
-        if (null != previewMode) {
-            args.putString(ARG_PREVIEW_MODE_ID, previewMode);
-        }
+        args.putString(ARG_EVENT_ID, eventId);
+        args.putString(ARG_PREVIEW_MODE_ID, previewMode);
 
         f.setArguments(args);
         return f;
@@ -197,7 +189,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.d(LOG_TAG, "onCreateView");
 
         View v = super.onCreateView(inflater, container, savedInstanceState);
@@ -205,17 +197,17 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
         Bundle args = getArguments();
 
         // when an event id is defined, display a thick green line to its left
-        if (args.containsKey(ARG_EVENT_ID) && (mAdapter instanceof VectorMessagesAdapter)) {
-            ((VectorMessagesAdapter) mAdapter).setSearchedEventId(args.getString(ARG_EVENT_ID, ""));
+        if (args.containsKey(ARG_EVENT_ID)) {
+            mAdapter.setSearchedEventId(args.getString(ARG_EVENT_ID, ""));
         }
 
         if (null != mRoom) {
-            ((VectorMessagesAdapter) mAdapter).mIsRoomEncrypted = mRoom.isEncrypted();
+            mAdapter.mIsRoomEncrypted = mRoom.isEncrypted();
         }
 
         if (null != mSession) {
             mVectorImageGetter = new VectorImageGetter(mSession);
-            ((VectorMessagesAdapter) mAdapter).setImageGetter(mVectorImageGetter);
+            mAdapter.setImageGetter(mVectorImageGetter);
         }
 
         mMessageListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -232,7 +224,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
 
     @Override
     public MatrixMessagesFragment createMessagesFragmentInstance(String roomId) {
-        return VectorMessagesFragment.newInstance(getSession(), roomId, this);
+        return VectorMessagesFragment.newInstance(roomId);
     }
 
     /**
@@ -288,12 +280,8 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
     public void onPause() {
         super.onPause();
 
-        if (mAdapter instanceof VectorMessagesAdapter) {
-            VectorMessagesAdapter adapter = ((VectorMessagesAdapter) mAdapter);
-
-            adapter.setVectorMessagesAdapterActionsListener(null);
-            adapter.onPause();
-        }
+        mAdapter.setVectorMessagesAdapterActionsListener(null);
+        mAdapter.onPause();
 
         mVectorImageGetter.setListener(null);
     }
@@ -302,10 +290,8 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
     @Override
     public void onResume() {
         super.onResume();
-        if (mAdapter instanceof VectorMessagesAdapter) {
-            VectorMessagesAdapter adapter = ((VectorMessagesAdapter) mAdapter);
-            adapter.setVectorMessagesAdapterActionsListener(this);
-        }
+
+        mAdapter.setVectorMessagesAdapterActionsListener(this);
 
         mVectorImageGetter.setListener(new VectorImageGetter.OnImageDownloadListener() {
             @Override
@@ -346,7 +332,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
     }
 
     @Override
-    public AbstractMessagesAdapter createMessagesAdapter() {
+    public VectorMessagesAdapter createMessagesAdapter() {
         VectorMessagesAdapter vectorMessagesAdapter = new VectorMessagesAdapter(mSession, getActivity(), getMXMediasCache());
         // Add the current media scan manager if any
         if (null != mMediaScanManager) {
@@ -395,8 +381,8 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
      * @param isEncrypted true when the room is encrypted
      */
     public void setIsRoomEncrypted(boolean isEncrypted) {
-        if (((VectorMessagesAdapter) mAdapter).mIsRoomEncrypted != isEncrypted) {
-            ((VectorMessagesAdapter) mAdapter).mIsRoomEncrypted = isEncrypted;
+        if (mAdapter.mIsRoomEncrypted != isEncrypted) {
+            mAdapter.mIsRoomEncrypted = isEncrypted;
             mAdapter.notifyDataSetChanged();
         }
     }
@@ -424,7 +410,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
      */
     public void cancelSelectionMode() {
         if (null != mAdapter) {
-            ((VectorMessagesAdapter) mAdapter).cancelSelectionMode();
+            mAdapter.cancelSelectionMode();
         }
     }
 
@@ -434,7 +420,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
     @Nullable
     public Event getCurrentSelectedEvent() {
         if (null != mAdapter) {
-            return ((VectorMessagesAdapter) mAdapter).getCurrentSelectedEvent();
+            return mAdapter.getCurrentSelectedEvent();
         }
 
         return null;
@@ -685,7 +671,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    VectorUtils.copyToClipboard(getActivity(), textMsg);
+                    SystemUtilsKt.copyToClipboard(getActivity(), textMsg);
                 }
             });
         } else if ((action == R.id.ic_action_vector_cancel_upload) || (action == R.id.ic_action_vector_cancel_download)) {
@@ -779,7 +765,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
                 }
             }
         } /*else if (action == R.id.ic_action_vector_permalink) {
-            VectorUtils.copyToClipboard(getActivity(), PermalinkUtils.createPermalink(event));
+            SystemUtilsKt.copyToClipboard(getActivity(), PermalinkUtils.createPermalink(event));
         } */else if (action == R.id.ic_action_vector_report) {
             onMessageReport(event);
         } else if ((action == R.id.ic_action_view_source) || (action == R.id.ic_action_view_decrypted_source)) {
@@ -807,7 +793,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
                 }
             });
         } else if (action == R.id.ic_action_device_verification) {
-            onE2eIconClick(event, ((VectorMessagesAdapter) mAdapter).getDeviceInfo(event.eventId));
+            onE2eIconClick(event, mAdapter.getDeviceInfo(event.eventId));
         } else if (action == R.id.ic_action_re_request_e2e_key) {
             mSession.getCrypto().reRequestRoomKeyForEvent(event);
 
@@ -1139,7 +1125,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
             Event event = row.getEvent();
 
             // toggle selection mode
-            ((VectorMessagesAdapter) mAdapter).onEventTap(event);
+            mAdapter.onEventTap(event);
         } catch (Exception e) {
             Log.e(LOG_TAG, "## onRowClick() failed " + e.getMessage(), e);
         }
@@ -1152,11 +1138,9 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
             MessageRow row = mAdapter.getItem(position);
             Event event = row.getEvent();
 
-            VectorMessagesAdapter vectorMessagesAdapter = (VectorMessagesAdapter) mAdapter;
-
-            if (vectorMessagesAdapter.isInSelectionMode()) {
+            if (mAdapter.isInSelectionMode()) {
                 // cancel the selection mode.
-                vectorMessagesAdapter.onEventTap(null);
+                mAdapter.onEventTap(null);
                 return;
             }
 
@@ -1187,7 +1171,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment impleme
                 }
             } else {
                 // toggle selection mode
-                vectorMessagesAdapter.onEventTap(event);
+                mAdapter.onEventTap(event);
             }
         } catch (Exception e) {
             Log.e(LOG_TAG, "## onContentClick() failed " + e.getMessage(), e);

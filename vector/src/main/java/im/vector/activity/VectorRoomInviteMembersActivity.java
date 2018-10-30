@@ -19,16 +19,12 @@
 package im.vector.activity;
 
 import android.app.AlertDialog;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.SpannableString;
@@ -62,6 +58,9 @@ import java.util.regex.Pattern;
 
 import fr.gouv.tchap.activity.TchapLoginActivity;
 import fr.gouv.tchap.sdk.rest.model.Platform;
+
+import butterknife.BindView;
+import butterknife.OnClick;
 import im.vector.Matrix;
 import im.vector.R;
 import im.vector.adapters.ParticipantAdapterItem;
@@ -69,7 +68,6 @@ import im.vector.adapters.VectorParticipantsAdapter;
 import im.vector.contacts.Contact;
 import im.vector.contacts.ContactsManager;
 import fr.gouv.tchap.util.DinsicUtils;
-import im.vector.notifications.NotificationUtils;
 import im.vector.util.PermissionsToolsKt;
 import im.vector.util.VectorUtils;
 import im.vector.view.VectorAutoCompleteTextView;
@@ -125,7 +123,9 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
     // main UI items
     private View mParentLayout;
     private android.support.v7.widget.SearchView mSearchView;
-    private ExpandableListView mListView;
+
+    @BindView(R.id.room_details_members_list)
+    ExpandableListView mListView;
 
     // participants list
     private List<ParticipantAdapterItem> mHiddenParticipantItems = new ArrayList<>();
@@ -298,7 +298,6 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         // tell if a confirmation dialog must be displayed.
         mAddConfirmationDialog = intent.getBooleanExtra(EXTRA_ADD_CONFIRMATION_DIALOG, false);
 
-        mListView = findViewById(R.id.room_details_members_list);
         // the chevron is managed in the header view
         mListView.setGroupIndicator(null);
 
@@ -550,6 +549,11 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         mAdapter.setSearchedPattern(pattern, null, new VectorParticipantsAdapter.OnParticipantsSearchListener() {
             @Override
             public void onSearchEnd(final int count) {
+                if (mListView == null) {
+                    // Activity is dead
+                    return;
+                }
+
                 mListView.post(new Runnable() {
                     @Override
                     public void run() {
@@ -670,7 +674,8 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                                         // Presently, invite a Tchap user by his email is not supported correctly.
                                         // The resulting room is seen as direct for the inviter and not for the receiver.
                                         // Patch : we replace here the email by the retrieved MatrixId.
-                                        emails.set(index, mxId);
+                                        // FIXME the arrays "emails" is not able to store mxId (see inviteNoTchapContactsByEmail)
+                                        // emails.set(index, mxId);
                                         index ++;
                                     }
                                 } else {
@@ -906,7 +911,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
 //        builder.setAutoCancel(true)
 //                .setDefaults(Notification.FLAG_LOCAL_ONLY)
 //                .setWhen(System.currentTimeMillis())
-//                .setSmallIcon(R.drawable.logo_tchap_transparent)
+//                .setSmallIcon(R.drawable.logo_transparent)
 //                .setTicker(text)
 //                .setContentTitle(text)
 //                .setContentText(getString(R.string.tchap_send_invite_confirmation))

@@ -39,6 +39,7 @@ import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
+import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
 import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.User;
@@ -311,7 +312,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
         }
     }
 
-    private void fillUsedMembersList() {
+    private void fillUsedMembersList(final ApiCallback<Void> callback) {
         IMXStore store = mSession.getDataHandler().getStore();
 
         // Used members (ids) which should be removed from the final list
@@ -322,61 +323,79 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
             Room fromRoom = store.getRoom(mRoomId);
 
             if (null != fromRoom) {
-                Collection<RoomMember> members = fromRoom.getState().getDisplayableMembers();
-                for (RoomMember member : members) {
-                    if (TextUtils.equals(member.membership, RoomMember.MEMBERSHIP_JOIN) || TextUtils.equals(member.membership, RoomMember.MEMBERSHIP_INVITE)) {
-                        mUsedMemberUserIds.add(member.getUserId());
-                    }
-                }
-            }
-        }
+                fromRoom.getDisplayableMembersAsync(new SimpleApiCallback<List<RoomMember>>(callback) {
+                    @Override
+                    public void onSuccess(List<RoomMember> members) {
+                        for (RoomMember member : members) {
+                            if (TextUtils.equals(member.membership, RoomMember.MEMBERSHIP_JOIN)
+                                    || TextUtils.equals(member.membership, RoomMember.MEMBERSHIP_INVITE)) {
+                                mUsedMemberUserIds.add(member.getUserId());
+                            }
+                        }
 
+                        fillUsedMembersListStep2(callback);
+                    }
+                });
+            } else {
+                fillUsedMembersListStep2(callback);
+            }
+        } else {
+            fillUsedMembersListStep2(callback);
+        }
+    }
+
+    private void fillUsedMembersListStep2(final ApiCallback<Void> callback) {
         // Add participants to hide to the used members list (when creating a new room)
         for (ParticipantAdapterItem item : mItemsToHide) {
             mUsedMemberUserIds.add(item.mUserId);
         }
+
+        callback.onSuccess(null);
     }
 
     /**
      * Refresh the un-invited members
      */
     private void listOtherMembers() {
-        fillUsedMembersList();
+        fillUsedMembersList(new SimpleApiCallback<Void>() {
+            @Override
+            public void onSuccess(Void info) {
+                List<ParticipantAdapterItem> participants = new ArrayList<>();
+                if (mContactsFilter != VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY) {
+                    // Add first all known matrix users
+                    participants.addAll(VectorUtils.listKnownParticipants(mSession).values());
 
-        List<ParticipantAdapterItem> participants = new ArrayList<>();
-        if (mContactsFilter != VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY) {
-            // Add first all known matrix users
-            participants.addAll(VectorUtils.listKnownParticipants(mSession).values());
+                    // Update each participant for who a discussion (direct chat) exists,
+                    // in order to display them in local contacts section
+                    List<ParticipantAdapterItem> myDirectContacts = DinsicUtils.getContactsFromDirectChats(mSession);
+                    for (ParticipantAdapterItem myContact : myDirectContacts) {
+                        DinsicUtils.removeParticipantIfExist(participants, myContact);
+                        participants.add(myContact);
+                    }
+                }
+                // Add phone contacts
+                addLocalContacts(participants);
 
-            // Update each participant for who a discussion (direct chat) exists,
-            // in order to display them in local contacts section
-            List<ParticipantAdapterItem> myDirectContacts = DinsicUtils.getContactsFromDirectChats(mSession);
-            for (ParticipantAdapterItem myContact : myDirectContacts) {
-                DinsicUtils.removeParticipantIfExist(participants, myContact);
-                participants.add(myContact);
+                // List of display names
+                List<String> displayNamesList = new ArrayList<>();
+
+                for (Iterator<ParticipantAdapterItem> iterator = participants.iterator(); iterator.hasNext(); ) {
+                    ParticipantAdapterItem item = iterator.next();
+                    if (!mUsedMemberUserIds.isEmpty() && mUsedMemberUserIds.contains(item.mUserId)) {
+                        // Remove the used members from the final list
+                        iterator.remove();
+                    } else if (!TextUtils.isEmpty(item.mDisplayName)) {
+                        // Add to the display names list
+                        displayNamesList.add(item.mDisplayName.toLowerCase(VectorApp.getApplicationLocale()));
+                    }
+                }
+
+                synchronized (LOG_TAG) {
+                    mDisplayNamesList = displayNamesList;
+                    mUnusedParticipants = participants;
+                }
             }
-        }
-        // Add phone contacts
-        addLocalContacts(participants);
-
-        // List of display names
-        List<String> displayNamesList = new ArrayList<>();
-
-        for (Iterator<ParticipantAdapterItem> iterator = participants.iterator(); iterator.hasNext(); ) {
-            ParticipantAdapterItem item = iterator.next();
-            if (!mUsedMemberUserIds.isEmpty() && mUsedMemberUserIds.contains(item.mUserId)) {
-                // Remove the used members from the final list
-                iterator.remove();
-            } else if (!TextUtils.isEmpty(item.mDisplayName)) {
-                // Add to the display names list
-                displayNamesList.add(item.mDisplayName.toLowerCase(VectorApp.getApplicationLocale()));
-            }
-        }
-
-        synchronized (LOG_TAG) {
-            mDisplayNamesList = displayNamesList;
-            mUnusedParticipants = participants;
-        }
+        });
     }
 
     /**
@@ -506,50 +525,52 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
         }
 
         if (!TextUtils.isEmpty(mPattern)) {
-            fillUsedMembersList();
-
-            final String fPattern = mPattern;
-
-            mSession.searchUsers(mPattern, MAX_USERS_SEARCH_COUNT, mUsedMemberUserIds, new ApiCallback<SearchUsersResponse>() {
+            fillUsedMembersList(new SimpleApiCallback<Void>() {
                 @Override
-                public void onSuccess(SearchUsersResponse searchUsersResponse) {
-                    if (TextUtils.equals(fPattern, mPattern)) {
-                        List<ParticipantAdapterItem> participantItemList = new ArrayList<>();
+                public void onSuccess(Void info) {
+                    final String fPattern = mPattern;
 
-                        if (null != searchUsersResponse.results) {
-                            for (User user : searchUsersResponse.results) {
-                                ParticipantAdapterItem participant = new ParticipantAdapterItem(user);
-                                participantItemList.add(participant);
+                    mSession.searchUsers(mPattern, MAX_USERS_SEARCH_COUNT, mUsedMemberUserIds, new ApiCallback<SearchUsersResponse>() {
+                        @Override
+                        public void onSuccess(SearchUsersResponse searchUsersResponse) {
+                            if (TextUtils.equals(fPattern, mPattern)) {
+                                List<ParticipantAdapterItem> participantItemList = new ArrayList<>();
+
+                                if (null != searchUsersResponse.results) {
+                                    for (User user : searchUsersResponse.results) {
+                                        participantItemList.add(new ParticipantAdapterItem(user));
+                                    }
+                                }
+
+                                mIsOfflineContactsSearch = false;
+                                mKnownContactsLimited = (null != searchUsersResponse.limited) ? searchUsersResponse.limited : false;
+
+                                searchAccountKnownContacts(theFirstEntry, participantItemList, false, searchListener);
                             }
                         }
 
-                        mIsOfflineContactsSearch = false;
-                        mKnownContactsLimited = (null != searchUsersResponse.limited) ? searchUsersResponse.limited : false;
+                        private void onError() {
+                            if (TextUtils.equals(fPattern, mPattern)) {
+                                mIsOfflineContactsSearch = true;
+                                searchAccountKnownContacts(theFirstEntry, new ArrayList<ParticipantAdapterItem>(), true, searchListener);
+                            }
+                        }
 
-                        searchAccountKnownContacts(theFirstEntry, participantItemList, false, searchListener);
-                    }
-                }
+                        @Override
+                        public void onNetworkError(Exception e) {
+                            onError();
+                        }
 
-                private void onError() {
-                    if (TextUtils.equals(fPattern, mPattern)) {
-                        mIsOfflineContactsSearch = true;
-                        searchAccountKnownContacts(theFirstEntry, new ArrayList<ParticipantAdapterItem>(), true, searchListener);
-                    }
-                }
+                        @Override
+                        public void onMatrixError(MatrixError e) {
+                            onError();
+                        }
 
-                @Override
-                public void onNetworkError(Exception e) {
-                    onError();
-                }
-
-                @Override
-                public void onMatrixError(MatrixError e) {
-                    onError();
-                }
-
-                @Override
-                public void onUnexpectedError(Exception e) {
-                    onError();
+                        @Override
+                        public void onUnexpectedError(Exception e) {
+                            onError();
+                        }
+                    });
                 }
             });
         } else {
@@ -622,28 +643,31 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
             if (null == mContactsParticipants) {
                 Thread t = new Thread(new Runnable() {
                     public void run() {
-                        fillUsedMembersList();
-
-                        List<ParticipantAdapterItem> list;
-                        if (mContactsFilter != VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY) {
-                            // Initialize the participants list with the tchap users extracted from the
-                            // current discussions (direct chats).
-                            list = DinsicUtils.getContactsFromDirectChats(mSession);
-                        } else {
-                            list = new ArrayList<>();
-                        }
-
-                        addLocalContacts(list);
-
-                        synchronized (LOG_TAG) {
-                            mContactsParticipants = list;
-                        }
-
-                        Handler handler = new Handler(Looper.getMainLooper());
-                        handler.post(new Runnable() {
+                        fillUsedMembersList(new SimpleApiCallback<Void>() {
                             @Override
-                            public void run() {
-                                refresh(theFirstEntry, searchListener);
+                            public void onSuccess(Void info) {
+                                List<ParticipantAdapterItem> list;
+                                if (mContactsFilter != VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY) {
+                                    // Initialize the participants list with the tchap users extracted from the
+                                    // current discussions (direct chats).
+                                    list = DinsicUtils.getContactsFromDirectChats(mSession);
+                                } else {
+                                    list = new ArrayList<>();
+                                }
+
+                                addLocalContacts(list);
+
+                                synchronized (LOG_TAG) {
+                                    mContactsParticipants = list;
+                                }
+
+                                Handler handler = new Handler(Looper.getMainLooper());
+                                handler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        refresh(theFirstEntry, searchListener);
+                                    }
+                                });
                             }
                         });
                     }
@@ -857,7 +881,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
             Collection<Room> rooms = mSession.getDataHandler().getStore().getRooms();
 
             for (Room room : rooms) {
-                if (room.getMembers().size() > 1) {
+                if (room.getNumberOfMembers() > 1) {
                     return true;
                 }
             }

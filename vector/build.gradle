@@ -146,6 +146,11 @@ android {
         disable 'MissingTranslation'
         disable 'RestrictedApi'
         disable 'ImpliedQuantity'
+
+        // Treat some warnings as errors
+        error 'StringFormatCount'
+        error 'HardcodedText'
+        error 'SpUsage'
     }
 
     repositories {
@@ -259,7 +264,7 @@ dependencies {
 
     // fdroid flavor only
 
-    // Tests
+    // Test
     testImplementation 'junit:junit:4.12'
 }
 
