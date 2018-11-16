@@ -28,12 +28,10 @@ import java.lang.Long.parseLong
 /**
  * Create a HomeServerConnectionConfig with all the required parameters for the Tchap application
  */
-fun createHomeServerConnectionConfig(homeServerUrl: String?, identityServerUrl: String?): HomeServerConnectionConfig {
+fun createHomeServerConnectionConfig(homeServerUrl: String, identityServerUrl: String?): HomeServerConnectionConfig {
     return HomeServerConnectionConfig.Builder()
+            .withHomeServerUri(Uri.parse(homeServerUrl))
             .apply {
-                homeServerUrl?.let {
-                    withHomeServerUri(Uri.parse(homeServerUrl))
-                }
 
                 identityServerUrl?.let {
                     withIdentityServerUri(Uri.parse(identityServerUrl))

@@ -2281,7 +2281,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
         // Retrieve the first identity server url by removing it from the list.
         String selectedUrl = identityServerUrls.remove(0);
-        TchapRestClient tchapRestClient = new TchapRestClient(HomeServerConnectionConfigFactoryKt.createHomeServerConnectionConfig(null, selectedUrl));
+        TchapRestClient tchapRestClient = new TchapRestClient(HomeServerConnectionConfigFactoryKt.createHomeServerConnectionConfig(selectedUrl, selectedUrl));
         tchapRestClient.info(emailAddress, ThreePid.MEDIUM_EMAIL, new ApiCallback<Platform>() {
             @Override
             public void onSuccess(Platform platform) {

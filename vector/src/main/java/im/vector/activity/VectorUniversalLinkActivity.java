@@ -131,7 +131,7 @@ public class VectorUniversalLinkActivity extends VectorAppCompatActivity {
 
         String ISUrl = uri.getScheme() + "://" + uri.getHost();
 
-        final HomeServerConnectionConfig homeServerConfig = HomeServerConnectionConfigFactoryKt.createHomeServerConnectionConfig(null, ISUrl);
+        final HomeServerConnectionConfig homeServerConfig = HomeServerConnectionConfigFactoryKt.createHomeServerConnectionConfig(ISUrl, ISUrl);
 
         String token = aMapParams.get(VectorRegistrationReceiver.KEY_MAIL_VALIDATION_TOKEN);
         String clientSecret = aMapParams.get(VectorRegistrationReceiver.KEY_MAIL_VALIDATION_CLIENT_SECRET);
