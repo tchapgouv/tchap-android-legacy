@@ -208,7 +208,7 @@ public class VectorApp extends MultiDexApplication {
         }
 
         // init the REST client
-        MXSession.initUserAgent(this);
+        MXSession.initUserAgent(this, BuildConfig.FLAVOR);
 
         instance = this;
         mCallsManager = new CallsManager(this);

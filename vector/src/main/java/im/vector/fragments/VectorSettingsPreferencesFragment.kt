@@ -1436,8 +1436,6 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
             u1.toLowerCase(VectorApp.getApplicationLocale()).compareTo(u2.toLowerCase(VectorApp.getApplicationLocale()))
         })
 
-        val preferenceScreen = preferenceScreen
-
         preferenceScreen.removePreference(mIgnoredUserSettingsCategory)
         preferenceScreen.removePreference(mIgnoredUserSettingsCategoryDivider)
         mIgnoredUserSettingsCategory.removeAll()

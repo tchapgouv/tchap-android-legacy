@@ -493,7 +493,7 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
             case ITEM_ACTION_KICK:
                 if (null != mRoom) {
                     enableProgressBarView(CommonActivityUtils.UTILS_DISPLAY_PROGRESS_BAR);
-                    mRoom.kick(mRoomMember.getUserId(), mRoomActionsListener);
+                    mRoom.kick(mRoomMember.getUserId(), "TODO: to replace after merge from Riot", mRoomActionsListener);
                     Log.d(LOG_TAG, "## performItemAction(): Kick");
                 }
                 break;

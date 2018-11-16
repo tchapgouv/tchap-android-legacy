@@ -735,7 +735,7 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
 
         mProgressView.setVisibility(View.VISIBLE);
 
-        mRoom.kick(userIds.get(index), new ApiCallback<Void>() {
+        mRoom.kick(userIds.get(index), "TODO: to replace after merge from Riot", new ApiCallback<Void>() {
                     private void kickNext() {
                         kickUsers(userIds, index + 1);
                     }
