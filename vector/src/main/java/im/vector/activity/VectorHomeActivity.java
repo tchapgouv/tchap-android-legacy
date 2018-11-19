@@ -545,7 +545,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
         MyPresenceManager.advertiseAllOnline();
 
         // Broadcast receiver to stop waiting screen
-        registerReceiver(mBrdRcvStopWaitingView, new IntentFilter(BROADCAST_ACTION_STOP_WAITING_VIEW));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mBrdRcvStopWaitingView, new IntentFilter(BROADCAST_ACTION_STOP_WAITING_VIEW));
 
         Intent intent = getIntent();
 
@@ -836,7 +836,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
         resetFilter();
 
         try {
-            unregisterReceiver(mBrdRcvStopWaitingView);
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(mBrdRcvStopWaitingView);
         } catch (Exception e) {
             Log.e(LOG_TAG, "## onPause() : unregisterReceiver fails " + e.getMessage(), e);
         }
