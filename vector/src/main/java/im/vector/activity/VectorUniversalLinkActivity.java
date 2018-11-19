@@ -21,8 +21,10 @@ import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Build;
+import android.os.PatternMatcher;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.widget.Toast;
@@ -50,6 +52,9 @@ import im.vector.receiver.VectorUniversalLinkReceiver;
 public class VectorUniversalLinkActivity extends VectorAppCompatActivity {
     private static final String LOG_TAG = VectorUniversalLinkActivity.class.getSimpleName();
 
+    private final VectorRegistrationReceiver mRegistrationReceiver = new VectorRegistrationReceiver();
+    private final VectorUniversalLinkReceiver mUniversalLinkReceiver = new VectorUniversalLinkReceiver();
+
     @Override
     public int getLayoutRes() {
         // display a spinner while binding the email
@@ -57,7 +62,28 @@ public class VectorUniversalLinkActivity extends VectorAppCompatActivity {
     }
 
     @Override
-    public void initUiAndData() {
+    protected void onResume() {
+        super.onResume();
+
+        // Register the registration receiver to the local broadcast manager.
+        IntentFilter intentFilter = new IntentFilter(VectorRegistrationReceiver.BROADCAST_ACTION_REGISTRATION);
+        intentFilter.addDataScheme("http");
+        intentFilter.addDataScheme("https");
+        intentFilter.addDataAuthority("*.tchap.gouv.fr", null);
+        intentFilter.addDataPath("/_matrix/", PatternMatcher.PATTERN_PREFIX);
+        LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationReceiver, intentFilter);
+
+        // Register the universal link receiver to the local broadcast manager.
+        intentFilter = new IntentFilter(VectorUniversalLinkReceiver.BROADCAST_ACTION_UNIVERSAL_LINK);
+        intentFilter.addDataScheme("http");
+        intentFilter.addDataScheme("https");
+        intentFilter.addDataAuthority("www.tchap.gouv.fr", null);
+        intentFilter.addDataPath("/alphatest/", PatternMatcher.PATTERN_PREFIX);
+        intentFilter.addDataPath("/app/", PatternMatcher.PATTERN_PREFIX);
+        intentFilter.addDataPath("/develop/", PatternMatcher.PATTERN_PREFIX);
+        intentFilter.addDataPath("/staging/", PatternMatcher.PATTERN_PREFIX);
+        LocalBroadcastManager.getInstance(this).registerReceiver(mUniversalLinkReceiver, intentFilter);
+
         String intentAction = VectorUniversalLinkReceiver.BROADCAST_ACTION_UNIVERSAL_LINK;
 
         try {
@@ -118,6 +144,14 @@ public class VectorUniversalLinkActivity extends VectorAppCompatActivity {
             LocalBroadcastManager.getInstance(this).sendBroadcast(myBroadcastIntent);
             finish();
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mUniversalLinkReceiver);
     }
 
     /**

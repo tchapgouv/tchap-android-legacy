@@ -34,11 +34,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.PatternMatcher;
 import android.preference.PreferenceManager;
 import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
-import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Pair;
 
@@ -74,8 +72,6 @@ import im.vector.analytics.e2e.DecryptionFailureTracker;
 import im.vector.contacts.ContactsManager;
 import im.vector.contacts.PIDsRetriever;
 import im.vector.gcm.GcmRegistrationManager;
-import im.vector.receiver.VectorRegistrationReceiver;
-import im.vector.receiver.VectorUniversalLinkReceiver;
 import im.vector.services.EventStreamService;
 import im.vector.settings.FontScale;
 import im.vector.util.CallsManager;
@@ -187,9 +183,6 @@ public class VectorApp extends MultiDexApplication {
             }
         }
     };
-
-    private final VectorRegistrationReceiver mRegistrationReceiver = new VectorRegistrationReceiver();
-    private final VectorUniversalLinkReceiver mUniversalLinkReceiver = new VectorUniversalLinkReceiver();
 
     @Override
     protected void attachBaseContext(Context base) {
@@ -358,27 +351,6 @@ public class VectorApp extends MultiDexApplication {
         // or screen rotation !
         registerReceiver(mLanguageReceiver, new IntentFilter(Intent.ACTION_LOCALE_CHANGED));
         registerReceiver(mLanguageReceiver, new IntentFilter(Intent.ACTION_CONFIGURATION_CHANGED));
-
-        // Register the registration receiver to the local broadcast manager.
-        IntentFilter intentFilter = new IntentFilter(VectorRegistrationReceiver.BROADCAST_ACTION_REGISTRATION);
-        intentFilter.addDataScheme("http");
-        intentFilter.addDataScheme("https");
-        intentFilter.addDataAuthority("*.tchap.gouv.fr", null);
-        intentFilter.addDataPath("/_matrix/", PatternMatcher.PATTERN_PREFIX);
-        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mRegistrationReceiver, intentFilter);
-
-        // Register the universal link receiver to the local broadcast manager.
-        intentFilter = new IntentFilter(VectorUniversalLinkReceiver.BROADCAST_ACTION_UNIVERSAL_LINK);
-        intentFilter.addDataScheme("http");
-        intentFilter.addDataScheme("https");
-        intentFilter.addDataAuthority("www.tchap.gouv.fr", null);
-        intentFilter.addDataPath("/alphatest/", PatternMatcher.PATTERN_PREFIX);
-        intentFilter.addDataPath("/app/", PatternMatcher.PATTERN_PREFIX);
-        intentFilter.addDataPath("/develop/", PatternMatcher.PATTERN_PREFIX);
-        intentFilter.addDataPath("/staging/", PatternMatcher.PATTERN_PREFIX);
-        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mUniversalLinkReceiver, intentFilter);
-        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mUniversalLinkReceiver, new IntentFilter(VectorUniversalLinkReceiver.BROADCAST_ACTION_UNIVERSAL_LINK_RESUME));
-        // TODO add here "matrix.to" handling
 
         PreferencesManager.fixMigrationIssues(this);
         initApplicationLocale();

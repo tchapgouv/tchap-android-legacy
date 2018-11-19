@@ -273,6 +273,8 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
         }
     };
 
+    private final VectorUniversalLinkReceiver mUniversalLinkReceiver = new VectorUniversalLinkReceiver();
+
     private FragmentManager mFragmentManager;
 
     // The current item selected (top navigation)
@@ -537,6 +539,9 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
     @Override
     protected void onResume() {
         super.onResume();
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(mUniversalLinkReceiver,
+                new IntentFilter(VectorUniversalLinkReceiver.BROADCAST_ACTION_UNIVERSAL_LINK_RESUME));
 
         securityChecks.checkOnActivityStart();
         applyScreenshotSecurity();
@@ -827,6 +832,8 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
     @Override
     protected void onPause() {
         super.onPause();
+
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mUniversalLinkReceiver);
 
         securityChecks.activityStopped();
 
