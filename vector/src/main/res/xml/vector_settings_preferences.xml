@@ -22,6 +22,11 @@
             android:summary="@string/password_hint"
             android:title="@string/settings_change_password" />
 
+        <im.vector.preference.VectorSwitchPreference
+            android:key="SETTINGS_HIDE_FROM_USERS_DIRECTORY_KEY"
+            android:title="@string/settings_hide_from_users_directory_title"
+            android:summary="@string/settings_hide_from_users_directory_summary" />
+
     </PreferenceCategory>
 
     <im.vector.preference.VectorDividerCategory />

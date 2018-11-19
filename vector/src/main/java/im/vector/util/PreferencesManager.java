@@ -152,6 +152,8 @@ public class PreferencesManager {
     public static final String SETTINGS_DETECT_ACCESSIBILITY_SERVICE_KEY = "SETTINGS_DETECT_ACCESSIBILITY_SERVICE_KEY";
     public static final String SETTINGS_DETECT_NOTIFICATION_LISTENER_KEY = "SETTINGS_DETECT_NOTIFICATION_LISTENER_KEY";
 
+    public static final String SETTINGS_HIDE_FROM_USERS_DIRECTORY_KEY = "SETTINGS_HIDE_FROM_USERS_DIRECTORY_KEY";
+
     private static final int MEDIA_SAVING_3_DAYS = 0;
     private static final int MEDIA_SAVING_1_WEEK = 1;
     private static final int MEDIA_SAVING_1_MONTH = 2;

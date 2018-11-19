@@ -603,6 +603,9 @@ Pour continuer, veuillez saisir votre mot de passe.</string>
 
 Veuillez noter que cette action redémarrera l\'application et pourra prendre un certain temps.</string>
 
+    <string name="settings_hide_from_users_directory_title">Inscrire mon compte sur liste rouge</string>
+    <string name="settings_hide_from_users_directory_summary">Les autres utilisateurs ne pourront pas découvrir mon compte lors de leurs recherches</string>
+
     <string name="settings_delete_notification_targets_confirmation">Voulez-vous vraiment supprimer cette cible de notification ?</string>
 
     <string name="settings_delete_threepid_confirmation">Voulez-vous vraiment supprimer le %1$s %2$s ?</string>
