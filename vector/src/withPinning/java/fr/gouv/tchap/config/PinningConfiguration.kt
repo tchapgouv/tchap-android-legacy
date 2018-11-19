@@ -21,6 +21,4 @@ const val ENABLE_CERTIFICATE_PINNING = true
 
 // Put the list of fingerprint here.
 // Example of value: "07:89:7A:A0:30:82:99:95:E6:17:5D:1F:34:5D:8D:0C:67:82:63:1C:1F:57:20:75:42:91:F7:8B:28:03:54:A2"
-val CERTIFICATE_FINGERPRINT_LIST = listOf(
-        // matrix.org certificate for test
-        "07:89:7A:A0:30:82:99:95:E6:17:5D:1F:34:5D:8D:0C:67:82:63:1C:1F:57:20:75:42:91:F7:8B:28:03:54:A2")
+val CERTIFICATE_FINGERPRINT_LIST = listOf<String>()
