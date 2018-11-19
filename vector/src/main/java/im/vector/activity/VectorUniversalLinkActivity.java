@@ -43,6 +43,7 @@ import java.util.Map;
 import java.util.Set;
 
 import fr.gouv.tchap.activity.TchapLoginActivity;
+import fr.gouv.tchap.util.HomeServerConnectionConfigFactoryKt;
 import im.vector.LoginHandler;
 import im.vector.Matrix;
 import im.vector.R;
@@ -161,11 +162,7 @@ public class VectorUniversalLinkActivity extends VectorAppCompatActivity {
 
         String ISUrl = uri.getScheme() + "://" + uri.getHost();
 
-        final HomeServerConnectionConfig homeServerConfig = new HomeServerConnectionConfig.Builder()
-                .withHomeServerUri(Uri.parse(ISUrl))
-                .withIdentityServerUri(Uri.parse(ISUrl))
-                .withTlsLimitations(true, Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT)
-                .build();
+        final HomeServerConnectionConfig homeServerConfig = HomeServerConnectionConfigFactoryKt.createHomeServerConnectionConfig(ISUrl, ISUrl);
 
         String token = aMapParams.get(KEY_MAIL_VALIDATION_TOKEN);
         String clientSecret = aMapParams.get(KEY_MAIL_VALIDATION_CLIENT_SECRET);

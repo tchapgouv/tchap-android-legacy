@@ -74,6 +74,7 @@ import butterknife.BindView;
 import butterknife.OnClick;
 import fr.gouv.tchap.sdk.rest.client.TchapRestClient;
 import fr.gouv.tchap.sdk.rest.model.Platform;
+import fr.gouv.tchap.util.HomeServerConnectionConfigFactoryKt;
 import im.vector.LoginHandler;
 import im.vector.Matrix;
 import im.vector.R;
@@ -1125,11 +1126,9 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
      * @param aHomeServer     home server url
      */
     private void submitEmailToken(final String aToken, final String aClientSecret, final String aSid, final String aSessionId, final String aHomeServer, final String aIdentityServer) {
-        final HomeServerConnectionConfig homeServerConfig = mServerConfig = new HomeServerConnectionConfig.Builder()
-                .withHomeServerUri(Uri.parse(aHomeServer))
-                .withIdentityServerUri(Uri.parse(aIdentityServer))
-                .withTlsLimitations(true, Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT)
-                .build();
+        final HomeServerConnectionConfig homeServerConfig
+                = mServerConfig
+                = HomeServerConnectionConfigFactoryKt.createHomeServerConnectionConfig(aHomeServer, aIdentityServer);
         RegistrationManager.getInstance().setHsConfig(homeServerConfig);
         Log.d(LOG_TAG, "## submitEmailToken(): IN");
 
@@ -1794,11 +1793,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     private HomeServerConnectionConfig getHsConfig() {
         try {
             mServerConfig = null;
-            mServerConfig = new HomeServerConnectionConfig.Builder()
-                    .withHomeServerUri(Uri.parse(getHomeServerUrl()))
-                    .withIdentityServerUri(Uri.parse(getIdentityServerUrl()))
-                    .withTlsLimitations(true, Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT)
-                    .build();
+            mServerConfig = HomeServerConnectionConfigFactoryKt.createHomeServerConnectionConfig(getHomeServerUrl(), getIdentityServerUrl());
         } catch (Exception e) {
             Log.e(LOG_TAG, "getHsConfig fails " + e.getLocalizedMessage());
         }
@@ -2286,11 +2281,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
         // Retrieve the first identity server url by removing it from the list.
         String selectedUrl = identityServerUrls.remove(0);
-        TchapRestClient tchapRestClient = new TchapRestClient(new HomeServerConnectionConfig.Builder()
-                .withHomeServerUri(Uri.parse(selectedUrl))
-                .withIdentityServerUri(Uri.parse(selectedUrl))
-                .withTlsLimitations(true, Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT)
-                .build());
+        TchapRestClient tchapRestClient = new TchapRestClient(HomeServerConnectionConfigFactoryKt.createHomeServerConnectionConfig(selectedUrl, selectedUrl));
         tchapRestClient.info(emailAddress, ThreePid.MEDIUM_EMAIL, new ApiCallback<Platform>() {
             @Override
             public void onSuccess(Platform platform) {

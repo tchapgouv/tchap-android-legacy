@@ -39,7 +39,7 @@ android {
         vectorDrawables.useSupportLibrary = true
 
         // custom values
-        resValue "string", "bug_report_url",  "https://riot.im/bugreports/submit"
+        resValue "string", "bug_report_url", "https://riot.im/bugreports/submit"
 
         ndk {
             // abiFilters "arm64-v8a", "armeabi-v7a", "x86"
@@ -99,9 +99,10 @@ android {
         }
     }
 
-    // The base dimension permits to deal with GooglePlay/Fdroid app
-    // The voip flavor dimension permits to include/exclude jitsi at compilation time
-    flavorDimensions "base", "voip"
+    // The 'base' dimension permits to deal with GooglePlay/Fdroid app
+    // The 'voip' flavor dimension permits to include/exclude jitsi at compilation time
+    // The 'pinning' flavor dimension permits to enable/disable certificate pinning with fingerprint check
+    flavorDimensions "base", "voip", "pinning"
 
     productFlavors {
         app {
@@ -132,6 +133,14 @@ android {
 
         withoutVoip {
             dimension "voip"
+        }
+
+        withPinning {
+            dimension "pinning"
+        }
+
+        withoutPinning {
+            dimension "pinning"
         }
     }
 
@@ -251,7 +260,6 @@ dependencies {
     withVoipImplementation(name: 'react-native-webrtc', ext: 'aar')
     withVoipImplementation(name: 'react-native', ext: 'aar')
     withVoipImplementation(name: 'react-native-locale-detector', ext: 'aar')
-
 
     // another tracking than GA
     implementation 'org.piwik.sdk:piwik-sdk:2.0.0'

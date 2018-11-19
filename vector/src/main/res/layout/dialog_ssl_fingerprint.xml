@@ -25,7 +25,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="6dp"
-            android:text="@string/ssl_cert_new_account_expl" />
+            android:text="@string/ssl_cert_new_account_expl"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/ssl_user_id"
@@ -52,7 +53,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="6dp"
-            android:text="@string/ssl_only_accept" />
+            android:text="@string/ssl_only_accept"
+            android:visibility="gone" />
 
     </LinearLayout>
 

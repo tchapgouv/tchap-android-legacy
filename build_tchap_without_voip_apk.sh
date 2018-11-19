@@ -2,9 +2,9 @@
 rm *.apk
 ./gradlew clean 
 
-./gradlew lintAppWithoutVoipRelease assembleAppWithoutVoipMatrixorg
-./gradlew lintAppfdroidWithoutVoipRelease assembleAppfdroidWithoutVoipMatrixorg
+./gradlew lintAppWithoutVoipWithoutPinningRelease assembleAppWithoutVoipWithoutPinningMatrixorg
+./gradlew lintAppfdroidWithoutVoipWithoutPinningRelease assembleAppfdroidWithoutVoipWithoutPinningMatrixorg
 
 #cp resulting apk
-cp vector/build/outputs/apk/appWithoutVoip/matrixorg/vector-app-withoutVoip-matrixorg.apk ./tchapWithoutVoipGooglePlay.apk
-cp vector/build/outputs/apk/appfdroidWithoutVoip/matrixorg/vector-appfdroid-withoutVoip-matrixorg.apk ./tchapWithoutVoipFDroid.apk
+cp vector/build/outputs/apk/appWithoutVoip/matrixorg/vector-app-withoutVoip-withoutPinning-matrixorg.apk ./tchapWithoutVoipWithoutPinningGooglePlay.apk
+cp vector/build/outputs/apk/appfdroidWithoutVoip/matrixorg/vector-appfdroid-withoutVoip-withoutPinning-matrixorg.apk ./tchapWithoutVoipWithoutPinningFDroid.apk
