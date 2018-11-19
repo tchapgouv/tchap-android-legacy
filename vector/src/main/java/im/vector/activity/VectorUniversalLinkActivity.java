@@ -22,7 +22,6 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.widget.Toast;
@@ -37,6 +36,7 @@ import org.matrix.androidsdk.util.Log;
 import java.util.List;
 import java.util.Map;
 
+import fr.gouv.tchap.util.HomeServerConnectionConfigFactoryKt;
 import im.vector.LoginHandler;
 import im.vector.Matrix;
 import im.vector.R;
@@ -131,11 +131,7 @@ public class VectorUniversalLinkActivity extends VectorAppCompatActivity {
 
         String ISUrl = uri.getScheme() + "://" + uri.getHost();
 
-        final HomeServerConnectionConfig homeServerConfig = new HomeServerConnectionConfig.Builder()
-                .withHomeServerUri(Uri.parse(ISUrl))
-                .withIdentityServerUri(Uri.parse(ISUrl))
-                .withTlsLimitations(true, Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT)
-                .build();
+        final HomeServerConnectionConfig homeServerConfig = HomeServerConnectionConfigFactoryKt.createHomeServerConnectionConfig(ISUrl, ISUrl);
 
         String token = aMapParams.get(VectorRegistrationReceiver.KEY_MAIL_VALIDATION_TOKEN);
         String clientSecret = aMapParams.get(VectorRegistrationReceiver.KEY_MAIL_VALIDATION_CLIENT_SECRET);

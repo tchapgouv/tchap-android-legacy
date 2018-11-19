@@ -17,16 +17,14 @@
 package im.vector.widgets;
 
 import android.content.Context;
-import android.net.Uri;
-import android.os.Build;
 
-import org.matrix.androidsdk.HomeServerConnectionConfig;
 import org.matrix.androidsdk.RestClient;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.callback.RestAdapterCallback;
 
 import java.util.Map;
 
+import fr.gouv.tchap.util.HomeServerConnectionConfigFactoryKt;
 import im.vector.R;
 
 class WidgetsRestClient extends RestClient<WidgetsApi> {
@@ -34,10 +32,7 @@ class WidgetsRestClient extends RestClient<WidgetsApi> {
      * {@inheritDoc}
      */
     public WidgetsRestClient(Context context) {
-        super(new HomeServerConnectionConfig.Builder()
-                        .withHomeServerUri(Uri.parse(context.getString(R.string.integrations_rest_url)))
-                        .withTlsLimitations(true, Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT)
-                        .build(),
+        super(HomeServerConnectionConfigFactoryKt.createHomeServerConnectionConfig(context.getString(R.string.integrations_rest_url), null),
                 WidgetsApi.class,
                 "api/",
                 false);
