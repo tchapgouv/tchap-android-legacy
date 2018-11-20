@@ -30,12 +30,10 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.preference.*
-import android.provider.Settings
 import android.support.design.widget.TextInputEditText
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.text.Editable
-import android.text.InputType
 import android.text.TextUtils
 import android.text.TextWatcher
 import android.view.KeyEvent
@@ -73,7 +71,6 @@ import org.matrix.androidsdk.rest.callback.ApiCallback
 import org.matrix.androidsdk.rest.callback.SimpleApiCallback
 import org.matrix.androidsdk.rest.model.MatrixError
 import org.matrix.androidsdk.rest.model.bingrules.BingRule
-import org.matrix.androidsdk.rest.model.group.Group
 import org.matrix.androidsdk.rest.model.pid.ThirdPartyIdentifier
 import org.matrix.androidsdk.rest.model.pid.ThreePid
 import org.matrix.androidsdk.rest.model.sync.DeviceInfo
@@ -84,6 +81,7 @@ import org.matrix.androidsdk.util.ResourceUtils
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.HashMap
 
 // TODO Extend PreferenceFragmentCompat() from support-v7
 class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreferences.OnSharedPreferenceChangeListener {
@@ -107,6 +105,10 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
             }
 
             refreshDisplay()
+        }
+
+        override fun onAccountDataUpdated() {
+            refreshUsersDirectoryVisibility()
         }
     }
 
@@ -193,7 +195,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
         // ? Cause it can be removed
         findPreference(PreferencesManager.SETTINGS_SET_SYNC_DELAY_PREFERENCE_KEY) as EditTextPreference?
     }
-//    private val mLabsCategory by lazy {
+    //    private val mLabsCategory by lazy {
 //        findPreference(PreferencesManager.SETTINGS_LABS_PREFERENCE_KEY) as PreferenceCategory
 //    }
     private val backgroundSyncCategory by lazy {
@@ -214,7 +216,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
     private val mNotificationPrivacyPreference by lazy {
         findPreference(PreferencesManager.SETTINGS_NOTIFICATION_PRIVACY_PREFERENCE_KEY)
     }
-//    private val selectedLanguagePreference by lazy {
+    //    private val selectedLanguagePreference by lazy {
 //        findPreference(PreferencesManager.SETTINGS_INTERFACE_LANGUAGE_PREFERENCE_KEY) as VectorCustomActionEditTextPreference
 //    }
     private val textSizePreference by lazy {
@@ -242,6 +244,10 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 //    private val sendToUnverifiedDevicesPref by lazy {
 //        findPreference(PreferencesManager.SETTINGS_ENCRYPTION_NEVER_SENT_TO_PREFERENCE_KEY) as CheckBoxPreference
 //    }
+
+    private val hideFromUsersDirectoryPreference by lazy {
+        findPreference(PreferencesManager.SETTINGS_HIDE_FROM_USERS_DIRECTORY_KEY) as CheckBoxPreference
+    }
 
     /* ==========================================================================================
      * Life cycle
@@ -804,6 +810,22 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
             startActivity(DeactivateAccountActivity.getIntent(activity))
 
             false
+        }
+
+        // User directory visibility
+        hideFromUsersDirectoryPreference.let {
+            // Show this preference if HS is protected
+            if (isHomeServerProtected()) {
+                refreshUsersDirectoryVisibility()
+
+                it.onPreferenceClickListener = Preference.OnPreferenceClickListener { _ ->
+                    hideUserFromUsersDirectory(hideFromUsersDirectoryPreference.isChecked)
+
+                    true
+                }
+            } else {
+                mUserSettingsCategory.removePreference(it)
+            }
         }
     }
 
@@ -1435,8 +1457,6 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
         ignoredUsersList.sortWith(Comparator { u1, u2 ->
             u1.toLowerCase(VectorApp.getApplicationLocale()).compareTo(u2.toLowerCase(VectorApp.getApplicationLocale()))
         })
-
-        val preferenceScreen = preferenceScreen
 
         preferenceScreen.removePreference(mIgnoredUserSettingsCategory)
         preferenceScreen.removePreference(mIgnoredUserSettingsCategoryDivider)
@@ -2740,6 +2760,62 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 //            refreshCryptographyPreference(mMyDeviceInfo)
 //        }
 //    }
+
+    /* ==========================================================================================
+     * User directory visibility
+     * ========================================================================================== */
+
+    private fun isHomeServerProtected(): Boolean {
+        // TODO replace by correct code.
+        return true
+    }
+
+    private fun refreshUsersDirectoryVisibility() {
+        hideFromUsersDirectoryPreference.isChecked = mSession.dataHandler
+                ?.store
+                ?.getAccountDataElement("im.vector.hide_profile")
+                ?.content
+                ?.get("hide_profile") as Boolean? == true
+    }
+
+    private fun hideUserFromUsersDirectory(hidden: Boolean) {
+        displayLoadingView()
+
+        mSession.accountDataRestClient.setAccountData(mSession.myUserId,
+                "im.vector.hide_profile",
+                HashMap<String, Boolean>().apply {
+                    put("hide_profile", hidden)
+                },
+                object : ApiCallback<Void> {
+                    override fun onSuccess(info: Void?) {
+                        hideLoadingView()
+                    }
+
+                    override fun onMatrixError(e: MatrixError) {
+                        // Restore previous value
+                        hideFromUsersDirectoryPreference.isChecked = !hidden
+
+                        hideLoadingView()
+                        activity?.toast(e.localizedMessage)
+                    }
+
+                    override fun onNetworkError(e: Exception) {
+                        // Restore previous value
+                        hideFromUsersDirectoryPreference.isChecked = !hidden
+
+                        hideLoadingView()
+                        activity?.toast(e.localizedMessage)
+                    }
+
+                    override fun onUnexpectedError(e: Exception) {
+                        // Restore previous value
+                        hideFromUsersDirectoryPreference.isChecked = !hidden
+
+                        hideLoadingView()
+                        activity?.toast(e.localizedMessage)
+                    }
+                })
+    }
 
     /* ==========================================================================================
      * Companion

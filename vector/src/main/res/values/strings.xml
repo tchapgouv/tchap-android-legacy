@@ -720,6 +720,9 @@
     <string name="settings_password_updated">Your password has been updated</string>
     <string name="settings_unignore_user">Show all messages from %s?\n\nNote that this action will restart the app and it may take some time.</string>
 
+    <string name="settings_hide_from_users_directory_title">Subscribe to the red list.</string>
+    <string name="settings_hide_from_users_directory_summary">"Other users won't be able to find my account in their search results."</string>
+
     <string name="settings_delete_notification_targets_confirmation">Are you sure you want to remove this notification target?</string>
 
     <string name="settings_delete_threepid_confirmation">Are you sure you want to remove the %1$s %2$s?</string>

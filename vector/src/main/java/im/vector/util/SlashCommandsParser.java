@@ -270,7 +270,7 @@ public class SlashCommandsParser {
                 isIRCCmd = true;
 
                 if (messageParts.length >= 2) {
-                    room.kick(messageParts[1], callback);
+                    room.kick(messageParts[1], "TODO: to replace after merge from Riot", callback);
                 }
             } else if (TextUtils.equals(firstPart, SlashCommand.BAN_USER.getCommand())) {
                 isIRCCmd = true;
