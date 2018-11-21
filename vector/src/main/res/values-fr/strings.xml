@@ -835,7 +835,7 @@ Appareils inconnus :</string>
     <string name="tchap_send_invite_network_error">Impossible d\'envoyer une invitation: erreur réseau</string>
     <string name="tchap_send_invite_confirmation">Vous recevrez une notification lorsque \n votre invité rejoindra la communauté Tchap</string>
     <plurals name="tchap_succes_invite__notification">
-        <item quantity="one">1 invitation a bien été envoyée.</item>
+        <item quantity="one">%d invitation a bien été envoyée.</item>
         <item quantity="other">%d invitations ont bien été envoyées.</item>
     </plurals>
     <string name="tchap_burger_menu_contacts">Contacts</string>

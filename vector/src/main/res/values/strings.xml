@@ -1045,7 +1045,7 @@
     <string name="tchap_send_invite_network_error">Unable to send invite: Network error</string>
     <string name="tchap_send_invite_confirmation">You will receive a notification when \n your guest joins the Tchap community</string>
     <plurals name="tchap_succes_invite__notification">
-        <item quantity="one">1 invitation has been sent.</item>
+        <item quantity="one">%d invitation has been sent.</item>
         <item quantity="other">%d invitations have been sent.</item>
     </plurals>
     <string name="tchap_burger_menu_contacts">Contacts</string>
