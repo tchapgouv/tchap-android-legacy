@@ -76,11 +76,10 @@
                     <RelativeLayout
                         android:id="@+id/messagesAdapter_media_layout"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="right">
+                        android:layout_height="wrap_content">
 
                         <LinearLayout
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal">
 
@@ -101,9 +100,9 @@
                                     android:id="@+id/messagesAdapter_media_scan_icon"
                                     android:layout_width="@dimen/chat_avatar_size"
                                     android:layout_height="@dimen/chat_avatar_size"
-                                    android:layout_gravity="center"
-                                    android:paddingTop="10dp"
+                                    android:layout_gravity="center_horizontal"
                                     android:paddingLeft="5dp"
+                                    android:paddingTop="10dp"
                                     android:paddingRight="5dp"
                                     android:paddingBottom="10dp"
                                     android:src="@drawable/tchap_scanning" />
@@ -112,12 +111,12 @@
                                     android:id="@+id/messagesAdapter_media_scan_text"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_gravity="center"
+                                    android:layout_gravity="center_horizontal"
                                     android:layout_marginLeft="5dp"
                                     android:layout_marginRight="5dp"
                                     android:layout_marginBottom="5dp"
-                                    android:textSize="10sp"
                                     android:autoLink="none"
+                                    android:textSize="10sp"
                                     tools:text="Analyse Antivirus" />
 
                             </LinearLayout>
@@ -125,10 +124,9 @@
                             <!-- the file name -->
                             <TextView
                                 android:id="@+id/messagesAdapter_filename"
-                                android:layout_width="0dp"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:layout_gravity="center"
+                                android:layout_gravity="center_vertical"
                                 android:layout_marginLeft="10dp"
                                 android:autoLink="none"
                                 tools:text="A filename here" />

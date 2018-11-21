@@ -96,8 +96,7 @@
                         <RelativeLayout
                             android:id="@+id/messagesAdapter_image_layout"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="end">
+                            android:layout_height="wrap_content">
 
                             <!-- the media -->
                             <ImageView
@@ -107,7 +106,8 @@
                                 android:layout_marginStart="4dp"
                                 android:layout_marginLeft="4dp"
                                 android:adjustViewBounds="true"
-                                android:scaleType="center" />
+                                android:scaleType="center"
+                                tools:layout_width="200dp" />
 
                             <!-- the play icon -->
                             <ImageView

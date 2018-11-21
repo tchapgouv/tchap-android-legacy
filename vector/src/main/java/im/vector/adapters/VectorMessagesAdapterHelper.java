@@ -533,32 +533,6 @@ class VectorMessagesAdapterHelper {
     }
 
     /**
-     * Align the avatar and the message body according to the mergeView flag
-     *
-     * @param subView          the message body
-     * @param bodyLayoutView   the body layout
-     * @param avatarLayoutView the avatar layout
-     * @param isMergedView     true if the view is merged
-     */
-    static void alignSubviewToAvatarView(View subView, View bodyLayoutView, View avatarLayoutView, boolean isMergedView) {
-        ViewGroup.MarginLayoutParams bodyLayout = (ViewGroup.MarginLayoutParams) bodyLayoutView.getLayoutParams();
-        FrameLayout.LayoutParams subViewLinearLayout = (FrameLayout.LayoutParams) subView.getLayoutParams();
-
-        ViewGroup.LayoutParams avatarLayout = avatarLayoutView.getLayoutParams();
-        subViewLinearLayout.gravity = Gravity.START | Gravity.CENTER_VERTICAL;
-
-        if (isMergedView) {
-            bodyLayout.setMargins(avatarLayout.width, bodyLayout.topMargin, bodyLayout.rightMargin, bodyLayout.bottomMargin);
-        } else {
-            bodyLayout.setMargins(0, bodyLayout.topMargin, bodyLayout.rightMargin, bodyLayout.bottomMargin);
-        }
-        subView.setLayoutParams(bodyLayout);
-
-        bodyLayoutView.setLayoutParams(bodyLayout);
-        subView.setLayoutParams(subViewLinearLayout);
-    }
-
-    /**
      * Update the header text.
      *
      * @param convertView the convert view

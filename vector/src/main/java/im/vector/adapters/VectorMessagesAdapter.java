@@ -67,16 +67,15 @@ import org.matrix.androidsdk.db.MXMediasCache;
 import org.matrix.androidsdk.interfaces.HtmlToolbox;
 import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.rest.model.EventContent;
-import org.matrix.androidsdk.rest.model.crypto.EncryptedFileInfo;
 import org.matrix.androidsdk.rest.model.PowerLevels;
 import org.matrix.androidsdk.rest.model.RoomCreateContent;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.crypto.EncryptedEventContent;
+import org.matrix.androidsdk.rest.model.crypto.EncryptedFileInfo;
 import org.matrix.androidsdk.rest.model.message.FileMessage;
 import org.matrix.androidsdk.rest.model.message.ImageMessage;
 import org.matrix.androidsdk.rest.model.message.Message;
 import org.matrix.androidsdk.rest.model.message.StickerMessage;
-import org.matrix.androidsdk.rest.model.message.VideoMessage;
 import org.matrix.androidsdk.util.EventDisplay;
 import org.matrix.androidsdk.util.JsonUtils;
 import org.matrix.androidsdk.util.Log;
@@ -1181,11 +1180,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
         // Sender avatar
         View avatarLayoutView = mHelper.setSenderAvatar(convertView, row, isMergedView);
 
-        // if the messages are merged
-        // the thumbnail is hidden
-        // and the subview must be moved to be aligned with the previous body
         View bodyLayoutView = convertView.findViewById(R.id.messagesAdapter_body_layout);
-        VectorMessagesAdapterHelper.alignSubviewToAvatarView(subView, bodyLayoutView, avatarLayoutView, isMergedView);
 
         // messages separator
         View messageSeparatorView = convertView.findViewById(R.id.messagesAdapter_message_separator);
@@ -2235,7 +2230,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                     e2eIconView.setImageDrawable((Drawable) icon);
                 } else {
                     e2eIconView.setImageResource((int) icon);
-                    if ((int)icon == R.drawable.e2e_verified) {
+                    if ((int) icon == R.drawable.e2e_verified) {
                         e2eIconView.setImageDrawable(ThemeUtils.INSTANCE.tintDrawable(getContext(), e2eIconView.getDrawable(), R.attr.vctr_default_icon_tint_color));
                     }
                 }
