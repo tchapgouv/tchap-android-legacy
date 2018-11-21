@@ -41,6 +41,7 @@ import java.util.regex.Pattern;
 import im.vector.VectorApp;
 import im.vector.contacts.Contact;
 import im.vector.contacts.PIDsRetriever;
+import im.vector.settings.VectorLocale;
 import im.vector.util.VectorUtils;
 
 // Class representing a room participant.
@@ -139,11 +140,11 @@ public class ParticipantAdapterItem implements java.io.Serializable {
      */
     private void initSearchByPatternFields() {
         if (!TextUtils.isEmpty(mDisplayName)) {
-            mLowerCaseDisplayName = mDisplayName.toLowerCase(VectorApp.getApplicationLocale());
+            mLowerCaseDisplayName = mDisplayName.toLowerCase(VectorLocale.INSTANCE.getApplicationLocale());
         }
 
         if (!TextUtils.isEmpty(mUserId)) {
-            mLowerCaseMatrixId = mUserId.toLowerCase(VectorApp.getApplicationLocale());
+            mLowerCaseMatrixId = mUserId.toLowerCase(VectorLocale.INSTANCE.getApplicationLocale());
         }
     }
 
@@ -390,7 +391,7 @@ public class ParticipantAdapterItem implements java.io.Serializable {
 
                 if (componentsArrays.length > 0) {
                     for (int i = 0; i < componentsArrays.length; i++) {
-                        mDisplayNameComponents.add(componentsArrays[i].trim().toLowerCase(VectorApp.getApplicationLocale()));
+                        mDisplayNameComponents.add(componentsArrays[i].trim().toLowerCase(VectorLocale.INSTANCE.getApplicationLocale()));
                     }
                 }
             }
@@ -478,7 +479,7 @@ public class ParticipantAdapterItem implements java.io.Serializable {
         String displayname = mDisplayName;
 
         // for the matrix users, append the matrix id to see the difference
-        String lowerCaseDisplayname = displayname.toLowerCase(VectorApp.getApplicationLocale());
+        String lowerCaseDisplayname = displayname.toLowerCase(VectorLocale.INSTANCE.getApplicationLocale());
 
         // detect if the username is used by several users
         int pos = -1;

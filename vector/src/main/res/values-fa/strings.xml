@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources><string name="resources_language">fa</string>
+<resources>
+    <string name="resources_language">fa</string>
     <string name="resources_country_code">IR</string>
 
     <string name="light_theme">قالب روشن</string>
@@ -12,7 +13,7 @@
     <string name="title_activity_settings">تنظیمات</string>
     <string name="title_activity_member_details">جزئیات اعضا</string>
     <string name="title_activity_bug_report">گزارش اشکال</string>
-    <string name="loading">بارگذاری...</string>
+    <string name="loading">بارگذاری…</string>
 
     <string name="ok">باشه</string>
     <string name="cancel">انصراف</string>
@@ -59,7 +60,7 @@
     <string name="no_conversation_placeholder">هیچ مکالمه‌ای وجود ندارد</string>
     <string name="rooms_header">اتاق‌ها</string>
     <plurals name="public_room_nb_users">
-        <item quantity="one">1 کاربر</item>
+        <item quantity="one">%d کاربر</item>
         <item quantity="other">%d کاربر</item>
     </plurals>
 
@@ -128,4 +129,4 @@
     <string name="today">امروز</string>
 
     <string name="room_info_room_name">نام اتاق</string>
-    </resources>
+</resources>

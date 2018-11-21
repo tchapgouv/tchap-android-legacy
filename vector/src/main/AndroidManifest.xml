@@ -52,6 +52,7 @@
         android:largeHeap="true"
         android:logo="@drawable/logo_tchap_color"
         android:resizeableActivity="false"
+        android:supportsRtl="true"
         android:theme="@style/AppTheme.Light"
         tools:replace="allowBackup,label">
 
@@ -521,7 +522,7 @@
             android:name=".activity.NotificationPrivacyActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/settings_notification_privacy"
-            android:theme="@style/CountryPickerTheme.Light" />
+            android:theme="@style/AppTheme.NoActionBar.Light" />
         <activity
             android:name=".activity.VectorWebViewActivity"
             android:theme="@style/AppTheme.NoActionBar.Light" />

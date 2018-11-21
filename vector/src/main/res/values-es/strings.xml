@@ -20,7 +20,7 @@
     <string name="send">Enviar</string>
     <string name="copy">Copiar</string>
     <string name="resend">Reenviar</string>
-    <string name="redact">Redactar</string>
+    <string name="redact">Eliminar</string>
     <string name="quote">Citar</string>
     <string name="share">Compartir</string>
     <string name="later">Más Tarde</string>
@@ -375,7 +375,6 @@ Los mensajes cifrados no serán visibles en los clientes que aún no implementen
     <string name="room_delete_unsent_messages">Eliminar mensajes no enviados</string>
     <string name="room_message_file_not_found">Archivo no encontrado</string>
     <string name="room_do_not_have_permission_to_post">No tienes permiso para publicar en esta sala</string>
-    <string name="room_new_message_notification">1 mensaje nuevo</string>
 
     <!-- unrecognized SSL certificate -->
     <string name="ssl_trust">Confiar</string>
@@ -388,7 +387,7 @@ Los mensajes cifrados no serán visibles en los clientes que aún no implementen
     <string name="ssl_cert_new_account_expl">Si el administrador del servidor dijo que esto es de esperarse, asegúrate que la huella digital que se muestra a continuación coincide con la huella digital proporcionada por el administrador.</string>
     <string name="ssl_unexpected_existing_expl">El certificado cambió de uno que era confiable para tu teléfono. Esto es MUY INUSUAL. Se recomienda NO ACEPTAR este nuevo certificado.</string>
     <string name="ssl_expected_existing_expl">El certificado cambió de uno que era confiable a uno que no es confiable. El servidor puede haber renovado su certificado. Contacta al administrador del servidor para obtener la huella digital.</string>
-    <string name="ssl_only_accept">SOLO acepta el certificado si el administrador del servidor ha publicado una huella digital que coincide con la anterior.</string>
+    <string name="ssl_only_accept">Solo acepta el certificado si el administrador del servidor ha publicado una huella digital que coincide con la anterior.</string>
 
     <!-- Room Details -->
     <string name="room_details_title">Detalles de Sala</string>
@@ -457,8 +456,8 @@ Ten en cuenta que esta acción reiniciará la aplicación y puede tardar algo de
     <string name="settings_add_email_address">Añadir dirección de correo electrónico</string>
     <string name="settings_phone_number">Teléfono</string>
     <string name="settings_add_phone_number">Añadir número telefónico</string>
-    <string name="settings_summary_app_info_link">Pantalla de información del sistema de la aplicación</string>
-    <string name="settings_title_app_info_link">Información de la aplicación</string>
+    <string name="settings_app_info_link_summary">Pantalla de información del sistema de la aplicación</string>
+    <string name="settings_app_info_link_title">Información de la aplicación</string>
 
     <string name="settings_enable_all_notif">Habilitar notificaciones para esta cuenta</string>
     <string name="settings_enable_this_device">Habilitar notificaciones para este dispositivo</string>
@@ -507,7 +506,6 @@ Ten en cuenta que esta acción reiniciará la aplicación y puede tardar algo de
     <string name="devices_details_device_name">Nombre de Dispositivo</string>
     <string name="devices_details_last_seen_title">Visto por última vez</string>
     <string name="devices_details_last_seen_format">%1$s @ %2$s</string>
-    <string name="devices_details_time_format">HH:mm:ss</string>
     <string name="devices_delete_dialog_text">Esta operación requiere autenticación adicional.
 Para continuar, ingresa tu contraseña por favor.</string>
     <string name="devices_delete_dialog_title">Autenticación</string>
@@ -527,9 +525,9 @@ Para continuar, ingresa tu contraseña por favor.</string>
     <string name="account_phone_number_already_used_error">Este número telefónico ya está en uso</string>
 
     <string name="settings_change_password">Cambiar contraseña</string>
-    <string name="settings_old_password">contraseña anterior</string>
-    <string name="settings_new_password">contraseña nueva</string>
-    <string name="settings_confirm_password">confirmar contraseña</string>
+    <string name="settings_old_password">Contraseña anterior</string>
+    <string name="settings_new_password">Contraseña nueva</string>
+    <string name="settings_confirm_password">Confirmar contraseña</string>
     <string name="settings_fail_to_update_password">No se pudo actualizar la contraseña</string>
     <string name="settings_password_updated">Tu contraseña ha sido actualizada</string>
     <string name="settings_unignore_user">¿Mostrar todos los mensajes de %s?
@@ -565,10 +563,6 @@ Ten en cuenta que esta acción reiniciará la aplicación y puede tardar algo de
     <string name="room_settings_tag_pref_entry_favourite">Agregar a Favoritos</string>
     <string name="room_settings_tag_pref_entry_low_priority">Prioridad baja</string>
     <string name="room_settings_tag_pref_entry_none">Ninguno</string>
-    <string name="room_settings_tag_pref_no_tag">sin etiquetar</string>
-    <string name="room_settings_tag_pref_entry_value_favourite">agregar a favoritos</string>
-    <string name="room_settings_tag_pref_entry_value_low_priority">bajo</string>
-    <string name="room_settings_tag_pref_entry_value_none">ninguno</string>
 
     <!-- room settings : access and visibility -->
     <string name="room_settings_category_access_visibility_title">Acceso y visibilidad</string>
@@ -611,7 +605,7 @@ Ten en cuenta que esta acción reiniciará la aplicación y puede tardar algo de
 
     <string name="room_settings_addresses_invalid_format_dialog_title">Formato de alias inválido</string>
     <string name="room_settings_addresses_invalid_format_dialog_body">\'%s\' no es un formato de alias válido</string>
-    <string name="room_settings_addresses_disable_main_address_prompt_msg">No tendrás una dirección principal especificada. La dirección principal por defecto para esta sala se elegirá al azar</string>
+    <string name="room_settings_addresses_disable_main_address_prompt_msg">No tendrás una dirección principal especificada para esta sala.</string>
     <string name="room_settings_addresses_disable_main_address_prompt_title">Advertencias de la dirección principal</string>
 
     <string name="room_settings_set_main_address">Establecer como Dirección Principal</string>
@@ -690,9 +684,7 @@ Advertencia: este archivo puede ser eliminado si la aplicación se desinstala.</
 
     <string name="encryption_information_verify_device">Verificar dispositivo</string>
     <string name="encryption_information_verify_device_warning">Para verificar que este dispositivo es confiable, por favor contacta a su dueño por algún otro medio (ej. cara a cara o por teléfono) y pregúntale si la clave que ve en sus Ajustes de Usuario para este dispositivo coincide con la clave a continuación:</string>
-    <string name="encryption_information_verify_device_warning2">Si coincide, oprime el botón de verificar a continuación. 
-Si no coincide, entonces alguien más está interceptando este dispositivo y probablemente deberías prohibirlo.
-En el futuro, este proceso de verificación será más sofisticado.</string>
+    <string name="encryption_information_verify_device_warning2">Si coincide, oprime el botón de verificar a continuación. Si no coincide, entonces alguien más está interceptando este dispositivo y probablemente deberías prohibirlo. En el futuro, este proceso de verificación será más sofisticado.</string>
     <string name="encryption_information_verify_key_match">Verifico que las claves coinciden</string>
 
     <string name="e2e_enabling_on_app_update">Riot ahora admite cifrado de extremo a extremo pero debes volver a iniciar sesión para habilitarlo.
@@ -717,18 +709,15 @@ Dispositivos desconocidos:</string>
 
     <!-- historical -->
     <string name="historical_placeholder">Buscar históricos</string>
-<string name="settings_user_interface">Interfaz de usuario</string>
+    <string name="settings_user_interface">Interfaz de usuario</string>
     <string name="settings_interface_language">Idioma de la Interfaz</string>
     <string name="settings_select_language">Elige un idioma</string>
 
     <string name="settings_start_on_boot">Iniciar en el arranque</string>
-    <string name="settings_clear_medias_cache">Borrar caché de medios</string>
+    <string name="settings_clear_media_cache">Borrar caché de medios</string>
     <string name="settings_keep_media">Guardar medios</string>
 
-    <string name="settings_hide_read_receipts">Ocultar recibos de lectura</string>
-    <string name="settings_dont_send_typings_notifs">No enviar notificaciones de estar escribiendo</string>
     <string name="settings_always_show_timestamps">Siempre mostrar las marcas temporales de mensajes</string>
-    <string name="settings_disable_markdown">Deshabilitar el formato markdown cuando se envía</string>
 
     <string name="media_saving_period_3_days">3 días</string>
     <string name="media_saving_period_1_week">1 semana</string>
@@ -744,12 +733,12 @@ Dispositivos desconocidos:</string>
     <string name="normal">Normal</string>
     <string name="large">Grande</string>
     <string name="largest">Mayor</string>
-<string name="settings_theme">Tema</string>
+    <string name="settings_theme">Tema</string>
 
     <string name="tiny">Diminuto</string>
     <string name="larger">Más Grande</string>
     <string name="huge">Enorme</string>
-<string name="user_directory_header">Directorio de usuarios</string>
+    <string name="user_directory_header">Directorio de usuarios</string>
     <string name="people_search_user_directory">DIRECTORIO DE USUARIOS (%s)</string>
     <string name="light_theme">Tema Claro</string>
     <string name="dark_theme">Tema Oscuro</string>
@@ -772,13 +761,8 @@ Dispositivos desconocidos:</string>
     <string name="settings_containing_my_display_name">Mensajes que contienen mi nombre público</string>
     <string name="settings_containing_my_user_name">Mensajes que contienen mi nombre de usuario</string>
     <string name="settings_12_24_timestamps">Mostrar marcas temporales en formato de 12 horas (ej. 2:30pm)</string>
-    <string name="settings_hide_join_leave_messages">Ocultar mensajes de unirse/salir (no afecta a invitaciones/expulsiones/vetos)</string>
-    <string name="settings_hide_avatar_display_name_changes_messages">Ocultar cambios de avatar y nombre público</string>
 
     <string name="settings_analytics">Análisis de Estadísticas</string>
-    <string name="settings_opt_out_of_analytics">Darse de baja del análisis de estadísticas</string>
-    <string name="settings_opt_out_of_analytics_summary">Riot recopila análisis de estadísticas anónimas para permitirnos mejorar la aplicación.</string>
-
 
     <string name="widget_no_power_to_manage">Necesitas permiso para gestionar los componentes en esta sala</string>
     <string name="widget_creation_failure">La creación del componente falló</string>
@@ -796,7 +780,6 @@ Dispositivos desconocidos:</string>
     <string name="widget_integration_missing_room_id">Falta el room_id en la solicitud.</string>
     <string name="widget_integration_missing_user_id">Falta el user_id en la solicitud.</string>
     <string name="widget_integration_room_not_visible">La sala %s no está visible.</string>
-    <string name="settings_labs_matrix_apps">Aplicaciones de Matrix</string>
     <string name="room_add_matrix_apps">Añadir aplicaciones de Matrix</string>
     <string name="settings_labs_native_camera">Utilizar cámara nativa</string>
 
@@ -822,9 +805,9 @@ Dispositivos desconocidos:</string>
 
     <string name="encrypted_message">Mensaje cifrado</string>
 
-<string name="title_activity_group_details">Detalles de comunidad</string>
+    <string name="title_activity_group_details">Detalles de comunidad</string>
 
-    <string name="loading">Cargando...</string>
+    <string name="loading">Cargando…</string>
 
     <string name="action_exit">Salir</string>
     <string name="bottom_action_groups">Comunidades</string>
@@ -841,7 +824,6 @@ Dispositivos desconocidos:</string>
 
     <string name="groups_list">Lista de Grupos</string>
 
-    <string name="room_participants_kick_prompt_msg">¿Seguro que quieres expulsar a este usuario de esta conversación?</string>
     <string name="room_participants_ban_prompt_msg">¿Seguro que quieres vetar a este usuario de esta conversación?</string>
 
     <string name="room_settings_all_messages_noisy">Todos los mensajes (ruidoso)</string>
@@ -860,7 +842,7 @@ Dispositivos desconocidos:</string>
     <string name="room_settings_add_new_group">Nueva ID de comunidad (ej. +foo:matrix.org)</string>
     <string name="room_settings_invalid_group_format_dialog_title">ID de comunidad inválida</string>
     <string name="forget_room">Olvidar sala</string>
-<string name="rejoin">Volver a unirse</string>
+    <string name="rejoin">Volver a unirse</string>
     <string name="room_settings_invalid_group_format_dialog_body">\'%s\' no es una ID de comunidad válida</string>
 
 
@@ -892,52 +874,52 @@ Dispositivos desconocidos:</string>
 
     <string name="actions">Acciones</string>
     <string name="list_members">Listar miembros</string>
-    <string name="room_sync_in_progress">Sincronizando...</string>
+    <string name="room_sync_in_progress">Sincronizando…</string>
     <plurals name="room_title_members">
-	<item quantity="one">1 miembro</item>
-	<item quantity="other">%d miembros</item>
-</plurals>
+        <item quantity="one">1 miembro</item>
+        <item quantity="other">%d miembros</item>
+    </plurals>
     <plurals name="room_new_messages_notification">
-	<item quantity="one">1 mensaje nuevo</item>
-	<item quantity="other">%d mensajes nuevos</item>
-</plurals>
+        <item quantity="one">1 mensaje nuevo</item>
+        <item quantity="other">%d mensajes nuevos</item>
+    </plurals>
 
     <plurals name="directory_search_rooms">
-	<item quantity="one">1 sala</item>
-	<item quantity="other">%d salas</item>
-</plurals>
+        <item quantity="one">1 sala</item>
+        <item quantity="other">%d salas</item>
+    </plurals>
     <plurals name="directory_search_rooms_for">
-	<item quantity="one">%1$s sala encontrada para %2$s</item>
-	<item quantity="other">%1$s salas encontradas para %2$s</item>
-</plurals>
+        <item quantity="one">%1$s sala encontrada para %2$s</item>
+        <item quantity="other">%1$s salas encontradas para %2$s</item>
+    </plurals>
     <plurals name="notification_unread_notified_messages_in_room_rooms">
-	<item quantity="one">1 sala</item>
-	<item quantity="other">%d salas</item>
-</plurals>
+        <item quantity="one">1 sala</item>
+        <item quantity="other">%d salas</item>
+    </plurals>
     <plurals name="membership_changes">
-	<item quantity="one">1 cambio de membresía</item>
-	<item quantity="other">%d cambios de membresía</item>
-</plurals>
+        <item quantity="one">1 cambio de membresía</item>
+        <item quantity="other">%d cambios de membresía</item>
+    </plurals>
 
     <string name="open_chat_header">Abrir título</string>
     <plurals name="room_header_active_members_count">
-	<item quantity="one">1 miembro activo</item>
-	<item quantity="other">%d miembros activos</item>
-</plurals>
+        <item quantity="one">1 miembro activo</item>
+        <item quantity="other">%d miembros activos</item>
+    </plurals>
     <plurals name="notification_unread_notified_messages">
-	<item quantity="one">1 mensaje notificado sin leer</item>
-	<item quantity="other">%d mensajes notificados sin leer</item>
-</plurals>
+        <item quantity="one">1 mensaje notificado sin leer</item>
+        <item quantity="other">%d mensajes notificados sin leer</item>
+    </plurals>
     <plurals name="notification_unread_notified_messages_in_room_msgs">
-	<item quantity="one">1 mensaje notificado sin leer</item>
-	<item quantity="other">%d mensajes notificados sin leer</item>
-</plurals>
+        <item quantity="one">1 mensaje notificado sin leer</item>
+        <item quantity="other">%d mensajes notificados sin leer</item>
+    </plurals>
     <string name="notification_unread_notified_messages_in_room">%1$s en %2$s</string>
 
     <plurals name="active_widgets">
-	<item quantity="one">1 componente activo</item>
-	<item quantity="other">%d componentes activos</item>
-</plurals>
+        <item quantity="one">1 componente activo</item>
+        <item quantity="other">%d componentes activos</item>
+    </plurals>
 
     <!-- Widget Integration Manager -->
     <string name="title_activity_choose_sticker">Enviar una pegatina</string>
@@ -963,7 +945,7 @@ La visibilidad de mensajes en Matrix es similar a la del correo electrónico. Qu
     <string name="deactivate_account_prompt_password">Para continuar, ingresa tu contraseña por favor:</string>
     <string name="deactivate_account_submit">Desactivar Cuenta</string>
 
-<string name="settings_notification_privacy">Privacidad de notificaciones</string>
+    <string name="settings_notification_privacy">Privacidad de notificaciones</string>
     <string name="settings_notification_privacy_warning">Riot.im se ejecuta en segundo plano para mantener privado el contenido del mensaje de la notificación. Puedes cambiar esta opción para reducir el uso de la batería.</string>
     <string name="settings_notification_privacy_normal">Normal</string>
     <string name="settings_notification_privacy_power_saving">Opciones de Ahorro de Energía</string>
@@ -971,7 +953,7 @@ La visibilidad de mensajes en Matrix es similar a la del correo electrónico. Qu
     <string name="settings_notification_privacy_reduced">Privacidad reducida</string>
     <string name="settings_notification_privacy_need_permission">La aplicación necesita permiso para ejecutarse en segundo plano</string>
     <string name="settings_notification_privacy_no_permission">La aplicación <b> no </b> necesita permiso para ejecutarse en segundo plano</string>
-    <string name="settings_notification_privacy_gcm">• Las notificaciones se envían a través de Google Cloud Messaging</string>
+    <string name="settings_notification_privacy_fcm">• Las notificaciones se envían a través de Google Cloud Messaging</string>
     <string name="settings_notification_privacy_metadata">• Las notificaciones solo contienen metadatos</string>
     <string name="settings_notification_privacy_secure_message_content">• El contenido del mensaje de la notificación está <b>ubicado de forma segura directamente desde el servidor doméstico de Matrix</b></string>
     <string name="settings_notification_privacy_nosecure_message_content">• Las notificaciones contienen <b>datos de mensajes y metadatos</b></string>
@@ -990,7 +972,7 @@ La visibilidad de mensajes en Matrix es similar a la del correo electrónico. Qu
     <string name="widget_integration_invalid_parameter">Un parámetro no es válido.</string>
     <string name="error_empty_field_your_password">Ingresa tu contraseña por favor.</string>
 
-<string name="settings_labs_enable_send_voice">Enviar mensaje de voz (requiere una aplicación de terceros para grabar mensajes de voz)</string>
+    <string name="settings_labs_enable_send_voice">Enviar mensaje de voz (requiere una aplicación de terceros para grabar mensajes de voz)</string>
 
     <string name="startup_notification_privacy_button_other">Elige otra opción</string>
 
@@ -1045,26 +1027,26 @@ Ten en cuenta que esta acción reiniciará la aplicación y puede tardar algo de
     <string name="room_tombstone_continuation_description">Esta sala es una continuación de otra conversación</string>
     <string name="room_tombstone_predecessor_link">Haz clic aquí para ver mensajes más antiguos</string>
 
-<string name="command_description_deop_user">Degrada al usuario con la ID dada</string>
+    <string name="command_description_deop_user">Degrada al usuario con la ID dada</string>
     <string name="system_alerts_header">Alertas de Sistema</string>
 
     <string name="missing_permissions_error">Debido a que faltan permisos, esta acción no es posible.</string>
     <plurals name="format_time_s">
-	<item quantity="one">1s</item>
-	<item quantity="other">%ds</item>
-</plurals>
+        <item quantity="one">1s</item>
+        <item quantity="other">%ds</item>
+    </plurals>
     <plurals name="format_time_m">
-	<item quantity="one">1m</item>
-	<item quantity="other">%dm</item>
-</plurals>
+        <item quantity="one">1m</item>
+        <item quantity="other">%dm</item>
+    </plurals>
     <plurals name="format_time_h">
-	<item quantity="one">1h</item>
-	<item quantity="other">%dh</item>
-</plurals>
+        <item quantity="one">1h</item>
+        <item quantity="other">%dh</item>
+    </plurals>
     <plurals name="format_time_d">
-	<item quantity="one">1d</item>
-	<item quantity="other">%dd</item>
-</plurals>
+        <item quantity="one">1d</item>
+        <item quantity="other">%dd</item>
+    </plurals>
 
     <string name="room_participants_now">%1$s ahora</string>
     <string name="room_participants_ago">hace %1$s %2$s</string>
@@ -1074,18 +1056,18 @@ Ten en cuenta que esta acción reiniciará la aplicación y puede tardar algo de
     <string name="room_participants_invite_join_names_combined">%1$s %2$s</string>
 
     <plurals name="room_details_selected">
-	<item quantity="one">1 seleccionado</item>
-	<item quantity="other">%d seleccionados</item>
-</plurals>
+        <item quantity="one">1 seleccionado</item>
+        <item quantity="other">%d seleccionados</item>
+    </plurals>
     <plurals name="group_members">
-	<item quantity="one">1 miembro</item>
-	<item quantity="other">%d miembros</item>
-</plurals>
+        <item quantity="one">1 miembro</item>
+        <item quantity="other">%d miembros</item>
+    </plurals>
 
     <plurals name="group_rooms">
-	<item quantity="one">1 sala</item>
-	<item quantity="other">%d salas</item>
-</plurals>
+        <item quantity="one">1 sala</item>
+        <item quantity="other">%d salas</item>
+    </plurals>
     <string name="resource_limit_exceeded_title">Límite de Recursos Excedido</string>
     <string name="resource_limit_contact_action">Contacta al Administrador</string>
 
@@ -1099,5 +1081,22 @@ Ten en cuenta que esta acción reiniciará la aplicación y puede tardar algo de
 
     <string name="resource_limit_soft_contact">Por favor, %s para aumentar este límite.</string>
     <string name="resource_limit_hard_contact">Por favor, %s para continuar utilizando este servicio.</string>
+
+    <string name="status_theme">Tema de Status.im</string>
+
+    <string name="dialog_title_error">Error</string>
+
+    <string name="room_sliding_menu_version_x">Versión %s</string>
+    <string name="encryption_export_notice">Por favor, crea una frase de contraseña para cifrar las claves exportadas. Necesitarás ingresar la misma frase de contraseña para poder importar las claves.</string>
+    <string name="encryption_export_create_passphrase">Crear frase de contraseña</string>
+    <string name="encryption_export_passphrase_dont_match">Las frases de contraseña deben coincidir</string>
+    <string name="settings_lazy_loading_title">Utiliza carga diferida para los miembros de la sala</string>
+    <string name="settings_lazy_loading_description">Aumenta el rendimiento cargando los miembros de la sala solo en la primera vista</string>
+    <string name="error_lazy_loading_not_supported_by_home_server">Tu servidor doméstico aún no admite la carga diferida de los miembros de la sala. Prueba más tarde.</string>
+
+    <string name="unknown_error">Disculpas, ocurrió un error</string>
+
+    <string name="merged_events_expand">expandir</string>
+    <string name="merged_events_collapse">colapsar</string>
 
 </resources>

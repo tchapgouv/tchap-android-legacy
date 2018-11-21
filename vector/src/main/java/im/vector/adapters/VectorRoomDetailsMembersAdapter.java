@@ -57,9 +57,9 @@ import java.util.concurrent.TimeUnit;
 
 import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.R;
-import im.vector.VectorApp;
 import im.vector.activity.CommonActivityUtils;
-import im.vector.util.ThemeUtils;
+import im.vector.settings.VectorLocale;
+import im.vector.ui.themes.ThemeUtils;
 import im.vector.util.VectorUtils;
 
 /**
@@ -223,7 +223,7 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
         } else {
             // new pattern different from previous one?
             if (!aPattern.trim().equals(mSearchPattern) || aIsRefreshForced) {
-                mSearchPattern = aPattern.trim().toLowerCase(VectorApp.getApplicationLocale());
+                mSearchPattern = aPattern.trim().toLowerCase(VectorLocale.INSTANCE.getApplicationLocale());
                 updateRoomMembersDataModel(searchListener);
             } else {
                 // search pattern is identical, notify listener and exit
@@ -972,7 +972,7 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
             });
         }
 
-        int backgroundColor = ThemeUtils.INSTANCE.getColor(mContext, R.attr.riot_primary_background_color);
+        int backgroundColor = ThemeUtils.INSTANCE.getColor(mContext, R.attr.vctr_riot_primary_background_color);
 
         viewHolder.mSwipeCellLayout.setBackgroundColor(backgroundColor);
 

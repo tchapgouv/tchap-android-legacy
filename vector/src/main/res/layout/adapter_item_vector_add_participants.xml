@@ -10,6 +10,7 @@
         android:id="@+id/filtered_list_actions"
         android:layout_width="55dp"
         android:layout_height="match_parent"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:background="@color/vector_fuchsia_color"
         android:orientation="vertical">
@@ -34,7 +35,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:background="?attr/riot_primary_background_color">
+        android:background="?attr/vctr_riot_primary_background_color">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -165,11 +166,14 @@
             </RelativeLayout>
         </LinearLayout>
 
+
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"
             android:layout_alignParentLeft="true"
-            android:background="?attr/list_divider_color" />
+            android:background="?attr/vctr_list_divider_color" />
+
     </RelativeLayout>
 </RelativeLayout>

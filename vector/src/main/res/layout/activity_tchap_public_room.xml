@@ -61,13 +61,13 @@
                 android:id="@+id/fragment_container"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="?attr/riot_primary_background_color" />
+                android:background="?attr/vctr_riot_primary_background_color" />
 
             <FrameLayout
                 android:id="@+id/listView_spinner_views"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="?attr/waiting_background_color"
+                android:background="?attr/vctr_waiting_background_color"
                 android:visibility="gone">
 
                 <ProgressBar
@@ -85,10 +85,10 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="?attr/riot_primary_background_color"
+        android:background="?attr/vctr_riot_primary_background_color"
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/vector_home_menu_header"
-        app:itemIconTint="?attr/home_navigation_icon_color"
+        app:itemIconTint="?attr/vctr_home_navigation_icon_color"
         app:menu="@menu/vector_home_sliding_menu"
         app:theme="@style/NavigationViewStyle" />
 

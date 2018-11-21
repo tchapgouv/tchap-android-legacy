@@ -23,7 +23,7 @@
             android:maxLines="1"
             android:paddingTop="10dp"
             android:text="@string/tab_rooms_title"
-            android:textColor="?attr/primary_text_color" />
+            android:textColor="?attr/vctr_primary_text_color" />
     </LinearLayout>
 
     <LinearLayout
@@ -44,6 +44,6 @@
             android:maxLines="1"
             android:paddingTop="10dp"
             android:text="@string/tab_contacts_title"
-            android:textColor="?attr/primary_text_color" />
+            android:textColor="?attr/vctr_primary_text_color" />
     </LinearLayout>
 </LinearLayout>

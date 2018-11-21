@@ -89,9 +89,14 @@ public class VectorSearchFilesListAdapter extends VectorMessagesAdapter {
         if (Message.MSGTYPE_IMAGE.equals(message.msgtype)) {
             ImageMessage imageMessage = JsonUtils.toImageMessage(event.getContent());
             url = imageMessage.getUrl();
+            encryptedFileInfo = imageMessage.file;
+
             thumbUrl = imageMessage.getThumbnailUrl();
             if (null == thumbUrl) {
                 thumbUrl = url;
+                encryptedFileThumbnailInfo = encryptedFileInfo;
+            } else if (imageMessage.info != null) {
+                encryptedFileThumbnailInfo = imageMessage.info.thumbnail_file;
             }
 
             if (null != imageMessage.info) {
@@ -102,11 +107,6 @@ public class VectorSearchFilesListAdapter extends VectorMessagesAdapter {
                 avatarId = R.drawable.filetype_gif;
             } else {
                 avatarId = R.drawable.filetype_image;
-            }
-
-            encryptedFileInfo = imageMessage.file;
-            if (null != imageMessage.info) {
-                encryptedFileThumbnailInfo = imageMessage.info.thumbnail_file;
             }
         } else if (Message.MSGTYPE_VIDEO.equals(message.msgtype)) {
             VideoMessage videoMessage = JsonUtils.toVideoMessage(event.getContent());
