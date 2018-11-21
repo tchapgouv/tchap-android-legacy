@@ -40,7 +40,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:baselineAligned="false">
 
             <RelativeLayout
                 android:id="@+id/ly_user_infos"
@@ -60,8 +61,6 @@
                         android:id="@+id/icon_check_invite_member"
                         android:layout_width="12dp"
                         android:layout_height="12dp"
-                        android:layout_alignParentLeft="true"
-                        android:layout_centerVertical="true"
                         android:src="@drawable/tchap_ic_selected_contact"
                         android:visibility="gone"
                         tools:visibility="visible" />

@@ -85,7 +85,7 @@
 
                 <TextView
                     android:id="@+id/tv_public_room"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/tchap_room_creation_public"
@@ -126,7 +126,7 @@
 
                 <TextView
                     android:id="@+id/tv_disable_federation"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:textSize="15sp"

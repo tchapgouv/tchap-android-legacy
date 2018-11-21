@@ -19,7 +19,6 @@
             style="@style/TchapRoomToolbarStyle"
             android:layout_width="match_parent"
             android:layout_height="72dp"
-            android:layout_alignParentTop="true"
             app:contentInsetEnd="0dp"
             app:contentInsetStart="0dp">
 

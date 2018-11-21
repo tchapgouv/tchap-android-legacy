@@ -157,7 +157,7 @@ android {
         error 'ImpliedQuantity'
 
         // UX
-        error 'ButtonOrder'
+        warning 'ButtonOrder'
 
         // Layout
         error 'StringFormatCount'
@@ -169,9 +169,9 @@ android {
         error 'ScrollViewSize'
 
         // RTL
-        error 'RtlEnabled'
-        error 'RtlHardcoded'
-        error 'RtlSymmetry'
+        warning 'RtlEnabled'
+        warning 'RtlHardcoded'
+        warning 'RtlSymmetry'
 
         // Code
         error 'SetTextI18n'

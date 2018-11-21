@@ -13,7 +13,7 @@
 
         <TextView
             android:id="@+id/tab_icon_text_conversations"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:autoSizeMaxTextSize="13sp"
@@ -34,7 +34,7 @@
 
         <TextView
             android:id="@+id/tab_icon_text_contacts"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:autoSizeMaxTextSize="13sp"

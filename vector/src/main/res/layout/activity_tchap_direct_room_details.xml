@@ -15,7 +15,6 @@
             style="@style/TchapRoomToolbarStyle"
             android:layout_width="match_parent"
             android:layout_height="72dp"
-            android:layout_alignParentTop="true"
             app:contentInsetEnd="0dp"
             app:contentInsetStart="0dp">
 
@@ -28,7 +27,6 @@
         android:id="@+id/header_bottom_separator"
         android:layout_width="match_parent"
         android:layout_height="2dp"
-        android:layout_alignParentLeft="true"
         android:layout_below="@+id/room_action_bar"
         android:background="?attr/room_header_divider_color" />
 
