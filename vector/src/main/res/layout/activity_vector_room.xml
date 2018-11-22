@@ -54,10 +54,10 @@
             android:id="@+id/room_preview_invitation_textview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginLeft="20dp"
             android:layout_marginEnd="20dp"
+            android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
+            android:layout_marginStart="20dp"
             android:textColor="?attr/vctr_riot_primary_text_color"
             android:textSize="14sp"
             tools:text="Preview invitation" />
@@ -66,10 +66,10 @@
             android:id="@+id/preview_actions_bar"
             android:layout_width="match_parent"
             android:layout_height="65dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginLeft="20dp"
             android:layout_marginEnd="20dp"
+            android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
+            android:layout_marginStart="20dp"
             android:gravity="center_vertical">
 
             <Button
@@ -95,10 +95,10 @@
             android:id="@+id/room_preview_subinvitation_textview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginLeft="20dp"
             android:layout_marginEnd="20dp"
+            android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
+            android:layout_marginStart="20dp"
             android:textColor="@color/vector_silver_color"
             android:textSize="14sp"
             tools:text="invitation subtitle" />
@@ -133,9 +133,9 @@
         android:id="@+id/jump_to_first_unread"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/room_pending_widgets_view"
-        android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/room_pending_widgets_view"
         android:background="?attr/vctr_riot_primary_background_color"
         android:visibility="gone"
         tools:visibility="visible">
@@ -144,31 +144,31 @@
             android:id="@+id/jump_to_first_unread_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
             android:layout_marginLeft="16dp"
-            android:layout_toStartOf="@+id/close_jump_to_first_unread"
+            android:layout_marginStart="16dp"
             android:layout_toLeftOf="@+id/close_jump_to_first_unread"
-            android:drawableStart="@drawable/jump_to_unread"
+            android:layout_toStartOf="@+id/close_jump_to_first_unread"
             android:drawableLeft="@drawable/jump_to_unread"
             android:drawablePadding="10dp"
+            android:drawableStart="@drawable/jump_to_unread"
             android:gravity="center_vertical"
-            android:paddingTop="12dp"
             android:paddingBottom="12dp"
+            android:paddingTop="12dp"
             android:text="@string/room_jump_to_first_unread" />
 
         <ImageView
             android:id="@+id/close_jump_to_first_unread"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_alignTop="@+id/jump_to_first_unread_label"
             android:layout_alignBottom="@+id/jump_to_first_unread_label"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
+            android:layout_alignTop="@+id/jump_to_first_unread_label"
             android:contentDescription="@string/action_close"
-            android:paddingStart="16dp"
-            android:paddingLeft="16dp"
             android:paddingEnd="16dp"
+            android:paddingLeft="16dp"
             android:paddingRight="16dp"
+            android:paddingStart="16dp"
             android:src="@drawable/vector_leave_room_black"
             android:tint="?attr/vctr_message_text_color" />
 
@@ -177,16 +177,16 @@
             style="@style/Widget.AppCompat.ProgressBar"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_alignTop="@+id/jump_to_first_unread_label"
             android:layout_alignBottom="@+id/jump_to_first_unread_label"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
-            android:layout_marginStart="2dp"
-            android:layout_marginLeft="2dp"
-            android:layout_marginTop="2dp"
-            android:layout_marginEnd="4dp"
-            android:layout_marginRight="4dp"
+            android:layout_alignTop="@+id/jump_to_first_unread_label"
             android:layout_marginBottom="2dp"
+            android:layout_marginEnd="4dp"
+            android:layout_marginLeft="2dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginTop="2dp"
             android:contentDescription="@string/loading"
             android:indeterminate="true" />
 
@@ -201,15 +201,15 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_below="@+id/jump_to_first_unread"
-        android:layout_alignParentBottom="true">
+        android:layout_alignParentBottom="true"
+        android:layout_below="@+id/jump_to_first_unread">
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="?attr/vctr_riot_primary_background_color"
-            android:paddingTop="0dp"
-            android:paddingBottom="0dp">
+            android:paddingBottom="0dp"
+            android:paddingTop="0dp">
 
             <ImageView
                 android:id="@+id/search_background_imageview"
@@ -233,7 +233,7 @@
                 tools:text="no result"
                 tools:visibility="visible" />
 
-            <RelativeLayout
+            <FrameLayout
                 android:id="@+id/room_bottom_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -241,7 +241,7 @@
 
                 <LinearLayout
                     android:id="@+id/room_sending_message_layout"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:minHeight="56dp">
 
@@ -249,9 +249,9 @@
                         android:id="@+id/room_attached_files_icon"
                         android:layout_width="38dp"
                         android:layout_height="56dp"
-                        android:layout_gravity="bottom"
-                        android:contentDescription="@string/send"
+                        android:layout_gravity="center_vertical"
                         android:layout_marginLeft="5dp"
+                        android:contentDescription="@string/send"
                         android:padding="13dp"
                         android:scaleType="fitCenter"
                         android:src="@drawable/tchap_ic_attached_files" />
@@ -268,9 +268,9 @@
                     <im.vector.view.VectorAutoCompleteTextView
                         android:id="@+id/editText_messageBox"
                         android:layout_width="0dp"
+                        android:layout_weight="1"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:layout_weight="1"
                         android:background="@android:color/transparent"
                         android:dropDownAnchor="@+id/room_sending_message_layout"
                         android:hint="@string/room_message_placeholder_not_encrypted"
@@ -282,45 +282,50 @@
                         android:textSize="14sp"
                         tools:text="line 1" />
 
-                    <ImageView
-                        android:id="@+id/room_send_message_icon"
-                        android:layout_width="38dp"
-                        android:layout_height="56dp"
-                        android:layout_gravity="bottom"
-                        android:layout_marginLeft="60dp"
-                        android:contentDescription="@string/send"
-                        android:padding="8dp"
-                        android:rotationY="@integer/rtl_mirror_flip"
-                        android:scaleType="fitCenter"
-                        android:src="@drawable/tchap_ic_send_message"
-                        android:visibility="gone"
-                        tools:visibility="visible" />
+                    <LinearLayout
+                        android:id="@+id/buttons_container"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical">
 
-                    <ImageView
-                        android:id="@+id/room_start_call_image_view"
-                        android:layout_width="38dp"
-                        android:layout_height="56dp"
-                        android:layout_gravity="bottom"
-                        android:layout_marginLeft="70dp"
-                        android:contentDescription="@string/call_connecting"
-                        android:padding="11dp"
-                        android:scaleType="fitCenter"
-                        android:src="@drawable/tchap_ic_start_call"
-                        android:visibility="gone"
-                        tools:visibility="visible" />
+                        <ImageView
+                            android:id="@+id/room_send_message_icon"
+                            android:layout_width="38dp"
+                            android:layout_height="56dp"
+                            android:layout_gravity="bottom|end"
+                            android:contentDescription="@string/send"
+                            android:padding="8dp"
+                            android:rotationY="@integer/rtl_mirror_flip"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/tchap_ic_send_message"
+                            android:visibility="gone"
+                            tools:visibility="visible" />
 
-                    <ImageView
-                        android:id="@+id/room_end_call_image_view"
-                        android:layout_width="38dp"
-                        android:layout_height="56dp"
-                        android:layout_gravity="bottom"
-                        android:layout_marginLeft="60dp"
-                        android:contentDescription="@string/call_ended"
-                        android:padding="8dp"
-                        android:scaleType="fitCenter"
-                        android:src="@drawable/voice_call_end_fushia"
-                        android:visibility="gone"
-                        tools:visibility="visible" />
+                        <ImageView
+                            android:id="@+id/room_start_call_image_view"
+                            android:layout_width="38dp"
+                            android:layout_height="56dp"
+                            android:layout_gravity="bottom"
+                            android:contentDescription="@string/call_connecting"
+                            android:padding="11dp"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/tchap_ic_start_call"
+                            android:visibility="gone"
+                            tools:visibility="visible" />
+
+                        <ImageView
+                            android:id="@+id/room_end_call_image_view"
+                            android:layout_width="38dp"
+                            android:layout_height="56dp"
+                            android:layout_gravity="bottom"
+                            android:contentDescription="@string/call_ended"
+                            android:padding="8dp"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/voice_call_end_fushia"
+                            android:visibility="gone"
+                            tools:visibility="visible" />
+
+                    </LinearLayout>
 
                     <View
                         android:id="@+id/room_button_margin_right"
@@ -333,26 +338,26 @@
                     android:id="@+id/room_cannot_post_textview"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginLeft="16dp"
+                    android:layout_gravity="center"
                     android:layout_marginEnd="16dp"
+                    android:layout_marginLeft="16dp"
                     android:layout_marginRight="16dp"
+                    android:layout_marginStart="16dp"
                     android:text="@string/room_do_not_have_permission_to_post"
                     android:textColor="?attr/vctr_riot_primary_text_color"
                     android:textSize="14sp"
                     android:visibility="gone"
                     tools:visibility="visible" />
 
-            </RelativeLayout>
+            </FrameLayout>
 
             <View
                 android:id="@+id/bottom_separator"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_above="@id/room_bottom_layout"
-                android:layout_alignParentStart="true"
                 android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
                 android:background="?attr/vctr_room_activity_divider_color" />
 
             <RelativeLayout
@@ -371,13 +376,12 @@
                     android:layout_alignParentLeft="true"
                     android:layout_marginLeft="10dp"
                     android:layout_marginTop="4dp"
+                    android:layout_toLeftOf="@+id/close_reply"
                     android:singleLine="true"
                     android:text=""
                     android:textColor="@color/tchap_text_color_light"
                     android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:layout_toLeftOf="@+id/close_reply"
-                    />
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/room_reply_message"
@@ -387,23 +391,23 @@
                     android:layout_below="@id/reply_to_sender"
                     android:layout_marginLeft="10dp"
                     android:layout_marginTop="4dp"
-                    android:singleLine="true"
-                    android:text=""
                     android:layout_toLeftOf="@+id/close_reply"
-                    />
+                    android:singleLine="true"
+                    android:text="" />
+
                 <ImageView
                     android:id="@+id/close_reply"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_alignTop="@+id/reply_to_sender"
                     android:layout_alignBottom="@+id/room_reply_message"
                     android:layout_alignParentRight="true"
+                    android:layout_alignTop="@+id/reply_to_sender"
                     android:contentDescription="@string/action_close"
                     android:paddingLeft="16dp"
                     android:paddingRight="16dp"
                     android:src="@drawable/vector_leave_room_black"
                     android:tint="?attr/vctr_message_text_color" />
-                
+
             </RelativeLayout>
 
             <View
@@ -420,8 +424,8 @@
                 android:layout_height="wrap_content"
                 android:layout_above="@id/room_reply_separator"
                 android:minHeight="42dp"
-                android:paddingTop="8dp"
                 android:paddingBottom="8dp"
+                android:paddingTop="8dp"
                 android:visibility="invisible"
                 tools:background="@color/vector_fuchsia_color"
                 tools:visibility="visible" />
@@ -468,9 +472,9 @@
         android:id="@+id/main_progress_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignTop="@+id/room_preview_info_layout"
-        android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignTop="@+id/room_preview_info_layout"
         android:background="?attr/vctr_waiting_background_color"
         android:visibility="gone">
 
