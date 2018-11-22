@@ -19,9 +19,7 @@
 package im.vector.adapters;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +35,7 @@ import java.util.List;
 
 import im.vector.R;
 import im.vector.activity.VectorMemberDetailsActivity;
-import im.vector.util.ThemeUtils;
+import im.vector.ui.themes.ThemeUtils;
 import im.vector.util.VectorUtils;
 import im.vector.view.VectorCircularImageView;
 
@@ -367,7 +365,7 @@ public class VectorMemberDetailsAdapter extends BaseExpandableListAdapter {
         // room selection
         if (null != currentItem.mRoom) {
             // room name
-            viewHolder.mActionDescTextView.setTextColor(ThemeUtils.INSTANCE.getColor(mContext, R.attr.riot_primary_text_color));
+            viewHolder.mActionDescTextView.setTextColor(ThemeUtils.INSTANCE.getColor(mContext, R.attr.vctr_riot_primary_text_color));
             viewHolder.mActionDescTextView.setText(currentItem.mRoom.getRoomDisplayName(mContext));
 
             // room avatar
@@ -395,11 +393,11 @@ public class VectorMemberDetailsAdapter extends BaseExpandableListAdapter {
 
             if (currentItem.mIconResourceId != R.drawable.ic_remove_circle_outline_red) {
                 viewHolder.mActionImageView.setImageDrawable(
-                        ThemeUtils.INSTANCE.tintDrawable(mContext, viewHolder.mActionImageView.getDrawable(), R.attr.settings_icon_tint_color));
+                        ThemeUtils.INSTANCE.tintDrawable(mContext, viewHolder.mActionImageView.getDrawable(), R.attr.vctr_settings_icon_tint_color));
             }
 
             // update the text colour: specific colour is required for the remove action
-            int colourTxt = ThemeUtils.INSTANCE.getColor(mContext, R.attr.riot_primary_text_color);
+            int colourTxt = ThemeUtils.INSTANCE.getColor(mContext, R.attr.vctr_riot_primary_text_color);
 
             if (VectorMemberDetailsActivity.ITEM_ACTION_KICK == currentItem.mActionType) {
                 colourTxt = ContextCompat.getColor(mContext, R.color.vector_fuchsia_color);
@@ -412,29 +410,7 @@ public class VectorMemberDetailsAdapter extends BaseExpandableListAdapter {
                 @Override
                 public void onClick(View view) {
                     if (null != mActionListener) {
-                        if (VectorMemberDetailsActivity.ITEM_ACTION_KICK == currentItem.mActionType
-                                || VectorMemberDetailsActivity.ITEM_ACTION_BAN == currentItem.mActionType) {
-                            AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext())
-                                    .setTitle(R.string.dialog_title_confirmation);
-
-                            if (VectorMemberDetailsActivity.ITEM_ACTION_KICK == currentItem.mActionType) {
-                                builder.setMessage(view.getContext().getString(R.string.room_participants_kick_prompt_msg));
-                            } else {
-                                builder.setMessage(view.getContext().getString(R.string.room_participants_ban_prompt_msg));
-                            }
-
-                            builder
-                                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            mActionListener.performItemAction(currentItem.mActionType);
-                                        }
-                                    })
-                                    .setNegativeButton(R.string.cancel, null)
-                                    .show();
-                        } else {
-                            mActionListener.performItemAction(currentItem.mActionType);
-                        }
+                        mActionListener.performItemAction(currentItem.mActionType);
                     }
                 }
             });

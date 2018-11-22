@@ -18,12 +18,12 @@
         android:key="roomTopicEditText"
         android:title="@string/room_settings_topic" />
 
-
     <!-- the notification rule selection -->
     <ListPreference
-        android:entries="@array/notification_values"
+        android:entries="@array/notification_entries"
         android:entryValues="@array/notification_values"
         android:key="roomNotificationPreference"
+        android:summary="%s"
         android:title="@string/room_settings_room_notifications_title" />
 
     <im.vector.preference.VectorCustomActionEditTextPreference
@@ -36,7 +36,6 @@
         android:title="@string/tchap_room_settings_remove_from_directory" />
 
     <!--im.vector.preference.VectorDividerCategory /-->
-
 
     <!-- no addresses section in tchap at this step of the product
     <im.vector.preference.VectorPreferenceCategory

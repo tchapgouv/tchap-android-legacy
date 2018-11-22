@@ -29,7 +29,7 @@
         android:layout_marginLeft="-10dp"
         android:layout_toRightOf="@+id/room_avatar_layout"
         android:src="@drawable/e2e_verified"
-        android:tint="?attr/default_icon_tint_color"
+        android:tint="?attr/vctr_default_icon_tint_color"
         android:visibility="invisible"
         tools:visibility="visible" />
 
@@ -132,7 +132,7 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
             android:layout_marginRight="5dp"
-            android:textColor="?attr/default_text_light_color"
+            android:textColor="?attr/vctr_default_text_light_color"
             android:textSize="12sp"
             tools:text="14 Mar" />
     </RelativeLayout>

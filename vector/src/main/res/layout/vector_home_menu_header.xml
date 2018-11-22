@@ -32,6 +32,8 @@
         android:layout_marginTop="10dp"
         android:gravity="center_horizontal"
         android:maxLines="2"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
         android:paddingLeft="5dp"
         android:paddingRight="5dp"
         android:textColor="@color/tchap_text_color_light"
@@ -48,6 +50,8 @@
         android:gravity="center_horizontal"
         android:maxLines="3"
         android:paddingBottom="15dp"
+        android:paddingStart="15dp"
+        android:paddingEnd="15dp"
         android:paddingLeft="15dp"
         android:paddingRight="15dp"
         android:paddingTop="5dp"
@@ -60,5 +64,5 @@
         android:layout_height="1dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:background="?attr/list_divider_color"/>
+        android:background="?attr/vctr_list_divider_color"/>
 </RelativeLayout>

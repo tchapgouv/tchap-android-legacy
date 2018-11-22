@@ -7,7 +7,7 @@
     android:id="@+id/member_details_activity_main_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/riot_primary_background_color"
+    android:background="?attr/vctr_riot_primary_background_color"
     android:orientation="vertical">
     <FrameLayout
         android:id="@+id/room_action_bar"
@@ -19,7 +19,6 @@
             style="@style/TchapRoomToolbarStyle"
             android:layout_width="match_parent"
             android:layout_height="72dp"
-            android:layout_alignParentTop="true"
             app:contentInsetEnd="0dp"
             app:contentInsetStart="0dp">
 
@@ -55,7 +54,7 @@
         android:maxLines="1"
         android:ellipsize="end"
         android:gravity="center_horizontal"
-        android:textColor="?attr/default_text_light_color"
+        android:textColor="?attr/vctr_default_text_light_color"
         android:textSize="14sp" />
     <View
         android:id="@+id/header_bottom_separator_2"

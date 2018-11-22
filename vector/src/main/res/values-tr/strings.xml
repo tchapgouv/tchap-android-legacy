@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources><string name="resources_language">tr</string>
+<resources>
+    <string name="resources_language">tr</string>
     <string name="resources_country_code">TR</string>
 
     <string name="light_theme">Açık Tema</string>
@@ -19,7 +20,7 @@
     <string name="title_activity_bug_report">Hata raporu</string>
     <string name="title_activity_group_details">Topluluk ayrıntıları</string>
 
-    <string name="loading">Yükleniyor...</string>
+    <string name="loading">Yükleniyor…</string>
 
     <string name="ok">Tamam</string>
     <string name="cancel">İptal</string>
@@ -53,7 +54,7 @@
     <string name="ongoing_conference_call_voice">ses</string>
     <string name="ongoing_conference_call_video">video</string>
     <string name="cannot_start_call">Görüşme başlatılamıyor, lütfen sonra tekrar deneyin</string>
-    <string name="missing_permissions_warning">Eksik izinler nedeni ile bazı özellikler eksik olabilir...</string>
+    <string name="missing_permissions_warning">Eksik izinler nedeni ile bazı özellikler eksik olabilir…</string>
     <string name="missing_permissions_to_start_conf_call">Bu odada bir kişiyi davet edip, konferansa başlamak için izniniz yok</string>
     <string name="missing_permissions_title_to_start_conf_call">Arama gerçekleştirilemiyor</string>
     <string name="device_information">Cihaz ayrıntıları</string>
@@ -110,9 +111,9 @@ Yedekleme için çıkmadan önce, dışa aktarı seçin.</string>
     <string name="no_room_placeholder">Oda yok</string>
     <string name="no_public_room_placeholder">Hiç girilebilir oda yok</string>
     <plurals name="public_room_nb_users">
-	<item quantity="one">kullanıcı</item>
-	<item quantity="other">kullanıcı</item>
-</plurals>
+        <item quantity="one">kullanıcı</item>
+        <item quantity="other">kullanıcı</item>
+    </plurals>
 
     <string name="groups_invite_header">Davet</string>
     <string name="groups_header">Topluluk</string>
@@ -179,4 +180,4 @@ Birkaç tane eklensin mi?</string>
     <string name="auth_user_name_placeholder">Kullanıcı adı</string>
     <string name="auth_add_email_message">Kullanıcıların seni rahatça bulabilmesi ve şifreni yeniden oluşturabilmen için bir e-posta hesabı ekle.</string>
     <string name="auth_add_phone_message">Kullanıcıların seni rahatça bulabilmesi için bir telefon numarası ekle.</string>
-    </resources>
+</resources>

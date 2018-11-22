@@ -830,7 +830,6 @@ public class RegistrationManager {
             switch (pid.medium) {
                 case ThreePid.MEDIUM_EMAIL:
                     String nextLinkBase = mHsConfig.getHomeserverUri().toString();
-                    nextLinkBase = nextLinkBase.replace("matrix", "chat");
                     String nextLink = nextLinkBase + "/#/register?client_secret="+ pid.clientSecret;
                     nextLink += "&hs_url=" + mHsConfig.getHomeserverUri().toString();
                     nextLink += "&is_url=" + mHsConfig.getIdentityServerUri().toString();

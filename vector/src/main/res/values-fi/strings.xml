@@ -366,7 +366,6 @@ Salatut viestit eivät näy sovelluksissa, jotka eivät tue salausta.</string> <
     <string name="room_delete_unsent_messages">Poista lähettämättömät viestit</string>
     <string name="room_message_file_not_found">Tiedostoa ei löydy</string>
     <string name="room_do_not_have_permission_to_post">Et saa lähettää viestejä tähän huoneeseen</string>
-    <string name="room_new_message_notification">1 uusi viesti</string>
 
     <!-- unrecognized SSL certificate -->
     <string name="ssl_trust">Luota</string>
@@ -447,8 +446,8 @@ Salatut viestit eivät näy sovelluksissa, jotka eivät tue salausta.</string> <
     <string name="settings_add_email_address">Lisää sähköpostiosoite</string>
     <string name="settings_phone_number">Puhelin</string>
     <string name="settings_add_phone_number">Lisää puhelinnumero</string>
-    <string name="settings_summary_app_info_link">Sovelluksen infonäyttö</string>
-    <string name="settings_title_app_info_link">Sovelluksen tiedot</string>
+    <string name="settings_app_info_link_summary">Sovelluksen infonäyttö</string>
+    <string name="settings_app_info_link_title">Sovelluksen tiedot</string>
 
     <string name="settings_enable_all_notif">Ota ilmoitukset käyttöön tällä tilillä</string>
     <string name="settings_enable_this_device">Ota ilmoitukset käyttöön tällä laitteella</string>
@@ -497,7 +496,6 @@ Salatut viestit eivät näy sovelluksissa, jotka eivät tue salausta.</string> <
     <string name="devices_details_device_name">Laitteen nimi</string>
     <string name="devices_details_last_seen_title">Viimeksi käytetty</string>
     <string name="devices_details_last_seen_format">%1$s @ %2$s</string>
-    <string name="devices_details_time_format">HH:mm:ss</string>
     <string name="devices_delete_dialog_text">Tämä toimenpide vaatii lisätunnistautumisen.\Anna salasanasi jatkaaksesi.</string>
     <string name="devices_delete_dialog_title">Tunnistautuminen</string>
     <string name="devices_delete_pswd">Salasana:</string>
@@ -552,10 +550,6 @@ Salatut viestit eivät näy sovelluksissa, jotka eivät tue salausta.</string> <
     <string name="room_settings_tag_pref_entry_favourite">Suosikki</string>
     <string name="room_settings_tag_pref_entry_low_priority">Matala tärkeys</string>
     <string name="room_settings_tag_pref_entry_none">Ei mikään</string>
-    <string name="room_settings_tag_pref_no_tag">ei luokiteltu</string>
-    <string name="room_settings_tag_pref_entry_value_favourite">suosikki</string>
-    <string name="room_settings_tag_pref_entry_value_low_priority">matala</string>
-    <string name="room_settings_tag_pref_entry_value_none">none</string>
 
     <!-- room settings : access and visibility -->
     <string name="room_settings_category_access_visibility_title">Näkyvyys ja pääsy</string>
@@ -694,16 +688,13 @@ Voit tehdä sen nyt tai myöhemmin sovelluksen asetuksissa.</string>
 
     <!-- historical -->
     <string name="historical_placeholder">Etsi historiasta</string>
-<string name="user_directory_header">Käyttäjähakemisto</string>
+    <string name="user_directory_header">Käyttäjähakemisto</string>
     <string name="people_search_user_directory">KÄYTTÄJÄHAKEMISTO (%s)</string>
     <string name="settings_start_on_boot">Käynnistä automaattisesti</string>
-    <string name="settings_clear_medias_cache">Tyhjennä mediavälimuisti</string>
+    <string name="settings_clear_media_cache">Tyhjennä mediavälimuisti</string>
     <string name="settings_keep_media">Säilytä media</string>
 
-    <string name="settings_hide_read_receipts">Piilota lukukuittaukset</string>
-    <string name="settings_dont_send_typings_notifs">Älä lähetä kirjoitusilmoituksia</string>
     <string name="settings_always_show_timestamps">Näytä aina aikaleimat</string>
-    <string name="settings_disable_markdown">Poista markdown -muotoilu käytöstä</string>
     <string name="settings_data_save_mode">Datansäästötila</string>
 
     <string name="settings_user_interface">Käyttöliittymä</string>
@@ -725,7 +716,7 @@ Voit tehdä sen nyt tai myöhemmin sovelluksen asetuksissa.</string>
     <string name="larger">Isompi</string>
     <string name="largest">Isoin</string>
     <string name="huge">Valtava</string>
-<string name="offline">Offline</string>
+    <string name="offline">Offline</string>
 
     <string name="light_theme">Vaalea teema</string>
     <string name="dark_theme">Tumma teema</string>
@@ -748,13 +739,8 @@ Voit tehdä sen nyt tai myöhemmin sovelluksen asetuksissa.</string>
     <string name="settings_containing_my_display_name">Viesti sisältää näyttönimeni</string>
     <string name="settings_containing_my_user_name">Viesti sisältää käyttäjänimeni</string>
     <string name="settings_12_24_timestamps">Näytä aikaleimat 12h muodossa (esim. 2:30pm)</string>
-    <string name="settings_hide_join_leave_messages">Piilota liittymis-/poistumisilmoitukset (ei vaikuta kutsuihin/poistoihin/estoihin)</string>
-    <string name="settings_hide_avatar_display_name_changes_messages">Piilota kuvan ja näyttönimen muutokset</string>
 
     <string name="settings_analytics">Analytiikka</string>
-    <string name="settings_opt_out_of_analytics">Älä jaa analytiikkatietoja</string>
-    <string name="settings_opt_out_of_analytics_summary">Riot kerää anonyymiä analytiikkaa sovelluksen parantamiseksi.</string>
-
 
     <string name="widget_no_power_to_manage">Tarvitse oikeudet pienoissovellusten hallintaan tässä huoneessa</string>
     <string name="widget_creation_failure">Pienoissovelluksen luonti epäonnistui</string>
@@ -772,7 +758,6 @@ Voit tehdä sen nyt tai myöhemmin sovelluksen asetuksissa.</string>
     <string name="widget_integration_missing_room_id">room_id puuttuu pyynnöstä.</string>
     <string name="widget_integration_missing_user_id">user_id puuttuu pyynnöstä.</string>
     <string name="widget_integration_room_not_visible">Huone %s ei ole näkyvillä.</string>
-    <string name="settings_labs_matrix_apps">Matrix Sovellukset</string>
     <string name="room_add_matrix_apps">Lisää Matrix sovellus</string>
     <string name="settings_labs_native_camera">Käytä alkuperäistä kamerasovellusta</string>
 
@@ -798,9 +783,9 @@ Voit tehdä sen nyt tai myöhemmin sovelluksen asetuksissa.</string>
 
     <string name="encrypted_message">Salattu viesti</string>
 
-<string name="title_activity_group_details">Yhteisön tiedot</string>
+    <string name="title_activity_group_details">Yhteisön tiedot</string>
 
-    <string name="loading">Ladataan...</string>
+    <string name="loading">Ladataan…</string>
 
     <string name="action_exit">Poistu</string>
     <string name="bottom_action_groups">Yhteisöt</string>
@@ -817,7 +802,6 @@ Voit tehdä sen nyt tai myöhemmin sovelluksen asetuksissa.</string>
 
     <string name="groups_list">Ryhmälistaus</string>
 
-    <string name="room_participants_kick_prompt_msg">Haluatko varmasti poistaa tämän käyttäjän keskustelusta?</string>
     <string name="room_participants_ban_prompt_msg">Haluatko varmasti estää tämän käyttäjän keskustelussa?</string>
 
     <string name="room_settings_all_messages_noisy">Kaikki viestit (äänekäs)</string>
@@ -863,5 +847,5 @@ Voit tehdä sen nyt tai myöhemmin sovelluksen asetuksissa.</string>
     <string name="reason_colon">Syy: %1$s</string>
     <string name="rejoin">Liity uudelleen</string>
     <string name="forget_room">Unohda huone</string>
-<string name="room_settings_no_flair">" Tälle huoneelle ei näytetä tyyliä millekään yhteisölle"</string>
-    </resources>
+    <string name="room_settings_no_flair">" Tälle huoneelle ei näytetä tyyliä millekään yhteisölle"</string>
+</resources>

@@ -104,6 +104,7 @@ import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.util.BingRulesManager;
 import org.matrix.androidsdk.util.Log;
+import org.matrix.androidsdk.util.PermalinkUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -132,9 +133,11 @@ import im.vector.VectorApp;
 import im.vector.activity.util.RequestCodesKt;
 import im.vector.fragments.AbsHomeFragment;
 import fr.gouv.tchap.fragments.TchapContactFragment;
-import im.vector.gcm.GcmRegistrationManager;
+import im.vector.push.PushManager;
 import im.vector.receiver.VectorUniversalLinkReceiver;
 import im.vector.services.EventStreamService;
+import im.vector.ui.themes.ActivityOtherThemes;
+import im.vector.ui.themes.ThemeUtils;
 import im.vector.util.BugReporter;
 import im.vector.util.CallsManager;
 import fr.gouv.tchap.util.DinsicUtils;
@@ -142,12 +145,10 @@ import im.vector.util.HomeRoomsViewModel;
 import im.vector.util.PreferencesManager;
 import im.vector.util.RoomUtils;
 import im.vector.util.SystemUtilsKt;
-import im.vector.util.ThemeUtils;
 import im.vector.util.VectorUtils;
 import im.vector.view.UnreadCounterBadgeView;
 import im.vector.view.VectorPendingCallView;
 import fr.gouv.tchap.fragments.TchapRoomsFragment;
-import kotlin.Triple;
 
 /**
  * Displays the main screen of the app, with rooms the user has joined and the ability to create
@@ -273,6 +274,8 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
         }
     };
 
+    private final VectorUniversalLinkReceiver mUniversalLinkReceiver = new VectorUniversalLinkReceiver();
+
     private FragmentManager mFragmentManager;
 
     // The current item selected (top navigation)
@@ -305,8 +308,8 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
 
     @NotNull
     @Override
-    public Triple getOtherThemes() {
-        return new Triple(R.style.HomeActivityTheme_Dark, R.style.HomeActivityTheme_Black, R.style.HomeActivityTheme_Status);
+    public ActivityOtherThemes getOtherThemes() {
+        return ActivityOtherThemes.Home.INSTANCE;
     }
 
     @Override
@@ -420,10 +423,10 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
                 // detect the room could be opened without waiting the next sync
                 Map<String, String> params = VectorUniversalLinkReceiver.parseUniversalLink(uri);
 
-                if ((null != params) && params.containsKey(VectorUniversalLinkReceiver.ULINK_ROOM_ID_OR_ALIAS_KEY)) {
+                if ((null != params) && params.containsKey(PermalinkUtils.ULINK_ROOM_ID_OR_ALIAS_KEY)) {
                     Log.d(LOG_TAG, "Has a valid universal link");
 
-                    final String roomIdOrAlias = params.get(VectorUniversalLinkReceiver.ULINK_ROOM_ID_OR_ALIAS_KEY);
+                    final String roomIdOrAlias = params.get(PermalinkUtils.ULINK_ROOM_ID_OR_ALIAS_KEY);
 
                     // it is a room ID ?
                     if (MXPatterns.isRoomId(roomIdOrAlias)) {
@@ -538,6 +541,9 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
     protected void onResume() {
         super.onResume();
 
+        LocalBroadcastManager.getInstance(this).registerReceiver(mUniversalLinkReceiver,
+                new IntentFilter(VectorUniversalLinkReceiver.BROADCAST_ACTION_UNIVERSAL_LINK_RESUME));
+
         securityChecks.checkOnActivityStart();
         applyScreenshotSecurity();
 
@@ -545,7 +551,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
         MyPresenceManager.advertiseAllOnline();
 
         // Broadcast receiver to stop waiting screen
-        registerReceiver(mBrdRcvStopWaitingView, new IntentFilter(BROADCAST_ACTION_STOP_WAITING_VIEW));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mBrdRcvStopWaitingView, new IntentFilter(BROADCAST_ACTION_STOP_WAITING_VIEW));
 
         Intent intent = getIntent();
 
@@ -621,7 +627,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
         // https://github.com/vector-im/vector-android/issues/323
         // the tool bar color is not restored on some devices.
         TypedValue vectorActionBarColor = new TypedValue();
-        getTheme().resolveAttribute(R.attr.riot_primary_background_color, vectorActionBarColor, true);
+        getTheme().resolveAttribute(R.attr.vctr_riot_primary_background_color, vectorActionBarColor, true);
         mToolbar.setBackgroundResource(vectorActionBarColor.resourceId);
 
         checkDeviceId();
@@ -646,8 +652,8 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
             if (requestCode == RequestCodesKt.BATTERY_OPTIMIZATION_REQUEST_CODE) {
                 // Ok, we can set the NORMAL privacy setting
                 Matrix.getInstance(this)
-                        .getSharedGCMRegistrationManager()
-                        .setNotificationPrivacy(GcmRegistrationManager.NotificationPrivacy.NORMAL, null);
+                        .getPushManager()
+                        .setNotificationPrivacy(PushManager.NotificationPrivacy.NORMAL, null);
             }
         }
     }
@@ -680,9 +686,9 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
             return;
         }
 
-        final GcmRegistrationManager gcmMgr = Matrix.getInstance(VectorHomeActivity.this).getSharedGCMRegistrationManager();
+        final PushManager pushManager = Matrix.getInstance(VectorHomeActivity.this).getPushManager();
 
-        if (!gcmMgr.useGCM()) {
+        if (!pushManager.useFcm()) {
             // f-droid does not need the permission.
             // It is still using the technique of sticky "Listen for events" notification
             return;
@@ -695,10 +701,10 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
             if (SystemUtilsKt.isIgnoringBatteryOptimizations(this)) {
                 // No need to ask permission, we already have it
                 // Set the NORMAL privacy setting
-                gcmMgr.setNotificationPrivacy(GcmRegistrationManager.NotificationPrivacy.NORMAL, null);
+                pushManager.setNotificationPrivacy(PushManager.NotificationPrivacy.NORMAL, null);
             } else {
-                // by default, use GCM and low detail notifications
-                gcmMgr.setNotificationPrivacy(GcmRegistrationManager.NotificationPrivacy.LOW_DETAIL, null);
+                // by default, use FCM and low detail notifications
+                pushManager.setNotificationPrivacy(PushManager.NotificationPrivacy.LOW_DETAIL, null);
 
                 new AlertDialog.Builder(this)
                         .setCancelable(false)
@@ -828,6 +834,8 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
     protected void onPause() {
         super.onPause();
 
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mUniversalLinkReceiver);
+
         securityChecks.activityStopped();
 
         // Unregister Broadcast receiver
@@ -836,7 +844,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
         resetFilter();
 
         try {
-            unregisterReceiver(mBrdRcvStopWaitingView);
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(mBrdRcvStopWaitingView);
         } catch (Exception e) {
             Log.e(LOG_TAG, "## onPause() : unregisterReceiver fails " + e.getMessage(), e);
         }
@@ -1110,8 +1118,8 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
         */
         // Set color of toolbar search view
         EditText edit = mSearchView.findViewById(android.support.v7.appcompat.R.id.search_src_text);
-        edit.setTextColor(ThemeUtils.INSTANCE.getColor(this, R.attr.primary_text_color));
-        edit.setHintTextColor(ThemeUtils.INSTANCE.getColor(this, R.attr.primary_hint_text_color));
+        edit.setTextColor(ThemeUtils.INSTANCE.getColor(this, R.attr.vctr_primary_text_color));
+        edit.setHintTextColor(ThemeUtils.INSTANCE.getColor(this, R.attr.vctr_primary_hint_text_color));
         edit.setTextSize(15);
     }
 
@@ -1392,7 +1400,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
                     myBroadcastIntent.setAction(VectorUniversalLinkReceiver.BROADCAST_ACTION_UNIVERSAL_LINK_RESUME);
                     myBroadcastIntent.putExtras(getIntent().getExtras());
                     myBroadcastIntent.putExtra(VectorUniversalLinkReceiver.EXTRA_UNIVERSAL_LINK_SENDER_ID, VectorUniversalLinkReceiver.HOME_SENDER_ID);
-                    LocalBroadcastManager.getInstance(this).sendBroadcast(myBroadcastIntent);
+                    sendBroadcast(myBroadcastIntent);
 
                     showWaitingView();
 
@@ -2060,7 +2068,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
 
                 UnreadCounterBadgeView badgeView = new UnreadCounterBadgeView(customTab.getContext());
                 FrameLayout.LayoutParams badgeLayoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-                badgeLayoutParams.setMargins(0, -badgeOffsetY, 0, 0);//, iconViewLayoutParams.rightMargin, iconViewLayoutParams.bottomMargin);
+                badgeLayoutParams.setMargins(0, badgeOffsetY, 0, 0);//, iconViewLayoutParams.rightMargin, iconViewLayoutParams.bottomMargin);
                 customTab.addView(badgeView,badgeLayoutParams);
                 mBadgeViewByIndex.put(menuIndex, badgeView);
             } catch (Exception e) {

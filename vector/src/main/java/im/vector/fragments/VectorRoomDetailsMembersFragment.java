@@ -76,7 +76,7 @@ import im.vector.activity.VectorRoomInviteMembersActivity;
 import im.vector.adapters.ParticipantAdapterItem;
 import im.vector.adapters.VectorRoomDetailsMembersAdapter;
 import im.vector.util.RoomUtils;
-import im.vector.util.ThemeUtils;
+import im.vector.ui.themes.ThemeUtils;
 import im.vector.util.VectorUtils;
 
 public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
@@ -499,7 +499,7 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
 
         // Inflate the menu; this adds items to the action bar if it is present.
         getActivity().getMenuInflater().inflate(R.menu.vector_room_details_add_people, menu);
-        ThemeUtils.INSTANCE.tintMenuIcons(menu, ThemeUtils.INSTANCE.getColor(getContext(), R.attr.icon_tint_on_dark_action_bar_color));
+        ThemeUtils.INSTANCE.tintMenuIcons(menu, ThemeUtils.INSTANCE.getColor(getContext(), R.attr.vctr_icon_tint_on_dark_action_bar_color));
 
         mRemoveMembersMenuItem = menu.findItem(R.id.ic_action_room_details_delete);
         mSwitchDeletionMenuItem = menu.findItem(R.id.ic_action_room_details_edition_mode);
@@ -701,12 +701,39 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
     }
 
     /**
+     * Kick an user Ids list. First step is to ask for a reason
+     *
+     * @param userIds the user ids list
+     */
+    private void kickUsers(final List<String> userIds) {
+        // Ask for a reason
+        View layout = getLayoutInflater().inflate(R.layout.dialog_base_edit_text, null);
+
+        final TextView input = layout.findViewById(R.id.edit_text);
+        input.setHint(R.string.reason_hint);
+
+        new AlertDialog.Builder(getActivity())
+                .setTitle(getResources().getQuantityString(R.plurals.room_participants_kick_prompt_msg, userIds.size()))
+                .setView(layout)
+                .setPositiveButton(R.string.room_participants_action_kick, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                kickUsersRecursive(userIds, input.getText().toString(), 0);
+                            }
+                        }
+                )
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+    /**
      * Kick an user Ids list
      *
      * @param userIds the user ids list
+     * @param reason  the reason
      * @param index   the start index
      */
-    private void kickUsers(final List<String> userIds, final int index) {
+    private void kickUsersRecursive(final List<String> userIds, @Nullable final String reason, final int index) {
         if (index >= userIds.size()) {
             // the kick requests are performed in a dedicated thread
             // so switch to the UI thread at the end.
@@ -735,9 +762,9 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
 
         mProgressView.setVisibility(View.VISIBLE);
 
-        mRoom.kick(userIds.get(index), new ApiCallback<Void>() {
+        mRoom.kick(userIds.get(index), reason, new ApiCallback<Void>() {
                     private void kickNext() {
-                        kickUsers(userIds, index + 1);
+                        kickUsersRecursive(userIds, reason, index + 1);
                     }
 
                     @Override
@@ -777,9 +804,11 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
         int id = item.getItemId();
 
         if (id == R.id.ic_action_room_details_delete) {
-            kickUsers(mAdapter.getSelectedUserIds(), 0);
+            kickUsers(mAdapter.getSelectedUserIds());
+            return true;
         } else if (id == R.id.ic_action_room_details_edition_mode) {
             toggleMultiSelectionMode();
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -887,14 +916,14 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
 
             @Override
             public void onRemoveClick(final ParticipantAdapterItem participantItem) {
-                // The user is trying to leave with unsaved changes. Warn about that
+                // Ask for confirmation
                 new AlertDialog.Builder(getActivity())
                         .setTitle(R.string.dialog_title_confirmation)
                         .setMessage(getString(R.string.room_participants_remove_prompt_msg, participantItem.mDisplayName))
                         .setPositiveButton(R.string.remove, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                kickUsers(Collections.singletonList(participantItem.mUserId), 0);
+                                kickUsers(Collections.singletonList(participantItem.mUserId));
                             }
                         })
                         .setNegativeButton(R.string.cancel, null)

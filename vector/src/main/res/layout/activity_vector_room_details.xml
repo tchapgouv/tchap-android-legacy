@@ -5,7 +5,6 @@
     android:layout_height="match_parent">
 
     <RelativeLayout
-        android:background="@android:color/white"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/room_details_head">
@@ -76,15 +75,15 @@
             android:id="@+id/settings_loading_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="gone"
             android:layout_below="@+id/header_bottom_separator"
-            android:background="?attr/waiting_background_color">
+            android:background="?attr/vctr_waiting_background_color"
+            android:visibility="gone">
             <ProgressBar
                 android:id="@+id/loading_settings_progress_bar"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_gravity="center"
-                android:visibility="visible"/>
+                android:visibility="visible" />
         </FrameLayout>
 
         <ProgressBar
@@ -92,6 +91,7 @@
             android:layout_below="@+id/settings_loading_layout"
             android:layout_height="40dp"
             android:layout_width="match_parent"
+            android:layout_alignParentStart="true"
             android:layout_alignParentLeft="true"
             android:visibility="gone"
             android:indeterminate="true" />

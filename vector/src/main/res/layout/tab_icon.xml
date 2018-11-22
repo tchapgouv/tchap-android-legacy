@@ -13,7 +13,7 @@
 
         <TextView
             android:id="@+id/tab_icon_text_conversations"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:autoSizeMaxTextSize="13sp"
@@ -23,7 +23,7 @@
             android:maxLines="1"
             android:paddingTop="10dp"
             android:text="@string/tab_rooms_title"
-            android:textColor="?attr/primary_text_color" />
+            android:textColor="?attr/vctr_primary_text_color" />
     </LinearLayout>
 
     <LinearLayout
@@ -34,7 +34,7 @@
 
         <TextView
             android:id="@+id/tab_icon_text_contacts"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:autoSizeMaxTextSize="13sp"
@@ -44,6 +44,6 @@
             android:maxLines="1"
             android:paddingTop="10dp"
             android:text="@string/tab_contacts_title"
-            android:textColor="?attr/primary_text_color" />
+            android:textColor="?attr/vctr_primary_text_color" />
     </LinearLayout>
 </LinearLayout>

@@ -39,7 +39,7 @@ android {
         vectorDrawables.useSupportLibrary = true
 
         // custom values
-        resValue "string", "bug_report_url",  "https://riot.im/bugreports/submit"
+        resValue "string", "bug_report_url", "https://riot.im/bugreports/submit"
 
         ndk {
             // abiFilters "arm64-v8a", "armeabi-v7a", "x86"
@@ -99,19 +99,19 @@ android {
         }
     }
 
-    // The base dimension permits to deal with GooglePlay/Fdroid app
-    // The voip flavor dimension permits to include/exclude jitsi at compilation time
-    flavorDimensions "base", "voip"
+    // The 'base' dimension permits to deal with GooglePlay/Fdroid app
+    // The 'voip' flavor dimension permits to include/exclude jitsi at compilation time
+    // The 'pinning' flavor dimension permits to enable/disable certificate pinning with fingerprint check
+    flavorDimensions "base", "voip", "pinning"
 
     productFlavors {
         app {
             // use the version name
             versionCode rootProject.ext.versionCodeProp
             versionName rootProject.ext.versionNameProp
-            resValue "string", "allow_gcm_use", "true"
-            resValue "string", "allow_ga_use", "true"
-            resValue "string", "short_flavor_description", "G"
-            resValue "string", "flavor_description", "GooglePlay"
+            buildConfigField "boolean", "ALLOW_FCM_USE", "true"
+            buildConfigField "String", "SHORT_FLAVOR_DESCRIPTION", "\"G\""
+            buildConfigField "String", "FLAVOR_DESCRIPTION", "\"GooglePlay\""
             dimension "base"
         }
 
@@ -119,10 +119,9 @@ android {
             // use the version name
             versionCode rootProject.ext.versionCodeProp
             versionName rootProject.ext.versionNameProp
-            resValue "string", "allow_gcm_use", "false"
-            resValue "string", "allow_ga_use", "false"
-            resValue "string", "short_flavor_description", "F"
-            resValue "string", "flavor_description", "FDroid"
+            buildConfigField "boolean", "ALLOW_FCM_USE", "false"
+            buildConfigField "String", "SHORT_FLAVOR_DESCRIPTION", "\"F\""
+            buildConfigField "String", "FLAVOR_DESCRIPTION", "\"FDroid\""
             dimension "base"
         }
 
@@ -133,6 +132,14 @@ android {
         withoutVoip {
             dimension "voip"
         }
+
+        withPinning {
+            dimension "pinning"
+        }
+
+        withoutPinning {
+            dimension "pinning"
+        }
     }
 
     soexcluder {
@@ -142,15 +149,34 @@ android {
     }
 
     lintOptions {
-        disable 'InvalidPackage'
-        disable 'MissingTranslation'
-        disable 'RestrictedApi'
-        disable 'ImpliedQuantity'
+        warning 'MissingTranslation'
 
         // Treat some warnings as errors
+        // Resources
+        error 'TypographyEllipsis'
+        error 'ImpliedQuantity'
+
+        // UX
+        warning 'ButtonOrder'
+
+        // Layout
         error 'StringFormatCount'
         error 'HardcodedText'
         error 'SpUsage'
+        error 'ObsoleteLayoutParam'
+        error 'InefficientWeight'
+        error 'DisableBaselineAlignment'
+        error 'ScrollViewSize'
+
+        // RTL
+        warning 'RtlEnabled'
+        warning 'RtlHardcoded'
+        warning 'RtlSymmetry'
+
+        // Code
+        error 'SetTextI18n'
+        error 'ViewConstructor'
+        error 'UseValueOf'
     }
 
     repositories {
@@ -190,6 +216,9 @@ dependencies {
     // Kotlin KTX
     implementation 'androidx.core:core-ktx:0.3'
 
+    // Kotlin coroutines
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.30.2'
+
     implementation 'com.android.support:multidex:1.0.0'
 
     implementation 'me.leolin:ShortcutBadger:1.1.2@aar'
@@ -205,6 +234,7 @@ dependencies {
     implementation 'com.android.support.constraint:constraint-layout:1.1.0'
     implementation 'com.getbase:floatingactionbutton:1.10.1'
     implementation 'com.binaryfork:spanny:1.0.4'
+    implementation 'com.github.chrisbanes:PhotoView:2.1.4'
 
     // Network
     implementation 'com.squareup.retrofit2:retrofit:2.4.0'
@@ -252,15 +282,14 @@ dependencies {
     withVoipImplementation(name: 'react-native', ext: 'aar')
     withVoipImplementation(name: 'react-native-locale-detector', ext: 'aar')
 
-
     // another tracking than GA
     implementation 'org.piwik.sdk:piwik-sdk:2.0.0'
 
     /************* flavors management **************/
 
     // app flavor only
-    appImplementation 'com.google.firebase:firebase-core:16.0.3'
-    appImplementation 'com.google.firebase:firebase-messaging:17.3.0'
+    appImplementation 'com.google.firebase:firebase-core:16.0.4'
+    appImplementation 'com.google.firebase:firebase-messaging:17.3.4'
 
     // fdroid flavor only
 

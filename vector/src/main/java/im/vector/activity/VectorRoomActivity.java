@@ -115,10 +115,13 @@ import im.vector.extensions.MatrixSdkExtensionsKt;
 import im.vector.features.hhs.LimitResourceState;
 import im.vector.features.hhs.ResourceLimitEventListener;
 import im.vector.fragments.VectorMessageListFragment;
+import im.vector.fragments.VectorReadReceiptsDialogFragment;
 import im.vector.fragments.VectorUnknownDevicesFragment;
 import im.vector.listeners.IMessagesAdapterActionsListener;
 import im.vector.notifications.NotificationUtils;
 import im.vector.services.EventStreamService;
+import im.vector.ui.themes.ActivityOtherThemes;
+import im.vector.ui.themes.ThemeUtils;
 import im.vector.util.CallsManager;
 import im.vector.util.PreferencesManager;
 import im.vector.util.ReadMarkerManager;
@@ -126,7 +129,6 @@ import im.vector.util.ExternalApplicationsUtilKt;
 import im.vector.util.MatrixURLSpan;
 import im.vector.util.PermissionsToolsKt;
 import im.vector.util.SlashCommandsParser;
-import im.vector.util.ThemeUtils;
 import im.vector.util.VectorMarkdownParser;
 import im.vector.util.VectorRoomMediasSender;
 import im.vector.util.VectorUtils;
@@ -137,7 +139,6 @@ import im.vector.view.VectorOngoingConferenceCallView;
 import im.vector.view.VectorPendingCallView;
 import im.vector.widgets.Widget;
 import im.vector.widgets.WidgetsManager;
-import kotlin.Triple;
 
 /**
  * Displays a single room with messages.
@@ -146,7 +147,8 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
         MatrixMessageListFragment.IRoomPreviewDataListener,
         MatrixMessageListFragment.IEventSendingListener,
         MatrixMessageListFragment.IOnScrollListener,
-        VectorMessageListFragment.VectorMessageListFragmentListener {
+        VectorMessageListFragment.VectorMessageListFragmentListener,
+        VectorReadReceiptsDialogFragment.VectorReadReceiptsDialogFragmentListener {
 
     // the session
     public static final String EXTRA_MATRIX_ID = MXCActionBarActivity.EXTRA_MATRIX_ID;
@@ -583,8 +585,8 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
 
     @NotNull
     @Override
-    public Triple getOtherThemes() {
-        return new Triple(R.style.AppTheme_NoActionBar_Dark, R.style.AppTheme_NoActionBar_Black, R.style.AppTheme_NoActionBar_Status);
+    public ActivityOtherThemes getOtherThemes() {
+        return ActivityOtherThemes.NoActionBar.INSTANCE;
     }
 
     @Override
@@ -1601,7 +1603,8 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
         final Integer[] lIcons = new Integer[]{R.drawable.tchap_ic_start_call, R.drawable.tchap_ic_video};
         final Integer[] lTexts = new Integer[]{R.string.action_voice_call, R.string.action_video_call};
 
-        IconAndTextDialogFragment fragment = IconAndTextDialogFragment.newInstance(lIcons, lTexts, ThemeUtils.INSTANCE.getColor(this, R.attr.riot_primary_background_color),
+        IconAndTextDialogFragment fragment = IconAndTextDialogFragment.newInstance(lIcons, lTexts,
+                ThemeUtils.INSTANCE.getColor(this, R.attr.vctr_riot_primary_background_color),
                 ContextCompat.getColor(VectorRoomActivity.this, R.color.tchap_text_color_light));
         fragment.setOnClickListener(new IconAndTextDialogFragment.OnItemClickListener() {
             @Override
@@ -1737,12 +1740,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
                         intent.putExtra(VectorCallViewActivity.EXTRA_MATRIX_ID, mSession.getCredentials().userId);
                         intent.putExtra(VectorCallViewActivity.EXTRA_CALL_ID, call.getCallId());
 
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                startActivity(intent);
-                            }
-                        });
+                        startActivity(intent);
                     }
                 });
             }
@@ -1775,6 +1773,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
                         CommonActivityUtils.displayUnknownDevicesDialog(mSession,
                                 VectorRoomActivity.this,
                                 (MXUsersDevicesMap<MXDeviceInfo>) cryptoError.mExceptionData,
+                                true,
                                 new VectorUnknownDevicesFragment.IUnknownDevicesSendAnywayListener() {
                                     @Override
                                     public void onSendAnyway() {
@@ -1923,7 +1922,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
             // sanity checks
             if (null != bundle) {
                 if (bundle.containsKey(Intent.EXTRA_TEXT)) {
-                    mEditText.setText(mEditText.getText() + bundle.getString(Intent.EXTRA_TEXT));
+                    mEditText.append(bundle.getString(Intent.EXTRA_TEXT));
 
                     mEditText.post(new Runnable() {
                         @Override
@@ -2148,7 +2147,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
      */
     private void handleTypingNotification(boolean isTyping) {
         // the typing notifications are disabled ?
-        if (PreferencesManager.dontSendTypingNotifs(this)) {
+        if (!PreferencesManager.sendTypingNotifs(this)) {
             Log.d(LOG_TAG, "##handleTypingNotification() : the typing notifications are disabled");
             return;
         }
@@ -2390,7 +2389,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
             // Use the builder context
-            View v = LayoutInflater.from(builder.getContext()).inflate(R.layout.no_sticker_pack_dialog, null);
+            View v = LayoutInflater.from(builder.getContext()).inflate(R.layout.dialog_no_sticker_pack, null);
 
             builder
                     .setView(v)
@@ -2757,14 +2756,11 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
                 // nothing to display
                 mLatestTypingMessage = null;
             } else if (names.size() == 1) {
-                mLatestTypingMessage = String.format(VectorApp.getApplicationLocale(),
-                        getString(R.string.room_one_user_is_typing), names.get(0));
+                mLatestTypingMessage = getString(R.string.room_one_user_is_typing, names.get(0));
             } else if (names.size() == 2) {
-                mLatestTypingMessage = String.format(VectorApp.getApplicationLocale(),
-                        getString(R.string.room_two_users_are_typing), names.get(0), names.get(1));
+                mLatestTypingMessage = getString(R.string.room_two_users_are_typing, names.get(0), names.get(1));
             } else {
-                mLatestTypingMessage = String.format(VectorApp.getApplicationLocale(),
-                        getString(R.string.room_many_users_are_typing), names.get(0), names.get(1));
+                mLatestTypingMessage = getString(R.string.room_many_users_are_typing, names.get(0), names.get(1));
             }
         }
 
@@ -3001,13 +2997,6 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
     //================================================================================
     // Kick / ban mode management
     //================================================================================
-
-    /*
-        <string name="has_been_kicked">You have been kicked from %1$ by %2$</string>
-    <string name="reason_colon">Reason: %1$</string>
-    <string name="rejoin">Rejoin</string>
-    <string name="forget_room">Forget room</string>
-     */
 
     /**
      * Manage the room preview buttons area
@@ -3602,6 +3591,22 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
         }
     }
 
+
+    /* ==========================================================================================
+     * Interface VectorReadReceiptsDialogFragmentListener
+     * ========================================================================================== */
+
+    @Override
+    public void onMemberClicked(@NotNull String userId) {
+        if (mRoom != null) {
+            Intent vectorMemberDetailIntent = new Intent(this, VectorMemberDetailsActivity.class);
+            vectorMemberDetailIntent.putExtra(VectorMemberDetailsActivity.EXTRA_ROOM_ID, mRoom.getRoomId());
+            vectorMemberDetailIntent.putExtra(VectorMemberDetailsActivity.EXTRA_MEMBER_ID, userId);
+            vectorMemberDetailIntent.putExtra(VectorMemberDetailsActivity.EXTRA_MATRIX_ID, mSession.getCredentials().userId);
+            startActivityForResult(vectorMemberDetailIntent, VectorRoomActivity.GET_MENTION_REQUEST_CODE);
+        }
+    }
+
     /* ==========================================================================================
      * UI Event
      * ========================================================================================== */
@@ -3656,7 +3661,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
         final Integer[] icons = iconsList.toArray(new Integer[0]);
 
         fragment = IconAndTextDialogFragment.newInstance(icons, messages,
-                ThemeUtils.INSTANCE.getColor(VectorRoomActivity.this, R.attr.riot_primary_background_color),
+                ThemeUtils.INSTANCE.getColor(VectorRoomActivity.this, R.attr.vctr_riot_primary_background_color),
                 ContextCompat.getColor(VectorRoomActivity.this, R.color.tchap_text_color_light));
         fragment.setOnClickListener(new IconAndTextDialogFragment.OnItemClickListener() {
             @Override
@@ -3692,13 +3697,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
             final Intent intent = new Intent(VectorRoomActivity.this, VectorCallViewActivity.class);
             intent.putExtra(VectorCallViewActivity.EXTRA_MATRIX_ID, call.getSession().getCredentials().userId);
             intent.putExtra(VectorCallViewActivity.EXTRA_CALL_ID, call.getCallId());
-
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    startActivity(intent);
-                }
-            });
+            startActivity(intent);
         } else {
             // if the call is no more active, just remove the view
             mVectorPendingCallView.onCallTerminated();

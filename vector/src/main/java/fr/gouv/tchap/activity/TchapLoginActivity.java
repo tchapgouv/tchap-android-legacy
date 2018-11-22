@@ -74,6 +74,7 @@ import butterknife.BindView;
 import butterknife.OnClick;
 import fr.gouv.tchap.sdk.rest.client.TchapRestClient;
 import fr.gouv.tchap.sdk.rest.model.Platform;
+import fr.gouv.tchap.util.HomeServerConnectionConfigFactoryKt;
 import im.vector.LoginHandler;
 import im.vector.Matrix;
 import im.vector.R;
@@ -85,9 +86,9 @@ import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.FallbackLoginActivity;
 import im.vector.activity.MXCActionBarActivity;
 import im.vector.activity.SplashActivity;
+import im.vector.activity.VectorUniversalLinkActivity;
 import im.vector.gcm.GCMHelper;
 import im.vector.features.hhs.ResourceLimitDialogHelper;
-import im.vector.receiver.VectorRegistrationReceiver;
 import im.vector.receiver.VectorUniversalLinkReceiver;
 import im.vector.services.EventStreamService;
 
@@ -324,7 +325,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
      * Used in the mail validation flow.
      * This method is called when the TchapLoginActivity is set to foreground due
      * to a {@link #startActivity(Intent)} where the flags Intent.FLAG_ACTIVITY_CLEAR_TOP and Intent.FLAG_ACTIVITY_SINGLE_TOP}
-     * are set (see: {@link VectorRegistrationReceiver}).
+     * are set (see: {@link VectorUniversalLinkActivity}).
      *
      * @param aIntent new intent
      */
@@ -339,7 +340,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             Log.d(LOG_TAG, "## onNewIntent(): Unexpected value - aIntent=null ");
         } else if (null == (receivedBundle = aIntent.getExtras())) {
             Log.d(LOG_TAG, "## onNewIntent(): Unexpected value - extras are missing");
-        } else if (receivedBundle.containsKey(VectorRegistrationReceiver.EXTRA_EMAIL_VALIDATION_PARAMS)) {
+        } else if (receivedBundle.containsKey(VectorUniversalLinkActivity.EXTRA_EMAIL_VALIDATION_PARAMS)) {
             Log.d(LOG_TAG, "## onNewIntent() Login activity started by email verification for registration");
 
             if (processEmailValidationExtras(receivedBundle)) {
@@ -483,7 +484,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             if (receivedBundle.containsKey(VectorUniversalLinkReceiver.EXTRA_UNIVERSAL_LINK_URI)) {
                 mUniversalLinkUri = receivedBundle.getParcelable(VectorUniversalLinkReceiver.EXTRA_UNIVERSAL_LINK_URI);
                 Log.d(LOG_TAG, "## onCreate() Login activity started by universal link");
-            } else if (receivedBundle.containsKey(VectorRegistrationReceiver.EXTRA_EMAIL_VALIDATION_PARAMS)) {
+            } else if (receivedBundle.containsKey(VectorUniversalLinkActivity.EXTRA_EMAIL_VALIDATION_PARAMS)) {
                 Log.d(LOG_TAG, "## onCreate() Login activity started by email verification for registration");
                 if (processEmailValidationExtras(receivedBundle)) {
                     // Reset the pending email validation if any.
@@ -1034,7 +1035,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
      * Parse the given bundle to check if it contains the email verification extra.
      * If yes, it initializes the TchapLoginActivity to start in registration mode to finalize a registration
      * process that is in progress. This is mainly used when the TchapLoginActivity
-     * is triggered from the {@link VectorRegistrationReceiver}.
+     * is triggered from the {@link VectorUniversalLinkActivity}.
      *
      * @param aRegistrationBundle bundle to be parsed
      * @return true operation succeed, false otherwise
@@ -1045,7 +1046,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         Log.d(LOG_TAG, "## processEmailValidationExtras() IN");
 
         if (null != aRegistrationBundle) {
-            mEmailValidationExtraParams = (HashMap<String, String>) aRegistrationBundle.getSerializable(VectorRegistrationReceiver.EXTRA_EMAIL_VALIDATION_PARAMS);
+            mEmailValidationExtraParams = (HashMap<String, String>) aRegistrationBundle.getSerializable(VectorUniversalLinkActivity.EXTRA_EMAIL_VALIDATION_PARAMS);
 
             if (null != mEmailValidationExtraParams) {
                 // login was started in email validation mode
@@ -1081,12 +1082,12 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             // set register mode
             mMode = MODE_ACCOUNT_CREATION;
 
-            String token = aMapParams.get(VectorRegistrationReceiver.KEY_MAIL_VALIDATION_TOKEN);
-            String clientSecret = aMapParams.get(VectorRegistrationReceiver.KEY_MAIL_VALIDATION_CLIENT_SECRET);
-            String identityServerSessId = aMapParams.get(VectorRegistrationReceiver.KEY_MAIL_VALIDATION_IDENTITY_SERVER_SESSION_ID);
-            String sessionId = aMapParams.get(VectorRegistrationReceiver.KEY_MAIL_VALIDATION_SESSION_ID);
-            String homeServer = aMapParams.get(VectorRegistrationReceiver.KEY_MAIL_VALIDATION_HOME_SERVER_URL);
-            String identityServer = aMapParams.get(VectorRegistrationReceiver.KEY_MAIL_VALIDATION_IDENTITY_SERVER_URL);
+            String token = aMapParams.get(VectorUniversalLinkActivity.KEY_MAIL_VALIDATION_TOKEN);
+            String clientSecret = aMapParams.get(VectorUniversalLinkActivity.KEY_MAIL_VALIDATION_CLIENT_SECRET);
+            String identityServerSessId = aMapParams.get(VectorUniversalLinkActivity.KEY_MAIL_VALIDATION_IDENTITY_SERVER_SESSION_ID);
+            String sessionId = aMapParams.get(VectorUniversalLinkActivity.KEY_MAIL_VALIDATION_SESSION_ID);
+            String homeServer = aMapParams.get(VectorUniversalLinkActivity.KEY_MAIL_VALIDATION_HOME_SERVER_URL);
+            String identityServer = aMapParams.get(VectorUniversalLinkActivity.KEY_MAIL_VALIDATION_IDENTITY_SERVER_URL);
 
             // When the user tries to update his/her password after forgetting it (tap on the dedicated link)
             // The HS / IS urls are not provided in the email link.
@@ -1125,11 +1126,9 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
      * @param aHomeServer     home server url
      */
     private void submitEmailToken(final String aToken, final String aClientSecret, final String aSid, final String aSessionId, final String aHomeServer, final String aIdentityServer) {
-        final HomeServerConnectionConfig homeServerConfig = mServerConfig = new HomeServerConnectionConfig.Builder()
-                .withHomeServerUri(Uri.parse(aHomeServer))
-                .withIdentityServerUri(Uri.parse(aIdentityServer))
-                .withTlsLimitations(true, Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT)
-                .build();
+        final HomeServerConnectionConfig homeServerConfig
+                = mServerConfig
+                = HomeServerConnectionConfigFactoryKt.createHomeServerConnectionConfig(aHomeServer, aIdentityServer);
         RegistrationManager.getInstance().setHsConfig(homeServerConfig);
         Log.d(LOG_TAG, "## submitEmailToken(): IN");
 
@@ -1794,11 +1793,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     private HomeServerConnectionConfig getHsConfig() {
         try {
             mServerConfig = null;
-            mServerConfig = new HomeServerConnectionConfig.Builder()
-                    .withHomeServerUri(Uri.parse(getHomeServerUrl()))
-                    .withIdentityServerUri(Uri.parse(getIdentityServerUrl()))
-                    .withTlsLimitations(true, Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT)
-                    .build();
+            mServerConfig = HomeServerConnectionConfigFactoryKt.createHomeServerConnectionConfig(getHomeServerUrl(), getIdentityServerUrl());
         } catch (Exception e) {
             Log.e(LOG_TAG, "getHsConfig fails " + e.getLocalizedMessage());
         }
@@ -2286,11 +2281,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
         // Retrieve the first identity server url by removing it from the list.
         String selectedUrl = identityServerUrls.remove(0);
-        TchapRestClient tchapRestClient = new TchapRestClient(new HomeServerConnectionConfig.Builder()
-                .withHomeServerUri(Uri.parse(selectedUrl))
-                .withIdentityServerUri(Uri.parse(selectedUrl))
-                .withTlsLimitations(true, Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT)
-                .build());
+        TchapRestClient tchapRestClient = new TchapRestClient(HomeServerConnectionConfigFactoryKt.createHomeServerConnectionConfig(selectedUrl, selectedUrl));
         tchapRestClient.info(emailAddress, ThreePid.MEDIUM_EMAIL, new ApiCallback<Platform>() {
             @Override
             public void onSuccess(Platform platform) {

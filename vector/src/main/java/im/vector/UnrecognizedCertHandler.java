@@ -104,18 +104,20 @@ public class UnrecognizedCertHandler {
         View layout = inflater.inflate(R.layout.dialog_ssl_fingerprint, null);
 
         TextView sslFingerprintTitle = layout.findViewById(R.id.ssl_fingerprint_title);
-        sslFingerprintTitle.setText(
-                String.format(VectorApp.getApplicationLocale(), activity.getString(R.string.ssl_fingerprint_hash), unrecognizedFingerprint.getType().toString())
-        );
+        sslFingerprintTitle.setText(activity.getString(R.string.ssl_fingerprint_hash, unrecognizedFingerprint.getType().toString()));
 
         TextView sslFingerprint = layout.findViewById(R.id.ssl_fingerprint);
         sslFingerprint.setText(unrecognizedFingerprint.getBytesAsHexString());
 
         TextView sslUserId = layout.findViewById(R.id.ssl_user_id);
         if (hsConfig.getCredentials() != null) {
-            sslUserId.setText(activity.getString(R.string.username) + ": " + hsConfig.getCredentials().userId);
+            sslUserId.setText(activity.getString(R.string.generic_label_and_value,
+                    activity.getString(R.string.username),
+                    hsConfig.getCredentials().userId));
         } else {
-            sslUserId.setText(activity.getString(R.string.hs_url) + ": " + hsConfig.getHomeserverUri().toString());
+            sslUserId.setText(activity.getString(R.string.generic_label_and_value,
+                    activity.getString(R.string.hs_url),
+                    hsConfig.getHomeserverUri().toString()));
         }
 
         TextView sslExpl = layout.findViewById(R.id.ssl_explanation);
@@ -132,41 +134,48 @@ public class UnrecognizedCertHandler {
         builder.setView(layout);
         builder.setTitle(R.string.ssl_could_not_verify);
 
-        builder.setPositiveButton(R.string.ssl_trust, new DialogInterface.OnClickListener() {
+        // builder.setPositiveButton(R.string.ssl_trust, new DialogInterface.OnClickListener() {
+        //     public void onClick(DialogInterface dialog, int id) {
+        //         hsConfig.getAllowedFingerprints().add(unrecognizedFingerprint);
+        //         callback.onAccept();
+        //     }
+        // });
+        //
+        // if (existing) {
+        //     builder.setNegativeButton(R.string.ssl_remain_offline, new DialogInterface.OnClickListener() {
+        //         public void onClick(DialogInterface dialog, int id) {
+        //             if (hsConfig.getCredentials() != null) {
+        //                 Set<Fingerprint> f = ignoredFingerprints.get(hsConfig.getCredentials().userId);
+        //                 if (f == null) {
+        //                     f = new HashSet<>();
+        //                     ignoredFingerprints.put(hsConfig.getCredentials().userId, f);
+        //                 }
+        //
+        //                 f.add(unrecognizedFingerprint);
+        //             }
+        //             callback.onIgnore();
+        //         }
+        //     });
+        //
+        //     builder.setNeutralButton(R.string.ssl_logout_account, new DialogInterface.OnClickListener() {
+        //         public void onClick(DialogInterface dialog, int id) {
+        //             callback.onReject();
+        //         }
+        //     });
+        // } else {
+        //     builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+        //         public void onClick(DialogInterface dialog, int id) {
+        //             callback.onReject();
+        //         }
+        //     });
+        // }
+
+        // Tchap: user can only reject unknown certificate
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                hsConfig.getAllowedFingerprints().add(unrecognizedFingerprint);
-                callback.onAccept();
+                callback.onReject();
             }
         });
-
-        if (existing) {
-            builder.setNegativeButton(R.string.ssl_remain_offline, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    if (hsConfig.getCredentials() != null) {
-                        Set<Fingerprint> f = ignoredFingerprints.get(hsConfig.getCredentials().userId);
-                        if (f == null) {
-                            f = new HashSet<>();
-                            ignoredFingerprints.put(hsConfig.getCredentials().userId, f);
-                        }
-
-                        f.add(unrecognizedFingerprint);
-                    }
-                    callback.onIgnore();
-                }
-            });
-
-            builder.setNeutralButton(R.string.ssl_logout_account, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    callback.onReject();
-                }
-            });
-        } else {
-            builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    callback.onReject();
-                }
-            });
-        }
 
         final AlertDialog dialog = builder.create();
 
