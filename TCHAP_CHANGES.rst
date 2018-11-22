@@ -1,3 +1,36 @@
+Changes in Tchap 1.0.11 (2018-11-22)
+===================================================
+
+Improvements:
+ * Update matrix-sdk.aar lib - build 1950 - Revision:b39da507f6f61e617c8164b2adcbf013ec0f3135
+ * User Profile: add an option to hide the user from users directory search (#385)
+ * Replace "chat.xxx.gouv.fr" url with ""matrix.xxx.gouv.fr" (#384)
+ * Rebase from vector-im/riot-android:
+    Features:
+     - Enable Lazy Loading by default, if the hs supports it
+     - Add RTL support (2376, 2271)
+	 
+	Improvements:
+     - Remove double negations from settings and update descriptions (2723)
+     - Handle missing or bad parameter in slash command
+     - Support specifying kick and ban message (2164)
+     - Add image transparency and fix issues with gifs in the media viewer (2731)
+     - Ability to crop profile picture before setting (2598)
+     - Add a setting of the room's info area visibility.
+	 
+   Other changes:
+     - Locales management has been moved to a dedicated file
+
+	Bugfix:
+     - Improve `/markdown` command (2673)
+     - Fix Permalinks and registration issue (2689)
+     - Mention from read receipts list doesn't work (656)
+     - Fix issue when scrolling file list in room details (2702)
+     - Align switch camera button to parent in landscape mode (2704)
+ 
+Bug Fixes:
+ * Registration: Tchap launch fails when the user clicks on the email link (#386)
+
 Changes in Tchap 1.0.10 (2018-10-30)
 ===================================================
 
