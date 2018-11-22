@@ -82,20 +82,23 @@
 
                     <RelativeLayout
                         android:id="@+id/messagesAdapter_file_layout"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end">
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <ImageView
+                            android:id="@+id/message_adapter_e2e_icon"
+                            android:layout_width="14dp"
+                            android:layout_height="14dp"
+                            android:src="@drawable/e2e_verified" />
 
                         <LinearLayout
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:layout_marginLeft="4dp"
+                            android:layout_toEndOf="@id/message_adapter_e2e_icon"
+                            android:layout_toRightOf="@id/message_adapter_e2e_icon"
                             android:orientation="horizontal">
-
-                            <ImageView
-                                android:id="@+id/message_adapter_e2e_icon"
-                                android:layout_width="14dp"
-                                android:layout_height="14dp"
-                                android:src="@drawable/e2e_verified" />
 
                             <!-- the media type -->
                             <ImageView
