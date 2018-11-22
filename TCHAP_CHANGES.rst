@@ -4,7 +4,12 @@ Changes in Tchap 1.0.11 (2018-11-22)
 Improvements:
  * Update matrix-sdk.aar lib - build 1950 - Revision:b39da507f6f61e617c8164b2adcbf013ec0f3135
  * User Profile: add an option to hide the user from users directory search (#385)
+ * Certificate pinning (#367):
+    - A new flavor dimension has been added "pinning"
+    - A configuration file has been added to handle potential fingerprints
+    - The user is prevented from accepting unknown certificates
  * Replace "chat.xxx.gouv.fr" url with ""matrix.xxx.gouv.fr" (#384)
+ * Room history: Apply the right tint on padlock in encrypted room.
  * Rebase from vector-im/riot-android:
     Features:
      - Enable Lazy Loading by default, if the hs supports it
