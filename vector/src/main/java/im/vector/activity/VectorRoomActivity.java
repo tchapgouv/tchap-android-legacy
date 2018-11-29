@@ -1391,46 +1391,18 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
 
     @Override
     public void onUnknownDevices(Event event, MXCryptoError error) {
-        //In a first time, automatically accept unknown devices
-        // we will review this in next sprints
-        MXUsersDevicesMap<MXDeviceInfo> unknownDevices = (MXUsersDevicesMap<MXDeviceInfo>) error.mExceptionData;
-        if ((null != unknownDevices)) {
-            Map<String, Map<String, MXDeviceInfo>> myMap = unknownDevices.getMap();
-            List<MXDeviceInfo> dis = new ArrayList<>();
-            for (String userId : unknownDevices.getUserIds()) {
-                for (String deviceId : unknownDevices.getUserDeviceIds(userId)) {
-                    dis.add(unknownDevices.getObject(deviceId, userId));
-                }
-            }
-            if (dis.size() > 0)
-                mSession.getCrypto().setDevicesKnown(dis, new ApiCallback<Void>() {
-                    // common method
-                    private void onDone() {
+        refreshNotificationsArea();
+        CommonActivityUtils.displayUnknownDevicesDialog(mSession,
+                this,
+                (MXUsersDevicesMap<MXDeviceInfo>) error.mExceptionData,
+                false,
+                new VectorUnknownDevicesFragment.IUnknownDevicesSendAnywayListener() {
+                    @Override
+                    public void onSendAnyway() {
                         mVectorMessageListFragment.resendUnsentMessages();
                         refreshNotificationsArea();
                     }
-
-                    @Override
-                    public void onSuccess(Void info) {
-                        onDone();
-                    }
-
-                    @Override
-                    public void onNetworkError(Exception e) {
-                        onDone();
-                    }
-
-                    @Override
-                    public void onMatrixError(MatrixError e) {
-                        onDone();
-                    }
-
-                    @Override
-                    public void onUnexpectedError(Exception e) {
-                        onDone();
-                    }
                 });
-        }
     }
 
     @Override

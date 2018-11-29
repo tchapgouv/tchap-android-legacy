@@ -1511,24 +1511,65 @@ public class CommonActivityUtils {
                                                    FragmentActivity activity,
                                                    MXUsersDevicesMap<MXDeviceInfo> unknownDevices,
                                                    boolean isForCalling,
-                                                   VectorUnknownDevicesFragment.IUnknownDevicesSendAnywayListener listener) {
+                                                   final VectorUnknownDevicesFragment.IUnknownDevicesSendAnywayListener listener) {
         // sanity checks
         if (activity.isFinishing() || (null == unknownDevices) || (0 == unknownDevices.getMap().size())) {
             return;
         }
 
-        FragmentManager fm = activity.getSupportFragmentManager();
-
-        VectorUnknownDevicesFragment fragment = (VectorUnknownDevicesFragment) fm.findFragmentByTag(TAG_FRAGMENT_UNKNOWN_DEVICES_DIALOG_DIALOG);
-        if (fragment != null) {
-            fragment.dismissAllowingStateLoss();
+        // ***
+        // Tchap: automatically accept unknown devices for the moment,
+        // we will review this in next sprints
+        List<MXDeviceInfo> dis = new ArrayList<>();
+        for (String userId : unknownDevices.getUserIds()) {
+            for (String deviceId : unknownDevices.getUserDeviceIds(userId)) {
+                dis.add(unknownDevices.getObject(deviceId, userId));
+            }
         }
+        if (dis.size() > 0){
+            session.getCrypto().setDevicesKnown(dis, new ApiCallback<Void>() {
+                // common method
+                private void onDone() {
+                    if (listener != null) {
+                        listener.onSendAnyway();
+                    }
+                }
 
-        fragment = VectorUnknownDevicesFragment.newInstance(session.getMyUserId(), unknownDevices, isForCalling, listener);
-        try {
-            fragment.show(fm, TAG_FRAGMENT_UNKNOWN_DEVICES_DIALOG_DIALOG);
-        } catch (Exception e) {
-            Log.e(LOG_TAG, "## displayUnknownDevicesDialog() failed : " + e.getMessage());
+                @Override
+                public void onSuccess(Void info) {
+                    onDone();
+                }
+
+                @Override
+                public void onNetworkError(Exception e) {
+                    onDone();
+                }
+
+                @Override
+                public void onMatrixError(MatrixError e) {
+                    onDone();
+                }
+
+                @Override
+                public void onUnexpectedError(Exception e) {
+                    onDone();
+                }
+            });
         }
+        //***
+
+//        FragmentManager fm = activity.getSupportFragmentManager();
+//
+//        VectorUnknownDevicesFragment fragment = (VectorUnknownDevicesFragment) fm.findFragmentByTag(TAG_FRAGMENT_UNKNOWN_DEVICES_DIALOG_DIALOG);
+//        if (fragment != null) {
+//            fragment.dismissAllowingStateLoss();
+//        }
+//
+//        fragment = VectorUnknownDevicesFragment.newInstance(session.getMyUserId(), unknownDevices, isForCalling, listener);
+//        try {
+//            fragment.show(fm, TAG_FRAGMENT_UNKNOWN_DEVICES_DIALOG_DIALOG);
+//        } catch (Exception e) {
+//            Log.e(LOG_TAG, "## displayUnknownDevicesDialog() failed : " + e.getMessage());
+//        }
     }
 }
