@@ -69,7 +69,7 @@ public final class PushManager {
     private static final String PREFS_SYNC_TIMEOUT = "GcmRegistrationManager.PREFS_SYNC_TIMEOUT";
     private static final String PREFS_SYNC_DELAY = "GcmRegistrationManager.PREFS_SYNC_DELAY";
 
-    private static final String DEFAULT_PUSHER_APP_ID = "im.vector.app.android";
+    private static final String DEFAULT_PUSHER_APP_ID = "fr.gouv.tchap.android";
     private static final String DEFAULT_PUSHER_URL = "https://matrix.org/_matrix/push/v1/notify";
     private static final String DEFAULT_PUSHER_FILE_TAG = "mobile";
 
@@ -1218,8 +1218,9 @@ public final class PushManager {
     public int getBackgroundSyncDelay() {
         // on fdroid version, the default sync delay is about 1 minutes
         // set a large value because many users don't know it can be defined from the settings page
+        // for french gov deployment, default sync delay of 20s
         if ((null == mRegistrationToken) && (null == getStoredRegistrationToken()) && !getPushSharedPreferences().contains(PREFS_SYNC_DELAY)) {
-            return 60 * 1000;
+            return 20000;
         } else {
             int currentValue = 0;
             MXSession session = Matrix.getInstance(mContext).getDefaultSession();
