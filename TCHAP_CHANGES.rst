@@ -1,3 +1,15 @@
+Changes in Tchap 1.0.12 (2018-11-29)
+===================================================
+
+Improvements:
+ * Update matrix-sdk.aar lib - build 1953 - Revision:e07635053dede93f2f23f586310b012a0a59b6b1
+
+Bug Fixes:
+ * Remove the warning on unknown devices when a call is placed #393
+ * I'm not allow to send message in a new joined room #392
+ * Rooms members: members who left are listed with the actual members #391
+ * Matrix Content Scanner: Update the stored server public key (riot-android PR 400)
+
 Changes in Tchap 1.0.11 (2018-11-22)
 ===================================================
 
