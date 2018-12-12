@@ -82,12 +82,17 @@ public class DinsicUtils {
     /**
      * Get the Tchap display name for the homeserver of a user identifier.
      * The returned name is capitalize.
-     * For example in case of "@jean-philippe.martin-modernisation.fr:matrix.test.org", this will return "Matrix".
+     * The Tchap HS display name is the component mentioned before the suffix "tchap.gouv.fr"
+     * For example in case of "@jean-philippe.martin-modernisation.fr:name1.tchap.gouv.fr", this will return "Name1".
+     * in case of "@jean-philippe.martin-modernisation.fr:agent.name2.tchap.gouv.fr", this will return "Name2".
      */
     public static String getHomeServerDisplayNameFromUserId (String userId) {
         String userHSName = DinsicUtils.getHomeServerNameFromUserId(userId);
-        if (userHSName.contains(".")) {
-            userHSName = userHSName.split("\\.")[0];
+        if (userHSName.contains("tchap.gouv.fr")) {
+            String[] components = userHSName.split("\\.");
+            if (components.length >= 4) {
+                userHSName = components[components.length - 4];
+            }
         }
         // Capitalize the domain
         StringBuilder builder = new StringBuilder();
