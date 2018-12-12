@@ -1,3 +1,9 @@
+Changes in Tchap 1.0.13 (2018-12-12)
+===================================================
+
+Bug Fix:
+ * Public room creation: wrong domain is displayed #395
+
 Changes in Tchap 1.0.12 (2018-11-29)
 ===================================================
 
