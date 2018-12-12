@@ -52,7 +52,7 @@ class ConsentNotGivenHelper private constructor(private val activity: Activity,
             AlertDialog.Builder(activity)
                     .setTitle(R.string.settings_app_term_conditions)
                     .setMessage(activity.getString(R.string.dialog_user_consent_content,
-                            Matrix.getInstance(activity).defaultSession.homeServerConfig.homeserverUri.host))
+                            "Tchap"))
                     .setPositiveButton(R.string.dialog_user_consent_submit) { _, _ ->
                         openWebViewActivity(matrixError.consentUri)
                     }
