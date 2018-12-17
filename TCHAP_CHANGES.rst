@@ -1,3 +1,12 @@
+Changes in Tchap 1.0.14 (2018-12-17)
+===================================================
+
+Improvements:
+ * Update Tchap logo for the protected infra.
+ 
+Bug Fix:
+ * Public rooms list: a wrong domain is displayed.
+
 Changes in Tchap 1.0.13 (2018-12-12)
 ===================================================
 
