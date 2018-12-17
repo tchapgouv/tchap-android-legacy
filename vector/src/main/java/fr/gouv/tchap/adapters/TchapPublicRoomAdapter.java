@@ -18,7 +18,6 @@
 package fr.gouv.tchap.adapters;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.support.annotation.CallSuper;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
@@ -42,6 +41,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import fr.gouv.tchap.activity.TchapLoginActivity;
+import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.R;
 import im.vector.adapters.AbsAdapter;
 import im.vector.adapters.AdapterSection;
@@ -232,16 +232,10 @@ public class TchapPublicRoomAdapter extends AbsAdapter {
             vPublicRoomName.setText(roomName);
 
             // display the room server host
-            if (publicRoom.roomId != null &&
-                    publicRoom.roomId.split(":") != null &&
-                    publicRoom.roomId.split(":").length>1) {
-                    String myHS = publicRoom.roomId.split(":")[1];
-                    if (myHS.split("\\.") != null &&
-                        myHS.split("\\.").length>0) {
-
-                        vPublicRoomDomain.setText(myHS.split("\\.")[0]);
-                    }
-             }
+            if (publicRoom.roomId != null)
+            {
+                vPublicRoomDomain.setText(DinsicUtils.getHomeServerDisplayNameFromMXIdentifier(publicRoom.roomId));
+            }
 
             // members count
             vPublicRoomsMemberCountTextView.setText(mContext.getResources().getQuantityString(R.plurals.public_room_nb_users,

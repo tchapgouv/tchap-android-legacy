@@ -72,33 +72,36 @@ public class DinsicUtils {
     private static final String LOG_TAG = "DinsicUtils";
 
     /**
-     * Get the homeserver name of a user identifier.
+     * Get the homeserver name of a matrix identifier.
+     * The identifier type may be any matrix identifier type: user id, room id, ...
      * For example in case of "@jean-philippe.martin-modernisation.fr:matrix.test.org", this will return "matrix.test.org".
+     * in case of "!AAAAAAA:matrix.test.org", this will return "matrix.test.org".
      */
-    public static String getHomeServerNameFromUserId (String userId) {
-        return userId.substring(userId.indexOf(":") + 1);
+    public static String getHomeServerNameFromMXIdentifier(String mxId) {
+        return mxId.substring(mxId.indexOf(":") + 1);
     }
 
     /**
-     * Get the Tchap display name for the homeserver of a user identifier.
+     * Get the Tchap display name of the homeserver mentioned in a matrix identifier.
+     * The identifier type may be any matrix identifier type: user id, room id, ...
      * The returned name is capitalize.
      * The Tchap HS display name is the component mentioned before the suffix "tchap.gouv.fr"
      * For example in case of "@jean-philippe.martin-modernisation.fr:name1.tchap.gouv.fr", this will return "Name1".
      * in case of "@jean-philippe.martin-modernisation.fr:agent.name2.tchap.gouv.fr", this will return "Name2".
      */
-    public static String getHomeServerDisplayNameFromUserId (String userId) {
-        String userHSName = DinsicUtils.getHomeServerNameFromUserId(userId);
-        if (userHSName.contains("tchap.gouv.fr")) {
-            String[] components = userHSName.split("\\.");
+    public static String getHomeServerDisplayNameFromMXIdentifier(String mxId) {
+        String homeserverName = DinsicUtils.getHomeServerNameFromMXIdentifier(mxId);
+        if (homeserverName.contains("tchap.gouv.fr")) {
+            String[] components = homeserverName.split("\\.");
             if (components.length >= 4) {
-                userHSName = components[components.length - 4];
+                homeserverName = components[components.length - 4];
             }
         }
         // Capitalize the domain
         StringBuilder builder = new StringBuilder();
-        builder.append(userHSName.substring(0, 1).toUpperCase());
-        if (userHSName.length() > 1) {
-            builder.append(userHSName.substring(1));
+        builder.append(homeserverName.substring(0, 1).toUpperCase());
+        if (homeserverName.length() > 1) {
+            builder.append(homeserverName.substring(1));
         }
         return builder.toString();
     }
