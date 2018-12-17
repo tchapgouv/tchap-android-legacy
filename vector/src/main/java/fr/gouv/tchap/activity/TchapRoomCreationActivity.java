@@ -131,7 +131,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         mRoomParams.preset = CreateRoomParams.PRESET_PRIVATE_CHAT;
 
         // Prepare disable federation label by adding the hs display name of the current user.
-        String userHSDomain = DinsicUtils.getHomeServerDisplayNameFromUserId(mSession.getMyUserId());
+        String userHSDomain = DinsicUtils.getHomeServerDisplayNameFromMXIdentifier(mSession.getMyUserId());
         disableFederationText.setText(getString(R.string.tchap_room_creation_disable_federation, userHSDomain));
     }
 
@@ -224,11 +224,11 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
             if (!mParticipantsIds.isEmpty()) {
                 // Remove the potential selected users who don't belong to the user HS
-                String currentUserHS = DinsicUtils.getHomeServerNameFromUserId(mSession.getMyUserId());
+                String currentUserHS = DinsicUtils.getHomeServerNameFromMXIdentifier(mSession.getMyUserId());
 
                 for (int index = 0; index < mParticipantsIds.size();) {
                     String selectedUserId = mParticipantsIds.get(index);
-                    if (!DinsicUtils.getHomeServerNameFromUserId(selectedUserId).equals(currentUserHS)) {
+                    if (!DinsicUtils.getHomeServerNameFromMXIdentifier(selectedUserId).equals(currentUserHS)) {
                         mParticipantsIds.remove(selectedUserId);
                     } else {
                         index++;

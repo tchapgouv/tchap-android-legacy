@@ -752,11 +752,11 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
         if (mContactsFilter.equals(VectorRoomInviteMembersActivity.ContactsFilter.FEDERATED_TCHAP_ONLY)) {
             // Remove all the users which are not federated
             // TODO improve the handling of this filter by removing not federated users during the participants list building.
-            String userHSName = DinsicUtils.getHomeServerNameFromUserId(mSession.getMyUserId());
+            String userHSName = DinsicUtils.getHomeServerNameFromMXIdentifier(mSession.getMyUserId());
             for (int index = 0; index < participantItemList.size();) {
                 ParticipantAdapterItem participant = participantItemList.get(index);
                 // Note: participant.mUserId cannot be null here
-                if (!DinsicUtils.getHomeServerNameFromUserId(participant.mUserId).equals(userHSName)) {
+                if (!DinsicUtils.getHomeServerNameFromMXIdentifier(participant.mUserId).equals(userHSName)) {
                     participantItemList.remove(participant);
                 } else {
                     index++;

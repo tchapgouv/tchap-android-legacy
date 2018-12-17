@@ -114,7 +114,7 @@ public class TchapPublicRoomsFragment extends VectorBaseFragment {
             mCurrentFilter = savedInstanceState.getString(CURRENT_FILTER);
         }
 
-        String userHSName = DinsicUtils.getHomeServerNameFromUserId(mSession.getMyUserId());
+        String userHSName = DinsicUtils.getHomeServerNameFromMXIdentifier(mSession.getMyUserId());
         List<String> servers = Arrays.asList(getResources().getStringArray(R.array.room_directory_servers));
         mCurrentHosts = new ArrayList<>();
         boolean isUserHSNameAdded = false;
