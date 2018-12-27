@@ -19,7 +19,6 @@ package im.vector.dialogs
 import android.app.Activity
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
-import im.vector.Matrix
 import im.vector.R
 import im.vector.activity.VectorWebViewActivity
 import im.vector.activity.interfaces.Restorable
@@ -51,8 +50,7 @@ class ConsentNotGivenHelper private constructor(private val activity: Activity,
         dialogLocker.displayDialog {
             AlertDialog.Builder(activity)
                     .setTitle(R.string.settings_app_term_conditions)
-                    .setMessage(activity.getString(R.string.dialog_user_consent_content,
-                            "Tchap"))
+                    .setMessage(activity.getString(R.string.dialog_user_consent_content, "Tchap"))
                     .setPositiveButton(R.string.dialog_user_consent_submit) { _, _ ->
                         openWebViewActivity(matrixError.consentUri)
                     }

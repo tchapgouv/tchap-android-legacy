@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="im.vector">
+
+    <application>
+        <activity android:name=".activity.VectorUniversalLinkActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="matrix.i.tchap.gouv.fr" />
+                <!-- mail validation -->
+                <data android:pathPrefix="/_matrix/" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="matrix.a.tchap.gouv.fr" />
+                <!-- mail validation -->
+                <data android:pathPrefix="/_matrix/" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="matrix.e.tchap.gouv.fr" />
+                <!-- mail validation -->
+                <data android:pathPrefix="/_matrix/" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="www.tchap.gouv.fr" />
+                <data android:pathPrefix="/alphatest/" />
+                <data android:pathPrefix="/app/" />
+                <data android:pathPrefix="/develop/" />
+                <data android:pathPrefix="/staging/" />
+            </intent-filter>
+        </activity>
+
+    </application>
+
+</manifest>
