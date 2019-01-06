@@ -1,28 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="riot_app_name">Tchap</string>
 
-    <!-- Identity server names -->
-    <string-array
-        name="preferred_identity_server_names" translatable="false" >
-        <item>dev-durable.tchap.gouv.fr</item>
-        <item>education.tchap.gouv.fr</item>
-        <item>culture.tchap.gouv.fr</item>
-    </string-array>
-    <string-array
-        name="identity_server_names" translatable="false" >
-        <item>dinum.tchap.gouv.fr</item>
-        <item>intradef.tchap.gouv.fr</item>
-        <item>diplomatie.tchap.gouv.fr</item>
-        <item>justice.tchap.gouv.fr</item>
-        <item>agriculture.tchap.gouv.fr</item>
-        <item>interieur.tchap.gouv.fr</item>
-        <item>social.tchap.gouv.fr</item>
-        <item>finances.tchap.gouv.fr</item>
-        <item>ssi.tchap.gouv.fr</item>
-        <item>pm.tchap.gouv.fr</item>
-        <item>elysee.tchap.gouv.fr</item>
-    </string-array>
 
     <!-- Server url prefix -->
     <string name="server_url_prefix" translatable="false">https://matrix.</string>
@@ -34,25 +12,6 @@
     <!-- empty means to use the active HS url -->
     <!-- set a valid URL like "https://matrix.org" to use a custom one -->
     <string name="push_server_url" translatable="false" />
-
-    <!-- Default list of federated server names -->
-    <string-array
-        name="room_directory_servers" translatable="false" >
-        <item>dev-durable.tchap.gouv.fr</item>
-        <item>dinum.tchap.gouv.fr</item>
-        <item>intradef.tchap.gouv.fr</item>
-        <item>diplomatie.tchap.gouv.fr</item>
-        <item>justice.tchap.gouv.fr</item>
-        <item>agriculture.tchap.gouv.fr</item>
-        <item>interieur.tchap.gouv.fr</item>
-        <item>social.tchap.gouv.fr</item>
-        <item>education.tchap.gouv.fr</item>
-        <item>finances.tchap.gouv.fr</item>
-        <item>ssi.tchap.gouv.fr</item>
-        <item>pm.tchap.gouv.fr</item>
-        <item>elysee.tchap.gouv.fr</item>
-        <item>culture.tchap.gouv.fr</item>
-    </string-array>
 
     <string name="plus_sign" translatable="false">+</string>
     <string name="semicolon_sign" translatable="false">:</string>

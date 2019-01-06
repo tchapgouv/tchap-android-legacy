@@ -48,7 +48,7 @@
         android:name=".VectorApp"
         android:allowBackup="false"
         android:icon="@drawable/logo_tchap_color"
-        android:label="@string/riot_app_name"
+        android:label="@string/tchap_app_name"
         android:largeHeap="true"
         android:logo="@drawable/logo_tchap_color"
         android:resizeableActivity="false"
