@@ -2,6 +2,7 @@
 <resources>
 
     <string name="tchap_app_name" translatable="false">Tchap</string>
+    <string name="tchap_universal_link_supported_host" translatable="false">agent.tchap.gouv.fr</string>
 
     <!-- Identity server names -->
     <string-array name="preferred_identity_server_names" translatable="false">
