@@ -37,9 +37,6 @@ android {
         // Use Vector drawables
         vectorDrawables.useSupportLibrary = true
 
-        // custom values
-        resValue "string", "bug_report_url", "https://riot.im/bugreports/submit"
-
         ndk {
             // abiFilters "arm64-v8a", "armeabi-v7a", "x86"
             abiFilters "armeabi-v7a", "x86"

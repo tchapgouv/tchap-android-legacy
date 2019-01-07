@@ -98,6 +98,8 @@ public class BugReporter {
         void onUploadSucceed();
     }
 
+    private static final String BUG_REPORT_URL_SUFFIX = "/bugreports/submit";
+
     // filenames
     private static final String LOG_CAT_ERROR_FILENAME = "logcatError.log";
     private static final String LOG_CAT_FILENAME = "logcat.log";
@@ -194,20 +196,23 @@ public class BugReporter {
                 String userId = "undefined";
                 String matrixSdkVersion = "undefined";
                 String olmVersion = "undefined";
-
+                String bugReportURL;
 
                 if (null != session) {
                     userId = session.getMyUserId();
                     deviceId = session.getCredentials().deviceId;
                     matrixSdkVersion = session.getVersion(true);
                     olmVersion = session.getCryptoVersion(context, true);
+                    bugReportURL = session.getHomeServerConfig().getHomeserverUri() + BUG_REPORT_URL_SUFFIX;
+                } else {
+                    bugReportURL = context.getString(R.string.server_url_prefix) + context.getString(R.string.bug_report_default_host) + BUG_REPORT_URL_SUFFIX;
                 }
 
                 if (!mIsCancelled) {
                     // build the multi part request
                     BugReporterMultipartBody.Builder builder = new BugReporterMultipartBody.Builder()
                             .addFormDataPart("text", bugDescription)
-                            .addFormDataPart("app", "riot-android")
+                            .addFormDataPart("app", "tchap-android")
                             .addFormDataPart("user_agent", RestClient.getUserAgent())
                             .addFormDataPart("user_id", userId)
                             .addFormDataPart("device_id", deviceId)
@@ -309,7 +314,7 @@ public class BugReporter {
 
                     // build the request
                     Request request = new Request.Builder()
-                            .url(context.getString(R.string.bug_report_url))
+                            .url(bugReportURL)
                             .post(requestBody)
                             .build();
 

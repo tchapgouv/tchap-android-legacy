@@ -1807,10 +1807,9 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
                         VectorUtils.displayAppTac();
                         break;
 
-                    /* not for the first step on tchap case R.id.sliding_menu_send_bug_report:
+                    case R.id.sliding_menu_send_bug_report:
                         BugReporter.sendBugReport();
                         break;
-                    */
 
                     case R.id.sliding_menu_sign_out:
                         new AlertDialog.Builder(VectorHomeActivity.this)

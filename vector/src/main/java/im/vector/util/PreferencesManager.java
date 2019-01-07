@@ -736,7 +736,7 @@ public class PreferencesManager {
      * @return true if the rage shake is used
      */
     public static boolean useRageshake(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_USE_RAGE_SHAKE_KEY, false);
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_USE_RAGE_SHAKE_KEY, true);
     }
 
     /**
