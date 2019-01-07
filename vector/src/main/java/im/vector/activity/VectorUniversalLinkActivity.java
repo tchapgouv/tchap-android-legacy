@@ -71,7 +71,7 @@ public class VectorUniversalLinkActivity extends VectorAppCompatActivity {
         IntentFilter intentFilter = new IntentFilter(VectorUniversalLinkReceiver.BROADCAST_ACTION_UNIVERSAL_LINK);
         intentFilter.addDataScheme("http");
         intentFilter.addDataScheme("https");
-        intentFilter.addDataAuthority(getApplicationContext().getString(R.string.tchap_universal_link_supported_host), null);
+        intentFilter.addDataAuthority(getString(R.string.tchap_universal_link_supported_host), null);
         LocalBroadcastManager.getInstance(this).registerReceiver(mUniversalLinkReceiver, intentFilter);
 
         String intentAction = null;
