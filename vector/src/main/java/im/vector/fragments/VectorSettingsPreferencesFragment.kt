@@ -659,15 +659,15 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 //            }
 //        }
 //
-//        // Rageshake Management
-//        (findPreference(PreferencesManager.SETTINGS_USE_RAGE_SHAKE_KEY) as CheckBoxPreference).let {
-//            it.isChecked = PreferencesManager.useRageshake(appContext)
-//
-//            it.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
-//                PreferencesManager.setUseRageshake(appContext, newValue as Boolean)
-//                true
-//            }
-//        }
+        // Rageshake Management
+        (findPreference(PreferencesManager.SETTINGS_USE_RAGE_SHAKE_KEY) as CheckBoxPreference).let {
+            it.isChecked = PreferencesManager.useRageshake(appContext)
+
+            it.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
+                PreferencesManager.setUseRageshake(appContext, newValue as Boolean)
+                true
+            }
+        }
 //
 //        // preference to start the App info screen, to facilitate App permissions access
 //        findPreference(APP_INFO_LINK_PREFERENCE_KEY)

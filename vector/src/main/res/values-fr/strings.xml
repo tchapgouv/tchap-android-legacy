@@ -1018,7 +1018,7 @@ La visibilité des messages dans Matrix est identique à celle des e-mails. Si n
 
     <string name="error_empty_field_your_password">Veuillez renseigner votre mot de passe.</string>
 
-    <string name="send_bug_report_description_in_english">Si possible, veuillez écrire la description en anglais.</string>
+    <string name="send_bug_report_description_in_english"></string>
     <string name="room_participants_action_unignore_prompt">Afficher tous les messages de cet utilisateur ?
 
 Veuillez noter que cette action redémarrera l\'application et pourra prendre un certain temps.</string>

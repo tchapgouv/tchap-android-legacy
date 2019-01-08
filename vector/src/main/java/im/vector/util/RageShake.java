@@ -176,8 +176,7 @@ public class RageShake implements SensorEventListener {
                         mLastShakeTimestamp = System.currentTimeMillis();
 
                         if (PreferencesManager.useRageshake(mContext)) {
-                            // For the Tchap app, the rage shake feature is disabled in the preferences manager.
-                            //promptForReport();
+                            promptForReport();
                         }
                     } else {
                         Log.d(LOG_TAG, "Suppress shaking - not passed interval. Ms to go: " + (mTimeToNextShakeMs -

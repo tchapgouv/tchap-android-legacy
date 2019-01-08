@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-
     <!-- Server url prefix -->
     <string name="server_url_prefix" translatable="false">https://matrix.</string>
 
     <!-- Widget urls -->
-    <string name="integrations_rest_url">"https://scalar-staging.riot.im/scalar"</string>
-    <string name="integrations_ui_url">"https://scalar-staging.riot.im/scalar-web/"</string>
+    <string name="integrations_rest_url" translatable="false">"https://scalar-staging.riot.im/scalar"</string>
+    <string name="integrations_ui_url" translatable="false">"https://scalar-staging.riot.im/scalar-web/"</string>
 
     <!-- empty means to use the active HS url -->
     <!-- set a valid URL like "https://matrix.org" to use a custom one -->
