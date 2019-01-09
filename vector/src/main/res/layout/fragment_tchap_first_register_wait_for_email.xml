@@ -11,6 +11,21 @@
     android:paddingStart="22dp">
 
     <TextView
+        android:id="@+id/fragment_tchap_register_wait_for_email_caution"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:fontFamily="sans-serif-light"
+        android:gravity="center_horizontal"
+        android:text="@string/tchap_register_wait_for_email_caution"
+        android:textColor="@color/vector_fuchsia_color"
+        android:textSize="16sp"
+        android:textStyle="normal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
         android:id="@+id/fragment_tchap_register_wait_for_email_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -23,7 +38,7 @@
         android:textStyle="normal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/fragment_tchap_register_wait_for_email_caution" />
 
     <TextView
         android:id="@+id/fragment_tchap_register_wait_for_email_email"
@@ -38,7 +53,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/fragment_tchap_register_wait_for_email_title"
-        tools:text="jerome.ploquin@modernisation.gouv.fr" />
+        tools:text="jerome.martin@test.gouv.fr" />
 
     <TextView
         android:id="@+id/fragment_tchap_register_wait_for_email_subtitle"
