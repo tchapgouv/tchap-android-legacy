@@ -611,6 +611,9 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     }
 
     private void promptUserBeforeCancellingEmailPolling() {
+        if (mCurrentDialog != null) {
+            mCurrentDialog.dismiss();
+        }
         mCurrentDialog = new AlertDialog.Builder(TchapLoginActivity.this)
                 .setTitle(R.string.dialog_title_warning)
                 .setMessage(R.string.tchap_register_wait_for_email_prompt_on_back)
@@ -2019,6 +2022,9 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
      */
     private void onPhoneNumberSidReceived(final ThreePid pid) {
         final View dialogLayout = getLayoutInflater().inflate(R.layout.dialog_phone_number_verification, null);
+        if (mCurrentDialog != null) {
+            mCurrentDialog.dismiss();
+        }
         mCurrentDialog = new AlertDialog.Builder(TchapLoginActivity.this)
                 .setView(dialogLayout)
                 .setMessage(R.string.settings_phone_number_verification_instruction)
@@ -2110,6 +2116,9 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         cancelEmailPolling();
         enableLoadingScreen(false);
         if (!TextUtils.isEmpty(warningMessage)) {
+            if (mCurrentDialog != null) {
+                mCurrentDialog.dismiss();
+            }
             mCurrentDialog = new AlertDialog.Builder(TchapLoginActivity.this)
                     .setTitle(R.string.dialog_title_warning)
                     .setMessage(warningMessage)
