@@ -1082,6 +1082,8 @@
     <string name="tchap_register_wait_for_email_subtitle">Please open it and click in the link it contains to finalize the verification</string>
     <string name="tchap_register_wait_for_email_no_email">I have not received any e-mail!</string>
     <string name="tchap_register_unauthorized_email">This email address is unauthorized</string>
+    <string name="tchap_register_wait_for_email_caution">Do not leave this screen until the end of the registration</string>
+    <string name="tchap_register_wait_for_email_prompt_on_back">Are you sure that you want to cancel the registration?</string>
 
     <string name="tchap_dialog_user_consent_homeserver_name">Tchap</string>
 

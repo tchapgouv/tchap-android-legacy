@@ -228,7 +228,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="people_search_invite_by_id_dialog_hint">Email</string>
     <string name="people_invalid_warning_msg">Pour inviter un contact un email est requis</string>
     <string name="people_edit_contact_warning_msg">Accès à la fiche contact impossible</string>
-    <string name="room_invite_people">Voulez vous l\'inviter dans Tchap (un mail lui sera envoyé) ?</string>
+    <string name="room_invite_people">Voulez-vous l\'inviter dans Tchap (un mail lui sera envoyé) ?</string>
 
     <string name="room_menu_search">Rechercher</string>
     <string name="room_message_placeholder_encrypted">Envoyer un message chiffré…</string>
@@ -868,10 +868,12 @@ Appareils inconnus :</string>
     <string name="tchap_connection_password">Mot de passe Tchap</string>
     <string name="tchap_connection_password_confirm">Confirmer le mot de passe</string>
     <string name="tchap_connection_forgotten_email">J’ai oublié mon mot de passe</string>
-    <string name="tchap_register_wait_for_email_title">Un email vous a été envoyé</string>
-    <string name="tchap_register_wait_for_email_subtitle">Veuillez l’ouvrir et cliquer sur le lien proposé pour valider votre inscription</string>
+    <string name="tchap_register_wait_for_email_title">Un email vous a été envoyé à :</string>
+    <string name="tchap_register_wait_for_email_subtitle">Merci de cliquer sur le lien proposé dans cet email afin de valider votre inscription.\nVous entrerez alors automatiquement dans Tchap</string>
     <string name="tchap_register_wait_for_email_no_email">Je n’ai pas reçu l’email!</string>
     <string name="tchap_register_unauthorized_email">Cette adresse e-mail n\'est pas autorisée</string>
+    <string name="tchap_register_wait_for_email_caution">Veuillez rester sur cet écran jusqu\'à la fin de la procédure d\’inscription</string>
+    <string name="tchap_register_wait_for_email_prompt_on_back">Votre inscription n\’est pas terminée. Etes-vous sûr de vouloir abandonner la procédure d\’inscription ?</string>
 
     <string name="tchap_dialog_user_consent_homeserver_name">Tchap</string>
 
