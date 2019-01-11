@@ -28,7 +28,6 @@ android {
     }
 
     defaultConfig {
-        applicationId "fr.gouv.tchap"
         minSdkVersion 16
         targetSdkVersion 26
         // use the version code
@@ -37,9 +36,6 @@ android {
 
         // Use Vector drawables
         vectorDrawables.useSupportLibrary = true
-
-        // custom values
-        resValue "string", "bug_report_url", "https://riot.im/bugreports/submit"
 
         ndk {
             // abiFilters "arm64-v8a", "armeabi-v7a", "x86"
@@ -100,15 +96,15 @@ android {
     }
 
     // The 'base' dimension permits to deal with GooglePlay/Fdroid app
+    // The 'target' dimension permits to specify which platform are used
     // The 'voip' flavor dimension permits to include/exclude jitsi at compilation time
     // The 'pinning' flavor dimension permits to enable/disable certificate pinning with fingerprint check
-    flavorDimensions "base", "voip", "pinning"
+    flavorDimensions "base", "target", "voip", "pinning"
 
     productFlavors {
         app {
             // use the version name
             versionCode rootProject.ext.versionCodeProp
-            versionName rootProject.ext.versionNameProp
             buildConfigField "boolean", "ALLOW_FCM_USE", "true"
             buildConfigField "String", "SHORT_FLAVOR_DESCRIPTION", "\"G\""
             buildConfigField "String", "FLAVOR_DESCRIPTION", "\"GooglePlay\""
@@ -118,7 +114,6 @@ android {
         appfdroid {
             // use the version name
             versionCode rootProject.ext.versionCodeProp
-            versionName rootProject.ext.versionNameProp
             buildConfigField "boolean", "ALLOW_FCM_USE", "false"
             buildConfigField "String", "SHORT_FLAVOR_DESCRIPTION", "\"F\""
             buildConfigField "String", "FLAVOR_DESCRIPTION", "\"FDroid\""
@@ -139,6 +134,34 @@ android {
 
         withoutPinning {
             dimension "pinning"
+        }
+
+        // Note: we cannot use reserved word protected, so typo the word
+        protecteed {
+            dimension "target"
+
+            applicationId "fr.gouv.tchap"
+            versionName rootProject.ext.versionNameProp
+
+            buildConfigField "String", "DEFAULT_PUSHER_APP_ID", "\"fr.gouv.tchap.android\""
+        }
+
+        preprod {
+            dimension "target"
+
+            applicationId "fr.gouv.rie.tchap"
+            versionName rootProject.ext.versionNameProp + "_b"
+
+            buildConfigField "String", "DEFAULT_PUSHER_APP_ID", "\"fr.gouv.rie.tchap.android\""
+        }
+
+        agent {
+            dimension "target"
+
+            applicationId "fr.gouv.tchap.a"
+            versionName rootProject.ext.versionNameProp + "_a"
+
+            buildConfigField "String", "DEFAULT_PUSHER_APP_ID", "\"fr.gouv.tchap.a.android\""
         }
     }
 

@@ -554,9 +554,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                         fallbackToStartMode();
                         return true;
                     case MODE_ACCOUNT_CREATION_WAIT_FOR_EMAIL:
-                        // Go back to register screen
-                        cancelEmailPolling();
-                        fallbackToRegistrationMode();
+                        promptUserBeforeCancellingEmailPolling();
                         return true;
                     case MODE_FORGOT_PASSWORD:
                         fallbackToLoginMode();
@@ -586,9 +584,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 fallbackToStartMode();
                 break;
             case MODE_ACCOUNT_CREATION_WAIT_FOR_EMAIL:
-                // Go back to register screen
-                cancelEmailPolling();
-                fallbackToRegistrationMode();
+                promptUserBeforeCancellingEmailPolling();
                 break;
             case MODE_FORGOT_PASSWORD:
                 fallbackToLoginMode();
@@ -612,6 +608,30 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             default:
                 super.onBackPressed();
         }
+    }
+
+    private void promptUserBeforeCancellingEmailPolling() {
+        if (mCurrentDialog != null) {
+            mCurrentDialog.dismiss();
+        }
+        mCurrentDialog = new AlertDialog.Builder(TchapLoginActivity.this)
+                .setTitle(R.string.dialog_title_warning)
+                .setMessage(R.string.tchap_register_wait_for_email_prompt_on_back)
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Go back to register screen
+                        cancelEmailPolling();
+                        fallbackToRegistrationMode();
+                    }
+                })
+                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Do nothing
+                    }
+                })
+                .show();
     }
 
     /**
@@ -2002,6 +2022,9 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
      */
     private void onPhoneNumberSidReceived(final ThreePid pid) {
         final View dialogLayout = getLayoutInflater().inflate(R.layout.dialog_phone_number_verification, null);
+        if (mCurrentDialog != null) {
+            mCurrentDialog.dismiss();
+        }
         mCurrentDialog = new AlertDialog.Builder(TchapLoginActivity.this)
                 .setView(dialogLayout)
                 .setMessage(R.string.settings_phone_number_verification_instruction)
@@ -2093,6 +2116,9 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         cancelEmailPolling();
         enableLoadingScreen(false);
         if (!TextUtils.isEmpty(warningMessage)) {
+            if (mCurrentDialog != null) {
+                mCurrentDialog.dismiss();
+            }
             mCurrentDialog = new AlertDialog.Builder(TchapLoginActivity.this)
                     .setTitle(R.string.dialog_title_warning)
                     .setMessage(warningMessage)
@@ -2438,8 +2464,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
     @OnClick(R.id.fragment_tchap_register_wait_for_email_back)
     void onEmailNotReceived() {
-        cancelEmailPolling();
-        fallbackToRegistrationMode();
+        promptUserBeforeCancellingEmailPolling();
     }
 
     @OnClick(R.id.fragment_tchap_first_message_button_submit)

@@ -69,10 +69,10 @@ public class VectorUniversalLinkReceiver extends BroadcastReceiver {
     public static final String HOME_SENDER_ID = VectorHomeActivity.class.getSimpleName();
 
     // supported host list
-    private static final List<String> sSupportedVectorHosts = Arrays.asList("www.tchap.gouv.fr");
+    private static final List<String> sSupportedVectorHosts = Arrays.asList("tchap.gouv.fr", "agent.tchap.gouv.fr", "beta.tchap.gouv.fr");
 
     // supported paths list
-    private static final List<String> sSupportedVectorLinkPaths = Arrays.asList("/alphatest/", "/develop/", "/app/", "/staging/");
+    private static final List<String> sSupportedVectorLinkPaths = Arrays.asList("/");
 
     // the session
     private MXSession mSession;

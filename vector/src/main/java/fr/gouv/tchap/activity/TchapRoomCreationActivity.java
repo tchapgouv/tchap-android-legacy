@@ -53,6 +53,7 @@ import java.util.Map;
 import java.util.Random;
 
 import butterknife.BindView;
+import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
 
@@ -192,7 +193,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     }
 
 
-    @OnClick(R.id.switch_public_private_rooms)
+    @OnCheckedChanged(R.id.switch_public_private_rooms)
     void setRoomPrivacy() {
         if (switchPublicPrivateRoom.isChecked()) {
             tvPublicPrivateRoomDescription.setTextColor(ContextCompat.getColor(this, R.color.vector_fuchsia_color));
@@ -214,7 +215,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         }
     }
 
-    @OnClick(R.id.switch_disable_federation)
+    @OnCheckedChanged(R.id.switch_disable_federation)
     void setRoomFederation() {
         if (switchDisableFederation.isChecked()) {
             Map<String, Object> params = new HashMap<>();

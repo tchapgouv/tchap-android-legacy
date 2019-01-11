@@ -404,20 +404,16 @@
 
     <im.vector.preference.VectorDividerCategory /-->
 
+    <!-- Remove Analytics tracking until Tchap defines its own instance -->
     <!--PreferenceCategory
         android:key="SETTINGS_ANALYTICS_PREFERENCE_KEY"
-        android:title="@string/settings_analytics" -->
+        android:title="@string/settings_analytics">
 
-        <!-- Remove Analytics tracking until Tchap defines its own instance -->
-        <!-- im.vector.preference.VectorSwitchPreference
+        < im.vector.preference.VectorSwitchPreference
             android:defaultValue="false"
             android:key="SETTINGS_USE_ANALYTICS_KEY"
             android:summary="@string/settings_opt_in_of_analytics_summary"
-            android:title="@string/settings_opt_in_of_analytics" /-->
-
-        <!--im.vector.preference.VectorSwitchPreference
-            android:key="SETTINGS_USE_RAGE_SHAKE_KEY"
-            android:title="@string/send_bug_report_rage_shake" />
+            android:title="@string/settings_opt_in_of_analytics" />
     </PreferenceCategory>
 
     <im.vector.preference.VectorDividerCategory /-->
@@ -468,6 +464,10 @@
         <im.vector.preference.VectorCustomActionEditTextPreference
             android:key="SETTINGS_CLEAR_CACHE_PREFERENCE_KEY"
             android:title="@string/settings_clear_cache" />
+
+        <im.vector.preference.VectorSwitchPreference
+            android:key="SETTINGS_USE_RAGE_SHAKE_KEY"
+            android:title="@string/send_bug_report_rage_shake" />
 
     </PreferenceCategory>
 

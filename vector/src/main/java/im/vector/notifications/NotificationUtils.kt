@@ -197,7 +197,7 @@ object NotificationUtils {
 
         val builder = NotificationCompat.Builder(context, LISTENING_FOR_EVENTS_NOTIFICATION_CHANNEL_ID)
                 .setWhen(System.currentTimeMillis())
-                .setContentTitle(context.getString(R.string.riot_app_name))
+                .setContentTitle(context.getString(R.string.tchap_app_name))
                 .setContentText(context.getString(subTitleResId))
                 .setSmallIcon(R.drawable.logo_transparent)
                 .setContentIntent(pi)
@@ -220,7 +220,7 @@ object NotificationUtils {
             try {
                 val deprecatedMethod = notification.javaClass
                         .getMethod("setLatestEventInfo", Context::class.java, CharSequence::class.java, CharSequence::class.java, PendingIntent::class.java)
-                deprecatedMethod.invoke(notification, context, context.getString(R.string.riot_app_name), context.getString(subTitleResId), pi)
+                deprecatedMethod.invoke(notification, context, context.getString(R.string.tchap_app_name), context.getString(subTitleResId), pi)
             } catch (ex: Exception) {
                 Log.e(LOG_TAG, "## buildNotification(): Exception - setLatestEventInfo() Msg=" + ex.message, ex)
             }
@@ -346,7 +346,7 @@ object NotificationUtils {
             inboxStyle.addLine(notifiedLine)
         }
 
-        inboxStyle.setBigContentTitle(context.getString(R.string.riot_app_name))
+        inboxStyle.setBigContentTitle(context.getString(R.string.tchap_app_name))
         inboxStyle.setSummaryText(roomsNotifications.mSummaryText)
         builder.setStyle(inboxStyle)
 
@@ -673,7 +673,7 @@ object NotificationUtils {
                     .setContentTitle(ensureTitleNotEmpty(context, roomsNotifications.mContentTitle))
                     .setContentText(roomsNotifications.mContentText)
                     .setSmallIcon(R.drawable.logo_transparent)
-                    .setGroup(context.getString(R.string.riot_app_name))
+                    .setGroup(context.getString(R.string.tchap_app_name))
                     .setGroupSummary(true)
                     .setDeleteIntent(PendingIntent.getBroadcast(context.applicationContext,
                             0, Intent(context.applicationContext, DismissNotificationReceiver::class.java), PendingIntent.FLAG_UPDATE_CURRENT))
@@ -716,10 +716,10 @@ object NotificationUtils {
 
             val builder = NotificationCompat.Builder(context, SILENT_NOTIFICATION_CHANNEL_ID)
                     .setWhen(System.currentTimeMillis())
-                    .setContentTitle(context.getString(R.string.riot_app_name))
+                    .setContentTitle(context.getString(R.string.tchap_app_name))
                     .setContentText(messagesStrings[0])
                     .setSmallIcon(R.drawable.logo_transparent)
-                    .setGroup(context.getString(R.string.riot_app_name))
+                    .setGroup(context.getString(R.string.tchap_app_name))
                     .setGroupSummary(true)
 
             val inboxStyle = NotificationCompat.InboxStyle()
@@ -728,7 +728,7 @@ object NotificationUtils {
                 inboxStyle.addLine(messagesStrings[i])
             }
 
-            inboxStyle.setBigContentTitle(context.getString(R.string.riot_app_name))
+            inboxStyle.setBigContentTitle(context.getString(R.string.tchap_app_name))
                     .setSummaryText(
                             context.resources
                                     .getQuantityString(R.plurals.notification_unread_notified_messages, messagesStrings.size, messagesStrings.size))
