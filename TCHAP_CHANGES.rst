@@ -1,3 +1,15 @@
+Changes in Tchap 1.0.15 (2019-01-11)
+===================================================
+
+Improvements:
+ * Configure Android project to build the different application version #396
+ * Enable bug report, and rage shake #394
+ * Improve registration process #401
+ 
+Bug Fixes:
+ * Tchap auto joined a public room which allows the preview #403
+ * Room creation: the actions on the public option toggle are ignored #397
+
 Changes in Tchap 1.0.14 (2018-12-17)
 ===================================================
 
