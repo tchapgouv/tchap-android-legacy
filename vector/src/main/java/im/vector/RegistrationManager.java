@@ -172,22 +172,6 @@ public class RegistrationManager {
     }
 
     /**
-     * @return true if there is a password flow.
-     */
-    private boolean isPasswordBasedFlowSupported() {
-        if ((null != mRegistrationResponse) && (null != mRegistrationResponse.flows)) {
-            for (LoginFlow flow : mRegistrationResponse.flows) {
-                if (TextUtils.equals(flow.type, LoginRestClient.LOGIN_FLOW_TYPE_PASSWORD)
-                        || ((null != flow.stages) && flow.stages.contains(LoginRestClient.LOGIN_FLOW_TYPE_PASSWORD))) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * Make the registration request with params depending on singleton values
      *
      * @param context

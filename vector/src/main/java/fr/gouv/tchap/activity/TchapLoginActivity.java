@@ -87,6 +87,7 @@ import im.vector.activity.FallbackLoginActivity;
 import im.vector.activity.MXCActionBarActivity;
 import im.vector.activity.SplashActivity;
 import im.vector.activity.VectorUniversalLinkActivity;
+import im.vector.activity.util.RequestCodesKt;
 import im.vector.gcm.GCMHelper;
 import im.vector.features.hhs.ResourceLimitDialogHelper;
 import im.vector.receiver.VectorUniversalLinkReceiver;
@@ -97,10 +98,6 @@ import im.vector.services.EventStreamService;
  */
 public class TchapLoginActivity extends MXCActionBarActivity implements RegistrationManager.RegistrationListener {
     private static final String LOG_TAG = TchapLoginActivity.class.getSimpleName();
-
-    private static final int ACCOUNT_CREATION_ACTIVITY_REQUEST_CODE = 314;
-    private static final int FALLBACK_LOGIN_ACTIVITY_REQUEST_CODE = 315;
-    private static final int CAPTCHA_CREATION_ACTIVITY_REQUEST_CODE = 316;
 
     private final static int REGISTER_POLLING_PERIOD = 10 * 1000;
 
@@ -1229,9 +1226,9 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 if (null != hsConfig) {
                     enableLoadingScreen(true);
 
-                    mLoginHandler.getSupportedRegistrationFlows(TchapLoginActivity.this, hsConfig, new SimpleApiCallback<HomeServerConnectionConfig>() {
+                    mLoginHandler.getSupportedRegistrationFlows(TchapLoginActivity.this, hsConfig, new SimpleApiCallback<Void>() {
                         @Override
-                        public void onSuccess(HomeServerConnectionConfig homeserverConnectionConfig) {
+                        public void onSuccess(Void avoid) {
                             // should never be called
                         }
 
@@ -1396,48 +1393,8 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
                 final HomeServerConnectionConfig hsConfig = getHsConfig();
 
-                mLoginHandler.getSupportedLoginFlows(TchapLoginActivity.this, hsConfig, new SimpleApiCallback<List<LoginFlow>>() {
-                    @Override
-                    public void onSuccess(List<LoginFlow> flows) {
-                        // stop listening to network state
-                        removeNetworkStateNotificationListener();
-
-                        enableLoadingScreen(false);
-                        boolean isSupported = true;
-
-                        // supported only m.login.password by now
-                        for (LoginFlow flow : flows) {
-                            isSupported &= TextUtils.equals(LoginRestClient.LOGIN_FLOW_TYPE_PASSWORD, flow.type);
-                        }
-
-                        // if not supported, switch to the fallback login
-                        if (!isSupported) {
-                            Intent intent = new Intent(TchapLoginActivity.this, FallbackLoginActivity.class);
-                            intent.putExtra(FallbackLoginActivity.EXTRA_HOME_SERVER_ID, hsConfig.getHomeserverUri().toString());
-                            startActivityForResult(intent, FALLBACK_LOGIN_ACTIVITY_REQUEST_CODE);
-                        } else {
-                            login(hsConfig, emailAddress, null, null, password);
-                        }
-                    }
-
-                    @Override
-                    public void onNetworkError(Exception e) {
-                        Log.e(LOG_TAG, "Network Error: " + e.getMessage(), e);
-                        // listen to network state, to resume processing as soon as the network is back
-                        addNetworkStateNotificationListener();
-                        onError(e.getLocalizedMessage());
-                    }
-
-                    @Override
-                    public void onUnexpectedError(Exception e) {
-                        onError(e.getLocalizedMessage());
-                    }
-
-                    @Override
-                    public void onMatrixError(MatrixError e) {
-                        onFailureDuringAuthRequest(e);
-                    }
-                });
+                // Tchap: log in without checking the hs supported flows.
+                login(hsConfig, emailAddress, null, null, password);
             }
 
             @Override
@@ -1469,9 +1426,9 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     private void login(final HomeServerConnectionConfig hsConfig, final String username, final String phoneNumber,
                        final String phoneNumberCountry, final String password) {
         try {
-            mLoginHandler.login(this, hsConfig, username, phoneNumber, phoneNumberCountry, password, new SimpleApiCallback<HomeServerConnectionConfig>(this) {
+            mLoginHandler.login(this, hsConfig, username, phoneNumber, phoneNumberCountry, password, new SimpleApiCallback<Void>(this) {
                 @Override
-                public void onSuccess(HomeServerConnectionConfig c) {
+                public void onSuccess(Void avoid) {
                     enableLoadingScreen(false);
                     goToSplash();
                     TchapLoginActivity.this.finish();
@@ -1754,7 +1711,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(LOG_TAG, "## onActivityResult(): IN - requestCode=" + requestCode + " resultCode=" + resultCode);
-        if (CAPTCHA_CREATION_ACTIVITY_REQUEST_CODE == requestCode) {
+        if (RequestCodesKt.CAPTCHA_CREATION_ACTIVITY_REQUEST_CODE == requestCode) {
             if (resultCode == RESULT_OK) {
                 Log.d(LOG_TAG, "## onActivityResult(): CAPTCHA_CREATION_ACTIVITY_REQUEST_CODE => RESULT_OK");
                 String captchaResponse = data.getStringExtra("response");
@@ -1767,37 +1724,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 showMainLayout();
                 enableLoadingScreen(false);
                 refreshDisplay();
-            }
-        } else if ((ACCOUNT_CREATION_ACTIVITY_REQUEST_CODE == requestCode) || (FALLBACK_LOGIN_ACTIVITY_REQUEST_CODE == requestCode)) {
-            if (resultCode == RESULT_OK) {
-                Log.d(LOG_TAG, "## onActivityResult(): ACCOUNT_CREATION_ACTIVITY_REQUEST_CODE => RESULT_OK");
-                String homeServer = data.getStringExtra("homeServer");
-                String userId = data.getStringExtra("userId");
-                String accessToken = data.getStringExtra("accessToken");
-
-                // build a credential with the provided items
-                Credentials credentials = new Credentials();
-                credentials.userId = userId;
-                credentials.homeServer = homeServer;
-                credentials.accessToken = accessToken;
-
-                final HomeServerConnectionConfig hsConfig = getHsConfig();
-
-                try {
-                    hsConfig.setCredentials(credentials);
-                } catch (Exception e) {
-                    Log.d(LOG_TAG, "hsConfig setCredentials failed " + e.getLocalizedMessage());
-                }
-
-                Log.d(LOG_TAG, "Account creation succeeds");
-
-                // let's go...
-                MXSession session = Matrix.getInstance(getApplicationContext()).createSession(hsConfig);
-                Matrix.getInstance(getApplicationContext()).addSession(session);
-                goToSplash();
-                finish();
-            } else if ((resultCode == RESULT_CANCELED) && (FALLBACK_LOGIN_ACTIVITY_REQUEST_CODE == requestCode)) {
-                Log.d(LOG_TAG, "## onActivityResult(): RESULT_CANCELED && FALLBACK_LOGIN_ACTIVITY_REQUEST_CODE");
             }
         }
     }
@@ -1901,7 +1827,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             Intent intent = new Intent(TchapLoginActivity.this, AccountCreationCaptchaActivity.class);
             intent.putExtra(AccountCreationCaptchaActivity.EXTRA_HOME_SERVER_URL, getHomeServerUrl());
             intent.putExtra(AccountCreationCaptchaActivity.EXTRA_SITE_KEY, publicKey);
-            startActivityForResult(intent, CAPTCHA_CREATION_ACTIVITY_REQUEST_CODE);
+            startActivityForResult(intent, RequestCodesKt.CAPTCHA_CREATION_ACTIVITY_REQUEST_CODE);
         } else {
             Log.d(LOG_TAG, "## onWaitingCaptcha(): captcha flow cannot be done");
             Toast.makeText(this, getString(R.string.login_error_unable_register), Toast.LENGTH_SHORT).show();
