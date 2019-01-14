@@ -68,14 +68,6 @@ public class RegistrationManager {
     private static final String JSON_KEY_CAPTCHA_RESPONSE = "response";
     private static final String JSON_KEY_PUBLIC_KEY = "public_key";
 
-    // List of stages supported by the app
-    private static final List<String> VECTOR_SUPPORTED_STAGES = Arrays.asList(
-            LoginRestClient.LOGIN_FLOW_TYPE_PASSWORD,
-            LoginRestClient.LOGIN_FLOW_TYPE_DUMMY,
-            LoginRestClient.LOGIN_FLOW_TYPE_EMAIL_IDENTITY,
-            LoginRestClient.LOGIN_FLOW_TYPE_MSISDN,
-            LoginRestClient.LOGIN_FLOW_TYPE_RECAPTCHA);
-
     // Config
     private HomeServerConnectionConfig mHsConfig;
     private LoginRestClient mLoginRestClient;
@@ -84,10 +76,6 @@ public class RegistrationManager {
 
     // Flows
     private RegistrationFlowResponse mRegistrationResponse;
-    private final Set<String> mSupportedStages = new HashSet<>();
-    private final List<String> mRequiredStages = new ArrayList<>();
-    private final List<String> mConditionalOptionalStages = new ArrayList<>();
-    private final List<String> mOptionalStages = new ArrayList<>();
 
     // Current registration params
     private String mUsername;
@@ -130,11 +118,6 @@ public class RegistrationManager {
         mThirdPidRestClient = null;
         mProfileRestClient = null;
         mRegistrationResponse = null;
-
-        mSupportedStages.clear();
-        mRequiredStages.clear();
-        mOptionalStages.clear();
-        mConditionalOptionalStages.clear();
 
         mUsername = null;
         mPassword = null;
@@ -185,58 +168,7 @@ public class RegistrationManager {
     public void setSupportedRegistrationFlows(final RegistrationFlowResponse registrationFlowResponse) {
         if (registrationFlowResponse != null) {
             mRegistrationResponse = registrationFlowResponse;
-            analyzeRegistrationStages(registrationFlowResponse);
         }
-    }
-
-    /**
-     * Make a register request to check whether a username is available or not
-     *
-     * @param context
-     * @param listener
-     */
-    public void checkUsernameAvailability(final Context context, final UsernameValidityListener listener) {
-        if (getLoginRestClient() != null) {
-            // Trigger a fake registration (without password) to know whether the user name is available or not.
-            RegistrationParams params = new RegistrationParams();
-            params.username = mUsername;
-
-            register(context, params, new InternalRegistrationListener() {
-                @Override
-                public void onRegistrationSuccess() {
-                    // The registration could not succeed without password.
-                    // Keep calling listener (the error case) as a fallback,
-                    listener.onUsernameAvailabilityChecked(false);
-                }
-
-                @Override
-                public void onRegistrationFailed(String message) {
-                    listener.onUsernameAvailabilityChecked(!TextUtils.equals(MatrixError.USER_IN_USE, message));
-                }
-
-                @Override
-                public void onResourceLimitExceeded(MatrixError e) {
-                    // Should not happen, consider user is available, registration will fail later on
-                    listener.onUsernameAvailabilityChecked(true);
-                }
-            });
-        }
-    }
-
-    /**
-     * @return true if there is a password flow.
-     */
-    private boolean isPasswordBasedFlowSupported() {
-        if ((null != mRegistrationResponse) && (null != mRegistrationResponse.flows)) {
-            for (LoginFlow flow : mRegistrationResponse.flows) {
-                if (TextUtils.equals(flow.type, LoginRestClient.LOGIN_FLOW_TYPE_PASSWORD)
-                        || ((null != flow.stages) && flow.stages.contains(LoginRestClient.LOGIN_FLOW_TYPE_PASSWORD))) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
     }
 
     /**
@@ -285,24 +217,6 @@ public class RegistrationManager {
             } else if (!TextUtils.isEmpty(mCaptchaResponse) && !isCompleted(LoginRestClient.LOGIN_FLOW_TYPE_RECAPTCHA)) {
                 registrationType = LoginRestClient.LOGIN_FLOW_TYPE_RECAPTCHA;
                 authParams = getCaptchaAuthParams(mCaptchaResponse);
-            } else if (mSupportedStages.contains(LoginRestClient.LOGIN_FLOW_TYPE_DUMMY)) {
-                registrationType = LoginRestClient.LOGIN_FLOW_TYPE_DUMMY;
-                authParams = new HashMap<>();
-                authParams.put(JSON_KEY_TYPE, LoginRestClient.LOGIN_FLOW_TYPE_DUMMY);
-            } else if (isPasswordBasedFlowSupported()) {
-                // never has been tested
-                registrationType = LoginRestClient.LOGIN_FLOW_TYPE_PASSWORD;
-                authParams = new HashMap<>();
-                authParams.put(JSON_KEY_TYPE, LoginRestClient.LOGIN_FLOW_TYPE_PASSWORD);
-                authParams.put(JSON_KEY_SESSION, mRegistrationResponse.session);
-
-                if (null != mUsername) {
-                    authParams.put("username", mUsername);
-                }
-
-                if (null != mPassword) {
-                    authParams.put("password", mPassword);
-                }
             } else {
                 // others
                 registrationType = "";
@@ -423,35 +337,6 @@ public class RegistrationManager {
     }
 
     /**
-     * Check if a stage supported by the current home server can be handle by the app
-     *
-     * @return true if at least one stage cannot be handle
-     */
-    public boolean hasNonSupportedStage() {
-        return !VECTOR_SUPPORTED_STAGES.containsAll(mSupportedStages);
-    }
-
-    /**
-     * Check if the given stage is supported by the current home server
-     *
-     * @param stage
-     * @return true if supported
-     */
-    public boolean supportStage(final String stage) {
-        return mSupportedStages.contains(stage);
-    }
-
-    /**
-     * Check if the current home server has a three pid (email, phone number) which can be added (ie. not completed yet)
-     *
-     * @return true if can add a three pid
-     */
-    public boolean canAddThreePid() {
-        return (mSupportedStages.contains(LoginRestClient.LOGIN_FLOW_TYPE_EMAIL_IDENTITY) && !isCompleted(LoginRestClient.LOGIN_FLOW_TYPE_EMAIL_IDENTITY))
-                || (mSupportedStages.contains(LoginRestClient.LOGIN_FLOW_TYPE_MSISDN) && !isCompleted(LoginRestClient.LOGIN_FLOW_TYPE_MSISDN));
-    }
-
-    /**
      * Check if the given stage has been completed
      *
      * @param stage
@@ -462,70 +347,11 @@ public class RegistrationManager {
     }
 
     /**
-     * Check if the given stage is optional for the current home server
-     *
-     * @param stage
-     * @return true if optional
-     */
-    public boolean isOptional(final String stage) {
-        return mOptionalStages.contains(stage);
-    }
-
-    /**
-     * Check if the given stage is required by the current home server
-     *
-     * @param stage
-     * @return true if required
-     */
-    private boolean isRequired(final String stage) {
-        return mRequiredStages.contains(stage);
-    }
-
-    /**
-     * @return true if email is mandatory for registration and not completed yet
-     */
-    public boolean isEmailRequired() {
-        return mRegistrationResponse != null
-                && isRequired(LoginRestClient.LOGIN_FLOW_TYPE_EMAIL_IDENTITY)
-                && (mRegistrationResponse.completed == null || !mRegistrationResponse.completed.contains(LoginRestClient.LOGIN_FLOW_TYPE_EMAIL_IDENTITY));
-    }
-
-    /**
-     * @return true if phone number is mandatory for registration and not completed yet
-     */
-    public boolean isPhoneNumberRequired() {
-        return mRegistrationResponse != null
-                && isRequired(LoginRestClient.LOGIN_FLOW_TYPE_MSISDN)
-                && (mRegistrationResponse.completed == null || !mRegistrationResponse.completed.contains(LoginRestClient.LOGIN_FLOW_TYPE_MSISDN));
-    }
-
-    /**
      * @return true if captcha is mandatory for registration and not completed yet
      */
     private boolean isCaptchaRequired() {
-        return mRegistrationResponse != null
-                && isRequired(LoginRestClient.LOGIN_FLOW_TYPE_RECAPTCHA)
-                && (mRegistrationResponse.completed == null || !mRegistrationResponse.completed.contains(LoginRestClient.LOGIN_FLOW_TYPE_RECAPTCHA));
-    }
-
-    /**
-     * Check whether the current home server supports registration without three pid
-     * (ie. does not support three pid or supports but it is optional)
-     *
-     * @return
-     */
-    public boolean canSkip() {
-        boolean canSkip;
-        if (mSupportedStages.contains(LoginRestClient.LOGIN_FLOW_TYPE_EMAIL_IDENTITY)) {
-            canSkip = mOptionalStages.contains(LoginRestClient.LOGIN_FLOW_TYPE_EMAIL_IDENTITY);
-        } else {
-            canSkip = true;
-        }
-
-        if (canSkip && mSupportedStages.contains(LoginRestClient.LOGIN_FLOW_TYPE_MSISDN)) {
-            canSkip = mOptionalStages.contains(LoginRestClient.LOGIN_FLOW_TYPE_MSISDN);
-        }
-        return canSkip;
+        // No Captcha in Tchap for the moment
+        return false;
     }
 
     /**
@@ -623,34 +449,6 @@ public class RegistrationManager {
         mShowThreePidWarning = false;
     }
 
-    /**
-     * Return the three pid instructions
-     *
-     * @return instructions
-     */
-    public String getThreePidInstructions(final Context context) {
-        int instructionRes = -1;
-        if (mRegistrationResponse != null) {
-            if (isRequired(LoginRestClient.LOGIN_FLOW_TYPE_EMAIL_IDENTITY)
-                    && isRequired(LoginRestClient.LOGIN_FLOW_TYPE_MSISDN)) {
-                // Both required
-                instructionRes = R.string.auth_add_email_and_phone_message;
-            } else if (supportStage(LoginRestClient.LOGIN_FLOW_TYPE_EMAIL_IDENTITY)) {
-                if (supportStage(LoginRestClient.LOGIN_FLOW_TYPE_MSISDN)) {
-                    // Both supported but not both required
-                    instructionRes = R.string.auth_add_email_phone_message;
-                } else {
-                    // Only email
-                    instructionRes = R.string.auth_add_email_message;
-                }
-            } else if (supportStage(LoginRestClient.LOGIN_FLOW_TYPE_MSISDN)) {
-                // Only phone number
-                instructionRes = R.string.auth_add_phone_message;
-            }
-        }
-        return instructionRes != -1 ? context.getString(instructionRes) : "";
-    }
-
     /*
      * *********************************************************************************************
      * Private methods
@@ -702,84 +500,6 @@ public class RegistrationManager {
         if (registrationFlowResponse != null) {
             mRegistrationResponse = registrationFlowResponse;
         }
-    }
-
-    /**
-     * Analyze the flows stages
-     *
-     * @param newFlowResponse
-     */
-    private void analyzeRegistrationStages(final RegistrationFlowResponse newFlowResponse) {
-        final Set<String> supportedStages = new HashSet<>();
-
-        boolean canCaptchaBeMissing = false;
-        boolean canEmailBeMissing = false;
-        boolean canPhoneBeMissing = false;
-        boolean canThreePidBeMissing = false;
-        for (LoginFlow loginFlow : newFlowResponse.flows) {
-            supportedStages.addAll(loginFlow.stages);
-
-            if (!loginFlow.stages.contains(LoginRestClient.LOGIN_FLOW_TYPE_RECAPTCHA)) {
-                canCaptchaBeMissing = true;
-            }
-
-            if (!loginFlow.stages.contains(LoginRestClient.LOGIN_FLOW_TYPE_MSISDN)) {
-                canPhoneBeMissing = true;
-                if (!loginFlow.stages.contains(LoginRestClient.LOGIN_FLOW_TYPE_EMAIL_IDENTITY)) {
-                    canThreePidBeMissing = true;
-                }
-            }
-
-            if (!loginFlow.stages.contains(LoginRestClient.LOGIN_FLOW_TYPE_EMAIL_IDENTITY)) {
-                canEmailBeMissing = true;
-            }
-        }
-
-        mSupportedStages.clear();
-        mSupportedStages.addAll(supportedStages);
-
-        final List<String> requiredStages = new ArrayList<>();
-        final List<String> conditionalStages = new ArrayList<>();
-        final List<String> optionalStages = new ArrayList<>();
-
-        // Check if captcha is required/optional
-        if (supportedStages.contains(LoginRestClient.LOGIN_FLOW_TYPE_RECAPTCHA)) {
-            if (canCaptchaBeMissing) {
-                optionalStages.add(LoginRestClient.LOGIN_FLOW_TYPE_RECAPTCHA);
-            } else {
-                requiredStages.add(LoginRestClient.LOGIN_FLOW_TYPE_RECAPTCHA);
-            }
-        }
-
-        if (supportedStages.containsAll(Arrays.asList(LoginRestClient.LOGIN_FLOW_TYPE_EMAIL_IDENTITY, LoginRestClient.LOGIN_FLOW_TYPE_MSISDN))
-                && !canThreePidBeMissing && canPhoneBeMissing && canEmailBeMissing) {
-            // Both are supported and at least one is required
-            conditionalStages.add(LoginRestClient.LOGIN_FLOW_TYPE_EMAIL_IDENTITY);
-            conditionalStages.add(LoginRestClient.LOGIN_FLOW_TYPE_MSISDN);
-        } else {
-            if (supportedStages.contains(LoginRestClient.LOGIN_FLOW_TYPE_EMAIL_IDENTITY)) {
-                if (canEmailBeMissing) {
-                    optionalStages.add(LoginRestClient.LOGIN_FLOW_TYPE_EMAIL_IDENTITY);
-                } else {
-                    requiredStages.add(LoginRestClient.LOGIN_FLOW_TYPE_EMAIL_IDENTITY);
-                }
-            }
-            if (supportedStages.contains(LoginRestClient.LOGIN_FLOW_TYPE_MSISDN)) {
-                if (canPhoneBeMissing) {
-                    optionalStages.add(LoginRestClient.LOGIN_FLOW_TYPE_MSISDN);
-                } else {
-                    requiredStages.add(LoginRestClient.LOGIN_FLOW_TYPE_MSISDN);
-                }
-            }
-        }
-
-        mRequiredStages.clear();
-        mConditionalOptionalStages.clear();
-        mOptionalStages.clear();
-
-        mRequiredStages.addAll(requiredStages);
-        mConditionalOptionalStages.addAll(conditionalStages);
-        mOptionalStages.addAll(optionalStages);
     }
 
     /**
@@ -1029,10 +749,6 @@ public class RegistrationManager {
 
     public interface ThreePidValidationListener {
         void onThreePidValidated(boolean isSuccess);
-    }
-
-    public interface UsernameValidityListener {
-        void onUsernameAvailabilityChecked(boolean isAvailable);
     }
 
     public interface RegistrationListener {

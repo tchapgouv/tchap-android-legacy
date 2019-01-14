@@ -37,29 +37,6 @@
                 android:layout_marginTop="19dp"
                 android:orientation="vertical">
 
-                <LinearLayout
-                    android:id="@+id/three_pid_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/instructions"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="24dp"
-                        android:text="@string/auth_add_email_phone_message"
-                        android:textSize="16sp" />
-
-                    <EditText
-                        android:id="@+id/registration_email"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:hint="@string/auth_email_placeholder"
-                        android:inputType="textEmailAddress"
-                        android:maxLines="1" />
-                </LinearLayout>
             </LinearLayout>
 
             <TextView
