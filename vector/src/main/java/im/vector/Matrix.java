@@ -91,9 +91,11 @@ public class Matrix {
     // login storage
     private final LoginStorage mLoginStorage;
 
-    // list of the Tchap sessions
+    // The created Tchap sessions map
     @NonNull
     private Map<String, TchapSession> mTchapSessions;
+    @NonNull
+    private List<String> mTchapSessionKeys;
 
     // Push manager
     private final PushManager mPushManager;
@@ -211,6 +213,7 @@ public class Matrix {
         mAppContext = appContext.getApplicationContext();
         mLoginStorage = new LoginStorage(mAppContext);
         mTchapSessions = new HashMap<>();
+        mTchapSessionKeys = new ArrayList<>();
         mTmpStores = new ArrayList<>();
 
         mPushManager = new PushManager(mAppContext);
@@ -303,13 +306,11 @@ public class Matrix {
     /**
      * @return The list of sessions
      */
-    public List<MXSession> getSessions() {
+    public synchronized List<MXSession> getSessions() {
         List<MXSession> sessions = new ArrayList<>();
 
-        synchronized (LOG_TAG) {
-            for (TchapSession tchapSession : mTchapSessions.values()) {
-                sessions.addAll(tchapSession.getSessions());
-            }
+        for (TchapSession tchapSession : mTchapSessions.values()) {
+            sessions.addAll(tchapSession.getSessions());
         }
 
         return sessions;
@@ -318,13 +319,11 @@ public class Matrix {
     /**
      * @return The list of Tchap sessions
      */
-    public List<TchapSession> getTchapSessions() {
+    public synchronized List<TchapSession> getTchapSessions() {
         List<TchapSession> sessions = new ArrayList<>();
 
-        synchronized (LOG_TAG) {
-            if (!mTchapSessions.isEmpty()) {
-                sessions = new ArrayList<>(mTchapSessions.values());
-            }
+        if (!mTchapSessions.isEmpty()) {
+            sessions = new ArrayList<>(mTchapSessions.values());
         }
 
         return sessions;
@@ -352,49 +351,50 @@ public class Matrix {
      * @return The default session or null.
      */
     public synchronized TchapSession getDefaultTchapSession() {
-        TchapSession tchapSession = null;
-
-        synchronized (LOG_TAG) {
-            if (!mTchapSessions.isEmpty()) {
-                tchapSession = mTchapSessions.get(0);
-            }
-        }
-
+        // Check first whether a session is available
+        TchapSession tchapSession = _getDefaultTchapSession();
         if (tchapSession != null) {
             return tchapSession;
         }
 
-        List<TchapConnectionConfig> hsConfigList = mLoginStorage.getCredentialsList();
-
-        // any account ?
-        if ((hsConfigList == null) || (hsConfigList.size() == 0)) {
+        List<TchapConnectionConfig> tchapConfigs = mLoginStorage.getCredentialsList();
+        if ((tchapConfigs == null) || (tchapConfigs.size() == 0)) {
             return null;
         }
 
-        boolean appDidCrash = VectorApp.getInstance().didAppCrash();
+        // Check whether the app has crashed
+        if (VectorApp.getInstance().didAppCrash()) {
+            clearTchapSessionData(tchapConfigs);
+        }
 
-        for (TchapConnectionConfig config : hsConfigList) {
-            TchapSession session = createTchapSession(config);
+        // Create all the Tchap sessions
+        for (TchapConnectionConfig config : tchapConfigs) {
+            createTchapSession(config);
+        }
 
-            // if the application crashed
-            if (appDidCrash && session != null) {
+        return _getDefaultTchapSession();
+    }
+
+    private TchapSession _getDefaultTchapSession() {
+        if (!mTchapSessionKeys.isEmpty()) {
+            // Return the first created Tchap session by default.
+            return mTchapSessions.get(mTchapSessionKeys.get(0));
+        }
+        return null;
+    }
+
+    /**
+     * Clear all the session data
+     */
+    private void clearTchapSessionData(@NonNull List<TchapConnectionConfig> tchapConfigs) {
+        for (TchapConnectionConfig config : tchapConfigs) {
+            TchapSession session = _createTchapSession(config);
+
+            if (session != null) {
                 // clear the session data
                 session.clear(VectorApp.getInstance());
-                synchronized (LOG_TAG) {
-                    mTchapSessions.remove(session);
-                }
-                // and open it again
-                createTchapSession(config);
             }
         }
-
-        synchronized (LOG_TAG) {
-            if (!mTchapSessions.isEmpty()) {
-                tchapSession = mTchapSessions.get(0);
-            }
-        }
-
-        return tchapSession;
     }
 
     /**
@@ -417,22 +417,20 @@ public class Matrix {
     public synchronized MXSession getSession(String matrixId) {
         MXSession session = null;
 
-        synchronized (LOG_TAG) {
-            if (!mTchapSessions.isEmpty()) {
-                TchapSession tchapSession = mTchapSessions.get(matrixId);
-                if (tchapSession != null) {
-                    session = tchapSession.getMainSession();
-                } else {
-                    // Look for a shadow session?
-                    for (TchapSession tchapSession1 : mTchapSessions.values()) {
-                        MXSession shadowSession = tchapSession1.getShadowSession();
-                        if (shadowSession != null) {
-                            Credentials credentials = shadowSession.getCredentials();
+        if (!mTchapSessions.isEmpty()) {
+            TchapSession tchapSession = mTchapSessions.get(matrixId);
+            if (tchapSession != null) {
+                session = tchapSession.getMainSession();
+            } else {
+                // Look for a shadow session?
+                for (TchapSession tchapSession1 : mTchapSessions.values()) {
+                    MXSession shadowSession = tchapSession1.getShadowSession();
+                    if (shadowSession != null) {
+                        Credentials credentials = shadowSession.getCredentials();
 
-                            if ((null != credentials) && (credentials.userId.equals(matrixId))) {
-                                session = shadowSession;
-                                break;
-                            }
+                        if ((null != credentials) && (credentials.userId.equals(matrixId))) {
+                            session = shadowSession;
+                            break;
                         }
                     }
                 }
@@ -451,21 +449,19 @@ public class Matrix {
     public synchronized TchapSession getTchapSession(@NonNull String matrixId) {
         TchapSession tchapSession = null;
 
-        synchronized (LOG_TAG) {
-            if (!mTchapSessions.isEmpty()) {
-                tchapSession = mTchapSessions.get(matrixId);
-                if (tchapSession == null) {
-                    // Look for a shadow session?
-                    for (TchapSession tchapSession1 : mTchapSessions.values()) {
-                        MXSession shadowSession = tchapSession1.getShadowSession();
-                        if (shadowSession != null) {
-                            Credentials credentials = shadowSession.getCredentials();
+        if (!mTchapSessions.isEmpty()) {
+            tchapSession = mTchapSessions.get(matrixId);
+            if (tchapSession == null) {
+                // Look for a shadow session?
+                for (TchapSession tchapSession1 : mTchapSessions.values()) {
+                    MXSession shadowSession = tchapSession1.getShadowSession();
+                    if (shadowSession != null) {
+                        Credentials credentials = shadowSession.getCredentials();
 
-                            if ((null != credentials) && (credentials.userId.equals(matrixId))) {
-                                // found it
-                                tchapSession = tchapSession1;
-                                break;
-                            }
+                        if ((null != credentials) && (credentials.userId.equals(matrixId))) {
+                            // found it
+                            tchapSession = tchapSession1;
+                            break;
                         }
                     }
                 }
@@ -513,17 +509,10 @@ public class Matrix {
      *
      * @return the mediasCache.
      */
-    public MXMediasCache getMediasCache() {
-        TchapSession tchapSession = null;
-
-        synchronized (LOG_TAG) {
-            if (!mTchapSessions.isEmpty()) {
-                tchapSession = mTchapSessions.get(0);
-            }
-        }
-
-        if (tchapSession != null) {
-            return tchapSession.getMainSession().getMediasCache();
+    public synchronized MXMediasCache getMediasCache() {
+        TchapSession defaultSession = _getDefaultTchapSession();
+        if (defaultSession != null) {
+            return defaultSession.getMainSession().getMediasCache();
         }
         return null;
     }
@@ -534,17 +523,10 @@ public class Matrix {
      *
      * @return the latest messages cache.
      */
-    public MXLatestChatMessageCache getDefaultLatestChatMessageCache() {
-        TchapSession tchapSession = null;
-
-        synchronized (LOG_TAG) {
-            if (!mTchapSessions.isEmpty()) {
-                tchapSession = mTchapSessions.get(0);
-            }
-        }
-
-        if (tchapSession != null) {
-            return tchapSession.getMainSession().getLatestChatMessageCache();
+    public synchronized MXLatestChatMessageCache getDefaultLatestChatMessageCache() {
+        TchapSession defaultSession = _getDefaultTchapSession();
+        if (defaultSession != null) {
+            return defaultSession.getMainSession().getLatestChatMessageCache();
         }
         return null;
     }
@@ -560,7 +542,7 @@ public class Matrix {
 
         boolean res = true;
 
-        synchronized (LOG_TAG) {
+        synchronized (instance) {
             if (instance.mTchapSessions.isEmpty()) {
                 res = false;
                 Log.e(LOG_TAG, "hasValidSessions : has no session");
@@ -614,8 +596,10 @@ public class Matrix {
                             VectorApp.removeSyncingSession(session);
                         }
 
-                        synchronized (LOG_TAG) {
-                            mTchapSessions.remove(tchapSession);
+                        synchronized (this) {
+                            String sessionKey = tchapSession.getMainSession().getMyUserId();
+                            mTchapSessionKeys.remove(sessionKey);
+                            mTchapSessions.remove(sessionKey);
                         }
 
                         aCallback.onSuccess(info);
@@ -673,9 +657,9 @@ public class Matrix {
                     VectorApp.removeSyncingSession(session);
                 }
 
-                synchronized (LOG_TAG) {
-                    mTchapSessions.remove(tchapSession);
-                }
+                String sessionKey = tchapSession.getMainSession().getMyUserId();
+                mTchapSessionKeys.remove(sessionKey);
+                mTchapSessions.remove(sessionKey);
 
                 if (null != aCallback) {
                     aCallback.onSuccess(null);
@@ -729,12 +713,7 @@ public class Matrix {
      * @param clearCredentials true to clear the credentials.
      */
     public synchronized void clearSessions(Context context, boolean clearCredentials, ApiCallback<Void> callback) {
-        List<TchapSession> sessions;
-
-        synchronized (LOG_TAG) {
-            sessions = new ArrayList<>(mTchapSessions.values());
-        }
-
+        List<TchapSession> sessions = new ArrayList<>(mTchapSessions.values());
         clearSessions(context, sessions.iterator(), clearCredentials, callback);
     }
 
@@ -774,11 +753,23 @@ public class Matrix {
     }
 
     /**
-     * Create Matrix session(s) from Tchap credentials.
+     * Create the Matrix session(s) from a Tchap configuration.
      *
-     * @param hsConfig The Tchap homeserver description to create session(s) from.
+     * @param hsConfig The Tchap homeserver(s) description.
      */
-    public TchapSession createTchapSession(TchapConnectionConfig hsConfig) {
+    public synchronized TchapSession createTchapSession(TchapConnectionConfig hsConfig) {
+        final TchapSession tchapSession = _createTchapSession(hsConfig);
+
+        if (tchapSession != null) {
+            final String sessionKey = tchapSession.getMainSession().getMyUserId();
+            mTchapSessions.put(sessionKey, tchapSession);
+            mTchapSessionKeys.add(sessionKey);
+        }
+
+        return tchapSession;
+    }
+
+    private TchapSession _createTchapSession(TchapConnectionConfig hsConfig) {
         MXSession session = createSession(mAppContext, hsConfig.getHsConfig());
         Boolean hasProtectedAccess = hsConfig.getHasProtectedAccess();
         MXSession shadowSession = null;
@@ -790,13 +781,7 @@ public class Matrix {
             }
         }
 
-        TchapSession tchapSession = new TchapSession(hsConfig, session, shadowSession);
-
-        synchronized (LOG_TAG) {
-            mTchapSessions.put(session.getMyUserId(), tchapSession);
-        }
-
-        return tchapSession;
+        return new TchapSession(hsConfig, session, shadowSession);
     }
 
     /**
@@ -968,13 +953,8 @@ public class Matrix {
     /**
      * Refresh the sessions push rules.
      */
-    public void refreshPushRules() {
-        List<MXSession> sessions;
-
-        synchronized (this) {
-            sessions = getSessions();
-        }
-
+    public synchronized void refreshPushRules() {
+        List<MXSession> sessions = getSessions();
         for (MXSession session : sessions) {
             if (null != session.getDataHandler()) {
                 session.getDataHandler().refreshPushRules();
