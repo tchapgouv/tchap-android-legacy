@@ -101,7 +101,7 @@ public class VectorUniversalLinkActivity extends VectorAppCompatActivity {
 
                         // This logout is asynchronous, pursue the action in the callback to have the LoginActivity in a "no credentials state".
                         CommonActivityUtils.logout(VectorUniversalLinkActivity.this,
-                                Matrix.getMXSessions(VectorUniversalLinkActivity.this),
+                                Matrix.getInstance(VectorUniversalLinkActivity.this.getApplicationContext()).getTchapSessions(),
                                 true,
                                 new SimpleApiCallback<Void>() {
                                     @Override

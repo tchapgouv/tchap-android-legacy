@@ -22,10 +22,10 @@ import android.widget.CheckBox
 import android.widget.EditText
 import butterknife.BindView
 import butterknife.OnClick
+import fr.gouv.tchap.model.TchapSession
 import im.vector.Matrix
 import im.vector.R
 import im.vector.ui.themes.ActivityOtherThemes
-import org.matrix.androidsdk.MXSession
 import org.matrix.androidsdk.rest.callback.SimpleApiCallback
 import org.matrix.androidsdk.rest.model.MatrixError
 
@@ -48,7 +48,7 @@ class DeactivateAccountActivity : VectorAppCompatActivity() {
      * DATA
      * ========================================================================================== */
 
-    private lateinit var session: MXSession
+    private lateinit var tchapSession: TchapSession
 
     /* ==========================================================================================
      * Life cycle
@@ -67,8 +67,8 @@ class DeactivateAccountActivity : VectorAppCompatActivity() {
 
         waitingView = findViewById(R.id.waiting_view)
 
-        // Get the session
-        session = Matrix.getInstance(this).defaultSession
+        // Get the tchapSession
+        tchapSession = Matrix.getInstance(this).defaultTchapSession
     }
 
     /* ==========================================================================================
@@ -88,7 +88,7 @@ class DeactivateAccountActivity : VectorAppCompatActivity() {
         showWaitingView()
 
         CommonActivityUtils.deactivateAccount(this,
-                session,
+                tchapSession,
                 password,
                 eraseCheckBox.isChecked,
                 object : SimpleApiCallback<Void>(this) {

@@ -75,6 +75,7 @@ import java.util.List;
 import java.util.Map;
 
 import fr.gouv.tchap.activity.TchapLoginActivity;
+import fr.gouv.tchap.model.TchapSession;
 import im.vector.Matrix;
 import im.vector.MyPresenceManager;
 import im.vector.R;
@@ -119,7 +120,7 @@ public class CommonActivityUtils {
      * @param clearCredentials true to clear the credentials
      * @param callback         the asynchronous callback
      */
-    public static void logout(Context context, List<MXSession> sessions, boolean clearCredentials, final ApiCallback<Void> callback) {
+    public static void logout(Context context, List<TchapSession> sessions, boolean clearCredentials, final ApiCallback<Void> callback) {
         Log.d(LOG_TAG, "## logout() : from " + context + ", " + sessions.size() + " session(s), clearCredentials " + clearCredentials);
         logout(context, sessions.iterator(), clearCredentials, callback);
     }
@@ -133,7 +134,7 @@ public class CommonActivityUtils {
      * @param callback         the asynchronous callback
      */
     private static void logout(final Context context,
-                               final Iterator<MXSession> sessions,
+                               final Iterator<TchapSession> sessions,
                                final boolean clearCredentials,
                                final ApiCallback<Void> callback) {
         if (!sessions.hasNext()) {
@@ -144,31 +145,36 @@ public class CommonActivityUtils {
             return;
         }
 
-        MXSession session = sessions.next();
+        TchapSession tchapSession = sessions.next();
 
-        if (session.isAlive()) {
+        if (tchapSession.getMainSession().isAlive()) {
             // stop the service
             EventStreamService eventStreamService = EventStreamService.getInstance();
 
             // reported by a rageshake
             if (null != eventStreamService) {
                 List<String> matrixIds = new ArrayList<>();
-                matrixIds.add(session.getMyUserId());
+                matrixIds.add(tchapSession.getMainSession().getMyUserId());
+                if (tchapSession.getShadowSession() != null) {
+                    matrixIds.add(tchapSession.getShadowSession().getMyUserId());
+                }
                 eventStreamService.stopAccounts(matrixIds);
             }
-
-            // Publish to the server that we're now offline
-            MyPresenceManager.getInstance(context, session).advertiseOffline();
-            MyPresenceManager.remove(session);
 
             // clear notification
             EventStreamService.removeNotification();
 
-            // unregister from the push server.
-            Matrix.getInstance(context).getPushManager().unregister(session, null);
+            // Publish to the server that we're now offline
+            for (MXSession session : tchapSession.getSessions()) {
+                MyPresenceManager.getInstance(context, session).advertiseOffline();
+                MyPresenceManager.remove(session);
+
+                // unregister from the push server.
+                Matrix.getInstance(context).getPushManager().unregister(session, null);
+            }
 
             // clear credentials
-            Matrix.getInstance(context).clearSession(context, session, clearCredentials, new SimpleApiCallback<Void>() {
+            Matrix.getInstance(context).clearSession(context, tchapSession, clearCredentials, new SimpleApiCallback<Void>() {
                 @Override
                 public void onSuccess(Void info) {
                     logout(context, sessions, clearCredentials, callback);
@@ -386,17 +392,17 @@ public class CommonActivityUtils {
      * Clear all local data after a user account deactivation
      *
      * @param context       the application context
-     * @param mxSession     the session to deactivate
+     * @param tchapSession  the session to deactivate
      * @param userPassword  the user password
      * @param eraseUserData true to also erase all the user data
      * @param callback      the callback success and failure callback
      */
     public static void deactivateAccount(final Context context,
-                                         final MXSession mxSession,
+                                         final TchapSession tchapSession,
                                          final String userPassword,
                                          final boolean eraseUserData,
                                          final @NonNull ApiCallback<Void> callback) {
-        Matrix.getInstance(context).deactivateSession(context, mxSession, userPassword, eraseUserData, new SimpleApiCallback<Void>(callback) {
+        Matrix.getInstance(context).deactivateSession(context, tchapSession, userPassword, eraseUserData, new SimpleApiCallback<Void>(callback) {
 
             @Override
             public void onSuccess(Void info) {
@@ -410,8 +416,10 @@ public class CommonActivityUtils {
                 }
 
                 // Publish to the server that we're now offline
-                MyPresenceManager.getInstance(context, mxSession).advertiseOffline();
-                MyPresenceManager.remove(mxSession);
+                for (MXSession session : tchapSession.getSessions()) {
+                    MyPresenceManager.getInstance(context, session).advertiseOffline();
+                    MyPresenceManager.remove(session);
+                }
 
                 // clear the preferences
                 PreferencesManager.clearPreferences(context);

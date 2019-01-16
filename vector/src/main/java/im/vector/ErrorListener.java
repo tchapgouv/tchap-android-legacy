@@ -30,6 +30,8 @@ import org.matrix.androidsdk.ssl.UnrecognizedCertificateException;
 
 import java.util.Arrays;
 
+import fr.gouv.tchap.model.TchapConnectionConfig;
+import fr.gouv.tchap.model.TchapSession;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.store.LoginStorage;
 
@@ -98,8 +100,12 @@ public class ErrorListener implements ApiFailureCallback {
             UnrecognizedCertHandler.show(mSession.getHomeServerConfig(), fingerprint, true, new UnrecognizedCertHandler.Callback() {
                 @Override
                 public void onAccept() {
-                    LoginStorage loginStorage = Matrix.getInstance(mActivity.getApplicationContext()).getLoginStorage();
-                    loginStorage.replaceCredentials(mSession.getHomeServerConfig());
+                    TchapSession tchapSession = Matrix.getInstance(mActivity.getApplicationContext()).getTchapSession(mSession.getMyUserId());
+                    if (tchapSession != null) {
+                        LoginStorage loginStorage = Matrix.getInstance(mActivity.getApplicationContext()).getLoginStorage();
+                        TchapConnectionConfig updatedConfig = tchapSession.getConfig().replaceHSConfig(mSession.getHomeServerConfig());
+                        loginStorage.replaceCredentials(updatedConfig);
+                    }
                 }
 
                 @Override
@@ -109,7 +115,10 @@ public class ErrorListener implements ApiFailureCallback {
 
                 @Override
                 public void onReject() {
-                    CommonActivityUtils.logout(mActivity, Arrays.asList(mSession), true, null);
+                    TchapSession tchapSession = Matrix.getInstance(mActivity.getApplicationContext()).getTchapSession(mSession.getMyUserId());
+                    if (tchapSession != null) {
+                        CommonActivityUtils.logout(mActivity, Arrays.asList(tchapSession), true, null);
+                    }
                 }
             });
             }

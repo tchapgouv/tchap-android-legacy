@@ -22,14 +22,13 @@ import android.support.annotation.StringRes;
 import android.text.TextUtils;
 
 import org.matrix.androidsdk.HomeServerConnectionConfig;
-import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
+import org.matrix.androidsdk.rest.callback.SuccessCallback;
 import org.matrix.androidsdk.rest.client.LoginRestClient;
 import org.matrix.androidsdk.rest.client.ProfileRestClient;
 import org.matrix.androidsdk.rest.client.ThirdPidRestClient;
 import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.rest.model.login.Credentials;
-import org.matrix.androidsdk.rest.model.login.LoginFlow;
 import org.matrix.androidsdk.rest.model.login.RegistrationFlowResponse;
 import org.matrix.androidsdk.rest.model.login.RegistrationParams;
 import org.matrix.androidsdk.rest.model.pid.ThreePid;
@@ -39,15 +38,11 @@ import org.matrix.androidsdk.ssl.UnrecognizedCertificateException;
 import org.matrix.androidsdk.util.JsonUtils;
 import org.matrix.androidsdk.util.Log;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
+import fr.gouv.tchap.model.TchapConnectionConfig;
+import fr.gouv.tchap.model.TchapSession;
 import im.vector.util.UrlUtilKt;
 
 public class RegistrationManager {
@@ -69,9 +64,7 @@ public class RegistrationManager {
     private static final String JSON_KEY_PUBLIC_KEY = "public_key";
 
     // Config
-    private HomeServerConnectionConfig mHsConfig;
-    private LoginRestClient mLoginRestClient;
-    private ThirdPidRestClient mThirdPidRestClient;
+    private TchapConnectionConfig mTchapConfig;
     private ProfileRestClient mProfileRestClient;
 
     // Flows
@@ -83,9 +76,6 @@ public class RegistrationManager {
     private ThreePid mEmail;
     private ThreePid mPhoneNumber;
     private String mCaptchaResponse;
-
-    // True when the user entered both email and phone but only phone will be used for account registration
-    private boolean mShowThreePidWarning;
 
     /*
      * *********************************************************************************************
@@ -113,9 +103,7 @@ public class RegistrationManager {
      * Reset singleton values to allow a new registration
      */
     public void resetSingleton() {
-        mHsConfig = null;
-        mLoginRestClient = null;
-        mThirdPidRestClient = null;
+        mTchapConfig = null;
         mProfileRestClient = null;
         mRegistrationResponse = null;
 
@@ -124,19 +112,15 @@ public class RegistrationManager {
         mEmail = null;
         mPhoneNumber = null;
         mCaptchaResponse = null;
-
-        mShowThreePidWarning = false;
     }
 
     /**
-     * Set the home server config
+     * Set the Tchap homeserver(s) config
      *
-     * @param hsConfig
+     * @param tchapConfig
      */
-    public void setHsConfig(final HomeServerConnectionConfig hsConfig) {
-        mHsConfig = hsConfig;
-        mLoginRestClient = null;
-        mThirdPidRestClient = null;
+    public void setTchapConfig(final TchapConnectionConfig tchapConfig) {
+        mTchapConfig = tchapConfig;
         mProfileRestClient = null;
     }
 
@@ -181,9 +165,10 @@ public class RegistrationManager {
         final String registrationType;
         if (mRegistrationResponse != null && !TextUtils.isEmpty(mRegistrationResponse.session)) {
             Map<String, Object> authParams;
+            final HomeServerConnectionConfig hsConfig = mTchapConfig.getHsConfig();
             if (mPhoneNumber != null && !isCompleted(LoginRestClient.LOGIN_FLOW_TYPE_MSISDN) && !TextUtils.isEmpty(mPhoneNumber.sid)) {
                 registrationType = LoginRestClient.LOGIN_FLOW_TYPE_MSISDN;
-                authParams = getThreePidAuthParams(mPhoneNumber.clientSecret, mHsConfig.getIdentityServerUri().getHost(),
+                authParams = getThreePidAuthParams(mPhoneNumber.clientSecret, hsConfig.getIdentityServerUri().getHost(),
                         mPhoneNumber.sid, LoginRestClient.LOGIN_FLOW_TYPE_MSISDN, mRegistrationResponse.session);
             } else if (mEmail != null && !isCompleted(LoginRestClient.LOGIN_FLOW_TYPE_EMAIL_IDENTITY)) {
                 if (TextUtils.isEmpty(mEmail.sid)) {
@@ -211,7 +196,7 @@ public class RegistrationManager {
                     return;
                 } else {
                     registrationType = LoginRestClient.LOGIN_FLOW_TYPE_EMAIL_IDENTITY;
-                    authParams = getThreePidAuthParams(mEmail.clientSecret, mHsConfig.getIdentityServerUri().getHost(),
+                    authParams = getThreePidAuthParams(mEmail.clientSecret, hsConfig.getIdentityServerUri().getHost(),
                             mEmail.sid, LoginRestClient.LOGIN_FLOW_TYPE_EMAIL_IDENTITY, mRegistrationResponse.session);
                 }
             } else if (!TextUtils.isEmpty(mCaptchaResponse) && !isCompleted(LoginRestClient.LOGIN_FLOW_TYPE_RECAPTCHA)) {
@@ -221,13 +206,6 @@ public class RegistrationManager {
                 // others
                 registrationType = "";
                 authParams = new HashMap<>();
-            }
-
-            if (TextUtils.equals(registrationType, LoginRestClient.LOGIN_FLOW_TYPE_MSISDN)
-                    && mEmail != null && !isCaptchaRequired()) {
-                // Email will not be processed
-                mShowThreePidWarning = true;
-                mEmail = null;
             }
 
             final RegistrationParams params = new RegistrationParams();
@@ -248,13 +226,8 @@ public class RegistrationManager {
 
             register(context, params, new InternalRegistrationListener() {
                 @Override
-                public void onRegistrationSuccess() {
-                    if (mShowThreePidWarning) {
-                        // An email was entered but was not attached to account
-                        listener.onRegistrationSuccess(context.getString(R.string.auth_threepid_warning_message));
-                    } else {
-                        listener.onRegistrationSuccess(null);
-                    }
+                public void onRegistrationSuccess(String warningMessage) {
+                    listener.onRegistrationSuccess(warningMessage);
                 }
 
                 @Override
@@ -315,8 +288,8 @@ public class RegistrationManager {
 
         register(context, registrationParams, new InternalRegistrationListener() {
             @Override
-            public void onRegistrationSuccess() {
-                listener.onRegistrationSuccess(null);
+            public void onRegistrationSuccess(String warningMessage) {
+                listener.onRegistrationSuccess(warningMessage);
             }
 
             @Override
@@ -347,14 +320,6 @@ public class RegistrationManager {
     }
 
     /**
-     * @return true if captcha is mandatory for registration and not completed yet
-     */
-    private boolean isCaptchaRequired() {
-        // No Captcha in Tchap for the moment
-        return false;
-    }
-
-    /**
      * Submit the token for the given three pid
      *
      * @param token
@@ -362,28 +327,32 @@ public class RegistrationManager {
      * @param listener
      */
     public void submitValidationToken(final String token, final ThreePid pid, final ThreePidValidationListener listener) {
-        if (getThirdPidRestClient() != null) {
-            pid.submitValidationToken(getThirdPidRestClient(), token, pid.clientSecret, pid.sid, new ApiCallback<Boolean>() {
-                @Override
-                public void onSuccess(Boolean isSuccess) {
-                    listener.onThreePidValidated(isSuccess);
-                }
+        if (mTchapConfig != null) {
+            ThirdPidRestClient thirdPidRestClient = new ThirdPidRestClient(mTchapConfig.getHsConfig());
 
-                @Override
-                public void onNetworkError(Exception e) {
-                    listener.onThreePidValidated(false);
-                }
+            if (thirdPidRestClient != null) {
+                pid.submitValidationToken(thirdPidRestClient, token, pid.clientSecret, pid.sid, new ApiCallback<Boolean>() {
+                    @Override
+                    public void onSuccess(Boolean isSuccess) {
+                        listener.onThreePidValidated(isSuccess);
+                    }
 
-                @Override
-                public void onMatrixError(MatrixError e) {
-                    listener.onThreePidValidated(false);
-                }
+                    @Override
+                    public void onNetworkError(Exception e) {
+                        listener.onThreePidValidated(false);
+                    }
 
-                @Override
-                public void onUnexpectedError(Exception e) {
-                    listener.onThreePidValidated(false);
-                }
-            });
+                    @Override
+                    public void onMatrixError(MatrixError e) {
+                        listener.onThreePidValidated(false);
+                    }
+
+                    @Override
+                    public void onUnexpectedError(Exception e) {
+                        listener.onThreePidValidated(false);
+                    }
+                });
+            }
         }
     }
 
@@ -446,7 +415,6 @@ public class RegistrationManager {
     public void clearThreePid() {
         mEmail = null;
         mPhoneNumber = null;
-        mShowThreePidWarning = false;
     }
 
     /*
@@ -454,42 +422,6 @@ public class RegistrationManager {
      * Private methods
      * *********************************************************************************************
      */
-
-    /**
-     * Get a login rest client
-     *
-     * @return login rest client
-     */
-    private LoginRestClient getLoginRestClient() {
-        if (mLoginRestClient == null && mHsConfig != null) {
-            mLoginRestClient = new LoginRestClient(mHsConfig);
-        }
-        return mLoginRestClient;
-    }
-
-    /**
-     * Get a third pid rest client
-     *
-     * @return third pid rest client
-     */
-    private ThirdPidRestClient getThirdPidRestClient() {
-        if (mThirdPidRestClient == null && mHsConfig != null) {
-            mThirdPidRestClient = new ThirdPidRestClient(mHsConfig);
-        }
-        return mThirdPidRestClient;
-    }
-
-    /**
-     * Get a profile rest client
-     *
-     * @return third pid rest client
-     */
-    private ProfileRestClient getProfileRestClient() {
-        if (mProfileRestClient == null && mHsConfig != null) {
-            mProfileRestClient = new ProfileRestClient(mHsConfig);
-        }
-        return mProfileRestClient;
-    }
 
     /**
      * Set the flow stages for the current home server
@@ -546,15 +478,22 @@ public class RegistrationManager {
      * @param listener
      */
     private void requestValidationToken(final ThreePid pid, final ThreePidRequestListener listener) {
-        if (getThirdPidRestClient() != null) {
+        // Consider here the main hs config if any
+        ProfileRestClient profileRestClient = null;
+        if (mTchapConfig != null) {
+            profileRestClient = new ProfileRestClient(mTchapConfig.getHsConfig());
+        }
+
+        if (profileRestClient != null) {
             switch (pid.medium) {
                 case ThreePid.MEDIUM_EMAIL:
-                    String nextLinkBase = mHsConfig.getHomeserverUri().toString();
+                    HomeServerConnectionConfig hsConfig = mTchapConfig.getHsConfig();
+                    String nextLinkBase = hsConfig.getHomeserverUri().toString();
                     String nextLink = nextLinkBase + "/#/register?client_secret="+ pid.clientSecret;
-                    nextLink += "&hs_url=" + mHsConfig.getHomeserverUri().toString();
-                    nextLink += "&is_url=" + mHsConfig.getIdentityServerUri().toString();
+                    nextLink += "&hs_url=" + hsConfig.getHomeserverUri().toString();
+                    nextLink += "&is_url=" + hsConfig.getIdentityServerUri().toString();
                     nextLink += "&session_id=" + mRegistrationResponse.session;
-                    pid.requestEmailValidationToken(getProfileRestClient(), nextLink, true, new ApiCallback<Void>() {
+                    pid.requestEmailValidationToken(profileRestClient, nextLink, true, new ApiCallback<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
                             listener.onThreePidRequested(pid);
@@ -581,7 +520,7 @@ public class RegistrationManager {
                     });
                     break;
                 case ThreePid.MEDIUM_MSISDN:
-                    pid.requestPhoneNumberValidationToken(getProfileRestClient(), true, new ApiCallback<Void>() {
+                    pid.requestPhoneNumberValidationToken(profileRestClient, true, new ApiCallback<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
                             mPhoneNumber = pid;
@@ -624,7 +563,7 @@ public class RegistrationManager {
         if (unrecCertEx != null) {
             final Fingerprint fingerprint = unrecCertEx.getFingerprint();
 
-            UnrecognizedCertHandler.show(mHsConfig, fingerprint, false, new UnrecognizedCertHandler.Callback() {
+            UnrecognizedCertHandler.show(mTchapConfig.getHsConfig(), fingerprint, false, new UnrecognizedCertHandler.Callback() {
                 @Override
                 public void onAccept() {
                     requestValidationToken(pid, listener);
@@ -652,35 +591,43 @@ public class RegistrationManager {
      * @param params   registration params
      * @param listener
      */
-    private void register(final Context context, final RegistrationParams params, final InternalRegistrationListener listener) {
-        if (getLoginRestClient() != null) {
+    private void register(final Context context,
+                          final RegistrationParams params,
+                          final InternalRegistrationListener listener) {
+        // Consider here the main hs config if any
+        LoginRestClient loginRestClient = null;
+        if (mTchapConfig != null) {
+            loginRestClient = new LoginRestClient(mTchapConfig.getHsConfig());
+        }
+
+        if (loginRestClient != null) {
             params.initial_device_display_name = context.getString(R.string.login_mobile_device);
-            mLoginRestClient.register(params, new UnrecognizedCertApiCallback<Credentials>(mHsConfig) {
+            final HomeServerConnectionConfig hsConfig = mTchapConfig.getHsConfig();
+            loginRestClient.register(params, new UnrecognizedCertApiCallback<Credentials>(hsConfig) {
                 @Override
                 public void onSuccess(Credentials credentials) {
                     if (TextUtils.isEmpty(credentials.userId)) {
                         listener.onRegistrationFailed(ERROR_EMPTY_USER_ID);
                     } else {
-                        // Initiate login process
-                        Collection<MXSession> sessions = Matrix.getMXSessions(context);
-                        boolean isDuplicated = false;
+                        hsConfig.setCredentials(credentials);
 
-                        for (MXSession existingSession : sessions) {
-                            Credentials cred = existingSession.getCredentials();
-                            isDuplicated |= TextUtils.equals(credentials.userId, cred.userId) && TextUtils.equals(credentials.homeServer, cred.homeServer);
-                        }
+                        // Check whether a shadow HS is available in the Tchap configuration
+                        final HomeServerConnectionConfig shadowHS = mTchapConfig.getShadowHSConfig();
+                        final String email = mTchapConfig.getEmail();
+                        if (shadowHS != null && email != null && params.password != null) {
+                            shadowLogin(context, shadowHS, email, params.password, new SuccessCallback<String>() {
+                                @Override
+                                public void onSuccess(String warningMessage) {
+                                    onRegistrationDone(Matrix.getInstance(context.getApplicationContext()), mTchapConfig);
+                                    listener.onRegistrationSuccess(warningMessage);
+                                }
+                            });
 
-                        if (null == mHsConfig) {
-                            listener.onRegistrationFailed("null mHsConfig");
                         } else {
-                            if (!isDuplicated) {
-                                mHsConfig.setCredentials(credentials);
-                                MXSession session = Matrix.getInstance(context).createSession(mHsConfig);
-                                Matrix.getInstance(context).addSession(session);
-                            }
-
-                            listener.onRegistrationSuccess();
+                            onRegistrationDone(Matrix.getInstance(context.getApplicationContext()), mTchapConfig);
+                            listener.onRegistrationSuccess(null);
                         }
+
                     }
                 }
 
@@ -721,6 +668,85 @@ public class RegistrationManager {
         }
     }
 
+    /**
+     * Handle the login stage on the shadow HS.
+     * This method returns a warning message in case of failure, otherwise it returns null.
+     *
+     * @param context            the context.
+     * @param shadowHSConfig     The shadow homeserver config.
+     * @param email              The user's email.
+     * @param password           The password;
+     * @param callback           The callback.
+     */
+    private void shadowLogin(final Context context,
+                             final HomeServerConnectionConfig shadowHSConfig,
+                             final String email,
+                             final String password,
+                             final SuccessCallback<String> callback) {
+        LoginRestClient loginRestClient  = new LoginRestClient(shadowHSConfig);
+        if (loginRestClient != null) {
+            String deviceName = context.getString(R.string.login_mobile_device);
+            loginRestClient.loginWith3Pid(ThreePid.MEDIUM_EMAIL, email, password, deviceName, null, new UnrecognizedCertApiCallback<Credentials>(shadowHSConfig) {
+                private void onError(String errorMessage) {
+                    Log.e(LOG_TAG, "Login to the shadow HS failed " + errorMessage);
+                    callback.onSuccess(context.getString(R.string.tchap_auth_agent_failure_warning_msg));
+                }
+
+                @Override
+                public void onNetworkError(Exception e) {
+                    onError(e.getMessage());
+                }
+
+                @Override
+                public void onMatrixError(MatrixError e) {
+                    onError(e.getMessage());
+                }
+
+                @Override
+                public void onUnexpectedError(Exception e) {
+                    onError(e.getMessage());
+                }
+
+                @Override
+                public void onSuccess(Credentials credentials) {
+                    // sanity check - GA issue
+                    if (TextUtils.isEmpty(credentials.userId)) {
+                        onError("No user id");
+                        return;
+                    }
+
+                    shadowHSConfig.setCredentials(credentials);
+                    callback.onSuccess(null);
+                }
+
+                @Override
+                public void onAcceptedCert() {
+                    shadowLogin(context, shadowHSConfig, email, password, callback);
+                }
+            });
+        } else {
+            callback.onSuccess("No hs config");
+        }
+    }
+
+    /**
+     * The account authentication succeeds, store here the dedicated Tchap session and create it.
+     *
+     * @param matrixInstance  the current Matrix instance
+     * @param tchapConfig     the Tchap homeserver(s) config
+     */
+    private void onRegistrationDone(Matrix matrixInstance,
+                                    TchapConnectionConfig tchapConfig) {
+        // Sanity check: check whether the tchap session does not already exist.
+        String userId = tchapConfig.getHsConfig().getCredentials().userId;
+        TchapSession existingSession = matrixInstance.getTchapSession(userId);
+
+        if (existingSession == null) {
+            matrixInstance.addTchapConnectionConfig(tchapConfig);
+            matrixInstance.createTchapSession(tchapConfig);
+        }
+    }
+
     /*
      * *********************************************************************************************
      * Private listeners
@@ -728,7 +754,7 @@ public class RegistrationManager {
      */
 
     private interface InternalRegistrationListener {
-        void onRegistrationSuccess();
+        void onRegistrationSuccess(String warningMessage);
 
         void onRegistrationFailed(String message);
 

@@ -32,7 +32,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
-import android.support.design.widget.TextInputEditText;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.MenuItem;
@@ -51,11 +50,8 @@ import org.matrix.androidsdk.HomeServerConnectionConfig;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
-import org.matrix.androidsdk.rest.client.LoginRestClient;
 import org.matrix.androidsdk.rest.client.ProfileRestClient;
 import org.matrix.androidsdk.rest.model.MatrixError;
-import org.matrix.androidsdk.rest.model.login.Credentials;
-import org.matrix.androidsdk.rest.model.login.LoginFlow;
 import org.matrix.androidsdk.rest.model.login.RegistrationFlowResponse;
 import org.matrix.androidsdk.rest.model.pid.ThreePid;
 import org.matrix.androidsdk.ssl.CertUtil;
@@ -72,6 +68,7 @@ import java.util.Random;
 
 import butterknife.BindView;
 import butterknife.OnClick;
+import fr.gouv.tchap.model.TchapConnectionConfig;
 import fr.gouv.tchap.sdk.rest.client.TchapRestClient;
 import fr.gouv.tchap.sdk.rest.model.Platform;
 import fr.gouv.tchap.util.HomeServerConnectionConfigFactoryKt;
@@ -80,10 +77,8 @@ import im.vector.Matrix;
 import im.vector.R;
 import im.vector.RegistrationManager;
 import im.vector.UnrecognizedCertHandler;
-import im.vector.activity.AccountCreationActivity;
 import im.vector.activity.AccountCreationCaptchaActivity;
 import im.vector.activity.CommonActivityUtils;
-import im.vector.activity.FallbackLoginActivity;
 import im.vector.activity.MXCActionBarActivity;
 import im.vector.activity.SplashActivity;
 import im.vector.activity.VectorUniversalLinkActivity;
@@ -271,9 +266,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     private Handler mHandler;
 
     private Dialog mCurrentDialog;
-
-    // save the config because trust a certificate is asynchronous.
-    private HomeServerConnectionConfig mServerConfig;
 
     @Override
     protected void onDestroy() {
@@ -472,7 +464,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 // Resume the email validation polling
                 enableLoadingScreen(true);
                 RegistrationManager.getInstance().setSupportedRegistrationFlows(mRegistrationResponse);
-                RegistrationManager.getInstance().setHsConfig(getHsConfig());
+                RegistrationManager.getInstance().setTchapConfig(getTchapHsConfig());
                 RegistrationManager.getInstance().setAccountData(null, password);
                 RegistrationManager.getInstance().addEmailThreePid(mPendingEmailValidation);
                 RegistrationManager.getInstance().attemptRegistration(this, this);
@@ -1102,15 +1094,31 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
      * @param aHomeServer     home server url
      */
     private void submitEmailToken(final String aToken, final String aClientSecret, final String aSid, final String aSessionId, final String aHomeServer, final String aIdentityServer) {
-        final HomeServerConnectionConfig homeServerConfig
-                = mServerConfig
-                = HomeServerConnectionConfigFactoryKt.createHomeServerConnectionConfig(aHomeServer, aIdentityServer);
-        RegistrationManager.getInstance().setHsConfig(homeServerConfig);
+        // Check whether the provided server urls correspond to the current known platform, in order to keep it
+        TchapConnectionConfig tchapConfig = getTchapHsConfig();
+        if (tchapConfig != null) {
+            HomeServerConnectionConfig currentHSConfig = tchapConfig.getHsConfig();
+            if (!currentHSConfig.getHomeserverUri().equals(aHomeServer) || !currentHSConfig.getIdentityServerUri().equals(aIdentityServer)) {
+                // Reset the current platform
+                mTchapPlatform = null;
+                mCurrentEmail = null;
+                tchapConfig = null;
+            }
+        }
+
+        if (tchapConfig == null) {
+            // Configure the RegistrationManager with the provided server urls without information about the protected infra access.
+            tchapConfig = HomeServerConnectionConfigFactoryKt.createTchapConnectionConfig(aHomeServer, aIdentityServer);
+        }
+
+        RegistrationManager.getInstance().setTchapConfig(tchapConfig);
+
         Log.d(LOG_TAG, "## submitEmailToken(): IN");
 
         if (mMode == MODE_ACCOUNT_CREATION) {
             Log.d(LOG_TAG, "## submitEmailToken(): calling submitEmailTokenValidation()..");
-            mLoginHandler.submitEmailTokenValidation(getApplicationContext(), homeServerConfig, aToken, aClientSecret, aSid, new ApiCallback<Boolean>() {
+            final HomeServerConnectionConfig hsConfig = tchapConfig.getHsConfig();
+            mLoginHandler.submitEmailTokenValidation(getApplicationContext(), hsConfig, aToken, aClientSecret, aSid, new ApiCallback<Boolean>() {
                 private void errorHandler(String errorMessage) {
                     Log.d(LOG_TAG, "## submitEmailToken(): errorHandler().");
                     enableLoadingScreen(false);
@@ -1130,11 +1138,11 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
                             mForgotPid = new HashMap<>();
                             mForgotPid.put("client_secret", aClientSecret);
-                            mForgotPid.put("id_server", homeServerConfig.getIdentityServerUri().getHost());
+                            mForgotPid.put("id_server", hsConfig.getIdentityServerUri().getHost());
                             mForgotPid.put("sid", aSid);
 
                             mIsPasswordResetted = false;
-                            onForgotOnEmailValidated(homeServerConfig);
+                            onForgotOnEmailValidated(hsConfig);
                         } else {
                             // the validation of mail ownership succeed, just resume the registration flow
                             // next step: just register
@@ -1207,13 +1215,10 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     }
 
     /**
-     * Check the homeserver flows.
-     * i.e checks if this registration page is enough to perform a registration.
-     * else switch to a fallback page
+     * Retrieve the homeserver flows in order to get a session id
      */
-    private void checkRegistrationFlows(final SimpleApiCallback<Void> callback) {
-        Log.d(LOG_TAG, "## checkRegistrationFlows(): IN");
-        // should only check registration flows
+    private void initializeRegistration(final SimpleApiCallback<Void> callback) {
+        Log.d(LOG_TAG, "## initializeRegistration(): IN");
         if (mMode != MODE_ACCOUNT_CREATION) {
             return;
         }
@@ -1262,7 +1267,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                             removeNetworkStateNotificationListener();
 
                             if (mMode == MODE_ACCOUNT_CREATION) {
-                                Log.d(LOG_TAG, "## checkRegistrationFlows(): onMatrixError - Resp=" + e.getLocalizedMessage());
+                                Log.d(LOG_TAG, "## initializeRegistration(): onMatrixError - Resp=" + e.getLocalizedMessage());
                                 RegistrationFlowResponse registrationFlowResponse = null;
 
                                 // when a response is not completed the server returns an error message
@@ -1391,10 +1396,10 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 mTchapPlatform = platform;
                 mCurrentEmail = emailAddress;
 
-                final HomeServerConnectionConfig hsConfig = getHsConfig();
+                final TchapConnectionConfig tchapConfig = getTchapHsConfig();
 
                 // Tchap: log in without checking the hs supported flows.
-                login(hsConfig, emailAddress, null, null, password);
+                login(tchapConfig, emailAddress, null, null, password);
             }
 
             @Override
@@ -1417,21 +1422,39 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     /**
      * Make login request with given params
      *
-     * @param hsConfig           the HS config
+     * @param tchapConfig        the HS config
      * @param username           the username
      * @param phoneNumber        the phone number
      * @param phoneNumberCountry the phone number country code
      * @param password           the user password
      */
-    private void login(final HomeServerConnectionConfig hsConfig, final String username, final String phoneNumber,
+    private void login(final TchapConnectionConfig tchapConfig, final String username, final String phoneNumber,
                        final String phoneNumberCountry, final String password) {
         try {
-            mLoginHandler.login(this, hsConfig, username, phoneNumber, phoneNumberCountry, password, new SimpleApiCallback<Void>(this) {
+            mLoginHandler.login(this, tchapConfig, username, phoneNumber, phoneNumberCountry, password, new SimpleApiCallback<String>(this) {
                 @Override
-                public void onSuccess(Void avoid) {
+                public void onSuccess(String warningMessage) {
                     enableLoadingScreen(false);
-                    goToSplash();
-                    TchapLoginActivity.this.finish();
+                    // Check whether the login was successful without limitation
+                    if (!TextUtils.isEmpty(warningMessage)) {
+                        if (mCurrentDialog != null) {
+                            mCurrentDialog.dismiss();
+                        }
+                        mCurrentDialog = new AlertDialog.Builder(TchapLoginActivity.this)
+                                .setTitle(R.string.dialog_title_warning)
+                                .setMessage(warningMessage)
+                                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        goToSplash();
+                                        TchapLoginActivity.this.finish();
+                                    }
+                                })
+                                .show();
+                    } else {
+                        goToSplash();
+                        TchapLoginActivity.this.finish();
+                    }
                 }
 
                 @Override
@@ -1695,14 +1718,30 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
      * @return the homeserver config. null if the url is not valid
      */
     private HomeServerConnectionConfig getHsConfig() {
-        try {
-            mServerConfig = null;
-            mServerConfig = HomeServerConnectionConfigFactoryKt.createHomeServerConnectionConfig(getHomeServerUrl(), getIdentityServerUrl());
-        } catch (Exception e) {
-            Log.e(LOG_TAG, "getHsConfig fails " + e.getLocalizedMessage());
+        if (mTchapPlatform != null) {
+            try {
+                return HomeServerConnectionConfigFactoryKt.createHomeServerConnectionConfig(mTchapPlatform, getString(R.string.server_url_prefix));
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "getHsConfig fails " + e.getLocalizedMessage());
+            }
         }
 
-        return mServerConfig;
+        return null;
+    }
+
+    /**
+     * @return the Tchap homeserver config. null if the url is not valid
+     */
+    private TchapConnectionConfig getTchapHsConfig() {
+        if (mTchapPlatform != null) {
+            try {
+                return HomeServerConnectionConfigFactoryKt.createTchapConnectionConfig(mCurrentEmail, mTchapPlatform, getString(R.string.server_url_prefix));
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "getTchapHsConfig fails " + e.getLocalizedMessage());
+            }
+        }
+
+        return null;
     }
 
     //==============================================================================================================
@@ -1863,14 +1902,20 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
      * @return the home server Url according to current tchap platform.
      */
     private String getHomeServerUrl() {
-        return (null != mTchapPlatform && null != mTchapPlatform.hs) ? getString(R.string.server_url_prefix) + mTchapPlatform.hs : null;
+        if (mTchapPlatform != null) {
+            HomeServerConnectionConfigFactoryKt.getHomeServerUrl(mTchapPlatform, getString(R.string.server_url_prefix));
+        }
+        return null;
     }
 
     /**
      * @return the identity server URL according to current tchap platform.
      */
     private String getIdentityServerUrl() {
-        return (null != mTchapPlatform && null != mTchapPlatform.hs) ? getString(R.string.server_url_prefix) + mTchapPlatform.hs : null;
+        if (mTchapPlatform != null) {
+            HomeServerConnectionConfigFactoryKt.getIdentityServerUrl(mTchapPlatform, getString(R.string.server_url_prefix));
+        }
+        return null;
     }
 
     /**
@@ -2041,7 +2086,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 mTchapPlatform = platform;
                 mCurrentEmail = emailAddress;
 
-                RegistrationManager.getInstance().setHsConfig(getHsConfig());
+                RegistrationManager.getInstance().setTchapConfig(getTchapHsConfig());
                 // The username is forced by the Tchap server, we don't send it anymore.
                 RegistrationManager.getInstance().setAccountData(null, password);
 
@@ -2049,7 +2094,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 RegistrationManager.getInstance().addEmailThreePid(new ThreePid(mCurrentEmail, ThreePid.MEDIUM_EMAIL));
                 mIsMailValidationPending = true;
 
-                checkRegistrationFlows(new SimpleApiCallback<Void>() {
+                initializeRegistration(new SimpleApiCallback<Void>() {
                     @Override
                     public void onSuccess(Void info) {
                         RegistrationManager.getInstance().attemptRegistration(TchapLoginActivity.this, TchapLoginActivity.this);
