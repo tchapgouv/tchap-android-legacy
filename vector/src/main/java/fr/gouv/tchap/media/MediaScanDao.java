@@ -103,7 +103,7 @@ public class MediaScanDao {
      * Clear the Realm media scan results.
      * This action will delete the table MediaScan in the Realm database.
      */
-    /* package */ void clearAntiVirusScanResults() {
+    public void clearAntiVirusScanResults() {
 
         mRealm.executeTransaction(new Realm.Transaction() {
             @Override

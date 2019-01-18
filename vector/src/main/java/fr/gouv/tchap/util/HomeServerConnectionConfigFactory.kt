@@ -110,8 +110,8 @@ fun getHomeServerUrl(tchapPlatform: Platform, serverURLPrefix: String): String? 
     var hs = tchapPlatform.hs
 
     // Fallback to the shadow hs (if any) when the protected access is not supported by the client.
-    if (!ENABLE_PROTECTED_ACCESS && tchapPlatform.shadowHS != null) {
-        hs = tchapPlatform.shadowHS
+    if (!ENABLE_PROTECTED_ACCESS && tchapPlatform.shadowHs != null) {
+        hs = tchapPlatform.shadowHs
     }
 
     return if (hs != null && !hs.isEmpty()) serverURLPrefix + hs else null
@@ -128,7 +128,7 @@ fun getIdentityServerUrl(tchapPlatform: Platform, serverURLPrefix: String): Stri
 private fun getShadowHomeServerUrl(tchapPlatform: Platform, serverURLPrefix: String): String? {
     // Check whether the protected access is supported by the client.
     if (ENABLE_PROTECTED_ACCESS) {
-        val hs = tchapPlatform.shadowHS
+        val hs = tchapPlatform.shadowHs
         return if (hs != null && !hs.isEmpty()) serverURLPrefix + hs else null
     }
     return null
@@ -147,7 +147,7 @@ private fun hasProtectedAccess(tchapPlatform: Platform): Boolean {
     if (ENABLE_PROTECTED_ACCESS) {
         // The platform description corresponds to an account with a protected access
         // when the "shadow_hs" key is defined (even with an empty value).
-        return tchapPlatform.shadowHS != null
+        return tchapPlatform.shadowHs != null
     }
     return false
 }

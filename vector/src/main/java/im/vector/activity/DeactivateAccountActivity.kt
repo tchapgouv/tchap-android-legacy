@@ -48,7 +48,7 @@ class DeactivateAccountActivity : VectorAppCompatActivity() {
      * DATA
      * ========================================================================================== */
 
-    private lateinit var tchapSession: TchapSession
+    private var tchapSession: TchapSession? = null
 
     /* ==========================================================================================
      * Life cycle

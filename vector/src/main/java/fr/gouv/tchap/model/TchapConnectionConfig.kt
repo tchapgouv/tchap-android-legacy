@@ -57,7 +57,7 @@ data class TchapConnectionConfig(
         } else if (shadowHSConfig?.credentials?.userId.equals(updatedHSConfig.credentials?.userId)) {
             return TchapConnectionConfig(hsConfig, email, hasProtectedAccess, updatedHSConfig, version)
         }
-        return null;
+        return null
     }
 
     companion object {

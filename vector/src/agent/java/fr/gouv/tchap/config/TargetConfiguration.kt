@@ -16,6 +16,8 @@
 
 package fr.gouv.tchap.config
 
+import fr.gouv.tchap.model.TchapConnectionConfig
+
 // Configure here the Protected infra access
 const val ENABLE_PROTECTED_ACCESS = false
 

@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import org.matrix.androidsdk.HomeServerConnectionConfig;
@@ -59,6 +60,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import fr.gouv.tchap.media.MediaScanDao;
 import fr.gouv.tchap.media.MediaScanManager;
 import fr.gouv.tchap.model.TchapConnectionConfig;
 import fr.gouv.tchap.model.TchapSession;
@@ -350,6 +352,7 @@ public class Matrix {
      *
      * @return The default session or null.
      */
+    @Nullable
     public synchronized TchapSession getDefaultTchapSession() {
         // Check first whether a session is available
         TchapSession tchapSession = _getDefaultTchapSession();
@@ -375,6 +378,7 @@ public class Matrix {
         return _getDefaultTchapSession();
     }
 
+    @Nullable
     private TchapSession _getDefaultTchapSession() {
         if (!mTchapSessionKeys.isEmpty()) {
             // Return the first created Tchap session by default.
@@ -403,6 +407,7 @@ public class Matrix {
      * @param matrixId the matrix id
      * @return the MXSession.
      */
+    @Nullable
     public static MXSession getMXSession(Context context, String matrixId) {
         return Matrix.getInstance(context.getApplicationContext()).getSession(matrixId);
     }
@@ -414,6 +419,7 @@ public class Matrix {
      * @param matrixId the matrix id
      * @return the MXsession if it exists.
      */
+    @Nullable
     public synchronized MXSession getSession(String matrixId) {
         MXSession session = null;
 
@@ -446,6 +452,7 @@ public class Matrix {
      * @param matrixId the matrix id
      * @return the Tchap session if it exists.
      */
+    @Nullable
     public synchronized TchapSession getTchapSession(@NonNull String matrixId) {
         TchapSession tchapSession = null;
 
@@ -509,6 +516,7 @@ public class Matrix {
      *
      * @return the mediasCache.
      */
+    @Nullable
     public synchronized MXMediasCache getMediasCache() {
         TchapSession defaultSession = _getDefaultTchapSession();
         if (defaultSession != null) {
@@ -523,6 +531,7 @@ public class Matrix {
      *
      * @return the latest messages cache.
      */
+    @Nullable
     public synchronized MXLatestChatMessageCache getDefaultLatestChatMessageCache() {
         TchapSession defaultSession = _getDefaultTchapSession();
         if (defaultSession != null) {
@@ -701,8 +710,8 @@ public class Matrix {
         // Clear media scan database
         // TODO The media scan database clear should be handled during the media cache clear when the MediaScanManager will be moved into the sdk.
         Realm realm = Realm.getDefaultInstance();
-        MediaScanManager mediaScanManager = new MediaScanManager(tchapSession.getMainSession().getMediaScanRestClient(), realm);
-        mediaScanManager.clearAntiVirusScanResults();
+        final MediaScanDao mediaScanDao = new MediaScanDao(realm);
+        mediaScanDao.clearAntiVirusScanResults();
         realm.close();
     }
 

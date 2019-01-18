@@ -28,7 +28,7 @@ public class Platform implements Serializable {
     // The shadow homeserver name. The presence of this parameter (even with a blank value) means
     // the user has a protected access.
     @SerializedName("shadow_hs")
-    public String shadowHS;
+    public String shadowHs;
     // Tell whether the given 3pid has been invited to the platform or not.
     public boolean invited;
 }

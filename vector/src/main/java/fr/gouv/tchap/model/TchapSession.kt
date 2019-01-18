@@ -24,19 +24,12 @@ data class TchapSession(
         val shadowSession: MXSession? = null) {
 
     fun getSessions(): List<MXSession> {
-        return ArrayList<MXSession>().apply {
-            add(mainSession)
-            shadowSession?.let { shadowSession ->
-                add(shadowSession)
-            }
-        }
+        return listOf(mainSession, shadowSession).mapNotNull { it }
     }
 
     fun clear(context: Context) {
         mainSession.clear(context)
-        shadowSession?.let { shadowSession ->
-            shadowSession.clear(context)
-        }
+        shadowSession?.clear(context)
     }
 
 }

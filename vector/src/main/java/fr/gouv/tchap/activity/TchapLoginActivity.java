@@ -32,6 +32,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.MenuItem;
@@ -45,7 +46,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.jetbrains.annotations.Nullable;
 import org.matrix.androidsdk.HomeServerConnectionConfig;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
@@ -1447,13 +1447,13 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         goToSplash();
-                                        TchapLoginActivity.this.finish();
+                                        finish();
                                     }
                                 })
                                 .show();
                     } else {
                         goToSplash();
-                        TchapLoginActivity.this.finish();
+                        finish();
                     }
                 }
 
@@ -1717,6 +1717,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     /**
      * @return the homeserver config. null if the url is not valid
      */
+    @Nullable
     private HomeServerConnectionConfig getHsConfig() {
         if (mTchapPlatform != null) {
             try {
@@ -1732,6 +1733,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     /**
      * @return the Tchap homeserver config. null if the url is not valid
      */
+    @Nullable
     private TchapConnectionConfig getTchapHsConfig() {
         if (mTchapPlatform != null) {
             try {
