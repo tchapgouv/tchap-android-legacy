@@ -609,7 +609,7 @@ public class VectorUtils {
      */
     public static void displayAppTac() {
         if (null != VectorApp.getCurrentActivity()) {
-            displayInWebView(VectorApp.getCurrentActivity(), "https://www.tchap.gouv.fr/tac");
+            displayInWebView(VectorApp.getCurrentActivity(), "https://www.tchap.gouv.fr/tac/");
         }
     }
 
