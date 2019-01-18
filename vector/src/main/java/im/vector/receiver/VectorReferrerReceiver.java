@@ -27,10 +27,6 @@ import org.matrix.androidsdk.util.Log;
 
 import java.net.URLDecoder;
 
-import im.vector.VectorApp;
-import im.vector.activity.LoginActivity;
-import im.vector.repositories.ServerUrlsRepository;
-
 public class VectorReferrerReceiver extends BroadcastReceiver {
     private static final String LOG_TAG = VectorReferrerReceiver.class.getSimpleName();
 

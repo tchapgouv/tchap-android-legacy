@@ -87,6 +87,7 @@ import im.vector.activity.FallbackLoginActivity;
 import im.vector.activity.MXCActionBarActivity;
 import im.vector.activity.SplashActivity;
 import im.vector.activity.VectorUniversalLinkActivity;
+import im.vector.activity.util.RequestCodesKt;
 import im.vector.gcm.GCMHelper;
 import im.vector.features.hhs.ResourceLimitDialogHelper;
 import im.vector.receiver.VectorUniversalLinkReceiver;
@@ -95,17 +96,10 @@ import im.vector.services.EventStreamService;
 /**
  * Displays the login screen.
  */
-public class TchapLoginActivity extends MXCActionBarActivity implements RegistrationManager.RegistrationListener, RegistrationManager.UsernameValidityListener {
+public class TchapLoginActivity extends MXCActionBarActivity implements RegistrationManager.RegistrationListener {
     private static final String LOG_TAG = TchapLoginActivity.class.getSimpleName();
 
-    private static final int ACCOUNT_CREATION_ACTIVITY_REQUEST_CODE = 314;
-    private static final int FALLBACK_LOGIN_ACTIVITY_REQUEST_CODE = 315;
-    private static final int CAPTCHA_CREATION_ACTIVITY_REQUEST_CODE = 316;
-
     private final static int REGISTER_POLLING_PERIOD = 10 * 1000;
-
-    private static final int REQUEST_REGISTRATION_COUNTRY = 1245;
-    private static final int REQUEST_LOGIN_COUNTRY = 5678;
 
     // activity modes
     // either the user logs in
@@ -117,7 +111,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     private static final int MODE_FORGOT_PASSWORD = 3;
     private static final int MODE_FORGOT_PASSWORD_WAITING_VALIDATION = 4;
     private static final int MODE_FORGOT_PASSWORD_WAITING_VALIDATION_2 = 7;
-    //private static final int MODE_ACCOUNT_CREATION_THREE_PID = 5; Tchap: this mode is not used for the moment.
     private static final int MODE_START = 6;
 
     // saved parameters index
@@ -226,14 +219,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     // the pending universal link uri (if any)
     private Parcelable mUniversalLinkUri;
 
-    // Account creation - Three pid
-    private TextView mThreePidInstructions;
-    private EditText mEmailAddress;
-    //private View mPhoneNumberLayout;
-    //private EditText mPhoneNumber;
-    //private Button mSubmitThreePidButton;
-    //private Button mSkipThreePidButton;
-
     // allowed registration response
     private RegistrationFlowResponse mRegistrationResponse;
 
@@ -285,9 +270,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     private Runnable mRegisterPollingRunnable;
     private Handler mHandler;
 
-    //private PhoneNumberHandler mLoginPhoneNumberHandler;
-    //private PhoneNumberHandler mRegistrationPhoneNumberHandler;
-
     private Dialog mCurrentDialog;
 
     // save the config because trust a certificate is asynchronous.
@@ -295,12 +277,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
     @Override
     protected void onDestroy() {
-        /*if (mLoginPhoneNumberHandler != null) {
-            mLoginPhoneNumberHandler.release();
-        }
-        if (mRegistrationPhoneNumberHandler != null) {
-            mRegistrationPhoneNumberHandler.release();
-        }*/
         if (mCurrentDialog != null) {
             mCurrentDialog.dismiss();
             mCurrentDialog = null;
@@ -397,9 +373,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
         // login
         mLoginEmailTextView = findViewById(R.id.tchap_first_login_email);
-        //EditText loginPhoneNumber = findViewById(R.id.login_phone_number_value);
-        //EditText loginPhoneNumberCountryCode = findViewById(R.id.login_phone_number_country);
-        //loginPhoneNumberCountryCode.setCompoundDrawablesWithIntrinsicBounds(null, null, CommonActivityUtils.tintDrawable(this, ContextCompat.getDrawable(this, R.drawable.ic_material_expand_more_black), R.attr.settings_icon_tint_color), null);
         mLoginPasswordTextView = findViewById(R.id.tchap_first_login_password);
 
         // Handle the keyboard action done
@@ -434,16 +407,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 return handled;
             }
         });
-
-        // account creation - three pid
-        mThreePidInstructions = findViewById(R.id.instructions);
-        mEmailAddress = findViewById(R.id.registration_email);
-        //mPhoneNumberLayout = findViewById(R.id.registration_phone_number);
-        //mPhoneNumber = findViewById(R.id.registration_phone_number_value);
-        //EditText phoneNumberCountryCode = findViewById(R.id.registration_phone_number_country);
-        //phoneNumberCountryCode.setCompoundDrawablesWithIntrinsicBounds(null, null, CommonActivityUtils.tintDrawable(this, ContextCompat.getDrawable(this, R.drawable.ic_material_expand_more_black), R.attr.settings_icon_tint_color), null);
-        //mSubmitThreePidButton = findViewById(R.id.button_submit);
-        //mSkipThreePidButton = findViewById(R.id.button_skip);
 
         // forgot password
         mPasswordForgottenTxtView = findViewById(R.id.tchap_first_login_password_forgotten);
@@ -598,13 +561,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 // switch back directly to login screen
                 fallbackToLoginMode();
                 break;
-            /*case MODE_ACCOUNT_CREATION_THREE_PID:
-                Log.d(LOG_TAG, "## cancel the three pid mode");
-                cancelEmailPolling();
-                RegistrationManager.getInstance().clearThreePid();
-                mEmailAddress.setText("");
-                //mRegistrationPhoneNumberHandler.reset();
-                fallbackToRegistrationMode();*/
             default:
                 super.onBackPressed();
         }
@@ -1223,31 +1179,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         enableLoadingScreen(false);
 
         mRegistrationResponse = registrationFlowResponse;
-
-        // Check whether all listed flows in this authentication session are supported
-        // We suggest using the fallback page (if any), when at least one flow is not supported.
-        if (RegistrationManager.getInstance().hasNonSupportedStage()) {
-            String hs = getHomeServerUrl();
-            boolean validHomeServer = false;
-
-            try {
-                Uri hsUri = Uri.parse(hs);
-                validHomeServer = "http".equals(hsUri.getScheme()) || "https".equals(hsUri.getScheme());
-            } catch (Exception e) {
-                Log.e(LOG_TAG, "## Exception: " + e.getMessage());
-            }
-
-            if (!validHomeServer) {
-                Toast.makeText(TchapLoginActivity.this, getString(R.string.login_error_invalid_home_server), Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            fallbackToLoginMode();
-
-            Intent intent = new Intent(TchapLoginActivity.this, AccountCreationActivity.class);
-            intent.putExtra(AccountCreationActivity.EXTRA_HOME_SERVER_ID, hs);
-            startActivityForResult(intent, ACCOUNT_CREATION_ACTIVITY_REQUEST_CODE);
-        }
     }
 
     /**
@@ -1295,9 +1226,9 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 if (null != hsConfig) {
                     enableLoadingScreen(true);
 
-                    mLoginHandler.getSupportedRegistrationFlows(TchapLoginActivity.this, hsConfig, new SimpleApiCallback<HomeServerConnectionConfig>() {
+                    mLoginHandler.getSupportedRegistrationFlows(TchapLoginActivity.this, hsConfig, new SimpleApiCallback<Void>() {
                         @Override
-                        public void onSuccess(HomeServerConnectionConfig homeserverConnectionConfig) {
+                        public void onSuccess(Void avoid) {
                             // should never be called
                         }
 
@@ -1462,48 +1393,8 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
                 final HomeServerConnectionConfig hsConfig = getHsConfig();
 
-                mLoginHandler.getSupportedLoginFlows(TchapLoginActivity.this, hsConfig, new SimpleApiCallback<List<LoginFlow>>() {
-                    @Override
-                    public void onSuccess(List<LoginFlow> flows) {
-                        // stop listening to network state
-                        removeNetworkStateNotificationListener();
-
-                        enableLoadingScreen(false);
-                        boolean isSupported = true;
-
-                        // supported only m.login.password by now
-                        for (LoginFlow flow : flows) {
-                            isSupported &= TextUtils.equals(LoginRestClient.LOGIN_FLOW_TYPE_PASSWORD, flow.type);
-                        }
-
-                        // if not supported, switch to the fallback login
-                        if (!isSupported) {
-                            Intent intent = new Intent(TchapLoginActivity.this, FallbackLoginActivity.class);
-                            intent.putExtra(FallbackLoginActivity.EXTRA_HOME_SERVER_ID, hsConfig.getHomeserverUri().toString());
-                            startActivityForResult(intent, FALLBACK_LOGIN_ACTIVITY_REQUEST_CODE);
-                        } else {
-                            login(hsConfig, emailAddress, null, null, password);
-                        }
-                    }
-
-                    @Override
-                    public void onNetworkError(Exception e) {
-                        Log.e(LOG_TAG, "Network Error: " + e.getMessage(), e);
-                        // listen to network state, to resume processing as soon as the network is back
-                        addNetworkStateNotificationListener();
-                        onError(e.getLocalizedMessage());
-                    }
-
-                    @Override
-                    public void onUnexpectedError(Exception e) {
-                        onError(e.getLocalizedMessage());
-                    }
-
-                    @Override
-                    public void onMatrixError(MatrixError e) {
-                        onFailureDuringAuthRequest(e);
-                    }
-                });
+                // Tchap: log in without checking the hs supported flows.
+                login(hsConfig, emailAddress, null, null, password);
             }
 
             @Override
@@ -1535,9 +1426,9 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     private void login(final HomeServerConnectionConfig hsConfig, final String username, final String phoneNumber,
                        final String phoneNumberCountry, final String password) {
         try {
-            mLoginHandler.login(this, hsConfig, username, phoneNumber, phoneNumberCountry, password, new SimpleApiCallback<HomeServerConnectionConfig>(this) {
+            mLoginHandler.login(this, hsConfig, username, phoneNumber, phoneNumberCountry, password, new SimpleApiCallback<Void>(this) {
                 @Override
-                public void onSuccess(HomeServerConnectionConfig c) {
+                public void onSuccess(Void avoid) {
                     enableLoadingScreen(false);
                     goToSplash();
                     TchapLoginActivity.this.finish();
@@ -1767,13 +1658,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
 
         supportInvalidateOptionsMenu();
-
-        // Tchap: The following view "threePidLayout" is not used for the moment.
-        View threePidLayout = findViewById(R.id.three_pid_layout);
-        threePidLayout.setVisibility(View.GONE);
-        //threePidLayout.setVisibility((mMode == MODE_ACCOUNT_CREATION_THREE_PID) ? View.VISIBLE : View.GONE);
-        //mSubmitThreePidButton.setVisibility(mMode == MODE_ACCOUNT_CREATION_THREE_PID ? View.VISIBLE : View.GONE);
-        //mSkipThreePidButton.setVisibility(mMode == MODE_ACCOUNT_CREATION_THREE_PID && RegistrationManager.getInstance().canSkip() ? View.VISIBLE : View.GONE);
     }
 
     /**
@@ -1827,15 +1711,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(LOG_TAG, "## onActivityResult(): IN - requestCode=" + requestCode + " resultCode=" + resultCode);
-        if (resultCode == RESULT_OK && requestCode == REQUEST_REGISTRATION_COUNTRY) {
-            /*if (data != null && data.hasExtra(CountryPickerActivity.EXTRA_OUT_COUNTRY_CODE) && mRegistrationPhoneNumberHandler != null) {
-                mRegistrationPhoneNumberHandler.setCountryCode(data.getStringExtra(CountryPickerActivity.EXTRA_OUT_COUNTRY_CODE));
-            }*/
-        } else if (resultCode == RESULT_OK && requestCode == REQUEST_LOGIN_COUNTRY) {
-           /* if (data != null && data.hasExtra(CountryPickerActivity.EXTRA_OUT_COUNTRY_CODE) && mLoginPhoneNumberHandler != null) {
-                mLoginPhoneNumberHandler.setCountryCode(data.getStringExtra(CountryPickerActivity.EXTRA_OUT_COUNTRY_CODE));
-            }*/
-        } else if (CAPTCHA_CREATION_ACTIVITY_REQUEST_CODE == requestCode) {
+        if (RequestCodesKt.CAPTCHA_CREATION_ACTIVITY_REQUEST_CODE == requestCode) {
             if (resultCode == RESULT_OK) {
                 Log.d(LOG_TAG, "## onActivityResult(): CAPTCHA_CREATION_ACTIVITY_REQUEST_CODE => RESULT_OK");
                 String captchaResponse = data.getStringExtra("response");
@@ -1849,240 +1725,14 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 enableLoadingScreen(false);
                 refreshDisplay();
             }
-        } else if ((ACCOUNT_CREATION_ACTIVITY_REQUEST_CODE == requestCode) || (FALLBACK_LOGIN_ACTIVITY_REQUEST_CODE == requestCode)) {
-            if (resultCode == RESULT_OK) {
-                Log.d(LOG_TAG, "## onActivityResult(): ACCOUNT_CREATION_ACTIVITY_REQUEST_CODE => RESULT_OK");
-                String homeServer = data.getStringExtra("homeServer");
-                String userId = data.getStringExtra("userId");
-                String accessToken = data.getStringExtra("accessToken");
-
-                // build a credential with the provided items
-                Credentials credentials = new Credentials();
-                credentials.userId = userId;
-                credentials.homeServer = homeServer;
-                credentials.accessToken = accessToken;
-
-                final HomeServerConnectionConfig hsConfig = getHsConfig();
-
-                try {
-                    hsConfig.setCredentials(credentials);
-                } catch (Exception e) {
-                    Log.d(LOG_TAG, "hsConfig setCredentials failed " + e.getLocalizedMessage());
-                }
-
-                Log.d(LOG_TAG, "Account creation succeeds");
-
-                // let's go...
-                MXSession session = Matrix.getInstance(getApplicationContext()).createSession(hsConfig);
-                Matrix.getInstance(getApplicationContext()).addSession(session);
-                goToSplash();
-                finish();
-            } else if ((resultCode == RESULT_CANCELED) && (FALLBACK_LOGIN_ACTIVITY_REQUEST_CODE == requestCode)) {
-                Log.d(LOG_TAG, "## onActivityResult(): RESULT_CANCELED && FALLBACK_LOGIN_ACTIVITY_REQUEST_CODE");
-            }
         }
     }
 
     /*
      * *********************************************************************************************
-     * Account creation - Threepid
+     * Account creation
      * *********************************************************************************************
      */
-
-    /**
-     * Init the view asking for email and/or phone number depending on supported registration flows
-     */
-    private void initThreePidView() {
-        // Make sure to start with a clear state
-        RegistrationManager.getInstance().clearThreePid();
-        mEmailAddress.setText("");
-        //mRegistrationPhoneNumberHandler.reset();
-        mEmailAddress.requestFocus();
-
-        mThreePidInstructions.setText(RegistrationManager.getInstance().getThreePidInstructions(this));
-
-        if (RegistrationManager.getInstance().supportStage(LoginRestClient.LOGIN_FLOW_TYPE_EMAIL_IDENTITY)) {
-            mEmailAddress.setVisibility(View.VISIBLE);
-            if (RegistrationManager.getInstance().isOptional(LoginRestClient.LOGIN_FLOW_TYPE_EMAIL_IDENTITY)) {
-                mEmailAddress.setHint(R.string.auth_opt_email_placeholder);
-            } else {
-                mEmailAddress.setHint(R.string.auth_email_placeholder);
-            }
-        } else {
-            mEmailAddress.setVisibility(View.GONE);
-        }
-
-        /*if (RegistrationManager.getInstance().supportStage(LoginRestClient.LOGIN_FLOW_TYPE_MSISDN)) {
-            mRegistrationPhoneNumberHandler.setCountryCode(PhoneNumberUtils.getCountryCode(this));
-            mPhoneNumberLayout.setVisibility(View.VISIBLE);
-            if (RegistrationManager.getInstance().isOptional(LoginRestClient.LOGIN_FLOW_TYPE_MSISDN)) {
-                mPhoneNumber.setHint(R.string.auth_opt_phone_number_placeholder);
-            } else {
-                mPhoneNumber.setHint(R.string.auth_phone_number_placeholder);
-            }
-        } else {
-            mPhoneNumberLayout.setVisibility(View.GONE);
-        }*/
-
-        /*if (RegistrationManager.getInstance().canSkip()) {
-            mSkipThreePidButton.setVisibility(View.VISIBLE);
-            mSkipThreePidButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // Make sure no three pid is attached to the process
-                    RegistrationManager.getInstance().clearThreePid();
-                    createAccount();
-                    //mRegistrationPhoneNumberHandler.reset();
-                    mEmailAddress.setText("");
-                }
-            });
-        } else {
-            mSkipThreePidButton.setVisibility(View.GONE);
-        }
-
-        mSubmitThreePidButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                submitThreePids();
-            }
-        });*/
-    }
-
-    /**
-     * Submit the three pids
-     */
-    private void submitThreePids() {
-        dismissKeyboard(this);
-
-        // Make sure to start with a clear state in case user already submitted before but canceled
-        RegistrationManager.getInstance().clearThreePid();
-
-        // Check that email format is valid and not empty if field is required
-        final String email = mEmailAddress.getText().toString();
-        if (!TextUtils.isEmpty(email)) {
-            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                Toast.makeText(this, R.string.auth_invalid_email, Toast.LENGTH_SHORT).show();
-                return;
-            }
-        } else if (RegistrationManager.getInstance().isEmailRequired()) {
-            Toast.makeText(this, R.string.auth_missing_email, Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // Check that phone number format is valid and not empty if field is required
-        /*if (mRegistrationPhoneNumberHandler.getPhoneNumber() != null) {
-            if (!mRegistrationPhoneNumberHandler.isPhoneNumberValidForCountry()) {
-                Toast.makeText(this, R.string.auth_invalid_phone, Toast.LENGTH_SHORT).show();
-                return;
-            }
-        } else if (RegistrationManager.getInstance().isPhoneNumberRequired()) {
-            Toast.makeText(this, R.string.auth_missing_phone, Toast.LENGTH_SHORT).show();
-            return;
-        }*/
-
-        /*if (!RegistrationManager.getInstance().canSkip() && mRegistrationPhoneNumberHandler.getPhoneNumber() == null && TextUtils.isEmpty(email)) {
-            // Both are required and empty
-            Toast.makeText(this, R.string.auth_missing_email_or_phone, Toast.LENGTH_SHORT).show();
-            return;
-        }*/
-
-        if (!TextUtils.isEmpty(email)) {
-            // Communicate email to singleton (will be validated later on)
-            RegistrationManager.getInstance().addEmailThreePid(new ThreePid(email, ThreePid.MEDIUM_EMAIL));
-        }
-
-        /*if (mRegistrationPhoneNumberHandler.getPhoneNumber() != null) {
-            // Communicate phone number to singleton + start validation process (always phone first)
-            enableLoadingScreen(true);
-            RegistrationManager.getInstance().addPhoneNumberThreePid(mRegistrationPhoneNumberHandler.getE164PhoneNumber(), mRegistrationPhoneNumberHandler.getCountryCode(),
-                    new RegistrationManager.ThreePidRequestListener() {
-                        @Override
-                        public void onThreePidRequested(ThreePid pid) {
-                            enableLoadingScreen(false);
-                            if (!TextUtils.isEmpty(pid.sid)) {
-                                onPhoneNumberSidReceived(pid);
-                            }
-                        }
-
-                        @Override
-                        public void onThreePidRequestFailed(@StringRes int errorMessageRes) {
-                            TchapLoginActivity.this.onThreePidRequestFailed(getString(errorMessageRes));
-                        }
-                    });
-        } else*/
-        {
-            createAccount();
-        }
-    }
-
-    /**
-     * Ask user the token received by SMS after phone number validation
-     *
-     * @param pid phone number pid
-     */
-    private void onPhoneNumberSidReceived(final ThreePid pid) {
-        final View dialogLayout = getLayoutInflater().inflate(R.layout.dialog_phone_number_verification, null);
-        if (mCurrentDialog != null) {
-            mCurrentDialog.dismiss();
-        }
-        mCurrentDialog = new AlertDialog.Builder(TchapLoginActivity.this)
-                .setView(dialogLayout)
-                .setMessage(R.string.settings_phone_number_verification_instruction)
-                .setPositiveButton(R.string.auth_submit, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Do nothing here
-                    }
-                })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                })
-                .create();
-
-        // Trick to prevent dialog being closed automatically when positive button is used
-        mCurrentDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialog) {
-                Button button = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
-                button.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        final TextInputEditText tokenView = dialogLayout.findViewById(R.id.phone_number_code_value);
-                        submitPhoneNumber(tokenView.getText().toString(), pid);
-                    }
-                });
-            }
-        });
-
-        mCurrentDialog.show();
-    }
-
-    /**
-     * Submit the phone number token entered by the user
-     *
-     * @param token code entered by the user
-     * @param pid   phone number pid
-     */
-    private void submitPhoneNumber(final String token, final ThreePid pid) {
-        if (TextUtils.isEmpty(token)) {
-            Toast.makeText(TchapLoginActivity.this, R.string.auth_invalid_token, Toast.LENGTH_SHORT).show();
-        } else {
-            RegistrationManager.getInstance().submitValidationToken(token, pid,
-                    new RegistrationManager.ThreePidValidationListener() {
-                        @Override
-                        public void onThreePidValidated(boolean isSuccess) {
-                            if (isSuccess) {
-                                createAccount();
-                            } else {
-                                Toast.makeText(TchapLoginActivity.this, R.string.auth_invalid_token, Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
-        }
-    }
 
     /**
      * Start registration process
@@ -2177,7 +1827,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             Intent intent = new Intent(TchapLoginActivity.this, AccountCreationCaptchaActivity.class);
             intent.putExtra(AccountCreationCaptchaActivity.EXTRA_HOME_SERVER_URL, getHomeServerUrl());
             intent.putExtra(AccountCreationCaptchaActivity.EXTRA_SITE_KEY, publicKey);
-            startActivityForResult(intent, CAPTCHA_CREATION_ACTIVITY_REQUEST_CODE);
+            startActivityForResult(intent, RequestCodesKt.CAPTCHA_CREATION_ACTIVITY_REQUEST_CODE);
         } else {
             Log.d(LOG_TAG, "## onWaitingCaptcha(): captcha flow cannot be done");
             Toast.makeText(this, getString(R.string.login_error_unable_register), Toast.LENGTH_SHORT).show();
@@ -2191,29 +1841,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         showMainLayout();
         refreshDisplay();
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onUsernameAvailabilityChecked(boolean isAvailable) {
-        // Tchap do not used checkUsernameAvailability()
-        // This callback is never called
-
-        /*enableLoadingScreen(false);
-        if (!isAvailable) {
-            showMainLayout();
-            Toast.makeText(this, R.string.auth_username_in_use, Toast.LENGTH_LONG).show();
-        } else {
-            if (RegistrationManager.getInstance().canAddThreePid()) {
-                // Show next screen with email/phone number
-                showMainLayout();
-                mMode = MODE_ACCOUNT_CREATION_THREE_PID;
-                initThreePidView();
-                refreshDisplay();
-            } else {
-                // Start registration
-                createAccount();
-            }
-        }*/
     }
 
     @Override
