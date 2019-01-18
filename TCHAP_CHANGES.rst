@@ -1,3 +1,12 @@
+Changes in Tchap 1.0.16 (2019-01-18)
+===================================================
+
+Improvements:
+ * Adjust some points on Android project configuration PR #404
+ 
+Bug Fix:
+ * The Terms And Conditions are not available anymore.
+
 Changes in Tchap 1.0.15 (2019-01-11)
 ===================================================
 
