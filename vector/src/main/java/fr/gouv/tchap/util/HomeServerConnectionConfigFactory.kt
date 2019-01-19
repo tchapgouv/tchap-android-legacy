@@ -35,12 +35,12 @@ import java.lang.Long.parseLong
  */
 fun createTchapConnectionConfig(email: String, tchapPlatform: Platform, serverURLPrefix: String): TchapConnectionConfig? {
     val config = createHomeServerConnectionConfig(tchapPlatform, serverURLPrefix)
-    val hasProtectedAccess  = hasProtectedAccess(tchapPlatform)
+    val hasProtectedAccess = hasProtectedAccess(tchapPlatform)
     val shadowConfig = createShadowHomeServerConnectionConfig(tchapPlatform, serverURLPrefix)
     val version = TchapConnectionConfig.currentVersion()
 
-    if (config != null) {
-        return TchapConnectionConfig(config, email, hasProtectedAccess, shadowConfig, version)
+    config?.let {
+        return TchapConnectionConfig(it, email, hasProtectedAccess, shadowConfig, version)
     }
     return null;
 }
@@ -51,11 +51,7 @@ fun createTchapConnectionConfig(email: String, tchapPlatform: Platform, serverUR
  */
 fun createTchapConnectionConfig(homeServerUrl: String, identityServerUrl: String?): TchapConnectionConfig? {
     val config = createHomeServerConnectionConfig(homeServerUrl, identityServerUrl)
-
-    if (config != null) {
-        return TchapConnectionConfig(config)
-    }
-    return null;
+    return TchapConnectionConfig(config)
 }
 
 /**
@@ -83,10 +79,8 @@ fun createHomeServerConnectionConfig(homeServerUrl: String, identityServerUrl: S
  * Create the HomeServerConnectionConfig with all the required parameters for the main home server defined in Tchap platform.
  */
 fun createHomeServerConnectionConfig(tchapPlatform: Platform, serverURLPrefix: String): HomeServerConnectionConfig? {
-    val homeServerUrl = getHomeServerUrl(tchapPlatform, serverURLPrefix)
-    if (homeServerUrl != null) {
-        val identityServerUrl = getIdentityServerUrl(tchapPlatform, serverURLPrefix)
-        return createHomeServerConnectionConfig(homeServerUrl, identityServerUrl)
+    getHomeServerUrl(tchapPlatform, serverURLPrefix)?.let {
+        return createHomeServerConnectionConfig(it, getIdentityServerUrl(tchapPlatform, serverURLPrefix))
     }
     return null
 }
@@ -95,10 +89,8 @@ fun createHomeServerConnectionConfig(tchapPlatform: Platform, serverURLPrefix: S
  * Create the HomeServerConnectionConfig with all the required parameters for the potential shadow server.
  */
 fun createShadowHomeServerConnectionConfig(tchapPlatform: Platform, serverURLPrefix: String): HomeServerConnectionConfig? {
-    val homeServerUrl = getShadowHomeServerUrl(tchapPlatform, serverURLPrefix)
-    if (homeServerUrl != null) {
-        val identityServerUrl = getShadowIdentityServerUrl(tchapPlatform, serverURLPrefix)
-        return createHomeServerConnectionConfig(homeServerUrl, identityServerUrl)
+    getShadowHomeServerUrl(tchapPlatform, serverURLPrefix)?.let {
+        return createHomeServerConnectionConfig(it, getShadowIdentityServerUrl(tchapPlatform, serverURLPrefix))
     }
     return null
 }
