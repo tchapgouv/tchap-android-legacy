@@ -137,7 +137,7 @@ public class Matrix {
             if (null != instance) {
                 if (mClearCacheRequired && !VectorApp.isAppInBackground()) {
                     mClearCacheRequired = false;
-                    instance.reloadSessions(VectorApp.getInstance());
+                    instance.reloadSessions();
                 } else if (mRefreshUnreadCounter) {
                     PushManager pushManager = instance.getPushManager();
 
@@ -209,10 +209,10 @@ public class Matrix {
     };
 
     // constructor
-    private Matrix(Context appContext) {
+    private Matrix(@NonNull Context appContext) {
         instance = this;
 
-        mAppContext = appContext.getApplicationContext();
+        mAppContext = appContext;
         mLoginStorage = new LoginStorage(mAppContext);
         mTchapSessions = new HashMap<>();
         mTchapSessionKeys = new ArrayList<>();
@@ -225,12 +225,12 @@ public class Matrix {
      * Retrieve the static instance.
      * Create it if it does not exist yet.
      *
-     * @param appContext the application context
+     * @param context the context
      * @return the shared instance
      */
-    public synchronized static Matrix getInstance(Context appContext) {
-        if (instance == null && null != appContext) {
-            instance = new Matrix(appContext);
+    public synchronized static Matrix getInstance(Context context) {
+        if (instance == null && null != context) {
+            instance = new Matrix(context.getApplicationContext());
         }
         return instance;
     }
@@ -409,7 +409,7 @@ public class Matrix {
      */
     @Nullable
     public static MXSession getMXSession(Context context, String matrixId) {
-        return Matrix.getInstance(context.getApplicationContext()).getSession(matrixId);
+        return Matrix.getInstance(context).getSession(matrixId);
     }
 
     /**
@@ -851,11 +851,10 @@ public class Matrix {
                     UnrecognizedCertHandler.show(session.getHomeServerConfig(), fingerprint, true, new UnrecognizedCertHandler.Callback() {
                         @Override
                         public void onAccept() {
-                            TchapSession tchapSession = Matrix.getInstance(VectorApp.getInstance().getApplicationContext()).getTchapSession(session.getMyUserId());
+                            TchapSession tchapSession = getTchapSession(session.getMyUserId());
                             if (tchapSession != null) {
-                                LoginStorage loginStorage = Matrix.getInstance(VectorApp.getInstance().getApplicationContext()).getLoginStorage();
                                 TchapConnectionConfig updatedConfig = tchapSession.getConfig().replaceHSConfig(session.getHomeServerConfig());
-                                loginStorage.replaceCredentials(updatedConfig);
+                                mLoginStorage.replaceCredentials(updatedConfig);
                             }
                         }
 
@@ -867,7 +866,7 @@ public class Matrix {
                         @Override
                         public void onReject() {
                             Log.d(LOG_TAG, "Found fingerprint: reject fingerprint");
-                            TchapSession tchapSession = Matrix.getInstance(VectorApp.getInstance().getApplicationContext()).getTchapSession(session.getMyUserId());
+                            TchapSession tchapSession = getTchapSession(session.getMyUserId());
                             if (tchapSession != null) {
                                 CommonActivityUtils.logout(VectorApp.getCurrentActivity(), Arrays.asList(tchapSession), true, null);
                             }
@@ -915,13 +914,11 @@ public class Matrix {
      * Reload the matrix sessions.
      * The session caches are cleared before being reloaded.
      * Any opened activity is closed and the application switches to the splash screen.
-     *
-     * @param context the context
      */
-    public void reloadSessions(final Context context) {
+    public void reloadSessions() {
         Log.e(LOG_TAG, "## reloadSessions");
 
-        CommonActivityUtils.logout(context, getTchapSessions(), false, new SimpleApiCallback<Void>() {
+        CommonActivityUtils.logout(mAppContext, getTchapSessions(), false, new SimpleApiCallback<Void>() {
             @Override
             public void onSuccess(Void info) {
                 // build a new sessions list
@@ -932,12 +929,12 @@ public class Matrix {
                 }
 
                 // clear FCM token before launching the splash screen
-                Matrix.getInstance(context).getPushManager().clearFcmData(new SimpleApiCallback<Void>() {
+                mPushManager.clearFcmData(new SimpleApiCallback<Void>() {
                     @Override
                     public void onSuccess(final Void anything) {
-                        Intent intent = new Intent(context.getApplicationContext(), SplashActivity.class);
+                        Intent intent = new Intent(mAppContext, SplashActivity.class);
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        context.getApplicationContext().startActivity(intent);
+                        mAppContext.startActivity(intent);
 
                         if (null != VectorApp.getCurrentActivity()) {
                             VectorApp.getCurrentActivity().finish();

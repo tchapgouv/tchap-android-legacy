@@ -624,7 +624,7 @@ public class EventStreamService extends Service {
                         startEventStream(session, store);
                     } else {
                         // the data are out of sync
-                        Matrix.getInstance(getApplicationContext()).reloadSessions(getApplicationContext());
+                        Matrix.getInstance(getApplicationContext()).reloadSessions();
                     }
                 }
 
@@ -637,7 +637,7 @@ public class EventStreamService extends Service {
                         public void run() {
                             Toast.makeText(getApplicationContext(), accountId + " : " + description, Toast.LENGTH_LONG).show();
 
-                            Matrix.getInstance(getApplicationContext()).reloadSessions(getApplicationContext());
+                            Matrix.getInstance(getApplicationContext()).reloadSessions();
                         }
                     });
                 }

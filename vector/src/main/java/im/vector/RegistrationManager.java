@@ -618,13 +618,13 @@ public class RegistrationManager {
                             shadowLogin(context, shadowHS, email, params.password, new SuccessCallback<String>() {
                                 @Override
                                 public void onSuccess(String warningMessage) {
-                                    onRegistrationDone(Matrix.getInstance(context.getApplicationContext()), mTchapConfig);
+                                    onRegistrationDone(Matrix.getInstance(context), mTchapConfig);
                                     listener.onRegistrationSuccess(warningMessage);
                                 }
                             });
 
                         } else {
-                            onRegistrationDone(Matrix.getInstance(context.getApplicationContext()), mTchapConfig);
+                            onRegistrationDone(Matrix.getInstance(context), mTchapConfig);
                             listener.onRegistrationSuccess(null);
                         }
 

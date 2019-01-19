@@ -686,7 +686,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
             return;
         }
 
-        final PushManager pushManager = Matrix.getInstance(VectorHomeActivity.this).getPushManager();
+        final PushManager pushManager = Matrix.getInstance(this).getPushManager();
 
         if (!pushManager.useFcm()) {
             // f-droid does not need the permission.

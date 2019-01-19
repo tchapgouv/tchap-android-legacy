@@ -475,7 +475,7 @@ public class CommonActivityUtils {
         if (null == aContext) {
             retCode = true;
         } else {
-            if (null == Matrix.getInstance(aContext.getApplicationContext()).getDefaultSession()) {
+            if (null == Matrix.getInstance(aContext).getDefaultSession()) {
                 retCode = true;
             }
         }
@@ -572,7 +572,7 @@ public class CommonActivityUtils {
         // or the service has been killed on low memory
         if (EventStreamService.isStopped()) {
             List<String> matrixIds = new ArrayList<>();
-            Collection<MXSession> sessions = Matrix.getInstance(context.getApplicationContext()).getSessions();
+            Collection<MXSession> sessions = Matrix.getInstance(context).getSessions();
 
             if ((null != sessions) && (sessions.size() > 0)) {
                 PushManager pushManager = Matrix.getInstance(context).getPushManager();
@@ -1375,7 +1375,7 @@ public class CommonActivityUtils {
                     CommonActivityUtils.restartApp(activity);
                 } else {
                     Log.e(LOW_MEMORY_LOG_TAG, "clear the application cache");
-                    Matrix.getInstance(activity).reloadSessions(activity);
+                    Matrix.getInstance(activity).reloadSessions();
                 }
             } else {
                 Log.e(LOW_MEMORY_LOG_TAG, "Wait to be concerned");
