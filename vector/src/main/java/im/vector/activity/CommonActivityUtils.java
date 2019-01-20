@@ -325,7 +325,7 @@ public class CommonActivityUtils {
         }
 
         // warn that the user logs out
-        Collection<MXSession> sessions = Matrix.getMXSessions(context);
+        Collection<MXSession> sessions = Matrix.getInstance(context).getSessions();
         for (MXSession session : sessions) {
             // Publish to the server that we're now offline
             MyPresenceManager.getInstance(context, session).advertiseOffline();
@@ -935,10 +935,11 @@ public class CommonActivityUtils {
      * @param intent       the intent param
      */
     public static void sendFilesTo(final Activity fromActivity, final Intent intent) {
-        if (Matrix.getMXSessions(fromActivity).size() == 1) {
-            sendFilesTo(fromActivity, intent, Matrix.getMXSession(fromActivity, null));
-        } else if (fromActivity instanceof FragmentActivity) {
-            // TBD
+        // TODO: Handle correctly the potential shadow session if any.
+        // TODO: Handle the potential multiple tchap sessions
+        TchapSession tchapSession = Matrix.getInstance(fromActivity).getDefaultTchapSession();
+        if (tchapSession != null) {
+            sendFilesTo(fromActivity, intent, tchapSession.getMainSession());
         }
     }
 

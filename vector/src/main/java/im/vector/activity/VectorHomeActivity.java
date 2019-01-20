@@ -496,7 +496,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
         // check if  there is some valid session
         // the home activity could be relaunched after an application crash
         // so, reload the sessions before displaying the history
-        Collection<MXSession> sessions = Matrix.getMXSessions(VectorHomeActivity.this);
+        Collection<MXSession> sessions = Matrix.getInstance(this).getSessions();
         if (sessions.size() == 0) {
             Log.e(LOG_TAG, "Weird : onCreate : no session");
 

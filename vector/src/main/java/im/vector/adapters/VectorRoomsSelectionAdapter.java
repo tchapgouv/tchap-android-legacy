@@ -104,10 +104,9 @@ public class VectorRoomsSelectionAdapter extends ArrayAdapter<RoomSummary> {
         View separatorView = convertView.findViewById(R.id.recents_separator);
 
         // display the room avatar
-        Room childRoom = mSession.getDataHandler().getRoom(roomSummary.getRoomId());
-
-        if (null != childRoom) {
-            VectorUtils.loadRoomAvatar(mContext, mSession, avatarImageView, childRoom);
+        Room room = mSession.getDataHandler().getRoom(roomSummary.getRoomId());
+        if (null != room) {
+            VectorUtils.loadRoomAvatar(mContext, mSession, avatarImageView, room);
         }
 
         if (roomSummary.getLatestReceivedEvent() != null) {
@@ -126,7 +125,6 @@ public class VectorRoomsSelectionAdapter extends ArrayAdapter<RoomSummary> {
             timestampTxtView.setVisibility(View.GONE);
         }
 
-        Room room = mSession.getDataHandler().getRoom(roomSummary.getRoomId());
         if (room != null) {
             // display the room name
             String roomName = room.getRoomDisplayName(mContext);

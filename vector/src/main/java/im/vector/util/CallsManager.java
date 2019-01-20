@@ -470,7 +470,7 @@ public class CallsManager {
      * Stop any ringing if there is no more one
      */
     public void checkDeadCalls() {
-        List<MXSession> sessions = Matrix.getMXSessions(mContext);
+        List<MXSession> sessions = Matrix.getInstance(mContext).getSessions();
         boolean hasActiveCall = false;
 
         for (MXSession session : sessions) {

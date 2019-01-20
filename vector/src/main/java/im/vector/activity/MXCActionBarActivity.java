@@ -155,7 +155,7 @@ public abstract class MXCActionBarActivity extends VectorAppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        Matrix.removeSessionErrorListener(this);
+        Matrix.removeSessionErrorListener();
         dismissDialogs(this);
     }
 

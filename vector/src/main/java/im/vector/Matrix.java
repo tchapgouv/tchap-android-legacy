@@ -292,20 +292,6 @@ public class Matrix {
     }
 
     /**
-     * Static method top the MXSession list
-     *
-     * @param context the application content
-     * @return the sessions list
-     */
-    public static List<MXSession> getMXSessions(Context context) {
-        if ((null != context) && (null != instance)) {
-            return instance.getSessions();
-        } else {
-            return null;
-        }
-    }
-
-    /**
      * @return The list of sessions
      */
     public synchronized List<MXSession> getSessions() {
@@ -485,7 +471,7 @@ public class Matrix {
      */
     public static void setSessionErrorListener(Activity activity) {
         if ((null != instance) && (null != activity)) {
-            Collection<MXSession> sessions = getMXSessions(activity);
+            Collection<MXSession> sessions = instance.getSessions();
 
             for (MXSession session : sessions) {
                 if (session.isAlive()) {
@@ -496,11 +482,11 @@ public class Matrix {
     }
 
     /**
-     * Remove the sessions error listener to each
+     * Remove the sessions error listener to each session
      */
-    public static void removeSessionErrorListener(Activity activity) {
-        if ((null != instance) && (null != activity)) {
-            Collection<MXSession> sessions = getMXSessions(activity);
+    public static void removeSessionErrorListener() {
+        if (null != instance) {
+            Collection<MXSession> sessions = instance.getSessions();
 
             for (MXSession session : sessions) {
                 if (session.isAlive()) {

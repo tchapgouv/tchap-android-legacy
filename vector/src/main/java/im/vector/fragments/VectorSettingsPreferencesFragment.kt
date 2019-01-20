@@ -619,7 +619,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
         // SaveMode Management
         findPreference(PreferencesManager.SETTINGS_DATA_SAVE_MODE_PREFERENCE_KEY)
                 ?.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
-            val sessions = Matrix.getMXSessions(activity)
+            val sessions = Matrix.getInstance(activity).sessions
             for (session in sessions) {
                 session.setUseDataSaveMode(newValue as Boolean)
             }

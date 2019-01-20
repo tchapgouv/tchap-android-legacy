@@ -80,7 +80,7 @@ public class SplashActivity extends MXCActionBarActivity {
      */
     private boolean hasCorruptedStore() {
         boolean hasCorruptedStore = false;
-        List<MXSession> sessions = Matrix.getMXSessions(this);
+        List<MXSession> sessions = Matrix.getInstance(this).getSessions();
 
         for (MXSession session : sessions) {
             if (session.isAlive()) {
