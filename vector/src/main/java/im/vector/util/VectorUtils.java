@@ -591,22 +591,21 @@ public class VectorUtils {
         wv.getSettings().setAllowContentAccess(false);
         wv.setWebViewClient(new WebViewClient() {
             @Override
-            public void onReceivedSslError(WebView view, SslErrorHandler handler,
+            public void onReceivedSslError(WebView view,
+                                           final SslErrorHandler handler,
                                            SslError error) {
-                final SslErrorHandler fHander = handler;
-
                 new AlertDialog.Builder(context)
                         .setMessage(R.string.ssl_could_not_verify)
                         .setPositiveButton(R.string.ssl_trust, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                fHander.proceed();
+                                handler.proceed();
                             }
                         })
                         .setNegativeButton(R.string.ssl_do_not_trust, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                fHander.cancel();
+                                handler.cancel();
                             }
                         })
                         .show();
