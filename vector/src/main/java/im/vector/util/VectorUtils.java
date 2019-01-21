@@ -20,6 +20,7 @@ package im.vector.util;
 import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -28,6 +29,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.net.Uri;
+import android.net.http.SslError;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -38,7 +40,9 @@ import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewParent;
+import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
@@ -55,8 +59,6 @@ import org.matrix.androidsdk.rest.model.group.Group;
 import org.matrix.androidsdk.rest.model.publicroom.PublicRoom;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.User;
-import org.matrix.androidsdk.rest.model.group.Group;
-import org.matrix.androidsdk.rest.model.publicroom.PublicRoom;
 import org.matrix.androidsdk.util.ImageUtils;
 import org.matrix.androidsdk.util.Log;
 import org.matrix.androidsdk.util.ResourceUtils;
@@ -587,6 +589,29 @@ public class VectorUtils {
         wv.getSettings().setAllowFileAccessFromFileURLs(false);
         wv.getSettings().setAllowFileAccess(false);
         wv.getSettings().setAllowContentAccess(false);
+        wv.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onReceivedSslError(WebView view, SslErrorHandler handler,
+                                           SslError error) {
+                final SslErrorHandler fHander = handler;
+
+                new AlertDialog.Builder(context)
+                        .setMessage(R.string.ssl_could_not_verify)
+                        .setPositiveButton(R.string.ssl_trust, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                fHander.proceed();
+                            }
+                        })
+                        .setNegativeButton(R.string.ssl_do_not_trust, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                fHander.cancel();
+                            }
+                        })
+                        .show();
+            }
+        });
 
         wv.loadUrl(url);
         new AlertDialog.Builder(context)
@@ -609,7 +634,7 @@ public class VectorUtils {
      */
     public static void displayAppTac() {
         if (null != VectorApp.getCurrentActivity()) {
-            displayInWebView(VectorApp.getCurrentActivity(), "https://www.tchap.gouv.fr/tac/");
+            displayInWebView(VectorApp.getCurrentActivity(), "https://www.agent.tchap.gouv.fr/tac.html");
         }
     }
 
