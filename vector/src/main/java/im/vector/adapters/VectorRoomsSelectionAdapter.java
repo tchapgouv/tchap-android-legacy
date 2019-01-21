@@ -26,13 +26,13 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.matrix.androidsdk.MXSession;
-import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomSummary;
 import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.util.EventDisplay;
 import org.matrix.androidsdk.util.Log;
 
+import fr.gouv.tchap.model.TchapRoom;
+import fr.gouv.tchap.model.TchapSession;
 import im.vector.R;
 import im.vector.ui.themes.ThemeUtils;
 import im.vector.util.RiotEventDisplay;
@@ -47,7 +47,7 @@ public class VectorRoomsSelectionAdapter extends ArrayAdapter<RoomSummary> {
     private final Context mContext;
     private final LayoutInflater mLayoutInflater;
     private final int mLayoutResourceId;
-    private final MXSession mSession;
+    private final TchapSession mTchapSession;
 
     /**
      * Constructor of a public rooms adapter.
@@ -55,12 +55,12 @@ public class VectorRoomsSelectionAdapter extends ArrayAdapter<RoomSummary> {
      * @param context          the context
      * @param layoutResourceId the layout
      */
-    public VectorRoomsSelectionAdapter(Context context, int layoutResourceId, MXSession session) {
+    public VectorRoomsSelectionAdapter(Context context, int layoutResourceId, TchapSession tchapSession) {
         super(context, layoutResourceId);
         mContext = context;
         mLayoutResourceId = layoutResourceId;
         mLayoutInflater = LayoutInflater.from(mContext);
-        mSession = session;
+        mTchapSession = tchapSession;
     }
 
     /**
@@ -88,7 +88,7 @@ public class VectorRoomsSelectionAdapter extends ArrayAdapter<RoomSummary> {
             convertView = mLayoutInflater.inflate(mLayoutResourceId, parent, false);
         }
 
-        if (!mSession.isAlive()) {
+        if (!mTchapSession.isAlive()) {
             Log.e(LOG_TAG, "getView : the session is not anymore valid");
             return convertView;
         }
@@ -103,10 +103,17 @@ public class VectorRoomsSelectionAdapter extends ArrayAdapter<RoomSummary> {
         TextView timestampTxtView = convertView.findViewById(R.id.roomSummaryAdapter_ts);
         View separatorView = convertView.findViewById(R.id.recents_separator);
 
-        // display the room avatar
-        Room room = mSession.getDataHandler().getRoom(roomSummary.getRoomId());
-        if (null != room) {
-            VectorUtils.loadRoomAvatar(mContext, mSession, avatarImageView, room);
+        // Retrieve the room avatar and name
+        TchapRoom tchapRoom = mTchapSession.getRoomWithId(roomSummary.getRoomId());
+        if (null != tchapRoom) {
+            // display the room avatar
+            VectorUtils.loadRoomAvatar(mContext, tchapRoom.getSession(), avatarImageView, tchapRoom.getRoom());
+
+            // display the room name
+            String roomName = tchapRoom.getRoom().getRoomDisplayName(mContext);
+            roomNameTxtView.setText(roomName);
+        } else {
+            roomNameTxtView.setText(null);
         }
 
         if (roomSummary.getLatestReceivedEvent() != null) {
@@ -123,14 +130,6 @@ public class VectorRoomsSelectionAdapter extends ArrayAdapter<RoomSummary> {
         } else {
             roomMessageTxtView.setText("");
             timestampTxtView.setVisibility(View.GONE);
-        }
-
-        if (room != null) {
-            // display the room name
-            String roomName = room.getRoomDisplayName(mContext);
-            roomNameTxtView.setText(roomName);
-        } else {
-            roomNameTxtView.setText(null);
         }
 
         // separator

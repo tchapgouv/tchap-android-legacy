@@ -32,5 +32,24 @@ data class TchapSession(
         shadowSession?.clear(context)
     }
 
+    fun isAlive(): Boolean {
+        var res = mainSession.isAlive
+        shadowSession?.let {
+            res = res and it.isAlive
+        }
+        return res
+    }
+
+    fun getRoomWithId(roomId: String): TchapRoom? {
+        mainSession.dataHandler.getRoom(roomId, false)?.let {
+            return TchapRoom(it, mainSession, config.hasProtectedAccess)
+        }
+
+        shadowSession?.dataHandler?.getRoom(roomId, false)?.let {
+            return TchapRoom(it, shadowSession, false)
+        }
+
+        return null
+    }
 }
 

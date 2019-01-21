@@ -75,6 +75,7 @@ import java.util.List;
 import java.util.Map;
 
 import fr.gouv.tchap.activity.TchapLoginActivity;
+import fr.gouv.tchap.model.TchapRoom;
 import fr.gouv.tchap.model.TchapSession;
 import im.vector.Matrix;
 import im.vector.MyPresenceManager;
@@ -935,11 +936,10 @@ public class CommonActivityUtils {
      * @param intent       the intent param
      */
     public static void sendFilesTo(final Activity fromActivity, final Intent intent) {
-        // TODO: Handle correctly the potential shadow session if any.
         // TODO: Handle the potential multiple tchap sessions
         TchapSession tchapSession = Matrix.getInstance(fromActivity).getDefaultTchapSession();
         if (tchapSession != null) {
-            sendFilesTo(fromActivity, intent, tchapSession.getMainSession());
+            sendFilesTo(fromActivity, intent, tchapSession);
         }
     }
 
@@ -948,22 +948,24 @@ public class CommonActivityUtils {
      *
      * @param fromActivity the caller activity
      * @param intent       the intent param
-     * @param session      the session/
+     * @param tchapSession the session
      */
-    private static void sendFilesTo(final Activity fromActivity, final Intent intent, final MXSession session) {
+    private static void sendFilesTo(final Activity fromActivity, final Intent intent, final TchapSession tchapSession) {
         // sanity check
-        if ((null == session) || !session.isAlive() || fromActivity.isFinishing()) {
+        if ((null == tchapSession) || !tchapSession.isAlive() || fromActivity.isFinishing()) {
             return;
         }
 
-        List<RoomSummary> mergedSummaries = new ArrayList<>(session.getDataHandler().getStore().getSummaries());
-
-        // keep only the joined room
+        // Consider all the joined rooms, and only the joined rooms
+        List<RoomSummary> mergedSummaries = new ArrayList<>(tchapSession.getMainSession().getDataHandler().getStore().getSummaries());
+        if (tchapSession.getShadowSession() != null) {
+            mergedSummaries.addAll(tchapSession.getShadowSession().getDataHandler().getStore().getSummaries());
+        }
         for (int index = 0; index < mergedSummaries.size(); index++) {
             RoomSummary summary = mergedSummaries.get(index);
-            Room room = session.getDataHandler().getRoom(summary.getRoomId());
+            TchapRoom tchapRoom = tchapSession.getRoomWithId(summary.getRoomId());
 
-            if ((null == room) || room.isInvited() || room.isConferenceUserRoom()) {
+            if ((null == tchapRoom) || tchapRoom.getRoom().isInvited() || tchapRoom.getRoom().isConferenceUserRoom()) {
                 mergedSummaries.remove(index);
                 index--;
             }
@@ -987,7 +989,7 @@ public class CommonActivityUtils {
             }
         });
 
-        VectorRoomsSelectionAdapter adapter = new VectorRoomsSelectionAdapter(fromActivity, R.layout.adapter_item_vector_recent_room, session);
+        VectorRoomsSelectionAdapter adapter = new VectorRoomsSelectionAdapter(fromActivity, R.layout.adapter_item_vector_recent_room, tchapSession);
         adapter.addAll(mergedSummaries);
 
         final List<RoomSummary> fMergedSummaries = mergedSummaries;
@@ -1006,13 +1008,19 @@ public class CommonActivityUtils {
                                     @Override
                                     public void run() {
                                         RoomSummary summary = fMergedSummaries.get(which);
+                                        TchapRoom tchapRoom = tchapSession.getRoomWithId(summary.getRoomId());
+                                        if (tchapRoom != null) {
+                                            MXSession session = tchapRoom.getSession();
 
-                                        Map<String, Object> params = new HashMap<>();
-                                        params.put(VectorRoomActivity.EXTRA_MATRIX_ID, session.getMyUserId());
-                                        params.put(VectorRoomActivity.EXTRA_ROOM_ID, summary.getRoomId());
-                                        params.put(VectorRoomActivity.EXTRA_ROOM_INTENT, intent);
+                                            Map<String, Object> params = new HashMap<>();
+                                            params.put(VectorRoomActivity.EXTRA_MATRIX_ID, session.getMyUserId());
+                                            params.put(VectorRoomActivity.EXTRA_ROOM_ID, summary.getRoomId());
+                                            params.put(VectorRoomActivity.EXTRA_ROOM_INTENT, intent);
 
-                                        goToRoomPage(fromActivity, session, params);
+                                            goToRoomPage(fromActivity, session, params);
+                                        }
+
+
                                     }
                                 });
                             }
