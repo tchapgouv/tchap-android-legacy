@@ -232,7 +232,7 @@ public class EventStreamService extends Service {
             //Log.d(LOG_TAG, "onBingEvent : the bingRule " + bingRule);
 
             if (event.isCallEvent()) {
-                MXSession session = Matrix.getMXSession(getApplicationContext(), event.getMatrixId());
+                MXSession session = Matrix.getInstance(getApplicationContext()).getSession(event.getMatrixId());
                 if (null == session || !session.isVoipCallSupported()) {
                     Log.d(LOG_TAG, "ignore call event : voip not allowed");
                     return;
@@ -936,7 +936,7 @@ public class EventStreamService extends Service {
             return;
         }
 
-        MXSession session = Matrix.getMXSession(getApplicationContext(), event.getMatrixId());
+        MXSession session = Matrix.getInstance(getApplicationContext()).getSession(event.getMatrixId());
 
         // invalid session ?
         // should never happen.
@@ -1007,7 +1007,7 @@ public class EventStreamService extends Service {
             }
         }
 
-        MXSession session = Matrix.getMXSession(getApplicationContext(), event.getMatrixId());
+        MXSession session = Matrix.getInstance(getApplicationContext()).getSession(event.getMatrixId());
 
         // invalid session ?
         // should never happen.

@@ -418,7 +418,7 @@ public class RoomUtils {
 
         if (null == matrixId || null == userId) {
             displayNameRetValue = null;
-        } else if ((null == (session = Matrix.getMXSession(context, matrixId))) || (!session.isAlive())) {
+        } else if ((null == (session = Matrix.getInstance(context).getSession(matrixId))) || (!session.isAlive())) {
             displayNameRetValue = null;
         } else {
             User user = session.getDataHandler().getStore().getUser(userId);

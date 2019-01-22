@@ -388,17 +388,6 @@ public class Matrix {
     }
 
     /**
-     * Static method to return a MXSession from an account Id.
-     *
-     * @param matrixId the matrix id
-     * @return the MXSession.
-     */
-    @Nullable
-    public static MXSession getMXSession(Context context, String matrixId) {
-        return Matrix.getInstance(context).getSession(matrixId);
-    }
-
-    /**
      * Retrieve a session from an user Id.
      * The application should be able to manage multi session.
      *

@@ -788,7 +788,7 @@ public class CommonActivityUtils {
     public static void goToRoomPage(@NonNull final Activity fromActivity,
                                     final MXSession session,
                                     @NonNull final Map<String, Object> params) {
-        final MXSession finalSession = (session == null) ? Matrix.getMXSession(fromActivity, (String) params.get(VectorRoomActivity.EXTRA_MATRIX_ID)) : session;
+        final MXSession finalSession = (session == null) ? Matrix.getInstance(fromActivity).getSession((String) params.get(VectorRoomActivity.EXTRA_MATRIX_ID)) : session;
 
         // sanity check
         if (finalSession == null || !finalSession.isAlive()) {
