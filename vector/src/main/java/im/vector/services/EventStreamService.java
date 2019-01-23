@@ -354,9 +354,10 @@ public class EventStreamService extends Service {
             }
 
             if (restart) {
-                List<MXSession> sessions = Matrix.getInstance(getApplicationContext()).getSessions();
+                mSessions = Matrix.getInstance(getApplicationContext()).getSessions();
+                mMatrixIds = new ArrayList<>();
 
-                if ((null == sessions) || sessions.isEmpty()) {
+                if (mSessions.isEmpty()) {
                     Log.e(LOG_TAG, "onStartCommand : no session");
                     return START_NOT_STICKY;
                 }
@@ -371,11 +372,6 @@ public class EventStreamService extends Service {
                     Log.e(LOG_TAG, "onStartCommand : no auto restart because the user disabled the background sync");
                     return START_NOT_STICKY;
                 }
-
-                mSessions = new ArrayList<>();
-                mSessions.addAll(Matrix.getInstance(getApplicationContext()).getSessions());
-
-                mMatrixIds = new ArrayList<>();
 
                 for (MXSession session : mSessions) {
                     session.getDataHandler().getStore().open();

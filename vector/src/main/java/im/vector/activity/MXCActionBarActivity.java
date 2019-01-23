@@ -171,8 +171,9 @@ public abstract class MXCActionBarActivity extends VectorAppCompatActivity {
         Matrix.setSessionErrorListener(this);
 
         // the online presence must be displayed ASAP.
-        if ((null != Matrix.getInstance(this)) && (null != Matrix.getInstance(this).getSessions())) {
-            MyPresenceManager.createPresenceManager(this, Matrix.getInstance(this).getSessions());
+        Matrix mxInstance = Matrix.getInstance(this);
+        if (mxInstance != null) {
+            MyPresenceManager.createPresenceManager(this, mxInstance.getSessions());
             MyPresenceManager.advertiseAllOnline();
         }
     }

@@ -493,22 +493,6 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
             }
         }
 
-        // check if  there is some valid session
-        // the home activity could be relaunched after an application crash
-        // so, reload the sessions before displaying the history
-        Collection<MXSession> sessions = Matrix.getInstance(this).getSessions();
-        if (sessions.size() == 0) {
-            Log.e(LOG_TAG, "Weird : onCreate : no session");
-
-            if (null != Matrix.getInstance(this).getDefaultSession()) {
-                Log.e(LOG_TAG, "No loaded session : reload them");
-                // start splash activity and stop here
-                startActivity(new Intent(VectorHomeActivity.this, SplashActivity.class));
-                finish();
-                return;
-            }
-        }
-
         final TabLayout.Tab myTab;
         int myPosition = TAB_POSITION_CONVERSATION;
         if (!isFirstCreation()) {

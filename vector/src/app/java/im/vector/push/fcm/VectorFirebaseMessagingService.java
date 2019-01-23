@@ -156,7 +156,7 @@ public class VectorFirebaseMessagingService extends FirebaseMessagingService {
                 try {
                     Collection<MXSession> sessions = Matrix.getInstance(getApplicationContext()).getSessions();
 
-                    if (null != sessions && !sessions.isEmpty()) {
+                    if (!sessions.isEmpty()) {
                         for (MXSession session : sessions) {
                             if (session.getDataHandler().getStore().isReady()) {
                                 if (null != session.getDataHandler().getStore().getEvent(eventId, roomId)) {

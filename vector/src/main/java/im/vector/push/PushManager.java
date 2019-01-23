@@ -38,7 +38,9 @@ import org.matrix.androidsdk.rest.model.PushersResponse;
 import org.matrix.androidsdk.util.Log;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -82,6 +84,7 @@ public final class PushManager {
 
     // the pushers list
     public List<Pusher> mPushersList = new ArrayList<>();
+    private Map<String, Pusher> mPusherMap;
 
     /**
      * Registration steps (Note: do not change the order of enum, cause their ordinal are store in the SharedPrefs)
@@ -550,38 +553,64 @@ public final class PushManager {
      */
     public void refreshPushersList(List<MXSession> sessions,
                                    @Nullable final ApiCallback<Void> callback) {
-        if (null != sessions && !sessions.isEmpty()) {
-            sessions.get(0).getPushersRestClient().getPushers(new SimpleApiCallback<PushersResponse>(callback) {
+        mPusherMap = new HashMap<>();
+        mPushersList = new ArrayList<>();
+        refreshPushersListRecursive(sessions, callback, 0);
+    }
 
-                @Override
-                public void onSuccess(PushersResponse pushersResponse) {
-                    if (null == pushersResponse.pushers) {
-                        mPushersList = new ArrayList<>();
-                    } else {
-                        mPushersList = new ArrayList<>(pushersResponse.pushers);
+    /**
+     * Recursive method to refresh the pushers list
+     *
+     * @param sessions the sessions list.
+     * @param callback the callback
+     * @param index    the index of the MX sessions to register.
+     */
+    private void refreshPushersListRecursive(final List<MXSession> sessions,
+                                             @Nullable final ApiCallback<Void> callback,
+                                             final int index) {
+        // reach the end of the list ?
+        if (index >= sessions.size()) {
+            Log.d(LOG_TAG, "refreshPushersListRecursive : all the sessions are done");
 
-                        // move the self pusher to the top of the list
-                        Pusher selfPusher = null;
+            mPushersList = new ArrayList<>(mPusherMap.values());
 
-                        for (Pusher pusher : mPushersList) {
-                            if (TextUtils.equals(pusher.pushkey, getFcmRegistrationToken())) {
-                                selfPusher = pusher;
-                                break;
-                            }
+            // move the self pusher to the top of the list
+            Pusher selfPusher = null;
+            for (Pusher pusher : mPushersList) {
+                if (TextUtils.equals(pusher.pushkey, getFcmRegistrationToken())) {
+                    selfPusher = pusher;
+                    break;
+                }
+            }
+
+            if (null != selfPusher) {
+                mPushersList.remove(selfPusher);
+                mPushersList.add(0, selfPusher);
+            }
+
+            if (null != callback) {
+                callback.onSuccess(null);
+            }
+            return;
+        }
+
+        final MXSession session = sessions.get(index);
+        session.getPushersRestClient().getPushers(new SimpleApiCallback<PushersResponse>(callback) {
+
+            @Override
+            public void onSuccess(PushersResponse pushersResponse) {
+                if (pushersResponse.pushers != null) {
+                    for (Pusher pusher : pushersResponse.pushers) {
+                        if (mPusherMap.get(pusher.pushkey) == null) {
+                            mPusherMap.put(pusher.pushkey, pusher);
                         }
-
-                        if (null != selfPusher) {
-                            mPushersList.remove(selfPusher);
-                            mPushersList.add(0, selfPusher);
-                        }
-                    }
-
-                    if (null != callback) {
-                        callback.onSuccess(null);
                     }
                 }
-            });
-        }
+
+                // Go on with the next index
+                refreshPushersListRecursive(sessions, callback, index + 1);
+            }
+        });
     }
 
     /**
