@@ -63,6 +63,7 @@ import java.util.Map;
 import fr.gouv.tchap.media.MediaScanDao;
 import fr.gouv.tchap.media.MediaScanManager;
 import fr.gouv.tchap.model.TchapConnectionConfig;
+import fr.gouv.tchap.model.TchapRoom;
 import fr.gouv.tchap.model.TchapSession;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.SplashActivity;
@@ -110,7 +111,7 @@ public class Matrix {
     public boolean mHasBeenDisconnected = false;
 
     // i.e the event has been read from another client
-    private static final MXEventListener mLiveEventListener = new MXEventListener() {
+    private final MXEventListener mLiveEventListener = new MXEventListener() {
         boolean mClearCacheRequired = false;
 
         @Override
@@ -125,8 +126,27 @@ public class Matrix {
         public void onLiveEvent(Event event, RoomState roomState) {
             mRefreshUnreadCounter |= Event.EVENT_TYPE_MESSAGE.equals(event.getType()) || Event.EVENT_TYPE_RECEIPT.equals(event.getType());
 
-            // TODO update to manage multisessions
-            WidgetsManager.getSharedInstance().onLiveEvent(instance.getDefaultSession(), event);
+            // Handle Widget events
+            // TODO manage multiple Tchap sessions
+            TchapSession tchapSession = instance.getDefaultTchapSession();
+            if (tchapSession != null) {
+                // Check whether a roomId is available
+                String eventRoomId = event.roomId;
+                if (eventRoomId != null) {
+                    TchapRoom room = tchapSession.getRoomWithId(eventRoomId);
+                    if (room != null) {
+                        // Consider the room session
+                        WidgetsManager.getSharedInstance().onLiveEvent(room.getSession(), event);
+                    } else {
+                        Log.e(LOG_TAG, "onLiveEvent: ignore a widget event for an unknown room");
+                    }
+                } else {
+                    // TODO manage global widget...
+                    // Apply them only on the main session for the moment.
+                    WidgetsManager.getSharedInstance().onLiveEvent(tchapSession.getMainSession(), event);
+                    Log.w(LOG_TAG, "onLiveEvent: ignore the potential shadow session during the global widget handling");
+                }
+            }
         }
 
         @Override
@@ -535,6 +555,10 @@ public class Matrix {
                     // some GA issues reported that the data handler can be null
                     // so assume the application should be restarted
                     res &= session.getMainSession().isAlive() && (null != session.getMainSession().getDataHandler());
+
+                    if (session.getShadowSession() != null) {
+                        res &= session.getShadowSession().isAlive() && (null != session.getShadowSession().getDataHandler());
+                    }
                 }
 
                 if (!res) {
