@@ -450,7 +450,7 @@ public class DinsicUtils {
             } else {
                 succeeded = true;
                 HashMap<String, Object> params = new HashMap<>();
-                params.put(VectorRoomActivity.EXTRA_MATRIX_ID, participantId);
+                params.put(VectorRoomActivity.EXTRA_MATRIX_ID, session.getMyUserId());
                 params.put(VectorRoomActivity.EXTRA_ROOM_ID, existingRoom.getRoomId());
                 CommonActivityUtils.goToRoomPage(activity, session, params);
             }
