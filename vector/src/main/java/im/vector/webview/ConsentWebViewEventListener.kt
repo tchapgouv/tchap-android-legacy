@@ -50,22 +50,23 @@ class ConsentWebViewEventListener(activity: VectorAppCompatActivity, private val
      */
     private fun createRiotBotRoomIfNeeded() {
         safeActivity?.let {
-            val session = Matrix.getInstance(it).defaultSession
-            val joinedRooms = session.dataHandler.store.rooms.filter {
-                it.isJoined
-            }
-            if (joinedRooms.isEmpty()) {
-                it.showWaitingView()
-                // Ensure we can create a Room with riot-bot. Error can be a MatrixError: "Federation denied with matrix.org.", or any other error.
-                session.profileApiClient
-                        .displayname(RIOT_BOT_ID, object : SimpleApiCallback<String>(createRiotBotRoomCallback) {
-                            override fun onSuccess(info: String?) {
-                                // Ok, the Home Server knows riot-Bot, so create a Room with him
-                                session.createDirectMessageRoom(RIOT_BOT_ID, createRiotBotRoomCallback)
-                            }
-                        })
-            } else {
-                it.finish()
+            Matrix.getInstance(it).defaultSession?.let { session ->
+                val joinedRooms = session.dataHandler.store.rooms.filter {
+                    it.isJoined
+                }
+                if (joinedRooms.isEmpty()) {
+                    it.showWaitingView()
+                    // Ensure we can create a Room with riot-bot. Error can be a MatrixError: "Federation denied with matrix.org.", or any other error.
+                    session.profileApiClient
+                            .displayname(RIOT_BOT_ID, object : SimpleApiCallback<String>(createRiotBotRoomCallback) {
+                                override fun onSuccess(info: String?) {
+                                    // Ok, the Home Server knows riot-Bot, so create a Room with him
+                                    session.createDirectMessageRoom(RIOT_BOT_ID, createRiotBotRoomCallback)
+                                }
+                            })
+                } else {
+                    it.finish()
+                }
             }
         }
     }

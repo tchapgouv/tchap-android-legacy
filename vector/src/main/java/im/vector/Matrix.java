@@ -344,6 +344,7 @@ public class Matrix {
      *
      * @return The default session or null.
      */
+    @Nullable
     public synchronized MXSession getDefaultSession() {
         TchapSession tchapSession = getDefaultTchapSession();
 
