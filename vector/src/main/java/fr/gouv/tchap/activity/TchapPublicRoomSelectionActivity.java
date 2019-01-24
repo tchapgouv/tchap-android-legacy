@@ -35,14 +35,10 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-
-import org.matrix.androidsdk.MXSession;
 
 import butterknife.BindView;
 import im.vector.Matrix;
 import im.vector.MyPresenceManager;
-import im.vector.PublicRoomsManager;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
 import fr.gouv.tchap.fragments.TchapPublicRoomsFragment;
@@ -62,8 +58,6 @@ public class TchapPublicRoomSelectionActivity extends VectorAppCompatActivity im
 
     @BindView(R.id.listView_spinner_views)
     View waitingView;
-
-    private MXSession mSession;
 
     @BindView(R.id.drawer_layout_public_room)
     DrawerLayout mDrawerLayout;
@@ -118,11 +112,6 @@ public class TchapPublicRoomSelectionActivity extends VectorAppCompatActivity im
         setWaitingView(waitingView);
 
         sharedInstance = this;
-
-        mSession = Matrix.getInstance(this).getDefaultSession();
-
-        // initialize the public rooms list
-        PublicRoomsManager.getInstance().setSession(mSession);
 
         initViews();
     }

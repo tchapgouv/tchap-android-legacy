@@ -292,11 +292,6 @@
             android:label="@string/settings_select_language"
             android:theme="@style/CountryPickerTheme.Light" />
         <activity
-            android:name=".activity.RoomDirectoryPickerActivity"
-            android:configChanges="orientation|screenSize"
-            android:label="@string/select_room_directory"
-            android:theme="@style/DirectoryPickerTheme.Light" />
-        <activity
             android:name=".activity.PhoneNumberVerificationActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/settings_phone_number_verification"
