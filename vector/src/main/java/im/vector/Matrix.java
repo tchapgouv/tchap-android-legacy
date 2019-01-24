@@ -616,22 +616,23 @@ public class Matrix {
                     @Override
                     public void onSuccess(Void info) {
 
-                        // TODO check with the server team whether the client has to deactivate this shadow account too
-                        MXSession shadowSession = tchapSession.getShadowSession();
-                        if (shadowSession != null) {
-                            shadowSession.deactivateAccount(context,
-                                    LoginRestClient.LOGIN_FLOW_TYPE_PASSWORD,
-                                    userPassword,
-                                    eraseUserData,
-                                    new SimpleApiCallback<Void>(aCallback) {
-                                        @Override
-                                        public void onSuccess(Void info) {
-                                            onCompletion(info);
-                                        }
-                                    });
-                        } else {
-                            onCompletion(info);
-                        }
+//                        // TODO check with the server team whether the client has to deactivate this shadow account too
+//                        MXSession shadowSession = tchapSession.getShadowSession();
+//                        if (shadowSession != null) {
+//                            shadowSession.deactivateAccount(context,
+//                                    LoginRestClient.LOGIN_FLOW_TYPE_PASSWORD,
+//                                    userPassword,
+//                                    eraseUserData,
+//                                    new SimpleApiCallback<Void>(aCallback) {
+//                                        @Override
+//                                        public void onSuccess(Void info) {
+//                                            onCompletion(info);
+//                                        }
+//                                    });
+//                        } else {
+//                            onCompletion(info);
+//                        }
+                        onCompletion(info);
                     }
                 });
     }
