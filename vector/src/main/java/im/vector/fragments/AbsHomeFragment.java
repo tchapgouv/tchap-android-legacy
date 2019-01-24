@@ -125,17 +125,6 @@ public abstract class AbsHomeFragment extends VectorBaseFragment implements
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.ic_action_mark_all_as_read:
-                Log.d(LOG_TAG, "onOptionsItemSelected mark all as read");
-                onMarkAllAsRead();
-                return true;
-        }
-        return false;
-    }
-
-    @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(CURRENT_FILTER, mCurrentFilter);

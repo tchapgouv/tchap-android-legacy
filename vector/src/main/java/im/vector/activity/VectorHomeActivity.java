@@ -757,32 +757,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
             return false;
         }
         //no more menus on tchap ... until when ?
-        /*
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.vector_home, menu);
-        CommonActivityUtils.tintMenuIcons(menu, ThemeUtils.getColor(this, R.attr.icon_tint_on_dark_action_bar_color));
-       */ return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            // search in rooms content
-            case R.id.ic_action_global_search:
-                final Intent searchIntent = new Intent(this, VectorUnifiedSearchActivity.class);
-
-                if (TAB_POSITION_CONTACT == mCurrentMenuId) {
-                    searchIntent.putExtra(VectorUnifiedSearchActivity.EXTRA_TAB_INDEX, VectorUnifiedSearchActivity.SEARCH_PEOPLE_TAB_POSITION);
-                }
-
-                startActivity(searchIntent);
-                return true;
-            case R.id.ic_action_historical:
-                startActivity(new Intent(this, HistoricalRoomsActivity.class));
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
+        return true;
     }
 
     @Override
