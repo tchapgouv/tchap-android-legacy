@@ -109,5 +109,7 @@
 
         <attr name="action_bar_menu_text_color" format="reference" />
 
+        <attr name="padlock_icon_tint_color" format="color" />
+
     </declare-styleable>
 </resources>
