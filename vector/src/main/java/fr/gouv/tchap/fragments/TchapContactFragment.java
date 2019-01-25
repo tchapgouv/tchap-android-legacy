@@ -32,6 +32,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;
 
+import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.listeners.MXEventListener;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
@@ -48,6 +49,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import butterknife.BindView;
+import fr.gouv.tchap.model.TchapRoom;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
 import fr.gouv.tchap.activity.TchapLoginActivity;
@@ -83,7 +85,6 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
 
     private TchapContactAdapter mAdapter;
 
-    private final List<Room> mDirectChats = new ArrayList<>();
     private final List<ParticipantAdapterItem> mLocalContacts = new ArrayList<>();
     // the known contacts are not sorted
     private final List<ParticipantAdapterItem> mKnownContacts = new ArrayList<>();
@@ -137,7 +138,7 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
         mAdapter.onFilterDone(mCurrentFilter);
 
         // Search in the user directories if a filter is already defined, except if the current user belongs to the E-platform.
-        if (!TextUtils.isEmpty(mCurrentFilter) && !TchapLoginActivity.isUserExternal(mSession)) {
+        if (!TextUtils.isEmpty(mCurrentFilter) && !TchapLoginActivity.isUserExternal(mTchapSession.getMainSession())) {
             startRemoteKnownContactsSearch(true);
         }
 
@@ -147,7 +148,7 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
         /*mInviteContactLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!TchapLoginActivity.isUserExternal(mSession)) {
+                if (!TchapLoginActivity.isUserExternal(mTchapSession.getMainSession())) {
                     // We launch a VectorRoomInviteMembersActivity activity to invite
                     // some non-tchap contacts by using their email
                     mActivity.createNewChat(VectorRoomInviteMembersActivity.ActionMode.SEND_INVITE, VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY);
@@ -170,7 +171,9 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
     public void onResume() {
         super.onResume();
 
-        mSession.getDataHandler().addListener(mEventsListener);
+        for (MXSession session: mTchapSession.getSessions()) {
+            session.getDataHandler().addListener(mEventsListener);
+        }
 
         ContactsManager.getInstance().addListener(this);
 
@@ -186,15 +189,17 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
     public void onPause() {
         super.onPause();
 
-        if (mSession.isAlive()) {
-            mSession.getDataHandler().removeListener(mEventsListener);
+        if (mTchapSession.isAlive()) {
+            for (MXSession session: mTchapSession.getSessions()) {
+                session.getDataHandler().removeListener(mEventsListener);
+                // cancel any search
+                session.cancelUsersSearch();
+            }
         }
+
         ContactsManager.getInstance().removeListener(this);
 
         mRecycler.removeOnScrollListener(mScrollListener);
-
-        // cancel any search
-        mSession.cancelUsersSearch();
     }
 
     @Override
@@ -219,11 +224,6 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
      */
 
     @Override
-    protected List<Room> getRooms() {
-        return new ArrayList<>(mDirectChats);
-    }
-
-    @Override
     protected void onFilter(final String pattern, final OnFilterListener listener) {
         mAdapter.getFilter().filter(pattern, new Filter.FilterListener() {
             @Override
@@ -236,7 +236,7 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
                 }
 
                 // Search in the user directories except if the current user belongs to the E-platform.
-                if (!TchapLoginActivity.isUserExternal(mSession)) {
+                if (!TchapLoginActivity.isUserExternal(mTchapSession.getMainSession())) {
                     startRemoteKnownContactsSearch(newSearch);
                 }
 
@@ -270,15 +270,12 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
         mRecycler.addItemDecoration(new EmptyViewItemDecoration(getActivity(), DividerItemDecoration.VERTICAL, 40, 16, 14));
         mAdapter = new TchapContactAdapter(getActivity(), new TchapContactAdapter.OnSelectItemListener() {
             @Override
-            public void onSelectItem(Room room, int position) {
-                openRoom(room);
-            }
-
-            @Override
             public void onSelectItem(ParticipantAdapterItem contact, int position) {
-                DinsicUtils.startDirectChat((VectorAppCompatActivity) getActivity(), mSession, contact);
+                // FIXME MULTI-ACCOUNT: the session depends on the contact matrix id, use the main session for the moment
+                MXSession session = mTchapSession.getMainSession();
+                DinsicUtils.startDirectChat((VectorAppCompatActivity) getActivity(), session, contact);
             }
-        }, this, this);
+        });
         mRecycler.setAdapter(mAdapter);
     }
 
@@ -324,7 +321,8 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
         }
 
         // Add the Tchap users extracted from the current discussions (direct chats).
-        List<ParticipantAdapterItem> myDirectContacts = DinsicUtils.getContactsFromDirectChats(mSession);
+        // FIXME MULTI-ACCOUNT: consider all the sessions, not only the main session
+        List<ParticipantAdapterItem> myDirectContacts = DinsicUtils.getContactsFromDirectChats(mTchapSession.getMainSession());
         for (ParticipantAdapterItem myContact : myDirectContacts) {
             // Remove the item built from the local contact if any.
             // The item built from the direct chat data has the right avatar.
@@ -334,7 +332,7 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
     }
 
     /**
-     * Get the known contacts list, sort it by presence and give it to adapter
+     * Get the known contacts list and give it to adapter
      */
     private void initKnownContacts() {
         final AsyncTask<Void, Void, Void> asyncTask = new AsyncTask<Void, Void, Void>() {
@@ -347,7 +345,9 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
                 // sort requires about 2 seconds
                 // sort a 1000 items subset during a search requires about 75ms
                 mKnownContacts.clear();
-                mKnownContacts.addAll(new ArrayList<>(VectorUtils.listKnownParticipants(mSession).values()));
+                // Consider only the main session for the moment.
+                // We may add later the known contacts from the potenatial shadow session.
+                mKnownContacts.addAll(new ArrayList<>(VectorUtils.listKnownParticipants(mTchapSession.getMainSession()).values()));
                 return null;
             }
 
@@ -403,7 +403,9 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
             final String fPattern = mCurrentFilter;
 
             // Search in the user directories by hiding the current user
-            mSession.searchUsers(mCurrentFilter, MAX_KNOWN_CONTACTS_FILTER_COUNT, new HashSet<String>(Arrays.asList(mSession.getMyUserId())), new ApiCallback<SearchUsersResponse>() {
+            // FIXME MULTI-ACCOUNT: We should trigger a second search by using the potential shadow session
+            MXSession session = mTchapSession.getMainSession();
+            session.searchUsers(mCurrentFilter, MAX_KNOWN_CONTACTS_FILTER_COUNT, new HashSet<String>(Arrays.asList(session.getMyUserId())), new ApiCallback<SearchUsersResponse>() {
                 @Override
                 public void onSuccess(SearchUsersResponse searchUsersResponse) {
                     if (TextUtils.equals(fPattern, mCurrentFilter)) {
@@ -467,6 +469,7 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
 
         Collection<Contact> contacts = ContactsManager.getInstance().getLocalContactsSnapshot();
         mContactsSnapshotSession = ContactsManager.getInstance().getLocalContactsSnapshotSession();
+        String currentUserId = mTchapSession.getMainSession().getMyUserId();
 
         if (null != contacts) {
             for (Contact contact : contacts) {
@@ -478,7 +481,10 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
 
                             if (null != mxid) {
                                 // Ignore the current user if he belongs to the local phone book.
-                                if (mxid.mMatrixId.equals(mSession.getMyUserId())) {
+                                // Note: in case of multi-account, the PIDsRetriever has been configured
+                                // to map the email to the protected mxId (and ignore the shadow one)
+                                // FIXME MULTI-ACCOUNT: Test whether this is the correct solution
+                                if (mxid.mMatrixId.equals(currentUserId)) {
                                     continue;
                                 }
 
@@ -542,7 +548,8 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
         final List<ParticipantAdapterItem> newContactList = getOnlyTchapUserContacts();
 
         // Add the Tchap users extracted from the current discussions (direct chats).
-        List<ParticipantAdapterItem> myDirectContacts = DinsicUtils.getContactsFromDirectChats(mSession);
+        // FIXME MULTI-ACCOUNT: consider all the sessions, not only the main session
+        List<ParticipantAdapterItem> myDirectContacts = DinsicUtils.getContactsFromDirectChats(mTchapSession.getMainSession());
         for (ParticipantAdapterItem myContact : myDirectContacts){
             // Remove the item built from the local contact if any.
             // The item built from the direct chat data has the right avatar.
@@ -564,18 +571,16 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
 
     @Override
     public void onToggleDirectChat(String roomId, boolean isDirectChat) {
-        if (!isDirectChat) {
-            mAdapter.removeDirectChat(roomId);
-        }
+        // Nothing to do
     }
 
     @Override
     public void onRoomLeft(String roomId) {
-        mAdapter.removeDirectChat(roomId);
+        // Nothing to do
     }
 
     @Override
     public void onRoomForgot(String roomId) {
-        mAdapter.removeDirectChat(roomId);
+        // Nothing to do
     }
 }

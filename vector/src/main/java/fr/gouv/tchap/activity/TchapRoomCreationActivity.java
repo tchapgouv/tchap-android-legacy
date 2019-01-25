@@ -108,7 +108,6 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     @BindView(R.id.tv_public_private_room_description)
     TextView tvPublicPrivateRoomDescription;
 
-    private MXSession mSession;
     private Uri mThumbnailUri = null;
     private CreateRoomParams mRoomParams = new CreateRoomParams();
     private List<String> mParticipantsIds = new ArrayList<>();

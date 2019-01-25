@@ -33,6 +33,7 @@ import android.view.inputmethod.InputMethodManager;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
 
+import fr.gouv.tchap.model.TchapSession;
 import im.vector.Matrix;
 import im.vector.MyPresenceManager;
 import im.vector.R;
@@ -45,6 +46,7 @@ public abstract class MXCActionBarActivity extends VectorAppCompatActivity {
     // TODO Make this protected
     public static final String EXTRA_MATRIX_ID = "MXCActionBarActivity.EXTRA_MATRIX_ID";
 
+    protected TchapSession mTchapSession = null;
     protected MXSession mSession = null;
     protected Room mRoom = null;
 
@@ -75,6 +77,10 @@ public abstract class MXCActionBarActivity extends VectorAppCompatActivity {
         }
 
         return Matrix.getInstance(this).getSession(matrixId);
+    }
+
+    public TchapSession getTchapSession() {
+        return mTchapSession;
     }
 
     public MXSession getSession() {
