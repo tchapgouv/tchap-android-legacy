@@ -1021,6 +1021,9 @@
     <string name="community_id">Community Id</string>
     <string name="community_id_hint">example</string>
 
+    // tchap multi-sessions
+    <string name="tchap_account_selection_message">Do you want to restrict this action to the secure domain</string>
+
     <!-- tchap room creation -->
     <string name="tchap_room_creation_title">New room</string>
     <string name="tchap_action_next">Next</string>

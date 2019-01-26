@@ -60,6 +60,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import fr.gouv.tchap.model.TchapRoom;
+import fr.gouv.tchap.model.TchapRoomSummary;
+import fr.gouv.tchap.model.TchapSession;
 import im.vector.Matrix;
 import im.vector.R;
 import im.vector.activity.VectorRoomActivity;
@@ -69,10 +72,6 @@ import im.vector.ui.themes.ThemeUtils;
 public class RoomUtils {
 
     private static final String LOG_TAG = RoomUtils.class.getSimpleName();
-
-    private MXSession session;
-
-    private Room room;
 
     public interface MoreActionListener {
         void onUpdateRoomNotificationsState(MXSession session, String roomId, BingRulesManager.RoomNotificationState state);
@@ -94,6 +93,60 @@ public class RoomUtils {
 
     public interface HistoricalRoomActionListener {
         void onForgotRoom(Room room);
+    }
+
+    /**
+     * Return comparator to sort tchap rooms by date
+     *
+     * @param reverseOrder
+     * @return comparator
+     */
+    public static Comparator<TchapRoom> getRoomsDateComparator(final boolean reverseOrder) {
+        return new Comparator<TchapRoom>() {
+            private Comparator<RoomSummary> mRoomSummaryComparator;
+            private final Map<String, RoomSummary> mSummaryByRoomIdMap = new HashMap<>();
+
+            /**
+             * Retrieve the room summary comparator
+             * @return comparator
+             */
+            private Comparator<RoomSummary> getSummaryComparator() {
+                if (null == mRoomSummaryComparator) {
+                    mRoomSummaryComparator = getRoomSummaryComparator(reverseOrder);
+                }
+                return mRoomSummaryComparator;
+            }
+
+            /**
+             * Retrieve a summary from its room id
+             * @param tchapRoom
+             * @return the summary
+             */
+            private RoomSummary getSummary(TchapRoom tchapRoom) {
+                String roomId = tchapRoom.getRoom().getRoomId();
+                if (TextUtils.isEmpty(roomId)) {
+                    return null;
+                }
+
+                RoomSummary summary = mSummaryByRoomIdMap.get(roomId);
+                if (null == summary) {
+                    TchapRoomSummary tchapRoomSummary = tchapRoom.getSummary();
+
+                    if (null != tchapRoomSummary) {
+                        mSummaryByRoomIdMap.put(roomId, tchapRoomSummary.getSummary());
+                    }
+                }
+
+                return summary;
+            }
+
+            public int compare(TchapRoom aLeftObj, TchapRoom aRightObj) {
+                final RoomSummary leftRoomSummary = getSummary(aLeftObj);
+                final RoomSummary rightRoomSummary = getSummary(aRightObj);
+
+                return getSummaryComparator().compare(leftRoomSummary, rightRoomSummary);
+            }
+        };
     }
 
     /**
@@ -820,17 +873,17 @@ public class RoomUtils {
      * @param constraint
      * @return filtered rooms
      */
-    public static List<Room> getFilteredRooms(final Context context,
-                                              final List<Room> roomsToFilter,
+    public static List<TchapRoom> getFilteredRooms(final Context context,
+                                              final List<TchapRoom> roomsToFilter,
                                               final CharSequence constraint) {
         final String filterPattern = constraint != null ? constraint.toString().trim() : null;
         if (!TextUtils.isEmpty(filterPattern)) {
-            List<Room> filteredRoom = new ArrayList<>();
+            List<TchapRoom> filteredRoom = new ArrayList<>();
             Pattern pattern = Pattern.compile(Pattern.quote(filterPattern), Pattern.CASE_INSENSITIVE);
-            for (final Room room : roomsToFilter) {
-                final String roomName = room.getRoomDisplayName(context);
+            for (final TchapRoom tchapRoom : roomsToFilter) {
+                final String roomName = tchapRoom.getRoom().getRoomDisplayName(context);
                 if (pattern.matcher(roomName).find()) {
-                    filteredRoom.add(room);
+                    filteredRoom.add(tchapRoom);
                 }
             }
             return filteredRoom;

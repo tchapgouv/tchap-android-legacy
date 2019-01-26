@@ -121,7 +121,12 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     public void initUiAndData() {
         setWaitingView(findViewById(R.id.room_creation_spinner_views));
 
-        mSession = Matrix.getInstance(this).getDefaultSession();
+        Intent intent = getIntent();
+        if (intent != null) {
+            mSession = getSession(intent);
+        } else {
+            mSession = Matrix.getInstance(this).getDefaultSession();
+        }
 
         setTitle(R.string.tchap_room_creation_title);
 

@@ -133,7 +133,7 @@ public class Matrix {
                 // Check whether a roomId is available
                 String eventRoomId = event.roomId;
                 if (eventRoomId != null) {
-                    TchapRoom room = tchapSession.getRoomWithId(eventRoomId);
+                    TchapRoom room = tchapSession.getRoom(eventRoomId);
                     if (room != null) {
                         // Consider the room session
                         WidgetsManager.getSharedInstance().onLiveEvent(room.getSession(), event);

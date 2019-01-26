@@ -33,6 +33,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import fr.gouv.tchap.model.TchapRoom;
 import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.R;
 import im.vector.adapters.AbsAdapter;
@@ -43,7 +44,7 @@ public class TchapRoomAdapter extends AbsAdapter {
 
     private static final String LOG_TAG = TchapRoomAdapter.class.getSimpleName();
 
-    private final AdapterSection<Room> mRoomsSection;
+    private final AdapterSection<TchapRoom> mRoomsSection;
 
     private final OnSelectItemListener mListener;
 
@@ -58,8 +59,8 @@ public class TchapRoomAdapter extends AbsAdapter {
 
         mListener = listener;
 
-        mRoomsSection = new AdapterSection<Room>(context, context.getString(R.string.rooms_header), -1,
-                R.layout.adapter_item_room_view, TYPE_HEADER_DEFAULT, TYPE_UNDEFINED, new ArrayList<Room>(), DinsicUtils.getRoomsComparator(mSession, false)) {
+        mRoomsSection = new AdapterSection<TchapRoom>(context, context.getString(R.string.rooms_header), -1,
+                R.layout.adapter_item_room_view, TYPE_HEADER_DEFAULT, TYPE_UNDEFINED, new ArrayList<TchapRoom>(), DinsicUtils.getRoomsComparator(false)) {
             @Override
             public int getContentViewType(int position) {
                     // In order to retrieve the position of the item in the list,
@@ -67,7 +68,7 @@ public class TchapRoomAdapter extends AbsAdapter {
                     // As the header occupies the 1st position of the items list,
                     // we remove 1 from the position of the item in the list.
                     if (position - 1 < getFilteredItems().size()) {
-                        final Room room = getFilteredItems().get(position - 1);
+                        final TchapRoom room = getFilteredItems().get(position - 1);
                         if (room.isDirect()) {
                             return TYPE_ROOM_DIRECT;
                         } else {
@@ -111,8 +112,8 @@ public class TchapRoomAdapter extends AbsAdapter {
             case TYPE_ROOM:
             case TYPE_ROOM_DIRECT:
                 final RoomViewHolder roomViewHolder = (RoomViewHolder) viewHolder;
-                final Room room = (Room) getItemForPosition(position);
-                roomViewHolder.populateViews(mContext, mSession, room, false, false, mMoreRoomActionListener);
+                final TchapRoom room = (TchapRoom) getItemForPosition(position);
+                roomViewHolder.populateViews(mContext, room, false, false, mMoreRoomActionListener);
                 roomViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -136,7 +137,7 @@ public class TchapRoomAdapter extends AbsAdapter {
      * *********************************************************************************************
      */
 
-    public void setRooms(final List<Room> rooms) {
+    public void setRooms(final List<TchapRoom> rooms) {
         mRoomsSection.setItems(rooms, mCurrentFilterPattern);
         if (!TextUtils.isEmpty(mCurrentFilterPattern)) {
             filterRoomSection(mRoomsSection, String.valueOf(mCurrentFilterPattern));
@@ -174,7 +175,7 @@ public class TchapRoomAdapter extends AbsAdapter {
      */
 
     public interface OnSelectItemListener {
-        void onSelectItem(Room item, int position);
+        void onSelectItem(TchapRoom item, int position);
 
     }
 }

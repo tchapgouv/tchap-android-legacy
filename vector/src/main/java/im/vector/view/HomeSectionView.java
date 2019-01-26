@@ -37,6 +37,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import fr.gouv.tchap.model.TchapRoom;
 import im.vector.R;
 import im.vector.adapters.AbsAdapter;
 import im.vector.adapters.HomeRoomAdapter;
@@ -253,7 +254,7 @@ public class HomeSectionView extends RelativeLayout {
      *
      * @param rooms
      */
-    public void setRooms(final List<Room> rooms) {
+    public void setRooms(final List<TchapRoom> rooms) {
         if (mAdapter != null) {
             mAdapter.setRooms(rooms);
         }

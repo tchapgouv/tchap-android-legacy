@@ -16,26 +16,9 @@
 package fr.gouv.tchap.model
 
 import org.matrix.androidsdk.MXSession
-import org.matrix.androidsdk.data.Room
+import org.matrix.androidsdk.data.RoomSummary
 
-data class TchapRoom (
-        val room: Room,
+data class TchapRoomSummary (
+        val summary: RoomSummary,
         val session: MXSession,
-        val isProtected: Boolean = false) {
-
-    fun roomId(): String {
-        return room.roomId
-    }
-
-    fun isDirect(): Boolean {
-        return room.isDirect
-    }
-
-    fun getSummary(): TchapRoomSummary? {
-        session.dataHandler.getStore().getSummary(room.roomId)?.let {
-            return TchapRoomSummary(it, session, isProtected)
-        }
-
-        return null
-    }
-}
+        val isProtected: Boolean = false)
