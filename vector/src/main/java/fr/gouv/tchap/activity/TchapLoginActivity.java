@@ -682,8 +682,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
      */
     private void fallbackToRegistrationMode() {
         // display the main layout
-        mMainLayout.setVisibility(View.VISIBLE);
-
         showMainLayout();
         enableLoadingScreen(false);
 
@@ -1791,9 +1789,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         cancelEmailPolling();
         mEmailValidationExtraParams = null;
         Log.e(LOG_TAG, "## onRegistrationFailed(): " + message);
-        showMainLayout();
-        enableLoadingScreen(false);
-        refreshDisplay();
+        fallbackToRegistrationMode();
         Toast.makeText(this, R.string.login_error_unable_register, Toast.LENGTH_LONG).show();
     }
 
