@@ -10,12 +10,10 @@ import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
 public abstract class UnrecognizedCertApiCallback<T> extends SimpleApiCallback<T> {
 
     private HomeServerConnectionConfig mHsConfig;
-    private ApiCallback mCallback;
 
     public UnrecognizedCertApiCallback(HomeServerConnectionConfig hsConfig, ApiCallback callback) {
         super(callback);
         mHsConfig = hsConfig;
-        mCallback = callback;
     }
 
     public UnrecognizedCertApiCallback(HomeServerConnectionConfig hsConfig) {
