@@ -81,7 +81,7 @@ public class LoginHandler {
                       final ApiCallback<String> callback) {
         // Consider the main HS first.
         final HomeServerConnectionConfig hsConfig = tchapConfig.getHsConfig();
-        callLogin(context, hsConfig, username, phoneNumber, phoneNumberCountry, password, new UnrecognizedCertApiCallback<Credentials>(hsConfig) {
+        callLogin(context, hsConfig, username, phoneNumber, phoneNumberCountry, password, new UnrecognizedCertApiCallback<Credentials>(hsConfig, callback) {
             @Override
             public void onSuccess(Credentials credentials) {
                 // sanity check - GA issue
@@ -210,30 +210,6 @@ public class LoginHandler {
     }
 
     /**
-     * Retrieve the supported login flows of a home server.
-     *
-     * @param ctx      the application context.
-     * @param hsConfig the home server config.
-     * @param callback the supported flows list callback.
-     */
-    public void getSupportedLoginFlows(Context ctx, final HomeServerConnectionConfig hsConfig, final ApiCallback<List<LoginFlow>> callback) {
-        final Context appCtx = ctx.getApplicationContext();
-        LoginRestClient client = new LoginRestClient(hsConfig);
-
-        client.getSupportedLoginFlows(new UnrecognizedCertApiCallback<List<LoginFlow>>(hsConfig) {
-            @Override
-            public void onSuccess(List<LoginFlow> info) {
-                callback.onSuccess(info);
-            }
-
-            @Override
-            public void onAcceptedCert() {
-                getSupportedLoginFlows(appCtx, hsConfig, callback);
-            }
-        });
-    }
-
-    /**
      * Retrieve the supported registration flows of a home server.
      *
      * @param context  the application context.
@@ -249,7 +225,7 @@ public class LoginHandler {
         // avoid dispatching the device name
         params.initial_device_display_name = context.getString(R.string.login_mobile_device);
 
-        client.register(params, new UnrecognizedCertApiCallback<Credentials>(hsConfig) {
+        client.register(params, new UnrecognizedCertApiCallback<Credentials>(hsConfig, callback) {
             @Override
             public void onSuccess(Credentials credentials) {
                 // Should never happen, the request must fail by calling onMatrixError().
@@ -282,7 +258,7 @@ public class LoginHandler {
         final ThreePid pid = new ThreePid(null, ThreePid.MEDIUM_EMAIL);
         ThirdPidRestClient restClient = new ThirdPidRestClient(aHomeServerConfig);
 
-        pid.submitValidationToken(restClient, aToken, aClientSecret, aSid, new UnrecognizedCertApiCallback<Boolean>(aHomeServerConfig) {
+        pid.submitValidationToken(restClient, aToken, aClientSecret, aSid, new UnrecognizedCertApiCallback<Boolean>(aHomeServerConfig, aRespCallback) {
             @Override
             public void onSuccess(Boolean info) {
                 aRespCallback.onSuccess(info);
