@@ -123,6 +123,7 @@ import fr.gouv.tchap.activity.TchapLoginActivity;
 import fr.gouv.tchap.activity.TchapRoomCreationActivity;
 import fr.gouv.tchap.activity.TchapPublicRoomSelectionActivity;
 import fr.gouv.tchap.model.TchapRoom;
+import fr.gouv.tchap.model.TchapRoomSummary;
 import fr.gouv.tchap.model.TchapSession;
 import fr.gouv.tchap.util.LiveSecurityChecks;
 
@@ -2313,12 +2314,10 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
 
             @Override
             public void onEventDecrypted(Event event) {
-                TchapRoom tchapRoom = mTchapSession.getRoom(event.roomId);
-                RoomSummary summary = tchapRoom.getSession().getDataHandler().getStore().getSummary(event.roomId);
-
-                if (null != summary) {
+                TchapRoomSummary tchapRoomSummary = mTchapSession.getSummary(event.roomId);
+                if (null != tchapRoomSummary) {
                     // test if the latest event is refreshed
-                    Event latestReceivedEvent = summary.getLatestReceivedEvent();
+                    Event latestReceivedEvent = tchapRoomSummary.getSummary().getLatestReceivedEvent();
                     if ((null != latestReceivedEvent) && TextUtils.equals(latestReceivedEvent.eventId, event.eventId)) {
                         onRoomDataUpdated();
                     }
