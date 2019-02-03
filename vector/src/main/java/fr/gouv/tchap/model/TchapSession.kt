@@ -80,7 +80,7 @@ data class TchapSession(
 
     fun roomIdByAlias(roomAlias: String, callback: ApiCallback<String>) {
         mainSession.dataHandler.roomIdByAlias(roomAlias, object : ApiCallback<String> {
-            override fun onSuccess(info: String?) {
+            override fun onSuccess(info: String) {
                 callback.onSuccess(info)
             }
 
