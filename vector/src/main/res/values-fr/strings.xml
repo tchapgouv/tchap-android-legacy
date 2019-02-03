@@ -869,11 +869,10 @@ Appareils inconnus :</string>
     <string name="tchap_connection_password_confirm">Confirmer le mot de passe</string>
     <string name="tchap_connection_forgotten_email">J’ai oublié mon mot de passe</string>
     <string name="tchap_register_wait_for_email_title">Un email vous a été envoyé à :</string>
-    <string name="tchap_register_wait_for_email_subtitle">Merci de cliquer sur le lien proposé dans cet email afin de valider votre inscription.\nVous entrerez alors automatiquement dans Tchap</string>
+    <string name="tchap_register_wait_for_email_subtitle">Merci de cliquer sur le lien proposé dans cet email afin de terminer la création de votre compte. Vous pourrez alors vous connecter en allant sur l\'écran de connexion.</string>
+    <string name="tchap_register_wait_for_email_login_button">Aller à l\'écran de connexion</string>
     <string name="tchap_register_wait_for_email_no_email">Je n’ai pas reçu l’email!</string>
     <string name="tchap_register_unauthorized_email">Cette adresse e-mail n\'est pas autorisée</string>
-    <string name="tchap_register_wait_for_email_caution">Veuillez rester sur cet écran jusqu\'à la fin de la procédure d\’inscription</string>
-    <string name="tchap_register_wait_for_email_prompt_on_back">Votre inscription n\’est pas terminée. Etes-vous sûr de vouloir abandonner la procédure d\’inscription ?</string>
 
     <string name="tchap_dialog_user_consent_homeserver_name">Tchap</string>
 

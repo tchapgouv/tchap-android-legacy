@@ -11,21 +11,6 @@
     android:paddingStart="22dp">
 
     <TextView
-        android:id="@+id/fragment_tchap_register_wait_for_email_caution"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:fontFamily="sans-serif-light"
-        android:gravity="center_horizontal"
-        android:text="@string/tchap_register_wait_for_email_caution"
-        android:textColor="@color/vector_fuchsia_color"
-        android:textSize="16sp"
-        android:textStyle="normal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
         android:id="@+id/fragment_tchap_register_wait_for_email_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -38,7 +23,7 @@
         android:textStyle="normal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_tchap_register_wait_for_email_caution" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/fragment_tchap_register_wait_for_email_email"
@@ -70,16 +55,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/fragment_tchap_register_wait_for_email_email" />
 
-    <ProgressBar
-        android:id="@+id/fragment_tchap_register_wait_for_email_progress"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:indeterminate="true"
-        app:layout_constraintBottom_toTopOf="@id/fragment_tchap_register_wait_for_email_back"
+    <Button
+        android:id="@+id/fragment_tchap_register_wait_for_email_login_button"
+        style="@style/TchapLoginButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/tchap_register_wait_for_email_login_button"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/fragment_tchap_register_wait_for_email_subtitle"
-        app:layout_constraintVertical_bias="0.3" />
+        app:layout_constraintTop_toBottomOf="@id/fragment_tchap_register_wait_for_email_subtitle" />
 
     <TextView
         android:id="@+id/fragment_tchap_register_wait_for_email_back"
