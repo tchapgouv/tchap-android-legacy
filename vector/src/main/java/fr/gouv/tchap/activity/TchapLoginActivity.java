@@ -588,7 +588,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
      * See {@link #removeNetworkStateNotificationListener()}
      */
     private void addNetworkStateNotificationListener() {
-        if (null != Matrix.getInstance(getApplicationContext()) && !mIsWaitingNetworkConnection) {
+        if (null != Matrix.getInstance(this) && !mIsWaitingNetworkConnection) {
             try {
                 registerReceiver(mNetworkReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
                 mIsWaitingNetworkConnection = true;
@@ -602,7 +602,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
      * Remove the network listener set in {@link #addNetworkStateNotificationListener()}.
      */
     private void removeNetworkStateNotificationListener() {
-        if (null != Matrix.getInstance(getApplicationContext()) && mIsWaitingNetworkConnection) {
+        if (null != Matrix.getInstance(this) && mIsWaitingNetworkConnection) {
             try {
                 unregisterReceiver(mNetworkReceiver);
                 mIsWaitingNetworkConnection = false;

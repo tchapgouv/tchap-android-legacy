@@ -57,6 +57,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import fr.gouv.tchap.model.TchapRoom;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
 import fr.gouv.tchap.activity.TchapLoginActivity;
@@ -450,7 +451,7 @@ public class DinsicUtils {
             } else {
                 succeeded = true;
                 HashMap<String, Object> params = new HashMap<>();
-                params.put(VectorRoomActivity.EXTRA_MATRIX_ID, participantId);
+                params.put(VectorRoomActivity.EXTRA_MATRIX_ID, session.getMyUserId());
                 params.put(VectorRoomActivity.EXTRA_ROOM_ID, existingRoom.getRoomId());
                 CommonActivityUtils.goToRoomPage(activity, session, params);
             }
@@ -758,27 +759,26 @@ public class DinsicUtils {
     /**
      * Return the Dinsic rooms comparator. We display first the pinned rooms, then we sort them by date.
      *
-     * @param session
      * @param reverseOrder
      * @return comparator
      */
-    public static Comparator<Room> getRoomsComparator(final MXSession session, final boolean reverseOrder) {
-        return new Comparator<Room>() {
-            private Comparator<Room> mRoomsDateComparator;
+    public static Comparator<TchapRoom> getRoomsComparator(final boolean reverseOrder) {
+        return new Comparator<TchapRoom>() {
+            private Comparator<TchapRoom> mRoomsDateComparator;
 
             // Retrieve the default room comparator by date
-            private Comparator<Room> getRoomsDateComparator() {
+            private Comparator<TchapRoom> getRoomsDateComparator() {
                 if (null == mRoomsDateComparator) {
-                    mRoomsDateComparator = RoomUtils.getRoomsDateComparator(session, reverseOrder);
+                    mRoomsDateComparator = RoomUtils.getRoomsDateComparator(reverseOrder);
                 }
                 return mRoomsDateComparator;
             }
 
-            public int compare(Room room1, Room room2) {
+            public int compare(TchapRoom room1, TchapRoom room2) {
                 // Check first whether some rooms are pinned
-                final Set<String> tagsRoom1 = room1.getAccountData().getKeys();
+                final Set<String> tagsRoom1 = room1.getRoom().getAccountData().getKeys();
                 final boolean isPinnedRoom1 = tagsRoom1 != null && tagsRoom1.contains(RoomTag.ROOM_TAG_FAVOURITE);
-                final Set<String> tagsRoom2 = room2.getAccountData().getKeys();
+                final Set<String> tagsRoom2 = room2.getRoom().getAccountData().getKeys();
                 final boolean isPinnedRoom2 = tagsRoom2 != null && tagsRoom2.contains(RoomTag.ROOM_TAG_FAVOURITE);
 
                 if (isPinnedRoom1 && !isPinnedRoom2) {

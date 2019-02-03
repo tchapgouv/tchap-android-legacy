@@ -98,13 +98,13 @@ public class LoginHandler {
                     shadowLogin(context, shadowHS, username, phoneNumber, phoneNumberCountry, password, new SuccessCallback<String>() {
                         @Override
                         public void onSuccess(String warningMessage) {
-                            onRegistrationDone(Matrix.getInstance(context.getApplicationContext()), tchapConfig);
+                            onRegistrationDone(Matrix.getInstance(context), tchapConfig);
                             callback.onSuccess(warningMessage);
                         }
                     });
 
                 } else {
-                    onRegistrationDone(Matrix.getInstance(context.getApplicationContext()), tchapConfig);
+                    onRegistrationDone(Matrix.getInstance(context), tchapConfig);
                     callback.onSuccess(null);
                 }
             }

@@ -19,12 +19,12 @@ package im.vector.adapters;
 import android.content.Context;
 import android.text.TextUtils;
 
-import org.matrix.androidsdk.rest.model.publicroom.PublicRoom;
-
 import java.util.Comparator;
 import java.util.List;
 
-public class PublicRoomsAdapterSection extends AdapterSection<PublicRoom> {
+import fr.gouv.tchap.model.TchapPublicRoom;
+
+public class PublicRoomsAdapterSection extends AdapterSection<TchapPublicRoom> {
 
     // estimated public rooms count
     // the server should provide this value
@@ -34,7 +34,7 @@ public class PublicRoomsAdapterSection extends AdapterSection<PublicRoom> {
     private boolean mHasMoreResults;
 
     public PublicRoomsAdapterSection(Context context, String title, int headerSubViewResId, int contentResId, int headerViewType,
-                                     int contentViewType, List<PublicRoom> items, Comparator<PublicRoom> comparator) {
+                                     int contentViewType, List<TchapPublicRoom> items, Comparator<TchapPublicRoom> comparator) {
         super(context, title, headerSubViewResId, contentResId, headerViewType, contentViewType, items, comparator);
     }
 

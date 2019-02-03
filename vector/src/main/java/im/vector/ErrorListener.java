@@ -100,9 +100,9 @@ public class ErrorListener implements ApiFailureCallback {
             UnrecognizedCertHandler.show(mSession.getHomeServerConfig(), fingerprint, true, new UnrecognizedCertHandler.Callback() {
                 @Override
                 public void onAccept() {
-                    TchapSession tchapSession = Matrix.getInstance(mActivity.getApplicationContext()).getTchapSession(mSession.getMyUserId());
+                    TchapSession tchapSession = Matrix.getInstance(mActivity).getTchapSession(mSession.getMyUserId());
                     if (tchapSession != null) {
-                        LoginStorage loginStorage = Matrix.getInstance(mActivity.getApplicationContext()).getLoginStorage();
+                        LoginStorage loginStorage = Matrix.getInstance(mActivity).getLoginStorage();
                         TchapConnectionConfig updatedConfig = tchapSession.getConfig().replaceHSConfig(mSession.getHomeServerConfig());
                         loginStorage.replaceCredentials(updatedConfig);
                     }
@@ -115,7 +115,7 @@ public class ErrorListener implements ApiFailureCallback {
 
                 @Override
                 public void onReject() {
-                    TchapSession tchapSession = Matrix.getInstance(mActivity.getApplicationContext()).getTchapSession(mSession.getMyUserId());
+                    TchapSession tchapSession = Matrix.getInstance(mActivity).getTchapSession(mSession.getMyUserId());
                     if (tchapSession != null) {
                         CommonActivityUtils.logout(mActivity, Arrays.asList(tchapSession), true, null);
                     }

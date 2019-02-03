@@ -75,6 +75,7 @@ import java.util.List;
 import java.util.Map;
 
 import fr.gouv.tchap.activity.TchapLoginActivity;
+import fr.gouv.tchap.model.TchapRoom;
 import fr.gouv.tchap.model.TchapSession;
 import im.vector.Matrix;
 import im.vector.MyPresenceManager;
@@ -325,7 +326,7 @@ public class CommonActivityUtils {
         }
 
         // warn that the user logs out
-        Collection<MXSession> sessions = Matrix.getMXSessions(context);
+        Collection<MXSession> sessions = Matrix.getInstance(context).getSessions();
         for (MXSession session : sessions) {
             // Publish to the server that we're now offline
             MyPresenceManager.getInstance(context, session).advertiseOffline();
@@ -475,7 +476,7 @@ public class CommonActivityUtils {
         if (null == aContext) {
             retCode = true;
         } else {
-            if (null == Matrix.getInstance(aContext.getApplicationContext()).getDefaultSession()) {
+            if (null == Matrix.getInstance(aContext).getDefaultSession()) {
                 retCode = true;
             }
         }
@@ -572,7 +573,7 @@ public class CommonActivityUtils {
         // or the service has been killed on low memory
         if (EventStreamService.isStopped()) {
             List<String> matrixIds = new ArrayList<>();
-            Collection<MXSession> sessions = Matrix.getInstance(context.getApplicationContext()).getSessions();
+            Collection<MXSession> sessions = Matrix.getInstance(context).getSessions();
 
             if ((null != sessions) && (sessions.size() > 0)) {
                 PushManager pushManager = Matrix.getInstance(context).getPushManager();
@@ -629,6 +630,7 @@ public class CommonActivityUtils {
         if ((null != fromActivity) && (null != roomPreviewData)) {
             VectorRoomActivity.sRoomPreviewData = roomPreviewData;
             Intent intent = new Intent(fromActivity, VectorRoomActivity.class);
+            intent.putExtra(VectorRoomActivity.EXTRA_MATRIX_ID, roomPreviewData.getSession().getMyUserId());
             intent.putExtra(VectorRoomActivity.EXTRA_ROOM_ID, roomPreviewData.getRoomId());
             intent.putExtra(VectorRoomActivity.EXTRA_ROOM_PREVIEW_ID, roomPreviewData.getRoomId());
             intent.putExtra(VectorRoomActivity.EXTRA_EXPAND_ROOM_HEADER, true);
@@ -787,7 +789,7 @@ public class CommonActivityUtils {
     public static void goToRoomPage(@NonNull final Activity fromActivity,
                                     final MXSession session,
                                     @NonNull final Map<String, Object> params) {
-        final MXSession finalSession = (session == null) ? Matrix.getMXSession(fromActivity, (String) params.get(VectorRoomActivity.EXTRA_MATRIX_ID)) : session;
+        final MXSession finalSession = (session == null) ? Matrix.getInstance(fromActivity).getSession((String) params.get(VectorRoomActivity.EXTRA_MATRIX_ID)) : session;
 
         // sanity check
         if (finalSession == null || !finalSession.isAlive()) {
@@ -935,10 +937,10 @@ public class CommonActivityUtils {
      * @param intent       the intent param
      */
     public static void sendFilesTo(final Activity fromActivity, final Intent intent) {
-        if (Matrix.getMXSessions(fromActivity).size() == 1) {
-            sendFilesTo(fromActivity, intent, Matrix.getMXSession(fromActivity, null));
-        } else if (fromActivity instanceof FragmentActivity) {
-            // TBD
+        // TODO: Handle the potential multiple tchap sessions
+        TchapSession tchapSession = Matrix.getInstance(fromActivity).getDefaultTchapSession();
+        if (tchapSession != null) {
+            sendFilesTo(fromActivity, intent, tchapSession);
         }
     }
 
@@ -947,22 +949,24 @@ public class CommonActivityUtils {
      *
      * @param fromActivity the caller activity
      * @param intent       the intent param
-     * @param session      the session/
+     * @param tchapSession the session
      */
-    private static void sendFilesTo(final Activity fromActivity, final Intent intent, final MXSession session) {
+    private static void sendFilesTo(final Activity fromActivity, final Intent intent, final TchapSession tchapSession) {
         // sanity check
-        if ((null == session) || !session.isAlive() || fromActivity.isFinishing()) {
+        if ((null == tchapSession) || !tchapSession.isAlive() || fromActivity.isFinishing()) {
             return;
         }
 
-        List<RoomSummary> mergedSummaries = new ArrayList<>(session.getDataHandler().getStore().getSummaries());
-
-        // keep only the joined room
+        // Consider all the joined rooms, and only the joined rooms
+        List<RoomSummary> mergedSummaries = new ArrayList<>(tchapSession.getMainSession().getDataHandler().getStore().getSummaries());
+        if (tchapSession.getShadowSession() != null) {
+            mergedSummaries.addAll(tchapSession.getShadowSession().getDataHandler().getStore().getSummaries());
+        }
         for (int index = 0; index < mergedSummaries.size(); index++) {
             RoomSummary summary = mergedSummaries.get(index);
-            Room room = session.getDataHandler().getRoom(summary.getRoomId());
+            TchapRoom tchapRoom = tchapSession.getRoom(summary.getRoomId());
 
-            if ((null == room) || room.isInvited() || room.isConferenceUserRoom()) {
+            if ((null == tchapRoom) || tchapRoom.getRoom().isInvited() || tchapRoom.getRoom().isConferenceUserRoom()) {
                 mergedSummaries.remove(index);
                 index--;
             }
@@ -986,7 +990,7 @@ public class CommonActivityUtils {
             }
         });
 
-        VectorRoomsSelectionAdapter adapter = new VectorRoomsSelectionAdapter(fromActivity, R.layout.adapter_item_vector_recent_room, session);
+        VectorRoomsSelectionAdapter adapter = new VectorRoomsSelectionAdapter(fromActivity, R.layout.adapter_item_vector_recent_room, tchapSession);
         adapter.addAll(mergedSummaries);
 
         final List<RoomSummary> fMergedSummaries = mergedSummaries;
@@ -1005,13 +1009,19 @@ public class CommonActivityUtils {
                                     @Override
                                     public void run() {
                                         RoomSummary summary = fMergedSummaries.get(which);
+                                        TchapRoom tchapRoom = tchapSession.getRoom(summary.getRoomId());
+                                        if (tchapRoom != null) {
+                                            MXSession session = tchapRoom.getSession();
 
-                                        Map<String, Object> params = new HashMap<>();
-                                        params.put(VectorRoomActivity.EXTRA_MATRIX_ID, session.getMyUserId());
-                                        params.put(VectorRoomActivity.EXTRA_ROOM_ID, summary.getRoomId());
-                                        params.put(VectorRoomActivity.EXTRA_ROOM_INTENT, intent);
+                                            Map<String, Object> params = new HashMap<>();
+                                            params.put(VectorRoomActivity.EXTRA_MATRIX_ID, session.getMyUserId());
+                                            params.put(VectorRoomActivity.EXTRA_ROOM_ID, summary.getRoomId());
+                                            params.put(VectorRoomActivity.EXTRA_ROOM_INTENT, intent);
 
-                                        goToRoomPage(fromActivity, session, params);
+                                            goToRoomPage(fromActivity, session, params);
+                                        }
+
+
                                     }
                                 });
                             }
@@ -1375,7 +1385,7 @@ public class CommonActivityUtils {
                     CommonActivityUtils.restartApp(activity);
                 } else {
                     Log.e(LOW_MEMORY_LOG_TAG, "clear the application cache");
-                    Matrix.getInstance(activity).reloadSessions(activity);
+                    Matrix.getInstance(activity).reloadSessions();
                 }
             } else {
                 Log.e(LOW_MEMORY_LOG_TAG, "Wait to be concerned");

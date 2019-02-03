@@ -30,7 +30,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.matrix.androidsdk.MXPatterns;
-import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
 import org.matrix.androidsdk.rest.model.User;
@@ -44,16 +43,13 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.R;
-import im.vector.VectorApp;
 import fr.gouv.tchap.activity.TchapLoginActivity;
 import im.vector.adapters.AbsAdapter;
 import im.vector.adapters.AdapterSection;
 import im.vector.adapters.KnownContactsAdapterSection;
 import im.vector.adapters.ParticipantAdapterItem;
-import im.vector.adapters.RoomViewHolder;
 import im.vector.contacts.ContactsManager;
 import im.vector.settings.VectorLocale;
-import im.vector.util.RoomUtils;
 import im.vector.util.VectorUtils;
 
 public class TchapContactAdapter extends AbsAdapter {
@@ -64,7 +60,6 @@ public class TchapContactAdapter extends AbsAdapter {
 
     private static final int TYPE_CONTACT = 1;
 
-    private final AdapterSection<Room> mDirectChatsSection;
     private final AdapterSection<ParticipantAdapterItem> mLocalContactsSection;
     private final KnownContactsAdapterSection mKnownContactsSection;
 
@@ -79,17 +74,13 @@ public class TchapContactAdapter extends AbsAdapter {
      * *********************************************************************************************
      */
 
-    public TchapContactAdapter(final Context context, final OnSelectItemListener listener, final RoomInvitationListener invitationListener, final MoreRoomActionListener moreActionListener) {
-        super(context, invitationListener, moreActionListener);
+    public TchapContactAdapter(final Context context, final OnSelectItemListener listener) {
+        super(context);
         mListener = listener;
 
         // ButterKnife.bind(this); cannot be applied here
         mNoContactAccessPlaceholder = context.getString(R.string.no_contact_access_placeholder);
         mNoResultPlaceholder = context.getString(R.string.no_result_placeholder);
-
-        mDirectChatsSection = new AdapterSection<>(context, context.getString(R.string.direct_chats_header), -1,
-                R.layout.adapter_item_room_view, TYPE_HEADER_DEFAULT, TYPE_ROOM, new ArrayList<Room>(), RoomUtils.getRoomsDateComparator(mSession, false));
-        mDirectChatsSection.setEmptyViewPlaceholder(context.getString(R.string.no_conversation_placeholder), context.getString(R.string.no_result_placeholder));
 
         // use the gouv comparator to show in priority matrix and agent users
         mLocalContactsSection = new AdapterSection<>(
@@ -140,9 +131,6 @@ public class TchapContactAdapter extends AbsAdapter {
             return new HeaderViewHolder(itemView);
         } else {
             switch (viewType) {
-                case TYPE_ROOM:
-                    itemView = inflater.inflate(R.layout.adapter_item_room_view, viewGroup, false);
-                    return new RoomViewHolder(itemView);
                 case TYPE_CONTACT:
                     itemView = inflater.inflate(R.layout.adapter_item_contact_view, viewGroup, false);
                     return new ContactViewHolder(itemView);
@@ -164,17 +152,6 @@ public class TchapContactAdapter extends AbsAdapter {
                     }
                 }
                 break;
-            case TYPE_ROOM:
-                final RoomViewHolder roomViewHolder = (RoomViewHolder) viewHolder;
-                final Room room = (Room) getItemForPosition(position);
-                roomViewHolder.populateViews(mContext, mSession, room, true, false, mMoreRoomActionListener);
-                roomViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mListener.onSelectItem(room, -1);
-                    }
-                });
-                break;
             case TYPE_CONTACT:
                 final ContactViewHolder contactViewHolder = (ContactViewHolder) viewHolder;
                 final ParticipantAdapterItem item = (ParticipantAdapterItem) getItemForPosition(position);
@@ -185,9 +162,7 @@ public class TchapContactAdapter extends AbsAdapter {
 
     @Override
     protected int applyFilter(String pattern) {
-        int nbResults = 0;
-        nbResults += filterRoomSection(mDirectChatsSection, pattern);
-        nbResults += filterLocalContacts(pattern);
+        int nbResults = filterLocalContacts(pattern);
 
         // if there is no pattern, use the local search
         if (TextUtils.isEmpty(pattern)) {
@@ -201,14 +176,6 @@ public class TchapContactAdapter extends AbsAdapter {
      * Public methods
      * *********************************************************************************************
      */
-
-    public void setRooms(final List<Room> rooms) {
-        mDirectChatsSection.setItems(rooms, mCurrentFilterPattern);
-        if (!TextUtils.isEmpty(mCurrentFilterPattern)) {
-            filterRoomSection(mDirectChatsSection, String.valueOf(mCurrentFilterPattern));
-        }
-        updateSections();
-    }
 
     public void setLocalContacts(final List<ParticipantAdapterItem> localContacts) {
         // updates the placeholder according to the local contacts permissions
@@ -338,18 +305,6 @@ public class TchapContactAdapter extends AbsAdapter {
         return filteredKnownContacts.size();
     }
 
-    /**
-     * Remove the room of the given id from the adapter
-     *
-     * @param roomId
-     */
-    public void removeDirectChat(final String roomId) {
-        Room room = mSession.getDataHandler().getRoom(roomId);
-        if (mDirectChatsSection.removeItem(room)) {
-            updateSections();
-        }
-    }
-
     /*
      * *********************************************************************************************
      * View holder
@@ -474,8 +429,6 @@ public class TchapContactAdapter extends AbsAdapter {
      */
 
     public interface OnSelectItemListener {
-        void onSelectItem(Room item, int position);
-
         void onSelectItem(ParticipantAdapterItem item, int position);
     }
 }

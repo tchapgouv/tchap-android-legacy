@@ -63,6 +63,7 @@ import java.util.Map;
 import fr.gouv.tchap.media.MediaScanDao;
 import fr.gouv.tchap.media.MediaScanManager;
 import fr.gouv.tchap.model.TchapConnectionConfig;
+import fr.gouv.tchap.model.TchapRoom;
 import fr.gouv.tchap.model.TchapSession;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.SplashActivity;
@@ -110,7 +111,7 @@ public class Matrix {
     public boolean mHasBeenDisconnected = false;
 
     // i.e the event has been read from another client
-    private static final MXEventListener mLiveEventListener = new MXEventListener() {
+    private final MXEventListener mLiveEventListener = new MXEventListener() {
         boolean mClearCacheRequired = false;
 
         @Override
@@ -125,8 +126,27 @@ public class Matrix {
         public void onLiveEvent(Event event, RoomState roomState) {
             mRefreshUnreadCounter |= Event.EVENT_TYPE_MESSAGE.equals(event.getType()) || Event.EVENT_TYPE_RECEIPT.equals(event.getType());
 
-            // TODO update to manage multisessions
-            WidgetsManager.getSharedInstance().onLiveEvent(instance.getDefaultSession(), event);
+            // Handle Widget events
+            // TODO manage multiple Tchap sessions
+            TchapSession tchapSession = instance.getDefaultTchapSession();
+            if (tchapSession != null) {
+                // Check whether a roomId is available
+                String eventRoomId = event.roomId;
+                if (eventRoomId != null) {
+                    TchapRoom room = tchapSession.getRoom(eventRoomId);
+                    if (room != null) {
+                        // Consider the room session
+                        WidgetsManager.getSharedInstance().onLiveEvent(room.getSession(), event);
+                    } else {
+                        Log.e(LOG_TAG, "onLiveEvent: ignore a widget event for an unknown room");
+                    }
+                } else {
+                    // TODO manage global widget...
+                    // Apply them only on the main session for the moment.
+                    WidgetsManager.getSharedInstance().onLiveEvent(tchapSession.getMainSession(), event);
+                    Log.w(LOG_TAG, "onLiveEvent: ignore the potential shadow session during the global widget handling");
+                }
+            }
         }
 
         @Override
@@ -137,7 +157,7 @@ public class Matrix {
             if (null != instance) {
                 if (mClearCacheRequired && !VectorApp.isAppInBackground()) {
                     mClearCacheRequired = false;
-                    instance.reloadSessions(VectorApp.getInstance());
+                    instance.reloadSessions();
                 } else if (mRefreshUnreadCounter) {
                     PushManager pushManager = instance.getPushManager();
 
@@ -209,10 +229,10 @@ public class Matrix {
     };
 
     // constructor
-    private Matrix(Context appContext) {
+    private Matrix(@NonNull Context appContext) {
         instance = this;
 
-        mAppContext = appContext.getApplicationContext();
+        mAppContext = appContext;
         mLoginStorage = new LoginStorage(mAppContext);
         mTchapSessions = new HashMap<>();
         mTchapSessionKeys = new ArrayList<>();
@@ -225,12 +245,12 @@ public class Matrix {
      * Retrieve the static instance.
      * Create it if it does not exist yet.
      *
-     * @param appContext the application context
+     * @param context the context
      * @return the shared instance
      */
-    public synchronized static Matrix getInstance(Context appContext) {
-        if (instance == null && null != appContext) {
-            instance = new Matrix(appContext);
+    public synchronized static Matrix getInstance(Context context) {
+        if (instance == null && null != context) {
+            instance = new Matrix(context.getApplicationContext());
         }
         return instance;
     }
@@ -292,20 +312,6 @@ public class Matrix {
     }
 
     /**
-     * Static method top the MXSession list
-     *
-     * @param context the application content
-     * @return the sessions list
-     */
-    public static List<MXSession> getMXSessions(Context context) {
-        if ((null != context) && (null != instance)) {
-            return instance.getSessions();
-        } else {
-            return null;
-        }
-    }
-
-    /**
      * @return The list of sessions
      */
     public synchronized List<MXSession> getSessions() {
@@ -338,6 +344,7 @@ public class Matrix {
      *
      * @return The default session or null.
      */
+    @Nullable
     public synchronized MXSession getDefaultSession() {
         TchapSession tchapSession = getDefaultTchapSession();
 
@@ -399,17 +406,6 @@ public class Matrix {
                 session.clear(VectorApp.getInstance());
             }
         }
-    }
-
-    /**
-     * Static method to return a MXSession from an account Id.
-     *
-     * @param matrixId the matrix id
-     * @return the MXSession.
-     */
-    @Nullable
-    public static MXSession getMXSession(Context context, String matrixId) {
-        return Matrix.getInstance(context.getApplicationContext()).getSession(matrixId);
     }
 
     /**
@@ -485,7 +481,7 @@ public class Matrix {
      */
     public static void setSessionErrorListener(Activity activity) {
         if ((null != instance) && (null != activity)) {
-            Collection<MXSession> sessions = getMXSessions(activity);
+            Collection<MXSession> sessions = instance.getSessions();
 
             for (MXSession session : sessions) {
                 if (session.isAlive()) {
@@ -496,11 +492,11 @@ public class Matrix {
     }
 
     /**
-     * Remove the sessions error listener to each
+     * Remove the sessions error listener to each session
      */
-    public static void removeSessionErrorListener(Activity activity) {
-        if ((null != instance) && (null != activity)) {
-            Collection<MXSession> sessions = getMXSessions(activity);
+    public static void removeSessionErrorListener() {
+        if (null != instance) {
+            Collection<MXSession> sessions = instance.getSessions();
 
             for (MXSession session : sessions) {
                 if (session.isAlive()) {
@@ -560,6 +556,10 @@ public class Matrix {
                     // some GA issues reported that the data handler can be null
                     // so assume the application should be restarted
                     res &= session.getMainSession().isAlive() && (null != session.getMainSession().getDataHandler());
+
+                    if (session.getShadowSession() != null) {
+                        res &= session.getShadowSession().isAlive() && (null != session.getShadowSession().getDataHandler());
+                    }
                 }
 
                 if (!res) {
@@ -617,22 +617,23 @@ public class Matrix {
                     @Override
                     public void onSuccess(Void info) {
 
-                        // TODO check with the server team whether the client has to deactivate this shadow account too
-                        MXSession shadowSession = tchapSession.getShadowSession();
-                        if (shadowSession != null) {
-                            shadowSession.deactivateAccount(context,
-                                    LoginRestClient.LOGIN_FLOW_TYPE_PASSWORD,
-                                    userPassword,
-                                    eraseUserData,
-                                    new SimpleApiCallback<Void>(aCallback) {
-                                        @Override
-                                        public void onSuccess(Void info) {
-                                            onCompletion(info);
-                                        }
-                                    });
-                        } else {
-                            onCompletion(info);
-                        }
+//                        // TODO check with the server team whether the client has to deactivate this shadow account too
+//                        MXSession shadowSession = tchapSession.getShadowSession();
+//                        if (shadowSession != null) {
+//                            shadowSession.deactivateAccount(context,
+//                                    LoginRestClient.LOGIN_FLOW_TYPE_PASSWORD,
+//                                    userPassword,
+//                                    eraseUserData,
+//                                    new SimpleApiCallback<Void>(aCallback) {
+//                                        @Override
+//                                        public void onSuccess(Void info) {
+//                                            onCompletion(info);
+//                                        }
+//                                    });
+//                        } else {
+//                            onCompletion(info);
+//                        }
+                        onCompletion(info);
                     }
                 });
     }
@@ -851,11 +852,10 @@ public class Matrix {
                     UnrecognizedCertHandler.show(session.getHomeServerConfig(), fingerprint, true, new UnrecognizedCertHandler.Callback() {
                         @Override
                         public void onAccept() {
-                            TchapSession tchapSession = Matrix.getInstance(VectorApp.getInstance().getApplicationContext()).getTchapSession(session.getMyUserId());
+                            TchapSession tchapSession = getTchapSession(session.getMyUserId());
                             if (tchapSession != null) {
-                                LoginStorage loginStorage = Matrix.getInstance(VectorApp.getInstance().getApplicationContext()).getLoginStorage();
                                 TchapConnectionConfig updatedConfig = tchapSession.getConfig().replaceHSConfig(session.getHomeServerConfig());
-                                loginStorage.replaceCredentials(updatedConfig);
+                                mLoginStorage.replaceCredentials(updatedConfig);
                             }
                         }
 
@@ -867,7 +867,7 @@ public class Matrix {
                         @Override
                         public void onReject() {
                             Log.d(LOG_TAG, "Found fingerprint: reject fingerprint");
-                            TchapSession tchapSession = Matrix.getInstance(VectorApp.getInstance().getApplicationContext()).getTchapSession(session.getMyUserId());
+                            TchapSession tchapSession = getTchapSession(session.getMyUserId());
                             if (tchapSession != null) {
                                 CommonActivityUtils.logout(VectorApp.getCurrentActivity(), Arrays.asList(tchapSession), true, null);
                             }
@@ -915,13 +915,11 @@ public class Matrix {
      * Reload the matrix sessions.
      * The session caches are cleared before being reloaded.
      * Any opened activity is closed and the application switches to the splash screen.
-     *
-     * @param context the context
      */
-    public void reloadSessions(final Context context) {
+    public void reloadSessions() {
         Log.e(LOG_TAG, "## reloadSessions");
 
-        CommonActivityUtils.logout(context, getTchapSessions(), false, new SimpleApiCallback<Void>() {
+        CommonActivityUtils.logout(mAppContext, getTchapSessions(), false, new SimpleApiCallback<Void>() {
             @Override
             public void onSuccess(Void info) {
                 // build a new sessions list
@@ -932,12 +930,12 @@ public class Matrix {
                 }
 
                 // clear FCM token before launching the splash screen
-                Matrix.getInstance(context).getPushManager().clearFcmData(new SimpleApiCallback<Void>() {
+                mPushManager.clearFcmData(new SimpleApiCallback<Void>() {
                     @Override
                     public void onSuccess(final Void anything) {
-                        Intent intent = new Intent(context.getApplicationContext(), SplashActivity.class);
+                        Intent intent = new Intent(mAppContext, SplashActivity.class);
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        context.getApplicationContext().startActivity(intent);
+                        mAppContext.startActivity(intent);
 
                         if (null != VectorApp.getCurrentActivity()) {
                             VectorApp.getCurrentActivity().finish();

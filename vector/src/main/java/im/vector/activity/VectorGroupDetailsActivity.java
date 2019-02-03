@@ -169,7 +169,7 @@ public class VectorGroupDetailsActivity extends MXCActionBarActivity {
         }
 
         // get current session
-        mSession = Matrix.getInstance(getApplicationContext()).getSession(intent.getStringExtra(EXTRA_MATRIX_ID));
+        mSession = Matrix.getInstance(this).getSession(intent.getStringExtra(EXTRA_MATRIX_ID));
 
         if ((null == mSession) || !mSession.isAlive()) {
             finish();

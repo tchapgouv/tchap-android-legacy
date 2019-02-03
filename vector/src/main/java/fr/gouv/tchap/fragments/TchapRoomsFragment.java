@@ -36,6 +36,7 @@ import java.util.Collection;
 import java.util.List;
 
 import butterknife.BindView;
+import fr.gouv.tchap.model.TchapRoom;
 import im.vector.R;
 import im.vector.fragments.AbsHomeFragment;
 import im.vector.util.HomeRoomsViewModel;
@@ -53,7 +54,7 @@ public class TchapRoomsFragment extends AbsHomeFragment implements AbsHomeFragme
     private TchapRoomAdapter mAdapter;
 
     // rooms list
-    private final List<Room> mRooms = new ArrayList<>();
+    private final List<TchapRoom> mRooms = new ArrayList<>();
 
     /*
      * *********************************************************************************************
@@ -115,11 +116,6 @@ public class TchapRoomsFragment extends AbsHomeFragment implements AbsHomeFragme
      */
 
     @Override
-    protected List<Room> getRooms() {
-        return new ArrayList<>(mRooms);
-    }
-
-    @Override
     protected void onFilter(String pattern, final OnFilterListener listener) {
         mAdapter.getFilter().filter(pattern, new Filter.FilterListener() {
             @Override
@@ -172,7 +168,7 @@ public class TchapRoomsFragment extends AbsHomeFragment implements AbsHomeFragme
 
         mAdapter = new TchapRoomAdapter(getActivity(), new TchapRoomAdapter.OnSelectItemListener() {
             @Override
-            public void onSelectItem(Room room, int position) {
+            public void onSelectItem(TchapRoom room, int position) {
                 openRoom(room);
             }
 
@@ -190,30 +186,32 @@ public class TchapRoomsFragment extends AbsHomeFragment implements AbsHomeFragme
     /**
      * Init the rooms display
      */
-    private void refreshRooms(List<Room> allJoinedRooms) {
+    private void refreshRooms(List<TchapRoom> allJoinedRooms) {
 
         mRooms.clear();
 
-        for (Room room : allJoinedRooms) {
+        for (TchapRoom tchapRoom : allJoinedRooms) {
+            Room room = tchapRoom.getRoom();
+
             // Hide the rooms created to invite some non-tchap contact by email.
             if (room.isDirect() && room.getState().thirdPartyInvites().size() != 0) {
                 // TODO handle the potential lazy loading option by handling asynchronously the room members.
                 Collection<RoomMember> members = room.getState().getDisplayableLoadedMembers();
                 for (RoomMember member : members) {
-                    if (member.getUserId().equals(mSession.getMyUserId())) {
+                    if (member.getUserId().equals(tchapRoom.getSession().getMyUserId())) {
                         continue;
                     }
 
                     // Check whether there is no pending 3PID invite for this member.
                     if (null == member.getThirdPartyInviteToken()) {
-                        mRooms.add(room);
+                        mRooms.add(tchapRoom);
                         // Break here the loop on members in case of a wrong direct chat
                         // (with several members)
                         break;
                     }
                 }
             } else {
-                mRooms.add(room);
+                mRooms.add(tchapRoom);
             }
         }
         mAdapter.setRooms(mRooms);

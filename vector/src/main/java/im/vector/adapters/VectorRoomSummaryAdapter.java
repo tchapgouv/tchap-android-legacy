@@ -496,7 +496,7 @@ public class VectorRoomSummaryAdapter extends BaseExpandableListAdapter {
             roomRetValue = null;
         }
         // get session and check if the session is active
-        else if (null == (session = Matrix.getMXSession(mContext, userId)) || (!session.isAlive())) {
+        else if (null == (session = Matrix.getInstance(mContext).getSession(userId)) || (!session.isAlive())) {
             roomRetValue = null;
         } else {
             roomRetValue = session.getDataHandler().getStore().getRoom(roomSummary.getRoomId());
@@ -891,7 +891,7 @@ public class VectorRoomSummaryAdapter extends BaseExpandableListAdapter {
 
         if ((null == aMatrixId) || (null == aUserId)) {
             displayNameRetValue = null;
-        } else if ((null == (session = Matrix.getMXSession(mContext, aMatrixId))) || (!session.isAlive())) {
+        } else if ((null == (session = Matrix.getInstance(mContext).getSession(aMatrixId))) || (!session.isAlive())) {
             displayNameRetValue = null;
         } else {
             User user = session.getDataHandler().getStore().getUser(aUserId);

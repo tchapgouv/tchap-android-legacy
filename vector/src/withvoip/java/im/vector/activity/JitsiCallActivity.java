@@ -139,7 +139,7 @@ public class JitsiCallActivity extends VectorAppCompatActivity {
             return;
         }
 
-        mSession = Matrix.getMXSession(this, mWidget.getSessionId());
+        mSession = Matrix.getInstance(this).getSession(mWidget.getSessionId());
         if (null == mSession) {
             Log.e(LOG_TAG, "## onCreate() : undefined session ");
             finish();

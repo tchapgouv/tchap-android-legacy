@@ -41,6 +41,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import fr.gouv.tchap.model.TchapRoom;
 import im.vector.R;
 import im.vector.util.GroupUtils;
 import im.vector.util.RoomUtils;
@@ -71,7 +72,7 @@ public abstract class AbsAdapter extends AbsFilterableAdapter {
     /// Ex <0, section 1 with 2 items>, <3, section 2>
     private final List<Pair<Integer, AdapterSection>> mSections;
 
-    private AdapterSection<Room> mInviteSection;
+    private AdapterSection<TchapRoom> mInviteSection;
 
     /*
      * *********************************************************************************************
@@ -87,7 +88,7 @@ public abstract class AbsAdapter extends AbsFilterableAdapter {
         mSections = new ArrayList<>();
 
         mInviteSection = new AdapterSection<>(context, context.getString(R.string.room_recents_invites), -1, R.layout.adapter_item_room_view,
-                TYPE_HEADER_DEFAULT, TYPE_ROOM_INVITATION, new ArrayList<Room>(), null);
+                TYPE_HEADER_DEFAULT, TYPE_ROOM_INVITATION, new ArrayList<TchapRoom>(), null);
         mInviteSection.setEmptyViewPlaceholder(null, context.getString(R.string.no_result_placeholder));
         mInviteSection.setIsHiddenWhenEmpty(true);
         addSection(mInviteSection);
@@ -182,8 +183,8 @@ public abstract class AbsAdapter extends AbsFilterableAdapter {
                 break;
             case TYPE_ROOM_INVITATION:
                 final RoomInvitationViewHolder invitationViewHolder = (RoomInvitationViewHolder) viewHolder;
-                final Room room = (Room) getItemForPosition(position);
-                invitationViewHolder.populateViews(mContext, mSession, room, mRoomInvitationListener, mMoreRoomActionListener);
+                final TchapRoom room = (TchapRoom) getItemForPosition(position);
+                invitationViewHolder.populateViews(mContext, room, mRoomInvitationListener, mMoreRoomActionListener);
                 break;
             default:
                 populateViewHolder(viewType, viewHolder, position);
@@ -230,7 +231,7 @@ public abstract class AbsAdapter extends AbsFilterableAdapter {
      *
      * @param rooms
      */
-    public void setInvitation(final List<Room> rooms) {
+    public void setInvitation(final List<TchapRoom> rooms) {
         if (null != mInviteSection) {
             mInviteSection.setItems(rooms, mCurrentFilterPattern);
             if (!TextUtils.isEmpty(mCurrentFilterPattern)) {
@@ -378,10 +379,10 @@ public abstract class AbsAdapter extends AbsFilterableAdapter {
      * @param filterPattern
      * @return nb of items matching the filter
      */
-    protected int filterRoomSection(final AdapterSection<Room> section, final String filterPattern) {
+    protected int filterRoomSection(final AdapterSection<TchapRoom> section, final String filterPattern) {
         if (null != section) {
             if (!TextUtils.isEmpty(filterPattern)) {
-                List<Room> filteredRoom = RoomUtils.getFilteredRooms(mContext, section.getItems(), filterPattern);
+                List<TchapRoom> filteredRoom = RoomUtils.getFilteredRooms(mContext, section.getItems(), filterPattern);
                 section.setFilteredItems(filteredRoom, filterPattern);
             } else {
                 section.resetFilter();
@@ -494,8 +495,8 @@ public abstract class AbsAdapter extends AbsFilterableAdapter {
     }
 
     public interface MoreRoomActionListener {
-        void onMoreActionClick(View itemView, Room room);
-        void onTchapMoreActionClick(View itemView, Room room, @Nullable View notificationMuteView);
+        void onMoreActionClick(View itemView, TchapRoom room);
+        void onTchapMoreActionClick(View itemView, TchapRoom room, @Nullable View notificationMuteView);
     }
 
     public interface MoreGroupActionListener {

@@ -24,6 +24,9 @@
 
     <string-array name="identity_server_names" translatable="false" />
 
+    <!-- Default list of protected federated server names -->
+    <string-array name="protected_room_directory_servers" translatable="false"/>
+
     <!-- Default list of federated server names -->
     <string-array name="room_directory_servers" translatable="false">
         <item>agent.agriculture.tchap.gouv.fr</item>

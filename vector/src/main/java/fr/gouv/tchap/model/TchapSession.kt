@@ -17,6 +17,8 @@ package fr.gouv.tchap.model
 
 import android.content.Context
 import org.matrix.androidsdk.MXSession
+import org.matrix.androidsdk.rest.callback.ApiCallback
+import org.matrix.androidsdk.rest.model.MatrixError
 
 data class TchapSession(
         val config: TchapConnectionConfig,
@@ -32,5 +34,76 @@ data class TchapSession(
         shadowSession?.clear(context)
     }
 
+    fun isAlive(): Boolean {
+        var res = mainSession.isAlive
+        shadowSession?.let {
+            res = res and it.isAlive
+        }
+        return res
+    }
+
+    fun isReady(): Boolean {
+        var res = mainSession.dataHandler.store.isReady
+        shadowSession?.let {
+            res = res and it.dataHandler.store.isReady
+        }
+        return res
+    }
+
+    fun getRoom(roomId: String): TchapRoom? {
+        mainSession.dataHandler.getRoom(roomId, false)?.let {
+            return TchapRoom(it, mainSession, config.hasProtectedAccess)
+        }
+
+        shadowSession?.let {
+            it.dataHandler.getRoom(roomId, false)?.let {
+                return TchapRoom(it, shadowSession)
+            }
+        }
+
+        return null
+    }
+
+    fun getSummary(roomId: String): TchapRoomSummary? {
+        mainSession.dataHandler.getStore().getSummary(roomId)?.let {
+            return TchapRoomSummary(it, mainSession, config.hasProtectedAccess)
+        }
+
+        shadowSession?.let {
+            it.dataHandler.getStore().getSummary(roomId)?.let {
+                return TchapRoomSummary(it, shadowSession)
+            }
+        }
+
+        return null
+    }
+
+    fun roomIdByAlias(roomAlias: String, callback: ApiCallback<String>) {
+        mainSession.dataHandler.roomIdByAlias(roomAlias, object : ApiCallback<String> {
+            override fun onSuccess(info: String) {
+                callback.onSuccess(info)
+            }
+
+            override fun onNetworkError(e: Exception) {
+                callback.onNetworkError(e)
+            }
+
+            override fun onMatrixError(e: MatrixError) {
+                shadowSession?.let {
+                    it.dataHandler.roomIdByAlias(roomAlias, callback)
+                    return
+                }
+                callback.onMatrixError(e)
+            }
+
+            override fun onUnexpectedError(e: Exception) {
+                shadowSession?.let {
+                    it.dataHandler.roomIdByAlias(roomAlias, callback)
+                    return
+                }
+                callback.onUnexpectedError(e)
+            }
+        })
+    }
 }
 

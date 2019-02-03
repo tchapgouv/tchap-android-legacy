@@ -20,6 +20,7 @@ import android.content.*
 import android.preference.PreferenceManager
 import android.util.Log
 import androidx.core.content.edit
+import fr.gouv.tchap.model.TchapSession
 import im.vector.Matrix
 import im.vector.util.lsFiles
 
@@ -56,7 +57,12 @@ class DebugReceiver : BroadcastReceiver() {
 
     private fun alterScalarToken(context: Context) {
         PreferenceManager.getDefaultSharedPreferences(context).edit {
-            putString("SCALAR_TOKEN_PREFERENCE_KEY" + Matrix.getInstance(context).defaultSession.myUserId, "bad_token")
+            Matrix.getInstance(context).defaultTchapSession?.let {
+                putString("SCALAR_TOKEN_PREFERENCE_KEY" + it.mainSession.myUserId, "bad_token")
+                it.shadowSession?.let {
+                    putString("SCALAR_TOKEN_PREFERENCE_KEY" + it.myUserId, "bad_token")
+                }
+            }
         }
     }
 
