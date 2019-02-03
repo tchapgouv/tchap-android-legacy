@@ -104,7 +104,7 @@ public class VectorRoomsSelectionAdapter extends ArrayAdapter<RoomSummary> {
         View separatorView = convertView.findViewById(R.id.recents_separator);
 
         // Retrieve the room avatar and name
-        TchapRoom tchapRoom = mTchapSession.getRoomWithId(roomSummary.getRoomId());
+        TchapRoom tchapRoom = mTchapSession.getRoom(roomSummary.getRoomId());
         if (null != tchapRoom) {
             // display the room avatar
             VectorUtils.loadRoomAvatar(mContext, tchapRoom.getSession(), avatarImageView, tchapRoom.getRoom());

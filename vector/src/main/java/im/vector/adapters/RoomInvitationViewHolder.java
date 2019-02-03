@@ -21,10 +21,9 @@ package im.vector.adapters;
 import android.content.Context;
 import android.view.View;
 import android.widget.Button;
-import org.matrix.androidsdk.MXSession;
-import org.matrix.androidsdk.data.Room;
 
 import butterknife.BindView;
+import fr.gouv.tchap.model.TchapRoom;
 import im.vector.R;
 
 
@@ -41,19 +40,18 @@ public class RoomInvitationViewHolder extends RoomViewHolder {
     }
 
     void populateViews(final Context context,
-                       final MXSession session,
-                       final Room room,
+                       final TchapRoom tchapRoom,
                        final AbsAdapter.RoomInvitationListener invitationListener,
                        final AbsAdapter.MoreRoomActionListener moreRoomActionListener) {
         // Caution, we have to consider here isDirect() instead of isDirectChatInvitation(),
         // in order to handle correctly the case where the user where invited again in an existing direct chat.
-        super.populateViews(context, session, room, room.isDirect(), true, moreRoomActionListener);
+        super.populateViews(context, tchapRoom, tchapRoom.isDirect(), true, moreRoomActionListener);
 
         vJoinButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (null != invitationListener) {
-                    invitationListener.onJoinRoom(session, room.getRoomId());
+                    invitationListener.onJoinRoom(tchapRoom.getSession(), tchapRoom.roomId());
                 }
             }
         });
@@ -62,7 +60,7 @@ public class RoomInvitationViewHolder extends RoomViewHolder {
             @Override
             public void onClick(View v) {
                 if (null != invitationListener) {
-                    invitationListener.onRejectInvitation(session, room.getRoomId());
+                    invitationListener.onRejectInvitation(tchapRoom.getSession(), tchapRoom.roomId());
                 }
             }
         });

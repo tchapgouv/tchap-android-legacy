@@ -40,6 +40,7 @@ import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import fr.gouv.tchap.model.TchapRoom;
 import fr.gouv.tchap.util.DinsicUtils;
 import fr.gouv.tchap.util.HexagonMaskView;
 import im.vector.R;
@@ -110,33 +111,29 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
     /**
      * Refresh the holder layout
      *
-     * @param room                   the room
+     * @param tchapRoom                   the room
      * @param isDirectChat           true when the room is a direct chat one
      * @param isInvitation           true when the room is an invitation one
      * @param moreRoomActionListener
      */
     public void populateViews(final Context context,
-                              final MXSession session,
-                              final Room room,
+                              final TchapRoom tchapRoom,
                               final boolean isDirectChat,
                               final boolean isInvitation,
                               final AbsAdapter.MoreRoomActionListener moreRoomActionListener) {
         // sanity check
-        if (null == room) {
+        if (null == tchapRoom) {
             Log.e(LOG_TAG, "## populateViews() : null room");
             return;
         }
 
-        if (null == session) {
-            Log.e(LOG_TAG, "## populateViews() : null session");
-            return;
-        }
-
+        MXSession session = tchapRoom.getSession();
         if (null == session.getDataHandler()) {
             Log.e(LOG_TAG, "## populateViews() : null dataHandler");
             return;
         }
 
+        final Room room = tchapRoom.getRoom();
         IMXStore store = session.getDataHandler().getStore(room.getRoomId());
 
         if (null == store) {
@@ -280,7 +277,7 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
                         // We have overridden onMoreActionClick by onTchapMoreActionClick
                         // in order to set the visibility of the vRoomNotificationMute on the notification option click
                         // in RoomUtils.
-                        moreRoomActionListener.onTchapMoreActionClick(vRoomMoreActionAnchor, room, vRoomNotificationMute);
+                        moreRoomActionListener.onTchapMoreActionClick(vRoomMoreActionAnchor, tchapRoom, vRoomNotificationMute);
                     }
                 }
             });

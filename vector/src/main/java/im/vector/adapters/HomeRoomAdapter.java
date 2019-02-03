@@ -30,13 +30,14 @@ import org.matrix.androidsdk.data.Room;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.gouv.tchap.model.TchapRoom;
 import im.vector.R;
 import im.vector.util.RoomUtils;
 
 public class HomeRoomAdapter extends AbsFilterableAdapter<RoomViewHolder> {
     private final int mLayoutRes;
-    private final List<Room> mRooms;
-    private final List<Room> mFilteredRooms;
+    private final List<TchapRoom> mRooms;
+    private final List<TchapRoom> mFilteredRooms;
     private final OnSelectRoomListener mListener;
 
     private final AbsAdapter.MoreRoomActionListener mMoreActionListener;
@@ -79,12 +80,12 @@ public class HomeRoomAdapter extends AbsFilterableAdapter<RoomViewHolder> {
     public void onBindViewHolder(final RoomViewHolder viewHolder, int position) {
         // reported by a rage shake
         if (position < mFilteredRooms.size()) {
-            final Room room = mFilteredRooms.get(position);
+            final TchapRoom room = mFilteredRooms.get(position);
             if (mLayoutRes == R.layout.adapter_item_room_invite) {
                 final RoomInvitationViewHolder invitationViewHolder = (RoomInvitationViewHolder) viewHolder;
-                invitationViewHolder.populateViews(mContext, mSession, room, mRoomInvitationListener, mMoreActionListener);
+                invitationViewHolder.populateViews(mContext, room, mRoomInvitationListener, mMoreActionListener);
             } else {
-                viewHolder.populateViews(mContext, mSession, room, room.isDirect(), false, mMoreActionListener);
+                viewHolder.populateViews(mContext, room, room.isDirect(), false, mMoreActionListener);
                 viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -142,7 +143,7 @@ public class HomeRoomAdapter extends AbsFilterableAdapter<RoomViewHolder> {
      * @param rooms the new room list
      */
     @CallSuper
-    public void setRooms(final List<Room> rooms) {
+    public void setRooms(final List<TchapRoom> rooms) {
         if (rooms != null) {
             mRooms.clear();
             mRooms.addAll(rooms);
@@ -157,7 +158,7 @@ public class HomeRoomAdapter extends AbsFilterableAdapter<RoomViewHolder> {
      * @param position the position
      * @return the item
      */
-    public Room getRoom(int position) {
+    public TchapRoom getRoom(int position) {
         if (position < mRooms.size()) {
             return mRooms.get(position);
         }
@@ -190,7 +191,9 @@ public class HomeRoomAdapter extends AbsFilterableAdapter<RoomViewHolder> {
      */
     public int getBadgeCount() {
         int badgeCount = 0;
-        for (Room room : mFilteredRooms) {
+        for (TchapRoom tchapRoom : mFilteredRooms) {
+            Room room = tchapRoom.getRoom();
+
             // sanity checks : reported by GA
             if (null != room.getDataHandler() && (null != room.getDataHandler().getBingRulesManager())) {
                 if (room.getDataHandler().getBingRulesManager().isRoomMentionOnly(room.getRoomId())) {
@@ -226,8 +229,8 @@ public class HomeRoomAdapter extends AbsFilterableAdapter<RoomViewHolder> {
      */
 
     public interface OnSelectRoomListener {
-        void onSelectRoom(Room room, int position);
+        void onSelectRoom(TchapRoom room, int position);
 
-        void onLongClickRoom(View v, Room room, int position);
+        void onLongClickRoom(View v, TchapRoom room, int position);
     }
 }

@@ -964,7 +964,7 @@ public class CommonActivityUtils {
         }
         for (int index = 0; index < mergedSummaries.size(); index++) {
             RoomSummary summary = mergedSummaries.get(index);
-            TchapRoom tchapRoom = tchapSession.getRoomWithId(summary.getRoomId());
+            TchapRoom tchapRoom = tchapSession.getRoom(summary.getRoomId());
 
             if ((null == tchapRoom) || tchapRoom.getRoom().isInvited() || tchapRoom.getRoom().isConferenceUserRoom()) {
                 mergedSummaries.remove(index);
@@ -1009,7 +1009,7 @@ public class CommonActivityUtils {
                                     @Override
                                     public void run() {
                                         RoomSummary summary = fMergedSummaries.get(which);
-                                        TchapRoom tchapRoom = tchapSession.getRoomWithId(summary.getRoomId());
+                                        TchapRoom tchapRoom = tchapSession.getRoom(summary.getRoomId());
                                         if (tchapRoom != null) {
                                             MXSession session = tchapRoom.getSession();
 

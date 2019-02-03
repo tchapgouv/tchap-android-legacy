@@ -248,7 +248,7 @@ public class TchapPublicRoomsFragment extends VectorBaseFragment {
 
             // Check whether the room exists to handled the cases where the user is invited or he has joined.
             // CAUTION: the room may exist whereas the user membership is neither invited nor joined.
-            final TchapRoom tchapRoom = mTchapSession.getRoomWithId(publicRoom.roomId);
+            final TchapRoom tchapRoom = mTchapSession.getRoom(publicRoom.roomId);
             if (tchapRoom != null && tchapRoom.getRoom().isInvited()) {
                 Log.d(LOG_TAG, "manageRoom : the user is invited -> display the preview " + getActivity());
                 CommonActivityUtils.previewRoom(getActivity(), roomPreviewData);

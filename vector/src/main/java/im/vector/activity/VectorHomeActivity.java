@@ -122,6 +122,9 @@ import butterknife.BindView;
 import fr.gouv.tchap.activity.TchapLoginActivity;
 import fr.gouv.tchap.activity.TchapRoomCreationActivity;
 import fr.gouv.tchap.activity.TchapPublicRoomSelectionActivity;
+import fr.gouv.tchap.model.TchapRoom;
+import fr.gouv.tchap.model.TchapRoomSummary;
+import fr.gouv.tchap.model.TchapSession;
 import fr.gouv.tchap.util.LiveSecurityChecks;
 
 import butterknife.OnClick;
@@ -235,7 +238,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
     // sliding menu management
     private int mSlidingMenuIndex = -1;
 
-    private MXSession mSession;
+    private TchapSession mTchapSession;
 
     private HomeRoomsViewModel mRoomsViewModel;
 
@@ -341,8 +344,8 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
 
         initSlidingMenu();
 
-        mSession = Matrix.getInstance(this).getDefaultSession();
-        mRoomsViewModel = new HomeRoomsViewModel(mSession);
+        mTchapSession = Matrix.getInstance(this).getDefaultTchapSession();
+        mRoomsViewModel = new HomeRoomsViewModel(mTchapSession);
         // track if the application update
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         int version = preferences.getInt(PreferencesManager.VERSION_BUILD, 0);
@@ -431,9 +434,9 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
                     // it is a room ID ?
                     if (MXPatterns.isRoomId(roomIdOrAlias)) {
                         Log.d(LOG_TAG, "Has a valid universal link to the room ID " + roomIdOrAlias);
-                        Room room = mSession.getDataHandler().getRoom(roomIdOrAlias, false);
+                        TchapRoom tchapRoom = mTchapSession.getRoom(roomIdOrAlias);
 
-                        if (null != room) {
+                        if (null != tchapRoom) {
                             Log.d(LOG_TAG, "Has a valid universal link to a known room");
                             // open the room asap
                             mUniversalLinkToOpen = uri;
@@ -449,7 +452,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
 
                         // it is a room alias
                         // convert the room alias to room Id
-                        mSession.getDataHandler().roomIdByAlias(roomIdOrAlias, new SimpleApiCallback<String>() {
+                        mTchapSession.roomIdByAlias(roomIdOrAlias, new SimpleApiCallback<String>() {
                             @Override
                             public void onSuccess(String roomId) {
                                 Log.d(LOG_TAG, "Retrieve the room ID " + roomId);
@@ -457,7 +460,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
                                 getIntent().putExtra(VectorUniversalLinkReceiver.EXTRA_UNIVERSAL_LINK_URI, uri);
 
                                 // the room exists, opens it
-                                if (null != mSession.getDataHandler().getRoom(roomId, false)) {
+                                if (null != mTchapSession.getRoom(roomId)) {
                                     Log.d(LOG_TAG, "Find the room from room ID : process it");
                                     processIntentUniversalLink();
                                 } else {
@@ -475,7 +478,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
                 final Intent sharedFilesIntent = intent.getParcelableExtra(EXTRA_SHARED_INTENT_PARAMS);
                 Log.d(LOG_TAG, "Has shared intent");
 
-                if (mSession.getDataHandler().getStore().isReady()) {
+                if (mTchapSession.isReady()) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -540,7 +543,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
         Intent intent = getIntent();
 
         if (null != mAutomaticallyOpenedRoomParams) {
-            CommonActivityUtils.goToRoomPage(VectorHomeActivity.this, mSession, mAutomaticallyOpenedRoomParams);
+            CommonActivityUtils.goToRoomPage(VectorHomeActivity.this, null, mAutomaticallyOpenedRoomParams);
             mAutomaticallyOpenedRoomParams = null;
         }
 
@@ -557,7 +560,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
             }, 100);
         }
 
-        if (mSession.isAlive()) {
+        if (mTchapSession.isAlive()) {
             addEventsListener();
         }
 
@@ -595,7 +598,8 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
         if (null != mMemberIdToOpen) {
             Intent startRoomInfoIntent = new Intent(VectorHomeActivity.this, VectorMemberDetailsActivity.class);
             startRoomInfoIntent.putExtra(VectorMemberDetailsActivity.EXTRA_MEMBER_ID, mMemberIdToOpen);
-            startRoomInfoIntent.putExtra(VectorMemberDetailsActivity.EXTRA_MATRIX_ID, mSession.getCredentials().userId);
+            // FIXME MULTI-ACCOUNT: There is no reason to use here the main session without considering the potential shadow session.
+            startRoomInfoIntent.putExtra(VectorMemberDetailsActivity.EXTRA_MATRIX_ID, mTchapSession.getMainSession().getCredentials().userId);
             startActivity(startRoomInfoIntent);
             mMemberIdToOpen = null;
         }
@@ -603,7 +607,8 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
         if (null != mGroupIdToOpen) {
             Intent groupIntent = new Intent(VectorHomeActivity.this, VectorGroupDetailsActivity.class);
             groupIntent.putExtra(VectorGroupDetailsActivity.EXTRA_GROUP_ID, mGroupIdToOpen);
-            groupIntent.putExtra(VectorGroupDetailsActivity.EXTRA_MATRIX_ID, mSession.getCredentials().userId);
+            // FIXME MULTI-ACCOUNT: There is no reason to use here the main session without considering the potential shadow session.
+            groupIntent.putExtra(VectorGroupDetailsActivity.EXTRA_MATRIX_ID, mTchapSession.getMainSession().getCredentials().userId);
             startActivity(groupIntent);
             mGroupIdToOpen = null;
         }
@@ -614,9 +619,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
         getTheme().resolveAttribute(R.attr.vctr_riot_primary_background_color, vectorActionBarColor, true);
         mToolbar.setBackgroundResource(vectorActionBarColor.resourceId);
 
-        checkDeviceId();
-
-        mSyncInProgressView.setVisibility(VectorApp.isSessionSyncing(mSession) ? View.VISIBLE : View.GONE);
+        mSyncInProgressView.setVisibility(VectorApp.isSessionSyncing(mTchapSession.getMainSession()) ? View.VISIBLE : View.GONE);
 
         displayCryptoCorruption();
 
@@ -808,7 +811,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
             Log.e(LOG_TAG, "## onPause() : unregisterReceiver fails " + e.getMessage(), e);
         }
 
-        if (mSession.isAlive()) {
+        if (mTchapSession.isAlive()) {
             removeEventsListener();
         }
 
@@ -1172,7 +1175,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
             public void onMenuExpanded() {
                 // ignore any action if there is a pending one
                 if (!isWaitingViewVisible()) {
-                    if (!TchapLoginActivity.isUserExternal(mSession)) {
+                    if (!TchapLoginActivity.isUserExternal(mTchapSession.getMainSession())) {
                         touchGuard.animate().alpha(0.6f);
 
                         touchGuard.setClickable(true);
@@ -1310,7 +1313,9 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
      * Display an alert to warn the user that some crypto data is corrupted.
      */
     private void displayCryptoCorruption() {
-        if ((null != mSession) && (null != mSession.getCrypto()) && mSession.getCrypto().isCorrupted()) {
+        if ((null != mTchapSession)
+                && (null != mTchapSession.getMainSession().getCrypto())
+                && mTchapSession.getMainSession().getCrypto().isCorrupted()) {
             final String isFirstCryptoAlertKey = "isFirstCryptoAlertKey";
 
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -1471,12 +1476,36 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
     /**
      * Open the room creation with inviting people.
      */
-    public void createNewChat(VectorRoomInviteMembersActivity.ActionMode mode, VectorRoomInviteMembersActivity.ContactsFilter contactsFilter) {
-        Intent intent = new Intent(VectorHomeActivity.this, VectorRoomInviteMembersActivity.class);
-        intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
+    public void createNewDirectChat(VectorRoomInviteMembersActivity.ActionMode mode, VectorRoomInviteMembersActivity.ContactsFilter contactsFilter) {
+        final Intent intent = new Intent(VectorHomeActivity.this, VectorRoomInviteMembersActivity.class);
         intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_ACTION_ACTIVITY_MODE, mode);
         intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, contactsFilter);
-        startActivity(intent);
+
+        // Check whether a shadow session is running
+        if (mTchapSession.getShadowSession() != null) {
+            // Prompt the user to know which session we have to use.
+            new AlertDialog.Builder(this)
+                    .setMessage(R.string.tchap_account_selection_message)
+                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_MATRIX_ID, mTchapSession.getMainSession().getMyUserId());
+                            startActivity(intent);
+                        }
+                    })
+                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_MATRIX_ID, mTchapSession.getShadowSession().getMyUserId());
+                            startActivity(intent);
+                        }
+                    })
+                    .show();
+        } else {
+            // Use the main session by default
+            intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_MATRIX_ID, mTchapSession.getMainSession().getMyUserId());
+            startActivity(intent);
+        }
     }
 
     /*
@@ -1486,51 +1515,54 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
      */
 
     @NonNull
-    public List<Room> getRoomInvitations() {
-        List<Room> directChatInvitations = new ArrayList<>();
-        List<Room> roomInvitations = new ArrayList<>();
+    public List<TchapRoom> getRoomInvitations() {
+        List<TchapRoom> roomInvitations = new ArrayList<>();
+        MXSession session = mTchapSession.getMainSession();
+        boolean isProtected = mTchapSession.getConfig().getHasProtectedAccess();
 
-        if (null == mSession.getDataHandler().getStore()) {
+        if (null == session.getDataHandler().getStore()) {
             Log.e(LOG_TAG, "## getRoomInvitations() : null store");
             return new ArrayList<>();
         }
 
-        Collection<RoomSummary> roomSummaries = mSession.getDataHandler().getStore().getSummaries();
+        Collection<RoomSummary> roomSummaries = session.getDataHandler().getStore().getSummaries();
         for (RoomSummary roomSummary : roomSummaries) {
             // reported by rageshake
             // i don't see how it is possible to have a null roomSummary
             if (null != roomSummary) {
-                String roomSummaryId = roomSummary.getRoomId();
-                Room room = mSession.getDataHandler().getStore().getRoom(roomSummaryId);
+                Room room = session.getDataHandler().getStore().getRoom(roomSummary.getRoomId());
 
                 // check if the room exists
                 // the user conference rooms are not displayed.
                 if (room != null && !room.isConferenceUserRoom() && room.isInvited()) {
-                    if (room.isDirectChatInvitation() || room.isDirect()) {
-                        directChatInvitations.add(room);
-                    } else {
-                        roomInvitations.add(room);
+                    TchapRoom tchapRoom = new TchapRoom(room, session, isProtected);
+                    roomInvitations.add(tchapRoom);
+                }
+            }
+        }
+
+        // Consider now the potential shadow session
+        session = mTchapSession.getShadowSession();
+        if (session != null) {
+            roomSummaries = session.getDataHandler().getStore().getSummaries();
+            for (RoomSummary roomSummary : roomSummaries) {
+                if (null != roomSummary) {
+                    Room room = session.getDataHandler().getStore().getRoom(roomSummary.getRoomId());
+
+                    // check if the room exists
+                    // the user conference rooms are not displayed.
+                    if (room != null && !room.isConferenceUserRoom() && room.isInvited()) {
+                        TchapRoom tchapRoom = new TchapRoom(room, session, false);
+                        roomInvitations.add(tchapRoom);
                     }
                 }
             }
         }
 
         // the invitations are sorted from the oldest to the more recent one
-        Comparator<Room> invitationComparator = RoomUtils.getRoomsDateComparator(mSession, true);
-        Collections.sort(directChatInvitations, invitationComparator);
+        Comparator<TchapRoom> invitationComparator = RoomUtils.getRoomsDateComparator( true);
         Collections.sort(roomInvitations, invitationComparator);
-
-        List<Room> roomInvites = new ArrayList<>();
-        switch (mCurrentMenuId) {
-            case TAB_POSITION_CONVERSATION:
-                roomInvites.addAll(directChatInvitations);
-                roomInvites.addAll(roomInvitations);
-                break;
-            default:
-                break;
-        }
-
-        return roomInvites;
+        return roomInvitations;
     }
 
     // Tchap: The room preview is disabled, this option is replaced by "join the room".
@@ -1542,7 +1574,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
             roomAlias = room.getState().getCanonicalAlias();
         }
 
-        final RoomPreviewData roomPreviewData = new RoomPreviewData(mSession, roomId, null, roomAlias, null);
+        final RoomPreviewData roomPreviewData = new RoomPreviewData(session, roomId, null, roomAlias, null);
         showWaitingView();
         DinsicUtils.joinRoom(roomPreviewData, new ApiCallback<Void>() {
             @Override
@@ -1582,16 +1614,17 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
     /**
      * Create the room forget / leave callback
      *
+     * @param session           the matrix session
      * @param roomId            the room id
      * @param onSuccessCallback the success callback
      * @return the asynchronous callback
      */
-    private ApiCallback<Void> createForgetLeaveCallback(final String roomId, final ApiCallback<Void> onSuccessCallback) {
+    private ApiCallback<Void> createForgetLeaveCallback(final MXSession session, final String roomId, final ApiCallback<Void> onSuccessCallback) {
         return new ApiCallback<Void>() {
             @Override
             public void onSuccess(Void info) {
                 // clear any pending notification for this room
-                EventStreamService.cancelNotificationsForRoomId(mSession.getMyUserId(), roomId);
+                EventStreamService.cancelNotificationsForRoomId(session.getMyUserId(), roomId);
                 hideWaitingView();
 
                 if (null != onSuccessCallback) {
@@ -1633,11 +1666,11 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
      * @param onSuccessCallback the success asynchronous callback
      */
     public void onForgetRoom(final String roomId, final ApiCallback<Void> onSuccessCallback) {
-        Room room = mSession.getDataHandler().getRoom(roomId);
+        TchapRoom tchapRoom = mTchapSession.getRoom(roomId);
 
-        if (null != room) {
+        if (null != tchapRoom) {
             showWaitingView();
-            room.forget(createForgetLeaveCallback(roomId, onSuccessCallback));
+            tchapRoom.getRoom().forget(createForgetLeaveCallback(tchapRoom.getSession(), roomId, onSuccessCallback));
         }
     }
 
@@ -1648,11 +1681,11 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
      * @param onSuccessCallback the success asynchronous callback
      */
     public void onRejectInvitation(final String roomId, final ApiCallback<Void> onSuccessCallback) {
-        Room room = mSession.getDataHandler().getRoom(roomId);
+        TchapRoom tchapRoom = mTchapSession.getRoom(roomId);
 
-        if (null != room) {
+        if (null != tchapRoom) {
             showWaitingView();
-            room.leave(createForgetLeaveCallback(roomId, onSuccessCallback));
+            tchapRoom.getRoom().leave(createForgetLeaveCallback(tchapRoom.getSession(), roomId, onSuccessCallback));
         }
     }
 
@@ -1704,7 +1737,8 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
             public void onClick(View v) {
                 showWaitingView();
 
-                CommonActivityUtils.exportKeys(mSession, passPhrase1EditText.getText().toString(), new SimpleApiCallback<String>(VectorHomeActivity.this) {
+                // FIXME MULTI-ACCOUNT: Support keys export for the shadow session if any
+                CommonActivityUtils.exportKeys(mTchapSession.getMainSession(), passPhrase1EditText.getText().toString(), new SimpleApiCallback<String>(VectorHomeActivity.this) {
 
                     @Override
                     public void onSuccess(final String filename) {
@@ -1755,7 +1789,8 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
 
                     case R.id.sliding_menu_settings:
                         // launch the settings activity
-                        startActivity(VectorSettingsActivity.getIntent(VectorHomeActivity.this, mSession.getMyUserId()));
+                        // FIXME MULTI-ACCOUNT: Handle multi sessions in settings
+                        startActivity(VectorSettingsActivity.getIntent(VectorHomeActivity.this, mTchapSession.getMainSession().getMyUserId()));
                         break;
 
                     /* case R.id.sliding_copyright_terms:
@@ -1852,18 +1887,20 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
             infoMenuItem.setText(info);
         }
 
+        MXSession mainSession = mTchapSession.getMainSession();
+
         // Display name in the header of the burger menu
         TextView displayNameTextView = navigationView.findViewById(R.id.home_menu_main_displayname);
         if (null != displayNameTextView) {
-            displayNameTextView.setText(DinsicUtils.getNameFromDisplayName(mSession.getMyUser().displayname));
+            displayNameTextView.setText(DinsicUtils.getNameFromDisplayName(mainSession.getMyUser().displayname));
         }
 
         TextView userIdTextView = navigationView.findViewById(R.id.home_menu_main_matrix_id);
-        if (null != userIdTextView && null != mSession) {
+        if (null != userIdTextView && null != mainSession) {
             // Note the user's email is retrieved by a server request here
             // It is not available when the device is offline
             // TODO store this email locally with the user's credentials
-            List<org.matrix.androidsdk.rest.model.pid.ThirdPartyIdentifier> emailslist = mSession.getMyUser().getlinkedEmails();
+            List<org.matrix.androidsdk.rest.model.pid.ThirdPartyIdentifier> emailslist = mainSession.getMyUser().getlinkedEmails();
             if (emailslist != null)
                 if (emailslist.size() != 0)
                     userIdTextView.setText(emailslist.get(0).address);
@@ -1872,7 +1909,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
         ImageView mainAvatarView = navigationView.findViewById(R.id.home_menu_main_avatar);
 
         if (null != mainAvatarView) {
-            VectorUtils.loadUserAvatar(this, mSession, mainAvatarView, mSession.getMyUser());
+            VectorUtils.loadUserAvatar(this, mainSession, mainAvatarView, mainSession.getMyUser());
 
             mainAvatarView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -1967,7 +2004,9 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
         @Override
         public void onReceiptEvent(String roomId, List<String> senderIds) {
             // refresh only if the current user read some messages (to update the unread messages counters)
-            mRefreshBadgeOnChunkEnd |= (senderIds.indexOf(mSession.getCredentials().userId) >= 0);
+            for (MXSession session: mTchapSession.getSessions()) {
+                mRefreshBadgeOnChunkEnd |= (senderIds.indexOf(session.getCredentials().userId) >= 0);
+            }
         }
 
         @Override
@@ -2000,7 +2039,9 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
      * Add the badge events listener
      */
     private void addBadgeEventsListener() {
-        mSession.getDataHandler().addListener(mBadgeEventsListener);
+        for (MXSession session: mTchapSession.getSessions()) {
+            session.getDataHandler().addListener(mBadgeEventsListener);
+        }
         refreshUnreadBadges();
     }
 
@@ -2008,7 +2049,9 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
      * Remove the badge events listener
      */
     private void removeBadgeEventsListener() {
-        mSession.getDataHandler().removeListener(mBadgeEventsListener);
+        for (MXSession session: mTchapSession.getSessions()) {
+            session.getDataHandler().removeListener(mBadgeEventsListener);
+        }
     }
 
     /**
@@ -2041,110 +2084,61 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
      * Refresh the badges
      */
     public void refreshUnreadBadges() {
-        MXDataHandler dataHandler = mSession.getDataHandler();
+        int roomCount = unreadRoomsCount(mTchapSession.getMainSession());
+        if (roomCount != -1) {
+            if (mTchapSession.getShadowSession() != null) {
+                int shadowRoomCount = unreadRoomsCount(mTchapSession.getShadowSession());
+                if (shadowRoomCount > 0) {
+                    roomCount += shadowRoomCount;
+                }
+            }
+
+            //always highligted
+            mBadgeViewByIndex.get(TAB_POSITION_CONVERSATION).updateCounter(roomCount, UnreadCounterBadgeView.HIGHLIGHTED);
+        }
+    }
+
+    private int unreadRoomsCount(MXSession session) {
+        MXDataHandler dataHandler = session.getDataHandler();
         // fix a crash reported by GA
         if (null == dataHandler) {
-            return;
+            return -1;
         }
 
         IMXStore store = dataHandler.getStore();
         // fix a crash reported by GA
         if (null == store) {
-            return;
+            return -1;
         }
 
         BingRulesManager bingRulesManager = dataHandler.getBingRulesManager();
         Collection<RoomSummary> summaries2 = store.getSummaries();
-        Map<Room, RoomSummary> roomSummaryByRoom = new HashMap<>();
-        Set<String> directChatInvitations = new HashSet<>();
+
+        // compute the unread room count
+        int roomCount = 0;
 
         for (RoomSummary summary : summaries2) {
-            Room room = store.getRoom(summary.getRoomId());
+            String roomId = summary.getRoomId();
+            Room room = store.getRoom(roomId);
 
-            if (null != room) {
-                roomSummaryByRoom.put(room, summary);
+            if (null != room && !room.isConferenceUserRoom()) {
+                if (room.isInvited()) {
+                    roomCount++;
+                } else {
+                    int notificationCount = room.getNotificationCount();
 
-                if (!room.isConferenceUserRoom() && room.isInvited() && room.isDirectChatInvitation()) {
-                    directChatInvitations.add(room.getRoomId());
-                }
-            }
-        }
+                    if (bingRulesManager.isRoomMentionOnly(roomId)) {
+                        notificationCount = room.getHighlightCount();
+                    }
 
-        Set<Integer> menuIndexes = new HashSet<>(mBadgeViewByIndex.keySet());
-        for (Integer id : menuIndexes) {
-            // Only the Conversation tab has an unread badge.
-            if (id == TAB_POSITION_CONVERSATION) {
-                // use a map because contains is faster
-                HashSet<String> filteredRoomIdsSet = new HashSet<>();
-
-                for (Room room : roomSummaryByRoom.keySet()) {
-                    // not a VOIP conference room
-                    if (!room.isConferenceUserRoom()) {
-                        filteredRoomIdsSet.add(room.getRoomId());
+                    if (notificationCount > 0) {
+                        roomCount++;
                     }
                 }
-
-                // compute the badge value and its displays
-                int roomCount = 0;
-
-                for (String roomId : filteredRoomIdsSet) {
-                    Room room = store.getRoom(roomId);
-
-                    if (null != room) {
-                        if (room.isInvited()) {
-                            roomCount++;
-                        } else {
-                            int notificationCount = room.getNotificationCount();
-
-                            if (bingRulesManager.isRoomMentionOnly(roomId)) {
-                                notificationCount = room.getHighlightCount();
-                            }
-
-                            if (notificationCount > 0) {
-                                roomCount++;
-                            }
-                        }
-                    }
-                }
-
-                //always highligted
-                mBadgeViewByIndex.get(id).updateCounter(roomCount, UnreadCounterBadgeView.HIGHLIGHTED);
             }
         }
-    }
 
-    //==============================================================================================================
-    // encryption
-    //==============================================================================================================
-
-    private static final String NO_DEVICE_ID_WARNING_KEY = "NO_DEVICE_ID_WARNING_KEY";
-
-    /**
-     * In case of the app update for the e2e encryption, the app starts with no device id provided by the homeserver.
-     * Ask the user to login again in order to enable e2e. Ask it once
-     */
-    private void checkDeviceId() {
-        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-
-        if (preferences.getBoolean(NO_DEVICE_ID_WARNING_KEY, true)) {
-            preferences
-                    .edit()
-                    .putBoolean(NO_DEVICE_ID_WARNING_KEY, false)
-                    .apply();
-
-            if (TextUtils.isEmpty(mSession.getCredentials().deviceId)) {
-                new AlertDialog.Builder(VectorHomeActivity.this)
-                        .setMessage(R.string.e2e_enabling_on_app_update)
-                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                CommonActivityUtils.logout(VectorHomeActivity.this);
-                            }
-                        })
-                        .setNegativeButton(R.string.later, null)
-                        .show();
-            }
-        }
+        return roomCount;
     }
 
     /* ==========================================================================================
@@ -2161,7 +2155,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
         mFloatingActionsMenu.collapse();
         // Create a new direct chat with an existing tchap user
         // Multi-selection will be disabled
-        createNewChat(VectorRoomInviteMembersActivity.ActionMode.START_DIRECT_CHAT, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY);
+        createNewDirectChat(VectorRoomInviteMembersActivity.ActionMode.START_DIRECT_CHAT, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY);
     }
 
     @OnClick(R.id.button_create_room)
@@ -2169,7 +2163,31 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
         mFloatingActionsMenu.collapse();
         // Launch the new screen to create an empty room
         final Intent intent = new Intent(VectorHomeActivity.this, TchapRoomCreationActivity.class);
-        startActivity(intent);
+        // Check whether a shadow session is running
+        if (mTchapSession.getShadowSession() != null) {
+            // Prompt the user to know which session we have to use.
+            new AlertDialog.Builder(this)
+                    .setMessage(R.string.tchap_account_selection_message)
+                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            intent.putExtra(TchapRoomCreationActivity.EXTRA_MATRIX_ID, mTchapSession.getMainSession().getMyUserId());
+                            startActivity(intent);
+                        }
+                    })
+                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            intent.putExtra(TchapRoomCreationActivity.EXTRA_MATRIX_ID, mTchapSession.getShadowSession().getMyUserId());
+                            startActivity(intent);
+                        }
+                    })
+                    .show();
+        } else {
+            // Use the main session by default
+            intent.putExtra(TchapRoomCreationActivity.EXTRA_MATRIX_ID, mTchapSession.getMainSession().getMyUserId());
+            startActivity(intent);
+        }
     }
 
     @OnClick(R.id.button_join_room)
@@ -2250,7 +2268,9 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
             @Override
             public void onReceiptEvent(String roomId, List<String> senderIds) {
                 // refresh only if the current user read some messages (to update the unread messages counters)
-                mRefreshOnChunkEnd |= (senderIds.indexOf(mSession.getCredentials().userId) >= 0);
+                for (MXSession session: mTchapSession.getSessions()) {
+                    mRefreshOnChunkEnd |= (senderIds.indexOf(session.getCredentials().userId) >= 0);
+                }
             }
 
             @Override
@@ -2271,8 +2291,9 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
 
             @Override
             public void onLeaveRoom(final String roomId) {
+                // FIXME MULTI-ACCOUNT: Support tchapSession to handle notifications in EventStreamService.
                 // clear any pending notification for this room
-                EventStreamService.cancelNotificationsForRoomId(mSession.getMyUserId(), roomId);
+                EventStreamService.cancelNotificationsForRoomId(mTchapSession.getMainSession().getMyUserId(), roomId);
                 onForceRefresh();
             }
 
@@ -2293,11 +2314,10 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
 
             @Override
             public void onEventDecrypted(Event event) {
-                RoomSummary summary = mSession.getDataHandler().getStore().getSummary(event.roomId);
-
-                if (null != summary) {
+                TchapRoomSummary tchapRoomSummary = mTchapSession.getSummary(event.roomId);
+                if (null != tchapRoomSummary) {
                     // test if the latest event is refreshed
-                    Event latestReceivedEvent = summary.getLatestReceivedEvent();
+                    Event latestReceivedEvent = tchapRoomSummary.getSummary().getLatestReceivedEvent();
                     if ((null != latestReceivedEvent) && TextUtils.equals(latestReceivedEvent.eventId, event.eventId)) {
                         onRoomDataUpdated();
                     }
@@ -2305,15 +2325,19 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
             }
         };
 
-        mSession.getDataHandler().addListener(mEventsListener);
+        for (MXSession session: mTchapSession.getSessions()) {
+            session.getDataHandler().addListener(mEventsListener);
+        }
     }
 
     /**
      * Remove the MXEventListener to the session listeners.
      */
     private void removeEventsListener() {
-        if (mSession.isAlive()) {
-            mSession.getDataHandler().removeListener(mEventsListener);
+        if (mTchapSession.isAlive()) {
+            for (MXSession session: mTchapSession.getSessions()) {
+                session.getDataHandler().removeListener(mEventsListener);
+            }
         }
     }
 }

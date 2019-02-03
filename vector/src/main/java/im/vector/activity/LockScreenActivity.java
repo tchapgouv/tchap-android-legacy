@@ -124,6 +124,11 @@ public class LockScreenActivity extends VectorAppCompatActivity { // do NOT exte
         }
 
         final MXSession session = Matrix.getInstance(this).getSession(matrixId);
+        if (session == null) {
+            finish();
+            return;
+        }
+
         final Room room = session.getDataHandler().getRoom(roomId);
 
         // display the room name as title
