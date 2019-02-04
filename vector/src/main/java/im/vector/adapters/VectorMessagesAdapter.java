@@ -2231,7 +2231,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                 } else {
                     e2eIconView.setImageResource((int) icon);
                     if ((int) icon == R.drawable.e2e_verified) {
-                        e2eIconView.setImageDrawable(ThemeUtils.INSTANCE.tintDrawable(getContext(), e2eIconView.getDrawable(), R.attr.vctr_default_icon_tint_color));
+                        e2eIconView.setImageDrawable(ThemeUtils.INSTANCE.tintDrawable(getContext(), e2eIconView.getDrawable(), R.attr.padlock_icon_tint_color));
                     }
                 }
 

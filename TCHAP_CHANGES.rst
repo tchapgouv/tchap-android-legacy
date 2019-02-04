@@ -1,3 +1,13 @@
+Changes in Tchap 1.0.17 (2019-01-25)
+===================================================
+
+Improvements:
+ * Adjust some points on Android project configuration PR #404
+ * Display the padlock in dark red color for the protected target #414
+ 
+Bug Fix:
+ * The Terms And Conditions are not available anymore (PR #412).
+
 Changes in Tchap 1.0.15 (2019-01-11)
 ===================================================
 
