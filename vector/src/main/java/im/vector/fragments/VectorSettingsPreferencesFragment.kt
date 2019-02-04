@@ -2807,8 +2807,8 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
      * ========================================================================================== */
 
     private fun isHomeServerProtected(): Boolean {
-        // TODO replace by correct code.
-        return true
+        // The external users could not be hidden from the users directory search
+        return !DinsicUtils.isExternalTchapSession(mSession);
     }
 
     private fun refreshUsersDirectoryVisibility() {

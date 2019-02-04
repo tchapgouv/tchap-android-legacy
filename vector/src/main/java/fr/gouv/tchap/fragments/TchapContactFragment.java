@@ -49,8 +49,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import im.vector.R;
-import im.vector.activity.CommonActivityUtils;
-import fr.gouv.tchap.activity.TchapLoginActivity;
 import im.vector.activity.VectorAppCompatActivity;
 import im.vector.adapters.ParticipantAdapterItem;
 import fr.gouv.tchap.adapters.TchapContactAdapter;
@@ -64,7 +62,6 @@ import im.vector.util.PermissionsToolsKt;
 import im.vector.util.VectorUtils;
 import im.vector.view.EmptyViewItemDecoration;
 import im.vector.view.SimpleDividerItemDecoration;
-import im.vector.activity.VectorRoomInviteMembersActivity;
 
 
 public class TchapContactFragment extends AbsHomeFragment implements ContactsManager.ContactsManagerListener, AbsHomeFragment.OnRoomChangedListener {
@@ -136,8 +133,8 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
         mCurrentFilter = mActivity.getSearchQuery();
         mAdapter.onFilterDone(mCurrentFilter);
 
-        // Search in the user directories if a filter is already defined, except if the current user belongs to the E-platform.
-        if (!TextUtils.isEmpty(mCurrentFilter) && !TchapLoginActivity.isUserExternal(mSession)) {
+        // Search in the user directories if a filter is already defined, except if the current user is external.
+        if (!TextUtils.isEmpty(mCurrentFilter) && !DinsicUtils.isExternalTchapSession(mSession)) {
             startRemoteKnownContactsSearch(true);
         }
 
@@ -147,7 +144,7 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
         /*mInviteContactLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!TchapLoginActivity.isUserExternal(mSession)) {
+                if (!TchapLoginActivity.isExternalTchapSession(mSession)) {
                     // We launch a VectorRoomInviteMembersActivity activity to invite
                     // some non-tchap contacts by using their email
                     mActivity.createNewChat(VectorRoomInviteMembersActivity.ActionMode.SEND_INVITE, VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY);
@@ -235,9 +232,12 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
                     listener.onFilterDone(count);
                 }
 
-                // Search in the user directories except if the current user belongs to the E-platform.
-                if (!TchapLoginActivity.isUserExternal(mSession)) {
+                // Search in the user directories except if the current user is external.
+                if (!DinsicUtils.isExternalTchapSession(mSession)) {
                     startRemoteKnownContactsSearch(newSearch);
+                } else {
+                    // Search in known users
+                    mAdapter.filterAccountKnownContacts(mCurrentFilter);
                 }
 
             }
@@ -300,16 +300,9 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
             mLocalContacts.clear();
         } else if (mContactsSnapshotSession == -1 || mContactsSnapshotSession != ContactsManager.getInstance().getLocalContactsSnapshotSession()) {
             // First time on the screen or contact data outdated
-            mLocalContacts.clear();
             // Retrieve only the Tchap user contacts by getOnlyTchapUserContacts() method
-            List<ParticipantAdapterItem> participants = new ArrayList<>(getOnlyTchapUserContacts());
-
-            // Build lists
-            for (ParticipantAdapterItem item : participants) {
-                if (item.mContact != null) {
-                    mLocalContacts.add(item);
-                }
-            }
+            mLocalContacts.clear();
+            mLocalContacts.addAll(getOnlyTchapUserContacts());
         } else {
             //clear contacts that come from directchats, i.e without contact id
             List<ParticipantAdapterItem> tobeRemoved = new ArrayList<>();
