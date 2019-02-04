@@ -1964,17 +1964,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         });
     }
 
-    /**
-     * Tells if current user is external
-     *
-     * @param
-     * @return true if external
-     */
-    public static boolean isUserExternal(MXSession session) {
-        String myHost = session.getHomeServerConfig().getHomeserverUri().getHost();
-        return myHost.contains(".e.");
-    }
-
     /* ==========================================================================================
      * UI Events
      * ========================================================================================== */

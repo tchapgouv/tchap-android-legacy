@@ -44,8 +44,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import fr.gouv.tchap.activity.TchapLoginActivity;
-
+import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.Matrix;
 import im.vector.R;
 import im.vector.adapters.RoomDirectoryAdapter;
@@ -279,7 +278,7 @@ public class RoomDirectoryPickerActivity extends VectorAppCompatActivity impleme
 
         // sanity check
         // External users can not access to room directory
-        if (!TchapLoginActivity.isUserExternal(mSession)) {
+        if (!DinsicUtils.isExternalTchapSession(mSession)) {
             refreshDirectoryServersList();
         }
     }

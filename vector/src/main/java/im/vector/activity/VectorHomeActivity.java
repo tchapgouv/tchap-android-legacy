@@ -39,9 +39,6 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.annotation.ColorRes;
 import android.support.annotation.NonNull;
-import android.support.design.internal.BottomNavigationItemView;
-import android.support.design.internal.BottomNavigationMenuView;
-import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.TextInputEditText;
@@ -67,7 +64,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.view.LayoutInflater;
 import android.widget.Button;
@@ -95,7 +91,6 @@ import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomPreviewData;
 import org.matrix.androidsdk.data.RoomState;
 import org.matrix.androidsdk.data.RoomSummary;
-import org.matrix.androidsdk.data.RoomTag;
 import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.listeners.MXEventListener;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
@@ -119,7 +114,6 @@ import java.util.Map;
 import java.util.Set;
 
 import butterknife.BindView;
-import fr.gouv.tchap.activity.TchapLoginActivity;
 import fr.gouv.tchap.activity.TchapRoomCreationActivity;
 import fr.gouv.tchap.activity.TchapPublicRoomSelectionActivity;
 import fr.gouv.tchap.util.LiveSecurityChecks;
@@ -528,13 +522,12 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
      * Display the Floating Action Menu if it is required
      */
     private void showFloatingActionMenuIfRequired() {
-        // Tchap: the floating button is always dispayed
-        /*if ((mCurrentMenuId == R.id.bottom_action_favourites) || (mCurrentMenuId == R.id.bottom_action_groups)) {
+        // Tchap: the floating button is hidden for the external users
+        if (DinsicUtils.isExternalTchapSession(mSession)) {
             concealFloatingActionMenu();
         } else {
             revealFloatingActionMenu();
-        }*/
-        revealFloatingActionMenu();
+        }
     }
 
     @Override
@@ -1213,22 +1206,14 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
             public void onMenuExpanded() {
                 // ignore any action if there is a pending one
                 if (!isWaitingViewVisible()) {
-                    if (!TchapLoginActivity.isUserExternal(mSession)) {
-                        touchGuard.animate().alpha(0.6f);
-
-                        touchGuard.setClickable(true);
-                    } else {
-                        // the FAB action is temporarily blocked for external users to prevent them from
-                        // creating a new direct chat, a new discussion or invite people to Tchap
-                        DinsicUtils.alertSimpleMsg(VectorHomeActivity.this, getString(R.string.action_forbidden));
-                    }
+                    touchGuard.animate().alpha(0.6f);
+                    touchGuard.setClickable(true);
                 }
             }
 
             @Override
             public void onMenuCollapsed() {
                 touchGuard.animate().alpha(0);
-
                 touchGuard.setClickable(false);
             }
         });
@@ -1879,6 +1864,14 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
         MenuItem signOutMenuItem = menuNav.findItem(R.id.sliding_menu_sign_out);
         if (null != signOutMenuItem) {
             setTextColorForMenuItem(signOutMenuItem, R.color.vector_fuchsia_color);
+        }
+
+        // External users can not access to public rooms
+        if (DinsicUtils.isExternalTchapSession(mSession)) {
+            MenuItem publicRoomsMenuItem = menuNav.findItem(R.id.sliding_menu_public_rooms);
+            if (null != publicRoomsMenuItem) {
+                publicRoomsMenuItem.setVisible(false);
+            }
         }
 
         TextView aboutMenuItem = findViewById(R.id.sliding_menu_app_version);

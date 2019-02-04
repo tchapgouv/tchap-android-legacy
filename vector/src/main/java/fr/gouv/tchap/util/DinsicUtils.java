@@ -60,7 +60,6 @@ import java.util.Set;
 
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
-import fr.gouv.tchap.activity.TchapLoginActivity;
 import im.vector.activity.VectorAppCompatActivity;
 import im.vector.activity.VectorRoomActivity;
 import im.vector.adapters.ParticipantAdapterItem;
@@ -104,8 +103,13 @@ public class DinsicUtils {
      * For example in case of "@jean-philippe.martin-modernisation.fr:matrix.test.org", this will return "matrix.test.org".
      * in case of "!AAAAAAA:matrix.test.org", this will return "matrix.test.org".
      */
+    @Nullable
     public static String getHomeServerNameFromMXIdentifier(String mxId) {
-        return mxId.substring(mxId.indexOf(":") + 1);
+        String result = null;
+        if (mxId.contains(":")) {
+            result = mxId.substring(mxId.indexOf(":") + 1);
+        }
+        return result;
     }
 
     /**
@@ -116,16 +120,21 @@ public class DinsicUtils {
      * For example in case of "@jean-philippe.martin-modernisation.fr:name1.tchap.gouv.fr", this will return "Name1".
      * in case of "@jean-philippe.martin-modernisation.fr:agent.name2.tchap.gouv.fr", this will return "Name2".
      */
+    @Nullable
     public static String getHomeServerDisplayNameFromMXIdentifier(String mxId) {
+        String result = null;
         String homeserverName = DinsicUtils.getHomeServerNameFromMXIdentifier(mxId);
-        if (homeserverName.contains("tchap.gouv.fr")) {
-            String[] components = homeserverName.split("\\.");
-            if (components.length >= 4) {
-                homeserverName = components[components.length - 4];
+        if (homeserverName != null) {
+            if (homeserverName.contains("tchap.gouv.fr")) {
+                String[] components = homeserverName.split("\\.");
+                if (components.length >= 4) {
+                    homeserverName = components[components.length - 4];
+                }
             }
+            // Capitalize the domain
+            result = capitalize(homeserverName);
         }
-        // Capitalize the domain
-        return capitalize(homeserverName);
+        return result;
     }
 
     /**
@@ -240,6 +249,32 @@ public class DinsicUtils {
         }
 
         return displayName;
+    }
+
+    /**
+     * Tells whether a session corresponds to an external user or not
+     *
+     * @param session
+     * @return true if external
+     */
+    public static boolean isExternalTchapSession(MXSession session) {
+        String myHost = session.getHomeServerConfig().getHomeserverUri().getHost();
+        return (myHost.contains(".e.") || myHost.contains(".externe."));
+    }
+
+    /**
+     * Tells whether the provided tchap identifier corresponds to an extern user.
+     * Note: invalid tchap identifier will be considered as external.
+     *
+     * @param tchapUserId user id
+     * @return true if external
+     */
+    public static boolean isExternalTchapUser(String tchapUserId) {
+        String host = getHomeServerNameFromMXIdentifier(tchapUserId);
+        if (host != null) {
+            return (host.startsWith("e.") || host.startsWith("externe."));
+        }
+        return true;
     }
 
     /**
@@ -479,7 +514,7 @@ public class DinsicUtils {
         } else if (canCreate){
             // direct message flow
             //it will be more open on next sprints ...
-            if (!TchapLoginActivity.isUserExternal(session)) {
+            if (!DinsicUtils.isExternalTchapSession(session)) {
                 succeeded = true;
                 activity.showWaitingView();
                 session.createDirectMessageRoom(participantId, prepareDirectChatCallBack);
@@ -617,7 +652,7 @@ public class DinsicUtils {
                 String msg = activity.getResources().getString(R.string.room_invite_people);
 
                 if (!openDirectChat(activity, selectedContact.mUserId, session, false)) {
-                    if (TchapLoginActivity.isUserExternal(session)) {
+                    if (DinsicUtils.isExternalTchapSession(session)) {
                         alertSimpleMsg(activity, activity.getResources().getString(R.string.room_creation_forbidden));
                     } else {
                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
