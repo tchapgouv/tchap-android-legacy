@@ -67,6 +67,7 @@ import im.vector.adapters.VectorParticipantsAdapter;
 import im.vector.contacts.Contact;
 import im.vector.contacts.ContactsManager;
 import fr.gouv.tchap.util.DinsicUtils;
+import im.vector.settings.VectorLocale;
 import im.vector.util.PermissionsToolsKt;
 import im.vector.util.VectorUtils;
 import im.vector.view.VectorAutoCompleteTextView;
@@ -617,6 +618,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                 @Override
                 public void onClick(View v) {
                     String text = inviteTextView.getText().toString();
+                    text = text.toLowerCase(VectorLocale.INSTANCE.getApplicationLocale()).trim();
                     final ArrayList<String> emails = new ArrayList<>();
 
                     Pattern pattern = android.util.Patterns.EMAIL_ADDRESS;
@@ -672,10 +674,10 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                                     } else {
                                         // Presently, invite a Tchap user by his email is not supported correctly.
                                         // The resulting room is seen as direct for the inviter and not for the receiver.
-                                        // Patch : we replace here the email by the retrieved MatrixId.
-                                        // FIXME the arrays "emails" is not able to store mxId (see inviteNoTchapContactsByEmail)
-                                        // emails.set(index, mxId);
-                                        index ++;
+                                        // Patch : we invite him by considering his id instead of the email.
+                                        emails.remove(index);
+                                        pids.remove(index);
+                                        inviteDiscoveredTchapUser(mxId, email);
                                     }
                                 } else {
                                     index ++;
@@ -852,7 +854,11 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
 
                             @Override
                             public void onMatrixError(final MatrixError e) {
-                                onError(e.getLocalizedMessage());
+                                if (MatrixError.M_CONSENT_NOT_GIVEN.equals(e.errcode)) {
+                                    getConsentNotGivenHelper().displayDialog(e);
+                                } else {
+                                    onError(e.getLocalizedMessage());
+                                }
                             }
 
                             @Override
@@ -879,6 +885,54 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                 } );
             }
         }
+    }
+
+    /**
+     * Invite a Tchap user discovered by filling his email
+     *
+     * @param tchapUserId  the Tchap user id
+     * @param email        the email used to discovere him
+     */
+    private void inviteDiscoveredTchapUser(final String tchapUserId, final String email) {
+        mSession.createDirectMessageRoom(tchapUserId, new ApiCallback<String>() {
+            @Override
+            public void onSuccess(final String roomId) {
+                // and we notify the user by a toast
+                String message = getString(R.string.tchap_start_discussion_with_discovered_user, email);
+                Toast.makeText(VectorRoomInviteMembersActivity.this, message, Toast.LENGTH_LONG).show();
+            }
+
+            private void onError(final String message) {
+                Log.e(LOG_TAG, "##inviteDiscoveredTchapUser failed : " + message);
+                new AlertDialog.Builder(VectorRoomInviteMembersActivity.this)
+                        .setMessage(getString(R.string.tchap_send_invite_failed, email))
+                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                            }
+                        })
+                        .show();
+            }
+
+            @Override
+            public void onNetworkError(Exception e) {
+                onError(e.getLocalizedMessage());
+            }
+
+            @Override
+            public void onMatrixError(final MatrixError e) {
+                if (MatrixError.M_CONSENT_NOT_GIVEN.equals(e.errcode)) {
+                    getConsentNotGivenHelper().displayDialog(e);
+                } else {
+                    onError(e.getLocalizedMessage());
+                }
+            }
+
+            @Override
+            public void onUnexpectedError(final Exception e) {
+                onError(e.getLocalizedMessage());
+            }
+        });
     }
 
     private void onNoTchapInviteDone(boolean finish) {
