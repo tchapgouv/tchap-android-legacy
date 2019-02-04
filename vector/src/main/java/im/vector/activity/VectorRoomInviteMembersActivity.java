@@ -60,7 +60,6 @@ import fr.gouv.tchap.activity.TchapLoginActivity;
 import fr.gouv.tchap.sdk.rest.model.Platform;
 
 import butterknife.BindView;
-import butterknife.OnClick;
 import im.vector.Matrix;
 import im.vector.R;
 import im.vector.adapters.ParticipantAdapterItem;
@@ -357,7 +356,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
             inviteByIdTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(TchapLoginActivity.isUserExternal(mSession)) {
+                    if(DinsicUtils.isExternalTchapSession(mSession)) {
                         DinsicUtils.alertSimpleMsg(VectorRoomInviteMembersActivity.this, getString(R.string.action_forbidden));
                     } else {
                         displayInviteByUserId();

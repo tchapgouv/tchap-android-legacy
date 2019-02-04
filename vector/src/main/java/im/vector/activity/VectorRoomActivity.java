@@ -39,14 +39,11 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.text.style.ClickableSpan;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -84,12 +81,10 @@ import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.rest.model.PowerLevels;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.RoomTombstoneContent;
-import org.matrix.androidsdk.rest.model.StateEvent;
 import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.rest.model.message.Message;
 import org.matrix.androidsdk.util.JsonUtils;
 import org.matrix.androidsdk.util.Log;
-import org.matrix.androidsdk.util.PermalinkUtils;
 import org.matrix.androidsdk.util.ResourceUtils;
 
 import java.util.ArrayList;
@@ -101,7 +96,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import fr.gouv.tchap.activity.TchapDirectRoomDetailsActivity;
-import fr.gouv.tchap.activity.TchapLoginActivity;
 import fr.gouv.tchap.util.DinsicUtils;
 import fr.gouv.tchap.util.LiveSecurityChecks;
 import butterknife.BindView;
@@ -111,7 +105,6 @@ import im.vector.R;
 import im.vector.VectorApp;
 import im.vector.ViewedRoomTracker;
 import im.vector.activity.util.RequestCodesKt;
-import im.vector.extensions.MatrixSdkExtensionsKt;
 import im.vector.features.hhs.LimitResourceState;
 import im.vector.features.hhs.ResourceLimitEventListener;
 import im.vector.fragments.VectorMessageListFragment;
@@ -126,7 +119,6 @@ import im.vector.util.CallsManager;
 import im.vector.util.PreferencesManager;
 import im.vector.util.ReadMarkerManager;
 import im.vector.util.ExternalApplicationsUtilKt;
-import im.vector.util.MatrixURLSpan;
 import im.vector.util.PermissionsToolsKt;
 import im.vector.util.SlashCommandsParser;
 import im.vector.util.VectorMarkdownParser;
@@ -2037,8 +2029,11 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
     private boolean sendMessageByCreatingNewDirectChat(final @Nullable Intent mediaIntent) {
         if (null != mTchapUser) {
             // Here we create a new direct chat with the selected user, and post the message.
-            if (!TchapLoginActivity.isUserExternal(mSession)) {
 
+            // Sanity check: Extern users are not allowed to invite another extern user
+            if (DinsicUtils.isExternalTchapSession(mSession) && DinsicUtils.isExternalTchapUser(mTchapUser.user_id)) {
+                DinsicUtils.alertSimpleMsg(this, this.getString(R.string.room_creation_forbidden));
+            } else {
                 // ensure that the room is not created several times
                 // the room creation is slow
                 mSendMessageView.setEnabled(false);
@@ -2100,8 +2095,6 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
                         onError(e.getLocalizedMessage());
                     }
                 });
-            } else {
-                DinsicUtils.alertSimpleMsg(this, this.getString(R.string.room_creation_forbidden));
             }
             return true;
         }
