@@ -50,6 +50,7 @@ import java.util.List;
 import butterknife.BindView;
 import im.vector.R;
 import im.vector.activity.VectorAppCompatActivity;
+import im.vector.activity.VectorRoomInviteMembersActivity;
 import im.vector.adapters.ParticipantAdapterItem;
 import fr.gouv.tchap.adapters.TchapContactAdapter;
 import im.vector.contacts.Contact;
@@ -138,23 +139,20 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
             startRemoteKnownContactsSearch(true);
         }
 
-        // Hide temporarily this button
-        mInviteContactLayout.setVisibility(View.GONE);
-        // TODO restore the listener when the feature will be activated
-        /*mInviteContactLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!TchapLoginActivity.isExternalTchapSession(mSession)) {
+        // Hide Invite by email button for external users
+        if (DinsicUtils.isExternalTchapSession(mSession)) {
+            mInviteContactLayout.setVisibility(View.GONE);
+        } else {
+            mInviteContactLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
                     // We launch a VectorRoomInviteMembersActivity activity to invite
                     // some non-tchap contacts by using their email
                     mActivity.createNewChat(VectorRoomInviteMembersActivity.ActionMode.SEND_INVITE, VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY);
-                } else {
-                    // the invite button is temporarily blocked for external users to prevent them from
-                    // inviting people to Tchap
-                    DinsicUtils.alertSimpleMsg(mActivity, getString(R.string.action_forbidden));
                 }
-            }
-        });*/
+            });
+        }
+
 
         if (!ContactsManager.getInstance().isContactBookAccessRequested()) {
             PermissionsToolsKt.checkPermissions(PermissionsToolsKt.PERMISSIONS_FOR_MEMBERS_SEARCH, this, PermissionsToolsKt.PERMISSION_REQUEST_CODE);
