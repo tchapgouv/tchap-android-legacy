@@ -855,7 +855,11 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                             @Override
                             public void onMatrixError(final MatrixError e) {
                                 if (MatrixError.M_CONSENT_NOT_GIVEN.equals(e.errcode)) {
-                                    getConsentNotGivenHelper().displayDialog(e);
+                                    // Request the consent only once, and cancel the invite(s)
+                                    if (mCount != 0) {
+                                        mCount = 0;
+                                        getConsentNotGivenHelper().displayDialog(e);
+                                    }
                                 } else {
                                     onError(e.getLocalizedMessage());
                                 }
