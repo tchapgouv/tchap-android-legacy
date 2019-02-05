@@ -57,7 +57,6 @@ import java.util.Set;
 
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
-import fr.gouv.tchap.activity.TchapLoginActivity;
 import im.vector.activity.VectorRoomInviteMembersActivity;
 import im.vector.contacts.Contact;
 import im.vector.contacts.ContactsManager;
@@ -516,10 +515,10 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
             mLocalContactsSnapshotSession = ContactsManager.getInstance().getLocalContactsSnapshotSession();
         }
 
-        // Search in the user directories is disabled for the users of the E-platform.
+        // Search in the user directories is disabled for the extern users.
         // Search is processed only if the VectorRoomInviteMembersActivity is NOT in a NO_TCHAP_ONLY mode
         // In NO_TCHAP_ONLY mode, we don't want to display the Tchap users on the search result
-        if (TchapLoginActivity.isUserExternal(mSession) || mContactsFilter == VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY) {
+        if (DinsicUtils.isExternalTchapSession(mSession) || mContactsFilter == VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY) {
             searchAccountKnownContacts(theFirstEntry, new ArrayList<ParticipantAdapterItem>(), true, searchListener);
             return;
         }

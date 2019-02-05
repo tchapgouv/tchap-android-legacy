@@ -51,9 +51,8 @@ import java.util.List;
 import butterknife.BindView;
 import fr.gouv.tchap.model.TchapRoom;
 import im.vector.R;
-import im.vector.activity.CommonActivityUtils;
-import fr.gouv.tchap.activity.TchapLoginActivity;
 import im.vector.activity.VectorAppCompatActivity;
+import im.vector.activity.VectorRoomInviteMembersActivity;
 import im.vector.adapters.ParticipantAdapterItem;
 import fr.gouv.tchap.adapters.TchapContactAdapter;
 import im.vector.contacts.Contact;
@@ -66,7 +65,6 @@ import im.vector.util.PermissionsToolsKt;
 import im.vector.util.VectorUtils;
 import im.vector.view.EmptyViewItemDecoration;
 import im.vector.view.SimpleDividerItemDecoration;
-import im.vector.activity.VectorRoomInviteMembersActivity;
 
 
 public class TchapContactFragment extends AbsHomeFragment implements ContactsManager.ContactsManagerListener, AbsHomeFragment.OnRoomChangedListener {
@@ -137,28 +135,25 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
         mCurrentFilter = mActivity.getSearchQuery();
         mAdapter.onFilterDone(mCurrentFilter);
 
-        // Search in the user directories if a filter is already defined, except if the current user belongs to the E-platform.
-        if (!TextUtils.isEmpty(mCurrentFilter) && !TchapLoginActivity.isUserExternal(mTchapSession.getMainSession())) {
+        // Search in the user directories if a filter is already defined, except if the current user is external.
+        if (!TextUtils.isEmpty(mCurrentFilter) && !DinsicUtils.isExternalTchapSession(mTchapSession.getMainSession())) {
             startRemoteKnownContactsSearch(true);
         }
 
-        // Hide temporarily this button
-        mInviteContactLayout.setVisibility(View.GONE);
-        // TODO restore the listener when the feature will be activated
-        /*mInviteContactLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!TchapLoginActivity.isUserExternal(mTchapSession.getMainSession())) {
+        // Hide Invite by email button for external users
+        if (DinsicUtils.isExternalTchapSession(mTchapSession.getMainSession())) {
+            mInviteContactLayout.setVisibility(View.GONE);
+        } else {
+            mInviteContactLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
                     // We launch a VectorRoomInviteMembersActivity activity to invite
                     // some non-tchap contacts by using their email
-                    mActivity.createNewChat(VectorRoomInviteMembersActivity.ActionMode.SEND_INVITE, VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY);
-                } else {
-                    // the invite button is temporarily blocked for external users to prevent them from
-                    // inviting people to Tchap
-                    DinsicUtils.alertSimpleMsg(mActivity, getString(R.string.action_forbidden));
+                    mActivity.createNewDirectChat(VectorRoomInviteMembersActivity.ActionMode.SEND_INVITE, VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY);
                 }
-            }
-        });*/
+            });
+        }
+
 
         if (!ContactsManager.getInstance().isContactBookAccessRequested()) {
             PermissionsToolsKt.checkPermissions(PermissionsToolsKt.PERMISSIONS_FOR_MEMBERS_SEARCH, this, PermissionsToolsKt.PERMISSION_REQUEST_CODE);
@@ -235,9 +230,12 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
                     listener.onFilterDone(count);
                 }
 
-                // Search in the user directories except if the current user belongs to the E-platform.
-                if (!TchapLoginActivity.isUserExternal(mTchapSession.getMainSession())) {
+                // Search in the user directories except if the current user is external.
+                if (!DinsicUtils.isExternalTchapSession(mTchapSession.getMainSession())) {
                     startRemoteKnownContactsSearch(newSearch);
+                } else {
+                    // Search in known users
+                    mAdapter.filterAccountKnownContacts(mCurrentFilter);
                 }
 
             }
@@ -297,16 +295,9 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
             mLocalContacts.clear();
         } else if (mContactsSnapshotSession == -1 || mContactsSnapshotSession != ContactsManager.getInstance().getLocalContactsSnapshotSession()) {
             // First time on the screen or contact data outdated
-            mLocalContacts.clear();
             // Retrieve only the Tchap user contacts by getOnlyTchapUserContacts() method
-            List<ParticipantAdapterItem> participants = new ArrayList<>(getOnlyTchapUserContacts());
-
-            // Build lists
-            for (ParticipantAdapterItem item : participants) {
-                if (item.mContact != null) {
-                    mLocalContacts.add(item);
-                }
-            }
+            mLocalContacts.clear();
+            mLocalContacts.addAll(getOnlyTchapUserContacts());
         } else {
             //clear contacts that come from directchats, i.e without contact id
             List<ParticipantAdapterItem> tobeRemoved = new ArrayList<>();
