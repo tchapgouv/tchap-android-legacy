@@ -20,6 +20,7 @@ import fr.gouv.tchap.model.TchapConnectionConfig
 
 // Configure here the Protected infra access
 const val ENABLE_PROTECTED_ACCESS = false
+const val ENABLE_MULTI_ACCOUNTS_FEATURE = false // To be removed when true
 
 // Define here the version used to tag the current Tchap config
 fun TchapConnectionConfig.Companion.currentVersion() = 0

@@ -19,10 +19,7 @@ package fr.gouv.tchap.util
 import android.net.Uri
 import android.os.Build
 import android.support.annotation.VisibleForTesting
-import fr.gouv.tchap.config.CERTIFICATE_FINGERPRINT_LIST
-import fr.gouv.tchap.config.ENABLE_CERTIFICATE_PINNING
-import fr.gouv.tchap.config.ENABLE_PROTECTED_ACCESS
-import fr.gouv.tchap.config.currentVersion
+import fr.gouv.tchap.config.*
 import fr.gouv.tchap.model.TchapConnectionConfig
 import fr.gouv.tchap.sdk.rest.model.Platform
 import org.matrix.androidsdk.HomeServerConnectionConfig
@@ -119,7 +116,7 @@ fun getIdentityServerUrl(tchapPlatform: Platform, serverURLPrefix: String): Stri
  */
 private fun getShadowHomeServerUrl(tchapPlatform: Platform, serverURLPrefix: String): String? {
     // Check whether the protected access is supported by the client.
-    if (ENABLE_PROTECTED_ACCESS) {
+    if (ENABLE_MULTI_ACCOUNTS_FEATURE) {
         val hs = tchapPlatform.shadowHs
         return if (hs != null && !hs.isEmpty()) serverURLPrefix + hs else null
     }
@@ -136,7 +133,7 @@ private fun getShadowIdentityServerUrl(tchapPlatform: Platform, serverURLPrefix:
  */
 private fun hasProtectedAccess(tchapPlatform: Platform): Boolean {
     // Check whether the protected access is supported by the client.
-    if (ENABLE_PROTECTED_ACCESS) {
+    if (ENABLE_MULTI_ACCOUNTS_FEATURE) {
         // The platform description corresponds to an account with a protected access
         // when the "shadow_hs" key is defined (even with an empty value).
         return tchapPlatform.shadowHs != null
