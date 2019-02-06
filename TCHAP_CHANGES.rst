@@ -1,3 +1,9 @@
+Changes in Tchap 1.0.18 (2019-02-06)
+===================================================
+
+Improvement:
+ * Registration: remove the polling mechanism on email validation #417
+
 Changes in Tchap 1.0.17 (2019-01-25)
 ===================================================
 
