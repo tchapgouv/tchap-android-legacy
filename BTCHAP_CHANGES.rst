@@ -1,8 +1,12 @@
-Changes in Tchap 1.0.18 (2019-02-06)
+Changes in Btchap 1.0.18 (2019-02-06)
 ===================================================
 
-Improvement:
+Improvements:
  * Registration: remove the polling mechanism on email validation #417
+ * Configure the application for the extern users #410
+ * Turn on the option to invite contacts by email #409
+ * Protected HS – Authentication #378
+ * Prepare: Support multi-sessions #379 (disabled by default)
 
 Changes in Tchap 1.0.17 (2019-01-25)
 ===================================================
