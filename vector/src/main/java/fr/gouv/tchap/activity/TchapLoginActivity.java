@@ -30,9 +30,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Parcelable;
-import android.support.design.widget.TextInputEditText;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.MenuItem;
@@ -51,11 +49,8 @@ import org.matrix.androidsdk.HomeServerConnectionConfig;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
-import org.matrix.androidsdk.rest.client.LoginRestClient;
 import org.matrix.androidsdk.rest.client.ProfileRestClient;
 import org.matrix.androidsdk.rest.model.MatrixError;
-import org.matrix.androidsdk.rest.model.login.Credentials;
-import org.matrix.androidsdk.rest.model.login.LoginFlow;
 import org.matrix.androidsdk.rest.model.login.RegistrationFlowResponse;
 import org.matrix.androidsdk.rest.model.pid.ThreePid;
 import org.matrix.androidsdk.ssl.CertUtil;
@@ -80,10 +75,8 @@ import im.vector.Matrix;
 import im.vector.R;
 import im.vector.RegistrationManager;
 import im.vector.UnrecognizedCertHandler;
-import im.vector.activity.AccountCreationActivity;
 import im.vector.activity.AccountCreationCaptchaActivity;
 import im.vector.activity.CommonActivityUtils;
-import im.vector.activity.FallbackLoginActivity;
 import im.vector.activity.MXCActionBarActivity;
 import im.vector.activity.SplashActivity;
 import im.vector.activity.VectorUniversalLinkActivity;
@@ -98,8 +91,6 @@ import im.vector.services.EventStreamService;
  */
 public class TchapLoginActivity extends MXCActionBarActivity implements RegistrationManager.RegistrationListener {
     private static final String LOG_TAG = TchapLoginActivity.class.getSimpleName();
-
-    private final static int REGISTER_POLLING_PERIOD = 10 * 1000;
 
     // activity modes
     // either the user logs in
@@ -124,8 +115,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     private static final String SAVED_CREATION_PASSWORD1 = "SAVED_CREATION_PASSWORD1";
     private static final String SAVED_CREATION_PASSWORD2 = "SAVED_CREATION_PASSWORD2";
     private static final String SAVED_CREATION_REGISTRATION_RESPONSE = "SAVED_CREATION_REGISTRATION_RESPONSE";
-    private static final String SAVED_CREATION_EMAIL_THREEPID = "SAVED_CREATION_EMAIL_THREEPID";
-    private ThreePid mPendingEmailValidation;
 
     // forgot password
     private static final String SAVED_FORGOT_EMAIL_ADDRESS = "SAVED_FORGOT_EMAIL_ADDRESS";
@@ -212,10 +201,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     // the layout (there is a layout for each mode)
     private View mMainLayout;
 
-    // HS / identity URL layouts
-    //private View mHomeServerUrlsLayout;
-    //private CheckBox mUseCustomHomeServersCheckbox;
-
     // the pending universal link uri (if any)
     private Parcelable mUniversalLinkUri;
 
@@ -266,10 +251,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
      */
     private boolean mIsPasswordResetted;
 
-    // there is a polling thread to monitor when the email has been validated.
-    private Runnable mRegisterPollingRunnable;
-    private Handler mHandler;
-
     private Dialog mCurrentDialog;
 
     // save the config because trust a certificate is asynchronous.
@@ -282,7 +263,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             mCurrentDialog = null;
         }
 
-        cancelEmailPolling();
         RegistrationManager.getInstance().resetSingleton();
         super.onDestroy();
         Log.i(LOG_TAG, "## onDestroy(): IN");
@@ -438,9 +418,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         // reset the badge counter
         CommonActivityUtils.updateBadgeCount(this, 0);
 
-        // set the handler used by the register to poll the server response
-        mHandler = new Handler(getMainLooper());
-
         // Check whether the application has been resumed from an universal link
         Bundle receivedBundle = (null != intent) ? getIntent().getExtras() : null;
         if (null != receivedBundle) {
@@ -450,33 +427,9 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             } else if (receivedBundle.containsKey(VectorUniversalLinkActivity.EXTRA_EMAIL_VALIDATION_PARAMS)) {
                 Log.d(LOG_TAG, "## onCreate() Login activity started by email verification for registration");
                 if (processEmailValidationExtras(receivedBundle)) {
-                    // Reset the pending email validation if any.
-                    mPendingEmailValidation = null;
-
                     // Finalize the email verification.
                     checkIfMailValidationPending();
                 }
-            }
-        }
-
-        // Check whether an email validation was pending when the instance was saved.
-        if (null != mPendingEmailValidation) {
-            Log.d(LOG_TAG, "## onCreate() An email validation was pending");
-
-            // Sanity check
-            if (null != mRegistrationResponse && null != mTchapPlatform && null != mCurrentEmail) {
-                // retrieve the name and pwd from store data (we consider here that these inputs have been already checked)
-                String password = getSavedInstanceState().getString(SAVED_CREATION_PASSWORD1);
-
-                Log.d(LOG_TAG, "## onCreate() Resume email validation");
-                // Resume the email validation polling
-                enableLoadingScreen(true);
-                RegistrationManager.getInstance().setSupportedRegistrationFlows(mRegistrationResponse);
-                RegistrationManager.getInstance().setHsConfig(getHsConfig());
-                RegistrationManager.getInstance().setAccountData(null, password);
-                RegistrationManager.getInstance().addEmailThreePid(mPendingEmailValidation);
-                RegistrationManager.getInstance().attemptRegistration(this, this);
-                onWaitingEmailValidation();
             }
         }
     }
@@ -517,7 +470,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                         fallbackToStartMode();
                         return true;
                     case MODE_ACCOUNT_CREATION_WAIT_FOR_EMAIL:
-                        promptUserBeforeCancellingEmailPolling();
+                        fallbackToRegistrationMode();
                         return true;
                     case MODE_FORGOT_PASSWORD:
                         fallbackToLoginMode();
@@ -547,7 +500,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 fallbackToStartMode();
                 break;
             case MODE_ACCOUNT_CREATION_WAIT_FOR_EMAIL:
-                promptUserBeforeCancellingEmailPolling();
+                fallbackToRegistrationMode();
                 break;
             case MODE_FORGOT_PASSWORD:
                 fallbackToLoginMode();
@@ -564,30 +517,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             default:
                 super.onBackPressed();
         }
-    }
-
-    private void promptUserBeforeCancellingEmailPolling() {
-        if (mCurrentDialog != null) {
-            mCurrentDialog.dismiss();
-        }
-        mCurrentDialog = new AlertDialog.Builder(TchapLoginActivity.this)
-                .setTitle(R.string.dialog_title_warning)
-                .setMessage(R.string.tchap_register_wait_for_email_prompt_on_back)
-                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Go back to register screen
-                        cancelEmailPolling();
-                        fallbackToRegistrationMode();
-                    }
-                })
-                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Do nothing
-                    }
-                })
-                .show();
     }
 
     /**
@@ -640,7 +569,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         mMainLayout.setVisibility(View.VISIBLE);
 
         // cancel the registration flow
-        cancelEmailPolling();
         mEmailValidationExtraParams = null;
         mRegistrationResponse = null;
         showMainLayout();
@@ -666,7 +594,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         mMainLayout.setVisibility(View.VISIBLE);
 
         // cancel the registration flow
-        cancelEmailPolling();
         mEmailValidationExtraParams = null;
         mRegistrationResponse = null;
         showMainLayout();
@@ -682,8 +609,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
      */
     private void fallbackToRegistrationMode() {
         // display the main layout
-        mMainLayout.setVisibility(View.VISIBLE);
-
         showMainLayout();
         enableLoadingScreen(false);
 
@@ -1190,9 +1115,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         if (mIsMailValidationPending) {
             mIsMailValidationPending = false;
 
-            // remove the pending polling register if any
-            cancelEmailPolling();
-
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -1287,9 +1209,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                                 } else {
                                     onFailureDuringAuthRequest(e);
                                 }
-
-                                // start Login due to a pending email validation
-                                checkIfMailValidationPending();
                             }
                         }
                     });
@@ -1495,7 +1414,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 mUniversalLinkUri = savedInstanceState.getParcelable(VectorUniversalLinkReceiver.EXTRA_UNIVERSAL_LINK_URI);
             }
 
-            mPendingEmailValidation = (ThreePid) savedInstanceState.getSerializable(SAVED_CREATION_EMAIL_THREEPID);
             mTchapPlatform = (Platform) savedInstanceState.getSerializable(SAVED_TCHAP_PLATFORM);
             mCurrentEmail = savedInstanceState.getString(SAVED_CONFIG_EMAIL);
         }
@@ -1554,15 +1472,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         // check if the application has been opened by click on an url
         if (null != mUniversalLinkUri) {
             savedInstanceState.putParcelable(VectorUniversalLinkReceiver.EXTRA_UNIVERSAL_LINK_URI, mUniversalLinkUri);
-        }
-
-        // check whether an email validation is in progress
-        if (null != mRegisterPollingRunnable) {
-            // Retrieve the current email three pid
-            ThreePid email3pid = RegistrationManager.getInstance().getEmailThreePid();
-            if (null != email3pid) {
-                savedInstanceState.putSerializable(SAVED_CREATION_EMAIL_THREEPID, email3pid);
-            }
         }
 
         savedInstanceState.putInt(SAVED_MODE, mMode);
@@ -1644,6 +1553,8 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         }
 
         switch (mMode) {
+            case MODE_ACCOUNT_CREATION_WAIT_FOR_EMAIL:
+                screenRegisterWaitForEmailEmailTextView.setText(mCurrentEmail);
             case MODE_FORGOT_PASSWORD_WAITING_VALIDATION:
                 messageNotice.setText(getString(R.string.auth_reset_password_email_validation_message, mCurrentEmail));
                 messageButton.setText(R.string.auth_reset_password_next_step_button);
@@ -1746,15 +1657,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         RegistrationManager.getInstance().attemptRegistration(this, this);
     }
 
-    /**
-     * Cancel the polling for email validation
-     */
-    private void cancelEmailPolling() {
-        if (mHandler != null && mRegisterPollingRunnable != null) {
-            mHandler.removeCallbacks(mRegisterPollingRunnable);
-        }
-    }
-
     /*
      * *********************************************************************************************
      * Account creation - Listeners
@@ -1763,7 +1665,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
     @Override
     public void onRegistrationSuccess(String warningMessage) {
-        cancelEmailPolling();
         enableLoadingScreen(false);
         if (!TextUtils.isEmpty(warningMessage)) {
             if (mCurrentDialog != null) {
@@ -1788,12 +1689,9 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
     @Override
     public void onRegistrationFailed(String message) {
-        cancelEmailPolling();
         mEmailValidationExtraParams = null;
         Log.e(LOG_TAG, "## onRegistrationFailed(): " + message);
-        showMainLayout();
-        enableLoadingScreen(false);
-        refreshDisplay();
+        fallbackToRegistrationMode();
         Toast.makeText(this, R.string.login_error_unable_register, Toast.LENGTH_LONG).show();
     }
 
@@ -1801,26 +1699,15 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     public void onWaitingEmailValidation() {
         Log.d(LOG_TAG, "## onWaitingEmailValidation()");
 
+        enableLoadingScreen(false);
+
         // Prompt the user to check his email
         mMode = MODE_ACCOUNT_CREATION_WAIT_FOR_EMAIL;
-        screenRegisterWaitForEmailEmailTextView.setText(mCurrentEmail);
         refreshDisplay();
-
-        // Loop to know whether the email has been checked
-        mRegisterPollingRunnable = new Runnable() {
-            @Override
-            public void run() {
-                Log.d(LOG_TAG, "## onWaitingEmailValidation() attempt registration");
-                RegistrationManager.getInstance().attemptRegistration(TchapLoginActivity.this, TchapLoginActivity.this);
-                mHandler.postDelayed(mRegisterPollingRunnable, REGISTER_POLLING_PERIOD);
-            }
-        };
-        mHandler.postDelayed(mRegisterPollingRunnable, REGISTER_POLLING_PERIOD);
     }
 
     @Override
     public void onWaitingCaptcha() {
-        cancelEmailPolling();
         final String publicKey = RegistrationManager.getInstance().getCaptchaPublicKey();
         if (!TextUtils.isEmpty(publicKey)) {
             Log.d(LOG_TAG, "## onWaitingCaptcha");
@@ -2047,7 +1934,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
                 RegistrationManager.getInstance().clearThreePid();
                 RegistrationManager.getInstance().addEmailThreePid(new ThreePid(mCurrentEmail, ThreePid.MEDIUM_EMAIL));
-                mIsMailValidationPending = true;
 
                 checkRegistrationFlows(new SimpleApiCallback<Void>() {
                     @Override
@@ -2089,9 +1975,16 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
      * UI Events
      * ========================================================================================== */
 
+    @OnClick(R.id.fragment_tchap_register_wait_for_email_login_button)
+    void goToLoginScreen() {
+        // Go back to login screen
+        fallbackToLoginMode();
+    }
+
     @OnClick(R.id.fragment_tchap_register_wait_for_email_back)
     void onEmailNotReceived() {
-        promptUserBeforeCancellingEmailPolling();
+        // Go back to register screen
+        fallbackToRegistrationMode();
     }
 
     @OnClick(R.id.fragment_tchap_first_message_button_submit)

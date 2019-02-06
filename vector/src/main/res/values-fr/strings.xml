@@ -817,8 +817,8 @@ Appareils inconnus :</string>
     <string name="tchap_room_creation_avatar">Ajouter\nune photo</string>
     <string name="tchap_room_creation_name">Nommer le salon</string>
     <string name="tchap_room_creation_public">Rendre ce salon public</string>
-    <string name="tchap_room_creation_disable_federation">Limiter l\'accès à ce salon aux membres du domaine \"%s\"</string>
-    <string name="tchap_room_creation_public_info">Un salon public peut être rejoint par n\'importe quel membre de la communauté Tchap, il ne doit contenir aucune donnée sensible.</string>
+    <string name="tchap_room_creation_disable_federation">Limiter l’accès à ce salon aux membres du domaine \"%s\"</string>
+    <string name="tchap_room_creation_public_info">Un salon public peut être rejoint par n’importe quel membre de la communauté Tchap, il ne doit contenir aucune donnée sensible.</string>
     <string name="tchap_room_invite_member_title">Inviter au salon</string>
     <string name="tchap_room_invite_member_action">Valider</string>
     <string name="tchap_room_creation_save_avatar_failed">La sauvegarde de la photo du salon a échoué. \n Que souhaitez-vous faire ?</string>
@@ -830,9 +830,9 @@ Appareils inconnus :</string>
     <string name="tchap_room_invite_member_direct_chat">Nouvelle discussion</string>
     <string name="tchap_invite_already_send_message">Vous avez déjà envoyé une invitation à %s</string>
     <string name="tchap_discussion_already_exist">Une discussion avec %s existe déjà</string>
-    <string name="tchap_invite_unreachable_message">%s n\'est pas joignable pour l\'instant par Tchap</string>
-    <string name="tchap_send_invite_failed">Echec de l\'envoi de l\'invitation à %s</string>
-    <string name="tchap_send_invite_network_error">Impossible d\'envoyer une invitation: erreur réseau</string>
+    <string name="tchap_invite_unreachable_message">%s n’est pas joignable pour l’instant par Tchap</string>
+    <string name="tchap_send_invite_failed">Echec de l’envoi de l’invitation à %s</string>
+    <string name="tchap_send_invite_network_error">Impossible d’envoyer une invitation: erreur réseau</string>
     <string name="tchap_send_invite_confirmation">Vous recevrez une notification lorsque \n votre invité rejoindra la communauté Tchap</string>
     <plurals name="tchap_succes_invite__notification">
         <item quantity="one">%d invitation a bien été envoyée.</item>
@@ -840,7 +840,7 @@ Appareils inconnus :</string>
     </plurals>
     <string name="tchap_burger_menu_contacts">Contacts</string>
     <string name="tchap_burger_menu_public_rooms">Salons publics</string>
-    <string name="tchap_burger_menu_info">Cette application n\'est pas approuvée\npour l\'échange d\'informations en diffusion restreinte</string>
+    <string name="tchap_burger_menu_info">Cette application n’est pas approuvée\npour l’échange d’informations en diffusion restreinte</string>
 
     // tchap scan media
     <string name="tchap_scan_media_unavailable">Analyse Indisponible</string>
@@ -869,11 +869,10 @@ Appareils inconnus :</string>
     <string name="tchap_connection_password_confirm">Confirmer le mot de passe</string>
     <string name="tchap_connection_forgotten_email">J’ai oublié mon mot de passe</string>
     <string name="tchap_register_wait_for_email_title">Un email vous a été envoyé à :</string>
-    <string name="tchap_register_wait_for_email_subtitle">Merci de cliquer sur le lien proposé dans cet email afin de valider votre inscription.\nVous entrerez alors automatiquement dans Tchap</string>
+    <string name="tchap_register_wait_for_email_subtitle">Merci de cliquer sur le lien proposé dans cet email afin de terminer la création de votre compte. Vous pourrez alors vous connecter en allant sur l’écran de connexion.</string>
+    <string name="tchap_register_wait_for_email_login_button">Aller à l’écran de connexion</string>
     <string name="tchap_register_wait_for_email_no_email">Je n’ai pas reçu l’email!</string>
-    <string name="tchap_register_unauthorized_email">Cette adresse e-mail n\'est pas autorisée</string>
-    <string name="tchap_register_wait_for_email_caution">Veuillez rester sur cet écran jusqu\'à la fin de la procédure d\’inscription</string>
-    <string name="tchap_register_wait_for_email_prompt_on_back">Votre inscription n\’est pas terminée. Etes-vous sûr de vouloir abandonner la procédure d\’inscription ?</string>
+    <string name="tchap_register_unauthorized_email">Cette adresse e-mail n’est pas autorisée</string>
 
     <string name="tchap_dialog_user_consent_homeserver_name">Tchap</string>
 
@@ -1161,9 +1160,9 @@ Veuillez noter que cette action redémarrera l\'application et pourra prendre un
 
     // Overrided sdk's strings
     <string name="notice_room_name_changed">%1$s a changé le nom du salon en : %2$s</string>
-    <string name="notice_made_future_room_visibility">%1$s a rendu l\'historique futur de la conversation visible pour %2$s</string>
-    <string name="notice_room_visibility_invited">tous les membres du salon, depuis qu\'ils ont été invités.</string>
-    <string name="notice_room_visibility_joined">tous les membres du salon, depuis qu\'ils l\'ont rejoint.</string>
+    <string name="notice_made_future_room_visibility">%1$s a rendu l’historique futur de la conversation visible pour %2$s</string>
+    <string name="notice_room_visibility_invited">tous les membres du salon, depuis qu’ils ont été invités.</string>
+    <string name="notice_room_visibility_joined">tous les membres du salon, depuis qu’ils l’ont rejoint.</string>
     <string name="notice_room_visibility_shared">tous les membres du salon.</string>
     <string name="notice_room_name_removed">%1$s a supprimé le nom du salon</string>
     <string name="notice_room_topic_removed">%1$s a supprimé le sujet du salon</string>
@@ -1175,15 +1174,15 @@ Veuillez noter que cette action redémarrera l\'application et pourra prendre un
 
     <!-- accessibility -->
     <string name="security_dialog_title">Sécurité</string>
-    <string name="detect_accessibility_service">Détecter si un service d\'accessibilité est actif.</string>
-    <string name="accessibility_security_dialog_message">Un service d\'accessibilité est actif. Il observe le clavier et les fenêtres.</string>
+    <string name="detect_accessibility_service">Détecter si un service d’accessibilité est actif.</string>
+    <string name="accessibility_security_dialog_message">Un service d’accessibilité est actif. Il observe le clavier et les fenêtres.</string>
     <string name="security_dialog_start">Démarrer quand même.</string>
     <string name="security_dialog_start_an_stop_detecting">Ne plus me prévenir.</string>
     <string name="security_dialog_stop">Sortir.</string>
     <string name="detect_notification_listener">Détecter si un écouteur de notification est actif.</string>
     <string name="notification_security_dialog_message">Un écouteur de notification lit le contenu des notifications de message. Les écouteurs suivant sont activés :</string>
     <string name="security_dialog_continue">Continuer.</string>
-    <string name="accessibility_change_security_dialog_message">Un service d\'accessibilité a été activé. Il observe le clavier et les fenêtres.</string>
+    <string name="accessibility_change_security_dialog_message">Un service d’accessibilité a été activé. Il observe le clavier et les fenêtres.</string>
     <string name="notification_change_security_dialog_message">Un écouteur de notification lit le contenu des notifications de message. Les écouteurs suivant ont été activés :</string>
 
 </resources>
