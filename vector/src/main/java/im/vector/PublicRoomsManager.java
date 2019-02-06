@@ -69,22 +69,6 @@ public class PublicRoomsManager {
     // public room listeners
     private final List<PublicRoomsManagerListener> mListeners = new ArrayList<>();
 
-    // the singleton
-    private static PublicRoomsManager sPublicRoomsManager = null;
-
-    /**
-     * Retrieve the current instance
-     *
-     * @return
-     */
-    public static PublicRoomsManager getInstance() {
-        if (null == sPublicRoomsManager) {
-            sPublicRoomsManager = new PublicRoomsManager();
-        }
-
-        return sPublicRoomsManager;
-    }
-
     /**
      * Set the current session
      *

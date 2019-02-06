@@ -1021,6 +1021,9 @@
     <string name="community_id">Community Id</string>
     <string name="community_id_hint">example</string>
 
+    <!-- tchap multi-sessions -->
+    <string name="tchap_account_selection_message">Do you want to restrict this action to the secure domain</string>
+
     <!-- tchap room creation -->
     <string name="tchap_room_creation_title">New room</string>
     <string name="tchap_action_next">Next</string>
@@ -1053,13 +1056,13 @@
     <string name="tchap_burger_menu_public_rooms">Public rooms</string>
     <string name="tchap_burger_menu_info">This app is not approved for\nrestricted information interchange</string>
 
-    // tchap scan media
+    <!-- tchap scan media -->
     <string name="tchap_scan_media_unavailable">Scan Unavailable</string>
     <string name="tchap_scan_media_in_progress">Antivirus Scanning</string>
     <string name="tchap_scan_media_untrusted_content">Infected File</string>
     <string name="tchap_scan_media_untrusted_content_message">The file (%s) has been blocked</string>
 
-    // tchap room settings
+    <!-- tchap room settings -->
     <string name="tchap_room_settings_remove_from_directory">Remove this room from the rooms directory</string>
     <string name="tchap_room_settings_remove_from_directory_prompt_msg"><b>This action is irreversible.</b>\nAre you sure you want to remove this room from the rooms directory?</string>
 
@@ -1084,6 +1087,7 @@
     <string name="tchap_register_wait_for_email_login_button">Go to login screen</string>
     <string name="tchap_register_wait_for_email_no_email">I have not received any e-mail!</string>
     <string name="tchap_register_unauthorized_email">This email address is unauthorized</string>
+    <string name="tchap_auth_agent_failure_warning_msg">Login to agent server failed. Only the protected data would be available.\nYou may try to login from the settings.</string>
 
     <string name="tchap_dialog_user_consent_homeserver_name">Tchap</string>
 
@@ -1172,7 +1176,7 @@
     <string name="plus_x">+%d</string>
     <string name="x_plus">%d+</string>
 
-    // Overrided sdk's strings
+    <!-- Overrided sdk's strings -->
     <string name="notice_room_name_changed">%1$s changed the room name to: %2$s</string>
     <string name="notice_made_future_room_visibility">%1$s made future room history visible to %2$s</string>
     <string name="notice_room_visibility_invited">all room members, from the point they are invited.</string>

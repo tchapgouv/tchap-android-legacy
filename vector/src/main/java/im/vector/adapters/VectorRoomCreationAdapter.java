@@ -161,8 +161,7 @@ public class VectorRoomCreationAdapter extends ArrayAdapter<ParticipantAdapterIt
         User user = null;
         MXSession matchedSession = null;
         // retrieve the linked user
-        List<MXSession> sessions = Matrix.getMXSessions(mContext);
-
+        List<MXSession> sessions = Matrix.getInstance(mContext).getSessions();
         for (MXSession session : sessions) {
             if (null == user) {
                 matchedSession = session;

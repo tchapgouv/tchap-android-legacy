@@ -91,6 +91,7 @@ public class VectorUniversalLinkReceiver extends BroadcastReceiver {
         Log.d(LOG_TAG, "## onReceive() IN");
 
         // get session
+        // FIXME MULTI-ACCOUNT: handle multi session
         mSession = Matrix.getInstance(aContext).getDefaultSession();
 
         // user is not yet logged in

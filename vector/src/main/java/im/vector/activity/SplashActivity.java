@@ -80,7 +80,7 @@ public class SplashActivity extends MXCActionBarActivity {
      */
     private boolean hasCorruptedStore() {
         boolean hasCorruptedStore = false;
-        List<MXSession> sessions = Matrix.getMXSessions(this);
+        List<MXSession> sessions = Matrix.getInstance(this).getSessions();
 
         for (MXSession session : sessions) {
             if (session.isAlive()) {
@@ -151,9 +151,8 @@ public class SplashActivity extends MXCActionBarActivity {
     @Override
     public void initUiAndData() {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        List<MXSession> sessions = Matrix.getInstance(getApplicationContext()).getSessions();
-
-        if (sessions == null) {
+        List<MXSession> sessions = Matrix.getInstance(this).getSessions();
+        if (sessions.isEmpty()) {
             Log.e(LOG_TAG, "onCreate no Sessions");
             finish();
             return;
@@ -172,7 +171,7 @@ public class SplashActivity extends MXCActionBarActivity {
                     .apply();
 
             // Force a clear cache
-            Matrix.getInstance(this).reloadSessions(this);
+            Matrix.getInstance(this).reloadSessions();
             return;
         }
 
@@ -186,12 +185,10 @@ public class SplashActivity extends MXCActionBarActivity {
     }
 
     private void checkLazyLoadingStatus(final List<MXSession> sessions) {
-        // Note: currently Riot uses a simple boolean to enable or disable LL, and does not support multi sessions
-        // If it was the case, every session may not support LL. So for the moment, only consider 1 session
-        if (sessions.size() != 1) {
-            // Go to next step
-            startEventStreamService(sessions);
-        }
+        // Note: currently Tchap uses a simple boolean to enable or disable LL, and does not support properly multi sessions
+        // So for the moment, we consider the first session to enable/disable this feature.
+        // This is not a problem because all the Tchap servers have the same LL configuration.
+
         // If LL is already ON, nothing to do
         if (PreferencesManager.useLazyLoading(this)) {
             // Go to next step
@@ -231,7 +228,7 @@ public class SplashActivity extends MXCActionBarActivity {
                             PreferencesManager.setUseLazyLoading(SplashActivity.this, true);
 
                             // Reload the sessions
-                            Matrix.getInstance(SplashActivity.this).reloadSessions(SplashActivity.this);
+                            Matrix.getInstance(SplashActivity.this).reloadSessions();
                         } else {
                             // Maybe in the future this home server will support it
                             startEventStreamService(sessions);
@@ -246,29 +243,28 @@ public class SplashActivity extends MXCActionBarActivity {
         List<String> matrixIds = new ArrayList<>();
 
         for (final MXSession session : sessions) {
-            final MXSession fSession = session;
 
             final IMXEventListener eventListener = new MXEventListener() {
                 private void onReady() {
                     boolean isAlreadyDone;
 
                     synchronized (LOG_TAG) {
-                        isAlreadyDone = mDoneListeners.containsKey(fSession);
+                        isAlreadyDone = mDoneListeners.containsKey(session);
                     }
 
                     if (!isAlreadyDone) {
                         synchronized (LOG_TAG) {
                             boolean noMoreListener;
 
-                            Log.e(LOG_TAG, "Session " + fSession.getCredentials().userId + " is initialized");
+                            Log.e(LOG_TAG, "Session " + session.getCredentials().userId + " is initialized");
 
-                            mDoneListeners.put(fSession, mListeners.get(fSession));
+                            mDoneListeners.put(session, mListeners.get(session));
                             // do not remove the listeners here
                             // it crashes the application because of the upper loop
-                            //fSession.getDataHandler().removeListener(mListeners.get(fSession));
+                            //session.getDataHandler().removeListener(mListeners.get(session));
                             // remove from the pending list
 
-                            mListeners.remove(fSession);
+                            mListeners.remove(session);
                             noMoreListener = (mListeners.size() == 0);
 
                             if (noMoreListener) {
@@ -292,14 +288,14 @@ public class SplashActivity extends MXCActionBarActivity {
                 }
             };
 
-            if (!fSession.getDataHandler().isInitialSyncComplete()) {
+            if (!session.getDataHandler().isInitialSyncComplete()) {
                 session.getDataHandler().getStore().open();
 
-                mListeners.put(fSession, eventListener);
-                fSession.getDataHandler().addListener(eventListener);
+                mListeners.put(session, eventListener);
+                session.getDataHandler().addListener(eventListener);
 
                 // Set the main error listener
-                fSession.setFailureCallback(new ErrorListener(fSession, this));
+                session.setFailureCallback(new ErrorListener(session, this));
 
                 // session to activate
                 matrixIds.add(session.getCredentials().userId);
@@ -329,7 +325,7 @@ public class SplashActivity extends MXCActionBarActivity {
         }
 
         // trigger the push registration if required
-        PushManager pushManager = Matrix.getInstance(getApplicationContext()).getPushManager();
+        PushManager pushManager = Matrix.getInstance(this).getPushManager();
 
         if (!pushManager.isFcmRegistered()) {
             pushManager.checkRegistrations();

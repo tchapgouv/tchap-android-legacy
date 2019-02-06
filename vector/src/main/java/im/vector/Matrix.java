@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import org.matrix.androidsdk.HomeServerConnectionConfig;
@@ -54,12 +55,16 @@ import org.matrix.androidsdk.util.Log;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
+import fr.gouv.tchap.media.MediaScanDao;
 import fr.gouv.tchap.media.MediaScanManager;
+import fr.gouv.tchap.model.TchapConnectionConfig;
+import fr.gouv.tchap.model.TchapRoom;
+import fr.gouv.tchap.model.TchapSession;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.SplashActivity;
 import im.vector.analytics.MetricsListenerProxy;
@@ -89,8 +94,11 @@ public class Matrix {
     // login storage
     private final LoginStorage mLoginStorage;
 
-    // list of session
-    private List<MXSession> mMXSessions;
+    // The created Tchap sessions map
+    @NonNull
+    private Map<String, TchapSession> mTchapSessions;
+    @NonNull
+    private List<String> mTchapSessionKeys;
 
     // Push manager
     private final PushManager mPushManager;
@@ -103,7 +111,7 @@ public class Matrix {
     public boolean mHasBeenDisconnected = false;
 
     // i.e the event has been read from another client
-    private static final MXEventListener mLiveEventListener = new MXEventListener() {
+    private final MXEventListener mLiveEventListener = new MXEventListener() {
         boolean mClearCacheRequired = false;
 
         @Override
@@ -118,8 +126,27 @@ public class Matrix {
         public void onLiveEvent(Event event, RoomState roomState) {
             mRefreshUnreadCounter |= Event.EVENT_TYPE_MESSAGE.equals(event.getType()) || Event.EVENT_TYPE_RECEIPT.equals(event.getType());
 
-            // TODO update to manage multisessions
-            WidgetsManager.getSharedInstance().onLiveEvent(instance.getDefaultSession(), event);
+            // Handle Widget events
+            // TODO manage multiple Tchap sessions
+            TchapSession tchapSession = instance.getDefaultTchapSession();
+            if (tchapSession != null) {
+                // Check whether a roomId is available
+                String eventRoomId = event.roomId;
+                if (eventRoomId != null) {
+                    TchapRoom room = tchapSession.getRoom(eventRoomId);
+                    if (room != null) {
+                        // Consider the room session
+                        WidgetsManager.getSharedInstance().onLiveEvent(room.getSession(), event);
+                    } else {
+                        Log.e(LOG_TAG, "onLiveEvent: ignore a widget event for an unknown room");
+                    }
+                } else {
+                    // TODO manage global widget...
+                    // Apply them only on the main session for the moment.
+                    WidgetsManager.getSharedInstance().onLiveEvent(tchapSession.getMainSession(), event);
+                    Log.w(LOG_TAG, "onLiveEvent: ignore the potential shadow session during the global widget handling");
+                }
+            }
         }
 
         @Override
@@ -127,10 +154,10 @@ public class Matrix {
             // when the client does not use FCM (ie. FDroid),
             // we need to compute the application badge values
 
-            if ((null != instance) && (null != instance.mMXSessions)) {
+            if (null != instance) {
                 if (mClearCacheRequired && !VectorApp.isAppInBackground()) {
                     mClearCacheRequired = false;
-                    instance.reloadSessions(VectorApp.getInstance());
+                    instance.reloadSessions();
                 } else if (mRefreshUnreadCounter) {
                     PushManager pushManager = instance.getPushManager();
 
@@ -138,8 +165,32 @@ public class Matrix {
                     if ((null != pushManager) && (!pushManager.useFcm() || !pushManager.hasRegistrationToken())) {
                         int roomCount = 0;
 
-                        for (MXSession session : instance.mMXSessions) {
+                        for (TchapSession tchapSession : instance.mTchapSessions.values()) {
+                            MXSession session = tchapSession.getMainSession();
                             if (session.isAlive()) {
+                                BingRulesManager bingRulesManager = session.getDataHandler().getBingRulesManager();
+                                Collection<Room> rooms = session.getDataHandler().getStore().getRooms();
+
+                                for (Room room : rooms) {
+                                    if (room.isInvited()) {
+                                        roomCount++;
+                                    } else {
+                                        int notificationCount = room.getNotificationCount();
+
+                                        if (bingRulesManager.isRoomMentionOnly(room.getRoomId())) {
+                                            notificationCount = room.getHighlightCount();
+                                        }
+
+                                        if (notificationCount > 0) {
+                                            roomCount++;
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Consider the potential shadow session too
+                            session = tchapSession.getShadowSession();
+                            if (session != null && session.isAlive()) {
                                 BingRulesManager bingRulesManager = session.getDataHandler().getBingRulesManager();
                                 Collection<Room> rooms = session.getDataHandler().getStore().getRooms();
 
@@ -178,12 +229,13 @@ public class Matrix {
     };
 
     // constructor
-    private Matrix(Context appContext) {
+    private Matrix(@NonNull Context appContext) {
         instance = this;
 
-        mAppContext = appContext.getApplicationContext();
+        mAppContext = appContext;
         mLoginStorage = new LoginStorage(mAppContext);
-        mMXSessions = new ArrayList<>();
+        mTchapSessions = new HashMap<>();
+        mTchapSessionKeys = new ArrayList<>();
         mTmpStores = new ArrayList<>();
 
         mPushManager = new PushManager(mAppContext);
@@ -193,12 +245,12 @@ public class Matrix {
      * Retrieve the static instance.
      * Create it if it does not exist yet.
      *
-     * @param appContext the application context
+     * @param context the context
      * @return the shared instance
      */
-    public synchronized static Matrix getInstance(Context appContext) {
-        if (instance == null && null != appContext) {
-            instance = new Matrix(appContext);
+    public synchronized static Matrix getInstance(Context context) {
+        if (instance == null && null != context) {
+            instance = new Matrix(context.getApplicationContext());
         }
         return instance;
     }
@@ -260,29 +312,26 @@ public class Matrix {
     }
 
     /**
-     * Static method top the MXSession list
-     *
-     * @param context the application content
-     * @return the sessions list
+     * @return The list of sessions
      */
-    public static List<MXSession> getMXSessions(Context context) {
-        if ((null != context) && (null != instance)) {
-            return instance.getSessions();
-        } else {
-            return null;
+    public synchronized List<MXSession> getSessions() {
+        List<MXSession> sessions = new ArrayList<>();
+
+        for (TchapSession tchapSession : mTchapSessions.values()) {
+            sessions.addAll(tchapSession.getSessions());
         }
+
+        return sessions;
     }
 
     /**
-     * @return The list of sessions
+     * @return The list of Tchap sessions
      */
-    public List<MXSession> getSessions() {
-        List<MXSession> sessions = new ArrayList<>();
+    public synchronized List<TchapSession> getTchapSessions() {
+        List<TchapSession> sessions = new ArrayList<>();
 
-        synchronized (LOG_TAG) {
-            if (null != mMXSessions) {
-                sessions = new ArrayList<>(mMXSessions);
-            }
+        if (!mTchapSessions.isEmpty()) {
+            sessions = new ArrayList<>(mTchapSessions.values());
         }
 
         return sessions;
@@ -291,67 +340,72 @@ public class Matrix {
     /**
      * Retrieve the default session if one exists.
      * <p>
-     * The default session may be user-configured, or it may be the last session the user was using.
+     * Tchap: the default session is the protected one if several sessions exist
      *
      * @return The default session or null.
      */
+    @Nullable
     public synchronized MXSession getDefaultSession() {
-        List<MXSession> sessions = getSessions();
+        TchapSession tchapSession = getDefaultTchapSession();
 
-        if (sessions.size() > 0) {
-            return sessions.get(0);
+        if (tchapSession != null) {
+            return tchapSession.getMainSession();
         }
-
-        List<HomeServerConnectionConfig> hsConfigList = mLoginStorage.getCredentialsList();
-
-        // any account ?
-        if ((hsConfigList == null) || (hsConfigList.size() == 0)) {
-            return null;
-        }
-
-        boolean appDidCrash = VectorApp.getInstance().didAppCrash();
-
-        Set<String> matrixIds = new HashSet<>();
-        sessions = new ArrayList<>();
-
-        for (HomeServerConnectionConfig config : hsConfigList) {
-            // avoid duplicated accounts.
-            // null userId has been reported by GA
-            if (config.getCredentials() != null && !TextUtils.isEmpty(config.getCredentials().userId) && !matrixIds.contains(config.getCredentials().userId)) {
-                MXSession session = createSession(config);
-
-                // if the application crashed
-                if (appDidCrash) {
-                    // clear the session data
-                    session.clear(VectorApp.getInstance());
-                    // and open it again
-                    session = createSession(config);
-                }
-
-                sessions.add(session);
-                matrixIds.add(config.getCredentials().userId);
-            }
-        }
-
-        synchronized (LOG_TAG) {
-            mMXSessions = sessions;
-        }
-
-        if (0 == sessions.size()) {
-            return null;
-        }
-
-        return sessions.get(0);
+        return null;
     }
 
     /**
-     * Static method to return a MXSession from an account Id.
+     * Retrieve the default session if one exists.
      *
-     * @param matrixId the matrix id
-     * @return the MXSession.
+     * @return The default session or null.
      */
-    public static MXSession getMXSession(Context context, String matrixId) {
-        return Matrix.getInstance(context.getApplicationContext()).getSession(matrixId);
+    @Nullable
+    public synchronized TchapSession getDefaultTchapSession() {
+        // Check first whether a session is available
+        TchapSession tchapSession = _getDefaultTchapSession();
+        if (tchapSession != null) {
+            return tchapSession;
+        }
+
+        List<TchapConnectionConfig> tchapConfigs = mLoginStorage.getCredentialsList();
+        if ((tchapConfigs == null) || (tchapConfigs.size() == 0)) {
+            return null;
+        }
+
+        // Check whether the app has crashed
+        if (VectorApp.getInstance().didAppCrash()) {
+            clearTchapSessionData(tchapConfigs);
+        }
+
+        // Create all the Tchap sessions
+        for (TchapConnectionConfig config : tchapConfigs) {
+            createTchapSession(config);
+        }
+
+        return _getDefaultTchapSession();
+    }
+
+    @Nullable
+    private TchapSession _getDefaultTchapSession() {
+        if (!mTchapSessionKeys.isEmpty()) {
+            // Return the first created Tchap session by default.
+            return mTchapSessions.get(mTchapSessionKeys.get(0));
+        }
+        return null;
+    }
+
+    /**
+     * Clear all the session data
+     */
+    private void clearTchapSessionData(@NonNull List<TchapConnectionConfig> tchapConfigs) {
+        for (TchapConnectionConfig config : tchapConfigs) {
+            TchapSession session = _createTchapSession(config);
+
+            if (session != null) {
+                // clear the session data
+                session.clear(VectorApp.getInstance());
+            }
+        }
     }
 
     /**
@@ -361,24 +415,63 @@ public class Matrix {
      * @param matrixId the matrix id
      * @return the MXsession if it exists.
      */
+    @Nullable
     public synchronized MXSession getSession(String matrixId) {
-        if (null != matrixId) {
-            List<MXSession> sessions;
+        MXSession session = null;
 
-            synchronized (this) {
-                sessions = getSessions();
-            }
+        if (!mTchapSessions.isEmpty()) {
+            TchapSession tchapSession = mTchapSessions.get(matrixId);
+            if (tchapSession != null) {
+                session = tchapSession.getMainSession();
+            } else {
+                // Look for a shadow session?
+                for (TchapSession tchapSession1 : mTchapSessions.values()) {
+                    MXSession shadowSession = tchapSession1.getShadowSession();
+                    if (shadowSession != null) {
+                        Credentials credentials = shadowSession.getCredentials();
 
-            for (MXSession session : sessions) {
-                Credentials credentials = session.getCredentials();
-
-                if ((null != credentials) && (credentials.userId.equals(matrixId))) {
-                    return session;
+                        if ((null != credentials) && (credentials.userId.equals(matrixId))) {
+                            session = shadowSession;
+                            break;
+                        }
+                    }
                 }
             }
         }
 
-        return getDefaultSession();
+        return session;
+    }
+
+    /**
+     * Retrieve a Tchap session related to an user Id.
+     *
+     * @param matrixId the matrix id
+     * @return the Tchap session if it exists.
+     */
+    @Nullable
+    public synchronized TchapSession getTchapSession(@NonNull String matrixId) {
+        TchapSession tchapSession = null;
+
+        if (!mTchapSessions.isEmpty()) {
+            tchapSession = mTchapSessions.get(matrixId);
+            if (tchapSession == null) {
+                // Look for a shadow session?
+                for (TchapSession tchapSession1 : mTchapSessions.values()) {
+                    MXSession shadowSession = tchapSession1.getShadowSession();
+                    if (shadowSession != null) {
+                        Credentials credentials = shadowSession.getCredentials();
+
+                        if ((null != credentials) && (credentials.userId.equals(matrixId))) {
+                            // found it
+                            tchapSession = tchapSession1;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return tchapSession;
     }
 
     /**
@@ -388,7 +481,7 @@ public class Matrix {
      */
     public static void setSessionErrorListener(Activity activity) {
         if ((null != instance) && (null != activity)) {
-            Collection<MXSession> sessions = getMXSessions(activity);
+            Collection<MXSession> sessions = instance.getSessions();
 
             for (MXSession session : sessions) {
                 if (session.isAlive()) {
@@ -399,11 +492,11 @@ public class Matrix {
     }
 
     /**
-     * Remove the sessions error listener to each
+     * Remove the sessions error listener to each session
      */
-    public static void removeSessionErrorListener(Activity activity) {
-        if ((null != instance) && (null != activity)) {
-            Collection<MXSession> sessions = getMXSessions(activity);
+    public static void removeSessionErrorListener() {
+        if (null != instance) {
+            Collection<MXSession> sessions = instance.getSessions();
 
             for (MXSession session : sessions) {
                 if (session.isAlive()) {
@@ -419,9 +512,11 @@ public class Matrix {
      *
      * @return the mediasCache.
      */
-    public MXMediasCache getMediasCache() {
-        if (getSessions().size() > 0) {
-            return getSessions().get(0).getMediasCache();
+    @Nullable
+    public synchronized MXMediasCache getMediasCache() {
+        TchapSession defaultSession = _getDefaultTchapSession();
+        if (defaultSession != null) {
+            return defaultSession.getMainSession().getMediasCache();
         }
         return null;
     }
@@ -432,9 +527,11 @@ public class Matrix {
      *
      * @return the latest messages cache.
      */
-    public MXLatestChatMessageCache getDefaultLatestChatMessageCache() {
-        if (getSessions().size() > 0) {
-            return getSessions().get(0).getLatestChatMessageCache();
+    @Nullable
+    public synchronized MXLatestChatMessageCache getDefaultLatestChatMessageCache() {
+        TchapSession defaultSession = _getDefaultTchapSession();
+        if (defaultSession != null) {
+            return defaultSession.getMainSession().getLatestChatMessageCache();
         }
         return null;
     }
@@ -448,22 +545,25 @@ public class Matrix {
             return false;
         }
 
-        boolean res;
+        boolean res = true;
 
-        synchronized (LOG_TAG) {
-            res = (null != instance.mMXSessions) && (instance.mMXSessions.size() > 0);
-
-            if (!res) {
+        synchronized (instance) {
+            if (instance.mTchapSessions.isEmpty()) {
+                res = false;
                 Log.e(LOG_TAG, "hasValidSessions : has no session");
             } else {
-                for (MXSession session : instance.mMXSessions) {
+                for (TchapSession session : instance.mTchapSessions.values()) {
                     // some GA issues reported that the data handler can be null
                     // so assume the application should be restarted
-                    res &= session.isAlive() && (null != session.getDataHandler());
+                    res &= session.getMainSession().isAlive() && (null != session.getMainSession().getDataHandler());
+
+                    if (session.getShadowSession() != null) {
+                        res &= session.getShadowSession().isAlive() && (null != session.getShadowSession().getDataHandler());
+                    }
                 }
 
                 if (!res) {
-                    Log.e(LOG_TAG, "hasValidSessions : one sesssion has no valid data handler");
+                    Log.e(LOG_TAG, "hasValidSessions : one session has no valid data handler");
                 }
             }
         }
@@ -479,86 +579,140 @@ public class Matrix {
      * Deactivate a session.
      *
      * @param context       the context.
-     * @param session       the session to deactivate.
+     * @param tchapSession  the session to deactivate.
      * @param userPassword  the user password
      * @param eraseUserData true to also erase all the user data
      * @param aCallback     the success and failure callback
      */
     public void deactivateSession(final Context context,
-                                  final MXSession session,
+                                  final TchapSession tchapSession,
                                   final String userPassword,
                                   final boolean eraseUserData,
                                   final @NonNull ApiCallback<Void> aCallback) {
-        Log.d(LOG_TAG, "## deactivateSession() " + session.getMyUserId());
+        Log.d(LOG_TAG, "## deactivateSession() " + tchapSession.getMainSession().getMyUserId());
 
-        session.deactivateAccount(context, LoginRestClient.LOGIN_FLOW_TYPE_PASSWORD, userPassword, eraseUserData, new SimpleApiCallback<Void>(aCallback) {
-            @Override
-            public void onSuccess(Void info) {
-                mLoginStorage.removeCredentials(session.getHomeServerConfig());
+        tchapSession.getMainSession().deactivateAccount(context,
+                LoginRestClient.LOGIN_FLOW_TYPE_PASSWORD,
+                userPassword,
+                eraseUserData,
+                new SimpleApiCallback<Void>(aCallback) {
 
-                session.getDataHandler().removeListener(mLiveEventListener);
+                    private void onCompletion(Void info) {
+                        mLoginStorage.removeCredentials(tchapSession.getConfig());
 
-                VectorApp.removeSyncingSession(session);
+                        for (MXSession session : tchapSession.getSessions()) {
+                            session.getDataHandler().removeListener(mLiveEventListener);
+                            VectorApp.removeSyncingSession(session);
+                        }
 
-                synchronized (LOG_TAG) {
-                    mMXSessions.remove(session);
-                }
+                        synchronized (this) {
+                            String sessionKey = tchapSession.getMainSession().getMyUserId();
+                            mTchapSessionKeys.remove(sessionKey);
+                            mTchapSessions.remove(sessionKey);
+                        }
 
-                aCallback.onSuccess(info);
-            }
-        });
+                        aCallback.onSuccess(info);
+                    }
+
+                    @Override
+                    public void onSuccess(Void info) {
+
+//                        // TODO check with the server team whether the client has to deactivate this shadow account too
+//                        MXSession shadowSession = tchapSession.getShadowSession();
+//                        if (shadowSession != null) {
+//                            shadowSession.deactivateAccount(context,
+//                                    LoginRestClient.LOGIN_FLOW_TYPE_PASSWORD,
+//                                    userPassword,
+//                                    eraseUserData,
+//                                    new SimpleApiCallback<Void>(aCallback) {
+//                                        @Override
+//                                        public void onSuccess(Void info) {
+//                                            onCompletion(info);
+//                                        }
+//                                    });
+//                        } else {
+//                            onCompletion(info);
+//                        }
+                        onCompletion(info);
+                    }
+                });
     }
 
     /**
      * Clear a session.
      *
      * @param context          the context.
-     * @param session          the session to clear.
+     * @param tchapSession     the session to clear.
      * @param clearCredentials true to clear the credentials.
      */
     public synchronized void clearSession(final Context context,
-                                          final MXSession session,
+                                          final TchapSession tchapSession,
                                           final boolean clearCredentials,
                                           final ApiCallback<Void> aCallback) {
-        if (!session.isAlive()) {
-            Log.e(LOG_TAG, "## clearSession() " + session.getMyUserId() + " is already released");
+        if (!tchapSession.getMainSession().isAlive()) {
+            Log.e(LOG_TAG, "## clearSession() " + tchapSession.getMainSession().getMyUserId() + " is already released");
             return;
         }
 
-        Log.d(LOG_TAG, "## clearSession() " + session.getMyUserId() + " clearCredentials " + clearCredentials);
+        Log.d(LOG_TAG, "## clearSession() " + tchapSession.getMainSession().getMyUserId() + " clearCredentials " + clearCredentials);
 
         if (clearCredentials) {
-            mLoginStorage.removeCredentials(session.getHomeServerConfig());
+            mLoginStorage.removeCredentials(tchapSession.getConfig());
         }
 
-        session.getDataHandler().removeListener(mLiveEventListener);
-
         ApiCallback<Void> callback = new SimpleApiCallback<Void>() {
-            @Override
-            public void onSuccess(Void info) {
-                VectorApp.removeSyncingSession(session);
-
-                synchronized (LOG_TAG) {
-                    mMXSessions.remove(session);
+            private void onCompletion() {
+                for (MXSession session : tchapSession.getSessions()) {
+                    session.getDataHandler().removeListener(mLiveEventListener);
+                    VectorApp.removeSyncingSession(session);
                 }
+
+                String sessionKey = tchapSession.getMainSession().getMyUserId();
+                mTchapSessionKeys.remove(sessionKey);
+                mTchapSessions.remove(sessionKey);
 
                 if (null != aCallback) {
                     aCallback.onSuccess(null);
                 }
             }
+
+            @Override
+            public void onSuccess(Void info) {
+                MXSession shadowSession = tchapSession.getShadowSession();
+                if (shadowSession != null) {
+                    if (clearCredentials) {
+                        shadowSession.logout(context, new SimpleApiCallback<Void>(aCallback) {
+                            @Override
+                            public void onSuccess(Void info) {
+                                onCompletion();
+                            }
+                        });
+                    } else {
+                        shadowSession.clear(context, new SimpleApiCallback<Void>(aCallback) {
+                            @Override
+                            public void onSuccess(Void info) {
+                                onCompletion();
+                            }
+                        });
+                    }
+                } else {
+                    onCompletion();
+                }
+
+            }
         };
 
         if (clearCredentials) {
-            session.logout(context, callback);
+            tchapSession.getMainSession().logout(context, callback);
         } else {
-            session.clear(context, callback);
+            tchapSession.getMainSession().clear(context, callback);
         }
 
         // Clear media scan database
         // TODO The media scan database clear should be handled during the media cache clear when the MediaScanManager will be moved into the sdk.
         Realm realm = Realm.getDefaultInstance();
-        MediaScanManager mediaScanManager = new MediaScanManager(session.getMediaScanRestClient(), realm);
-        mediaScanManager.clearAntiVirusScanResults();
+        final MediaScanDao mediaScanDao = new MediaScanDao(realm);
+        mediaScanDao.clearAntiVirusScanResults();
         realm.close();
     }
 
@@ -569,12 +723,7 @@ public class Matrix {
      * @param clearCredentials true to clear the credentials.
      */
     public synchronized void clearSessions(Context context, boolean clearCredentials, ApiCallback<Void> callback) {
-        List<MXSession> sessions;
-
-        synchronized (LOG_TAG) {
-            sessions = new ArrayList<>(mMXSessions);
-        }
-
+        List<TchapSession> sessions = new ArrayList<>(mTchapSessions.values());
         clearSessions(context, sessions.iterator(), clearCredentials, callback);
     }
 
@@ -587,7 +736,7 @@ public class Matrix {
      * @param callback         the asynchronous callback
      */
     private synchronized void clearSessions(final Context context,
-                                            final Iterator<MXSession> iterator,
+                                            final Iterator<TchapSession> iterator,
                                             final boolean clearCredentials,
                                             final ApiCallback<Void> callback) {
         if (!iterator.hasNext()) {
@@ -607,25 +756,42 @@ public class Matrix {
     }
 
     /**
-     * Set a default session.
-     *
-     * @param session The session to store as the default session.
+     * Add a Tchap connection config .
      */
-    public synchronized void addSession(MXSession session) {
-        mLoginStorage.addCredentials(session.getHomeServerConfig());
-        synchronized (LOG_TAG) {
-            mMXSessions.add(session);
-        }
+    public synchronized void addTchapConnectionConfig(TchapConnectionConfig serverConfig) {
+        mLoginStorage.addCredentials(serverConfig);
     }
 
     /**
-     * Creates an MXSession from some credentials.
+     * Create the Matrix session(s) from a Tchap configuration.
      *
-     * @param hsConfig The HomeserverConnectionConfig to create a session from.
-     * @return The session.
+     * @param hsConfig The Tchap homeserver(s) description.
      */
-    public MXSession createSession(HomeServerConnectionConfig hsConfig) {
-        return createSession(mAppContext, hsConfig);
+    public synchronized TchapSession createTchapSession(TchapConnectionConfig hsConfig) {
+        final TchapSession tchapSession = _createTchapSession(hsConfig);
+
+        if (tchapSession != null) {
+            final String sessionKey = tchapSession.getMainSession().getMyUserId();
+            mTchapSessions.put(sessionKey, tchapSession);
+            mTchapSessionKeys.add(sessionKey);
+        }
+
+        return tchapSession;
+    }
+
+    private TchapSession _createTchapSession(TchapConnectionConfig hsConfig) {
+        MXSession session = createSession(mAppContext, hsConfig.getHsConfig());
+        Boolean hasProtectedAccess = hsConfig.getHasProtectedAccess();
+        MXSession shadowSession = null;
+
+        if (hasProtectedAccess) {
+            HomeServerConnectionConfig shadowHSConfig = hsConfig.getShadowHSConfig();
+            if (shadowHSConfig != null) {
+                shadowSession = createSession(mAppContext, shadowHSConfig);
+            }
+        }
+
+        return new TchapSession(hsConfig, session, shadowSession);
     }
 
     /**
@@ -686,8 +852,11 @@ public class Matrix {
                     UnrecognizedCertHandler.show(session.getHomeServerConfig(), fingerprint, true, new UnrecognizedCertHandler.Callback() {
                         @Override
                         public void onAccept() {
-                            LoginStorage loginStorage = Matrix.getInstance(VectorApp.getInstance().getApplicationContext()).getLoginStorage();
-                            loginStorage.replaceCredentials(session.getHomeServerConfig());
+                            TchapSession tchapSession = getTchapSession(session.getMyUserId());
+                            if (tchapSession != null) {
+                                TchapConnectionConfig updatedConfig = tchapSession.getConfig().replaceHSConfig(session.getHomeServerConfig());
+                                mLoginStorage.replaceCredentials(updatedConfig);
+                            }
                         }
 
                         @Override
@@ -698,7 +867,11 @@ public class Matrix {
                         @Override
                         public void onReject() {
                             Log.d(LOG_TAG, "Found fingerprint: reject fingerprint");
-                            CommonActivityUtils.logout(VectorApp.getCurrentActivity(), Arrays.asList(session), true, null);
+                            TchapSession tchapSession = getTchapSession(session.getMyUserId());
+                            if (tchapSession != null) {
+                                CommonActivityUtils.logout(VectorApp.getCurrentActivity(), Arrays.asList(tchapSession), true, null);
+                            }
+
                         }
                     });
                 }
@@ -742,32 +915,27 @@ public class Matrix {
      * Reload the matrix sessions.
      * The session caches are cleared before being reloaded.
      * Any opened activity is closed and the application switches to the splash screen.
-     *
-     * @param context the context
      */
-    public void reloadSessions(final Context context) {
+    public void reloadSessions() {
         Log.e(LOG_TAG, "## reloadSessions");
 
-        CommonActivityUtils.logout(context, getMXSessions(context), false, new SimpleApiCallback<Void>() {
+        CommonActivityUtils.logout(mAppContext, getTchapSessions(), false, new SimpleApiCallback<Void>() {
             @Override
             public void onSuccess(Void info) {
-                synchronized (LOG_TAG) {
-                    // build a new sessions list
-                    List<HomeServerConnectionConfig> configs = mLoginStorage.getCredentialsList();
+                // build a new sessions list
+                List<TchapConnectionConfig> configs = mLoginStorage.getCredentialsList();
 
-                    for (HomeServerConnectionConfig config : configs) {
-                        MXSession session = createSession(config);
-                        mMXSessions.add(session);
-                    }
+                for (TchapConnectionConfig config : configs) {
+                    TchapSession session = createTchapSession(config);
                 }
 
                 // clear FCM token before launching the splash screen
-                Matrix.getInstance(context).getPushManager().clearFcmData(new SimpleApiCallback<Void>() {
+                mPushManager.clearFcmData(new SimpleApiCallback<Void>() {
                     @Override
                     public void onSuccess(final Void anything) {
-                        Intent intent = new Intent(context.getApplicationContext(), SplashActivity.class);
+                        Intent intent = new Intent(mAppContext, SplashActivity.class);
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        context.getApplicationContext().startActivity(intent);
+                        mAppContext.startActivity(intent);
 
                         if (null != VectorApp.getCurrentActivity()) {
                             VectorApp.getCurrentActivity().finish();
@@ -792,13 +960,8 @@ public class Matrix {
     /**
      * Refresh the sessions push rules.
      */
-    public void refreshPushRules() {
-        List<MXSession> sessions;
-
-        synchronized (this) {
-            sessions = getSessions();
-        }
-
+    public synchronized void refreshPushRules() {
+        List<MXSession> sessions = getSessions();
         for (MXSession session : sessions) {
             if (null != session.getDataHandler()) {
                 session.getDataHandler().refreshPushRules();

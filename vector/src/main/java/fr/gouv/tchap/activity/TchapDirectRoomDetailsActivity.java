@@ -110,7 +110,7 @@ public class TchapDirectRoomDetailsActivity extends TchapContactActionBarActivit
         }
 
         // get current session
-        mSession = Matrix.getInstance(getApplicationContext()).getSession(mMatrixId);
+        mSession = Matrix.getInstance(this).getSession(mMatrixId);
 
         if ((null == mSession) || !mSession.isAlive()) {
             finish();

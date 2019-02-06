@@ -22,8 +22,8 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import org.matrix.androidsdk.HomeServerConnectionConfig;
-import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
+import org.matrix.androidsdk.rest.callback.SuccessCallback;
 import org.matrix.androidsdk.rest.client.LoginRestClient;
 import org.matrix.androidsdk.rest.client.ThirdPidRestClient;
 import org.matrix.androidsdk.rest.model.MatrixError;
@@ -31,78 +31,146 @@ import org.matrix.androidsdk.rest.model.login.Credentials;
 import org.matrix.androidsdk.rest.model.login.LoginFlow;
 import org.matrix.androidsdk.rest.model.login.RegistrationParams;
 import org.matrix.androidsdk.rest.model.pid.ThreePid;
+import org.matrix.androidsdk.util.Log;
 
-import java.util.Collection;
 import java.util.List;
 
+import fr.gouv.tchap.model.TchapConnectionConfig;
+import fr.gouv.tchap.model.TchapSession;
 import im.vector.settings.VectorLocale;
 
 public class LoginHandler {
+    private static final String LOG_TAG = LoginHandler.class.getSimpleName();
+
     /**
-     * The account login / creation succeeds so create the dedicated session and store it.
+     * The account authentication succeeds, store here the dedicated Tchap session and create it.
      *
-     * @param appCtx      the application context.
-     * @param hsConfig    the homeserver config
-     * @param credentials the credentials
-     * @param callback    the callback
+     * @param matrixInstance  the current Matrix instance
+     * @param tchapConfig     the Tchap homeserver(s) config
      */
-    private void onRegistrationDone(Context appCtx,
-                                    HomeServerConnectionConfig hsConfig,
-                                    Credentials credentials,
-                                    ApiCallback<Void> callback) {
-        // sanity check - GA issue
-        if (TextUtils.isEmpty(credentials.userId)) {
-            callback.onMatrixError(new MatrixError(MatrixError.FORBIDDEN, "No user id"));
-            return;
+    private void onRegistrationDone(Matrix matrixInstance,
+                                    TchapConnectionConfig tchapConfig) {
+        // Sanity check: check whether the tchap session does not already exist.
+        String userId = tchapConfig.getHsConfig().getCredentials().userId;
+        TchapSession existingSession = matrixInstance.getTchapSession(userId);
+
+        if (existingSession == null) {
+            matrixInstance.addTchapConnectionConfig(tchapConfig);
+            matrixInstance.createTchapSession(tchapConfig);
         }
-
-        Collection<MXSession> sessions = Matrix.getMXSessions(appCtx);
-        boolean isDuplicated = false;
-
-        for (MXSession existingSession : sessions) {
-            Credentials cred = existingSession.getCredentials();
-            isDuplicated |= TextUtils.equals(credentials.userId, cred.userId) && TextUtils.equals(credentials.homeServer, cred.homeServer);
-        }
-
-        if (!isDuplicated) {
-            hsConfig.setCredentials(credentials);
-            MXSession session = Matrix.getInstance(appCtx).createSession(hsConfig);
-            Matrix.getInstance(appCtx).addSession(session);
-        }
-
-        callback.onSuccess(null);
     }
 
     /**
      * Try to login.
-     * The MXSession is created if the operation succeeds.
+     * The Matrix session(s) are created if the operation succeeds.
      *
-     * @param ctx                the context.
-     * @param hsConfig           The homeserver config.
+     * @param context            The context.
+     * @param tchapConfig        The Tchap homeserver(s) config.
      * @param username           The username.
      * @param phoneNumber        The phone number.
      * @param phoneNumberCountry The phone number country code.
      * @param password           The password;
      * @param callback           The callback.
      */
-    public void login(Context ctx,
-                      final HomeServerConnectionConfig hsConfig,
+    public void login(final Context context,
+                      final TchapConnectionConfig tchapConfig,
                       final String username,
                       final String phoneNumber,
                       final String phoneNumberCountry,
                       final String password,
-                      final ApiCallback<Void> callback) {
-        final Context appCtx = ctx.getApplicationContext();
-
-        callLogin(ctx, hsConfig, username, phoneNumber, phoneNumberCountry, password, new UnrecognizedCertApiCallback<Credentials>(hsConfig, callback) {
+                      final ApiCallback<String> callback) {
+        // Consider the main HS first.
+        final HomeServerConnectionConfig hsConfig = tchapConfig.getHsConfig();
+        callLogin(context, hsConfig, username, phoneNumber, phoneNumberCountry, password, new UnrecognizedCertApiCallback<Credentials>(hsConfig, callback) {
             @Override
             public void onSuccess(Credentials credentials) {
-                onRegistrationDone(appCtx, hsConfig, credentials, callback);
+                // sanity check - GA issue
+                if (TextUtils.isEmpty(credentials.userId)) {
+                    callback.onMatrixError(new MatrixError(MatrixError.FORBIDDEN, "No user id"));
+                    return;
+                }
+
+                hsConfig.setCredentials(credentials);
+
+                // Check whether a shadow HS is available in the Tchap configuration
+                final HomeServerConnectionConfig shadowHS = tchapConfig.getShadowHSConfig();
+                if (shadowHS != null) {
+                    shadowLogin(context, shadowHS, username, phoneNumber, phoneNumberCountry, password, new SuccessCallback<String>() {
+                        @Override
+                        public void onSuccess(String warningMessage) {
+                            onRegistrationDone(Matrix.getInstance(context), tchapConfig);
+                            callback.onSuccess(warningMessage);
+                        }
+                    });
+
+                } else {
+                    onRegistrationDone(Matrix.getInstance(context), tchapConfig);
+                    callback.onSuccess(null);
+                }
             }
 
             @Override
             public void onAcceptedCert() {
-                login(appCtx, hsConfig, username, phoneNumber, phoneNumberCountry, password, callback);
+                login(context, tchapConfig, username, phoneNumber, phoneNumberCountry, password, callback);
+            }
+        });
+    }
+
+    /**
+     * Handle the login stage on the shadow HS.
+     * This method returns a warning message in case of failure, otherwise it returns null.
+     *
+     * @param context            the context.
+     * @param shadowHSConfig     The shadow homeserver config.
+     * @param username           The username.
+     * @param phoneNumber        The phone number.
+     * @param phoneNumberCountry The phone number country code.
+     * @param password           The password;
+     * @param callback           The callback.
+     */
+    private void shadowLogin(final Context context,
+                             final HomeServerConnectionConfig shadowHSConfig,
+                             final String username,
+                             final String phoneNumber,
+                             final String phoneNumberCountry,
+                             final String password,
+                             final SuccessCallback<String> callback) {
+        callLogin(context, shadowHSConfig, username, phoneNumber, phoneNumberCountry, password, new UnrecognizedCertApiCallback<Credentials>(shadowHSConfig) {
+            private void onError(String errorMessage) {
+                Log.e(LOG_TAG, "Login to the shadow HS failed " + errorMessage);
+                callback.onSuccess(context.getString(R.string.tchap_auth_agent_failure_warning_msg));
+            }
+
+            @Override
+            public void onNetworkError(Exception e) {
+                onError(e.getMessage());
+            }
+
+            @Override
+            public void onMatrixError(MatrixError e) {
+                onError(e.getMessage());
+            }
+
+            @Override
+            public void onUnexpectedError(Exception e) {
+                onError(e.getMessage());
+            }
+
+            @Override
+            public void onSuccess(Credentials credentials) {
+                // sanity check - GA issue
+                if (TextUtils.isEmpty(credentials.userId)) {
+                    onError("No user id");
+                    return;
+                }
+
+                shadowHSConfig.setCredentials(credentials);
+                callback.onSuccess(null);
+            }
+
+            @Override
+            public void onAcceptedCert() {
+                shadowLogin(context, shadowHSConfig, username, phoneNumber, phoneNumberCountry, password, callback);
             }
         });
     }
@@ -142,56 +210,31 @@ public class LoginHandler {
     }
 
     /**
-     * Retrieve the supported login flows of a home server.
-     *
-     * @param ctx      the application context.
-     * @param hsConfig the home server config.
-     * @param callback the supported flows list callback.
-     */
-    public void getSupportedLoginFlows(Context ctx, final HomeServerConnectionConfig hsConfig, final ApiCallback<List<LoginFlow>> callback) {
-        final Context appCtx = ctx.getApplicationContext();
-        LoginRestClient client = new LoginRestClient(hsConfig);
-
-        client.getSupportedLoginFlows(new UnrecognizedCertApiCallback<List<LoginFlow>>(hsConfig, callback) {
-            @Override
-            public void onSuccess(List<LoginFlow> info) {
-                callback.onSuccess(info);
-            }
-
-            @Override
-            public void onAcceptedCert() {
-                getSupportedLoginFlows(appCtx, hsConfig, callback);
-            }
-        });
-    }
-
-    /**
      * Retrieve the supported registration flows of a home server.
      *
-     * @param ctx      the application context.
+     * @param context  the application context.
      * @param hsConfig the home server config.
      * @param callback the supported flows list callback.
      */
-    public void getSupportedRegistrationFlows(Context ctx,
+    public void getSupportedRegistrationFlows(final Context context,
                                               final HomeServerConnectionConfig hsConfig,
                                               final ApiCallback<Void> callback) {
         final RegistrationParams params = new RegistrationParams();
-        final Context appCtx = ctx.getApplicationContext();
         LoginRestClient client = new LoginRestClient(hsConfig);
 
         // avoid dispatching the device name
-        params.initial_device_display_name = ctx.getString(R.string.login_mobile_device);
+        params.initial_device_display_name = context.getString(R.string.login_mobile_device);
 
         client.register(params, new UnrecognizedCertApiCallback<Credentials>(hsConfig, callback) {
             @Override
             public void onSuccess(Credentials credentials) {
-                // Should never happen, onMatrixError() will be called
-                onRegistrationDone(appCtx, hsConfig, credentials, callback);
+                // Should never happen, the request must fail by calling onMatrixError().
+                callback.onMatrixError(new MatrixError(MatrixError.NOT_SUPPORTED, "Unexpected registration success"));
             }
 
             @Override
             public void onAcceptedCert() {
-                getSupportedRegistrationFlows(appCtx, hsConfig, callback);
+                getSupportedRegistrationFlows(context, hsConfig, callback);
             }
         });
     }
@@ -199,14 +242,14 @@ public class LoginHandler {
     /**
      * Perform the validation of a mail ownership.
      *
-     * @param aCtx              Android App context
+     * @param context           Android App context
      * @param aHomeServerConfig server configuration
      * @param aToken            the token
      * @param aClientSecret     the client secret
      * @param aSid              the server identity session id
      * @param aRespCallback     asynchronous callback response
      */
-    public void submitEmailTokenValidation(final Context aCtx,
+    public void submitEmailTokenValidation(final Context context,
                                            final HomeServerConnectionConfig aHomeServerConfig,
                                            final String aToken,
                                            final String aClientSecret,
@@ -223,7 +266,7 @@ public class LoginHandler {
 
             @Override
             public void onAcceptedCert() {
-                submitEmailTokenValidation(aCtx, aHomeServerConfig, aToken, aClientSecret, aSid, aRespCallback);
+                submitEmailTokenValidation(context, aHomeServerConfig, aToken, aClientSecret, aSid, aRespCallback);
             }
         });
     }

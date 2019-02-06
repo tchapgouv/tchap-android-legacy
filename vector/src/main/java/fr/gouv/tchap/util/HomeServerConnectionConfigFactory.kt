@@ -19,11 +19,37 @@ package fr.gouv.tchap.util
 import android.net.Uri
 import android.os.Build
 import android.support.annotation.VisibleForTesting
-import fr.gouv.tchap.config.CERTIFICATE_FINGERPRINT_LIST
-import fr.gouv.tchap.config.ENABLE_CERTIFICATE_PINNING
+import fr.gouv.tchap.config.*
+import fr.gouv.tchap.model.TchapConnectionConfig
+import fr.gouv.tchap.sdk.rest.model.Platform
 import org.matrix.androidsdk.HomeServerConnectionConfig
 import org.matrix.androidsdk.ssl.Fingerprint
 import java.lang.Long.parseLong
+
+/**
+ * Create a TchapConnectionConfig from a Tchap platform description.
+ * @return a Tchap config with all the required parameters for the Tchap application.
+ */
+fun createTchapConnectionConfig(email: String, tchapPlatform: Platform, serverURLPrefix: String): TchapConnectionConfig? {
+    val config = createHomeServerConnectionConfig(tchapPlatform, serverURLPrefix)
+    val hasProtectedAccess = hasProtectedAccess(tchapPlatform)
+    val shadowConfig = createShadowHomeServerConnectionConfig(tchapPlatform, serverURLPrefix)
+    val version = TchapConnectionConfig.currentVersion()
+
+    config?.let {
+        return TchapConnectionConfig(it, email, hasProtectedAccess, shadowConfig, version)
+    }
+    return null;
+}
+
+/**
+ * Create a TchapConnectionConfig based on a Home server url, and a potential Identity server url.
+ * @return a Tchap config with all the required parameters for the Tchap application.
+ */
+fun createTchapConnectionConfig(homeServerUrl: String, identityServerUrl: String?): TchapConnectionConfig? {
+    val config = createHomeServerConnectionConfig(homeServerUrl, identityServerUrl)
+    return TchapConnectionConfig(config)
+}
 
 /**
  * Create a HomeServerConnectionConfig with all the required parameters for the Tchap application
@@ -44,6 +70,75 @@ fun createHomeServerConnectionConfig(homeServerUrl: String, identityServerUrl: S
             .withTlsLimitations(true, Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT)
             .withPin(ENABLE_CERTIFICATE_PINNING)
             .build()
+}
+
+/**
+ * Create the HomeServerConnectionConfig with all the required parameters for the main home server defined in Tchap platform.
+ */
+fun createHomeServerConnectionConfig(tchapPlatform: Platform, serverURLPrefix: String): HomeServerConnectionConfig? {
+    getHomeServerUrl(tchapPlatform, serverURLPrefix)?.let {
+        return createHomeServerConnectionConfig(it, getIdentityServerUrl(tchapPlatform, serverURLPrefix))
+    }
+    return null
+}
+
+/**
+ * Create the HomeServerConnectionConfig with all the required parameters for the potential shadow server.
+ */
+fun createShadowHomeServerConnectionConfig(tchapPlatform: Platform, serverURLPrefix: String): HomeServerConnectionConfig? {
+    getShadowHomeServerUrl(tchapPlatform, serverURLPrefix)?.let {
+        return createHomeServerConnectionConfig(it, getShadowIdentityServerUrl(tchapPlatform, serverURLPrefix))
+    }
+    return null
+}
+
+/**
+ * @return the main home server url from a Tchap platform description.
+ */
+fun getHomeServerUrl(tchapPlatform: Platform, serverURLPrefix: String): String? {
+    var hs = tchapPlatform.hs
+
+    // Fallback to the shadow hs (if any) when the protected access is not supported by the client.
+    if (!ENABLE_PROTECTED_ACCESS && tchapPlatform.shadowHs != null) {
+        hs = tchapPlatform.shadowHs
+    }
+
+    return if (hs != null && !hs.isEmpty()) serverURLPrefix + hs else null
+}
+
+/**
+ * @return the main identity server url from a Tchap platform description.
+ */
+fun getIdentityServerUrl(tchapPlatform: Platform, serverURLPrefix: String): String? = getHomeServerUrl(tchapPlatform, serverURLPrefix)
+
+/**
+ * @return the url of the potential shadow home server from a Tchap platform description.
+ */
+private fun getShadowHomeServerUrl(tchapPlatform: Platform, serverURLPrefix: String): String? {
+    // Check whether the protected access is supported by the client.
+    if (ENABLE_MULTI_ACCOUNTS_FEATURE) {
+        val hs = tchapPlatform.shadowHs
+        return if (hs != null && !hs.isEmpty()) serverURLPrefix + hs else null
+    }
+    return null
+}
+
+/**
+ * @return the url of the potential shadow identity server from a Tchap platform description.
+ */
+private fun getShadowIdentityServerUrl(tchapPlatform: Platform, serverURLPrefix: String): String? = getShadowHomeServerUrl(tchapPlatform, serverURLPrefix)
+
+/**
+ * @return true when the platform description corresponds to an account with a protected access
+ */
+private fun hasProtectedAccess(tchapPlatform: Platform): Boolean {
+    // Check whether the protected access is supported by the client.
+    if (ENABLE_MULTI_ACCOUNTS_FEATURE) {
+        // The platform description corresponds to an account with a protected access
+        // when the "shadow_hs" key is defined (even with an empty value).
+        return tchapPlatform.shadowHs != null
+    }
+    return false
 }
 
 @VisibleForTesting

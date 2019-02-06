@@ -324,7 +324,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
 
     @Override
     public MXSession getSession(String matrixId) {
-        return Matrix.getMXSession(getActivity(), matrixId);
+        return Matrix.getInstance(getActivity()).getSession(matrixId);
     }
 
     @Override

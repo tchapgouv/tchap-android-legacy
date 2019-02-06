@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fr.gouv.tchap.activity.NotificationListenerDetectionActivity;
-import fr.gouv.tchap.activity.TchapLoginActivity;
 import im.vector.Matrix;
 import im.vector.R;
 

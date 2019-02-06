@@ -99,7 +99,7 @@ class WidgetActivity : VectorAppCompatActivity() {
             return
         }
 
-        mSession = Matrix.getMXSession(this, mWidget!!.sessionId)
+        mSession = Matrix.getInstance(this).getSession(mWidget!!.sessionId)
 
         if (null == mSession) {
             Log.e(LOG_TAG, "## onCreate() : invalid session")

@@ -811,7 +811,10 @@ Appareils inconnus :</string>
     <string name="community_id">Identifiant de communauté</string>
     <string name="community_id_hint">Exemple</string>
 
-    // tchap room creation
+    <!-- tchap multi-sessions -->
+    <string name="tchap_account_selection_message">Souhaitez-vous restreindre cette action au domaine sécurisé</string>
+
+    <!-- tchap room creation -->
     <string name="tchap_room_creation_title">Nouveau salon</string>
     <string name="tchap_action_next">Suivant</string>
     <string name="tchap_room_creation_avatar">Ajouter\nune photo</string>
@@ -823,7 +826,7 @@ Appareils inconnus :</string>
     <string name="tchap_room_invite_member_action">Valider</string>
     <string name="tchap_room_creation_save_avatar_failed">La sauvegarde de la photo du salon a échoué. \n Que souhaitez-vous faire ?</string>
 
-    // tchap new strings
+    <!-- tchap new strings -->
     <string name="tchap_invite_contacts_to_tchap">Inviter des contacts dans Tchap</string>
     <string name="tchap_invite_contacts_by_email">Inviter par mail</string>
     <string name="tchap_invite_contacts_to_room">Inviter au salon</string>
@@ -843,17 +846,17 @@ Appareils inconnus :</string>
     <string name="tchap_burger_menu_public_rooms">Salons publics</string>
     <string name="tchap_burger_menu_info">Cette application n’est pas approuvée\npour l’échange d’informations en diffusion restreinte</string>
 
-    // tchap scan media
+    <!-- tchap scan media -->
     <string name="tchap_scan_media_unavailable">Analyse Indisponible</string>
     <string name="tchap_scan_media_in_progress">Analyse Antivirus</string>
     <string name="tchap_scan_media_untrusted_content">Fichier Bloqué</string>
     <string name="tchap_scan_media_untrusted_content_message">Le document (%s) a été filtré par la politique de sécurité</string>
 
-    // tchap room settings
+    <!-- tchap room settings -->
     <string name="tchap_room_settings_remove_from_directory">Retirer ce salon de la liste des salons publics</string>
     <string name="tchap_room_settings_remove_from_directory_prompt_msg"><b>Cette action est irréversible.</b>\nVoulez-vous vraiment retirer ce salon des salons publics ?</string>
 
-    // group details
+    <!-- group details -->
     <string name="group_details_home">Accueil</string>
     <string name="group_details_people">Personnes</string>
     <string name="group_details_rooms">Conversations</string>
@@ -874,6 +877,7 @@ Appareils inconnus :</string>
     <string name="tchap_register_wait_for_email_login_button">Aller à l’écran de connexion</string>
     <string name="tchap_register_wait_for_email_no_email">Je n’ai pas reçu l’email!</string>
     <string name="tchap_register_unauthorized_email">Cette adresse e-mail n’est pas autorisée</string>
+    <string name="tchap_auth_agent_failure_warning_msg">La connexion au serveur agent a échoué. Seules les données sécurisées seront disponibles.\nVous pourrez tenter une nouvelle connexion sur ce serveur agent depuis les paramètres.</string>
 
     <string name="tchap_dialog_user_consent_homeserver_name">Tchap</string>
 
@@ -1159,7 +1163,7 @@ Veuillez noter que cette action redémarrera l\'application et pourra prendre un
     <string name="markdown_has_been_disabled">Le Markdown a été désactivé.</string>
 
 
-    // Overrided sdk's strings
+    <!-- Overrided sdk's strings -->
     <string name="notice_room_name_changed">%1$s a changé le nom du salon en : %2$s</string>
     <string name="notice_made_future_room_visibility">%1$s a rendu l’historique futur de la conversation visible pour %2$s</string>
     <string name="notice_room_visibility_invited">tous les membres du salon, depuis qu’ils ont été invités.</string>

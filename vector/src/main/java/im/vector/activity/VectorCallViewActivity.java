@@ -346,7 +346,7 @@ public class VectorCallViewActivity extends VectorAppCompatActivity implements S
         String callId = intent.getStringExtra(EXTRA_CALL_ID);
         mMatrixId = intent.getStringExtra(EXTRA_MATRIX_ID);
 
-        mSession = Matrix.getInstance(getApplicationContext()).getSession(mMatrixId);
+        mSession = Matrix.getInstance(this).getSession(mMatrixId);
         if ((null == mSession) || !mSession.isAlive()) {
             Log.e(LOG_TAG, "invalid session");
             finish();

@@ -33,6 +33,7 @@ import android.view.inputmethod.InputMethodManager;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
 
+import fr.gouv.tchap.model.TchapSession;
 import im.vector.Matrix;
 import im.vector.MyPresenceManager;
 import im.vector.R;
@@ -45,6 +46,7 @@ public abstract class MXCActionBarActivity extends VectorAppCompatActivity {
     // TODO Make this protected
     public static final String EXTRA_MATRIX_ID = "MXCActionBarActivity.EXTRA_MATRIX_ID";
 
+    protected TchapSession mTchapSession = null;
     protected MXSession mSession = null;
     protected Room mRoom = null;
 
@@ -75,6 +77,10 @@ public abstract class MXCActionBarActivity extends VectorAppCompatActivity {
         }
 
         return Matrix.getInstance(this).getSession(matrixId);
+    }
+
+    public TchapSession getTchapSession() {
+        return mTchapSession;
     }
 
     public MXSession getSession() {
@@ -155,7 +161,7 @@ public abstract class MXCActionBarActivity extends VectorAppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        Matrix.removeSessionErrorListener(this);
+        Matrix.removeSessionErrorListener();
         dismissDialogs(this);
     }
 
@@ -171,8 +177,9 @@ public abstract class MXCActionBarActivity extends VectorAppCompatActivity {
         Matrix.setSessionErrorListener(this);
 
         // the online presence must be displayed ASAP.
-        if ((null != Matrix.getInstance(this)) && (null != Matrix.getInstance(this).getSessions())) {
-            MyPresenceManager.createPresenceManager(this, Matrix.getInstance(this).getSessions());
+        Matrix mxInstance = Matrix.getInstance(this);
+        if (mxInstance != null) {
+            MyPresenceManager.createPresenceManager(this, mxInstance.getSessions());
             MyPresenceManager.advertiseAllOnline();
         }
     }

@@ -24,7 +24,6 @@ import android.support.annotation.CallSuper;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -43,8 +42,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import fr.gouv.tchap.model.TchapRoom;
+import fr.gouv.tchap.model.TchapSession;
 import im.vector.Matrix;
-import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.VectorHomeActivity;
 import im.vector.activity.VectorRoomActivity;
@@ -67,7 +67,7 @@ public abstract class AbsHomeFragment extends VectorBaseFragment implements
 
     protected String mCurrentFilter;
 
-    protected MXSession mSession;
+    protected TchapSession mTchapSession;
 
     protected OnRoomChangedListener mOnRoomChangedListener;
 
@@ -105,7 +105,7 @@ public abstract class AbsHomeFragment extends VectorBaseFragment implements
         if (getActivity() instanceof VectorHomeActivity) {
             mActivity = (VectorHomeActivity) getActivity();
         }
-        mSession = Matrix.getInstance(getActivity()).getDefaultSession();
+        mTchapSession = Matrix.getInstance(getActivity()).getDefaultTchapSession();
         if (savedInstanceState != null && savedInstanceState.containsKey(CURRENT_FILTER)) {
             mCurrentFilter = savedInstanceState.getString(CURRENT_FILTER);
         }
@@ -122,17 +122,6 @@ public abstract class AbsHomeFragment extends VectorBaseFragment implements
             final HomeRoomsViewModel.Result result = mActivity.getRoomsViewModel().getResult();
             onRoomResultUpdated(result);
         }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.ic_action_mark_all_as_read:
-                Log.d(LOG_TAG, "onOptionsItemSelected mark all as read");
-                onMarkAllAsRead();
-                return true;
-        }
-        return false;
     }
 
     @Override
@@ -174,21 +163,21 @@ public abstract class AbsHomeFragment extends VectorBaseFragment implements
     }
 
     @Override
-    public void onMoreActionClick(View itemView, Room room) {
+    public void onMoreActionClick(View itemView, TchapRoom tchapRoom) {
         // User clicked on the "more actions" area
-        final Set<String> tags = room.getAccountData().getKeys();
+        final Set<String> tags = tchapRoom.getRoom().getAccountData().getKeys();
         final boolean isFavorite = tags != null && tags.contains(RoomTag.ROOM_TAG_FAVOURITE);
         final boolean isLowPriority = tags != null && tags.contains(RoomTag.ROOM_TAG_LOW_PRIORITY);
-        RoomUtils.displayPopupMenu(mActivity, mSession, room, itemView, isFavorite, isLowPriority, this);
+        RoomUtils.displayPopupMenu(mActivity, tchapRoom.getSession(), tchapRoom.getRoom(), itemView, isFavorite, isLowPriority, this);
     }
 
     @Override
-    public void onTchapMoreActionClick(View itemView, Room room, View notificationMuteView) {
+    public void onTchapMoreActionClick(View itemView, TchapRoom tchapRoom, View notificationMuteView) {
         // User clicked on the "more actions" area
-        final Set<String> tags = room.getAccountData().getKeys();
+        final Set<String> tags = tchapRoom.getRoom().getAccountData().getKeys();
         final boolean isFavorite = tags != null && tags.contains(RoomTag.ROOM_TAG_FAVOURITE);
         final boolean isLowPriority = tags != null && tags.contains(RoomTag.ROOM_TAG_LOW_PRIORITY);
-        RoomUtils.displayTchapPopupMenu(mActivity, mSession, room, itemView, notificationMuteView, isFavorite, isLowPriority, this);
+        RoomUtils.displayTchapPopupMenu(mActivity, tchapRoom.getSession(), tchapRoom.getRoom(), itemView, notificationMuteView, isFavorite, isLowPriority, this);
     }
 
     @Override
@@ -208,14 +197,14 @@ public abstract class AbsHomeFragment extends VectorBaseFragment implements
     }
 
     @Override
-    public void onToggleDirectChat(MXSession session, final String roomId) {
+    public void onToggleDirectChat(final MXSession session, final String roomId) {
         mActivity.showWaitingView();
         RoomUtils.toggleDirectChat(session, roomId, new ApiCallback<Void>() {
             @Override
             public void onSuccess(Void info) {
                 onRequestDone(null);
                 if (mOnRoomChangedListener != null) {
-                    mOnRoomChangedListener.onToggleDirectChat(roomId, RoomUtils.isDirectChat(mSession, roomId));
+                    mOnRoomChangedListener.onToggleDirectChat(roomId, RoomUtils.isDirectChat(session, roomId));
                 }
             }
 
@@ -326,39 +315,28 @@ public abstract class AbsHomeFragment extends VectorBaseFragment implements
     /**
      * Open the selected room
      *
-     * @param room
+     * @param tchapRoom
      */
-    protected void openRoom(final Room room) {
-        // sanity checks
-        // reported by GA
-        if ((null == mSession.getDataHandler()) || (null == mSession.getDataHandler().getStore())) {
-            return;
-        }
-
-        final String roomId;
+    protected void openRoom(final TchapRoom tchapRoom) {
         // cannot join a leaving room
-        if (room == null || room.isLeaving()) {
-            roomId = null;
-        } else {
-            roomId = room.getRoomId();
-        }
+        if (tchapRoom != null && !tchapRoom.getRoom().isLeaving()) {
+            final String roomId = tchapRoom.roomId();
 
-        if (roomId != null) {
-            final RoomSummary roomSummary = mSession.getDataHandler().getStore().getSummary(roomId);
-
+            final MXSession session = tchapRoom.getSession();
+            final RoomSummary roomSummary = session.getDataHandler().getStore().getSummary(roomId);
             if (null != roomSummary) {
-                room.sendReadReceipt();
+                tchapRoom.getRoom().sendReadReceipt();
             }
 
             // Update badge unread count in case device is offline
-            CommonActivityUtils.specificUpdateBadgeUnreadCount(mSession, getContext());
+            CommonActivityUtils.specificUpdateBadgeUnreadCount(session, getContext());
 
             // Launch corresponding room activity
             Map<String, Object> params = new HashMap<>();
-            params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
+            params.put(VectorRoomActivity.EXTRA_MATRIX_ID, session.getMyUserId());
             params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
 
-            CommonActivityUtils.goToRoomPage(getActivity(), mSession, params);
+            CommonActivityUtils.goToRoomPage(getActivity(), session, params);
         }
     }
 
@@ -386,27 +364,31 @@ public abstract class AbsHomeFragment extends VectorBaseFragment implements
      */
     private void updateTag(final String roomId, Double newTagOrder, final String newTag) {
         mActivity.showWaitingView();
-        RoomUtils.updateRoomTag(mSession, roomId, newTagOrder, newTag, new ApiCallback<Void>() {
-            @Override
-            public void onSuccess(Void info) {
-                onRequestDone(null);
-            }
+        TchapRoom tchapRoom = mTchapSession.getRoom(roomId);
+        if (tchapRoom != null) {
+            RoomUtils.updateRoomTag(tchapRoom.getSession(), roomId, newTagOrder, newTag, new ApiCallback<Void>() {
+                @Override
+                public void onSuccess(Void info) {
+                    onRequestDone(null);
+                }
 
-            @Override
-            public void onNetworkError(Exception e) {
-                onRequestDone(e.getLocalizedMessage());
-            }
+                @Override
+                public void onNetworkError(Exception e) {
+                    onRequestDone(e.getLocalizedMessage());
+                }
 
-            @Override
-            public void onMatrixError(MatrixError e) {
-                onRequestDone(e.getLocalizedMessage());
-            }
+                @Override
+                public void onMatrixError(MatrixError e) {
+                    onRequestDone(e.getLocalizedMessage());
+                }
 
-            @Override
-            public void onUnexpectedError(Exception e) {
-                onRequestDone(e.getLocalizedMessage());
-            }
-        });
+                @Override
+                public void onUnexpectedError(Exception e) {
+                    onRequestDone(e.getLocalizedMessage());
+                }
+            });
+        }
+
     }
 
     /**
@@ -428,52 +410,11 @@ public abstract class AbsHomeFragment extends VectorBaseFragment implements
         }
     }
 
-    /**
-     * Mark all the fragment rooms as read
-     */
-    private void onMarkAllAsRead() {
-        mActivity.showWaitingView();
-
-        mSession.markRoomsAsRead(getRooms(), new ApiCallback<Void>() {
-            @Override
-            public void onSuccess(Void info) {
-                // check if the activity is still attached
-                if ((null != mActivity) && !mActivity.isFinishing()) {
-                    mActivity.hideWaitingView();
-                    mActivity.refreshUnreadBadges();
-                    mActivity.onRoomDataUpdated();
-                }
-            }
-
-            private void onError(String errorMessage) {
-                Log.e(LOG_TAG, "## markAllMessagesAsRead() failed " + errorMessage);
-                onSuccess(null);
-            }
-
-            @Override
-            public void onNetworkError(Exception e) {
-                onError(e.getMessage());
-            }
-
-            @Override
-            public void onMatrixError(MatrixError e) {
-                onError(e.getMessage());
-            }
-
-            @Override
-            public void onUnexpectedError(Exception e) {
-                onError(e.getMessage());
-            }
-        });
-    }
-
     /*
      * *********************************************************************************************
      * Abstract methods
      * *********************************************************************************************
      */
-
-    protected abstract List<Room> getRooms();
 
     protected abstract void onFilter(final String pattern, final OnFilterListener listener);
 

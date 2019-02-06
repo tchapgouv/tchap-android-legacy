@@ -232,7 +232,7 @@ public class EventStreamService extends Service {
             //Log.d(LOG_TAG, "onBingEvent : the bingRule " + bingRule);
 
             if (event.isCallEvent()) {
-                MXSession session = Matrix.getMXSession(getApplicationContext(), event.getMatrixId());
+                MXSession session = Matrix.getInstance(getApplicationContext()).getSession(event.getMatrixId());
                 if (null == session || !session.isVoipCallSupported()) {
                     Log.d(LOG_TAG, "ignore call event : voip not allowed");
                     return;
@@ -354,9 +354,10 @@ public class EventStreamService extends Service {
             }
 
             if (restart) {
-                List<MXSession> sessions = Matrix.getInstance(getApplicationContext()).getSessions();
+                mSessions = Matrix.getInstance(getApplicationContext()).getSessions();
+                mMatrixIds = new ArrayList<>();
 
-                if ((null == sessions) || sessions.isEmpty()) {
+                if (mSessions.isEmpty()) {
                     Log.e(LOG_TAG, "onStartCommand : no session");
                     return START_NOT_STICKY;
                 }
@@ -371,11 +372,6 @@ public class EventStreamService extends Service {
                     Log.e(LOG_TAG, "onStartCommand : no auto restart because the user disabled the background sync");
                     return START_NOT_STICKY;
                 }
-
-                mSessions = new ArrayList<>();
-                mSessions.addAll(Matrix.getInstance(getApplicationContext()).getSessions());
-
-                mMatrixIds = new ArrayList<>();
 
                 for (MXSession session : mSessions) {
                     session.getDataHandler().getStore().open();
@@ -624,7 +620,7 @@ public class EventStreamService extends Service {
                         startEventStream(session, store);
                     } else {
                         // the data are out of sync
-                        Matrix.getInstance(getApplicationContext()).reloadSessions(getApplicationContext());
+                        Matrix.getInstance(getApplicationContext()).reloadSessions();
                     }
                 }
 
@@ -637,7 +633,7 @@ public class EventStreamService extends Service {
                         public void run() {
                             Toast.makeText(getApplicationContext(), accountId + " : " + description, Toast.LENGTH_LONG).show();
 
-                            Matrix.getInstance(getApplicationContext()).reloadSessions(getApplicationContext());
+                            Matrix.getInstance(getApplicationContext()).reloadSessions();
                         }
                     });
                 }
@@ -936,7 +932,7 @@ public class EventStreamService extends Service {
             return;
         }
 
-        MXSession session = Matrix.getMXSession(getApplicationContext(), event.getMatrixId());
+        MXSession session = Matrix.getInstance(getApplicationContext()).getSession(event.getMatrixId());
 
         // invalid session ?
         // should never happen.
@@ -1007,7 +1003,7 @@ public class EventStreamService extends Service {
             }
         }
 
-        MXSession session = Matrix.getMXSession(getApplicationContext(), event.getMatrixId());
+        MXSession session = Matrix.getInstance(getApplicationContext()).getSession(event.getMatrixId());
 
         // invalid session ?
         // should never happen.

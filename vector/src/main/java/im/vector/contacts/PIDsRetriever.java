@@ -186,7 +186,7 @@ public class PIDsRetriever {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        MXSession session = Matrix.getInstance(context.getApplicationContext()).getDefaultSession();
+                        MXSession session = Matrix.getInstance(context).getDefaultSession();
 
                         if (null != session) {
                             mListener.onSuccess(session.getMyUserId());
@@ -215,7 +215,8 @@ public class PIDsRetriever {
 
             final List<String> fRequestedMediums = new ArrayList<>(lookupMap.keySet());
             final List<String> medias = new ArrayList<>(lookupMap.values());
-            Collection<MXSession> sessions = Matrix.getInstance(context.getApplicationContext()).getSessions();
+            Collection<MXSession> sessions = Matrix.getInstance(context).getSessions();
+            // FIXME MULTI-ACCOUNT: handle multiple responses for the same email. Indeed the same email may have a protected and a shadow id.
 
             for (MXSession session : sessions) {
                 final String accountId = session.getCredentials().userId;

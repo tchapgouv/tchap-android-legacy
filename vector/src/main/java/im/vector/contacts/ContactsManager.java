@@ -178,7 +178,7 @@ public class ContactsManager implements SharedPreferences.OnSharedPreferenceChan
             // privacy
             // Log.d(LOG_TAG, "onPIDsRetrieved : the contact " + contact + " retrieves its 3PIds.");
 
-            MXSession session = Matrix.getInstance(VectorApp.getInstance().getApplicationContext()).getSession(accountId);
+            MXSession session = Matrix.getInstance(VectorApp.getInstance()).getSession(accountId);
 
             if ((null != session) && session.isAlive() && (null != mContactsList)) {
                 for (final Contact contact : mContactsList) {

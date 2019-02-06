@@ -61,8 +61,8 @@ public class VectorFakeRoomPreviewActivity extends VectorAppCompatActivity {
             Log.w(LOG_TAG, "## onCreate(): Failure - matrix ID is null");
         } else {
             // get the session
-            if (null == (session = Matrix.getInstance(getApplicationContext()).getSession(matrixId))) {
-                session = Matrix.getInstance(getApplicationContext()).getDefaultSession();
+            if (null == (session = Matrix.getInstance(this).getSession(matrixId))) {
+                session = Matrix.getInstance(this).getDefaultSession();
             }
 
             if ((null != session) && session.isAlive()) {

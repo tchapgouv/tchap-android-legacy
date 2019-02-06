@@ -37,7 +37,6 @@ import android.widget.Toast;
 
 import org.jetbrains.annotations.NotNull;
 import org.matrix.androidsdk.MXPatterns;
-import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.call.IMXCall;
 import org.matrix.androidsdk.crypto.MXCryptoError;
 import org.matrix.androidsdk.crypto.data.MXDeviceInfo;
@@ -123,7 +122,6 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
     private Room mCallableRoom;
     private String mMemberId;       // member whose details area displayed (provided in EXTRAS)
     private RoomMember mRoomMember; // room member corresponding to mMemberId
-    private MXSession mSession;
     private User mUser;
     //private List<MemberDetailsAdapter.AdapterMemberActionItems> mActionItemsArrayList;
     private VectorMemberDetailsAdapter mListViewAdapter;
@@ -148,41 +146,6 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
     ListView mDevicesListView;
     @BindView(R.id.devices_header_view)
     View mDevicesListHeaderView;
-
-    // direct message
-    /**
-     * callback for the creation of the direct message room
-     **/
-    private final ApiCallback<String> mCreateDirectMessageCallBack = new ApiCallback<String>() {
-        @Override
-        public void onSuccess(String roomId) {
-            Map<String, Object> params = new HashMap<>();
-            params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
-            params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
-            params.put(VectorRoomActivity.EXTRA_EXPAND_ROOM_HEADER, true);
-
-            Log.d(LOG_TAG, "## mCreateDirectMessageCallBack: onSuccess - start goToRoomPage");
-            CommonActivityUtils.goToRoomPage(VectorMemberDetailsActivity.this, mSession, params);
-        }
-
-        @Override
-        public void onMatrixError(MatrixError e) {
-            Log.d(LOG_TAG, "## mCreateDirectMessageCallBack: onMatrixError Msg=" + e.getLocalizedMessage());
-            mRoomActionsListener.onMatrixError(e);
-        }
-
-        @Override
-        public void onNetworkError(Exception e) {
-            Log.d(LOG_TAG, "## mCreateDirectMessageCallBack: onNetworkError Msg=" + e.getLocalizedMessage());
-            mRoomActionsListener.onNetworkError(e);
-        }
-
-        @Override
-        public void onUnexpectedError(Exception e) {
-            Log.d(LOG_TAG, "## mCreateDirectMessageCallBack: onUnexpectedError Msg=" + e.getLocalizedMessage());
-            mRoomActionsListener.onUnexpectedError(e);
-        }
-    };
 
     // MX event listener
     private final MXEventListener mLiveEventsListener = new MXEventListener() {

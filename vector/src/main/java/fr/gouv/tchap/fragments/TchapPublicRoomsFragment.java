@@ -45,6 +45,9 @@ import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
+import fr.gouv.tchap.model.TchapPublicRoom;
+import fr.gouv.tchap.model.TchapRoom;
+import fr.gouv.tchap.model.TchapSession;
 import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.Matrix;
 import im.vector.PublicRoomsManager;
@@ -67,7 +70,7 @@ public class TchapPublicRoomsFragment extends VectorBaseFragment {
 
     protected String mCurrentFilter;
 
-    protected MXSession mSession;
+    protected TchapSession mTchapSession;
 
     private boolean mMorePublicRooms = false;
     @BindView(R.id.recyclerview)
@@ -76,10 +79,9 @@ public class TchapPublicRoomsFragment extends VectorBaseFragment {
     // rooms management
     private TchapPublicRoomAdapter mAdapter;
 
-    private  List<String> mCurrentHosts = null;
+    private List<String> mCurrentHosts = null;
     private List<PublicRoomsManager> mPublicRoomsManagers = null;
-    // rooms list
-    private final List<Room> mRooms = new ArrayList<>();
+    private int mFirstShadowSessionManagerIndex = 0;
 
     /*
      * *********************************************************************************************
@@ -109,30 +111,29 @@ public class TchapPublicRoomsFragment extends VectorBaseFragment {
         if (getActivity() instanceof VectorAppCompatActivity) {
             mActivity = (VectorAppCompatActivity) getActivity();
         }
-        mSession = Matrix.getInstance(getActivity()).getDefaultSession();
 
         if (savedInstanceState != null && savedInstanceState.containsKey(CURRENT_FILTER)) {
             mCurrentFilter = savedInstanceState.getString(CURRENT_FILTER);
         }
 
-        String userHSName = DinsicUtils.getHomeServerNameFromMXIdentifier(mSession.getMyUserId());
-        List<String> servers = Arrays.asList(getResources().getStringArray(R.array.room_directory_servers));
+        // Prepare all the public rooms managers
         mCurrentHosts = new ArrayList<>();
-        boolean isUserHSNameAdded = false;
-        for (int i = 0; i < servers.size(); i++) {
-            if (servers.get(i).compareTo(userHSName) == 0) {
-                mCurrentHosts.add(null);
-                isUserHSNameAdded = true;
-            }
-            else {
-                mCurrentHosts.add(servers.get(i));
-            }
-        }
-        if (!isUserHSNameAdded) {
-            mCurrentHosts.add(null);
-        }
-        initViews();
+        mPublicRoomsManagers = new ArrayList<>();
 
+        mTchapSession = Matrix.getInstance(getActivity()).getDefaultTchapSession();
+        if (mTchapSession != null) {
+            MXSession session = mTchapSession.getMainSession();
+            initPublicRoomsManagers(session, mTchapSession.getConfig().getHasProtectedAccess());
+
+            // Check whether there is a shadow session
+            mFirstShadowSessionManagerIndex = mPublicRoomsManagers.size();
+            session = mTchapSession.getShadowSession();
+            if (session != null) {
+                initPublicRoomsManagers(session, false);
+            }
+        }
+
+        initViews();
 
         mAdapter.onFilterDone(mCurrentFilter);
 
@@ -218,7 +219,7 @@ public class TchapPublicRoomsFragment extends VectorBaseFragment {
             }
 
             @Override
-            public void onSelectItem(PublicRoom publicRoom) {
+            public void onSelectItem(TchapPublicRoom publicRoom) {
                 onPublicRoomSelected(publicRoom);
             }
         });
@@ -237,23 +238,24 @@ public class TchapPublicRoomsFragment extends VectorBaseFragment {
     /**
      * Handle a public room selection
      *
-     * @param publicRoom the public room
+     * @param tchapPublicRoom the public room
      */
-    private void onPublicRoomSelected(final PublicRoom publicRoom) {
+    private void onPublicRoomSelected(final TchapPublicRoom tchapPublicRoom) {
         // sanity check
+        final PublicRoom publicRoom = tchapPublicRoom.getRoom();
         if (null != publicRoom.roomId) {
-            final RoomPreviewData roomPreviewData = new RoomPreviewData(mSession, publicRoom.roomId, null, publicRoom.canonicalAlias, null);
+            final RoomPreviewData roomPreviewData = new RoomPreviewData(tchapPublicRoom.getSession(), publicRoom.roomId, null, publicRoom.canonicalAlias, null);
 
             // Check whether the room exists to handled the cases where the user is invited or he has joined.
             // CAUTION: the room may exist whereas the user membership is neither invited nor joined.
-            final Room room = mSession.getDataHandler().getRoom(publicRoom.roomId, false);
-            if (null != room && room.isInvited()) {
+            final TchapRoom tchapRoom = mTchapSession.getRoom(publicRoom.roomId);
+            if (tchapRoom != null && tchapRoom.getRoom().isInvited()) {
                 Log.d(LOG_TAG, "manageRoom : the user is invited -> display the preview " + getActivity());
                 CommonActivityUtils.previewRoom(getActivity(), roomPreviewData);
-            } else if (null != room && room.isJoined()) {
+            } else if (tchapRoom != null && tchapRoom.getRoom().isJoined()) {
                 Log.d(LOG_TAG, "manageRoom : the user joined the room -> open the room");
                 final Map<String, Object> params = new HashMap<>();
-                params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
+                params.put(VectorRoomActivity.EXTRA_MATRIX_ID, tchapPublicRoom.getSession().getMyUserId());
                 params.put(VectorRoomActivity.EXTRA_ROOM_ID, publicRoom.roomId);
 
                 if (!TextUtils.isEmpty(publicRoom.name)) {
@@ -264,7 +266,7 @@ public class TchapPublicRoomsFragment extends VectorBaseFragment {
                     params.put(VectorRoomActivity.EXTRA_DEFAULT_TOPIC, publicRoom.topic);
                 }
 
-                CommonActivityUtils.goToRoomPage(getActivity(), mSession, params);
+                CommonActivityUtils.goToRoomPage(getActivity(), tchapPublicRoom.getSession(), params);
             } else {
                 Log.d(LOG_TAG, "manageRoom : display the preview");
                 if (null != mActivity) {
@@ -366,67 +368,65 @@ public class TchapPublicRoomsFragment extends VectorBaseFragment {
         initPublicRoomsCascade(displayOnTop, 0);
     }
 
-    private void initPublicRoomsCascade(final boolean displayOnTop, final int hostIndex) {
-        if (mPublicRoomsManagers == null) {
-            mPublicRoomsManagers = new ArrayList<>();
-            initPublicRoomsManagers();
+    private void initPublicRoomsCascade(final boolean displayOnTop, final int managerIndex) {
+        // Check end of the recursive process
+        if (managerIndex >= mPublicRoomsManagers.size()) {
+            if (null != mActivity) {
+                mActivity.hideWaitingView();
+            }
+            if (mMorePublicRooms) {
+                // plug the scroll listener
+                addPublicRoomsListener();
+            } else {
+                mAdapter.setNoMorePublicRooms(true);
+            }
+
+            // trick to display the full public rooms list
+            if (displayOnTop) {
+                // wait that the list is refreshed
+                mRecycler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        SectionView publicSectionView = mAdapter.getSectionViewForSectionIndex(mAdapter.getSectionsCount() - 1);
+
+                        // simulate a click on the header is to display the full list
+                        if ((null != publicSectionView) && !publicSectionView.isStickyHeader()) {
+                            publicSectionView.callOnClick();
+                        }
+                    }
+                });
+            }
+            return;
         }
 
-        PublicRoomsManager myPRM = mPublicRoomsManagers.get(hostIndex);
-        myPRM.startPublicRoomsSearch(mCurrentHosts.get(hostIndex),
+        final PublicRoomsManager publicRoomsManager = mPublicRoomsManagers.get(managerIndex);
+        publicRoomsManager.startPublicRoomsSearch(mCurrentHosts.get(managerIndex),
                 null,
                 false,
                 mCurrentFilter, new ApiCallback<List<PublicRoom>>() {
                     @Override
                     public void onSuccess(List<PublicRoom> publicRooms) {
                         if (null != getActivity()) {
-                            mMorePublicRooms = mMorePublicRooms || (publicRooms.size() >= PublicRoomsManager.PUBLIC_ROOMS_LIMIT);
-                            mAdapter.addPublicRooms(publicRooms);
-                            if (hostIndex == mCurrentHosts.size()-1) {
-                                mAdapter.setNoMorePublicRooms(!mMorePublicRooms);
-                                addPublicRoomsListener();
-
-                                // trick to display the full public rooms list
-                                if (displayOnTop) {
-                                    // wait that the list is refreshed
-                                    mRecycler.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            SectionView publicSectionView = mAdapter.getSectionViewForSectionIndex(mAdapter.getSectionsCount() - 1);
-
-                                            // simulate a click on the header is to display the full list
-                                            if ((null != publicSectionView) && !publicSectionView.isStickyHeader()) {
-                                                publicSectionView.callOnClick();
-                                            }
-                                        }
-                                    });
-                                }
-
-                                if (null != mActivity) {
-                                    mActivity.hideWaitingView();
-                                }
+                            if (publicRoomsManager.hasMoreResults()) {
+                                // Add the scroll listener at the end of the recursive process
+                                mMorePublicRooms = true;
                             }
-                            else {
-                                initPublicRoomsCascade(displayOnTop, hostIndex+1);
-                            }
+
+                            mAdapter.addPublicRooms(convertPublicRoomList(publicRooms, managerIndex));
+
+                            // Next
+                            initPublicRoomsCascade(displayOnTop, managerIndex+1);
                         }
                     }
 
                     private void onError(String message) {
                         if (null != getActivity()) {
-                            Log.e(LOG_TAG, "## startPublicRoomsSearch() failed " + message);
+                            Log.e(LOG_TAG, "## initPublicRoomsCascade() failed " + message);
                             // Pb here when a lot of federation doesn't work, a lot of messages make a crash
                             //    Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
-                            if (hostIndex == mCurrentHosts.size()-1) {
-                                mAdapter.setNoMorePublicRooms(!mMorePublicRooms);
-                                addPublicRoomsListener();
-                                if (null != mActivity) {
-                                    mActivity.hideWaitingView();
-                                }
-                            }
-                            else {
-                                initPublicRoomsCascade(displayOnTop, hostIndex+1);
-                            }
+
+                            // Next
+                            initPublicRoomsCascade(displayOnTop, managerIndex+1);
                         }
                     }
 
@@ -451,15 +451,59 @@ public class TchapPublicRoomsFragment extends VectorBaseFragment {
                     }
                 });
     }
+
     /**
-     * Initialize Public rooms managers
+     * Update Public rooms managers for a matrix session
      */
-    private void initPublicRoomsManagers() {
+    private void initPublicRoomsManagers(MXSession session, boolean isProtected) {
+        String userHSName = DinsicUtils.getHomeServerNameFromMXIdentifier(session.getMyUserId());
+        List<String> servers;
+
+        if (isProtected) {
+            servers = Arrays.asList(getResources().getStringArray(R.array.protected_room_directory_servers));
+        } else {
+            servers = Arrays.asList(getResources().getStringArray(R.array.room_directory_servers));
+        }
+
+        // Add the host name of each known server.
+        boolean isUserHSNameAdded = false;
+        for (int i = 0; i < servers.size(); i++) {
+            if (servers.get(i).compareTo(userHSName) == 0) {
+                mCurrentHosts.add(null);
+                isUserHSNameAdded = true;
+            }
+            else {
+                mCurrentHosts.add(servers.get(i));
+            }
+        }
+        if (!isUserHSNameAdded) {
+            mCurrentHosts.add(null);
+        }
+
+        // Create a manager for each host
         for (int i=0;i<mCurrentHosts.size();i++) {
             PublicRoomsManager myPRM = new PublicRoomsManager();
-            myPRM.setSession(mSession);
+            myPRM.setSession(session);
             mPublicRoomsManagers.add(myPRM);
         }
+    }
+
+    private List<TchapPublicRoom> convertPublicRoomList(List<PublicRoom> publicRooms, int managerIndex) {
+        List<TchapPublicRoom> tchapPublicRooms = new ArrayList<>(publicRooms.size());
+        MXSession session;
+        boolean isProtected = false;
+
+        if (managerIndex < mFirstShadowSessionManagerIndex) {
+            session = mTchapSession.getMainSession();
+            isProtected = mTchapSession.getConfig().getHasProtectedAccess();
+        } else {
+            session = mTchapSession.getShadowSession();
+        }
+
+        for (PublicRoom publicRoom : publicRooms) {
+            tchapPublicRooms.add(new TchapPublicRoom(publicRoom, session, isProtected));
+        }
+        return tchapPublicRooms;
     }
 
     /**
@@ -477,45 +521,43 @@ public class TchapPublicRoomsFragment extends VectorBaseFragment {
         cascadeForwardPaginate(0);
     }
 
-    private void cascadeForwardPaginate(final int hostIndex) {
+    private void cascadeForwardPaginate(final int managerIndex) {
+        // Check end of the recursive process
+        if (managerIndex >= mPublicRoomsManagers.size()) {
+            if (null != mActivity) {
+                mActivity.hideWaitingView();
+            }
+            if (!mMorePublicRooms) {
+                // unplug the scroll listener if there is no more data to find
+                mAdapter.setNoMorePublicRooms(true);
+                removePublicRoomsListener();
+            }
+            return;
+        }
 
-        boolean isForwarding = mPublicRoomsManagers.get(hostIndex).forwardPaginate(new ApiCallback<List<PublicRoom>>() {
+        final PublicRoomsManager publicRoomsManager = mPublicRoomsManagers.get(managerIndex);
+        boolean isForwarding = publicRoomsManager.forwardPaginate(new ApiCallback<List<PublicRoom>>() {
             @Override
             public void onSuccess(final List<PublicRoom> publicRooms) {
                 if (null != getActivity()) {
-                    // unplug the scroll listener if there is no more data to find
-                    if (PublicRoomsManager.getInstance().hasMoreResults()) {
+                    if (publicRoomsManager.hasMoreResults()) {
+                        // Keep the scroll listener at the end of the recursive process
                         mMorePublicRooms = true;
                     }
-                    mAdapter.addPublicRooms(publicRooms);
+                    mAdapter.addPublicRooms(convertPublicRoomList(publicRooms, managerIndex));
                 }
-                if (hostIndex == mCurrentHosts.size()-1) {
-                    if (null != mActivity) {
-                        mActivity.hideWaitingView();
-                    }
-                    if (!mMorePublicRooms) {
-                        mAdapter.setNoMorePublicRooms(true);
-                        removePublicRoomsListener();
-                    }
-                }
-                else {
-                    cascadeForwardPaginate(hostIndex+1);
-                }
+
+                // Go next
+                cascadeForwardPaginate(managerIndex+1);
             }
 
             private void onError(String message) {
                 if (null != getActivity()) {
-                    Log.e(LOG_TAG, "## forwardPaginate() failed " + message);
+                    Log.e(LOG_TAG, "## cascadeForwardPaginate() failed " + message);
                     Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
                 }
-                if (hostIndex == mCurrentHosts.size()) {
-                    if (null != mActivity) {
-                        mActivity.hideWaitingView();
-                    }
-                }
-                else {
-                    cascadeForwardPaginate(hostIndex+1);
-                }
+                // Go next
+                cascadeForwardPaginate(managerIndex+1);
             }
 
             @Override
@@ -535,11 +577,9 @@ public class TchapPublicRoomsFragment extends VectorBaseFragment {
         });
 
         if (!isForwarding) {
-            if (null != mActivity) {
-                mActivity.hideWaitingView();
-            }
+            // Go next
+            cascadeForwardPaginate(managerIndex+1);
         }
-
     }
 
     /**

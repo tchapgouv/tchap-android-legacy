@@ -145,7 +145,7 @@ public class VectorMediasViewerActivity extends MXCActionBarActivity {
             matrixId = intent.getStringExtra(EXTRA_MATRIX_ID);
         }
 
-        mSession = Matrix.getInstance(getApplicationContext()).getSession(matrixId);
+        mSession = Matrix.getInstance(this).getSession(matrixId);
 
         if ((null == mSession) || !mSession.isAlive()) {
             finish();

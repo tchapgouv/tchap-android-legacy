@@ -555,7 +555,7 @@ public class VectorApp extends MultiDexApplication {
         Log.d(LOG_TAG, "## setCurrentActivity() : from " + mCurrentActivity + " to " + activity);
 
         if (VectorApp.isAppInBackground() && (null != activity)) {
-            Matrix matrixInstance = Matrix.getInstance(activity.getApplicationContext());
+            Matrix matrixInstance = Matrix.getInstance(activity);
 
             // sanity check
             if (null != matrixInstance) {

@@ -264,10 +264,8 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val appContext = activity.applicationContext
-
         // retrieve the arguments
-        val sessionArg = Matrix.getInstance(appContext).getSession(arguments.getString(ARG_MATRIX_ID))
+        val sessionArg = Matrix.getInstance(activity).getSession(arguments.getString(ARG_MATRIX_ID))
 
         // sanity checks
         if (null == sessionArg || !sessionArg.isAlive) {
@@ -444,7 +442,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 
         // background sync tuning settings
         // these settings are useless and hidden if the app is registered to the FCM push service
-        val pushManager = Matrix.getInstance(appContext)!!.pushManager
+        val pushManager = Matrix.getInstance(activity)!!.pushManager
         if (pushManager.useFcm() && pushManager.hasRegistrationToken()) {
             // Hide the section
             preferenceScreen.removePreference(backgroundSyncDivider)
@@ -621,7 +619,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
         // SaveMode Management
         findPreference(PreferencesManager.SETTINGS_DATA_SAVE_MODE_PREFERENCE_KEY)
                 ?.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
-            val sessions = Matrix.getMXSessions(activity)
+            val sessions = Matrix.getInstance(activity).sessions
             for (session in sessions) {
                 session.setUseDataSaveMode(newValue as Boolean)
             }
@@ -661,10 +659,10 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 //
         // Rageshake Management
         (findPreference(PreferencesManager.SETTINGS_USE_RAGE_SHAKE_KEY) as CheckBoxPreference).let {
-            it.isChecked = PreferencesManager.useRageshake(appContext)
+            it.isChecked = PreferencesManager.useRageshake(activity)
 
             it.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
-                PreferencesManager.setUseRageshake(appContext, newValue as Boolean)
+                PreferencesManager.setUseRageshake(activity, newValue as Boolean)
                 true
             }
         }
@@ -820,7 +818,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 
             it.onPreferenceClickListener = Preference.OnPreferenceClickListener { _ ->
                 displayLoadingView()
-                Matrix.getInstance(appContext).reloadSessions(appContext)
+                Matrix.getInstance(activity).reloadSessions()
                 false
             }
         }
@@ -998,7 +996,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 
         val rules = mSession.dataHandler.pushRules()
 
-        val pushManager = Matrix.getInstance(appContext)!!.pushManager
+        val pushManager = Matrix.getInstance(activity)!!.pushManager
 
         for (resourceText in mPushesRuleByResourceId.keys) {
             val preference = preferenceManager.findPreference(resourceText)

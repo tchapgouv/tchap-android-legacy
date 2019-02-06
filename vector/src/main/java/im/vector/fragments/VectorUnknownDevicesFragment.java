@@ -84,7 +84,7 @@ public class VectorUnknownDevicesFragment extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mSession = Matrix.getMXSession(getActivity(), getArguments().getString(ARG_SESSION_ID));
+        mSession = Matrix.getInstance(getActivity()).getSession(getArguments().getString(ARG_SESSION_ID));
         mIsForCalling = getArguments().getBoolean(ARG_IS_FOR_CALLING);
     }
 

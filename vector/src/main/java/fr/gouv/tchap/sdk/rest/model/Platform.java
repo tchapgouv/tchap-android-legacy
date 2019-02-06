@@ -15,6 +15,8 @@
  */
 package fr.gouv.tchap.sdk.rest.model;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 
 /**
@@ -23,6 +25,10 @@ import java.io.Serializable;
 public class Platform implements Serializable {
     // The homeserver name.
     public String hs;
+    // The shadow homeserver name. The presence of this parameter (even with a blank value) means
+    // the user has a protected access.
+    @SerializedName("shadow_hs")
+    public String shadowHs;
     // Tell whether the given 3pid has been invited to the platform or not.
     public boolean invited;
 }

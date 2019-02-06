@@ -15,6 +15,8 @@
  */
 package im.vector.util
 
+import fr.gouv.tchap.model.TchapRoom
+import fr.gouv.tchap.model.TchapSession
 import org.matrix.androidsdk.MXSession
 import org.matrix.androidsdk.data.Room
 import org.matrix.androidsdk.data.RoomTag
@@ -23,39 +25,39 @@ import org.matrix.androidsdk.util.Log
 /**
  * This class is responsible for filtering and ranking rooms whenever there is a need to update in the context of the HomeScreens
  */
-class HomeRoomsViewModel(private val session: MXSession) {
+class HomeRoomsViewModel(private val tchapSession: TchapSession) {
 
     /**
      * A data class holding the result of filtering and ranking algorithm
      * A room can't be in multiple lists at the same time.
      * Order is favourites -> directChats -> otherRooms -> lowPriorities -> serverNotices
      */
-    data class Result(val favourites: List<Room> = emptyList(),
-                      val directChats: List<Room> = emptyList(),
-                      val otherRooms: List<Room> = emptyList(),
-                      val lowPriorities: List<Room> = emptyList(),
-                      val serverNotices: List<Room> = emptyList()) {
+    data class Result(val favourites: List<TchapRoom> = emptyList(),
+                      val directChats: List<TchapRoom> = emptyList(),
+                      val otherRooms: List<TchapRoom> = emptyList(),
+                      val lowPriorities: List<TchapRoom> = emptyList(),
+                      val serverNotices: List<TchapRoom> = emptyList()) {
 
         /**
          * Use this method when you need to get all the directChats, favorites included
          * Low Priorities are always excluded
          */
-        fun getDirectChatsWithFavorites(): List<Room> {
-            return directChats + favourites.filter { it.isDirect }
+        fun getDirectChatsWithFavorites(): List<TchapRoom> {
+            return directChats + favourites.filter { it.isDirect() }
         }
 
         /**
          * Use this method when you need to get all the other rooms, favorites included
          * Low Priorities are always excluded
          */
-        fun getOtherRoomsWithFavorites(): List<Room> {
-            return otherRooms + favourites.filter { !it.isDirect }
+        fun getOtherRoomsWithFavorites(): List<TchapRoom> {
+            return otherRooms + favourites.filter { !it.isDirect() }
         }
 
         /**
          * Use this method when you need to get all the joined rooms
          */
-        fun getJoinedRooms(): List<Room> {
+        fun getJoinedRooms(): List<TchapRoom> {
             return favourites + directChats + lowPriorities + otherRooms
         }
     }
@@ -71,21 +73,39 @@ class HomeRoomsViewModel(private val session: MXSession) {
      */
     //TODO Take it off the main thread using coroutine
     fun update(): Result {
-        val favourites = ArrayList<Room>()
-        val directChats = ArrayList<Room>()
-        val otherRooms = ArrayList<Room>()
-        val lowPriorities = ArrayList<Room>()
-        val serverNotices = ArrayList<Room>()
+        val favourites = ArrayList<TchapRoom>()
+        val directChats = ArrayList<TchapRoom>()
+        val otherRooms = ArrayList<TchapRoom>()
+        val lowPriorities = ArrayList<TchapRoom>()
+        val serverNotices = ArrayList<TchapRoom>()
 
-        val joinedRooms = getJoinedRooms()
+        val joinedRooms = getJoinedRooms(tchapSession.mainSession)
         for (room in joinedRooms) {
+            val tchapRoom = TchapRoom(room, tchapSession.mainSession, tchapSession.config.hasProtectedAccess)
+
             val tags = room.accountData?.keys ?: emptySet()
             when {
-                tags.contains(RoomTag.ROOM_TAG_SERVER_NOTICE) -> serverNotices.add(room)
-                tags.contains(RoomTag.ROOM_TAG_FAVOURITE) -> favourites.add(room)
-                tags.contains(RoomTag.ROOM_TAG_LOW_PRIORITY) -> lowPriorities.add(room)
-                RoomUtils.isDirectChat(session, room.roomId) -> directChats.add(room)
-                else -> otherRooms.add(room)
+                tags.contains(RoomTag.ROOM_TAG_SERVER_NOTICE) -> serverNotices.add(tchapRoom)
+                tags.contains(RoomTag.ROOM_TAG_FAVOURITE) -> favourites.add(tchapRoom)
+                tags.contains(RoomTag.ROOM_TAG_LOW_PRIORITY) -> lowPriorities.add(tchapRoom)
+                RoomUtils.isDirectChat(tchapSession.mainSession, room.roomId) -> directChats.add(tchapRoom)
+                else -> otherRooms.add(tchapRoom)
+            }
+        }
+
+        tchapSession.shadowSession?.let {
+            val joinedRooms = getJoinedRooms(it)
+            for (room in joinedRooms) {
+                val tchapRoom = TchapRoom(room, it)
+
+                val tags = room.accountData?.keys ?: emptySet()
+                when {
+                    tags.contains(RoomTag.ROOM_TAG_SERVER_NOTICE) -> serverNotices.add(tchapRoom)
+                    tags.contains(RoomTag.ROOM_TAG_FAVOURITE) -> favourites.add(tchapRoom)
+                    tags.contains(RoomTag.ROOM_TAG_LOW_PRIORITY) -> lowPriorities.add(tchapRoom)
+                    RoomUtils.isDirectChat(it, room.roomId) -> directChats.add(tchapRoom)
+                    else -> otherRooms.add(tchapRoom)
+                }
             }
         }
 
@@ -101,7 +121,7 @@ class HomeRoomsViewModel(private val session: MXSession) {
 
     //region private methods
 
-    private fun getJoinedRooms(): List<Room> {
+    private fun getJoinedRooms(session: MXSession): List<Room> {
         return session.dataHandler.store.rooms
                 .filter {
                     val isJoined = it.isJoined

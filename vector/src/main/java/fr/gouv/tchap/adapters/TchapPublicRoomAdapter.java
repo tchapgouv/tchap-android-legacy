@@ -40,6 +40,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import fr.gouv.tchap.model.TchapPublicRoom;
 import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.R;
 import im.vector.adapters.AbsAdapter;
@@ -72,13 +73,10 @@ public class TchapPublicRoomAdapter extends AbsAdapter {
 
         mPublicRoomsSection = new PublicRoomsAdapterSection(context, context.getString(R.string.rooms_directory_header),
                 -1, R.layout.adapter_item_public_room_view,
-                TYPE_HEADER_PUBLIC_ROOM, TYPE_PUBLIC_ROOM, new ArrayList<PublicRoom>(), null);
+                TYPE_HEADER_PUBLIC_ROOM, TYPE_PUBLIC_ROOM, new ArrayList<TchapPublicRoom>(), null);
         mPublicRoomsSection.setEmptyViewPlaceholder(context.getString(R.string.no_public_room_placeholder), context.getString(R.string.no_result_placeholder));
 
-        // External users can not access to public rooms
-        if (!DinsicUtils.isExternalTchapSession(mSession)) {
-            addSection(mPublicRoomsSection);
-        }
+        addSection(mPublicRoomsSection);
     }
 
     //no sticker on public room
@@ -127,7 +125,7 @@ public class TchapPublicRoomAdapter extends AbsAdapter {
                 break;
             case TYPE_PUBLIC_ROOM:
                 final PublicRoomViewHolder publicRoomViewHolder = (PublicRoomViewHolder) viewHolder;
-                final PublicRoom publicRoom = (PublicRoom) getItemForPosition(position);
+                final TchapPublicRoom publicRoom = (TchapPublicRoom) getItemForPosition(position);
                 publicRoomViewHolder.populateViews(publicRoom);
                 break;
         }
@@ -150,7 +148,7 @@ public class TchapPublicRoomAdapter extends AbsAdapter {
      */
 
 
-    public void setPublicRooms(final List<PublicRoom> publicRooms) {
+    public void setPublicRooms(final List<TchapPublicRoom> publicRooms) {
         mPublicRoomsSection.setItems(publicRooms, mCurrentFilterPattern);
         updateSections();
     }
@@ -169,8 +167,8 @@ public class TchapPublicRoomAdapter extends AbsAdapter {
      * @param publicRooms
      */
     @CallSuper
-    public void addPublicRooms(final List<PublicRoom> publicRooms) {
-        final List<PublicRoom> newPublicRooms = new ArrayList<>();
+    public void addPublicRooms(final List<TchapPublicRoom> publicRooms) {
+        final List<TchapPublicRoom> newPublicRooms = new ArrayList<>();
 
         newPublicRooms.addAll(mPublicRoomsSection.getItems());
         newPublicRooms.addAll(publicRooms);
@@ -178,10 +176,10 @@ public class TchapPublicRoomAdapter extends AbsAdapter {
         mPublicRoomsSection.setItems(newPublicRooms, mCurrentFilterPattern);
         updateSections();
     }
-    private static final Comparator<PublicRoom> mComparator = new Comparator<PublicRoom>() {
+    private static final Comparator<TchapPublicRoom> mComparator = new Comparator<TchapPublicRoom>() {
         @Override
-        public int compare(PublicRoom lhs, PublicRoom rhs) {
-            return rhs.numJoinedMembers - lhs.numJoinedMembers;
+        public int compare(TchapPublicRoom lhs, TchapPublicRoom rhs) {
+            return rhs.getRoom().numJoinedMembers - lhs.getRoom().numJoinedMembers;
         }
     };
 
@@ -212,12 +210,13 @@ public class TchapPublicRoomAdapter extends AbsAdapter {
             ButterKnife.bind(this, itemView);
         }
 
-        private void populateViews(final PublicRoom publicRoom) {
-            if (null == publicRoom) {
+        private void populateViews(final TchapPublicRoom tchapPublicRoom) {
+            if (null == tchapPublicRoom) {
                 Log.e(LOG_TAG, "## populateViews() : null publicRoom");
                 return;
             }
 
+            PublicRoom publicRoom = tchapPublicRoom.getRoom();
             String roomName = !TextUtils.isEmpty(publicRoom.name) ? publicRoom.name : VectorUtils.getPublicRoomDisplayName(publicRoom);
 
             // display the room avatar
@@ -243,7 +242,7 @@ public class TchapPublicRoomAdapter extends AbsAdapter {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mListener.onSelectItem(publicRoom);
+                    mListener.onSelectItem(tchapPublicRoom);
                 }
             });
         }
@@ -258,6 +257,6 @@ public class TchapPublicRoomAdapter extends AbsAdapter {
     public interface OnSelectItemListener {
         void onSelectItem(Room item, int position);
 
-        void onSelectItem(PublicRoom publicRoom);
+        void onSelectItem(TchapPublicRoom publicRoom);
     }
 }
