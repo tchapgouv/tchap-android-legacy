@@ -49,7 +49,7 @@ import org.matrix.androidsdk.adapters.MessageRow;
 import org.matrix.androidsdk.crypto.data.MXDeviceInfo;
 import org.matrix.androidsdk.crypto.data.MXUsersDevicesMap;
 import org.matrix.androidsdk.data.RoomState;
-import org.matrix.androidsdk.db.MXMediasCache;
+import org.matrix.androidsdk.db.MXMediaCache;
 import org.matrix.androidsdk.fragments.MatrixMessageListFragment;
 import org.matrix.androidsdk.fragments.MatrixMessagesFragment;
 import org.matrix.androidsdk.listeners.MXMediaDownloadListener;
@@ -328,13 +328,13 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
     }
 
     @Override
-    public MXMediasCache getMXMediasCache() {
-        return Matrix.getInstance(getActivity()).getMediasCache();
+    public MXMediaCache getMXMediaCache() {
+        return Matrix.getInstance(getActivity()).getMediaCache();
     }
 
     @Override
     public VectorMessagesAdapter createMessagesAdapter() {
-        VectorMessagesAdapter vectorMessagesAdapter = new VectorMessagesAdapter(mSession, getActivity(), getMXMediasCache());
+        VectorMessagesAdapter vectorMessagesAdapter = new VectorMessagesAdapter(mSession, getActivity(), getMXMediaCache());
         // Add the current media scan manager if any
         if (null != mMediaScanManager) {
             vectorMessagesAdapter.setMediaScanManager(mMediaScanManager);
@@ -603,7 +603,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
                                 EncryptedEventContent encryptedEventContent = JsonUtils.toEncryptedEventContent(event.getWireContent().getAsJsonObject());
 
                                 MXDeviceInfo deviceInfo = mSession.getCrypto()
-                                        .deviceWithIdentityKey(encryptedEventContent.sender_key, event.getSender(), encryptedEventContent.algorithm);
+                                        .deviceWithIdentityKey(encryptedEventContent.sender_key, encryptedEventContent.algorithm);
 
                                 if (null != deviceInfo) {
                                     dialog.cancel();
@@ -892,10 +892,10 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
         // Sanitize file name in case `m.body` contains a path.
         final String trimmedFileName = new File(filename).getName();
 
-        final MXMediasCache mediasCache = Matrix.getInstance(getActivity()).getMediasCache();
+        final MXMediaCache mediaCache = Matrix.getInstance(getActivity()).getMediaCache();
         // check if the media has already been downloaded
-        if (mediasCache.isMediaCached(mediaUrl, mediaMimeType)) {
-            mediasCache.createTmpDecryptedMediaFile(mediaUrl, mediaMimeType, encryptedFileInfo, new SimpleApiCallback<File>() {
+        if (mediaCache.isMediaCached(mediaUrl, mediaMimeType)) {
+            mediaCache.createTmpDecryptedMediaFile(mediaUrl, mediaMimeType, encryptedFileInfo, new SimpleApiCallback<File>() {
                 @Override
                 public void onSuccess(File file) {
                     // sanity check
@@ -928,7 +928,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
                     } else {
                         // Move the file to the Share folder, to avoid it to be deleted because the Activity will be paused while the
                         // user select an application to share the file
-                        file = mediasCache.moveToShareFolder(file, trimmedFileName);
+                        file = mediaCache.moveToShareFolder(file, trimmedFileName);
 
                         // shared / forward
                         Uri mediaUri = null;
@@ -955,12 +955,12 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
             });
         } else {
             // else download it
-            final String downloadId = mediasCache.downloadMedia(getActivity().getApplicationContext(),
+            final String downloadId = mediaCache.downloadMedia(getActivity().getApplicationContext(),
                     mSession.getHomeServerConfig(), mediaUrl, mediaMimeType, encryptedFileInfo);
             mAdapter.notifyDataSetChanged();
 
             if (null != downloadId) {
-                mediasCache.addDownloadListener(downloadId, new MXMediaDownloadListener() {
+                mediaCache.addDownloadListener(downloadId, new MXMediaDownloadListener() {
                     @Override
                     public void onDownloadError(String downloadId, JsonElement jsonElement) {
                         MatrixError error = JsonUtils.toMatrixError(jsonElement);
