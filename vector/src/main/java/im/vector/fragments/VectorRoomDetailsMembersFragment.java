@@ -533,14 +533,31 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
         boolean isAdmin = false;
 
         if ((null != mRoom) && (null != mSession)) {
-            PowerLevels powerLevels;
-
-            if (null != (powerLevels = mRoom.getState().getPowerLevels())) {
+            PowerLevels powerLevels = mRoom.getState().getPowerLevels();
+            if (powerLevels != null) {
                 String userId = mSession.getMyUserId();
                 isAdmin = (null != userId) && (powerLevels.getUserPowerLevel(userId) >= CommonActivityUtils.UTILS_POWER_LEVEL_ADMIN);
             }
         }
         return isAdmin;
+    }
+
+    /**
+     * Check whether the current user is allowed to invite other Tchap users.
+     *
+     * @return true if user is allowed to invite, false otherwise
+     */
+    private boolean isUserAllowedToInvite() {
+        boolean isAllowed = false;
+
+        if ((null != mRoom) && (null != mSession)) {
+            PowerLevels powerLevels = mRoom.getState().getPowerLevels();
+            if (powerLevels != null) {
+                String userId = mSession.getMyUserId();
+                isAllowed = (null != userId) && (powerLevels.getUserPowerLevel(userId) >= powerLevels.invite);
+            }
+        }
+        return isAllowed;
     }
 
     /**
@@ -654,7 +671,8 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
             mRemoveMembersMenuItem.setVisible(mIsMultiSelectionMode);
 
             if (null != mAddMembersButton) {
-                if (!RoomUtils.isDirectChat(mSession, mRoom.getRoomId())) {
+                // Check whether the user is allowed to invite some other members
+                if (!RoomUtils.isDirectChat(mSession, mRoom.getRoomId()) && isUserAllowedToInvite()) {
                     mAddMembersButton.setVisibility(mIsMultiSelectionMode ? View.GONE : View.VISIBLE);
                 } else {
                     mAddMembersButton.setVisibility(View.GONE);
