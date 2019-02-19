@@ -544,6 +544,25 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
     }
 
     /**
+     * Check whether the current user is allowed to invite other Tchap users.
+     *
+     * @return true if user is allowed to invite, false otherwise
+     */
+    private boolean isUserAllowedToInvite() {
+        boolean isAllowed = false;
+
+        if ((null != mRoom) && (null != mSession)) {
+            PowerLevels powerLevels;
+
+            if (null != (powerLevels = mRoom.getState().getPowerLevels())) {
+                String userId = mSession.getMyUserId();
+                isAllowed = (null != userId) && (powerLevels.getUserPowerLevel(userId) >= powerLevels.invite);
+            }
+        }
+        return isAllowed;
+    }
+
+    /**
      * Determine if the edit icon must be displayed or not.
      * The edit icon must be hidden in the following cases:
      * <ul>
@@ -654,7 +673,8 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
             mRemoveMembersMenuItem.setVisible(mIsMultiSelectionMode);
 
             if (null != mAddMembersButton) {
-                if (!RoomUtils.isDirectChat(mSession, mRoom.getRoomId())) {
+                // Check whether the user is allowed to invite some other members
+                if (!RoomUtils.isDirectChat(mSession, mRoom.getRoomId()) && isUserAllowedToInvite()) {
                     mAddMembersButton.setVisibility(mIsMultiSelectionMode ? View.GONE : View.VISIBLE);
                 } else {
                     mAddMembersButton.setVisibility(View.GONE);

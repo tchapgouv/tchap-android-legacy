@@ -135,7 +135,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
         // A Tchap room member must be moderator to invite
         final Map<String, Object> powerLevelContentOverride = new HashMap<>();
-        powerLevelContentOverride.put("invite", 50);
+        powerLevelContentOverride.put("invite", CommonActivityUtils.UTILS_POWER_LEVEL_MODERATOR);
         mRoomParams.powerLevelContentOverride = powerLevelContentOverride;
 
         // Prepare disable federation label by adding the hs display name of the current user.
