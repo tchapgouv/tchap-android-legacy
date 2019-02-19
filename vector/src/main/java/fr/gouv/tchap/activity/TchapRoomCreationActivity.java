@@ -303,7 +303,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         }
 
         if (aResultCode == Activity.RESULT_OK) {
-            mThumbnailUri = VectorUtils.getThumbnailUriFromIntent(this, intent, mSession.getMediasCache());
+            mThumbnailUri = VectorUtils.getThumbnailUriFromIntent(this, intent, mSession.getMediaCache());
 
             if (null != mThumbnailUri) {
                 addAvatarText.setVisibility(View.GONE);
@@ -398,7 +398,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         showWaitingView();
         ResourceUtils.Resource resource = ResourceUtils.openResource(TchapRoomCreationActivity.this, mThumbnailUri, null);
         if (null != resource) {
-            mSession.getMediasCache().uploadContent(resource.mContentStream, null, resource.mMimeType, null, new MXMediaUploadListener() {
+            mSession.getMediaCache().uploadContent(resource.mContentStream, null, resource.mMimeType, null, new MXMediaUploadListener() {
 
                 @Override
                 public void onUploadError(String uploadId, int serverResponseCode, final String serverErrorMessage) {

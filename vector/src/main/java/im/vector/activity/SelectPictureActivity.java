@@ -19,38 +19,29 @@ package im.vector.activity;
 
 
 import android.Manifest;
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.provider.MediaStore;
 import android.content.ContentValues;
 
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentManager;
 
 import android.net.Uri;
 import android.os.Build;
 import android.content.Intent;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Date;
-
-import org.matrix.androidsdk.adapters.IconAndTextAdapter;
 import org.matrix.androidsdk.util.Log;
 
-import im.vector.ui.themes.ThemeUtils;
+import im.vector.dialogs.DialogListItem;
+import im.vector.dialogs.DialogSendItemAdapter;
 import im.vector.util.PermissionsToolsKt;
 import im.vector.R;
 
@@ -58,7 +49,6 @@ import im.vector.R;
 public class SelectPictureActivity extends AppCompatActivity  {
     private static final int TAKE_IMAGE_REQUEST_CODE = 1;
     private static final int REQUEST_FILES_REQUEST_CODE = 2;
-    private static final String TAG_FRAGMENT_SELECT_PICTURE = "picture";
     private static final String CAMERA_VALUE_TITLE = "attachment";
     private static final String LOG_TAG = SelectPictureActivity.class.getSimpleName();
     private String mLatestTakePictureCameraUri = "";
@@ -67,49 +57,36 @@ public class SelectPictureActivity extends AppCompatActivity  {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        final FragmentManager fm = getSupportFragmentManager();
-        IconAndTextDialogTchapFragment fragment = (IconAndTextDialogTchapFragment) fm.findFragmentByTag(TAG_FRAGMENT_SELECT_PICTURE);
+        final List<DialogListItem> items = new ArrayList<>();
 
-        if (fragment != null) {
-            fragment.dismissAllowingStateLoss();
-        }
+        items.add(DialogListItem.SelectPicture.INSTANCE);
+        items.add(DialogListItem.TakePhoto.INSTANCE);
 
-        final Integer[] messages;
-        final Integer[] icons;
-
-        messages = new Integer[]{
-                R.string.option_select_image,
-                //R.string.option_send_sticker,
-                R.string.option_take_photo,
-        };
-
-        icons = new Integer[]{
-                R.drawable.tchap_ic_attached_files,
-                //R.drawable.ic_send_sticker,
-                R.drawable.tchap_ic_camera,
-        };
-
-        fragment = IconAndTextDialogTchapFragment.newInstance(icons, messages,
-                ThemeUtils.INSTANCE.getColor(this, R.attr.vctr_riot_primary_background_color),
-                ContextCompat.getColor(this, R.color.tchap_text_color_light));
-
-        fragment.setOnClickListener(new IconAndTextDialogTchapFragment.OnItemClickListener() {
-            @Override
-            public void onItemClick(IconAndTextDialogTchapFragment dialogFragment, int position) {
-                Integer selectedVal = messages[position];
-
-                if (selectedVal == R.string.option_select_image) {
-                    launchImageSelectionIntent();
-                } else if (selectedVal == R.string.option_take_photo) {
-                    // Check permission
-                    if (PermissionsToolsKt.checkPermissions(PermissionsToolsKt.PERMISSIONS_FOR_TAKING_PHOTO, SelectPictureActivity.this, PermissionsToolsKt.PERMISSION_REQUEST_CODE_LAUNCH_NATIVE_CAMERA)) {
-                        launchNativeCamera();
+        new android.support.v7.app.AlertDialog.Builder(this)
+                .setAdapter(new DialogSendItemAdapter(this, items), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        onSendChoiceClicked(items.get(which));
                     }
-                }
-            }
-        });
+                })
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        finish();
+                    }
+                })
+                .show();
+    }
 
-        fragment.show(fm,TAG_FRAGMENT_SELECT_PICTURE);
+    private void onSendChoiceClicked(DialogListItem dialogListItem) {
+        if (dialogListItem instanceof DialogListItem.SelectPicture) {
+            launchImageSelectionIntent();
+        } else if (dialogListItem instanceof DialogListItem.TakePhoto) {
+            // Check permission
+            if (PermissionsToolsKt.checkPermissions(PermissionsToolsKt.PERMISSIONS_FOR_TAKING_PHOTO, SelectPictureActivity.this, PermissionsToolsKt.PERMISSION_REQUEST_CODE_LAUNCH_NATIVE_CAMERA)) {
+                launchNativeCamera();
+            }
+        }
     }
 
     @Override
@@ -246,149 +223,4 @@ public class SelectPictureActivity extends AppCompatActivity  {
             finish();
         }
     }
-
-    public static class IconAndTextDialogTchapFragment extends DialogFragment {
-
-        // params
-        private static final String ARG_ICONS_LIST_ID = "org.matrix.androidsdk.fragments.IconAndTextDialogFragment.ARG_ICONS_LIST_ID";
-        private static final String ARG_TEXTS_LIST_ID = "org.matrix.androidsdk.fragments.IconAndTextDialogFragment.ARG_TEXTS_LIST_ID";
-        private static final String ARG_BACKGROUND_COLOR = "org.matrix.androidsdk.fragments.IconAndTextDialogFragment.ARG_BACKGROUND_COLOR";
-        private static final String ARG_TEXT_COLOR = "org.matrix.androidsdk.fragments.IconAndTextDialogFragment.ARG_TEXT_COLOR";
-
-        /**
-         * Interface definition for a callback to be invoked when an item in this
-         * AdapterView has been clicked.
-         */
-        public interface OnItemClickListener {
-            /**
-             * Callback method to be invoked when an item is clicked.
-             *
-             * @param dialogFragment the dialog.
-             * @param position       The clicked position
-             */
-            void onItemClick(IconAndTextDialogTchapFragment dialogFragment, int position);
-        }
-
-        private ListView mListView;
-
-        private ArrayList<Integer> mIconResourcesList;
-        private ArrayList<Integer> mTextResourcesList;
-        private Integer mBackgroundColor = null;
-        private Integer mTextColor = null;
-
-        private IconAndTextDialogTchapFragment.OnItemClickListener mOnItemClickListener;
-
-
-        public static IconAndTextDialogTchapFragment newInstance(Integer[] iconResourcesList, Integer[] textResourcesList) {
-            return IconAndTextDialogTchapFragment.newInstance(iconResourcesList, textResourcesList, null, null);
-        }
-
-        public static IconAndTextDialogTchapFragment newInstance(Integer[] iconResourcesList, Integer[] textResourcesList, Integer backgroundColor, Integer textColor) {
-            IconAndTextDialogTchapFragment f = new IconAndTextDialogTchapFragment();
-            Bundle args = new Bundle();
-
-            args.putIntegerArrayList(ARG_ICONS_LIST_ID, new ArrayList<>(Arrays.asList(iconResourcesList)));
-            args.putIntegerArrayList(ARG_TEXTS_LIST_ID, new ArrayList<>(Arrays.asList(textResourcesList)));
-
-            if (null != backgroundColor) {
-                args.putInt(ARG_BACKGROUND_COLOR, backgroundColor);
-            }
-
-            if (null != textColor) {
-                args.putInt(ARG_TEXT_COLOR, textColor);
-            }
-
-            f.setArguments(args);
-            return f;
-        }
-
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-
-            mIconResourcesList = getArguments().getIntegerArrayList(ARG_ICONS_LIST_ID);
-            mTextResourcesList = getArguments().getIntegerArrayList(ARG_TEXTS_LIST_ID);
-
-            if (mIconResourcesList == null) mIconResourcesList = new ArrayList<Integer>();
-            if (mTextResourcesList == null) mTextResourcesList = new ArrayList<Integer>();
-
-            if (getArguments().containsKey(ARG_BACKGROUND_COLOR)) {
-                mBackgroundColor = getArguments().getInt(ARG_BACKGROUND_COLOR);
-            }
-
-            if (getArguments().containsKey(ARG_TEXT_COLOR)) {
-                mTextColor = getArguments().getInt(ARG_TEXT_COLOR);
-            }
-
-        }
-
-        @Override
-        public @NonNull Dialog onCreateDialog(@NonNull  Bundle savedInstanceState) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-
-            View view = getActivity().getLayoutInflater().inflate(org.matrix.androidsdk.R.layout.fragment_dialog_icon_text_list, null);
-            builder.setView(view);
-            initView(view);
-
-            mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    if (null != mOnItemClickListener) {
-                        mOnItemClickListener.onItemClick(IconAndTextDialogTchapFragment.this, position);
-                    }
-
-                    IconAndTextDialogTchapFragment.this.dismiss();
-                }
-            });
-
-
-            return builder.create();
-        }
-
-        /**
-         * Init the dialog view.
-         *
-         * @param v the dialog view.
-         */
-        void initView(View v) {
-            mListView = v.findViewById(org.matrix.androidsdk.R.id.listView_icon_and_text);
-            IconAndTextAdapter adapter = new IconAndTextAdapter(getActivity(), org.matrix.androidsdk.R.layout.adapter_item_icon_and_text);
-
-            for (int index = 0; index < mIconResourcesList.size(); index++) {
-                adapter.add(mIconResourcesList.get(index), mTextResourcesList.get(index));
-            }
-
-            if (null != mBackgroundColor) {
-                mListView.setBackgroundColor(mBackgroundColor);
-                adapter.setBackgroundColor(mBackgroundColor);
-            }
-
-            if (null != mTextColor) {
-                adapter.setTextColor(mTextColor);
-            }
-
-            mListView.setAdapter(adapter);
-        }
-
-        /**
-         * Register a callback to be invoked when this view is clicked.
-         *
-         * @param l the listener
-         */
-        public void setOnClickListener(IconAndTextDialogTchapFragment.OnItemClickListener l) {
-            mOnItemClickListener = l;
-        }
-
-        /**
-         * Finish the parent activity, this class is designed to be used with SelectPictureActivitys
-         * @param dialog
-         */
-        @Override
-        public void onCancel(DialogInterface dialog) {
-            getActivity().finish();
-            super.onCancel(dialog);
-        }
-
-    }
-
 }

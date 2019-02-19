@@ -57,7 +57,7 @@ public class VectorSearchRoomsFilesListFragment extends VectorSearchMessagesList
     @Override
     public VectorMessagesAdapter createMessagesAdapter() {
         mIsMediaSearch = true;
-        VectorSearchFilesListAdapter vectorSearchFilesListAdapter = new VectorSearchFilesListAdapter(mSession, getActivity(), (null == mRoomId), getMXMediasCache());
+        VectorSearchFilesListAdapter vectorSearchFilesListAdapter = new VectorSearchFilesListAdapter(mSession, getActivity(), (null == mRoomId), getMXMediaCache());
         // Add the current media scan manager if any
         if (null != mMediaScanManager) {
             vectorSearchFilesListAdapter.setMediaScanManager(mMediaScanManager);

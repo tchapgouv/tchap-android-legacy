@@ -411,7 +411,7 @@ public class VectorApp extends MultiDexApplication {
                 // remove older medias
                 if ((System.currentTimeMillis() - mLastMediasCheck) < (24 * 60 * 60 * 1000)) {
                     mLastMediasCheck = System.currentTimeMillis();
-                    session.removeMediasBefore(VectorApp.this, PreferencesManager.getMinMediasLastAccessTime(getApplicationContext()));
+                    session.removeMediaBefore(VectorApp.this, PreferencesManager.getMinMediasLastAccessTime(getApplicationContext()));
                 }
 
                 if (session.getDataHandler().areLeftRoomsSynced()) {

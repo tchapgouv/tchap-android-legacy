@@ -37,7 +37,7 @@ import com.github.chrisbanes.photoview.PhotoView;
 import com.google.gson.JsonElement;
 
 import org.matrix.androidsdk.MXSession;
-import org.matrix.androidsdk.db.MXMediasCache;
+import org.matrix.androidsdk.db.MXMediaCache;
 import org.matrix.androidsdk.listeners.MXMediaDownloadListener;
 import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
 import org.matrix.androidsdk.rest.model.MatrixError;
@@ -74,7 +74,7 @@ public class VectorMediasViewerAdapter extends PagerAdapter {
 
     private final MXSession mSession;
 
-    private final MXMediasCache mMediasCache;
+    private final MXMediaCache mMediasCache;
 
     // medias
     private List<SlidableMediaInfo> mMediasMessagesList;
@@ -98,13 +98,13 @@ public class VectorMediasViewerAdapter extends PagerAdapter {
 
     public VectorMediasViewerAdapter(Context context,
                                      MXSession session,
-                                     MXMediasCache mediasCache,
+                                     MXMediaCache mediaCache,
                                      List<SlidableMediaInfo> mediaMessagesList,
                                      int maxImageWidth,
                                      int maxImageHeight) {
         mContext = context;
         mSession = session;
-        mMediasCache = mediasCache;
+        mMediasCache = mediaCache;
         mMediasMessagesList = mediaMessagesList;
         mMaxImageWidth = maxImageWidth;
         mMaxImageHeight = maxImageHeight;

@@ -51,7 +51,7 @@ import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.call.MXCallsManager;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomPreviewData;
-import org.matrix.androidsdk.db.MXMediasCache;
+import org.matrix.androidsdk.db.MXMediaCache;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
 import org.matrix.androidsdk.rest.model.MatrixError;
@@ -401,8 +401,8 @@ public class VectorUtils {
             }
 
             // if the avatar is already cached, use it
-            if (session.getMediasCache().isAvatarThumbnailCached(callAvatarUrl, context.getResources().getDimensionPixelSize(R.dimen.profile_avatar_size))) {
-                session.getMediasCache().loadAvatarThumbnail(session.getHomeServerConfig(),
+            if (session.getMediaCache().isAvatarThumbnailCached(callAvatarUrl, context.getResources().getDimensionPixelSize(R.dimen.profile_avatar_size))) {
+                session.getMediaCache().loadAvatarThumbnail(session.getHomeServerConfig(),
                         imageView, callAvatarUrl, context.getResources().getDimensionPixelSize(R.dimen.profile_avatar_size));
             } else {
                 Bitmap bitmap = null;
@@ -413,7 +413,7 @@ public class VectorUtils {
                 }
 
                 // until the dedicated avatar is loaded.
-                session.getMediasCache().loadAvatarThumbnail(session.getHomeServerConfig(),
+                session.getMediaCache().loadAvatarThumbnail(session.getHomeServerConfig(),
                         imageView, callAvatarUrl, context.getResources().getDimensionPixelSize(R.dimen.profile_avatar_size), bitmap);
             }
         }
@@ -476,8 +476,8 @@ public class VectorUtils {
         // reset the imageView tag
         imageView.setTag(null);
 
-        if (session.getMediasCache().isAvatarThumbnailCached(avatarUrl, context.getResources().getDimensionPixelSize(R.dimen.profile_avatar_size))) {
-            session.getMediasCache().loadAvatarThumbnail(session.getHomeServerConfig(),
+        if (session.getMediaCache().isAvatarThumbnailCached(avatarUrl, context.getResources().getDimensionPixelSize(R.dimen.profile_avatar_size))) {
+            session.getMediaCache().loadAvatarThumbnail(session.getHomeServerConfig(),
                     imageView, avatarUrl, context.getResources().getDimensionPixelSize(R.dimen.profile_avatar_size));
         } else {
             if (null == mImagesThread) {
@@ -498,12 +498,12 @@ public class VectorUtils {
                     final String tag = avatarUrl + userId + displayName;
                     imageView.setTag(tag);
 
-                    if (!MXMediasCache.isMediaUrlUnreachable(avatarUrl)) {
+                    if (!MXMediaCache.isMediaUrlUnreachable(avatarUrl)) {
                         mImagesThreadHandler.post(new Runnable() {
                             @Override
                             public void run() {
                                 if (TextUtils.equals(tag, (String) imageView.getTag())) {
-                                    session.getMediasCache().loadAvatarThumbnail(session.getHomeServerConfig(),
+                                    session.getMediaCache().loadAvatarThumbnail(session.getHomeServerConfig(),
                                             imageView, avatarUrl, context.getResources().getDimensionPixelSize(R.dimen.profile_avatar_size), bitmap);
                                 }
                             }
@@ -522,7 +522,7 @@ public class VectorUtils {
                             imageView.setTag(null);
                             setDefaultMemberAvatar(imageView, userId, displayName);
 
-                            if (!TextUtils.isEmpty(avatarUrl) && !MXMediasCache.isMediaUrlUnreachable(avatarUrl)) {
+                            if (!TextUtils.isEmpty(avatarUrl) && !MXMediaCache.isMediaUrlUnreachable(avatarUrl)) {
                                 final String tmpTag1 = "11" + avatarUrl + "-" + userId + "--" + displayName;
                                 imageView.setTag(tmpTag1);
 
@@ -544,7 +544,7 @@ public class VectorUtils {
                                                                 VectorUtils.getAvatarColor(userId),
                                                                 TextUtils.isEmpty(displayName) ? userId : displayName,
                                                                 false);
-                                                        session.getMediasCache().loadAvatarThumbnail(session.getHomeServerConfig(),
+                                                        session.getMediaCache().loadAvatarThumbnail(session.getHomeServerConfig(),
                                                                 imageView,
                                                                 avatarUrl,
                                                                 context.getResources().getDimensionPixelSize(R.dimen.profile_avatar_size),
@@ -666,9 +666,9 @@ public class VectorUtils {
      * @return the bitmap uri
      */
     @SuppressLint("NewApi")
-    public static Uri getThumbnailUriFromIntent(Context context, final Intent intent, MXMediasCache mediasCache) {
+    public static Uri getThumbnailUriFromIntent(Context context, final Intent intent, MXMediaCache mediaCache) {
         // sanity check
-        if ((null != intent) && (null != context) && (null != mediasCache)) {
+        if ((null != intent) && (null != context) && (null != mediaCache)) {
             Uri thumbnailUri = null;
             ClipData clipData = null;
 
@@ -696,7 +696,7 @@ public class VectorUtils {
 
                         Log.d(LOG_TAG, "## getThumbnailUriFromIntent() :  " + thumbnailUri + " rotationAngle " + rotationAngle);
 
-                        String mediaUrl = ImageUtils.scaleAndRotateImage(context, stream, resource.mMimeType, 1024, rotationAngle, mediasCache);
+                        String mediaUrl = ImageUtils.scaleAndRotateImage(context, stream, resource.mMimeType, 1024, rotationAngle, mediaCache);
                         thumbnailUri = Uri.parse(mediaUrl);
                     } else if (null != resource) {
                         Log.d(LOG_TAG, "## getThumbnailUriFromIntent() : cannot manage " + thumbnailUri + " mMimeType " + resource.mMimeType);
