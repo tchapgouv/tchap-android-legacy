@@ -134,9 +134,9 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         mRoomParams.setHistoryVisibility(RoomState.HISTORY_VISIBILITY_INVITED);
 
         // A Tchap room member must be moderator to invite
-        final Map<String, Object> powerLevelContentOverride = new HashMap<>();
-        powerLevelContentOverride.put("invite", CommonActivityUtils.UTILS_POWER_LEVEL_MODERATOR);
-        mRoomParams.powerLevelContentOverride = powerLevelContentOverride;
+        mRoomParams.powerLevelContentOverride = new HashMap<String, Object>() {{
+            put("invite", CommonActivityUtils.UTILS_POWER_LEVEL_MODERATOR);
+        }};
 
         // Prepare disable federation label by adding the hs display name of the current user.
         String userHSDomain = DinsicUtils.getHomeServerDisplayNameFromMXIdentifier(mSession.getMyUserId());

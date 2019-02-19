@@ -533,9 +533,8 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
         boolean isAdmin = false;
 
         if ((null != mRoom) && (null != mSession)) {
-            PowerLevels powerLevels;
-
-            if (null != (powerLevels = mRoom.getState().getPowerLevels())) {
+            PowerLevels powerLevels = mRoom.getState().getPowerLevels();
+            if (powerLevels != null) {
                 String userId = mSession.getMyUserId();
                 isAdmin = (null != userId) && (powerLevels.getUserPowerLevel(userId) >= CommonActivityUtils.UTILS_POWER_LEVEL_ADMIN);
             }
@@ -552,9 +551,8 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
         boolean isAllowed = false;
 
         if ((null != mRoom) && (null != mSession)) {
-            PowerLevels powerLevels;
-
-            if (null != (powerLevels = mRoom.getState().getPowerLevels())) {
+            PowerLevels powerLevels = mRoom.getState().getPowerLevels();
+            if (powerLevels != null) {
                 String userId = mSession.getMyUserId();
                 isAllowed = (null != userId) && (powerLevels.getUserPowerLevel(userId) >= powerLevels.invite);
             }
