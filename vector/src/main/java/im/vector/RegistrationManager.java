@@ -18,7 +18,6 @@
 package im.vector;
 
 import android.content.Context;
-import android.os.Build;
 import android.support.annotation.StringRes;
 import android.text.TextUtils;
 
@@ -52,6 +51,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.util.UrlUtilKt;
 
 public class RegistrationManager {
@@ -659,7 +659,7 @@ public class RegistrationManager {
      */
     private void register(final Context context, final RegistrationParams params, final InternalRegistrationListener listener) {
         if (getLoginRestClient() != null) {
-            params.initial_device_display_name = Build.MODEL.trim();
+            params.initial_device_display_name = DinsicUtils.getDeviceName();
             mLoginRestClient.register(params, new UnrecognizedCertApiCallback<Credentials>(mHsConfig) {
                 @Override
                 public void onSuccess(Credentials credentials) {

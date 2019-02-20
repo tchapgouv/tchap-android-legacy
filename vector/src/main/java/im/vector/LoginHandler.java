@@ -19,7 +19,6 @@
 package im.vector;
 
 import android.content.Context;
-import android.os.Build;
 import android.text.TextUtils;
 
 import org.matrix.androidsdk.HomeServerConnectionConfig;
@@ -36,6 +35,7 @@ import org.matrix.androidsdk.rest.model.pid.ThreePid;
 import java.util.Collection;
 import java.util.List;
 
+import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.settings.VectorLocale;
 
 public class LoginHandler {
@@ -126,7 +126,7 @@ public class LoginHandler {
                            final String password,
                            final ApiCallback<Credentials> callback) {
         LoginRestClient client = new LoginRestClient(hsConfig);
-        String deviceName = Build.MODEL.trim();
+        String deviceName = DinsicUtils.getDeviceName();
 
         if (!TextUtils.isEmpty(username)) {
             if (android.util.Patterns.EMAIL_ADDRESS.matcher(username).matches()) {
@@ -181,7 +181,7 @@ public class LoginHandler {
         LoginRestClient client = new LoginRestClient(hsConfig);
 
         // avoid dispatching the device name
-        params.initial_device_display_name = Build.MODEL.trim();
+        params.initial_device_display_name = DinsicUtils.getDeviceName();
 
         client.register(params, new UnrecognizedCertApiCallback<Credentials>(hsConfig, callback) {
             @Override
