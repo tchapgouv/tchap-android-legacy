@@ -19,6 +19,7 @@
 package im.vector;
 
 import android.content.Context;
+import android.os.Build;
 import android.text.TextUtils;
 
 import org.matrix.androidsdk.HomeServerConnectionConfig;
@@ -125,7 +126,7 @@ public class LoginHandler {
                            final String password,
                            final ApiCallback<Credentials> callback) {
         LoginRestClient client = new LoginRestClient(hsConfig);
-        String deviceName = ctx.getString(R.string.login_mobile_device);
+        String deviceName = Build.MODEL.trim();
 
         if (!TextUtils.isEmpty(username)) {
             if (android.util.Patterns.EMAIL_ADDRESS.matcher(username).matches()) {
@@ -180,7 +181,7 @@ public class LoginHandler {
         LoginRestClient client = new LoginRestClient(hsConfig);
 
         // avoid dispatching the device name
-        params.initial_device_display_name = ctx.getString(R.string.login_mobile_device);
+        params.initial_device_display_name = Build.MODEL.trim();
 
         client.register(params, new UnrecognizedCertApiCallback<Credentials>(hsConfig, callback) {
             @Override

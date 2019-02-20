@@ -343,21 +343,22 @@ public class KeyRequestHandler {
                                 onDisplayKeyShareDialogClose(true, false);
                             }
                         })
-                .setPositiveButton(R.string.start_verification,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(final DialogInterface dialog, int id) {
-                                CommonActivityUtils.displayDeviceVerificationDialog(deviceInfo, mCurrentUser, session, activity, new SimpleApiCallback<Void>() {
-                                    @Override
-                                    public void onSuccess(Void info) {
-                                        if (deviceInfo.isVerified()) {
-                                            onDisplayKeyShareDialogClose(true, false);
-                                        } else {
-                                            displayKeyShareDialog(session, deviceInfo, wasNewDevice);
-                                        }
-                                    }
-                                });
-                            }
-                        })
+                // Tchap: disable the verification option
+//                .setPositiveButton(R.string.start_verification,
+//                        new DialogInterface.OnClickListener() {
+//                            public void onClick(final DialogInterface dialog, int id) {
+//                                CommonActivityUtils.displayDeviceVerificationDialog(deviceInfo, mCurrentUser, session, activity, new SimpleApiCallback<Void>() {
+//                                    @Override
+//                                    public void onSuccess(Void info) {
+//                                        if (deviceInfo.isVerified()) {
+//                                            onDisplayKeyShareDialogClose(true, false);
+//                                        } else {
+//                                            displayKeyShareDialog(session, deviceInfo, wasNewDevice);
+//                                        }
+//                                    }
+//                                });
+//                            }
+//                        })
                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override
                     public void onCancel(DialogInterface dialogInterface) {

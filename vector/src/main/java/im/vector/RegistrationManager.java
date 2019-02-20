@@ -18,6 +18,7 @@
 package im.vector;
 
 import android.content.Context;
+import android.os.Build;
 import android.support.annotation.StringRes;
 import android.text.TextUtils;
 
@@ -658,7 +659,7 @@ public class RegistrationManager {
      */
     private void register(final Context context, final RegistrationParams params, final InternalRegistrationListener listener) {
         if (getLoginRestClient() != null) {
-            params.initial_device_display_name = context.getString(R.string.login_mobile_device);
+            params.initial_device_display_name = Build.MODEL.trim();
             mLoginRestClient.register(params, new UnrecognizedCertApiCallback<Credentials>(mHsConfig) {
                 @Override
                 public void onSuccess(Credentials credentials) {
