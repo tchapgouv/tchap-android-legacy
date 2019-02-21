@@ -133,7 +133,8 @@ public class RoomUtils {
                     TchapRoomSummary tchapRoomSummary = tchapRoom.getSummary();
 
                     if (null != tchapRoomSummary) {
-                        mSummaryByRoomIdMap.put(roomId, tchapRoomSummary.getSummary());
+                        summary = tchapRoomSummary.getSummary();
+                        mSummaryByRoomIdMap.put(roomId, summary);
                     }
                 }
 
