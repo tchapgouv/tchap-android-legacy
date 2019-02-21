@@ -38,7 +38,7 @@ import org.matrix.androidsdk.data.metrics.MetricsListener;
 import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.data.store.MXFileStore;
 import org.matrix.androidsdk.db.MXLatestChatMessageCache;
-import org.matrix.androidsdk.db.MXMediasCache;
+import org.matrix.androidsdk.db.MXMediaCache;
 import org.matrix.androidsdk.listeners.IMXNetworkEventListener;
 import org.matrix.androidsdk.listeners.MXEventListener;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
@@ -510,13 +510,13 @@ public class Matrix {
      * Return the used media caches.
      * This class can inherited to customized it.
      *
-     * @return the mediasCache.
+     * @return the mediaCache.
      */
     @Nullable
-    public synchronized MXMediasCache getMediasCache() {
+    public synchronized MXMediaCache getMediaCache() {
         TchapSession defaultSession = _getDefaultTchapSession();
         if (defaultSession != null) {
-            return defaultSession.getMainSession().getMediasCache();
+            return defaultSession.getMainSession().getMediaCache();
         }
         return null;
     }
@@ -592,7 +592,6 @@ public class Matrix {
         Log.d(LOG_TAG, "## deactivateSession() " + tchapSession.getMainSession().getMyUserId());
 
         tchapSession.getMainSession().deactivateAccount(context,
-                LoginRestClient.LOGIN_FLOW_TYPE_PASSWORD,
                 userPassword,
                 eraseUserData,
                 new SimpleApiCallback<Void>(aCallback) {

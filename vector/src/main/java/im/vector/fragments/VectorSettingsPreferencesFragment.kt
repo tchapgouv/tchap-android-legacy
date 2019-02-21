@@ -61,11 +61,12 @@ import im.vector.settings.VectorLocale
 import im.vector.ui.themes.ThemeUtils
 import im.vector.util.*
 import org.matrix.androidsdk.MXSession
+import org.matrix.androidsdk.crypto.data.ImportRoomKeysResult
 import org.matrix.androidsdk.crypto.data.MXDeviceInfo
 import org.matrix.androidsdk.data.MyUser
 import org.matrix.androidsdk.data.Pusher
 import org.matrix.androidsdk.data.RoomMediaMessage
-import org.matrix.androidsdk.db.MXMediasCache
+import org.matrix.androidsdk.db.MXMediaCache
 import org.matrix.androidsdk.listeners.IMXNetworkEventListener
 import org.matrix.androidsdk.listeners.MXEventListener
 import org.matrix.androidsdk.listeners.MXMediaUploadListener
@@ -745,7 +746,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 
         // clear medias cache
         findPreference(PreferencesManager.SETTINGS_CLEAR_MEDIA_CACHE_PREFERENCE_KEY).let {
-            MXMediasCache.getCachesSize(activity, object : SimpleApiCallback<Long>() {
+            MXMediaCache.getCachesSize(activity, object : SimpleApiCallback<Long>() {
                 override fun onSuccess(size: Long) {
                     if (null != activity) {
                         it.summary = android.text.format.Formatter.formatFileSize(activity, size)
@@ -758,7 +759,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 
                 val task = object : AsyncTask<Void?, Void?, Void?>() {
                     override fun doInBackground(vararg params: Void?): Void? {
-                        mSession.mediasCache.clear()
+                        mSession.mediaCache.clear()
                         Glide.get(activity).clearDiskCache()
                         return null
                     }
@@ -766,7 +767,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                     override fun onPostExecute(result: Void?) {
                         hideLoadingView()
 
-                        MXMediasCache.getCachesSize(activity, object : SimpleApiCallback<Long>() {
+                        MXMediaCache.getCachesSize(activity, object : SimpleApiCallback<Long>() {
                             override fun onSuccess(size: Long) {
                                 it.summary = android.text.format.Formatter.formatFileSize(activity, size)
                             }
@@ -783,7 +784,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                         mediaScanManager.clearAntiVirusScanResults()
                     }
                 } catch (e: Exception) {
-                    Log.e(LOG_TAG, "## mSession.getMediasCache().clear() failed " + e.message, e)
+                    Log.e(LOG_TAG, "## mSession.getMediaCache().clear() failed " + e.message, e)
                     task.cancel(true)
                     hideLoadingView()
                 }
@@ -1345,7 +1346,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                     activity.finish()
                 }
                 VectorUtils.TAKE_IMAGE -> {
-                    val thumbnailUri = VectorUtils.getThumbnailUriFromIntent(activity, data, mSession.mediasCache)
+                    val thumbnailUri = VectorUtils.getThumbnailUriFromIntent(activity, data, mSession.mediaCache)
 
                     if (null != thumbnailUri) {
                         displayLoadingView()
@@ -1353,7 +1354,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                         val resource = ResourceUtils.openResource(activity, thumbnailUri, null)
 
                         if (null != resource) {
-                            mSession.mediasCache.uploadContent(resource.mContentStream, null, resource.mMimeType, null, object : MXMediaUploadListener() {
+                            mSession.mediaCache.uploadContent(resource.mContentStream, null, resource.mMimeType, null, object : MXMediaUploadListener() {
 
                                 override fun onUploadError(uploadId: String?, serverResponseCode: Int, serverErrorMessage: String?) {
                                     activity.runOnUiThread { onCommonDone(serverResponseCode.toString() + " : " + serverErrorMessage) }
@@ -2134,7 +2135,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 
         // crypto section: device key (fingerprint)
         if (!TextUtils.isEmpty(deviceId) && !TextUtils.isEmpty(userId)) {
-            mSession.crypto.getDeviceInfo(userId, deviceId, object : SimpleApiCallback<MXDeviceInfo>() {
+            mSession.crypto?.getDeviceInfo(userId, deviceId, object : SimpleApiCallback<MXDeviceInfo>() {
                 override fun onSuccess(deviceInfo: MXDeviceInfo?) {
                     if (null != deviceInfo && !TextUtils.isEmpty(deviceInfo.fingerprint()) && null != activity) {
                         cryptoInfoTextPreference.summary = deviceInfo.getFingerprintHumanReadable()
@@ -2345,7 +2346,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                     .setPositiveButton(R.string.rename) { _, _ -> displayDeviceRenameDialog(aDeviceInfo) }
 
             // disable the deletion for our own device
-            if (!TextUtils.equals(mSession.crypto.myDevice.deviceId, aDeviceInfo.device_id)) {
+            if (!TextUtils.equals(mSession.crypto?.myDevice?.deviceId, aDeviceInfo.device_id)) {
                 builder.setNegativeButton(R.string.delete) { _, _ -> displayDeviceDeletionDialog(aDeviceInfo) }
             }
 
@@ -2654,8 +2655,8 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 
                 displayLoadingView()
 
-                mSession.crypto.importRoomKeys(data, password, object : ApiCallback<Void> {
-                    override fun onSuccess(info: Void?) {
+                mSession.crypto?.importRoomKeys(data, password, object : ApiCallback<ImportRoomKeysResult> {
+                    override fun onSuccess(info: ImportRoomKeysResult?) {
                         hideLoadingView()
                     }
 

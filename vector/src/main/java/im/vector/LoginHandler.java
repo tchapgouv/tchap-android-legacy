@@ -28,15 +28,13 @@ import org.matrix.androidsdk.rest.client.LoginRestClient;
 import org.matrix.androidsdk.rest.client.ThirdPidRestClient;
 import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.rest.model.login.Credentials;
-import org.matrix.androidsdk.rest.model.login.LoginFlow;
 import org.matrix.androidsdk.rest.model.login.RegistrationParams;
 import org.matrix.androidsdk.rest.model.pid.ThreePid;
 import org.matrix.androidsdk.util.Log;
 
-import java.util.List;
-
 import fr.gouv.tchap.model.TchapConnectionConfig;
 import fr.gouv.tchap.model.TchapSession;
+import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.settings.VectorLocale;
 
 public class LoginHandler {
@@ -193,7 +191,7 @@ public class LoginHandler {
                            final String password,
                            final ApiCallback<Credentials> callback) {
         LoginRestClient client = new LoginRestClient(hsConfig);
-        String deviceName = ctx.getString(R.string.login_mobile_device);
+        String deviceName = DinsicUtils.getDeviceName();
 
         if (!TextUtils.isEmpty(username)) {
             if (android.util.Patterns.EMAIL_ADDRESS.matcher(username).matches()) {
@@ -223,7 +221,7 @@ public class LoginHandler {
         LoginRestClient client = new LoginRestClient(hsConfig);
 
         // avoid dispatching the device name
-        params.initial_device_display_name = context.getString(R.string.login_mobile_device);
+        params.initial_device_display_name = DinsicUtils.getDeviceName();
 
         client.register(params, new UnrecognizedCertApiCallback<Credentials>(hsConfig, callback) {
             @Override

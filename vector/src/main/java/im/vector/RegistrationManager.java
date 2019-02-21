@@ -28,6 +28,9 @@ import org.matrix.androidsdk.rest.client.LoginRestClient;
 import org.matrix.androidsdk.rest.client.ProfileRestClient;
 import org.matrix.androidsdk.rest.client.ThirdPidRestClient;
 import org.matrix.androidsdk.rest.model.MatrixError;
+import org.matrix.androidsdk.rest.model.login.AuthParams;
+import org.matrix.androidsdk.rest.model.login.AuthParamsCaptcha;
+import org.matrix.androidsdk.rest.model.login.AuthParamsThreePid;
 import org.matrix.androidsdk.rest.model.login.Credentials;
 import org.matrix.androidsdk.rest.model.login.RegistrationFlowResponse;
 import org.matrix.androidsdk.rest.model.login.RegistrationParams;
@@ -38,11 +41,12 @@ import org.matrix.androidsdk.ssl.UnrecognizedCertificateException;
 import org.matrix.androidsdk.util.JsonUtils;
 import org.matrix.androidsdk.util.Log;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import fr.gouv.tchap.model.TchapConnectionConfig;
 import fr.gouv.tchap.model.TchapSession;
+import fr.gouv.tchap.util.DinsicUtils;
+
 import im.vector.util.UrlUtilKt;
 
 public class RegistrationManager {
@@ -164,12 +168,12 @@ public class RegistrationManager {
     public void attemptRegistration(final Context context, final RegistrationListener listener) {
         final String registrationType;
         if (mRegistrationResponse != null && !TextUtils.isEmpty(mRegistrationResponse.session)) {
-            Map<String, Object> authParams;
+            AuthParams authParams = null;
             final HomeServerConnectionConfig hsConfig = mTchapConfig.getHsConfig();
             if (mPhoneNumber != null && !isCompleted(LoginRestClient.LOGIN_FLOW_TYPE_MSISDN) && !TextUtils.isEmpty(mPhoneNumber.sid)) {
                 registrationType = LoginRestClient.LOGIN_FLOW_TYPE_MSISDN;
                 authParams = getThreePidAuthParams(mPhoneNumber.clientSecret, hsConfig.getIdentityServerUri().getHost(),
-                        mPhoneNumber.sid, LoginRestClient.LOGIN_FLOW_TYPE_MSISDN, mRegistrationResponse.session);
+                        mPhoneNumber.sid, LoginRestClient.LOGIN_FLOW_TYPE_MSISDN);
             } else if (mEmail != null && !isCompleted(LoginRestClient.LOGIN_FLOW_TYPE_EMAIL_IDENTITY)) {
                 if (TextUtils.isEmpty(mEmail.sid)) {
                     // Email token needs to be requested before doing validation
@@ -197,7 +201,7 @@ public class RegistrationManager {
                 } else {
                     registrationType = LoginRestClient.LOGIN_FLOW_TYPE_EMAIL_IDENTITY;
                     authParams = getThreePidAuthParams(mEmail.clientSecret, hsConfig.getIdentityServerUri().getHost(),
-                            mEmail.sid, LoginRestClient.LOGIN_FLOW_TYPE_EMAIL_IDENTITY, mRegistrationResponse.session);
+                            mEmail.sid, LoginRestClient.LOGIN_FLOW_TYPE_EMAIL_IDENTITY);
                 }
             } else if (!TextUtils.isEmpty(mCaptchaResponse) && !isCompleted(LoginRestClient.LOGIN_FLOW_TYPE_RECAPTCHA)) {
                 registrationType = LoginRestClient.LOGIN_FLOW_TYPE_RECAPTCHA;
@@ -205,7 +209,6 @@ public class RegistrationManager {
             } else {
                 // others
                 registrationType = "";
-                authParams = new HashMap<>();
             }
 
             final RegistrationParams params = new RegistrationParams();
@@ -220,7 +223,10 @@ public class RegistrationManager {
                 params.bind_msisdn = mPhoneNumber != null;
             }
 
-            if (authParams != null && !authParams.isEmpty()) {
+            if (authParams != null) {
+                // Always send the current session
+                authParams.session = mRegistrationResponse.session;
+
                 params.auth = authParams;
             }
 
@@ -279,7 +285,9 @@ public class RegistrationManager {
 
         RegistrationParams registrationParams = new RegistrationParams();
         registrationParams.auth = getThreePidAuthParams(aClientSecret, UrlUtilKt.removeUrlScheme(aIdentityServer),
-                aSid, LoginRestClient.LOGIN_FLOW_TYPE_EMAIL_IDENTITY, aSessionId);
+                aSid, LoginRestClient.LOGIN_FLOW_TYPE_EMAIL_IDENTITY);
+
+        registrationParams.auth.session = aSessionId;
 
         // Note: username, password and bind_email must not be set in registrationParams
         mUsername = null;
@@ -441,19 +449,18 @@ public class RegistrationManager {
      * @param host
      * @param sid          received by requestToken request
      * @param medium       type of three pid
-     * @param sessionId    session id
      * @return map of params
      */
-    private Map<String, Object> getThreePidAuthParams(final String clientSecret, final String host,
-                                                      final String sid, final String medium, final String sessionId) {
-        Map<String, Object> authParams = new HashMap<>();
-        Map<String, String> pidsCredentialsAuth = new HashMap<>();
-        pidsCredentialsAuth.put(JSON_KEY_CLIENT_SECRET, clientSecret);
-        pidsCredentialsAuth.put(JSON_KEY_ID_SERVER, host);
-        pidsCredentialsAuth.put(JSON_KEY_SID, sid);
-        authParams.put(JSON_KEY_TYPE, medium);
-        authParams.put(JSON_KEY_THREEPID_CREDS, pidsCredentialsAuth);
-        authParams.put(JSON_KEY_SESSION, sessionId);
+    private AuthParams getThreePidAuthParams(final String clientSecret,
+                                             final String host,
+                                             final String sid,
+                                             final String medium) {
+        AuthParamsThreePid authParams = new AuthParamsThreePid(medium);
+
+        authParams.threePidCredentials.clientSecret = clientSecret;
+        authParams.threePidCredentials.idServer = host;
+        authParams.threePidCredentials.sid = sid;
+
         return authParams;
     }
 
@@ -463,11 +470,9 @@ public class RegistrationManager {
      * @param captchaResponse
      * @return
      */
-    private Map<String, Object> getCaptchaAuthParams(final String captchaResponse) {
-        Map<String, Object> authParams = new HashMap<>();
-        authParams.put(JSON_KEY_TYPE, LoginRestClient.LOGIN_FLOW_TYPE_RECAPTCHA);
-        authParams.put(JSON_KEY_CAPTCHA_RESPONSE, captchaResponse);
-        authParams.put(JSON_KEY_SESSION, mRegistrationResponse.session);
+    private AuthParams getCaptchaAuthParams(final String captchaResponse) {
+        AuthParamsCaptcha authParams = new AuthParamsCaptcha();
+        authParams.response = captchaResponse;
         return authParams;
     }
 
@@ -601,7 +606,7 @@ public class RegistrationManager {
         }
 
         if (loginRestClient != null) {
-            params.initial_device_display_name = context.getString(R.string.login_mobile_device);
+            params.initial_device_display_name = DinsicUtils.getDeviceName();
             final HomeServerConnectionConfig hsConfig = mTchapConfig.getHsConfig();
             loginRestClient.register(params, new UnrecognizedCertApiCallback<Credentials>(hsConfig) {
                 @Override

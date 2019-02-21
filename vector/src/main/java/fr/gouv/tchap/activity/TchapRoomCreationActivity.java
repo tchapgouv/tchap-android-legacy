@@ -134,6 +134,13 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         switchPublicPrivateRoom.setChecked(false);
         mRoomParams.visibility = RoomDirectoryVisibility.DIRECTORY_VISIBILITY_PRIVATE;
         mRoomParams.preset = CreateRoomParams.PRESET_PRIVATE_CHAT;
+        // Hide the encrypted messages sent before the member is invited.
+        mRoomParams.setHistoryVisibility(RoomState.HISTORY_VISIBILITY_INVITED);
+
+        // A Tchap room member must be moderator to invite
+        mRoomParams.powerLevelContentOverride = new HashMap<String, Object>() {{
+            put("invite", CommonActivityUtils.UTILS_POWER_LEVEL_MODERATOR);
+        }};
 
         // Prepare disable federation label by adding the hs display name of the current user.
         String userHSDomain = DinsicUtils.getHomeServerDisplayNameFromMXIdentifier(mSession.getMyUserId());
@@ -210,7 +217,8 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
             tvPublicPrivateRoomDescription.setTextColor(ContextCompat.getColor(this, R.color.vector_tchap_text_color_light_grey));
             mRoomParams.visibility = RoomDirectoryVisibility.DIRECTORY_VISIBILITY_PRIVATE;
             mRoomParams.preset = CreateRoomParams.PRESET_PRIVATE_CHAT;
-            mRoomParams.setHistoryVisibility(null);
+            // Hide the encrypted messages sent before the member is invited.
+            mRoomParams.setHistoryVisibility(RoomState.HISTORY_VISIBILITY_INVITED);
             Log.d(LOG_TAG, "## private");
             // Remove potential change related to the federation
             switchDisableFederation.setChecked(false);
@@ -307,7 +315,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         }
 
         if (aResultCode == Activity.RESULT_OK) {
-            mThumbnailUri = VectorUtils.getThumbnailUriFromIntent(this, intent, mSession.getMediasCache());
+            mThumbnailUri = VectorUtils.getThumbnailUriFromIntent(this, intent, mSession.getMediaCache());
 
             if (null != mThumbnailUri) {
                 addAvatarText.setVisibility(View.GONE);
@@ -402,7 +410,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         showWaitingView();
         ResourceUtils.Resource resource = ResourceUtils.openResource(TchapRoomCreationActivity.this, mThumbnailUri, null);
         if (null != resource) {
-            mSession.getMediasCache().uploadContent(resource.mContentStream, null, resource.mMimeType, null, new MXMediaUploadListener() {
+            mSession.getMediaCache().uploadContent(resource.mContentStream, null, resource.mMimeType, null, new MXMediaUploadListener() {
 
                 @Override
                 public void onUploadError(String uploadId, int serverResponseCode, final String serverErrorMessage) {

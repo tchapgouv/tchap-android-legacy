@@ -2,6 +2,12 @@ repositories {
     mavenCentral()
 }
 
+apply plugin: 'com.android.application'
+apply plugin: 'android-soexcluder'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'realm-android'
+
 buildscript {
     repositories {
         jcenter()
@@ -9,14 +15,10 @@ buildscript {
 
     dependencies {
         classpath 'com.jween.gradle:android-soexcluder:1.1'
+        // Use Realm Database
+        classpath "io.realm:realm-gradle-plugin:5.8.0"
     }
 }
-
-apply plugin: 'com.android.application'
-apply plugin: 'android-soexcluder'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
-apply plugin: 'realm-android'
 
 android {
     compileSdkVersion 27
@@ -25,6 +27,11 @@ android {
     packagingOptions {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/NOTICE'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     defaultConfig {

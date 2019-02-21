@@ -29,7 +29,7 @@ import android.widget.TextView;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.adapters.MessageRow;
 import org.matrix.androidsdk.data.Room;
-import org.matrix.androidsdk.db.MXMediasCache;
+import org.matrix.androidsdk.db.MXMediaCache;
 import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.rest.model.crypto.EncryptedFileInfo;
 import org.matrix.androidsdk.rest.model.message.FileMessage;
@@ -51,8 +51,8 @@ public class VectorSearchFilesListAdapter extends VectorMessagesAdapter {
     // display the room name in the result view
     private final boolean mDisplayRoomName;
 
-    public VectorSearchFilesListAdapter(MXSession session, Context context, boolean displayRoomName, MXMediasCache mediasCache) {
-        super(session, context, mediasCache);
+    public VectorSearchFilesListAdapter(MXSession session, Context context, boolean displayRoomName, MXMediaCache mediaCache) {
+        super(session, context, mediaCache);
 
         mDisplayRoomName = displayRoomName;
         setNotifyOnChange(true);
@@ -198,9 +198,9 @@ public class VectorSearchFilesListAdapter extends VectorMessagesAdapter {
                     // detect if the media is encrypted
                     if (null == encryptedFileThumbnailInfo) {
                         int size = getContext().getResources().getDimensionPixelSize(R.dimen.member_list_avatar_size);
-                        mSession.getMediasCache().loadAvatarThumbnail(mSession.getHomeServerConfig(), thumbnailView, thumbUrl, size);
+                        mSession.getMediaCache().loadAvatarThumbnail(mSession.getHomeServerConfig(), thumbnailView, thumbUrl, size);
                     } else {
-                        mSession.getMediasCache().loadBitmap(mSession.getHomeServerConfig(), thumbnailView, thumbUrl, 0, ExifInterface.ORIENTATION_UNDEFINED, null, encryptedFileThumbnailInfo);
+                        mSession.getMediaCache().loadBitmap(mSession.getHomeServerConfig(), thumbnailView, thumbUrl, 0, ExifInterface.ORIENTATION_UNDEFINED, null, encryptedFileThumbnailInfo);
                     }
                 }
             } else {

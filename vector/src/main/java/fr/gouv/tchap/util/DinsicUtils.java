@@ -25,6 +25,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.ContactsContract;
@@ -72,6 +73,32 @@ public class DinsicUtils {
     private static final String LOG_TAG = "DinsicUtils";
 
     /**
+     * Capitalize a string
+     */
+    public static String capitalize(String input) {
+        StringBuilder builder = new StringBuilder();
+        if (!input.isEmpty()) {
+            builder.append(input.substring(0, 1).toUpperCase());
+            if (input.length() > 1) {
+                builder.append(input.substring(1));
+            }
+        }
+        return builder.toString();
+    }
+
+    /**
+     *  Returns the consumer friendly device name
+     */
+    public static String getDeviceName() {
+        String manufacturer = Build.MANUFACTURER.trim();
+        String model = Build.MODEL.trim();
+        if (model.startsWith(manufacturer)) {
+            return capitalize(model);
+        }
+        return capitalize(manufacturer) + " " + model;
+    }
+
+    /**
      * Get the homeserver name of a matrix identifier.
      * The identifier type may be any matrix identifier type: user id, room id, ...
      * For example in case of "@jean-philippe.martin-modernisation.fr:matrix.test.org", this will return "matrix.test.org".
@@ -106,12 +133,7 @@ public class DinsicUtils {
                 }
             }
             // Capitalize the domain
-            StringBuilder builder = new StringBuilder();
-            builder.append(homeserverName.substring(0, 1).toUpperCase());
-            if (homeserverName.length() > 1) {
-                builder.append(homeserverName.substring(1));
-            }
-            result = builder.toString();
+            result = capitalize(homeserverName);
         }
         return result;
     }

@@ -29,7 +29,7 @@ import android.widget.Toast;
 import com.google.gson.JsonElement;
 
 import org.matrix.androidsdk.MXSession;
-import org.matrix.androidsdk.db.MXMediasCache;
+import org.matrix.androidsdk.db.MXMediaCache;
 import org.matrix.androidsdk.listeners.MXMediaDownloadListener;
 import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
 import org.matrix.androidsdk.rest.model.MatrixError;
@@ -177,7 +177,7 @@ public class VectorMediasViewerActivity extends MXCActionBarActivity {
         int maxImageWidth = intent.getIntExtra(KEY_THUMBNAIL_WIDTH, 0);
         int maxImageHeight = intent.getIntExtra(VectorMediasViewerActivity.KEY_THUMBNAIL_HEIGHT, 0);
 
-        mAdapter = new VectorMediasViewerAdapter(this, mSession, mSession.getMediasCache(), mMediasList, maxImageWidth, maxImageHeight);
+        mAdapter = new VectorMediasViewerAdapter(this, mSession, mSession.getMediaCache(), mMediasList, maxImageWidth, maxImageHeight);
         mAdapter.setMediaScanManager(mMediaScanManager);
         mViewPager.setAdapter(mAdapter);
         mViewPager.setPageTransformer(true, new DepthPageTransformer());
@@ -243,7 +243,7 @@ public class VectorMediasViewerActivity extends MXCActionBarActivity {
      * Download the current video file
      */
     private void onAction(final int position, final int action) {
-        final MXMediasCache mediasCache = Matrix.getInstance(this).getMediasCache();
+        final MXMediaCache mediaCache = Matrix.getInstance(this).getMediaCache();
         final SlidableMediaInfo mediaInfo = mMediasList.get(position);
 
         // Sanity check: check whether the media is still trusted
@@ -253,8 +253,8 @@ public class VectorMediasViewerActivity extends MXCActionBarActivity {
         }
 
         // check if the media has already been downloaded
-        if (mediasCache.isMediaCached(mediaInfo.mMediaUrl, mediaInfo.mMimeType)) {
-            mediasCache.createTmpDecryptedMediaFile(mediaInfo.mMediaUrl, mediaInfo.mMimeType, mediaInfo.mEncryptedFileInfo, new SimpleApiCallback<File>() {
+        if (mediaCache.isMediaCached(mediaInfo.mMediaUrl, mediaInfo.mMimeType)) {
+            mediaCache.createTmpDecryptedMediaFile(mediaInfo.mMediaUrl, mediaInfo.mMimeType, mediaInfo.mEncryptedFileInfo, new SimpleApiCallback<File>() {
                 @Override
                 public void onSuccess(File file) {
                     // sanity check
@@ -279,9 +279,9 @@ public class VectorMediasViewerActivity extends MXCActionBarActivity {
                         // Move the file to the Share folder, to avoid it to be deleted because the Activity will be paused while the
                         // user select an application to share the file
                         if (null != mediaInfo.mFileName) {
-                            file = mediasCache.moveToShareFolder(file, mediaInfo.mFileName);
+                            file = mediaCache.moveToShareFolder(file, mediaInfo.mFileName);
                         } else {
-                            file = mediasCache.moveToShareFolder(file, file.getName());
+                            file = mediaCache.moveToShareFolder(file, file.getName());
                         }
 
                         // shared / forward
@@ -309,14 +309,14 @@ public class VectorMediasViewerActivity extends MXCActionBarActivity {
             });
         } else {
             // else download it
-            final String downloadId = mediasCache.downloadMedia(this,
+            final String downloadId = mediaCache.downloadMedia(this,
                     mSession.getHomeServerConfig(),
                     mediaInfo.mMediaUrl,
                     mediaInfo.mMimeType,
                     mediaInfo.mEncryptedFileInfo);
 
             if (null != downloadId) {
-                mediasCache.addDownloadListener(downloadId, new MXMediaDownloadListener() {
+                mediaCache.addDownloadListener(downloadId, new MXMediaDownloadListener() {
                     @Override
                     public void onDownloadError(String downloadId, JsonElement jsonElement) {
                         MatrixError error = JsonUtils.toMatrixError(jsonElement);
