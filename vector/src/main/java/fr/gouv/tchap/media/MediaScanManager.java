@@ -249,7 +249,11 @@ public class MediaScanManager {
      * @return true if the event contains at least one unchecked or untrusted url.
      */
     public boolean isUncheckedOrUntrustedMediaEvent(Event event) {
-
+        // We have to check here whether the event is encrypted or not.
+        // But the outgoing events in an encrypted room are considered as unencrypted
+        // until they are actually sent.
+        // So we will check whether the event is actually sent when it appears as an unencrypted one.
+        // The scan is not available for the events which are not sent yet.
         if (event.isEncrypted()) {
             List<EncryptedFileInfo> encryptedFileInfos = event.getEncryptedFileInfos();
             for (EncryptedFileInfo encryptedFileInfo : encryptedFileInfos) {
@@ -258,7 +262,7 @@ public class MediaScanManager {
                     return true;
                 }
             }
-        } else {
+        } else if (event.mSentState == Event.SentState.SENT) {
             List<String> urls = event.getMediaUrls();
             for (String url : urls) {
                 MediaScan mediaScan = scanUnencryptedMedia(url);
@@ -266,6 +270,10 @@ public class MediaScanManager {
                     return true;
                 }
             }
+        } else {
+            // Here the event is an outgoing event which has not been sent yet.
+            // We could not scan it for the moment.
+            return true;
         }
 
 
