@@ -681,7 +681,8 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
                 }
 
                 if ((null != keyEvent) && !keyEvent.isShiftPressed() && keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER
-                        && getResources().getConfiguration().keyboard != Configuration.KEYBOARD_NOKEYS) {
+                        && getResources().getConfiguration().keyboard != Configuration.KEYBOARD_NOKEYS
+                        && keyEvent.getAction() == keyEvent.ACTION_DOWN) {
                     tchapSendTextMessage();
                     return true;
                 }
