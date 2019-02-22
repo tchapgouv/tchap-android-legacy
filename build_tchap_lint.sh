@@ -3,15 +3,19 @@
 
 echo "Do all lint check"
 ./gradlew \
-    lintAppProtecteedWithoutVoipWithoutPinningRelease \
-    lintAppProtecteedWithVoipWithoutPinningRelease \
-    lintAppPreprodWithoutVoipWithoutPinningRelease \
-    lintAppPreprodWithVoipWithoutPinningRelease \
-    lintAppAgentWithoutVoipWithoutPinningRelease \
-    lintAppAgentWithVoipWithoutPinningRelease \
-    lintAppfdroidProtecteedWithoutVoipWithoutPinningRelease \
-    lintAppfdroidProtecteedWithVoipWithoutPinningRelease \
-    lintAppfdroidPreprodWithoutVoipWithoutPinningRelease \
-    lintAppfdroidPreprodWithVoipWithoutPinningRelease \
-    lintAppfdroidAgentWithoutVoipWithoutPinningRelease \
-    lintAppfdroidAgentWithVoipWithoutPinningRelease
+    lintAppProtecteedWithoutvoipWithoutpinningRelease \
+    lintAppProtecteedWithvoipWithoutpinningRelease \
+    lintAppPreprodWithoutvoipWithoutpinningRelease \
+    lintAppPreprodWithvoipWithoutpinningRelease \
+    lintAppAgentWithoutvoipWithoutpinningRelease \
+    lintAppAgentWithvoipWithoutpinningRelease \
+    lintAppAgentWithoutvoipWithpinningRelease \
+    lintAppAgentWithvoipWithpinningRelease \
+    lintAppfdroidProtecteedWithoutvoipWithoutpinningRelease \
+    lintAppfdroidProtecteedWithvoipWithoutpinningRelease \
+    lintAppfdroidPreprodWithoutvoipWithoutpinningRelease \
+    lintAppfdroidPreprodWithvoipWithoutpinningRelease \
+    lintAppfdroidAgentWithoutvoipWithoutpinningRelease \
+    lintAppfdroidAgentWithvoipWithoutpinningRelease \
+    lintAppfdroidAgentWithoutvoipWithpinningRelease \
+    lintAppfdroidAgentWithvoipWithpinningRelease
