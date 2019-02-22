@@ -49,7 +49,7 @@ import android.widget.Toast;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomState;
-import org.matrix.androidsdk.db.MXMediasCache;
+import org.matrix.androidsdk.db.MXMediaCache;
 import org.matrix.androidsdk.listeners.MXEventListener;
 import org.matrix.androidsdk.rest.callback.ApiCallback;
 import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
@@ -533,14 +533,31 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
         boolean isAdmin = false;
 
         if ((null != mRoom) && (null != mSession)) {
-            PowerLevels powerLevels;
-
-            if (null != (powerLevels = mRoom.getState().getPowerLevels())) {
+            PowerLevels powerLevels = mRoom.getState().getPowerLevels();
+            if (powerLevels != null) {
                 String userId = mSession.getMyUserId();
                 isAdmin = (null != userId) && (powerLevels.getUserPowerLevel(userId) >= CommonActivityUtils.UTILS_POWER_LEVEL_ADMIN);
             }
         }
         return isAdmin;
+    }
+
+    /**
+     * Check whether the current user is allowed to invite other Tchap users.
+     *
+     * @return true if user is allowed to invite, false otherwise
+     */
+    private boolean isUserAllowedToInvite() {
+        boolean isAllowed = false;
+
+        if ((null != mRoom) && (null != mSession)) {
+            PowerLevels powerLevels = mRoom.getState().getPowerLevels();
+            if (powerLevels != null) {
+                String userId = mSession.getMyUserId();
+                isAllowed = (null != userId) && (powerLevels.getUserPowerLevel(userId) >= powerLevels.invite);
+            }
+        }
+        return isAllowed;
     }
 
     /**
@@ -654,7 +671,8 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
             mRemoveMembersMenuItem.setVisible(mIsMultiSelectionMode);
 
             if (null != mAddMembersButton) {
-                if (!RoomUtils.isDirectChat(mSession, mRoom.getRoomId())) {
+                // Check whether the user is allowed to invite some other members
+                if (!RoomUtils.isDirectChat(mSession, mRoom.getRoomId()) && isUserAllowedToInvite()) {
                     mAddMembersButton.setVisibility(mIsMultiSelectionMode ? View.GONE : View.VISIBLE);
                 } else {
                     mAddMembersButton.setVisibility(View.GONE);
@@ -818,7 +836,7 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
      * Finalize the fragment initialization.
      */
     private void finalizeInit() {
-        MXMediasCache mxMediasCache = mSession.getMediasCache();
+        MXMediaCache mxMediaCache = mSession.getMediaCache();
 
         mAddMembersButton = mViewHierarchy.findViewById(R.id.ly_invite_contacts_to_room);
 
@@ -874,7 +892,7 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
         mProgressView = mViewHierarchy.findViewById(R.id.add_participants_progress_view);
         mParticipantsListView = mViewHierarchy.findViewById(R.id.room_details_members_exp_list_view);
         mAdapter = new VectorRoomDetailsMembersAdapter(getActivity(),
-                R.layout.adapter_item_vector_add_participants, R.layout.adapter_item_vector_recent_header, mSession, mRoom.getRoomId(), mxMediasCache);
+                R.layout.adapter_item_vector_add_participants, R.layout.adapter_item_vector_recent_header, mSession, mRoom.getRoomId(), mxMediaCache);
         mParticipantsListView.setAdapter(mAdapter);
         // the group indicator is managed in the adapter (group view creation)
         mParticipantsListView.setGroupIndicator(null);

@@ -20,5 +20,4 @@ package fr.gouv.tchap.config
 const val ENABLE_CERTIFICATE_PINNING = true
 
 // Put the list of fingerprint here.
-// Example of value: "07:89:7A:A0:30:82:99:95:E6:17:5D:1F:34:5D:8D:0C:67:82:63:1C:1F:57:20:75:42:91:F7:8B:28:03:54:A2"
-val CERTIFICATE_FINGERPRINT_LIST = listOf<String>()
+val CERTIFICATE_FINGERPRINT_LIST = listOf<String>("90:45:FA:C4:7B:B4:8D:62:50:5F:19:EC:4E:EB:95:30:A2:B7:82:8D:E1:B9:CD:DB:18:4E:A4:93:DE:70:F3:B1")

@@ -63,7 +63,7 @@ import org.matrix.androidsdk.adapters.MessageRow;
 import org.matrix.androidsdk.crypto.MXCryptoError;
 import org.matrix.androidsdk.crypto.data.MXDeviceInfo;
 import org.matrix.androidsdk.data.Room;
-import org.matrix.androidsdk.db.MXMediasCache;
+import org.matrix.androidsdk.db.MXMediaCache;
 import org.matrix.androidsdk.interfaces.HtmlToolbox;
 import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.rest.model.EventContent;
@@ -195,7 +195,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
     private final int mMaxImageHeight;
 
     // media cache
-    private final MXMediasCache mMediasCache;
+    private final MXMediaCache mMediaCache;
 
     // session
     final MXSession mSession;
@@ -275,7 +275,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
     /**
      * Creates a messages adapter with the default layouts.
      */
-    public VectorMessagesAdapter(MXSession session, Context context, MXMediasCache mediasCache) {
+    public VectorMessagesAdapter(MXSession session, Context context, MXMediaCache mediaCache) {
         this(session, context,
                 R.layout.adapter_item_vector_message_text_emote_notice,
                 R.layout.adapter_item_vector_message_image_video,
@@ -291,7 +291,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                 R.layout.adapter_item_vector_message_redact,
                 R.layout.adapter_item_vector_message_room_versioned,
                 R.layout.adapter_item_tchap_media_scan,
-                mediasCache);
+                mediaCache);
     }
 
     /**
@@ -313,7 +313,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
      * @param stickerResLayoutId    the sticker message layout
      * @param hiddenResLayoutId     the hidden message layout
      * @param mediaScanResLayoutId  the unchecked or untrusted attachments layout
-     * @param mediasCache           the medias cache.
+     * @param mediaCache           the medias cache.
      */
     VectorMessagesAdapter(MXSession session,
                           Context context,
@@ -331,7 +331,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                           int hiddenResLayoutId,
                           int roomVersionedResLayoutId,
                           int mediaScanResLayoutId,
-                          MXMediasCache mediasCache) {
+                          MXMediaCache mediaCache) {
         super(context, 0);
         mContext = context;
         mRowTypeToLayoutId.put(ROW_TYPE_TEXT, textResLayoutId);
@@ -348,7 +348,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
         mRowTypeToLayoutId.put(ROW_TYPE_HIDDEN, hiddenResLayoutId);
         mRowTypeToLayoutId.put(ROW_TYPE_VERSIONED_ROOM, roomVersionedResLayoutId);
         mRowTypeToLayoutId.put(ROW_TYPE_MEDIA_SCAN, mediaScanResLayoutId);
-        mMediasCache = mediasCache;
+        mMediaCache = mediaCache;
         mLayoutInflater = LayoutInflater.from(mContext);
         // the refresh will be triggered only when it is required
         // for example, retrieve the historical messages triggers a refresh for each message
@@ -1792,11 +1792,16 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             String fileName = message.body;
 
             // Retrieve the current scan result
-            AntiVirusScanStatus antiVirusScanStatus = AntiVirusScanStatus.UNKNOWN;
             int scanDrawable = R.drawable.ic_notification_privacy_warning; // FIXME set the right icon here (not available yet)
             int scanText = R.string.tchap_scan_media_unavailable;
             if (null != mMediaScanManager) {
+                // We have to check here whether the event is encrypted or not.
+                // But the outgoing events in an encrypted room are considered as unencrypted
+                // until they are actually sent.
+                // So we will check whether the event is actually sent when it appears as an unencrypted one.
+                // The scan is not available for the events which are not sent yet.
                 if (event.isEncrypted()) {
+                    // The event is encrypted and it has been sent in a room.
                     List<EncryptedFileInfo> encryptedFileInfos = event.getEncryptedFileInfos();
                     boolean breakLoop = false;
                     for (EncryptedFileInfo encryptedFileInfo : encryptedFileInfos) {
@@ -1819,7 +1824,8 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                             break;
                         }
                     }
-                } else {
+                } else if (event.mSentState == Event.SentState.SENT) {
+                    // The event is unencrypted and it has been sent in a room.
                     List<String> urls = event.getMediaUrls();
                     boolean breakLoop = false;
                     for (String url : urls) {
@@ -1841,6 +1847,20 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                         if (breakLoop) {
                             break;
                         }
+                    }
+                } else {
+                    // Here the event is an outgoing event which has not been sent yet.
+                    // We could not scan it for the moment.
+                    switch (event.mSentState) {
+                        case SENDING:
+                        case ENCRYPTING:
+                            // Consider the scan process is in progress
+                            scanDrawable = R.drawable.tchap_scanning;
+                            scanText = R.string.tchap_scan_media_in_progress;
+                            break;
+                        default:
+                            // Keep the default unknown status
+                            break;
                     }
                 }
             }
@@ -2352,7 +2372,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                             && TextUtils.equals(mSession.getMyUserId(), event.getSender())) {
                         e2eIconByEventId.put(event.eventId, R.drawable.e2e_verified);
                         MXDeviceInfo deviceInfo = mSession.getCrypto()
-                                .deviceWithIdentityKey(encryptedEventContent.sender_key, event.getSender(), encryptedEventContent.algorithm);
+                                .deviceWithIdentityKey(encryptedEventContent.sender_key, encryptedEventContent.algorithm);
 
                         if (null != deviceInfo) {
                             e2eDeviceInfoByEventId.put(event.eventId, deviceInfo);
@@ -2360,7 +2380,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
 
                     } else {
                         MXDeviceInfo deviceInfo = mSession.getCrypto()
-                                .deviceWithIdentityKey(encryptedEventContent.sender_key, event.getSender(), encryptedEventContent.algorithm);
+                                .deviceWithIdentityKey(encryptedEventContent.sender_key, encryptedEventContent.algorithm);
 
                         if (null != deviceInfo) {
                             e2eDeviceInfoByEventId.put(event.eventId, deviceInfo);
@@ -2643,11 +2663,11 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             menu.findItem(R.id.ic_action_vector_quote).setVisible(true);
         }
 
-        if (event.isUploadingMedias(mMediasCache)) {
+        if (event.isUploadingMedia(mMediaCache)) {
             menu.findItem(R.id.ic_action_vector_cancel_upload).setVisible(true);
         }
 
-        if (event.isDownloadingMedias(mMediasCache)) {
+        if (event.isDownloadingMedia(mMediaCache)) {
             menu.findItem(R.id.ic_action_vector_cancel_download).setVisible(true);
         }
 

@@ -63,7 +63,7 @@ public class VectorSearchMessagesListFragment extends VectorMessageListFragment 
 
     @Override
     public VectorMessagesAdapter createMessagesAdapter() {
-            VectorSearchMessagesListAdapter vectorSearchMessagesListAdapter = new VectorSearchMessagesListAdapter(mSession, getActivity(), (null == mRoomId), getMXMediasCache());
+            VectorSearchMessagesListAdapter vectorSearchMessagesListAdapter = new VectorSearchMessagesListAdapter(mSession, getActivity(), (null == mRoomId), getMXMediaCache());
             // Add the current media scan manager if any
             if (null != mMediaScanManager) {
                 vectorSearchMessagesListAdapter.setMediaScanManager(mMediaScanManager);
@@ -80,7 +80,7 @@ public class VectorSearchMessagesListFragment extends VectorMessageListFragment 
             cancelSearch();
 
             if (mIsMediaSearch) {
-                mSession.cancelSearchMediasByText();
+                mSession.cancelSearchMediaByText();
             } else {
                 mSession.cancelSearchMessagesByText();
             }

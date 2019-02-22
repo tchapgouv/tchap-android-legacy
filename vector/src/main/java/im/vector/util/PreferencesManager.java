@@ -301,7 +301,7 @@ public class PreferencesManager {
      * @return true if the join and leave membership events should be shown in the messages list
      */
     public static boolean showJoinLeaveMessages(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_SHOW_JOIN_LEAVE_MESSAGES_KEY, true);
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_SHOW_JOIN_LEAVE_MESSAGES_KEY, false);
     }
 
     /**
@@ -311,7 +311,7 @@ public class PreferencesManager {
      * @return true true if the avatar and display name events should be shown in the messages list.
      */
     public static boolean showAvatarDisplayNameChangeMessages(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_SHOW_AVATAR_DISPLAY_NAME_CHANGES_MESSAGES_KEY, true);
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_SHOW_AVATAR_DISPLAY_NAME_CHANGES_MESSAGES_KEY, false);
     }
 
     /**

@@ -52,6 +52,7 @@ import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
 import org.matrix.androidsdk.rest.client.ProfileRestClient;
 import org.matrix.androidsdk.rest.model.MatrixError;
 import org.matrix.androidsdk.rest.model.login.RegistrationFlowResponse;
+import org.matrix.androidsdk.rest.model.login.ThreePidCredentials;
 import org.matrix.androidsdk.rest.model.pid.ThreePid;
 import org.matrix.androidsdk.ssl.CertUtil;
 import org.matrix.androidsdk.ssl.Fingerprint;
@@ -217,7 +218,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     private boolean mIsMailValidationPending;
 
     // use to reset the password when the user click on the email validation
-    private HashMap<String, String> mForgotPid = null;
+    private ThreePidCredentials mForgotPid = null;
 
     // network state notification
     private final BroadcastReceiver mNetworkReceiver = new BroadcastReceiver() {
@@ -731,10 +732,10 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                             mMode = MODE_FORGOT_PASSWORD_WAITING_VALIDATION;
                             refreshDisplay();
 
-                            mForgotPid = new HashMap<>();
-                            mForgotPid.put("client_secret", thirdPid.clientSecret);
-                            mForgotPid.put("id_server", hsConfig.getIdentityServerUri().getHost());
-                            mForgotPid.put("sid", thirdPid.sid);
+                            mForgotPid = new ThreePidCredentials();
+                            mForgotPid.clientSecret = thirdPid.clientSecret;
+                            mForgotPid.idServer = hsConfig.getIdentityServerUri().getHost();
+                            mForgotPid.sid = thirdPid.sid;
                         }
                     }
 
@@ -1053,10 +1054,10 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
                             mMode = MODE_FORGOT_PASSWORD_WAITING_VALIDATION;
 
-                            mForgotPid = new HashMap<>();
-                            mForgotPid.put("client_secret", aClientSecret);
-                            mForgotPid.put("id_server", homeServerConfig.getIdentityServerUri().getHost());
-                            mForgotPid.put("sid", aSid);
+                            mForgotPid = new ThreePidCredentials();
+                            mForgotPid.clientSecret = aClientSecret;
+                            mForgotPid.idServer = homeServerConfig.getIdentityServerUri().getHost();
+                            mForgotPid.sid = aSid;
 
                             mIsPasswordResetted = false;
                             onForgotOnEmailValidated(homeServerConfig);
@@ -1825,7 +1826,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         tchapRestClient.info(emailAddress, ThreePid.MEDIUM_EMAIL, new ApiCallback<Platform>() {
             @Override
             public void onSuccess(Platform platform) {
-                Log.d(LOG_TAG, "## discoverTchapPlatform succeeded (" + platform.hs + ", " + platform.invited + ")");
+                Log.d(LOG_TAG, "## discoverTchapPlatform succeeded (" + platform.hs + ")");
                 callback.onSuccess(platform);
             }
 

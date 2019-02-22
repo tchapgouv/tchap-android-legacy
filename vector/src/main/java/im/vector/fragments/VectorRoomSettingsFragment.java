@@ -49,6 +49,7 @@ import android.widget.Toast;
 
 import org.matrix.androidsdk.MXPatterns;
 import org.matrix.androidsdk.MXSession;
+import org.matrix.androidsdk.crypto.CryptoConstantsKt;
 import org.matrix.androidsdk.crypto.MXCryptoAlgorithms;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomAccountData;
@@ -544,7 +545,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
             public void onSuccess(Void info) {
                 // Turn on the encryption in this room (if this is not already done)
                 if (!mRoom.isEncrypted()) {
-                    mRoom.enableEncryptionWithAlgorithm(MXCryptoAlgorithms.MXCRYPTO_ALGORITHM_MEGOLM, new ApiCallback<Void>() {
+                    mRoom.enableEncryptionWithAlgorithm(CryptoConstantsKt.MXCRYPTO_ALGORITHM_MEGOLM, new ApiCallback<Void>() {
 
                         @Override
                         public void onSuccess(Void info) {
@@ -1294,7 +1295,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
         }
 
         if (aResultCode == Activity.RESULT_OK) {
-            Uri thumbnailUri = VectorUtils.getThumbnailUriFromIntent(getActivity(), aData, mSession.getMediasCache());
+            Uri thumbnailUri = VectorUtils.getThumbnailUriFromIntent(getActivity(), aData, mSession.getMediaCache());
 
             if (null != thumbnailUri) {
                 displayLoadingView();
@@ -1302,7 +1303,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
                 // save the bitmap URL on the server
                 ResourceUtils.Resource resource = ResourceUtils.openResource(getActivity(), thumbnailUri, null);
                 if (null != resource) {
-                    mSession.getMediasCache().uploadContent(resource.mContentStream, null, resource.mMimeType, null, new MXMediaUploadListener() {
+                    mSession.getMediaCache().uploadContent(resource.mContentStream, null, resource.mMimeType, null, new MXMediaUploadListener() {
 
                         @Override
                         public void onUploadError(String uploadId, int serverResponseCode, String serverErrorMessage) {
