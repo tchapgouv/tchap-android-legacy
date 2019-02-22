@@ -317,7 +317,7 @@ private fun checkPermissions(permissionsToBeGrantedBitMap: Int,
  * @param searchedPermission the permission to search for in the Manifest
  * @return true if the searched permission is present in the Manifest file
  */
-private fun hasToAskForPermission(context: Context, searchedPermission: String): Boolean {
+public fun hasToAskForPermission(context: Context, searchedPermission: String): Boolean {
     val packageName = context.packageName
     try {
         val packageInfo = context.packageManager.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS)

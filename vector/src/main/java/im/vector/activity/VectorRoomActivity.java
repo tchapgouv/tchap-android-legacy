@@ -2401,7 +2401,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
             Log.e(LOG_TAG, "## onRequestPermissionsResult(): cancelled " + requestCode);
         } else if (requestCode == PermissionsToolsKt.PERMISSION_REQUEST_CODE_LAUNCH_NATIVE_CAMERA
                 || requestCode == PermissionsToolsKt.PERMISSION_REQUEST_CODE_LAUNCH_NATIVE_VIDEO_CAMERA) {
-            boolean isCameraPermissionGranted = false;
+            boolean isCameraPermissionGranted = !PermissionsToolsKt.hasToAskForPermission(this, Manifest.permission.CAMERA);
             boolean isWritePermissionGranted = false;
 
             for (int i = 0; i < permissions.length; i++) {
