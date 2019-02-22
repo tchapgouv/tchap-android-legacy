@@ -7,15 +7,15 @@ echo "Do all lint check"
     lintAppProtecteedWithvoipWithoutpinningRelease \
     lintAppPreprodWithoutvoipWithoutpinningRelease \
     lintAppPreprodWithvoipWithoutpinningRelease \
-    #lintAppAgentWithoutvoipWithoutpinningRelease \
-    #lintAppAgentWithvoipWithoutpinningRelease \
+    lintAppAgentWithoutvoipWithoutpinningRelease \
+    lintAppAgentWithvoipWithoutpinningRelease \
     lintAppAgentWithoutvoipWithpinningRelease \
     lintAppAgentWithvoipWithpinningRelease \
     lintAppfdroidProtecteedWithoutvoipWithoutpinningRelease \
     lintAppfdroidProtecteedWithvoipWithoutpinningRelease \
     lintAppfdroidPreprodWithoutvoipWithoutpinningRelease \
     lintAppfdroidPreprodWithvoipWithoutpinningRelease \
-    #lintAppfdroidAgentWithoutvoipWithoutpinningRelease \
-    #lintAppfdroidAgentWithvoipWithoutpinningRelease \
+    lintAppfdroidAgentWithoutvoipWithoutpinningRelease \
+    lintAppfdroidAgentWithvoipWithoutpinningRelease \
     lintAppfdroidAgentWithoutvoipWithpinningRelease \
     lintAppfdroidAgentWithvoipWithpinningRelease
