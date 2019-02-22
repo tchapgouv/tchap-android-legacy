@@ -1,3 +1,18 @@
+Changes in Tchap 1.0.19 (2019-02-22)
+===================================================
+
+Improvements:
+ * Enable Certificate pinning for the "agent" target #367
+ * Private Room creation: change history visibility to "invited" #425
+ * Power level: a room member must be moderator to invite #426
+ * Keys sharing: remove the verification option #422
+ * Settings: hide membership events by default #423
+ * Adjust wording on bug report #432
+ 
+Bug Fixes:
+ * Antivirus scan: outgoing attachments are considered infected by mistake #433
+ * Two discussions is created when the user presses "enter" on an external keyboard #435
+
 Changes in Tchap 1.0.18 (2019-02-06)
 ===================================================
 
