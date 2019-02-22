@@ -253,7 +253,7 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
                 vRoomLastMessage.setTextColor(ContextCompat.getColor(context, R.color.tchap_third_text_color));
             }
 
-            if (null != vSenderDisplayName) {
+            if (null != vSenderDisplayName && lastMsgToDisplay != null) {
                 // Hide the sender display name if the message starts with his name
                 if (lastMsgToDisplay.toString().startsWith(vSenderDisplayName.getText().toString())) {
                     vSenderDisplayName.setVisibility(View.GONE);

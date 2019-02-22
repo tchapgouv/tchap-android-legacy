@@ -1879,7 +1879,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         tchapRestClient.info(emailAddress, ThreePid.MEDIUM_EMAIL, new ApiCallback<Platform>() {
             @Override
             public void onSuccess(Platform platform) {
-                Log.d(LOG_TAG, "## discoverTchapPlatform succeeded (" + platform.hs + ", " + platform.invited + ")");
+                Log.d(LOG_TAG, "## discoverTchapPlatform succeeded (" + platform.hs + ")");
                 callback.onSuccess(platform);
             }
 

@@ -29,6 +29,4 @@ public class Platform implements Serializable {
     // the user has a protected access.
     @SerializedName("shadow_hs")
     public String shadowHs;
-    // Tell whether the given 3pid has been invited to the platform or not.
-    public boolean invited;
 }
