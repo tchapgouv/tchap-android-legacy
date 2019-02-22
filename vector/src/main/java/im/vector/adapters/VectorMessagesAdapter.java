@@ -1792,11 +1792,16 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             String fileName = message.body;
 
             // Retrieve the current scan result
-            AntiVirusScanStatus antiVirusScanStatus = AntiVirusScanStatus.UNKNOWN;
             int scanDrawable = R.drawable.ic_notification_privacy_warning; // FIXME set the right icon here (not available yet)
             int scanText = R.string.tchap_scan_media_unavailable;
             if (null != mMediaScanManager) {
+                // We have to check here whether the event is encrypted or not.
+                // But the outgoing events in an encrypted room are considered as unencrypted
+                // until they are actually sent.
+                // So we will check whether the event is actually sent when it appears as an unencrypted one.
+                // The scan is not available for the events which are not sent yet.
                 if (event.isEncrypted()) {
+                    // The event is encrypted and it has been sent in a room.
                     List<EncryptedFileInfo> encryptedFileInfos = event.getEncryptedFileInfos();
                     boolean breakLoop = false;
                     for (EncryptedFileInfo encryptedFileInfo : encryptedFileInfos) {
@@ -1819,7 +1824,8 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                             break;
                         }
                     }
-                } else {
+                } else if (event.mSentState == Event.SentState.SENT) {
+                    // The event is unencrypted and it has been sent in a room.
                     List<String> urls = event.getMediaUrls();
                     boolean breakLoop = false;
                     for (String url : urls) {
@@ -1841,6 +1847,20 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                         if (breakLoop) {
                             break;
                         }
+                    }
+                } else {
+                    // Here the event is an outgoing event which has not been sent yet.
+                    // We could not scan it for the moment.
+                    switch (event.mSentState) {
+                        case SENDING:
+                        case ENCRYPTING:
+                            // Consider the scan process is in progress
+                            scanDrawable = R.drawable.tchap_scanning;
+                            scanText = R.string.tchap_scan_media_in_progress;
+                            break;
+                        default:
+                            // Keep the default unknown status
+                            break;
                     }
                 }
             }
