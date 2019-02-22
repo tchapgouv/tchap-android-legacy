@@ -23,6 +23,4 @@ import java.io.Serializable;
 public class Platform implements Serializable {
     // The homeserver name.
     public String hs;
-    // Tell whether the given 3pid has been invited to the platform or not.
-    public boolean invited;
 }
