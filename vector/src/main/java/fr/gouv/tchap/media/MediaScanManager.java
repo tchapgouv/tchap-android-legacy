@@ -272,8 +272,8 @@ public class MediaScanManager {
             }
         } else {
             // Here the event is an outgoing event which has not been sent yet.
-            // We could not scan it for the moment.
-            return true;
+            // Check whether the event has some media urls (We could not scan them for the moment).
+            return !event.getMediaUrls().isEmpty();
         }
 
 

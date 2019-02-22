@@ -3,7 +3,7 @@ Changes in Btchap 1.0.19 (2019-02-22)
 
 Same changes as for Tchap 1.0.19.
  
-+ Bug Fix:
+Bug Fix:
  * New created discussions are missing in the conversations list #421
 
 Changes in Btchap 1.0.18 (2019-02-06)

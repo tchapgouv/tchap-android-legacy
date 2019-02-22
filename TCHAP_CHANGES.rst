@@ -8,10 +8,12 @@ Improvements:
  * Keys sharing: remove the verification option #422
  * Settings: hide membership events by default #423
  * Adjust wording on bug report #432
+ * Fix an unexpected warning when the Camera permission is requested #436
  
 Bug Fixes:
  * Antivirus scan: outgoing attachments are considered infected by mistake #433
  * Two discussions is created when the user presses "enter" on an external keyboard #435
+ * Failed to send a video captured by the native camera.
 
 Changes in Tchap 1.0.18 (2019-02-06)
 ===================================================
