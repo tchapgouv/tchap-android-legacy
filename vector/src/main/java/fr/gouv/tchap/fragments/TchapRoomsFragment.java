@@ -195,17 +195,21 @@ public class TchapRoomsFragment extends AbsHomeFragment implements AbsHomeFragme
         mRooms.clear();
 
         for (Room room : allJoinedRooms) {
-            // Hide the rooms created to invite some non-tchap contact by email.
-            if (room.isDirect() && room.getState().thirdPartyInvites().size() != 0) {
-                // TODO handle the potential lazy loading option by handling asynchronously the room members.
+
+            if (room.isDirect()) {
+                // TODO handle correctly the lazy loading option by handling asynchronously the room members.
                 Collection<RoomMember> members = room.getState().getDisplayableLoadedMembers();
                 for (RoomMember member : members) {
                     if (member.getUserId().equals(mSession.getMyUserId())) {
                         continue;
                     }
 
-                    // Check whether there is no pending 3PID invite for this member.
-                    if (null == member.getThirdPartyInviteToken()) {
+                    // Hide the rooms created to invite some non-tchap contact by email.
+                    // -> Check whether there is no pending 3PID invite for this member.
+                    // Hide the direct chat left by the other member.
+                    // -> Keep only the direct chat in which the other member has joined or is invited.
+                    if (member.getThirdPartyInviteToken() == null
+                            && (member.membership.equals(RoomMember.MEMBERSHIP_JOIN) || member.membership.equals(RoomMember.MEMBERSHIP_INVITE))) {
                         mRooms.add(room);
                         // Break here the loop on members in case of a wrong direct chat
                         // (with several members)
