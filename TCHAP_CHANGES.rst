@@ -1,3 +1,10 @@
+Changes in Tchap 1.0.20 (2019-03-12)
+===================================================
+
+Improvements:
+ * Trust the user CAs in apk built without pinning #445
+ * Update TAC url #442
+
 Changes in Tchap 1.0.19 (2019-02-22)
 ===================================================
 
