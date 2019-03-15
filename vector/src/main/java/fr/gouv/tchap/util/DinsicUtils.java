@@ -843,13 +843,18 @@ public class DinsicUtils {
                     // @TODO Keep displaying these users in the contacts list, the problem is to get their displayname
                     // @NOTE The user displayname may be known thanks to the presence event. But
                     // it is unknown until we receive a presence event for this user.
+
+                    // @NOTE We decided to hide users who left all our direct chats to prevent the user from inviting
+                    // a deactivated account user.
                     List<String> roomIdsList = store.getDirectChatRoomsDict().get(key);
                     if (roomIdsList != null && !roomIdsList.isEmpty()) {
                         for (String roomId: roomIdsList) {
                             Room room = store.getRoom(roomId);
                             if (null != room) {
                                 RoomMember roomMember = room.getMember(key);
-                                if (null != roomMember && !TextUtils.isEmpty(roomMember.displayname)) {
+                                if (null != roomMember
+                                        && (TextUtils.equals(roomMember.membership, RoomMember.MEMBERSHIP_JOIN) || TextUtils.equals(roomMember.membership, RoomMember.MEMBERSHIP_INVITE))
+                                        && !TextUtils.isEmpty(roomMember.displayname)) {
                                     // Add a contact for this user
                                     Contact dummyContact = new Contact("null");
                                     dummyContact.setDisplayName(roomMember.displayname);
