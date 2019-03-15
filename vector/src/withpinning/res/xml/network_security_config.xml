@@ -3,8 +3,7 @@
     <!-- Do not allow clearText traffic -->
     <base-config cleartextTrafficPermitted="false">
         <trust-anchors>
-            <certificates src="system" />
-            <!-- Do not allow user certificated -->
+            <!-- Do not allow system and user certificates -->
         </trust-anchors>
     </base-config>
 </network-security-config>
