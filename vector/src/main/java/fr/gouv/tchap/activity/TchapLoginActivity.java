@@ -85,6 +85,7 @@ import im.vector.activity.VectorUniversalLinkActivity;
 import im.vector.activity.util.RequestCodesKt;
 import im.vector.gcm.GCMHelper;
 import im.vector.features.hhs.ResourceLimitDialogHelper;
+import im.vector.push.fcm.FcmHelper;
 import im.vector.receiver.VectorUniversalLinkReceiver;
 import im.vector.services.EventStreamService;
 
@@ -323,6 +324,8 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
         // warn that the application has started.
         CommonActivityUtils.onApplicationStarted(this);
+
+        FcmHelper.ensureFcmTokenIsRetrieved(this);
 
         Intent intent = getIntent();
 

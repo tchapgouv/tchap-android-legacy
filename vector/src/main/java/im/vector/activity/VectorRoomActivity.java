@@ -1981,34 +1981,67 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
         // In the case of a direct chat, we check if the other member has left the room.
         String leftMemberId = leftMemberInDirectChat();
         if (null != leftMemberId) {
-            Log.d(LOG_TAG, "sendMessageByInvitingLeftMemberInDirectChat: invite again " + leftMemberId);
-            mRoom.invite(leftMemberId, new ApiCallback<Void>() {
+            // Check whether the left member did not deactivate his account
+            mSession.getProfileApiClient().displayname(leftMemberId, new ApiCallback<String>() {
                 @Override
-                public void onSuccess(Void info) {
-                    if (null != mediaIntent) {
-                        Log.d(LOG_TAG, "sendMediasIntentByInvitingLeftMemberInDirectChat: sendMediasIntent");
-                        sendMediasIntent(mediaIntent);
+                public void onSuccess(String info) {
+                    if (info == null) {
+                        Log.d(LOG_TAG, "sendMessageByInvitingLeftMemberInDirectChat: the left member has deactivated his account");
+                        Toast.makeText(getApplicationContext(), getString(R.string.tchap_cannot_invite_deactivated_account_user), Toast.LENGTH_LONG).show();
                     } else {
-                        Log.d(LOG_TAG, "sendMessageByInvitingLeftMemberInDirectChat: sendTextMessage");
-                        sendTextMessage();
+                        Log.d(LOG_TAG, "sendMessageByInvitingLeftMemberInDirectChat: invite again " + leftMemberId);
+                        mRoom.invite(leftMemberId, new ApiCallback<Void>() {
+                            @Override
+                            public void onSuccess(Void info) {
+                                if (null != mediaIntent) {
+                                    Log.d(LOG_TAG, "sendMessageByInvitingLeftMemberInDirectChat: sendMediasIntent");
+                                    sendMediasIntent(mediaIntent);
+                                } else {
+                                    Log.d(LOG_TAG, "sendMessageByInvitingLeftMemberInDirectChat: sendTextMessage");
+                                    sendTextMessage();
+                                }
+                            }
+
+                            @Override
+                            public void onNetworkError(Exception e) {
+                                Log.e(LOG_TAG, "sendMessageByInvitingLeftMemberInDirectChat invite failed " + e.getMessage());
+                                Toast.makeText(getApplicationContext(), getString(R.string.tchap_error_message_default), Toast.LENGTH_SHORT).show();
+                            }
+
+                            @Override
+                            public void onMatrixError(MatrixError e) {
+                                Log.e(LOG_TAG, "sendMessageByInvitingLeftMemberInDirectChat invite failed " + e.getMessage());
+                                Toast.makeText(getApplicationContext(), getString(R.string.tchap_error_message_default), Toast.LENGTH_SHORT).show();
+                            }
+
+                            @Override
+                            public void onUnexpectedError(Exception e) {
+                                Log.e(LOG_TAG, "sendMessageByInvitingLeftMemberInDirectChat invite failed " + e.getMessage());
+                                Toast.makeText(getApplicationContext(), getString(R.string.tchap_error_message_default), Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     }
                 }
 
                 @Override
                 public void onNetworkError(Exception e) {
-                    Log.e(LOG_TAG, "sendMessageByInvitingLeftMemberInDirectChat invite failed " + e.getMessage());
+                    Log.e(LOG_TAG, "sendMessageByInvitingLeftMemberInDirectChat get displayname failed " + e.getMessage());
+                    Toast.makeText(getApplicationContext(), getString(R.string.tchap_error_message_default), Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
                 public void onMatrixError(MatrixError e) {
-                    Log.e(LOG_TAG, "sendMessageByInvitingLeftMemberInDirectChat invite failed " + e.getMessage());
+                    Log.e(LOG_TAG, "sendMessageByInvitingLeftMemberInDirectChat get displayname failed " + e.getMessage());
+                    Toast.makeText(getApplicationContext(), getString(R.string.tchap_error_message_default), Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
                 public void onUnexpectedError(Exception e) {
-                    Log.e(LOG_TAG, "sendMessageByInvitingLeftMemberInDirectChat invite failed " + e.getMessage());
+                    Log.e(LOG_TAG, "sendMessageByInvitingLeftMemberInDirectChat get displayname failed " + e.getMessage());
+                    Toast.makeText(getApplicationContext(), getString(R.string.tchap_error_message_default), Toast.LENGTH_SHORT).show();
                 }
             });
+
             return true;
         }
         return false;

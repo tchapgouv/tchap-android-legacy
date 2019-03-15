@@ -1,3 +1,22 @@
+Changes in Tchap 1.0.21 (2019-03-15)
+===================================================
+
+Improvements:
+ * Do not allow system certificates in apk built with pinning PR #453
+ * Block invite to a deactivated account user #444
+ 
+Bug Fixes:
+ * FCM service is not working #449
+ * Parameters: infinite loading wheel on avatar update #454
+ * Problem with deactivated/reactivated accounts #438
+
+Changes in Tchap 1.0.20 (2019-03-12)
+===================================================
+
+Improvements:
+ * Trust the user CAs in apk built without pinning #445
+ * Update TAC url #442
+
 Changes in Tchap 1.0.19 (2019-02-22)
 ===================================================
 

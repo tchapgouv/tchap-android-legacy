@@ -845,6 +845,10 @@ Appareils inconnus :</string>
     <string name="tchap_burger_menu_contacts">Contacts</string>
     <string name="tchap_burger_menu_public_rooms">Salons publics</string>
     <string name="tchap_burger_menu_info">Cette application n’est pas approuvée\npour l’échange d’informations en diffusion restreinte</string>
+    <string name="tchap_error_message_default">Une erreur est survenue, veuillez réessayer ultérieurement</string>
+
+    // tchap discussion
+    <string name="tchap_cannot_invite_deactivated_account_user">Votre correspondant a quitté définitivement cette discussion</string>
 
     <!-- tchap scan media -->
     <string name="tchap_scan_media_unavailable">Analyse Indisponible</string>
@@ -1134,6 +1138,7 @@ Veuillez noter que cette action redémarrera l\'application et pourra prendre un
     <string name="generic_label_and_value">%1$s : %2$s</string>
     <string name="plus_x">+%d</string>
     <string name="x_plus">%d+</string>
+    <string name="no_valid_google_play_services_apk">Aucun APK des services Google Play valide n’a été trouvé. Les notifications peuvent ne pas fonctionner correctement.</string>
 
     <string name="call_anyway">Appeler quand même</string>
     <string name="room_participants_action_kick">Expulser</string>
