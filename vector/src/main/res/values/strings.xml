@@ -1051,6 +1051,10 @@
     <string name="tchap_burger_menu_contacts">Contacts</string>
     <string name="tchap_burger_menu_public_rooms">Public rooms</string>
     <string name="tchap_burger_menu_info">This app is not approved for\nrestricted information interchange</string>
+    <string name="tchap_error_message_default">An error occurred, please try later</string>
+
+    // tchap discussion
+    <string name="tchap_cannot_invite_deactivated_account_user">The remote user left definitely this room</string>
 
     // tchap scan media
     <string name="tchap_scan_media_unavailable">Scan Unavailable</string>
@@ -1170,6 +1174,7 @@
     <string name="generic_label_and_value">%1$s: %2$s</string>
     <string name="plus_x">+%d</string>
     <string name="x_plus">%d+</string>
+    <string name="no_valid_google_play_services_apk">No valid Google Play Services APK found. Notifications may not work properly.</string>
 
     // Overrided sdk's strings
     <string name="notice_room_name_changed">%1$s changed the room name to: %2$s</string>

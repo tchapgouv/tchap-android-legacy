@@ -115,8 +115,6 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
         }
     }
 
-    private var mLoadingView: View? = null
-
     private var mDisplayedEmails = ArrayList<String>()
     private var mDisplayedPhoneNumber = ArrayList<String>()
 
@@ -876,9 +874,6 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
     override fun onResume() {
         super.onResume()
 
-        // search the loading view from the upper view
-        mLoadingView = view.findViewById(R.id.vector_settings_spinner_views)
-
         if (mSession.isAlive) {
             val context = activity.applicationContext
 
@@ -934,32 +929,31 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
     // Display methods
     //==============================================================================================================
 
+    private fun getLoadingView(): View? {
+        // search the loading view from the upper view
+        var parent = view
+        var loadingView: View? = null
+
+        while (parent != null && loadingView == null) {
+            loadingView = parent.findViewById(R.id.vector_settings_spinner_views)
+            parent = parent.parent as View
+        }
+        return loadingView
+    }
+
     /**
      * Display the loading view.
      */
     private fun displayLoadingView() {
-        // search the loading view from the upper view
-        if (null == mLoadingView) {
-            var parent = view
-
-            while (parent != null && mLoadingView == null) {
-                mLoadingView = parent.findViewById(R.id.vector_settings_spinner_views)
-                parent = parent.parent as View
-            }
-        }
-
-        if (null != mLoadingView) {
-            mLoadingView!!.visibility = View.VISIBLE
-        }
+        var loadingView = getLoadingView()
+        loadingView?.visibility = View.VISIBLE
     }
 
     /**
      * Hide the loading view.
      */
     private fun hideLoadingView() {
-        if (null != mLoadingView) {
-            mLoadingView!!.visibility = View.GONE
-        }
+        hideLoadingView(false)
     }
 
     /**
@@ -968,7 +962,8 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
      * @param refresh true to refresh the display
      */
     private fun hideLoadingView(refresh: Boolean) {
-        mLoadingView!!.visibility = View.GONE
+        var loadingView = getLoadingView()
+        loadingView?.visibility = View.GONE
 
         if (refresh) {
             refreshDisplay()
