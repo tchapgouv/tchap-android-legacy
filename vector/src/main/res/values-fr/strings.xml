@@ -841,6 +841,10 @@ Appareils inconnus :</string>
     <string name="tchap_burger_menu_contacts">Contacts</string>
     <string name="tchap_burger_menu_public_rooms">Salons publics</string>
     <string name="tchap_burger_menu_info">Cette application n’est pas approuvée\npour l’échange d’informations en diffusion restreinte</string>
+    <string name="tchap_error_message_default">Une erreur est survenue, veuillez réessayer ultérieurement</string>
+
+    // tchap discussion
+    <string name="tchap_cannot_invite_deactivated_account_user">Votre correspondant a quitté définitivement cette discussion</string>
 
     // tchap scan media
     <string name="tchap_scan_media_unavailable">Analyse Indisponible</string>
