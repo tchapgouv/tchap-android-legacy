@@ -673,8 +673,7 @@ object NotificationUtils {
                     .setContentTitle(ensureTitleNotEmpty(context, roomsNotifications.mContentTitle))
                     .setContentText(roomsNotifications.mContentText)
                     .setSmallIcon(R.drawable.logo_transparent)
-                    .setGroup(context.getString(R.string.tchap_app_name))
-                    .setGroupSummary(true)
+                    .setNumber(roomsNotifications.numberOfRoomsWithMessages)
                     .setDeleteIntent(PendingIntent.getBroadcast(context.applicationContext,
                             0, Intent(context.applicationContext, DismissNotificationReceiver::class.java), PendingIntent.FLAG_UPDATE_CURRENT))
 
@@ -719,8 +718,7 @@ object NotificationUtils {
                     .setContentTitle(context.getString(R.string.tchap_app_name))
                     .setContentText(messagesStrings[0])
                     .setSmallIcon(R.drawable.logo_transparent)
-                    .setGroup(context.getString(R.string.tchap_app_name))
-                    .setGroupSummary(true)
+                    .setNumber(messagesStrings.size)
 
             val inboxStyle = NotificationCompat.InboxStyle()
 
