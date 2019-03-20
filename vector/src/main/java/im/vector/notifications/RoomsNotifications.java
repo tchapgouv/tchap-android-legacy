@@ -369,6 +369,19 @@ public class RoomsNotifications implements Parcelable {
         return result;
     }
 
+    /**
+     * Return the number of rooms unread messages
+     *
+     * @return The number of rooms with unread messages
+     */
+    public int getNumberOfRoomsWithMessages() {
+        if (mNotifiedEventsByRoomId == null) {
+            return 0;
+        }
+
+        return mNotifiedEventsByRoomId.size();
+    }
+
     /*
      * *********************************************************************************************
      * Parcelable

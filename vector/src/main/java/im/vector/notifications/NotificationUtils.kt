@@ -673,7 +673,7 @@ object NotificationUtils {
                     .setContentTitle(ensureTitleNotEmpty(context, roomsNotifications.mContentTitle))
                     .setContentText(roomsNotifications.mContentText)
                     .setSmallIcon(R.drawable.logo_transparent)
-                    .setNumber(roomsNotifications.totalMessages)
+                    .setNumber(roomsNotifications.numberOfRoomsWithMessages)
                     .setDeleteIntent(PendingIntent.getBroadcast(context.applicationContext,
                             0, Intent(context.applicationContext, DismissNotificationReceiver::class.java), PendingIntent.FLAG_UPDATE_CURRENT))
 
