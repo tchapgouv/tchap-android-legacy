@@ -844,7 +844,7 @@ Appareils inconnus :</string>
     <string name="tchap_error_message_default">Une erreur est survenue, veuillez réessayer ultérieurement</string>
 
     // tchap discussion
-    <string name="tchap_cannot_invite_deactivated_account_user">Votre correspondant a quitté définitivement cette discussion</string>
+    <string name="tchap_cannot_invite_deactivated_account_user">Votre correspondant a quitté définitivement cette discussion.\nVous devez en créer une nouvelle pour le recontacter.</string>
 
     // tchap scan media
     <string name="tchap_scan_media_unavailable">Analyse Indisponible</string>
