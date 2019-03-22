@@ -358,6 +358,10 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="settings_password_updated">Votre mot de passe a été mis à jour</string>
     <string name="settings_select_country">Choisissez un pays</string>
 
+    <string name="settings_change_pwd_caution">Changer le mot de passe réinitialise les clés de chiffrement sur tous les appareils, rendant l’historique des discussions illisible: pensez d’abord à exporter vos clés pour pouvoir les ré-importer après le changement de mot de passe.</string>
+    <string name="settings_change_pwd_success_title">Succès</string>
+    <string name="settings_change_pwd_success_msg">Votre mot de passe a été changé avec succès.\nVous ne recevrez plus de notifications sur vos autres appareils tant que vous ne vous y reconnecterez pas.</string>
+
     <string name="settings_phone_number_country_label">Pays</string>
     <string name="settings_phone_number_country_error">Choisissez un pays</string>
     <string name="settings_phone_number_label">Numéro de téléphone</string>
@@ -848,7 +852,7 @@ Appareils inconnus :</string>
     <string name="tchap_error_message_default">Une erreur est survenue, veuillez réessayer ultérieurement</string>
 
     // tchap discussion
-    <string name="tchap_cannot_invite_deactivated_account_user">Votre correspondant a quitté définitivement cette discussion</string>
+    <string name="tchap_cannot_invite_deactivated_account_user">Votre correspondant a quitté définitivement cette discussion.\nVous devez en créer une nouvelle pour le recontacter.</string>
 
     <!-- tchap scan media -->
     <string name="tchap_scan_media_unavailable">Analyse Indisponible</string>
