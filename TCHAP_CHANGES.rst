@@ -1,3 +1,13 @@
+Changes in Tchap 1.0.22 (2019-03-22)
+===================================================
+
+Improvements:
+ * Warn the user about the remote logout in case of a password change #439
+ 
+Bug Fixes:
+ * The app icon badges is buggy #440
+ * Bug report sending fails on a certificate error.
+
 Changes in Tchap 1.0.21 (2019-03-15)
 ===================================================
 
