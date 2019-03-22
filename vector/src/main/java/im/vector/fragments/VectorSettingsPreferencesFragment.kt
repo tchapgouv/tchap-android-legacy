@@ -1073,6 +1073,16 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
      * Update the password.
      */
     private fun onPasswordUpdateClick() {
+        AlertDialog.Builder(activity)
+                .setTitle(R.string.dialog_title_warning)
+                .setMessage(R.string.settings_change_pwd_caution)
+                .setPositiveButton(R.string.settings_change_password) { _, _ -> doShowPasswordChangeDialog() }
+                .setNegativeButton(R.string.encryption_export_room_keys) { _, _ -> exportKeys() }
+                .setNeutralButton(R.string.cancel, null)
+                .show()
+    }
+
+    private fun doShowPasswordChangeDialog() {
         activity.runOnUiThread {
             val view = activity.layoutInflater.inflate(R.layout.dialog_change_password, null)
 
@@ -1101,7 +1111,15 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                                     // and the code is called in the right thread
                                     activity.runOnUiThread {
                                         hideLoadingView()
-                                        activity?.toast(textId, Toast.LENGTH_LONG)
+                                        if (textId == R.string.settings_password_updated) {
+                                            AlertDialog.Builder(activity)
+                                                    .setTitle(R.string.settings_change_pwd_success_title)
+                                                    .setMessage(R.string.settings_change_pwd_success_msg)
+                                                    .setPositiveButton(R.string.ok, null)
+                                                    .show()
+                                        } else {
+                                            activity?.toast(textId, Toast.LENGTH_LONG)
+                                        }
                                     }
                                 }
                             }

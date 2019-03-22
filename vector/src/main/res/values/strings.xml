@@ -734,6 +734,10 @@
     <string name="settings_password_updated">Your password has been updated</string>
     <string name="settings_unignore_user">Show all messages from %s?\n\nNote that this action will restart the app and it may take some time.</string>
 
+    <string name="settings_change_pwd_caution">Changing the password resets the encryption keys on all devices, making the chat history unreadable: first, export your keys so you can re-import them after you change the password.</string>
+    <string name="settings_change_pwd_success_title">Success</string>
+    <string name="settings_change_pwd_success_msg">Your password has been successfully changed.\nYou will not receive push notifications on your other devices until you reconnect.</string>
+
     <string name="settings_hide_from_users_directory_title">Subscribe to the red list.</string>
     <string name="settings_hide_from_users_directory_summary">"Other users won't be able to find my account in their search results."</string>
 
