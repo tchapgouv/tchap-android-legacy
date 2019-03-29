@@ -829,7 +829,7 @@ Appareils inconnus :</string>
 
     // tchap new strings
     <string name="tchap_invite_contacts_to_tchap">Inviter des contacts dans Tchap</string>
-    <string name="tchap_invite_contacts_by_email">Inviter par mail</string>
+    <string name="tchap_invite_contacts_by_email">Inviter par e-mail</string>
     <string name="tchap_invite_contacts_to_room">Inviter au salon</string>
     <string name="tchap_room_invite_member_direct_chat">Nouvelle discussion</string>
     <string name="tchap_invite_already_send_message">Vous avez déjà envoyé une invitation à %s</string>
