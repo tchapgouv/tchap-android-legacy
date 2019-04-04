@@ -47,6 +47,7 @@ import androidx.core.widget.toast
 import com.bumptech.glide.Glide
 import com.google.i18n.phonenumbers.NumberParseException
 import com.google.i18n.phonenumbers.PhoneNumberUtil
+import fr.gouv.tchap.activity.TchapLoginActivity
 import fr.gouv.tchap.media.MediaScanManager
 import fr.gouv.tchap.util.DinsicUtils
 import im.vector.Matrix
@@ -1093,7 +1094,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
             val dialog = AlertDialog.Builder(activity)
                     .setTitle(R.string.settings_change_password)
                     .setView(view)
-                    .setPositiveButton(R.string.save) { _, _ ->
+                    .setPositiveButton(R.string.save, DialogInterface.OnClickListener { _, _ ->
                         if (null != activity) {
                             val imm = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                             imm.hideSoftInputFromWindow(view.applicationWindowToken, 0)
@@ -1101,6 +1102,11 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 
                         val oldPwd = oldPasswordText.text.toString().trim()
                         val newPwd = newPasswordText.text.toString().trim()
+
+                        if (newPwd.length < TchapLoginActivity.MIN_PASSWORD_LENGTH) {
+                            activity?.toast(R.string.auth_invalid_password, Toast.LENGTH_SHORT)
+                            return@OnClickListener
+                        }
 
                         displayLoadingView()
 
@@ -1140,7 +1146,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                                 onDone(R.string.settings_fail_to_update_password)
                             }
                         })
-                    }
+                    })
                     .setNegativeButton(R.string.cancel) { _, _ ->
                         if (null != activity) {
                             val imm = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
