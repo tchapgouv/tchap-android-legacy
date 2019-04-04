@@ -1094,7 +1094,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
             val dialog = AlertDialog.Builder(activity)
                     .setTitle(R.string.settings_change_password)
                     .setView(view)
-                    .setPositiveButton(R.string.save, DialogInterface.OnClickListener { _, _ ->
+                    .setPositiveButton(R.string.save) { _, _ ->
                         if (null != activity) {
                             val imm = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                             imm.hideSoftInputFromWindow(view.applicationWindowToken, 0)
@@ -1105,7 +1105,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 
                         if (newPwd.length < TchapLoginActivity.MIN_PASSWORD_LENGTH) {
                             activity?.toast(R.string.auth_invalid_password, Toast.LENGTH_SHORT)
-                            return@OnClickListener
+                            return@setPositiveButton
                         }
 
                         displayLoadingView()
@@ -1146,7 +1146,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                                 onDone(R.string.settings_fail_to_update_password)
                             }
                         })
-                    })
+                    }
                     .setNegativeButton(R.string.cancel) { _, _ ->
                         if (null != activity) {
                             val imm = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
