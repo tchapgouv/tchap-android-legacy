@@ -302,7 +302,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 
         // User Email and phone
         // Add phone and add email buttons first
-        addButtons()
+//        addButtons()
 
         refreshEmailsList()
         refreshPhoneNumbersList()
@@ -1029,7 +1029,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
         mNotificationPrivacyPreference.isEnabled = !areNotificationAllowed && pushManager.areDeviceNotificationsAllowed() && pushManager.useFcm()
     }
 
-    private fun addButtons() {
+//    private fun addButtons() {
 //        // display the "add email" entry
 //        mUserSettingsCategory.addPreference(
 //                EditTextPreference(activity).apply {
@@ -1047,24 +1047,24 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 //                    }
 //                }
 //        )
-
-        // display the "add phone number" entry
-        mUserSettingsCategory.addPreference(
-                Preference(activity).apply {
-                    setTitle(R.string.settings_add_phone_number)
-                    key = ADD_PHONE_NUMBER_PREFERENCE_KEY
-                    icon = ThemeUtils.tintDrawable(activity,
-                            ContextCompat.getDrawable(activity, R.drawable.ic_add_black)!!, R.attr.vctr_settings_icon_tint_color)
-                    order = 200
-
-                    onPreferenceClickListener = Preference.OnPreferenceClickListener {
-                        val intent = PhoneNumberAdditionActivity.getIntent(activity, mSession.credentials.userId)
-                        startActivityForResult(intent, REQUEST_NEW_PHONE_NUMBER)
-                        true
-                    }
-                }
-        )
-    }
+//
+//        // display the "add phone number" entry
+//        mUserSettingsCategory.addPreference(
+//                Preference(activity).apply {
+//                    setTitle(R.string.settings_add_phone_number)
+//                    key = ADD_PHONE_NUMBER_PREFERENCE_KEY
+//                    icon = ThemeUtils.tintDrawable(activity,
+//                            ContextCompat.getDrawable(activity, R.drawable.ic_add_black)!!, R.attr.vctr_settings_icon_tint_color)
+//                    order = 200
+//
+//                    onPreferenceClickListener = Preference.OnPreferenceClickListener {
+//                        val intent = PhoneNumberAdditionActivity.getIntent(activity, mSession.credentials.userId)
+//                        startActivityForResult(intent, REQUEST_NEW_PHONE_NUMBER)
+//                        true
+//                    }
+//                }
+//        )
+//    }
 
     //==============================================================================================================
     // Update items  methods
@@ -1696,7 +1696,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                 Log.e(LOG_TAG, "## there are more than one email in the account ");
             }
 
-//            var index = 0
+            var index = 0
 //            val addEmailBtn = mUserSettingsCategory.findPreference(ADD_EMAIL_PREFERENCE_KEY)
 //                    ?: return
 //
@@ -1709,7 +1709,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 
                 preference.title = getString(R.string.settings_email_address)
                 preference.summary = email3PID.address
-                preference.key = EMAIL_PREFERENCE_KEY_BASE //+ index
+                preference.key = EMAIL_PREFERENCE_KEY_BASE + index
 //                preference.order = order
 //
 //                preference.onPreferenceClickListener = Preference.OnPreferenceClickListener { _ ->
@@ -1724,7 +1724,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 
                 mUserSettingsCategory.addPreference(preference)
 
-//                index++
+                index++
 //                order++
             }
 
@@ -1885,9 +1885,9 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
             mDisplayedPhoneNumber = phoneNumberList
 
             var index = 0
-            val addPhoneBtn = mUserSettingsCategory.findPreference(ADD_PHONE_NUMBER_PREFERENCE_KEY)
-                    ?: return
-            var order = addPhoneBtn.order
+//            val addPhoneBtn = mUserSettingsCategory.findPreference(ADD_PHONE_NUMBER_PREFERENCE_KEY)
+//                    ?: return
+//            var order = addPhoneBtn.order
 
             for (phoneNumber3PID in currentPhoneNumber3PID) {
                 val preference = VectorCustomActionEditTextPreference(activity)
@@ -1904,24 +1904,24 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 
                 preference.summary = phoneNumberFormatted
                 preference.key = PHONE_NUMBER_PREFERENCE_KEY_BASE + index
-                preference.order = order
-
-                preference.onPreferenceClickListener = Preference.OnPreferenceClickListener { _ ->
-                    displayDelete3PIDConfirmationDialog(phoneNumber3PID, preference.summary)
-                    true
-                }
-
-                preference.setOnPreferenceLongClickListener {
-                    copyToClipboard(activity, phoneNumber3PID.address)
-                    true
-                }
-
+//                preference.order = order
+//
+//                preference.onPreferenceClickListener = Preference.OnPreferenceClickListener { _ ->
+//                    displayDelete3PIDConfirmationDialog(phoneNumber3PID, preference.summary)
+//                    true
+//                }
+//
+//                preference.setOnPreferenceLongClickListener {
+//                    copyToClipboard(activity, phoneNumber3PID.address)
+//                    true
+//                }
+//
                 index++
-                order++
+//                order++
                 mUserSettingsCategory.addPreference(preference)
             }
 
-            addPhoneBtn.order = order
+//            addPhoneBtn.order = order
         }
 
     }
