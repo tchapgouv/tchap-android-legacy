@@ -2676,7 +2676,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 
                 displayLoadingView()
 
-                mSession.crypto?.importRoomKeys(data, password, object : ApiCallback<ImportRoomKeysResult> {
+                mSession.crypto?.importRoomKeys(data, password, null, object : ApiCallback<ImportRoomKeysResult> {
                     override fun onSuccess(info: ImportRoomKeysResult?) {
                         hideLoadingView()
                     }

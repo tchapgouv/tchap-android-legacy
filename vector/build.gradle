@@ -16,13 +16,12 @@ buildscript {
     dependencies {
         classpath 'com.jween.gradle:android-soexcluder:1.1'
         // Use Realm Database
-        classpath "io.realm:realm-gradle-plugin:5.8.0"
+        classpath "io.realm:realm-gradle-plugin:5.9.0"
     }
 }
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion '27.0.3'
+    compileSdkVersion 28
 
     packagingOptions {
         exclude 'META-INF/LICENSE'
@@ -36,7 +35,7 @@ android {
 
     defaultConfig {
         minSdkVersion 16
-        targetSdkVersion 26
+        targetSdkVersion 28
         // use the version code
         versionCode rootProject.ext.versionCodeProp
         versionName rootProject.ext.versionNameProp
