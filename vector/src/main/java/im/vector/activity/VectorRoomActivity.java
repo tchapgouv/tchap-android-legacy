@@ -94,7 +94,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import fr.gouv.tchap.activity.TchapDirectRoomDetailsActivity;
-import fr.gouv.tchap.activity.TchapLoginActivity;
 import fr.gouv.tchap.util.DinsicUtils;
 import fr.gouv.tchap.util.LiveSecurityChecks;
 import butterknife.BindView;
@@ -107,7 +106,6 @@ import im.vector.activity.util.RequestCodesKt;
 import im.vector.dialogs.DialogCallAdapter;
 import im.vector.dialogs.DialogListItem;
 import im.vector.dialogs.DialogSendItemAdapter;
-import im.vector.extensions.MatrixSdkExtensionsKt;
 import im.vector.features.hhs.LimitResourceState;
 import im.vector.features.hhs.ResourceLimitEventListener;
 import im.vector.fragments.VectorMessageListFragment;
@@ -2062,8 +2060,11 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
     private boolean sendMessageByCreatingNewDirectChat(final @Nullable Intent mediaIntent) {
         if (null != mTchapUser) {
             // Here we create a new direct chat with the selected user, and post the message.
-            if (!TchapLoginActivity.isUserExternal(mSession)) {
 
+            // Sanity check: Extern users are not allowed to invite another extern user
+            if (DinsicUtils.isExternalTchapSession(mSession) && DinsicUtils.isExternalTchapUser(mTchapUser.user_id)) {
+                DinsicUtils.alertSimpleMsg(this, this.getString(R.string.room_creation_forbidden));
+            } else {
                 // ensure that the room is not created several times
                 // the room creation is slow
                 mSendMessageView.setEnabled(false);
@@ -2125,8 +2126,6 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
                         onError(e.getLocalizedMessage());
                     }
                 });
-            } else {
-                DinsicUtils.alertSimpleMsg(this, this.getString(R.string.room_creation_forbidden));
             }
             return true;
         }

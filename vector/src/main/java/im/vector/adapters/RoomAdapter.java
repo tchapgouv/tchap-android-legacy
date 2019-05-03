@@ -40,7 +40,6 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import im.vector.R;
-import fr.gouv.tchap.activity.TchapLoginActivity;
 import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.util.VectorUtils;
 
@@ -83,7 +82,7 @@ public class RoomAdapter extends AbsAdapter {
         addSection(mRoomsSection);
 
         // External users can not access to public rooms
-        if (!TchapLoginActivity.isUserExternal(mSession)) {
+        if (!DinsicUtils.isExternalTchapSession(mSession)) {
             addSection(mPublicRoomsSection);
         }
     }

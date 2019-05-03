@@ -204,6 +204,8 @@ public class RegistrationManager {
 
                                 // Notify the listener to wait for the email validation
                                 listener.onWaitingEmailValidation();
+                            } else {
+                                listener.onThreePidRequestFailed(context.getString(R.string.tchap_error_message_default));
                             }
                         }
 
@@ -579,6 +581,9 @@ public class RegistrationManager {
                         public void onMatrixError(MatrixError e) {
                             if (TextUtils.equals(MatrixError.THREEPID_IN_USE, e.errcode)) {
                                 listener.onThreePidRequestFailed(R.string.account_email_already_used_error);
+                            //} else if (TextUtils.equals(MatrixError.THREEPID_DENIED, e.errcode)) {
+                            } else if (TextUtils.equals("M_THREEPID_DENIED", e.errcode)) { // FIXME use THREEPID_DENIED const after updating the matrix-sdk lib
+                                listener.onThreePidRequestFailed(R.string.tchap_register_unauthorized_email);
                             } else {
                                 listener.onThreePidRequested(pid);
                             }

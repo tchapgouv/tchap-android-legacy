@@ -569,7 +569,7 @@ object NotificationUtils {
             // turn the screen on for 3 seconds
             if (Matrix.getInstance(VectorApp.getInstance())!!.pushManager.isScreenTurnedOn) {
                 val pm = VectorApp.getInstance().getSystemService(Context.POWER_SERVICE) as PowerManager
-                val wl = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP, "manageNotificationSound")
+                val wl = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP, "Tchap:manageNotificationSound")
                 wl.acquire(3000)
                 wl.release()
             }

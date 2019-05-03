@@ -30,7 +30,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.matrix.androidsdk.MXPatterns;
-import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
 import org.matrix.androidsdk.rest.model.User;
@@ -44,8 +43,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.R;
-import im.vector.VectorApp;
-import fr.gouv.tchap.activity.TchapLoginActivity;
 import im.vector.adapters.AbsAdapter;
 import im.vector.adapters.AdapterSection;
 import im.vector.adapters.KnownContactsAdapterSection;
@@ -116,9 +113,7 @@ public class TchapContactAdapter extends AbsAdapter {
         mKnownContactsSection.setIsHiddenWhenNoFilter(true);
 
         addSection(mLocalContactsSection);
-        if (!TchapLoginActivity.isUserExternal(mSession)) {
-            addSection(mKnownContactsSection);
-        }
+        addSection(mKnownContactsSection);
     }
 
     /*
@@ -214,13 +209,14 @@ public class TchapContactAdapter extends AbsAdapter {
         // updates the placeholder according to the local contacts permissions
         mLocalContactsSection.setEmptyViewPlaceholder(!ContactsManager.getInstance().isContactBookAccessAllowed() ? mNoContactAccessPlaceholder : mNoResultPlaceholder);
 
-        List<ParticipantAdapterItem> myContacts = new ArrayList<>();
-        for ( ParticipantAdapterItem item : localContacts) {
-            // when contact invitation will be introduced this line will be ok  if (MXSession.isUserId(item.mUserId)){
-            myContacts.add(item);
-            //}
+        // If the current user is external, remove the external users from the provided list
+        if (DinsicUtils.isExternalTchapSession(mSession)) {
+            final List<ParticipantAdapterItem> cleanedLocalContacts = removeExternalTchapUsers(localContacts);
+            mLocalContactsSection.setItems(cleanedLocalContacts, mCurrentFilterPattern);
+        } else {
+            mLocalContactsSection.setItems(localContacts, mCurrentFilterPattern);
         }
-        mLocalContactsSection.setItems(myContacts, mCurrentFilterPattern);
+
         if (!TextUtils.isEmpty(mCurrentFilterPattern)) {
             filterLocalContacts(String.valueOf(mCurrentFilterPattern));
         }
@@ -228,7 +224,14 @@ public class TchapContactAdapter extends AbsAdapter {
     }
 
     public void setKnownContacts(final List<ParticipantAdapterItem> knownContacts) {
-        mKnownContactsSection.setItems(knownContacts, mCurrentFilterPattern);
+        // If the current user is external, remove the external users from the provided list
+        if (DinsicUtils.isExternalTchapSession(mSession)) {
+            final List<ParticipantAdapterItem> cleanedKnownContacts = removeExternalTchapUsers(knownContacts);
+            mKnownContactsSection.setItems(cleanedKnownContacts, mCurrentFilterPattern);
+        } else {
+            mKnownContactsSection.setItems(knownContacts, mCurrentFilterPattern);
+        }
+
         if (!TextUtils.isEmpty(mCurrentFilterPattern)) {
             filterKnownContacts(String.valueOf(mCurrentFilterPattern));
         } else {
@@ -272,6 +275,23 @@ public class TchapContactAdapter extends AbsAdapter {
      * Private methods
      * *********************************************************************************************
      */
+
+    /**
+     * Remove the potential external tchap users from the provided list of contacts.
+     * Each item of the contacts list is supposed here to have a non-null "mUserId".
+     *
+     * @param contacts
+     * @return the cleaned list
+     */
+    private List<ParticipantAdapterItem> removeExternalTchapUsers(final List<ParticipantAdapterItem> contacts) {
+        List<ParticipantAdapterItem> result = new ArrayList<>();
+        for (ParticipantAdapterItem item : contacts) {
+            if (!DinsicUtils.isExternalTchapUser(item.mUserId)) {
+                result.add(item);
+            }
+        }
+        return result;
+    }
 
     /**
      * Filter the local contacts with the given pattern

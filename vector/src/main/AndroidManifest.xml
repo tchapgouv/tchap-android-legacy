@@ -44,6 +44,9 @@
     <uses-permission android:name="com.anddoes.launcher.permission.UPDATE_COUNT" />
     <uses-permission android:name="com.majeur.launcher.permission.UPDATE_BADGE" />
 
+    <!-- New when targeting API 28 -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
     <application
         android:name=".VectorApp"
         android:allowBackup="false"
@@ -389,11 +392,6 @@
         </activity>
 
         <service android:name=".services.EventStreamService" />
-
-        <provider
-            android:name=".db.VectorContentProvider"
-            android:authorities="${applicationId}.provider"
-            android:exported="true" />
 
     </application>
 
