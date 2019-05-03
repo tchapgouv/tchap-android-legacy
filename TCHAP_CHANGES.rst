@@ -1,3 +1,25 @@
+Changes in Tchap 1.0.24 (2019-05-03)
+===================================================
+
+Improvements:
+ * Configure the application for the external users.
+ * on F-Droid version, the default sync delay is increased to 1 minute.
+ 
+Bug Fixes:
+ * Registration - Infinite loading wheel on unauthorized email #459
+
+Changes in Tchap 1.0.23 (2019-04-23)
+===================================================
+
+Improvements:
+ * Increase the minimum password length to 8 #463
+ * Settings: Remove the phone number option #462
+ * Update matrix-sdk.aar lib - Revision: bdae4c5d479a5992b8d4ec70cfb80a475a92143f
+ 
+Bug Fixes:
+ * Security fix: remove obsolete and buggy ContentProvider which could allow a malicious local app to compromise account data. Many thanks to Julien Thomas (twitter.com/@julien_thomas) from Protektoid Project (https://protektoid.com) for identifying this and responsibly disclosing it.
+ * zoom-out on image causes crash #441
+
 Changes in Tchap 1.0.22 (2019-03-22)
 ===================================================
 
