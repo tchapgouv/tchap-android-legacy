@@ -27,6 +27,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -77,6 +78,7 @@ import java.util.Map;
 import fr.gouv.tchap.media.AntiVirusScanStatus;
 import fr.gouv.tchap.media.MediaScanManager;
 import fr.gouv.tchap.model.MediaScan;
+import im.vector.BuildConfig;
 import im.vector.Matrix;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
@@ -87,7 +89,6 @@ import im.vector.activity.VectorMediasViewerActivity;
 import im.vector.activity.VectorMemberDetailsActivity;
 import im.vector.activity.VectorRoomActivity;
 import im.vector.adapters.VectorMessagesAdapter;
-import im.vector.db.VectorContentProvider;
 import im.vector.extensions.MatrixSdkExtensionsKt;
 import im.vector.listeners.IMessagesAdapterActionsListener;
 import im.vector.receiver.VectorUniversalLinkReceiver;
@@ -933,13 +934,14 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
                         // shared / forward
                         Uri mediaUri = null;
                         try {
-                            mediaUri = VectorContentProvider.absolutePathToUri(getActivity(), file.getAbsolutePath());
+                            mediaUri = FileProvider.getUriForFile(getActivity(), BuildConfig.APPLICATION_ID + ".fileProvider", file);
                         } catch (Exception e) {
-                            Log.e(LOG_TAG, "onMediaAction VectorContentProvider.absolutePathToUri: " + e.getMessage(), e);
+                            Log.e(LOG_TAG, "onMediaAction Selected file cannot be shared: " + e.getMessage(), e);
                         }
 
                         if (null != mediaUri) {
                             final Intent sendIntent = new Intent();
+                            sendIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                             sendIntent.setAction(Intent.ACTION_SEND);
                             sendIntent.setType(mediaMimeType);
                             sendIntent.putExtra(Intent.EXTRA_STREAM, mediaUri);

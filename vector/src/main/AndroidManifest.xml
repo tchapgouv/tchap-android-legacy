@@ -393,11 +393,6 @@
 
         <service android:name=".services.EventStreamService" />
 
-        <provider
-            android:name=".db.VectorContentProvider"
-            android:authorities="${applicationId}.provider"
-            android:exported="true" />
-
     </application>
 
 </manifest>
