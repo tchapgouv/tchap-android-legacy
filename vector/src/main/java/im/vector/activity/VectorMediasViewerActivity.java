@@ -20,6 +20,7 @@ package im.vector.activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.v4.content.FileProvider;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -41,11 +42,11 @@ import java.util.List;
 
 import fr.gouv.tchap.media.MediaScanManager;
 import fr.gouv.tchap.model.MediaScan;
+import im.vector.BuildConfig;
 import im.vector.Matrix;
 import im.vector.R;
 import im.vector.VectorApp;
 import im.vector.adapters.VectorMediasViewerAdapter;
-import im.vector.db.VectorContentProvider;
 import im.vector.util.PermissionsToolsKt;
 import im.vector.util.SlidableMediaInfo;
 
@@ -287,14 +288,15 @@ public class VectorMediasViewerActivity extends MXCActionBarActivity {
                         // shared / forward
                         Uri mediaUri = null;
                         try {
-                            mediaUri = VectorContentProvider.absolutePathToUri(VectorMediasViewerActivity.this, file.getAbsolutePath());
+                            mediaUri = FileProvider.getUriForFile(VectorMediasViewerActivity.this, BuildConfig.APPLICATION_ID + ".fileProvider", file);
                         } catch (Exception e) {
-                            Log.e(LOG_TAG, "onMediaAction onAction.absolutePathToUri: " + e.getMessage(), e);
+                            Log.e(LOG_TAG, "onMediaAction Selected file cannot be shared " + e.getMessage(), e);
                         }
 
                         if (null != mediaUri) {
                             try {
                                 final Intent sendIntent = new Intent();
+                                sendIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                                 sendIntent.setAction(Intent.ACTION_SEND);
                                 sendIntent.setType(mediaInfo.mMimeType);
                                 sendIntent.putExtra(Intent.EXTRA_STREAM, mediaUri);

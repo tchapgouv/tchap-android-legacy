@@ -76,7 +76,10 @@ public class TchapPublicRoomAdapter extends AbsAdapter {
                 TYPE_HEADER_PUBLIC_ROOM, TYPE_PUBLIC_ROOM, new ArrayList<TchapPublicRoom>(), null);
         mPublicRoomsSection.setEmptyViewPlaceholder(context.getString(R.string.no_public_room_placeholder), context.getString(R.string.no_result_placeholder));
 
-        addSection(mPublicRoomsSection);
+        // External users can not access to public rooms
+        if (!DinsicUtils.isExternalTchapSession(mSession)) {
+            addSection(mPublicRoomsSection);
+        }
     }
 
     //no sticker on public room

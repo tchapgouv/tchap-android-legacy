@@ -41,7 +41,12 @@ public class RiotViewPager extends android.support.v4.view.ViewPager {
         if (getAdapter() == null || getAdapter().getCount() == 0) {
             return false;
         }
-        return super.onInterceptTouchEvent(event);
+        try {
+            return super.onInterceptTouchEvent(event);
+        } catch (IllegalArgumentException exception) {
+            Log.e(LOG_TAG, "Exception: " + exception.getLocalizedMessage());
+        }
+        return false;
     }
 
     @Override
@@ -49,7 +54,12 @@ public class RiotViewPager extends android.support.v4.view.ViewPager {
         if (getAdapter() == null || getAdapter().getCount() == 0) {
             return false;
         }
-        return super.onTouchEvent(ev);
+        try {
+            return super.onTouchEvent(ev);
+        } catch (IllegalArgumentException exception) {
+            Log.e(LOG_TAG, "Exception: " + exception.getLocalizedMessage());
+        }
+        return false;
     }
 
     @Override

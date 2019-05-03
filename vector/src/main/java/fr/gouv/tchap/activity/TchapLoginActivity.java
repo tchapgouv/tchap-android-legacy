@@ -95,6 +95,8 @@ import im.vector.services.EventStreamService;
 public class TchapLoginActivity extends MXCActionBarActivity implements RegistrationManager.RegistrationListener {
     private static final String LOG_TAG = TchapLoginActivity.class.getSimpleName();
 
+    public static final int MIN_PASSWORD_LENGTH = 8;
+
     // activity modes
     // either the user logs in
     // or creates a new account
@@ -682,7 +684,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         } else if (TextUtils.isEmpty(password)) {
             Toast.makeText(getApplicationContext(), getString(R.string.auth_reset_password_missing_password), Toast.LENGTH_SHORT).show();
             return;
-        } else if (password.length() < 6) {
+        } else if (password.length() < MIN_PASSWORD_LENGTH) {
             Toast.makeText(getApplicationContext(), getString(R.string.auth_invalid_password), Toast.LENGTH_SHORT).show();
             return;
         } else if (!TextUtils.equals(password, passwordCheck)) {
@@ -1953,7 +1955,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         if (TextUtils.isEmpty(password)) {
             Toast.makeText(getApplicationContext(), getString(R.string.auth_missing_password), Toast.LENGTH_SHORT).show();
             return;
-        } else if (password.length() < 6) {
+        } else if (password.length() < MIN_PASSWORD_LENGTH) {
             Toast.makeText(getApplicationContext(), getString(R.string.auth_invalid_password), Toast.LENGTH_SHORT).show();
             return;
         } else if (!TextUtils.equals(password, passwordCheck)) {

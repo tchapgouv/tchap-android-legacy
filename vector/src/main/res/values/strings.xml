@@ -217,7 +217,7 @@
     <string name="auth_repeat_new_password_placeholder">Confirm your new password</string>
     <string name="auth_invalid_login_param">Incorrect username and/or password</string>
     <string name="auth_invalid_user_name">User names may only contain letters, numbers, dots, hyphens and underscores</string>
-    <string name="auth_invalid_password">Password too short (min 6)</string>
+    <string name="auth_invalid_password">Password too short (min 8)</string>
     <string name="auth_missing_password">Missing password</string>
     <string name="auth_invalid_email">"This doesn't look like a valid email address"</string>
     <string name="auth_invalid_phone">"This doesn't look like a valid phone number"</string>

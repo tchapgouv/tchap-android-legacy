@@ -133,7 +133,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="auth_repeat_password_placeholder">Répéter le mot de passe</string>
     <string name="auth_repeat_new_password_placeholder">Confirmez votre nouveau mot de passe</string>
     <string name="auth_invalid_login_param">Nom d\'utilisateur et/ou mot de passe incorrect</string>
-    <string name="auth_invalid_password">Mot de passe trop court (6 min)</string>
+    <string name="auth_invalid_password">Mot de passe trop court (8 min)</string>
     <string name="auth_missing_password">Mot de passe manquant</string>
     <string name="auth_missing_email">Adresse e-mail manquante</string>
     <string name="auth_missing_phone">Numéro de téléphone manquant</string>
@@ -832,7 +832,7 @@ Appareils inconnus :</string>
 
     <!-- tchap new strings -->
     <string name="tchap_invite_contacts_to_tchap">Inviter des contacts dans Tchap</string>
-    <string name="tchap_invite_contacts_by_email">Inviter par mail</string>
+    <string name="tchap_invite_contacts_by_email">Inviter par e-mail</string>
     <string name="tchap_invite_contacts_to_room">Inviter au salon</string>
     <string name="tchap_room_invite_member_direct_chat">Nouvelle discussion</string>
     <string name="tchap_invite_already_send_message">Vous avez déjà envoyé une invitation à %s</string>
