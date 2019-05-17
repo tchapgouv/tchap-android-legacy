@@ -1073,9 +1073,11 @@ public final class PushManager {
 
         switch (notificationPrivacy) {
             case REDUCED:
-                setContentSendingAllowed(true);
-                setBackgroundSyncAllowed(false);
-                break;
+                // Tchap: prevent the user from returning in REDUCED mode (This should not happen
+                // according to the updated UI). Fallback to LOW_DETAIL by default.
+//                setContentSendingAllowed(true);
+//                setBackgroundSyncAllowed(false);
+//                break;
             case LOW_DETAIL:
                 setContentSendingAllowed(false);
                 setBackgroundSyncAllowed(false);
