@@ -318,8 +318,11 @@ dependencies {
     /************* flavors management **************/
 
     // app flavor only
-    appImplementation 'com.google.firebase:firebase-core:16.0.4'
-    appImplementation 'com.google.firebase:firebase-messaging:17.3.4'
+    appImplementation('com.google.firebase:firebase-messaging:17.4.0') {
+        exclude group: 'com.google.firebase', module: 'firebase-core'
+        exclude group: 'com.google.firebase', module: 'firebase-analytics'
+        exclude group: 'com.google.firebase', module: 'firebase-measurement-connector'
+    }
 
     // fdroid flavor only
 
