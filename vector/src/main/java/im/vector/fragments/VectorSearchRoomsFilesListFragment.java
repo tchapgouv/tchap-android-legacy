@@ -30,7 +30,7 @@ import org.matrix.androidsdk.adapters.MessageRow;
 import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.rest.model.message.FileMessage;
 import org.matrix.androidsdk.rest.model.message.Message;
-import org.matrix.androidsdk.util.JsonUtils;
+import org.matrix.androidsdk.core.JsonUtils;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -21,7 +21,7 @@ import android.graphics.Typeface;
 import android.preference.Preference;
 import android.util.AttributeSet;
 
-import org.matrix.androidsdk.util.Log;
+import org.matrix.androidsdk.core.Log;
 
 import android.view.View;
 import android.view.ViewGroup;

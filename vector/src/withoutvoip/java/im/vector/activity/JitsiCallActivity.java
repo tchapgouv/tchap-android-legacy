@@ -16,10 +16,6 @@
  */
 
 package im.vector.activity;
-
-import android.view.View;
-
-import butterknife.BindView;
 import im.vector.R;
 
 public class JitsiCallActivity extends VectorAppCompatActivity {
@@ -34,18 +30,6 @@ public class JitsiCallActivity extends VectorAppCompatActivity {
      * set to true to start a video call
      */
     public static final String EXTRA_ENABLE_VIDEO = "EXTRA_ENABLE_VIDEO";
-
-    @BindView(R.id.jsti_back_to_app_icon)
-    View mBackToAppIcon;
-
-    @BindView(R.id.jsti_close_widget_icon)
-    View mCloseWidgetIcon;
-
-    @BindView(R.id.jsti_connecting_text_view)
-    View mConnectingTextView;
-
-    @BindView(R.id.jitsi_progress_layout)
-    View waitingView;
 
     @Override
     public int getLayoutRes() {

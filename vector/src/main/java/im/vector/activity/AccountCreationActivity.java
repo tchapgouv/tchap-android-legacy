@@ -28,8 +28,8 @@ import android.webkit.WebViewClient;
 
 import com.google.gson.reflect.TypeToken;
 
-import org.matrix.androidsdk.util.JsonUtils;
-import org.matrix.androidsdk.util.Log;
+import org.matrix.androidsdk.core.JsonUtils;
+import org.matrix.androidsdk.core.Log;
 
 import java.net.URLDecoder;
 import java.util.HashMap;

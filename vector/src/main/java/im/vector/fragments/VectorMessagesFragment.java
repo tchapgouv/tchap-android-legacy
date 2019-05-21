@@ -21,8 +21,8 @@ import android.text.TextUtils;
 import android.widget.Toast;
 
 import org.matrix.androidsdk.fragments.MatrixMessagesFragment;
-import org.matrix.androidsdk.rest.model.MatrixError;
-import org.matrix.androidsdk.util.Log;
+import org.matrix.androidsdk.core.model.MatrixError;
+import org.matrix.androidsdk.core.Log;
 
 import im.vector.Matrix;
 import im.vector.R;

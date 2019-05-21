@@ -20,16 +20,15 @@ package im.vector.activity;
 import android.content.Intent;
 
 import org.matrix.androidsdk.MXSession;
+import org.matrix.androidsdk.core.FileContentUtils;
 import org.matrix.androidsdk.data.RoomMediaMessage;
-import org.matrix.androidsdk.util.ContentUtils;
-import org.matrix.androidsdk.util.Log;
+import org.matrix.androidsdk.core.Log;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import fr.gouv.tchap.activity.NotificationListenerDetectionActivity;
-import fr.gouv.tchap.activity.TchapLoginActivity;
 import im.vector.Matrix;
 import im.vector.R;
 
@@ -115,7 +114,7 @@ public class VectorSharedFilesActivity extends VectorAppCompatActivity {
          * Clear the existing folder to reduce storage memory usage
          */
         if (sharedFolder.exists()) {
-            ContentUtils.deleteDirectory(sharedFolder);
+            FileContentUtils.deleteDirectory(sharedFolder);
         }
 
         sharedFolder.mkdir();

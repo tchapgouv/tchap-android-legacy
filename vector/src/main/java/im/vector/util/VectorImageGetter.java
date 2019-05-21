@@ -24,8 +24,8 @@ import android.os.AsyncTask;
 import android.support.v4.content.res.ResourcesCompat;
 
 import org.matrix.androidsdk.MXSession;
-import org.matrix.androidsdk.util.ContentManager;
-import org.matrix.androidsdk.util.Log;
+import org.matrix.androidsdk.core.ContentManager;
+import org.matrix.androidsdk.core.Log;
 
 import android.text.Html;
 

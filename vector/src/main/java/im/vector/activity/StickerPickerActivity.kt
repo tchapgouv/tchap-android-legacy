@@ -24,8 +24,8 @@ import im.vector.R
 import im.vector.activity.util.INTEGRATION_MANAGER_ACTIVITY_REQUEST_CODE
 import im.vector.types.JsonDict
 import im.vector.ui.themes.ActivityOtherThemes
-import org.matrix.androidsdk.util.JsonUtils
-import org.matrix.androidsdk.util.Log
+import org.matrix.androidsdk.core.JsonUtils
+import org.matrix.androidsdk.core.Log
 import java.net.URLEncoder
 
 class StickerPickerActivity : AbstractWidgetActivity() {

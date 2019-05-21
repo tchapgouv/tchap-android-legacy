@@ -21,7 +21,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
 
-import org.matrix.androidsdk.util.Log;
+import org.matrix.androidsdk.core.Log;
 
 import im.vector.activity.CommonActivityUtils;
 import im.vector.util.PreferencesManager;

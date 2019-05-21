@@ -17,7 +17,7 @@ import com.bumptech.glide.request.RequestOptions;
 
 import org.jetbrains.annotations.NotNull;
 import org.matrix.androidsdk.data.RoomMediaMessage;
-import org.matrix.androidsdk.util.Log;
+import org.matrix.androidsdk.core.Log;
 
 import java.util.List;
 

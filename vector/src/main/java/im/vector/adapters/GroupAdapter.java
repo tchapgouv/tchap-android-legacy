@@ -25,7 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.matrix.androidsdk.rest.model.group.Group;
-import org.matrix.androidsdk.util.Log;
+import org.matrix.androidsdk.core.Log;
 
 import java.util.ArrayList;
 import java.util.List;
