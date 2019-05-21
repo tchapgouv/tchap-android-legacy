@@ -57,6 +57,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import fr.gouv.tchap.activity.TchapLoginActivity;
+import fr.gouv.tchap.sdk.rest.client.TchapThirdPidRestClient;
 import fr.gouv.tchap.sdk.rest.model.Platform;
 
 import butterknife.BindView;
@@ -71,6 +72,8 @@ import im.vector.settings.VectorLocale;
 import im.vector.util.PermissionsToolsKt;
 import im.vector.util.VectorUtils;
 import im.vector.view.VectorAutoCompleteTextView;
+
+import static fr.gouv.tchap.config.TargetConfigurationKt.ENABLE_PROXY_LOOKUP;
 
 /**
  * This class provides a way to search other user to invite them in a dedicated room
@@ -633,7 +636,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                         }
                     }
 
-                    // In order to prepare the lookup3Pids,
+                    // In order to prepare the lookup on 3pids,
                     // We have to specify the type of media : email or phone number.
                     // In this case, the media type always is an email.
                     // That's why we create a new list of the same size as the list of emails,
@@ -644,13 +647,13 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                         medias.add(ThreePid.MEDIUM_EMAIL);
                     }
 
+                    // Check for each email whether there is an associated account with a Matrix id.
                     showWaitingView();
 
-                    // Check for each email whether there is an associated account with a Matrix id.
-                    mSession.lookup3Pids(emails, medias, new ApiCallback<List<String>>() {
+                    final ApiCallback<List<String>> callback = new ApiCallback<List<String>>() {
                         @Override
                         public void onSuccess(final List<String> pids) {
-                            Log.e(LOG_TAG, "lookup3Pids : success " + pids.size());
+                            Log.e(LOG_TAG, "bulkLookup: success " + pids.size());
 
                             for (int index = 0; index < emails.size();) {
                                 final String email = emails.get(index);
@@ -698,7 +701,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                          * @param errorMessage the error message
                          */
                         private void onError(String errorMessage) {
-                            Log.e(LOG_TAG, "## lookup3Pids success : failed " + errorMessage);
+                            Log.e(LOG_TAG, "## bulkLookup: failed " + errorMessage);
                             Toast.makeText(VectorRoomInviteMembersActivity.this, errorMessage, Toast.LENGTH_LONG).show();
                         }
 
@@ -716,7 +719,16 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                         public void onUnexpectedError(Exception e) {
                             onError(e.getMessage());
                         }
-                    });
+                    };
+
+                    if (ENABLE_PROXY_LOOKUP) {
+                        // Use the proxied lookup API
+                        TchapThirdPidRestClient tchapThirdPidRestClient = new TchapThirdPidRestClient(mSession.getHomeServerConfig());
+                        tchapThirdPidRestClient.bulkLookup(emails, medias, callback);
+                    } else {
+                        // Fallback to the legacy API
+                        mSession.lookup3Pids(emails, medias, callback);
+                    }
 
                     inviteDialog.dismiss();
                 }

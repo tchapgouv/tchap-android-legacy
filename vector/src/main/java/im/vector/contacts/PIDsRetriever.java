@@ -36,7 +36,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import fr.gouv.tchap.sdk.rest.client.TchapThirdPidRestClient;
 import im.vector.Matrix;
+
+import static fr.gouv.tchap.config.TargetConfigurationKt.ENABLE_PROXY_LOOKUP;
 
 /**
  * retrieve the contact matrix IDs
@@ -220,10 +223,10 @@ public class PIDsRetriever {
             for (MXSession session : sessions) {
                 final String accountId = session.getCredentials().userId;
 
-                session.lookup3Pids(fRequestedMediums, medias, new ApiCallback<List<String>>() {
+                final ApiCallback<List<String>> callback = new ApiCallback<List<String>>() {
                     @Override
                     public void onSuccess(final List<String> pids) {
-                        Log.d(LOG_TAG, "lookup3Pids success " + pids.size());
+                        Log.d(LOG_TAG, "bulkLookup success " + pids.size());
                         // update the local cache
                         for (int index = 0; index < fRequestedMediums.size(); index++) {
                             String medium = fRequestedMediums.get(index);
@@ -247,7 +250,7 @@ public class PIDsRetriever {
                      * @param errorMessage the error message
                      */
                     private void onError(String errorMessage) {
-                        Log.e(LOG_TAG, "## retrieveMatrixIds() : failed " + errorMessage);
+                        Log.e(LOG_TAG, "## bulkLookup() : failed " + errorMessage);
 
                         if (null != mListener) {
                             mListener.onFailure(accountId);
@@ -270,7 +273,16 @@ public class PIDsRetriever {
                     public void onUnexpectedError(Exception e) {
                         onError(e.getMessage());
                     }
-                });
+                };
+
+                if (ENABLE_PROXY_LOOKUP) {
+                    // Use the proxied lookup API
+                    TchapThirdPidRestClient tchapThirdPidRestClient = new TchapThirdPidRestClient(session.getHomeServerConfig());
+                    tchapThirdPidRestClient.bulkLookup(fRequestedMediums, medias, callback);
+                } else {
+                    // Fallback to the legacy API
+                    session.lookup3Pids(fRequestedMediums, medias, callback);
+                }
             }
         }
     }
