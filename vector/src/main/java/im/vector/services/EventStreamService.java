@@ -45,9 +45,9 @@ import org.matrix.androidsdk.data.store.MXStoreListener;
 import org.matrix.androidsdk.listeners.MXEventListener;
 import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.rest.model.bingrules.BingRule;
-import org.matrix.androidsdk.util.BingRulesManager;
-import org.matrix.androidsdk.util.EventDisplay;
-import org.matrix.androidsdk.util.Log;
+import org.matrix.androidsdk.core.BingRulesManager;
+import org.matrix.androidsdk.core.EventDisplay;
+import org.matrix.androidsdk.core.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1177,7 +1177,7 @@ public class EventStreamService extends Service {
             String header = (TextUtils.isEmpty(roomName) ? "" : roomName + ": ");
             String text;
 
-            if (null == event.content) {
+            if (null == event.contentJson) {
                 // Check whether the room id is available and a room name has been retrieved
                 if (null != event.roomId && !TextUtils.isEmpty(header)) {
                     // Check whether the previous notification (if any) was from the same room

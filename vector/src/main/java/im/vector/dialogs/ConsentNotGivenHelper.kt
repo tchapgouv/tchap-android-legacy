@@ -23,8 +23,8 @@ import im.vector.R
 import im.vector.activity.VectorWebViewActivity
 import im.vector.activity.interfaces.Restorable
 import im.vector.webview.WebViewMode
-import org.matrix.androidsdk.rest.model.MatrixError
-import org.matrix.androidsdk.util.Log
+import org.matrix.androidsdk.core.model.MatrixError
+import org.matrix.androidsdk.core.Log
 
 private const val LOG_TAG = "ConsentNotGivenHelper"
 

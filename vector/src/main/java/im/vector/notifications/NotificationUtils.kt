@@ -46,7 +46,7 @@ import im.vector.receiver.DismissNotificationReceiver
 import im.vector.util.PreferencesManager
 import im.vector.util.createSquareBitmap
 import org.matrix.androidsdk.rest.model.bingrules.BingRule
-import org.matrix.androidsdk.util.Log
+import org.matrix.androidsdk.core.Log
 import java.util.*
 
 /**

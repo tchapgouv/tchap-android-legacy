@@ -41,7 +41,7 @@ import com.facebook.stetho.Stetho;
 
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.crypto.MXCryptoConfig;
-import org.matrix.androidsdk.util.Log;
+import org.matrix.androidsdk.core.Log;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -225,8 +225,8 @@ public class VectorApp extends MultiDexApplication {
         }
         mLogsDirectoryFile = new File(getCacheDir().getAbsolutePath() + "/logs");
 
-        org.matrix.androidsdk.util.Log.setLogDirectory(mLogsDirectoryFile);
-        org.matrix.androidsdk.util.Log.init("RiotLog");
+        org.matrix.androidsdk.core.Log.setLogDirectory(mLogsDirectoryFile);
+        org.matrix.androidsdk.core.Log.init("RiotLog");
 
         // log the application version to trace update
         // useful to track backward compatibility issues

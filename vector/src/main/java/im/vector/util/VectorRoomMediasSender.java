@@ -35,9 +35,9 @@ import android.widget.Toast;
 import org.matrix.androidsdk.data.RoomMediaMessage;
 import org.matrix.androidsdk.db.MXMediaCache;
 import org.matrix.androidsdk.rest.model.message.Message;
-import org.matrix.androidsdk.util.ImageUtils;
-import org.matrix.androidsdk.util.Log;
-import org.matrix.androidsdk.util.ResourceUtils;
+import org.matrix.androidsdk.core.ImageUtils;
+import org.matrix.androidsdk.core.Log;
+import org.matrix.androidsdk.core.ResourceUtils;
 
 import java.io.File;
 import java.io.FileInputStream;

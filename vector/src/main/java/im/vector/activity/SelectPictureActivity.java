@@ -38,7 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Date;
-import org.matrix.androidsdk.util.Log;
+import org.matrix.androidsdk.core.Log;
 
 import im.vector.dialogs.DialogListItem;
 import im.vector.dialogs.DialogSendItemAdapter;

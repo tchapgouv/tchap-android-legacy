@@ -17,7 +17,7 @@
 package im.vector.util
 
 import android.graphics.Bitmap
-import org.matrix.androidsdk.util.Log
+import org.matrix.androidsdk.core.Log
 
 /**
  * Create a centered square bitmap from another one.
