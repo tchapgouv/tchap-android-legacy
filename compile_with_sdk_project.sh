@@ -13,5 +13,6 @@ sed -i '' -e "s/^    implementation(name: 'matrix-sdk-core/    \/\/implementatio
 sed -i '' -e "s/^    \/\/implementation project(':matrix-sdk-core-/    implementation project(':matrix-sdk-core-/" vector/build.gradle || true
 sed -i '' -e "s/^    implementation(name: 'matrix-sdk-crypto/    \/\/implementation(name: 'matrix-sdk-crypto/" vector/build.gradle || true
 sed -i '' -e "s/^    \/\/implementation project(':matrix-sdk-crypto-/    implementation project(':matrix-sdk-crypto-/" vector/build.gradle || true
+sed -i '' -e "s/^    implementation(name: 'olm-sdk/    \/\/implementation(name: 'olm-sdk/" vector/build.gradle || true
 
 echo "please sync project with gradle files"

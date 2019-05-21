@@ -289,6 +289,7 @@ dependencies {
     implementation(name: 'matrix-sdk', ext: 'aar')
     implementation(name: 'matrix-sdk-core', ext: 'aar')
     implementation(name: 'matrix-sdk-crypto', ext: 'aar')
+    implementation(name: 'olm-sdk', ext: 'aar')
     // use the matrix SDK as external dependency
     //implementation 'com.github.matrix-org:matrix-android-sdk:v0.9.23'
     // use the matrix SDK as a sub project
