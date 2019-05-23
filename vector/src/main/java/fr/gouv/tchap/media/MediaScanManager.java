@@ -16,15 +16,15 @@
 
 package fr.gouv.tchap.media;
 
-import org.matrix.androidsdk.rest.callback.ApiCallback;
+import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.rest.client.MediaScanRestClient;
 import org.matrix.androidsdk.rest.model.EncryptedMediaScanBody;
 import org.matrix.androidsdk.rest.model.Event;
-import org.matrix.androidsdk.rest.model.MatrixError;
+import org.matrix.androidsdk.core.model.MatrixError;
 import org.matrix.androidsdk.rest.model.MediaScanResult;
-import org.matrix.androidsdk.rest.model.crypto.EncryptedFileInfo;
-import org.matrix.androidsdk.util.ContentManager;
-import org.matrix.androidsdk.util.Log;
+import org.matrix.androidsdk.crypto.model.crypto.EncryptedFileInfo;
+import org.matrix.androidsdk.core.ContentManager;
+import org.matrix.androidsdk.core.Log;
 
 import java.util.Date;
 import java.util.List;

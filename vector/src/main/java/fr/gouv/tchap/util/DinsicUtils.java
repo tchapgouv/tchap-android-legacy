@@ -35,20 +35,21 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.widget.Toast;
 
-import org.matrix.androidsdk.MXPatterns;
+import org.matrix.androidsdk.core.MXPatterns;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomEmailInvitation;
 import org.matrix.androidsdk.data.RoomPreviewData;
 import org.matrix.androidsdk.data.RoomTag;
 import org.matrix.androidsdk.data.store.IMXStore;
-import org.matrix.androidsdk.rest.callback.ApiCallback;
-import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
-import org.matrix.androidsdk.rest.model.MatrixError;
+import org.matrix.androidsdk.core.callback.ApiCallback;
+import org.matrix.androidsdk.core.callback.SimpleApiCallback;
+import org.matrix.androidsdk.core.model.MatrixError;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.rest.model.pid.RoomThirdPartyInvite;
-import org.matrix.androidsdk.util.Log;
+import org.matrix.androidsdk.rest.model.pid.ThreePid;
+import org.matrix.androidsdk.core.Log;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -58,6 +59,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import fr.gouv.tchap.sdk.rest.client.TchapThirdPidRestClient;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.VectorAppCompatActivity;
@@ -67,6 +69,8 @@ import im.vector.contacts.Contact;
 import im.vector.contacts.ContactsManager;
 import im.vector.contacts.PIDsRetriever;
 import im.vector.util.RoomUtils;
+
+import static fr.gouv.tchap.config.TargetConfigurationKt.ENABLE_PROXY_LOOKUP;
 
 public class DinsicUtils {
     private static final String LOG_TAG = "DinsicUtils";
@@ -850,15 +854,15 @@ public class DinsicUtils {
     }
 
     /* get contacts from direct chats */
-    public static List<ParticipantAdapterItem> getContactsFromDirectChats(final MXSession mSession) {
+    public static List<ParticipantAdapterItem> getContactsFromDirectChats(final MXSession session) {
         List<ParticipantAdapterItem> participants = new ArrayList<>();
 
-        if ((null == mSession) || (null == mSession.getDataHandler())) {
+        if ((null == session) || (null == session.getDataHandler())) {
             Log.e(LOG_TAG, "## getContactsFromDirectChats() : null session");
             return participants;
         }
 
-        IMXStore store = mSession.getDataHandler().getStore();
+        IMXStore store = session.getDataHandler().getStore();
 
         if (null != store.getDirectChatRoomsDict()) {
             // Retrieve all the keys of the direct chats HashMap (they correspond to the users with direct chats)
@@ -868,7 +872,7 @@ public class DinsicUtils {
                 // Check whether this key is an actual user id
                 if (MXPatterns.isUserId(key)) {
                     // Ignore the current user if he appears in the direct chat map
-                    if (key.equals(mSession.getMyUserId())) {
+                    if (key.equals(session.getMyUserId())) {
                         continue;
                     }
 
@@ -903,67 +907,45 @@ public class DinsicUtils {
                     }
                 }
                 else if (android.util.Patterns.EMAIL_ADDRESS.matcher(key).matches()) {
-                    // Check whether this email corresponds to an actual user id, else ignore it.
-                    // @TODO Trigger a lookup3Pid request if the info is not available.
-                    final Contact.MXID contactMxId = PIDsRetriever.getInstance().getMXID(key);
-                    if (null != contactMxId && contactMxId.mMatrixId.length() > 0) {
-                        // @TODO Add MXSession API to update the HashMap in one run.
-                        List<String> roomIdsList = new ArrayList<>(store.getDirectChatRoomsDict().get(key));
-                        Log.d(LOG_TAG, "## getContactsFromDirectChats() update direct chat map " + roomIdsList + " " + key);
-                        for (final String roomId : roomIdsList) {
-                            Log.d(LOG_TAG, "## getContactsFromDirectChats() update direct chat map " + roomId);
-                            // Disable first the direct chat to set it on the right user id
-                            mSession.toggleDirectChatRoom(roomId, null, new ApiCallback<Void>() {
-                                @Override
-                                public void onSuccess(Void info) {
-                                    mSession.toggleDirectChatRoom(roomId, contactMxId.mMatrixId, new ApiCallback<Void>() {
-                                        @Override
-                                        public void onSuccess(Void info) {
-                                            Log.d(LOG_TAG, "## getContactsFromDirectChats() succeeded to update direct chat map ");
-                                            // Here we used the local data of the PIDsRetriever, so the contact will be added by local contacts list.
-                                            // @TODO if we support remote lookup to resolve the email, we have to add the resulting contact (but he may be already present)
-                                        }
+                    // Check here whether this email corresponds to an actual user id in order to
+                    // update the direct chat rooms map.
+                    if (ENABLE_PROXY_LOOKUP) {
+                        // Use the proxied lookup API
+                        TchapThirdPidRestClient tchapThirdPidRestClient = new TchapThirdPidRestClient(session.getHomeServerConfig());
+                        tchapThirdPidRestClient.lookup(key, ThreePid.MEDIUM_EMAIL, new ApiCallback<String>() {
+                            @Override
+                            public void onSuccess(final String mxId) {
+                                Log.i(LOG_TAG, "## getContactsFromDirectChats: lookup success");
 
-                                        private void onFails(final String errorMessage) {
-                                            Log.e(LOG_TAG, "## getContactsFromDirectChats() failed to update direct chat map " + errorMessage);
-                                        }
-
-                                        @Override
-                                        public void onNetworkError(Exception e) {
-                                            onFails(e.getLocalizedMessage());
-                                        }
-
-                                        @Override
-                                        public void onMatrixError(MatrixError e) {
-                                            onFails(e.getLocalizedMessage());
-                                        }
-
-                                        @Override
-                                        public void onUnexpectedError(Exception e) {
-                                            onFails(e.getLocalizedMessage());
-                                        }
-                                    });
+                                if (!TextUtils.isEmpty(mxId)) {
+                                    updateDirectChatRoomsOnDiscoveredUser(session, key, mxId);
                                 }
+                            }
 
-                                private void onFails(final String errorMessage) {
-                                    Log.e(LOG_TAG, "## getContactsFromDirectChats() failed to update direct chat map " + errorMessage);
-                                }
+                            private void onError(String errorMessage) {
+                                Log.e(LOG_TAG, "## getContactsFromDirectChats: lookup failed " + errorMessage);
+                            }
 
-                                @Override
-                                public void onNetworkError(Exception e) {
-                                    onFails(e.getLocalizedMessage());
-                                }
+                            @Override
+                            public void onNetworkError(Exception e) {
+                                onError(e.getMessage());
+                            }
 
-                                @Override
-                                public void onMatrixError(MatrixError e) {
-                                    onFails(e.getLocalizedMessage());
-                                }
+                            @Override
+                            public void onMatrixError(MatrixError e) {
+                                onError(e.getMessage());
+                            }
 
-                                @Override
-                                public void onUnexpectedError(Exception e) {
-                                    onFails(e.getLocalizedMessage());
-                                }
-                            });
+                            @Override
+                            public void onUnexpectedError(Exception e) {
+                                onError(e.getMessage());
+                            }
+                        });
+                    } else {
+                        // Use by default the local data of the PIDsRetriever.
+                        final Contact.MXID contactMxId = PIDsRetriever.getInstance().getMXID(key);
+                        if (null != contactMxId && contactMxId.mMatrixId.length() > 0) {
+                            updateDirectChatRoomsOnDiscoveredUser(session, key, contactMxId.mMatrixId);
                         }
                     }
                 }
@@ -971,5 +953,80 @@ public class DinsicUtils {
         }
 
         return participants;
+    }
+
+    /**
+     * Call this method when a user id is discovered for an email address present in the direct chat
+     * rooms mapping. The mapping is updated by replacing the email with the actual user id.
+     *
+     * @param session the current session
+     * @param email the email address to replace.
+     * @param userId the discovered matrix identifier.
+     */
+    private static void updateDirectChatRoomsOnDiscoveredUser(final MXSession session, final String email, final String userId) {
+        IMXStore store = session.getDataHandler().getStore();
+
+        // Check whether the direct chat rooms map was not already updated
+        if (!store.getDirectChatRoomsDict().containsKey(email)) {
+            Log.v(LOG_TAG, "## updateDirectChatRoomsOnDiscoveredUser() direct chat map has been already updated");
+            return;
+        }
+
+        // @TODO Add MXSession API to update the HashMap in one run.
+        List<String> roomIdsList = new ArrayList<>(store.getDirectChatRoomsDict().get(email));
+        for (final String roomId : roomIdsList) {
+            Log.i(LOG_TAG, "## updateDirectChatRoomsOnDiscoveredUser() " + roomId);
+            // Disable first the direct chat to set it on the right user id
+            session.toggleDirectChatRoom(roomId, null, new ApiCallback<Void>() {
+                @Override
+                public void onSuccess(Void info) {
+                    session.toggleDirectChatRoom(roomId, userId, new ApiCallback<Void>() {
+                        @Override
+                        public void onSuccess(Void info) {
+                            Log.i(LOG_TAG, "## updateDirectChatRoomsOnDiscoveredUser() succeeded to update direct chat map ");
+                            // @TODO we may add the resulting contact (but he may be already present)
+                        }
+
+                        private void onFails(final String errorMessage) {
+                            Log.e(LOG_TAG, "## updateDirectChatRoomsOnDiscoveredUser() failed to update direct chat map " + errorMessage);
+                        }
+
+                        @Override
+                        public void onNetworkError(Exception e) {
+                            onFails(e.getLocalizedMessage());
+                        }
+
+                        @Override
+                        public void onMatrixError(MatrixError e) {
+                            onFails(e.getLocalizedMessage());
+                        }
+
+                        @Override
+                        public void onUnexpectedError(Exception e) {
+                            onFails(e.getLocalizedMessage());
+                        }
+                    });
+                }
+
+                private void onFails(final String errorMessage) {
+                    Log.e(LOG_TAG, "## updateDirectChatRoomsOnDiscoveredUser() failed to update direct chat map " + errorMessage);
+                }
+
+                @Override
+                public void onNetworkError(Exception e) {
+                    onFails(e.getLocalizedMessage());
+                }
+
+                @Override
+                public void onMatrixError(MatrixError e) {
+                    onFails(e.getLocalizedMessage());
+                }
+
+                @Override
+                public void onUnexpectedError(Exception e) {
+                    onFails(e.getLocalizedMessage());
+                }
+            });
+        }
     }
 }

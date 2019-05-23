@@ -24,9 +24,9 @@ import im.vector.R
 import im.vector.notifications.NotificationUtils
 import org.matrix.androidsdk.MXSession
 import org.matrix.androidsdk.data.Room
-import org.matrix.androidsdk.rest.callback.ApiCallback
-import org.matrix.androidsdk.rest.model.MatrixError
-import org.matrix.androidsdk.util.Log
+import org.matrix.androidsdk.core.callback.ApiCallback
+import org.matrix.androidsdk.core.model.MatrixError
+import org.matrix.androidsdk.core.Log
 
 /**
  * JoinRoomActivity is a dummy activity to join / reject a room invitation

@@ -24,7 +24,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 
 import org.matrix.androidsdk.rest.model.group.Group;
-import org.matrix.androidsdk.util.Log;
+import org.matrix.androidsdk.core.Log;
 
 import android.util.Pair;
 import android.view.LayoutInflater;

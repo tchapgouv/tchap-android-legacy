@@ -19,11 +19,11 @@ package im.vector.webview
 import im.vector.Matrix
 import im.vector.activity.VectorAppCompatActivity
 import im.vector.util.weak
-import org.matrix.androidsdk.rest.callback.ApiCallback
-import org.matrix.androidsdk.rest.callback.SimpleApiCallback
-import org.matrix.androidsdk.rest.model.MatrixError
+import org.matrix.androidsdk.core.callback.ApiCallback
+import org.matrix.androidsdk.core.callback.SimpleApiCallback
+import org.matrix.androidsdk.core.model.MatrixError
 import org.matrix.androidsdk.rest.model.RoomMember
-import org.matrix.androidsdk.util.Log
+import org.matrix.androidsdk.core.Log
 
 private const val SUCCESS_URL_SUFFIX = "/_matrix/consent"
 private const val RIOT_BOT_ID = "@riot-bot:matrix.org"

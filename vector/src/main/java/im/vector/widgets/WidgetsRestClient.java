@@ -19,7 +19,7 @@ package im.vector.widgets;
 import android.content.Context;
 
 import org.matrix.androidsdk.RestClient;
-import org.matrix.androidsdk.rest.callback.ApiCallback;
+import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.rest.callback.RestAdapterCallback;
 
 import java.util.Map;

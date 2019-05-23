@@ -246,7 +246,7 @@ dependencies {
     implementation 'androidx.core:core-ktx:0.3'
 
     // Kotlin coroutines
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.30.2'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.1'
 
     implementation 'com.android.support:multidex:1.0.0'
 
@@ -285,32 +285,24 @@ dependencies {
 
     /************* Matrix SDK management **************/
     // update settings.gradle
-    // use the matrix SDK as external lib
+    // use the matrix SDK as external libs
     implementation(name: 'matrix-sdk', ext: 'aar')
+    implementation(name: 'matrix-sdk-core', ext: 'aar')
+    implementation(name: 'matrix-sdk-crypto', ext: 'aar')
+    implementation(name: 'olm-sdk', ext: 'aar')
+    // use the matrix SDK as external dependency
+    //implementation 'com.github.matrix-org:matrix-android-sdk:v0.9.23'
     // use the matrix SDK as a sub project
     // you have to uncomment some lines in settings.gradle
     //implementation project(':matrix-sdk')
-    implementation(name: 'olm-sdk', ext: 'aar')
+    //implementation project(':matrix-sdk-crypto')
+    //implementation project(':matrix-sdk-core')
 
     /************* jitsi **************/
-    withvoipImplementation 'javax.inject:javax.inject:1'
-
-    withvoipImplementation 'com.facebook.fbui.textlayoutbuilder:textlayoutbuilder:1.0.0'
-    withvoipImplementation 'com.facebook.fresco:fresco:1.3.0'
-    withvoipImplementation 'com.facebook.fresco:imagepipeline-okhttp3:1.3.0'
-    withvoipImplementation 'com.facebook.soloader:soloader:0.1.0'
-    withvoipImplementation 'com.google.code.findbugs:jsr305:3.0.0'
-    withvoipImplementation 'org.webkit:android-jsc:r174650'
-
-    withvoipImplementation(name: 'jitsi-sdk', ext: 'aar')
-    withvoipImplementation(name: 'react-native-background-timer', ext: 'aar')
-    withvoipImplementation(name: 'react-native-fetch-blob', ext: 'aar')
-    withvoipImplementation(name: 'react-native-immersive', ext: 'aar')
-    withvoipImplementation(name: 'react-native-keep-awake', ext: 'aar')
-    withvoipImplementation(name: 'react-native-vector-icons', ext: 'aar')
-    withvoipImplementation(name: 'react-native-webrtc', ext: 'aar')
-    withvoipImplementation(name: 'react-native', ext: 'aar')
-    withvoipImplementation(name: 'react-native-locale-detector', ext: 'aar')
+    withvoipImplementation('org.jitsi.react:jitsi-meet-sdk:2.0.0@aar') {
+        transitive = true
+        exclude group: 'com.amplitude', module: 'android-sdk'
+    }
 
     // another tracking than GA
     implementation 'org.piwik.sdk:piwik-sdk:2.0.0'
@@ -318,8 +310,11 @@ dependencies {
     /************* flavors management **************/
 
     // app flavor only
-    appImplementation 'com.google.firebase:firebase-core:16.0.4'
-    appImplementation 'com.google.firebase:firebase-messaging:17.3.4'
+    appImplementation('com.google.firebase:firebase-messaging:17.4.0') {
+        exclude group: 'com.google.firebase', module: 'firebase-core'
+        exclude group: 'com.google.firebase', module: 'firebase-analytics'
+        exclude group: 'com.google.firebase', module: 'firebase-measurement-connector'
+    }
 
     // fdroid flavor only
 

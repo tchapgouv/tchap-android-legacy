@@ -226,59 +226,6 @@
                             android:textColor="@color/default_text_light_color_dark"
                             android:textSize="13sp" />
                     </RelativeLayout>
-
-                    <RelativeLayout
-                        android:id="@+id/rly_reduced_privacy_notifications"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@id/rly_low_detail_notifications">
-
-                        <RadioButton
-                            android:id="@+id/rb_notification_reduce_privacy"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentStart="true"
-                            android:layout_alignParentLeft="true"
-                            android:layout_marginStart="3dp"
-                            android:layout_marginLeft="3dp"
-                            android:layout_marginTop="15dp"
-                            android:clickable="false" />
-
-                        <TextView
-                            android:id="@+id/tv_notification_reduce_privacy"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentStart="true"
-                            android:layout_alignParentLeft="true"
-                            android:layout_marginStart="40dp"
-                            android:layout_marginLeft="40dp"
-                            android:layout_marginTop="17dp"
-                            android:text="@string/settings_notification_privacy_reduced"
-                            android:textSize="20sp" />
-
-                        <TextView
-                            android:id="@+id/tv_notifications_fcm_reduced"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@+id/tv_notification_reduce_privacy"
-                            android:layout_alignStart="@+id/tv_notification_reduce_privacy"
-                            android:layout_alignLeft="@+id/tv_notification_reduce_privacy"
-                            android:layout_marginTop="3dp"
-                            android:text="@string/settings_notification_privacy_fcm"
-                            android:textColor="@color/default_text_light_color_dark"
-                            android:textSize="13sp" />
-
-                        <TextView
-                            android:id="@+id/tv_notifications_metadata_reduced"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@+id/tv_notifications_fcm_reduced"
-                            android:layout_alignStart="@+id/tv_notification_reduce_privacy"
-                            android:layout_alignLeft="@+id/tv_notification_reduce_privacy"
-                            android:text="@string/settings_notification_privacy_nosecure_message_content"
-                            android:textColor="@color/default_text_light_color_dark"
-                            android:textSize="13sp" />
-                    </RelativeLayout>
                 </RelativeLayout>
             </LinearLayout>
         </ScrollView>
