@@ -22,12 +22,12 @@ import android.support.annotation.StringRes;
 import android.text.TextUtils;
 
 import org.matrix.androidsdk.HomeServerConnectionConfig;
-import org.matrix.androidsdk.rest.callback.ApiCallback;
-import org.matrix.androidsdk.rest.callback.SuccessCallback;
+import org.matrix.androidsdk.core.callback.ApiCallback;
+import org.matrix.androidsdk.core.callback.SuccessCallback;
 import org.matrix.androidsdk.rest.client.LoginRestClient;
 import org.matrix.androidsdk.rest.client.ProfileRestClient;
 import org.matrix.androidsdk.rest.client.ThirdPidRestClient;
-import org.matrix.androidsdk.rest.model.MatrixError;
+import org.matrix.androidsdk.core.model.MatrixError;
 import org.matrix.androidsdk.rest.model.login.AuthParams;
 import org.matrix.androidsdk.rest.model.login.AuthParamsCaptcha;
 import org.matrix.androidsdk.rest.model.login.AuthParamsThreePid;
@@ -38,8 +38,8 @@ import org.matrix.androidsdk.rest.model.pid.ThreePid;
 import org.matrix.androidsdk.ssl.CertUtil;
 import org.matrix.androidsdk.ssl.Fingerprint;
 import org.matrix.androidsdk.ssl.UnrecognizedCertificateException;
-import org.matrix.androidsdk.util.JsonUtils;
-import org.matrix.androidsdk.util.Log;
+import org.matrix.androidsdk.core.JsonUtils;
+import org.matrix.androidsdk.core.Log;
 
 import java.util.Map;
 

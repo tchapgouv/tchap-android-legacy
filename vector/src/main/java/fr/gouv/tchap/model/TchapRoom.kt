@@ -32,7 +32,7 @@ data class TchapRoom (
     }
 
     fun getSummary(): TchapRoomSummary? {
-        session.dataHandler.getStore().getSummary(room.roomId)?.let {
+        session.dataHandler.store.getSummary(room.roomId)?.let {
             return TchapRoomSummary(it, session, isProtected)
         }
 

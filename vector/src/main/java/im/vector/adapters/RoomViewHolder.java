@@ -28,14 +28,14 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.matrix.androidsdk.MXPatterns;
+import org.matrix.androidsdk.core.MXPatterns;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomSummary;
 import org.matrix.androidsdk.data.RoomTag;
 import org.matrix.androidsdk.data.store.IMXStore;
-import org.matrix.androidsdk.util.BingRulesManager;
-import org.matrix.androidsdk.util.Log;
+import org.matrix.androidsdk.core.BingRulesManager;
+import org.matrix.androidsdk.core.Log;
 import java.util.Set;
 
 import butterknife.BindView;

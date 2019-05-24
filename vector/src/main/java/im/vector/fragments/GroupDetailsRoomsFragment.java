@@ -29,7 +29,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;
 
-import org.matrix.androidsdk.rest.callback.SuccessCallback;
+import org.matrix.androidsdk.core.callback.SuccessCallback;
 import org.matrix.androidsdk.rest.model.group.GroupRoom;
 
 import butterknife.BindView;

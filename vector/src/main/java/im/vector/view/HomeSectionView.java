@@ -31,7 +31,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import org.matrix.androidsdk.data.Room;
-import org.matrix.androidsdk.util.Log;
+import org.matrix.androidsdk.core.Log;
 
 import java.util.List;
 

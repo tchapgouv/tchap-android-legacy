@@ -27,7 +27,7 @@ import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
-import org.matrix.androidsdk.util.Log;
+import org.matrix.androidsdk.core.Log;
 
 import java.io.File;
 import java.util.Arrays;
@@ -35,7 +35,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import im.vector.Matrix;
 import im.vector.R;
+import im.vector.push.PushManager;
 import im.vector.repositories.ServerUrlsRepository;
 import im.vector.ui.themes.ThemeUtils;
 
@@ -281,6 +283,18 @@ public class PreferencesManager {
         PreferenceManager.getDefaultSharedPreferences(context)
                 .edit()
                 .putBoolean(DID_ASK_TO_IGNORE_BATTERY_OPTIMIZATIONS_KEY, true)
+                .apply();
+    }
+
+    /**
+     * Enable again the question to disable battery optimisations.
+     *
+     * @param context the context
+     */
+    public static void resetDidAskUserToIgnoreBatteryOptimizations(Context context) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(DID_ASK_TO_IGNORE_BATTERY_OPTIMIZATIONS_KEY, false)
                 .apply();
     }
 
@@ -585,7 +599,16 @@ public class PreferencesManager {
      * Fix some migration issues
      */
     public static void fixMigrationIssues(Context context) {
-        // There is no migration issue for the moment in Tchap.
+        // Notification Privacy: the REDUCED privacy mode is removed in Tchap.
+        final PushManager pushManager = Matrix.getInstance(context).getPushManager();
+        PushManager.NotificationPrivacy notificationPrivacy = pushManager.getNotificationPrivacy();
+        if (notificationPrivacy == PushManager.NotificationPrivacy.REDUCED) {
+            // We fallback to the LOW_DETAIL mode by default
+            pushManager.setNotificationPrivacy(PushManager.NotificationPrivacy.LOW_DETAIL, null);
+            // and reset the "IgnoreBatteryOptimization" to invite again the user to use the NORMAL
+            // mode on VectorHomeActivity resume.
+            PreferencesManager.resetDidAskUserToIgnoreBatteryOptimizations(context);
+        }
     }
 
     /**

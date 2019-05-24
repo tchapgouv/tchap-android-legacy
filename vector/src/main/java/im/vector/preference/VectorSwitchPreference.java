@@ -26,7 +26,7 @@ import android.view.ViewGroup;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import org.matrix.androidsdk.util.Log;
+import org.matrix.androidsdk.core.Log;
 
 import im.vector.R;
 

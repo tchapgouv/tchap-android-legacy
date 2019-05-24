@@ -28,8 +28,8 @@ import android.widget.TextView;
 
 import org.matrix.androidsdk.data.RoomSummary;
 import org.matrix.androidsdk.rest.model.Event;
-import org.matrix.androidsdk.util.EventDisplay;
-import org.matrix.androidsdk.util.Log;
+import org.matrix.androidsdk.core.EventDisplay;
+import org.matrix.androidsdk.core.Log;
 
 import fr.gouv.tchap.model.TchapRoom;
 import fr.gouv.tchap.model.TchapSession;

@@ -24,8 +24,8 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 
 import org.jetbrains.annotations.NotNull;
-import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
-import org.matrix.androidsdk.rest.model.MatrixError;
+import org.matrix.androidsdk.core.callback.SimpleApiCallback;
+import org.matrix.androidsdk.core.model.MatrixError;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -61,8 +61,8 @@ public class NotificationPrivacyActivity extends VectorAppCompatActivity {
     @BindView(R.id.rb_notification_low_detail)
     RadioButton rbPrivacyLowDetail;
 
-    @BindView(R.id.rb_notification_reduce_privacy)
-    RadioButton rbPrivacyReduced;
+//    @BindView(R.id.rb_notification_reduce_privacy)
+//    RadioButton rbPrivacyReduced;
 
     /* ==========================================================================================
      * LifeCycle
@@ -131,10 +131,10 @@ public class NotificationPrivacyActivity extends VectorAppCompatActivity {
         updateNotificationPrivacy(PushManager.NotificationPrivacy.LOW_DETAIL);
     }
 
-    @OnClick(R.id.rly_reduced_privacy_notifications)
-    void onReducedPrivacyClick() {
-        updateNotificationPrivacy(PushManager.NotificationPrivacy.REDUCED);
-    }
+//    @OnClick(R.id.rly_reduced_privacy_notifications)
+//    void onReducedPrivacyClick() {
+//        updateNotificationPrivacy(PushManager.NotificationPrivacy.REDUCED);
+//    }
 
     /* ==========================================================================================
      * Private
@@ -159,7 +159,7 @@ public class NotificationPrivacyActivity extends VectorAppCompatActivity {
 
         rbPrivacyNormal.setChecked(notificationPrivacy == PushManager.NotificationPrivacy.NORMAL);
         rbPrivacyLowDetail.setChecked(notificationPrivacy == PushManager.NotificationPrivacy.LOW_DETAIL);
-        rbPrivacyReduced.setChecked(notificationPrivacy == PushManager.NotificationPrivacy.REDUCED);
+//        rbPrivacyReduced.setChecked(notificationPrivacy == PushManager.NotificationPrivacy.REDUCED);
     }
 
     private void doSetNotificationPrivacy(PushManager.NotificationPrivacy notificationPrivacy) {

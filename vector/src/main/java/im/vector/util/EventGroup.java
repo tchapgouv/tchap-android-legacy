@@ -23,7 +23,7 @@ import android.text.TextUtils;
 import org.matrix.androidsdk.adapters.MessageRow;
 import org.matrix.androidsdk.call.MXCallsManager;
 import org.matrix.androidsdk.rest.model.Event;
-import org.matrix.androidsdk.util.Log;
+import org.matrix.androidsdk.core.Log;
 
 import java.util.ArrayList;
 import java.util.Date;

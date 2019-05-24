@@ -35,7 +35,7 @@ import org.matrix.androidsdk.call.IMXCallsManagerListener;
 import org.matrix.androidsdk.call.MXCallsManager;
 import org.matrix.androidsdk.call.MXCallsManagerListener;
 import org.matrix.androidsdk.data.Room;
-import org.matrix.androidsdk.util.Log;
+import org.matrix.androidsdk.core.Log;
 
 import java.util.List;
 

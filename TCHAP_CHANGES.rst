@@ -1,3 +1,12 @@
+Changes in Tchap 1.0.25 (2019-05-23)
+===================================================
+
+Improvements:
+ * Push notifications: remove the option "confidentialité réduite" #466
+ * Retrait du firebase analytics #468
+ * Support proxy lookup #471
+ * Update matrix-sdk.aar libs - Revision: 21569865d463481ac656b6eb06f62494ff9f6412 [21569865] PR #472
+
 Changes in Tchap 1.0.24 (2019-05-03)
 ===================================================
 

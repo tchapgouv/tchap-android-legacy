@@ -36,7 +36,7 @@ import android.widget.Toast;
 
 import org.matrix.androidsdk.fragments.MatrixMessageListFragment;
 import org.matrix.androidsdk.listeners.MXEventListener;
-import org.matrix.androidsdk.util.Log;
+import org.matrix.androidsdk.core.Log;
 import org.matrix.androidsdk.data.Room;
 
 import java.util.List;

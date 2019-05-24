@@ -20,7 +20,7 @@ import fr.gouv.tchap.model.TchapSession
 import org.matrix.androidsdk.MXSession
 import org.matrix.androidsdk.data.Room
 import org.matrix.androidsdk.data.RoomTag
-import org.matrix.androidsdk.util.Log
+import org.matrix.androidsdk.core.Log
 
 /**
  * This class is responsible for filtering and ranking rooms whenever there is a need to update in the context of the HomeScreens
@@ -126,7 +126,11 @@ class HomeRoomsViewModel(private val tchapSession: TchapSession) {
                 .filter {
                     val isJoined = it.isJoined
                     val tombstoneContent = it.state.roomTombstoneContent
-                    val redirectRoom = session.dataHandler.getRoom(tombstoneContent?.replacementRoom)
+                    val redirectRoom = if (tombstoneContent?.replacementRoom != null) {
+                        session.dataHandler.getRoom(tombstoneContent.replacementRoom)
+                    } else {
+                        null
+                    }
                     val isVersioned = redirectRoom?.isJoined
                             ?: false
                     isJoined && !isVersioned && !it.isConferenceUserRoom

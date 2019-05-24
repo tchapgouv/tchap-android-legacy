@@ -17,8 +17,8 @@ package fr.gouv.tchap.sdk.rest.client;
 
 import org.matrix.androidsdk.HomeServerConnectionConfig;
 import org.matrix.androidsdk.RestClient;
-import org.matrix.androidsdk.rest.callback.ApiCallback;
-import org.matrix.androidsdk.rest.callback.DefaultRetrofit2CallbackWrapper;
+import org.matrix.androidsdk.core.callback.ApiCallback;
+import org.matrix.androidsdk.core.rest.DefaultRetrofit2CallbackWrapper;
 
 import fr.gouv.tchap.sdk.rest.api.TchapApi;
 import fr.gouv.tchap.sdk.rest.model.Platform;

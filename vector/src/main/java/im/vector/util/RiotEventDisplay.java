@@ -28,9 +28,9 @@ import org.matrix.androidsdk.data.RoomState;
 import org.matrix.androidsdk.interfaces.HtmlToolbox;
 import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.rest.model.EventContent;
-import org.matrix.androidsdk.util.EventDisplay;
-import org.matrix.androidsdk.util.JsonUtils;
-import org.matrix.androidsdk.util.Log;
+import org.matrix.androidsdk.core.EventDisplay;
+import org.matrix.androidsdk.core.JsonUtils;
+import org.matrix.androidsdk.core.Log;
 
 import java.util.Arrays;
 import java.util.HashMap;

@@ -33,11 +33,11 @@ import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 
 import org.matrix.androidsdk.MXSession;
-import org.matrix.androidsdk.listeners.IMXNetworkEventListener;
-import org.matrix.androidsdk.rest.callback.ApiCallback;
-import org.matrix.androidsdk.rest.model.MatrixError;
+import org.matrix.androidsdk.core.listeners.IMXNetworkEventListener;
+import org.matrix.androidsdk.core.callback.ApiCallback;
+import org.matrix.androidsdk.core.model.MatrixError;
 import org.matrix.androidsdk.rest.model.User;
-import org.matrix.androidsdk.util.Log;
+import org.matrix.androidsdk.core.Log;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -17,8 +17,8 @@ package fr.gouv.tchap.model
 
 import android.content.Context
 import org.matrix.androidsdk.MXSession
-import org.matrix.androidsdk.rest.callback.ApiCallback
-import org.matrix.androidsdk.rest.model.MatrixError
+import org.matrix.androidsdk.core.callback.ApiCallback
+import org.matrix.androidsdk.core.model.MatrixError
 
 data class TchapSession(
         val config: TchapConnectionConfig,
@@ -65,12 +65,12 @@ data class TchapSession(
     }
 
     fun getSummary(roomId: String): TchapRoomSummary? {
-        mainSession.dataHandler.getStore().getSummary(roomId)?.let {
+        mainSession.dataHandler.store.getSummary(roomId)?.let {
             return TchapRoomSummary(it, mainSession, config.hasProtectedAccess)
         }
 
         shadowSession?.let {
-            it.dataHandler.getStore().getSummary(roomId)?.let {
+            it.dataHandler.store.getSummary(roomId)?.let {
                 return TchapRoomSummary(it, shadowSession)
             }
         }

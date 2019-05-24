@@ -24,7 +24,7 @@ import android.view.View
 import butterknife.ButterKnife
 import butterknife.Unbinder
 import im.vector.activity.VectorAppCompatActivity
-import org.matrix.androidsdk.util.Log
+import org.matrix.androidsdk.core.Log
 
 
 /**

@@ -37,13 +37,13 @@ import android.widget.Toast;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.RoomState;
 import org.matrix.androidsdk.listeners.MXMediaUploadListener;
-import org.matrix.androidsdk.rest.callback.ApiCallback;
-import org.matrix.androidsdk.rest.callback.SimpleApiCallback;
+import org.matrix.androidsdk.core.callback.ApiCallback;
+import org.matrix.androidsdk.core.callback.SimpleApiCallback;
 import org.matrix.androidsdk.rest.model.CreateRoomParams;
-import org.matrix.androidsdk.rest.model.MatrixError;
+import org.matrix.androidsdk.core.model.MatrixError;
 import org.matrix.androidsdk.rest.model.RoomDirectoryVisibility;
-import org.matrix.androidsdk.util.Log;
-import org.matrix.androidsdk.util.ResourceUtils;
+import org.matrix.androidsdk.core.Log;
+import org.matrix.androidsdk.core.ResourceUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;

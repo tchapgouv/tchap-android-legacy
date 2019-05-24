@@ -24,3 +24,6 @@ const val ENABLE_MULTI_ACCOUNTS_FEATURE = false // To be removed when true
 
 // Define here the version used to tag the current Tchap config
 fun TchapConnectionConfig.Companion.currentVersion() = 0
+
+// Enable here the proxied lookup API use
+const val ENABLE_PROXY_LOOKUP = false
