@@ -192,7 +192,7 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
             vRoomUnreadCount.setVisibility(View.GONE);
         }
 
-        String displayName = room.getRoomDisplayName(context);
+        String displayName = DinsicUtils.getRoomDisplayName(context, room);
         String roomName = DinsicUtils.getNameFromDisplayName(displayName);
 
         if (null != vRoomDomain) {

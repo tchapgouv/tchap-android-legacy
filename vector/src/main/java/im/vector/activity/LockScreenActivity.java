@@ -42,6 +42,7 @@ import org.matrix.androidsdk.core.model.MatrixError;
 import org.matrix.androidsdk.rest.model.message.Message;
 import org.matrix.androidsdk.core.Log;
 
+import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.Matrix;
 import im.vector.R;
 import im.vector.notifications.NotificationUtils;
@@ -127,7 +128,7 @@ public class LockScreenActivity extends VectorAppCompatActivity { // do NOT exte
         final Room room = session.getDataHandler().getRoom(roomId);
 
         // display the room name as title
-        String roomName = room.getRoomDisplayName(this);
+        String roomName = DinsicUtils.getRoomDisplayName(this, room);
         setTitle(roomName);
 
         ((TextView) findViewById(R.id.lock_screen_sender)).setText(getString(R.string.generic_label, intent.getStringExtra(EXTRA_SENDER_NAME)));

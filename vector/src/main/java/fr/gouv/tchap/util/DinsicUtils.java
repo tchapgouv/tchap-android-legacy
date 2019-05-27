@@ -29,6 +29,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
@@ -40,6 +41,7 @@ import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomEmailInvitation;
 import org.matrix.androidsdk.data.RoomPreviewData;
+import org.matrix.androidsdk.data.RoomState;
 import org.matrix.androidsdk.data.RoomTag;
 import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.core.callback.ApiCallback;
@@ -851,6 +853,39 @@ public class DinsicUtils {
                 return getRoomsDateComparator().compare(room1, room2);
             }
         };
+    }
+
+    /**
+     * Compute the room display name.
+     * Tchap client handles the display name of the direct chats with a different manner than the SDK one.
+     *
+     * @param context the application context.
+     * @param room    the room.
+     * @return the room display name.
+     */
+    @NonNull
+    public static String getRoomDisplayName(Context context, @NonNull Room room) {
+        // Retrieve the room display name without forcing a default one.
+        String displayName = room.getRoomDisplayName(context, null);
+        if (TextUtils.isEmpty(displayName)) {
+            // Set the default display name.
+            displayName = context.getString(R.string.room_displayname_empty_room);
+
+            // Tchap - The display name of a direct chat must be the other member name
+            // even if the member has left the room.
+            if (room.isDirect()) {
+                RoomState roomState = room.getState();
+                Collection<RoomMember> members = roomState.getDisplayableLoadedMembers();
+                for (RoomMember member : members) {
+                    if (!TextUtils.equals(member.getUserId(), room.getDataHandler().getUserId())) {
+                        displayName = member.getName();
+                        break;
+                    }
+                }
+            }
+        }
+
+        return displayName;
     }
 
     /* get contacts from direct chats */

@@ -61,6 +61,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.Matrix;
 import im.vector.R;
 import im.vector.VectorApp;
@@ -1642,7 +1643,7 @@ public class EventStreamService extends Service {
     public void displayCallInProgressNotification(MXSession session, Room room, String callId) {
         if (null != callId) {
             Notification notification = NotificationUtils.INSTANCE.buildPendingCallNotification(getApplicationContext(),
-                    room.getRoomDisplayName(this), room.getRoomId(), session.getCredentials().userId, callId);
+                    DinsicUtils.getRoomDisplayName(this, room), room.getRoomId(), session.getCredentials().userId, callId);
             setForegroundNotificationState(ForegroundNotificationState.CALL_IN_PROGRESS, notification);
             mCallIdInProgress = callId;
         }

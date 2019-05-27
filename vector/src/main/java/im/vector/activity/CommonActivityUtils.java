@@ -75,6 +75,7 @@ import java.util.List;
 import java.util.Map;
 
 import fr.gouv.tchap.activity.TchapLoginActivity;
+import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.Matrix;
 import im.vector.MyPresenceManager;
 import im.vector.R;
@@ -835,7 +836,7 @@ public class CommonActivityUtils {
                                 Room room = finalSession.getDataHandler().getRoom((String) params.get(VectorRoomActivity.EXTRA_ROOM_ID));
 
                                 if ((null != room) && room.isInvited()) {
-                                    String displayName = room.getRoomDisplayName(fromActivity);
+                                    String displayName = DinsicUtils.getRoomDisplayName(fromActivity, room);
 
                                     if (null != displayName) {
                                         intent.putExtra(VectorRoomActivity.EXTRA_DEFAULT_NAME, displayName);
