@@ -33,6 +33,7 @@ import org.matrix.androidsdk.data.Room;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.R;
 import im.vector.activity.VectorMemberDetailsActivity;
 import im.vector.ui.themes.ThemeUtils;
@@ -366,7 +367,7 @@ public class VectorMemberDetailsAdapter extends BaseExpandableListAdapter {
         if (null != currentItem.mRoom) {
             // room name
             viewHolder.mActionDescTextView.setTextColor(ThemeUtils.INSTANCE.getColor(mContext, R.attr.vctr_riot_primary_text_color));
-            viewHolder.mActionDescTextView.setText(currentItem.mRoom.getRoomDisplayName(mContext));
+            viewHolder.mActionDescTextView.setText(DinsicUtils.getRoomDisplayName(mContext, currentItem.mRoom));
 
             // room avatar
             viewHolder.mActionImageView.setVisibility(View.GONE);

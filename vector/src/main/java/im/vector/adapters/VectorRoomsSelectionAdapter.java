@@ -33,6 +33,7 @@ import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.core.EventDisplay;
 import org.matrix.androidsdk.core.Log;
 
+import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.R;
 import im.vector.ui.themes.ThemeUtils;
 import im.vector.util.RiotEventDisplay;
@@ -129,7 +130,7 @@ public class VectorRoomsSelectionAdapter extends ArrayAdapter<RoomSummary> {
         Room room = mSession.getDataHandler().getRoom(roomSummary.getRoomId());
         if (room != null) {
             // display the room name
-            String roomName = room.getRoomDisplayName(mContext);
+            String roomName = DinsicUtils.getRoomDisplayName(mContext, room);
             roomNameTxtView.setText(roomName);
         } else {
             roomNameTxtView.setText(null);

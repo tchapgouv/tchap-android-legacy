@@ -43,6 +43,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.Matrix;
 import im.vector.R;
 import im.vector.VectorApp;
@@ -621,7 +622,7 @@ public class RoomsNotifications implements Parcelable {
      * @return the room name
      */
     public static String getRoomName(Context context, MXSession session, Room room, Event event) {
-        String roomName = room.getRoomDisplayName(context);
+        String roomName = DinsicUtils.getRoomDisplayName(context, room);
 
         // avoid displaying the room Id
         // try to find the sender display name

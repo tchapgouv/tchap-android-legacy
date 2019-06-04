@@ -35,6 +35,7 @@ import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.core.EventDisplay;
 import org.matrix.androidsdk.core.Log;
 
+import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.R;
 import im.vector.util.RiotEventDisplay;
 import im.vector.util.VectorUtils;
@@ -152,7 +153,7 @@ public class VectorSearchMessagesListAdapter extends VectorMessagesAdapter {
             if (mDisplayRoomName) {
                 TextView roomTextView = convertView.findViewById(R.id.messagesAdapter_message_room_name_textview);
                 if (room != null) {
-                    roomTextView.setText(room.getRoomDisplayName(mContext));
+                    roomTextView.setText(DinsicUtils.getRoomDisplayName(mContext, room));
                 } else {
                     roomTextView.setText(null);
                 }

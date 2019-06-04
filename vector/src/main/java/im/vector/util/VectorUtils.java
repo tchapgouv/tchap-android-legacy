@@ -139,7 +139,7 @@ public class VectorUtils {
                 }
             });
         } else {
-            callback.onSuccess(room.getRoomDisplayName(context));
+            callback.onSuccess(DinsicUtils.getRoomDisplayName(context, room));
         }
     }
 
@@ -333,7 +333,7 @@ public class VectorUtils {
     public static void loadRoomAvatar(Context context, MXSession session, ImageView imageView, Room room) {
         if (null != room) {
             VectorUtils.loadUserAvatar(context,
-                    session, imageView, room.getAvatarUrl(), room.getRoomId(), room.getRoomDisplayName(context));
+                    session, imageView, room.getAvatarUrl(), room.getRoomId(), DinsicUtils.getRoomDisplayName(context, room));
         }
     }
 
@@ -383,7 +383,7 @@ public class VectorUtils {
 
             String callAvatarUrl = room.getCallAvatarUrl();
             String roomId = room.getRoomId();
-            String displayName = room.getRoomDisplayName(context);
+            String displayName = DinsicUtils.getRoomDisplayName(context, room);
             int pixelsSide = imageView.getLayoutParams().width;
 
             // when size < 0, it means that the render graph must compute it

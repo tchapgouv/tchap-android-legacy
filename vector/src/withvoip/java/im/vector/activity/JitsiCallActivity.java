@@ -152,7 +152,7 @@ public class JitsiCallActivity extends VectorAppCompatActivity implements JitsiM
             JitsiMeetConferenceOptions jitsiMeetConferenceOptions = new JitsiMeetConferenceOptions.Builder()
                     .setVideoMuted(!mIsVideoCall)
                     // Configure the title of the screen
-                    // TODO config.putString("callDisplayName", mRoom.getRoomDisplayName(this));
+                    // TODO config.putString("callDisplayName", DinsicUtils.getRoomDisplayName(this, mRoom));
                     .setRoom(mCallUrl)
                     .build();
 

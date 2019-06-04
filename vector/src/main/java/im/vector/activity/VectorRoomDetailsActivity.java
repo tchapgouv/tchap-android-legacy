@@ -495,7 +495,7 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
     private void setRoomTitle() {
         String titleToApply = "";
         if ((null != mSession) && (null != mRoom)) {
-            titleToApply = mRoom.getRoomDisplayName(this);
+            titleToApply = DinsicUtils.getRoomDisplayName(this, mRoom);
             titleToApply = DinsicUtils.getNameFromDisplayName(titleToApply);
         }
 

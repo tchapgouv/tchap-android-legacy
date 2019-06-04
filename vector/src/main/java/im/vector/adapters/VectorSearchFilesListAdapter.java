@@ -40,6 +40,7 @@ import org.matrix.androidsdk.core.JsonUtils;
 
 import fr.gouv.tchap.media.AntiVirusScanStatus;
 import fr.gouv.tchap.model.MediaScan;
+import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.R;
 import im.vector.util.VectorUtils;
 
@@ -221,7 +222,7 @@ public class VectorSearchFilesListAdapter extends VectorMessagesAdapter {
             Room room = mSession.getDataHandler().getStore().getRoom(event.roomId);
 
             if (null != room) {
-                info += room.getRoomDisplayName(mContext);
+                info += DinsicUtils.getRoomDisplayName(mContext, room);
                 info += " - ";
             }
         }
