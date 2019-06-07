@@ -96,7 +96,7 @@ class VectorReadReceiptsDialogFragment : VectorBaseDialogFragment<VectorReadRece
     }
 
     companion object {
-        private val LOG_TAG = VectorPublicRoomsListFragment::class.java.simpleName
+        private val LOG_TAG = VectorReadReceiptsDialogFragment::class.java.simpleName
 
         private const val ARG_ROOM_ID = "VectorReadReceiptsDialogFragment.ARG_ROOM_ID"
         private const val ARG_EVENT_ID = "VectorReadReceiptsDialogFragment.ARG_EVENT_ID"
