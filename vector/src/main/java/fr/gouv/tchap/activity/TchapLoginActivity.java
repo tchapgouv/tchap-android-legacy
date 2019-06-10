@@ -1698,7 +1698,10 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         mEmailValidationExtraParams = null;
         Log.e(LOG_TAG, "## onRegistrationFailed(): " + message);
         fallbackToRegistrationMode();
-        Toast.makeText(this, R.string.login_error_unable_register, Toast.LENGTH_LONG).show();
+        if (message.length() == 0) {
+            message = getString(R.string.login_error_unable_register);
+        }
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 
     @Override

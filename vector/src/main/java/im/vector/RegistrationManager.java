@@ -60,7 +60,6 @@ public class RegistrationManager {
     private static volatile RegistrationManager sInstance;
 
     private static final String ERROR_MISSING_STAGE = "ERROR_MISSING_STAGE";
-    private static final String ERROR_EMPTY_USER_ID = "ERROR_EMPTY_USER_ID";
 
     // JSON keys used for registration request
     private static final String JSON_KEY_CLIENT_SECRET = "client_secret";
@@ -200,10 +199,10 @@ public class RegistrationManager {
                                 // The session id for the email validation has just been received.
                                 // We trigger here a new registration request without delay to attach the current username
                                 // and the pwd to the registration session.
+                                // If there is no error related to the username or the pwd, this request
+                                // should fail on UNAUTHORIZED error because the email will not be validated yet.
+                                // We will then notify the listener to wait for the email validation.
                                 attemptRegistration(context, listener);
-
-                                // Notify the listener to wait for the email validation
-                                listener.onWaitingEmailValidation();
                             } else {
                                 listener.onThreePidRequestFailed(context.getString(R.string.tchap_error_message_default));
                             }
@@ -266,14 +265,25 @@ public class RegistrationManager {
                 }
 
                 @Override
+                public void onWaitingEmailValidation() {
+                    // Notify the listener to wait for the email validation.
+                    listener.onWaitingEmailValidation();
+                }
+
+                @Override
                 public void onRegistrationFailed(String message) {
-                    if (TextUtils.equals(ERROR_MISSING_STAGE, message)
-                            && (mPhoneNumber == null || isCompleted(LoginRestClient.LOGIN_FLOW_TYPE_MSISDN))) {
-                        if (mEmail != null && !isCompleted(LoginRestClient.LOGIN_FLOW_TYPE_EMAIL_IDENTITY)) {
-                            attemptRegistration(context, listener);
+                    if (TextUtils.equals(ERROR_MISSING_STAGE, message)) {
+                        if (mPhoneNumber == null || isCompleted(LoginRestClient.LOGIN_FLOW_TYPE_MSISDN)) {
+                            if (mEmail != null && !isCompleted(LoginRestClient.LOGIN_FLOW_TYPE_EMAIL_IDENTITY)) {
+                                attemptRegistration(context, listener);
+                            } else {
+                                // At this point, only captcha can be the missing stage
+                                listener.onWaitingCaptcha();
+                            }
                         } else {
-                            // At this point, only captcha can be the missing stage
-                            listener.onWaitingCaptcha();
+                            // Registration failed for unexpected reason.
+                            // This case could not happen in Tchap because the phone number is not used for the moment.
+                            listener.onRegistrationFailed("");
                         }
                     } else {
                         listener.onRegistrationFailed(message);
@@ -287,7 +297,8 @@ public class RegistrationManager {
             });
         } else {
             // TODO Report this fix in Riot
-            listener.onRegistrationFailed("mRegistrationResponse is null or session is null");
+            Log.e(LOG_TAG, "## attemptRegistration(): mRegistrationResponse is null or session is null");
+            listener.onRegistrationFailed("");
         }
     }
 
@@ -327,6 +338,11 @@ public class RegistrationManager {
             @Override
             public void onRegistrationSuccess() {
                 listener.onRegistrationSuccess(null);
+            }
+
+            @Override
+            public void onWaitingEmailValidation() {
+                // Should not happen. do nothing
             }
 
             @Override
@@ -581,8 +597,7 @@ public class RegistrationManager {
                         public void onMatrixError(MatrixError e) {
                             if (TextUtils.equals(MatrixError.THREEPID_IN_USE, e.errcode)) {
                                 listener.onThreePidRequestFailed(R.string.account_email_already_used_error);
-                            //} else if (TextUtils.equals(MatrixError.THREEPID_DENIED, e.errcode)) {
-                            } else if (TextUtils.equals("M_THREEPID_DENIED", e.errcode)) { // FIXME use THREEPID_DENIED const after updating the matrix-sdk lib
+                            } else if (TextUtils.equals(MatrixError.THREEPID_DENIED, e.errcode)) {
                                 listener.onThreePidRequestFailed(R.string.tchap_register_unauthorized_email);
                             } else {
                                 listener.onThreePidRequested(pid);
@@ -669,7 +684,8 @@ public class RegistrationManager {
                 @Override
                 public void onSuccess(Credentials credentials) {
                     if (TextUtils.isEmpty(credentials.userId)) {
-                        listener.onRegistrationFailed(ERROR_EMPTY_USER_ID);
+                        Log.e(LOG_TAG, "## register(): ERROR_EMPTY_USER_ID");
+                        listener.onRegistrationFailed("");
                     } else {
                         // Initiate login process
                         Collection<MXSession> sessions = Matrix.getMXSessions(context);
@@ -681,7 +697,8 @@ public class RegistrationManager {
                         }
 
                         if (null == mHsConfig) {
-                            listener.onRegistrationFailed("null mHsConfig");
+                            Log.e(LOG_TAG, "## register(): null mHsConfig");
+                            listener.onRegistrationFailed("");
                         } else {
                             if (!isDuplicated) {
                                 mHsConfig.setCredentials(credentials);
@@ -710,9 +727,20 @@ public class RegistrationManager {
                         // user name is already taken, the registration process stops here (new user name should be provided)
                         // ex: {"errcode":"M_USER_IN_USE","error":"User ID already taken."}
                         Log.d(LOG_TAG, "User name is used");
-                        listener.onRegistrationFailed(MatrixError.USER_IN_USE);
+                        listener.onRegistrationFailed(context.getString(R.string.login_error_user_in_use));
                     } else if (TextUtils.equals(e.errcode, MatrixError.UNAUTHORIZED)) {
-                        // happens while polling email validation, do nothing
+                        // happens when the email validation is pending
+                        // Notify the listener to wait for the email validation
+                        listener.onWaitingEmailValidation();
+                    } else if (TextUtils.equals(MatrixError.PASSWORD_TOO_SHORT, e.errcode)
+                            || TextUtils.equals(MatrixError.PASSWORD_NO_DIGIT, e.errcode)
+                            || TextUtils.equals(MatrixError.PASSWORD_NO_UPPERCASE, e.errcode)
+                            || TextUtils.equals(MatrixError.PASSWORD_NO_LOWERCASE, e.errcode)
+                            || TextUtils.equals(MatrixError.PASSWORD_NO_SYMBOL, e.errcode)
+                            || TextUtils.equals(MatrixError.WEAK_PASSWORD, e.errcode)) {
+                        listener.onRegistrationFailed(context.getString(R.string.tchap_register_weak_password_error));
+                    } else if (TextUtils.equals(MatrixError.PASSWORD_IN_DICTIONARY, e.errcode)) {
+                        listener.onRegistrationFailed(context.getString(R.string.tchap_register_password_in_dict_error));
                     } else if (null != e.mStatus && e.mStatus == 401) {
                         try {
                             RegistrationFlowResponse registrationFlowResponse = JsonUtils.toRegistrationFlowResponse(e.mErrorBodyAsString);
@@ -739,6 +767,8 @@ public class RegistrationManager {
 
     private interface InternalRegistrationListener {
         void onRegistrationSuccess();
+
+        void onWaitingEmailValidation();
 
         void onRegistrationFailed(String message);
 
