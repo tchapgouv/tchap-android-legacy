@@ -883,8 +883,8 @@ Appareils inconnus :</string>
     <string name="tchap_register_wait_for_email_login_button">Aller à l’écran de connexion</string>
     <string name="tchap_register_wait_for_email_no_email">Je n’ai pas reçu l’email!</string>
     <string name="tchap_register_unauthorized_email">Cette adresse e-mail n’est pas autorisée</string>
-    <string name="tchap_register_weak_password_error">Ce mot de passe est trop faible. Il doit contenir au moins 8 caractères, avec au moins un caractère de chaque type : majuscule, minuscule, chiffre, caractère spécial.</string>
-    <string name="tchap_register_password_in_dict_error">Ce mot de passe a été trouvé dans un dictionnaire, il n’est pas autorisé</string>
+    <string name="tchap_password_weak_pwd_error">Ce mot de passe est trop faible. Il doit contenir au moins 8 caractères, avec au moins un caractère de chaque type : majuscule, minuscule, chiffre, caractère spécial.</string>
+    <string name="tchap_password_pwd_in_dict_error">Ce mot de passe a été trouvé dans un dictionnaire, il n’est pas autorisé</string>
 
     <string name="tchap_dialog_user_consent_homeserver_name">Tchap</string>
 

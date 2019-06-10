@@ -32,7 +32,6 @@ import org.matrix.androidsdk.rest.model.login.AuthParams;
 import org.matrix.androidsdk.rest.model.login.AuthParamsCaptcha;
 import org.matrix.androidsdk.rest.model.login.AuthParamsThreePid;
 import org.matrix.androidsdk.rest.model.login.Credentials;
-import org.matrix.androidsdk.rest.model.login.LoginFlow;
 import org.matrix.androidsdk.rest.model.login.RegistrationFlowResponse;
 import org.matrix.androidsdk.rest.model.login.RegistrationParams;
 import org.matrix.androidsdk.rest.model.pid.ThreePid;
@@ -42,14 +41,8 @@ import org.matrix.androidsdk.ssl.UnrecognizedCertificateException;
 import org.matrix.androidsdk.core.JsonUtils;
 import org.matrix.androidsdk.core.Log;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.util.UrlUtilKt;
@@ -738,9 +731,9 @@ public class RegistrationManager {
                             || TextUtils.equals(MatrixError.PASSWORD_NO_LOWERCASE, e.errcode)
                             || TextUtils.equals(MatrixError.PASSWORD_NO_SYMBOL, e.errcode)
                             || TextUtils.equals(MatrixError.WEAK_PASSWORD, e.errcode)) {
-                        listener.onRegistrationFailed(context.getString(R.string.tchap_register_weak_password_error));
+                        listener.onRegistrationFailed(context.getString(R.string.tchap_password_weak_pwd_error));
                     } else if (TextUtils.equals(MatrixError.PASSWORD_IN_DICTIONARY, e.errcode)) {
-                        listener.onRegistrationFailed(context.getString(R.string.tchap_register_password_in_dict_error));
+                        listener.onRegistrationFailed(context.getString(R.string.tchap_password_pwd_in_dict_error));
                     } else if (null != e.mStatus && e.mStatus == 401) {
                         try {
                             RegistrationFlowResponse registrationFlowResponse = JsonUtils.toRegistrationFlowResponse(e.mErrorBodyAsString);

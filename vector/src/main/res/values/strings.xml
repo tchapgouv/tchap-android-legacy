@@ -1093,8 +1093,8 @@
     <string name="tchap_register_wait_for_email_login_button">Go to login screen</string>
     <string name="tchap_register_wait_for_email_no_email">I have not received any e-mail!</string>
     <string name="tchap_register_unauthorized_email">This email address is unauthorized</string>
-    <string name="tchap_register_weak_password_error">This password is too weak. It must include a lower-case letter, an upper-case letter, a number and a symbol and be at a minimum 8 characters in length.</string>
-    <string name="tchap_register_password_in_dict_error">This password was found in a dictionary, and is not acceptable</string>
+    <string name="tchap_password_weak_pwd_error">This password is too weak. It must include a lower-case letter, an upper-case letter, a number and a symbol and be at a minimum 8 characters in length.</string>
+    <string name="tchap_password_pwd_in_dict_error">This password was found in a dictionary, and is not acceptable</string>
 
     <string name="tchap_dialog_user_consent_homeserver_name">Tchap</string>
 
