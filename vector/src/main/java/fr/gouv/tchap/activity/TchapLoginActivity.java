@@ -854,8 +854,10 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                  * Display a toast to warn that the operation failed
                  *
                  * @param errorMessage the error message.
+                 * @param cancel set true to cancel the forget password process
+                 * @param back set true to go back to the previous screen
                  */
-                private void onError(String errorMessage, boolean cancel) {
+                private void onError(String errorMessage, boolean cancel, boolean back) {
                     if (mMode == MODE_FORGOT_PASSWORD_WAITING_VALIDATION) {
                         Log.d(LOG_TAG, "onForgotOnEmailValidated : failed " + errorMessage);
 
@@ -865,13 +867,15 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
                         if (cancel) {
                             fallbackToLoginMode();
+                        } else if (back) {
+                            onBackPressed();
                         }
                     }
                 }
 
                 @Override
                 public void onNetworkError(Exception e) {
-                    onError(e.getLocalizedMessage(), false);
+                    onError(e.getLocalizedMessage(), false, false);
                 }
 
                 @Override
@@ -880,16 +884,25 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                         if (TextUtils.equals(e.errcode, MatrixError.UNAUTHORIZED)) {
                             Log.d(LOG_TAG, "onForgotOnEmailValidated : failed UNAUTHORIZED");
 
-                            onError(getResources().getString(R.string.auth_reset_password_error_unauthorized), false);
+                            onError(getResources().getString(R.string.auth_reset_password_error_unauthorized), false, false);
+                        } else if (TextUtils.equals(MatrixError.PASSWORD_TOO_SHORT, e.errcode)
+                                || TextUtils.equals(MatrixError.PASSWORD_NO_DIGIT, e.errcode)
+                                || TextUtils.equals(MatrixError.PASSWORD_NO_UPPERCASE, e.errcode)
+                                || TextUtils.equals(MatrixError.PASSWORD_NO_LOWERCASE, e.errcode)
+                                || TextUtils.equals(MatrixError.PASSWORD_NO_SYMBOL, e.errcode)
+                                || TextUtils.equals(MatrixError.WEAK_PASSWORD, e.errcode)) {
+                            onError(getResources().getString(R.string.tchap_password_weak_pwd_error), false, true);
+                        } else if (TextUtils.equals(MatrixError.PASSWORD_IN_DICTIONARY, e.errcode)) {
+                            onError(getResources().getString(R.string.tchap_password_pwd_in_dict_error), false, true);
                         } else {
-                            onError(e.getLocalizedMessage(), true);
+                            onError(e.getLocalizedMessage(), true, false);
                         }
                     }
                 }
 
                 @Override
                 public void onUnexpectedError(Exception e) {
-                    onError(e.getLocalizedMessage(), true);
+                    onError(e.getLocalizedMessage(), true, false);
                 }
             });
         }
@@ -1698,7 +1711,10 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         mEmailValidationExtraParams = null;
         Log.e(LOG_TAG, "## onRegistrationFailed(): " + message);
         fallbackToRegistrationMode();
-        Toast.makeText(this, R.string.login_error_unable_register, Toast.LENGTH_LONG).show();
+        if (message.length() == 0) {
+            message = getString(R.string.login_error_unable_register);
+        }
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 
     @Override
