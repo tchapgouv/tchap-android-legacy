@@ -793,8 +793,9 @@ public class Matrix {
     }
 
     /**
-     * Prompt the user to renew his account validity by checking his emails, or requesting a renewal email.
+     * Suspend the Tchap application use when the account is expired.
      * The session caches are cleared, and any opened activity is closed.
+     * The credentials are kept and reused when the account validity is renewed.
      *
      * @param context the context
      */
@@ -819,42 +820,51 @@ public class Matrix {
                     Matrix.getInstance(context).getPushManager().clearFcmData(new SimpleApiCallback<Void>() {
                         @Override
                         public void onSuccess(final Void anything) {
-                            new AlertDialog.Builder(VectorApp.getCurrentActivity())
-                                    .setMessage(R.string.tchap_expired_account)
-                                    .setCancelable(false)
-                                    .setPositiveButton(R.string.tchap_expired_account_resume_button, new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            // Launch the splash screen to reload the session.
-                                            Intent intent = new Intent(context.getApplicationContext(), SplashActivity.class);
-                                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                            context.getApplicationContext().startActivity(intent);
-
-                                            if (null != VectorApp.getCurrentActivity()) {
-                                                VectorApp.getCurrentActivity().finish();
-                                            }
-                                        }
-                                    })
-                                    .setNeutralButton(R.string.tchap_request_renewal_email_button, new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            TchapValidityRestClient validityRestClient = new TchapValidityRestClient(getDefaultSession().getHomeServerConfig());
-                                            validityRestClient.requestRenewalEmail(new SimpleApiCallback<Void>() {
-                                                @Override
-                                                public void onSuccess(Void aVoid) {
-                                                    // Just log the information
-                                                    Log.i(LOG_TAG, "a renewal email has been requested");
-                                                }
-                                            });
-                                        }
-                                    })
-                                    .show();
+                            displayExpiredAccountDialog(context);
                         }
                     });
                 }
             });
         }
+    }
 
+    /**
+     * Prompt the user to renew his account validity by checking his emails, or requesting a renewal email.
+     *
+     * @param context the context
+     */
+    private void displayExpiredAccountDialog(final Context context) {
+        new AlertDialog.Builder(VectorApp.getCurrentActivity())
+                .setMessage(R.string.tchap_expired_account)
+                .setCancelable(false)
+                .setPositiveButton(R.string.tchap_expired_account_resume_button, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Launch the splash screen to reload the session.
+                        Intent intent = new Intent(context.getApplicationContext(), SplashActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        context.getApplicationContext().startActivity(intent);
+
+                        if (null != VectorApp.getCurrentActivity()) {
+                            VectorApp.getCurrentActivity().finish();
+                        }
+                    }
+                })
+                .setNeutralButton(R.string.tchap_request_renewal_email_button, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        TchapValidityRestClient validityRestClient = new TchapValidityRestClient(getDefaultSession().getHomeServerConfig());
+                        validityRestClient.requestRenewalEmail(new SimpleApiCallback<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                // Just log the information
+                                Log.i(LOG_TAG, "a renewal email has been requested");
+                            }
+                        });
+                        displayExpiredAccountDialog(context);
+                    }
+                })
+                .show();
     }
 
     /**
