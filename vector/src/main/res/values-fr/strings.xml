@@ -861,6 +861,11 @@ Appareils inconnus :</string>
     <string name="tchap_room_settings_remove_from_directory">Retirer ce salon de la liste des salons publics</string>
     <string name="tchap_room_settings_remove_from_directory_prompt_msg"><b>Cette action est irréversible.</b>\nVoulez-vous vraiment retirer ce salon des salons publics ?</string>
 
+    // tchap account validity
+    <string name="tchap_expired_account">La durée de validité de votre compte a expiré. Un email vous a été envoyé pour la renouveler. Une fois que vous aurez suivi le lien qu’il contient, cliquez ci-dessous.</string>
+    <string name="tchap_expired_account_resume_button">J’ai renouvelé mon compte</string>
+    <string name="tchap_request_renewal_email_button">Demander l’envoi d’un nouvel email</string>
+
     // group details
     <string name="group_details_home">Accueil</string>
     <string name="group_details_people">Personnes</string>
