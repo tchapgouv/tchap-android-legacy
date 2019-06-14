@@ -239,7 +239,7 @@
     <string name="auth_reset_password_message">To reset your password, enter the email address linked to your account:</string>
     <string name="auth_reset_password_missing_email">The email address linked to your account must be entered.</string>
     <string name="auth_reset_password_missing_password">A new password must be entered.</string>
-    <string name="auth_reset_password_email_validation_message">An email has been sent to %s. Once you\'ve followed the link it contains, click below.</string>
+    <string name="auth_reset_password_email_validation_message">An email has been sent to %s. Once you’ve followed the link it contains, click below.</string>
     <string name="auth_reset_password_error_unauthorized">Failed to verify email address: make sure you clicked the link in the email</string>
     <string name="auth_reset_password_success_message">Your password has been reset.\n\nYou have been logged out of all devices and will no longer receive push notifications. To re-enable notifications, re-log in on each device.</string>
     <string name="start_message">Welcome to Tchap</string>
@@ -1070,6 +1070,11 @@
     // tchap room settings
     <string name="tchap_room_settings_remove_from_directory">Remove this room from the rooms directory</string>
     <string name="tchap_room_settings_remove_from_directory_prompt_msg"><b>This action is irreversible.</b>\nAre you sure you want to remove this room from the rooms directory?</string>
+
+    // tchap account validity
+    <string name="tchap_expired_account">The validity period of your account has expired.\nAn email has been sent to you in order to renew it. Once you’ve followed the link it contains, click below.</string>
+    <string name="tchap_expired_account_resume_button">I renewed the validity of my account</string>
+    <string name="tchap_request_renewal_email_button">Request a renewal email</string>
 
     <!-- group details -->
     <string name="group_details_home">Home</string>

@@ -20,9 +20,11 @@ package im.vector;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 
 import org.matrix.androidsdk.HomeServerConnectionConfig;
@@ -61,6 +63,7 @@ import java.util.List;
 import java.util.Set;
 
 import fr.gouv.tchap.media.MediaScanManager;
+import fr.gouv.tchap.sdk.rest.client.TchapValidityRestClient;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.SplashActivity;
 import im.vector.analytics.MetricsListenerProxy;
@@ -75,6 +78,10 @@ import io.realm.Realm;
  * Singleton to control access to the Matrix SDK and providing point of control for MXSessions.
  */
 public class Matrix {
+
+    // Additional Matrix error:
+    public static final String EXPIRED_ACCOUNT = "ORG_MATRIX_EXPIRED_ACCOUNT";
+
     // Set to true to enable local file encryption
     private static final boolean CONFIG_ENABLE_LOCAL_FILE_ENCRYPTION = false;
 
@@ -200,6 +207,10 @@ public class Matrix {
     public synchronized static Matrix getInstance(Context appContext) {
         if (instance == null && null != appContext) {
             instance = new Matrix(appContext);
+
+            // Update the configuration error codes.
+            // EXPIRED_ACCOUNT: the account validity expired, the user should have received an email to renew his validity.
+            MatrixError.mConfigurationErrorCodes.add(EXPIRED_ACCOUNT);
         }
         return instance;
     }
@@ -675,6 +686,8 @@ public class Matrix {
                         Log.e(LOG_TAG, "## createSession() : onTokenCorrupted");
                         CommonActivityUtils.logout(VectorApp.getCurrentActivity());
                     }
+                } else if (TextUtils.equals(matrixErrorCode, EXPIRED_ACCOUNT)) {
+                    instance.suspendTchapOnExpiredAccount(VectorApp.getInstance());
                 }
             }
 
@@ -777,6 +790,81 @@ public class Matrix {
                 });
             }
         });
+    }
+
+    /**
+     * Suspend the Tchap application use when the account is expired.
+     * The session caches are cleared, and any opened activity is closed.
+     * The credentials are kept and reused when the account validity is renewed.
+     *
+     * @param context the context
+     */
+    private void suspendTchapOnExpiredAccount(final Context context) {
+        if (null != VectorApp.getCurrentActivity()) {
+            Log.e(LOG_TAG, "## suspendTchapOnExpiredAccount");
+
+            CommonActivityUtils.logout(context, getMXSessions(context), false, new SimpleApiCallback<Void>() {
+                @Override
+                public void onSuccess(Void info) {
+                    synchronized (LOG_TAG) {
+                        // build a new sessions list
+                        List<HomeServerConnectionConfig> configs = mLoginStorage.getCredentialsList();
+
+                        for (HomeServerConnectionConfig config : configs) {
+                            MXSession session = createSession(config);
+                            mMXSessions.add(session);
+                        }
+                    }
+
+                    // Clear FCM token before prompting the user about his account validity
+                    Matrix.getInstance(context).getPushManager().clearFcmData(new SimpleApiCallback<Void>() {
+                        @Override
+                        public void onSuccess(final Void anything) {
+                            displayExpiredAccountDialog(context);
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+    /**
+     * Prompt the user to renew his account validity by checking his emails, or requesting a renewal email.
+     *
+     * @param context the context
+     */
+    private void displayExpiredAccountDialog(final Context context) {
+        new AlertDialog.Builder(VectorApp.getCurrentActivity())
+                .setMessage(R.string.tchap_expired_account)
+                .setCancelable(false)
+                .setPositiveButton(R.string.tchap_expired_account_resume_button, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Launch the splash screen to reload the session.
+                        Intent intent = new Intent(context.getApplicationContext(), SplashActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        context.getApplicationContext().startActivity(intent);
+
+                        if (null != VectorApp.getCurrentActivity()) {
+                            VectorApp.getCurrentActivity().finish();
+                        }
+                    }
+                })
+                .setNeutralButton(R.string.tchap_request_renewal_email_button, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        TchapValidityRestClient validityRestClient = new TchapValidityRestClient(getDefaultSession().getHomeServerConfig());
+                        validityRestClient.requestRenewalEmail(new SimpleApiCallback<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                // Just log the information
+                                Log.i(LOG_TAG, "a renewal email has been requested");
+                            }
+                        });
+                        displayExpiredAccountDialog(context);
+                    }
+                })
+                .show();
     }
 
     /**
