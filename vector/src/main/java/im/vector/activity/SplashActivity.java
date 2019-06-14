@@ -160,23 +160,6 @@ public class SplashActivity extends MXCActionBarActivity {
             return;
         }
 
-        // Check if store is corrupted, due to change of type of some maps from HashMap to Map in Serialized objects
-        // Only on Android 7.1+
-        // Only if previous versionCode of the installation is < 81200
-        // Only once
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1
-                && PreferenceManager.getDefaultSharedPreferences(this).getInt(PreferencesManager.VERSION_BUILD, 0) < 81200
-                && PreferenceManager.getDefaultSharedPreferences(this).getBoolean(NEED_TO_CLEAR_CACHE_BEFORE_81200, true)) {
-            PreferenceManager.getDefaultSharedPreferences(this)
-                    .edit()
-                    .putBoolean(NEED_TO_CLEAR_CACHE_BEFORE_81200, false)
-                    .apply();
-
-            // Force a clear cache
-            Matrix.getInstance(this).reloadSessions(this);
-            return;
-        }
-
         // Load the Gif logo
 //        Glide.with(this)
 //                .load(R.drawable.riot_splash)

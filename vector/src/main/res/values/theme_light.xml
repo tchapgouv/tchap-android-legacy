@@ -185,6 +185,9 @@
         <!-- status bar color -->
         <item name="colorPrimaryDark">@color/vector_green_color_dark</item>
 
+        <!-- android ui button -->
+        <item name="colorAccent">@color/vector_green_color</item>
+
         <!-- fonts -->
         <item name="android:typeface">sans</item>
 
