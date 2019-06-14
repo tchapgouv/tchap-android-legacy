@@ -72,8 +72,6 @@ import im.vector.contacts.ContactsManager;
 import im.vector.contacts.PIDsRetriever;
 import im.vector.util.RoomUtils;
 
-import static fr.gouv.tchap.config.TargetConfigurationKt.ENABLE_PROXY_LOOKUP;
-
 public class DinsicUtils {
     private static final String LOG_TAG = "DinsicUtils";
 
@@ -943,46 +941,37 @@ public class DinsicUtils {
                 }
                 else if (android.util.Patterns.EMAIL_ADDRESS.matcher(key).matches()) {
                     // Check here whether this email corresponds to an actual user id in order to
-                    // update the direct chat rooms map.
-                    if (ENABLE_PROXY_LOOKUP) {
-                        // Use the proxied lookup API
-                        TchapThirdPidRestClient tchapThirdPidRestClient = new TchapThirdPidRestClient(session.getHomeServerConfig());
-                        tchapThirdPidRestClient.lookup(key, ThreePid.MEDIUM_EMAIL, new ApiCallback<String>() {
-                            @Override
-                            public void onSuccess(final String mxId) {
-                                Log.i(LOG_TAG, "## getContactsFromDirectChats: lookup success");
+                    // update the direct chat rooms map (Use the proxied lookup API).
+                    TchapThirdPidRestClient tchapThirdPidRestClient = new TchapThirdPidRestClient(session.getHomeServerConfig());
+                    tchapThirdPidRestClient.lookup(key, ThreePid.MEDIUM_EMAIL, new ApiCallback<String>() {
+                        @Override
+                        public void onSuccess(final String mxId) {
+                            Log.i(LOG_TAG, "## getContactsFromDirectChats: lookup success");
 
-                                if (!TextUtils.isEmpty(mxId)) {
-                                    updateDirectChatRoomsOnDiscoveredUser(session, key, mxId);
-                                }
+                            if (!TextUtils.isEmpty(mxId)) {
+                                updateDirectChatRoomsOnDiscoveredUser(session, key, mxId);
                             }
-
-                            private void onError(String errorMessage) {
-                                Log.e(LOG_TAG, "## getContactsFromDirectChats: lookup failed " + errorMessage);
-                            }
-
-                            @Override
-                            public void onNetworkError(Exception e) {
-                                onError(e.getMessage());
-                            }
-
-                            @Override
-                            public void onMatrixError(MatrixError e) {
-                                onError(e.getMessage());
-                            }
-
-                            @Override
-                            public void onUnexpectedError(Exception e) {
-                                onError(e.getMessage());
-                            }
-                        });
-                    } else {
-                        // Use by default the local data of the PIDsRetriever.
-                        final Contact.MXID contactMxId = PIDsRetriever.getInstance().getMXID(key);
-                        if (null != contactMxId && contactMxId.mMatrixId.length() > 0) {
-                            updateDirectChatRoomsOnDiscoveredUser(session, key, contactMxId.mMatrixId);
                         }
-                    }
+
+                        private void onError(String errorMessage) {
+                            Log.e(LOG_TAG, "## getContactsFromDirectChats: lookup failed " + errorMessage);
+                        }
+
+                        @Override
+                        public void onNetworkError(Exception e) {
+                            onError(e.getMessage());
+                        }
+
+                        @Override
+                        public void onMatrixError(MatrixError e) {
+                            onError(e.getMessage());
+                        }
+
+                        @Override
+                        public void onUnexpectedError(Exception e) {
+                            onError(e.getMessage());
+                        }
+                    });
                 }
             }
         }
