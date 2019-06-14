@@ -16,5 +16,5 @@
 
 package fr.gouv.tchap.config
 
-// Enable here the proxied lookup API use
-const val ENABLE_PROXY_LOOKUP = false
+// Configure here the optional features (if any)
+// ex: const val ENABLE_FEATURE1 = true

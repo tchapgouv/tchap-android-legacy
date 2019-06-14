@@ -39,8 +39,6 @@ import java.util.Set;
 import fr.gouv.tchap.sdk.rest.client.TchapThirdPidRestClient;
 import im.vector.Matrix;
 
-import static fr.gouv.tchap.config.TargetConfigurationKt.ENABLE_PROXY_LOOKUP;
-
 /**
  * retrieve the contact matrix IDs
  */
@@ -275,14 +273,9 @@ public class PIDsRetriever {
                     }
                 };
 
-                if (ENABLE_PROXY_LOOKUP) {
-                    // Use the proxied lookup API
-                    TchapThirdPidRestClient tchapThirdPidRestClient = new TchapThirdPidRestClient(session.getHomeServerConfig());
-                    tchapThirdPidRestClient.bulkLookup(fRequestedMediums, medias, callback);
-                } else {
-                    // Fallback to the legacy API
-                    session.lookup3Pids(fRequestedMediums, medias, callback);
-                }
+                // Use the proxied lookup API
+                TchapThirdPidRestClient tchapThirdPidRestClient = new TchapThirdPidRestClient(session.getHomeServerConfig());
+                tchapThirdPidRestClient.bulkLookup(fRequestedMediums, medias, callback);
             }
         }
     }

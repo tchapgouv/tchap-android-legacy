@@ -73,8 +73,6 @@ import im.vector.util.PermissionsToolsKt;
 import im.vector.util.VectorUtils;
 import im.vector.view.VectorAutoCompleteTextView;
 
-import static fr.gouv.tchap.config.TargetConfigurationKt.ENABLE_PROXY_LOOKUP;
-
 /**
  * This class provides a way to search other user to invite them in a dedicated room
  */
@@ -721,14 +719,9 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                         }
                     };
 
-                    if (ENABLE_PROXY_LOOKUP) {
-                        // Use the proxied lookup API
-                        TchapThirdPidRestClient tchapThirdPidRestClient = new TchapThirdPidRestClient(mSession.getHomeServerConfig());
-                        tchapThirdPidRestClient.bulkLookup(emails, medias, callback);
-                    } else {
-                        // Fallback to the legacy API
-                        mSession.lookup3Pids(emails, medias, callback);
-                    }
+                    // Use the proxied lookup API
+                    TchapThirdPidRestClient tchapThirdPidRestClient = new TchapThirdPidRestClient(mSession.getHomeServerConfig());
+                    tchapThirdPidRestClient.bulkLookup(emails, medias, callback);
 
                     inviteDialog.dismiss();
                 }
