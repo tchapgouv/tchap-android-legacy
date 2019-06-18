@@ -1908,7 +1908,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
             }
             intent.setExtrasClassLoader(RoomMediaMessage.class.getClassLoader());
             if (mRoom != null) {
-                intent.putExtra(MediaPreviewerActivity.EXTRA_ROOM_TITLE, mRoom.getRoomDisplayName(this));
+                intent.putExtra(MediaPreviewerActivity.EXTRA_ROOM_TITLE, DinsicUtils.getRoomDisplayName(this, mRoom));
             }
             if (null != mLatestTakePictureCameraUri) {
                 intent.putExtra(MediaPreviewerActivity.EXTRA_CAMERA_PICTURE_URI, mLatestTakePictureCameraUri);
@@ -2782,7 +2782,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
         String topic = null;
         if (null != mRoom) {
             if (mRoom.isDirect()) {
-                topic = DinsicUtils.getDomainFromDisplayName(mRoom.getRoomDisplayName(this));
+                topic = DinsicUtils.getDomainFromDisplayName(DinsicUtils.getRoomDisplayName(this, mRoom));
             } else {
                 topic = getResources().getQuantityString(R.plurals.room_title_members,
                         mRoom.getNumberOfJoinedMembers(), mRoom.getNumberOfJoinedMembers());
@@ -2869,7 +2869,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
     private void setTitle() {
         String titleToApply = mDefaultRoomName;
         if ((null != mSession) && (null != mRoom)) {
-            titleToApply = mRoom.getRoomDisplayName(this);
+            titleToApply = DinsicUtils.getRoomDisplayName(this, mRoom);
             if (mRoom.isDirect()) {
                 titleToApply = DinsicUtils.getNameFromDisplayName(titleToApply);
             }
@@ -3001,9 +3001,9 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
         mRoomPreviewLayout.setVisibility(View.VISIBLE);
 
         if (TextUtils.equals(member.membership, RoomMember.MEMBERSHIP_BAN)) {
-            invitationTextView.setText(getString(R.string.has_been_banned, mRoom.getRoomDisplayName(this), mRoom.getState().getMemberName(member.mSender)));
+            invitationTextView.setText(getString(R.string.has_been_banned, DinsicUtils.getRoomDisplayName(this, mRoom), mRoom.getState().getMemberName(member.mSender)));
         } else {
-            invitationTextView.setText(getString(R.string.has_been_kicked, mRoom.getRoomDisplayName(this), mRoom.getState().getMemberName(member.mSender)));
+            invitationTextView.setText(getString(R.string.has_been_kicked, DinsicUtils.getRoomDisplayName(this, mRoom), mRoom.getState().getMemberName(member.mSender)));
         }
 
         // On mobile side, the modal to allow to add a reason to ban/kick someone isn't yet implemented

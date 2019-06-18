@@ -1,3 +1,14 @@
+Changes in Tchap 1.0.26 (2019-06-18)
+===================================================
+
+Improvements:
+ * Enable the proxy lookup use on Prod
+ * The external users can now be hidden from the users directory search, show the option in settings #477
+ * Support the account validity error #461
+
+Bug Fix:
+ * Discussion left by the other member are named "Salon vide" #451
+
 Changes in Tchap 1.0.25 (2019-05-23)
 ===================================================
 

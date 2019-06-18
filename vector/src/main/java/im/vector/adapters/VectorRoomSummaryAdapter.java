@@ -50,6 +50,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.Matrix;
 import im.vector.PublicRoomsManager;
 import im.vector.R;
@@ -222,7 +223,7 @@ public class VectorRoomSummaryAdapter extends BaseExpandableListAdapter {
         boolean res = !mIsSearchMode;
 
         if (!TextUtils.isEmpty(mSearchedPattern)) {
-            String roomName = room.getRoomDisplayName(mContext);
+            String roomName = DinsicUtils.getRoomDisplayName(mContext, room);
             res = (!TextUtils.isEmpty(roomName) && (roomName.toLowerCase(VectorLocale.INSTANCE.getApplicationLocale()).contains(mSearchedPattern)));
         }
 
@@ -762,7 +763,7 @@ public class VectorRoomSummaryAdapter extends BaseExpandableListAdapter {
                 notificationCount = highlightCount;
             }
 
-            roomName = childRoom.getRoomDisplayName(mContext);
+            roomName = DinsicUtils.getRoomDisplayName(mContext, childRoom);
         }
 
         // get last message to be displayed

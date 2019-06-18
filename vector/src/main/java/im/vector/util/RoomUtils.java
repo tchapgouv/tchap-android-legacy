@@ -60,6 +60,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.Matrix;
 import im.vector.R;
 import im.vector.activity.VectorRoomActivity;
@@ -704,7 +705,7 @@ public class RoomUtils {
             return;
         }
 
-        String roomName = room.getRoomDisplayName(context);
+        String roomName = DinsicUtils.getRoomDisplayName(context, room);
 
         Bitmap bitmap = null;
 
@@ -828,7 +829,7 @@ public class RoomUtils {
             List<Room> filteredRoom = new ArrayList<>();
             Pattern pattern = Pattern.compile(Pattern.quote(filterPattern), Pattern.CASE_INSENSITIVE);
             for (final Room room : roomsToFilter) {
-                final String roomName = room.getRoomDisplayName(context);
+                final String roomName = DinsicUtils.getRoomDisplayName(context, room);
                 if (pattern.matcher(roomName).find()) {
                     filteredRoom.add(room);
                 }

@@ -29,6 +29,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
@@ -40,6 +41,7 @@ import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomEmailInvitation;
 import org.matrix.androidsdk.data.RoomPreviewData;
+import org.matrix.androidsdk.data.RoomState;
 import org.matrix.androidsdk.data.RoomTag;
 import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.core.callback.ApiCallback;
@@ -69,8 +71,6 @@ import im.vector.contacts.Contact;
 import im.vector.contacts.ContactsManager;
 import im.vector.contacts.PIDsRetriever;
 import im.vector.util.RoomUtils;
-
-import static fr.gouv.tchap.config.TargetConfigurationKt.ENABLE_PROXY_LOOKUP;
 
 public class DinsicUtils {
     private static final String LOG_TAG = "DinsicUtils";
@@ -853,6 +853,39 @@ public class DinsicUtils {
         };
     }
 
+    /**
+     * Compute the room display name.
+     * Tchap client handles the display name of the direct chats with a different manner than the SDK one.
+     *
+     * @param context the application context.
+     * @param room    the room.
+     * @return the room display name.
+     */
+    @NonNull
+    public static String getRoomDisplayName(Context context, @NonNull Room room) {
+        // Retrieve the room display name without forcing a default one.
+        String displayName = room.getRoomDisplayName(context, null);
+        if (TextUtils.isEmpty(displayName)) {
+            // Set the default display name.
+            displayName = context.getString(R.string.room_displayname_empty_room);
+
+            // Tchap - The display name of a direct chat must be the other member name
+            // even if the member has left the room.
+            if (room.isDirect()) {
+                RoomState roomState = room.getState();
+                Collection<RoomMember> members = roomState.getDisplayableLoadedMembers();
+                for (RoomMember member : members) {
+                    if (!TextUtils.equals(member.getUserId(), room.getDataHandler().getUserId())) {
+                        displayName = member.getName();
+                        break;
+                    }
+                }
+            }
+        }
+
+        return displayName;
+    }
+
     /* get contacts from direct chats */
     public static List<ParticipantAdapterItem> getContactsFromDirectChats(final MXSession session) {
         List<ParticipantAdapterItem> participants = new ArrayList<>();
@@ -908,46 +941,37 @@ public class DinsicUtils {
                 }
                 else if (android.util.Patterns.EMAIL_ADDRESS.matcher(key).matches()) {
                     // Check here whether this email corresponds to an actual user id in order to
-                    // update the direct chat rooms map.
-                    if (ENABLE_PROXY_LOOKUP) {
-                        // Use the proxied lookup API
-                        TchapThirdPidRestClient tchapThirdPidRestClient = new TchapThirdPidRestClient(session.getHomeServerConfig());
-                        tchapThirdPidRestClient.lookup(key, ThreePid.MEDIUM_EMAIL, new ApiCallback<String>() {
-                            @Override
-                            public void onSuccess(final String mxId) {
-                                Log.i(LOG_TAG, "## getContactsFromDirectChats: lookup success");
+                    // update the direct chat rooms map (Use the proxied lookup API).
+                    TchapThirdPidRestClient tchapThirdPidRestClient = new TchapThirdPidRestClient(session.getHomeServerConfig());
+                    tchapThirdPidRestClient.lookup(key, ThreePid.MEDIUM_EMAIL, new ApiCallback<String>() {
+                        @Override
+                        public void onSuccess(final String mxId) {
+                            Log.i(LOG_TAG, "## getContactsFromDirectChats: lookup success");
 
-                                if (!TextUtils.isEmpty(mxId)) {
-                                    updateDirectChatRoomsOnDiscoveredUser(session, key, mxId);
-                                }
+                            if (!TextUtils.isEmpty(mxId)) {
+                                updateDirectChatRoomsOnDiscoveredUser(session, key, mxId);
                             }
-
-                            private void onError(String errorMessage) {
-                                Log.e(LOG_TAG, "## getContactsFromDirectChats: lookup failed " + errorMessage);
-                            }
-
-                            @Override
-                            public void onNetworkError(Exception e) {
-                                onError(e.getMessage());
-                            }
-
-                            @Override
-                            public void onMatrixError(MatrixError e) {
-                                onError(e.getMessage());
-                            }
-
-                            @Override
-                            public void onUnexpectedError(Exception e) {
-                                onError(e.getMessage());
-                            }
-                        });
-                    } else {
-                        // Use by default the local data of the PIDsRetriever.
-                        final Contact.MXID contactMxId = PIDsRetriever.getInstance().getMXID(key);
-                        if (null != contactMxId && contactMxId.mMatrixId.length() > 0) {
-                            updateDirectChatRoomsOnDiscoveredUser(session, key, contactMxId.mMatrixId);
                         }
-                    }
+
+                        private void onError(String errorMessage) {
+                            Log.e(LOG_TAG, "## getContactsFromDirectChats: lookup failed " + errorMessage);
+                        }
+
+                        @Override
+                        public void onNetworkError(Exception e) {
+                            onError(e.getMessage());
+                        }
+
+                        @Override
+                        public void onMatrixError(MatrixError e) {
+                            onError(e.getMessage());
+                        }
+
+                        @Override
+                        public void onUnexpectedError(Exception e) {
+                            onError(e.getMessage());
+                        }
+                    });
                 }
             }
         }

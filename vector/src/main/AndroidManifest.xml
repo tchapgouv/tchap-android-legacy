@@ -137,13 +137,6 @@
             android:theme="@style/HomeActivityTheme.Light"
             android:windowSoftInputMode="adjustPan" />
         <activity
-            android:name=".activity.HistoricalRoomsActivity"
-            android:configChanges="orientation|screenSize"
-            android:label="@string/title_activity_historical"
-            android:parentActivityName=".activity.VectorHomeActivity"
-            android:theme="@style/HomeActivityTheme.Light"
-            android:windowSoftInputMode="adjustPan" />
-        <activity
             android:name=".activity.VectorRoomActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_room"
@@ -255,29 +248,6 @@
             android:configChanges="orientation|screenSize"
             android:theme="@style/AppTheme.NoActionBar.Light" />
         <activity
-            android:name=".activity.VectorPublicRoomsActivity"
-            android:configChanges="orientation|screenSize"
-            android:label="@string/directory_title"
-            android:launchMode="singleTop"
-            android:parentActivityName=".activity.VectorUnifiedSearchActivity"
-            android:windowSoftInputMode="stateHidden">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="im.vector.activity.VectorUnifiedSearchActivity" />
-        </activity>
-        <activity
-            android:name=".activity.VectorUnifiedSearchActivity"
-            android:configChanges="orientation|screenSize"
-            android:label="Vector searches"
-            android:launchMode="singleTop"
-            android:parentActivityName=".activity.VectorHomeActivity"
-            android:theme="@style/SearchesAppTheme.Light"
-            android:windowSoftInputMode="adjustResize">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="im.vector.activity.VectorHomeActivity" />
-        </activity>
-        <activity
             android:name=".activity.VectorRoomInviteMembersActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/tchap_room_invite_member_title"
@@ -318,11 +288,6 @@
             android:configChanges="orientation|screenSize"
             android:label="@string/settings_select_language"
             android:theme="@style/CountryPickerTheme.Light" />
-        <activity
-            android:name=".activity.RoomDirectoryPickerActivity"
-            android:configChanges="orientation|screenSize"
-            android:label="@string/select_room_directory"
-            android:theme="@style/DirectoryPickerTheme.Light" />
         <activity
             android:name=".activity.PhoneNumberVerificationActivity"
             android:configChanges="orientation|screenSize"

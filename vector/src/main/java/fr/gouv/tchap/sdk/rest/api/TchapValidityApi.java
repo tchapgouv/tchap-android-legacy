@@ -13,8 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package fr.gouv.tchap.sdk.rest.api;
 
-package fr.gouv.tchap.config
+import retrofit2.Call;
+import retrofit2.http.POST;
 
-// Configure here the optional features (if any)
-// ex: const val ENABLE_FEATURE1 = true
+public interface TchapValidityApi {
+
+    /**
+     * Trigger sending a renewal email to the user that made the request
+     */
+    @POST("account_validity/send_mail")
+    Call<Void> requestRenewalEmail();
+}

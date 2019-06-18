@@ -32,6 +32,7 @@ import org.matrix.androidsdk.core.Log;
 import java.util.Collection;
 import java.util.Map;
 
+import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.Matrix;
 import im.vector.VectorApp;
 import im.vector.activity.CommonActivityUtils;
@@ -131,7 +132,7 @@ public class VectorFirebaseMessagingService extends FirebaseMessagingService {
                     if ((null != session) && session.getDataHandler().getStore().isReady()) {
                         Room room = session.getDataHandler().getStore().getRoom(roomId);
                         if (null != room) {
-                            roomName = room.getRoomDisplayName(this);
+                            roomName = DinsicUtils.getRoomDisplayName(this, room);
                         }
                     }
                 }
