@@ -838,8 +838,8 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 
         // User directory visibility
         hideFromUsersDirectoryPreference.let {
-            // Show this preference if HS is protected
-            if (isHomeServerProtected()) {
+            // Show this preference if this is allowed
+            if (isUserAllowedToHideHimself()) {
                 refreshUsersDirectoryVisibility()
 
                 it.onPreferenceClickListener = Preference.OnPreferenceClickListener { _ ->
@@ -2852,9 +2852,9 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
      * User directory visibility
      * ========================================================================================== */
 
-    private fun isHomeServerProtected(): Boolean {
-        // The external users could not be hidden from the users directory search
-        return !DinsicUtils.isExternalTchapSession(mSession);
+    private fun isUserAllowedToHideHimself(): Boolean {
+        // Presently all Tchap users are allowed to hide themselves from the users directory search
+        return true
     }
 
     private fun refreshUsersDirectoryVisibility() {
