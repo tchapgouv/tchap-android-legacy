@@ -18,6 +18,7 @@
 package fr.gouv.tchap.preference;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.util.AttributeSet;
 
 import org.matrix.androidsdk.MXSession;
@@ -50,6 +51,8 @@ public class TchapRoomAvatarPreference extends HexagonAvatarPreference {
     public void refreshAvatar() {
         if ((null != mAvatarView) && (null != mRoom)) {
             VectorUtils.loadRoomAvatar(getContext(), mSession, mAvatarView, mRoom);
+            // Display no border color here
+            mAvatarView.setBorderColor(Color.TRANSPARENT);
         }
     }
 

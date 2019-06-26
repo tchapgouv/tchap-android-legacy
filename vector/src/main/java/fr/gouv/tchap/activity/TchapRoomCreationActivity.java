@@ -155,6 +155,9 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         // Prepare disable federation label by adding the hs display name of the current user.
         String userHSDomain = DinsicUtils.getHomeServerDisplayNameFromMXIdentifier(mSession.getMyUserId());
         disableFederationText.setText(getString(R.string.tchap_room_creation_disable_federation, userHSDomain));
+
+        // Set the right border color on avatar
+        hexagonMaskView.setBorderColor(ContextCompat.getColor(this, R.color.restricted_room_avatar_border_color));
     }
 
     @Override
@@ -218,9 +221,11 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         if (externalAccessRoomSwitch.isChecked()) {
             Log.d(LOG_TAG, "## unrestricted");
             setRoomAccessRule(RoomAccessRulesKt.UNRESTRICTED);
+            hexagonMaskView.setBorderColor(ContextCompat.getColor(this, R.color.unrestricted_room_avatar_border_color));
         } else {
             Log.d(LOG_TAG, "## restricted");
             setRoomAccessRule(RoomAccessRulesKt.RESTRICTED);
+            hexagonMaskView.setBorderColor(ContextCompat.getColor(this, R.color.restricted_room_avatar_border_color));
         }
     }
 

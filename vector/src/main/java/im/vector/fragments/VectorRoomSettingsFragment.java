@@ -254,7 +254,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
             Log.d(LOG_TAG, "##update succeed");
             onDone(null, UPDATE_UI);
             if (getActivity() instanceof VectorRoomDetailsActivity){
-                ((VectorRoomDetailsActivity) getActivity()).setAvatar(mRoom);
+                ((VectorRoomDetailsActivity) getActivity()).refreshAvatar();
             }
         }
 

@@ -15,8 +15,8 @@
     <include
         android:id="@+id/room_avatar_layout"
         layout="@layout/adapter_item_hexagon_avatar_room_view"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="@dimen/hexagonal_avatar_size"
+        android:layout_height="@dimen/hexagonal_avatar_size"
         android:layout_marginLeft="6dp"
         android:layout_marginTop="17dp"
         android:layout_toRightOf="@+id/room_pin_ic" />
