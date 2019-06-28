@@ -32,7 +32,6 @@ import org.matrix.androidsdk.MXDataHandler;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.crypto.IncomingRoomKeyRequest;
 import org.matrix.androidsdk.crypto.IncomingRoomKeyRequestCancellation;
-import org.matrix.androidsdk.crypto.MXCrypto;
 import org.matrix.androidsdk.crypto.RoomKeysRequestListener;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomState;
@@ -45,7 +44,6 @@ import org.matrix.androidsdk.core.listeners.IMXNetworkEventListener;
 import org.matrix.androidsdk.listeners.MXEventListener;
 import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.core.callback.SimpleApiCallback;
-import org.matrix.androidsdk.rest.client.LoginRestClient;
 import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.core.model.MatrixError;
 import org.matrix.androidsdk.rest.model.login.Credentials;
@@ -109,6 +107,9 @@ public class Matrix {
 
     // tell if the client should be logged out
     public boolean mHasBeenDisconnected = false;
+
+    // tell whether an expired account is processing
+    private boolean mIsSuspendedOnExpiredAccount = false;
 
     // i.e the event has been read from another client
     private static final MXEventListener mLiveEventListener = new MXEventListener() {
@@ -800,12 +801,13 @@ public class Matrix {
      * @param context the context
      */
     private void suspendTchapOnExpiredAccount(final Context context) {
-        if (null != VectorApp.getCurrentActivity()) {
+        if (null != VectorApp.getCurrentActivity() && !mIsSuspendedOnExpiredAccount) {
             Log.e(LOG_TAG, "## suspendTchapOnExpiredAccount");
+            mIsSuspendedOnExpiredAccount = true;
 
-            CommonActivityUtils.logout(context, getMXSessions(context), false, new SimpleApiCallback<Void>() {
+            CommonActivityUtils.logout(context, getMXSessions(context), false, new ApiCallback<Void>() {
                 @Override
-                public void onSuccess(Void info) {
+                public void onSuccess(Void aVoid) {
                     synchronized (LOG_TAG) {
                         // build a new sessions list
                         List<HomeServerConnectionConfig> configs = mLoginStorage.getCredentialsList();
@@ -824,6 +826,26 @@ public class Matrix {
                         }
                     });
                 }
+
+                private void onError(String errorMessage) {
+                    Log.e(LOG_TAG, "## suspendTchapOnExpiredAccount(): logout failed " + errorMessage);
+                    mIsSuspendedOnExpiredAccount = false;
+                }
+
+                @Override
+                public void onNetworkError(Exception e) {
+                    onError(e.getMessage());
+                }
+
+                @Override
+                public void onMatrixError(MatrixError e) {
+                    onError(e.getMessage());
+                }
+
+                @Override
+                public void onUnexpectedError(Exception e) {
+                    onError(e.getMessage());
+                }
             });
         }
     }
@@ -840,6 +862,7 @@ public class Matrix {
                 .setPositiveButton(R.string.tchap_expired_account_resume_button, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        mIsSuspendedOnExpiredAccount = false;
                         // Launch the splash screen to reload the session.
                         Intent intent = new Intent(context.getApplicationContext(), SplashActivity.class);
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
