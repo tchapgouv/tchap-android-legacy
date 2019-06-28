@@ -109,7 +109,7 @@ public class Matrix {
     public boolean mHasBeenDisconnected = false;
 
     // tell whether an expired account is processing
-    public boolean mIsSuspendedOnExpiredAccount = false;
+    private boolean mIsSuspendedOnExpiredAccount = false;
 
     // i.e the event has been read from another client
     private static final MXEventListener mLiveEventListener = new MXEventListener() {
@@ -801,7 +801,7 @@ public class Matrix {
      * @param context the context
      */
     private void suspendTchapOnExpiredAccount(final Context context) {
-        if (null != VectorApp.getCurrentActivity() && mIsSuspendedOnExpiredAccount == false) {
+        if (null != VectorApp.getCurrentActivity() && !mIsSuspendedOnExpiredAccount) {
             Log.e(LOG_TAG, "## suspendTchapOnExpiredAccount");
             mIsSuspendedOnExpiredAccount = true;
 
