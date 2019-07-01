@@ -583,6 +583,13 @@ public class Matrix {
 
         session.getDataHandler().removeListener(mLiveEventListener);
 
+        // Clear media scan database
+        // TODO The media scan database clear should be handled during the media cache clear when the MediaScanManager will be moved into the sdk.
+        Realm realm = Realm.getDefaultInstance();
+        MediaScanManager mediaScanManager = new MediaScanManager(session.getMediaScanRestClient(), realm);
+        mediaScanManager.clearAntiVirusScanResults();
+        realm.close();
+
         ApiCallback<Void> callback = new SimpleApiCallback<Void>() {
             @Override
             public void onSuccess(Void info) {
@@ -603,13 +610,6 @@ public class Matrix {
         } else {
             session.clear(context, callback);
         }
-
-        // Clear media scan database
-        // TODO The media scan database clear should be handled during the media cache clear when the MediaScanManager will be moved into the sdk.
-        Realm realm = Realm.getDefaultInstance();
-        MediaScanManager mediaScanManager = new MediaScanManager(session.getMediaScanRestClient(), realm);
-        mediaScanManager.clearAntiVirusScanResults();
-        realm.close();
     }
 
     /**

@@ -1162,6 +1162,7 @@ Veuillez noter que cette action redémarrera l\'application et pourra prendre un
     <string name="settings_show_read_receipts_summary">Cliquer sur les accusés de réception pour une liste détaillée.</string>
     <string name="settings_show_join_leave_messages">Afficher les notifications d\'arrivée et de départ</string>
     <string name="settings_show_join_leave_messages_summary">Les invitations, expulsions et bannissements ne sont pas concernés.</string>
+    <string name="settings_hide_join_leave_messages_prompt">Voulez-vous cacher tous les messages d’arrivée et de départ ?\n\nVeuillez noter que cette action redémarrera l’application et pourra prendre un certain temps.</string>
     <string name="settings_show_avatar_display_name_changes_messages">Afficher les événements liés au compte</string>
     <string name="settings_show_avatar_display_name_changes_messages_summary">Cela inclut les changements d\'avatar et de nom affiché.</string>
     <string name="settings_password">Mot de passe</string>
