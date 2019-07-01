@@ -30,11 +30,13 @@ import android.text.TextUtils;
 import org.matrix.androidsdk.HomeServerConnectionConfig;
 import org.matrix.androidsdk.MXDataHandler;
 import org.matrix.androidsdk.MXSession;
+import org.matrix.androidsdk.core.JsonUtils;
 import org.matrix.androidsdk.crypto.IncomingRoomKeyRequest;
 import org.matrix.androidsdk.crypto.IncomingRoomKeyRequestCancellation;
 import org.matrix.androidsdk.crypto.RoomKeysRequestListener;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomState;
+import org.matrix.androidsdk.data.RoomSummary;
 import org.matrix.androidsdk.data.metrics.MetricsListener;
 import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.data.store.MXFileStore;
@@ -46,6 +48,8 @@ import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.core.callback.SimpleApiCallback;
 import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.core.model.MatrixError;
+import org.matrix.androidsdk.rest.model.EventContent;
+import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.login.Credentials;
 import org.matrix.androidsdk.ssl.Fingerprint;
 import org.matrix.androidsdk.ssl.UnrecognizedCertificateException;
@@ -212,6 +216,39 @@ public class Matrix {
             // Update the configuration error codes.
             // EXPIRED_ACCOUNT: the account validity expired, the user should have received an email to renew his validity.
             MatrixError.mConfigurationErrorCodes.add(EXPIRED_ACCOUNT);
+
+            // Add a RoomSummary listener to override the method used to handle the last message of the rooms.
+            RoomSummary.setRoomSummaryListener(new RoomSummary.RoomSummaryListener() {
+                @Override
+                public boolean isSupportedEvent(Event event) {
+                    // Consider first the default implementation
+                    // Note: display name and avatar change are already ignored by this implementation.
+                    boolean isSupported = RoomSummary.isSupportedEventDefaultImplementation(event);
+
+                    // If the event is seen as supported by the default implementation,
+                    // Check whether the user wants to hide the join and leave events
+                    if (isSupported && !PreferencesManager.showJoinLeaveMessages(appContext)) {
+                        String type = event.getType();
+                        if (TextUtils.equals(Event.EVENT_TYPE_STATE_ROOM_MEMBER, type)) {
+                            RoomMember roomMember = JsonUtils.toRoomMember(event.getContent());
+                            String membership = roomMember.membership;
+
+                            if (TextUtils.equals(membership, RoomMember.MEMBERSHIP_LEAVE) || TextUtils.equals(membership, RoomMember.MEMBERSHIP_JOIN)) {
+                                // Check whether this is an actual leave or join event
+                                // (in this case the membership has changed compare to the prev-content).
+                                EventContent prevEventContent = event.getPrevContent();
+                                if ((null != prevEventContent)) {
+                                    String prevMembership = prevEventContent.membership;
+                                    isSupported = TextUtils.equals(prevMembership, membership);
+                                } else {
+                                    isSupported = false;
+                                }
+                            }
+                        }
+                    }
+                    return isSupported;
+                }
+            });
         }
         return instance;
     }
