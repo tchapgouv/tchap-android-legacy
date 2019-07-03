@@ -847,7 +847,24 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                 refreshUsersDirectoryVisibility()
 
                 it.onPreferenceClickListener = Preference.OnPreferenceClickListener { _ ->
-                    hideUserFromUsersDirectory(hideFromUsersDirectoryPreference.isChecked)
+                    val hidden = hideFromUsersDirectoryPreference.isChecked
+                    // The external users must be prompted before showing them to the users directory
+                    if (!hidden && DinsicUtils.isExternalTchapSession(mSession)) {
+                        AlertDialog.Builder(activity)
+                                .setMessage(R.string.settings_show_external_user_in_users_directory_prompt)
+                                .setPositiveButton(R.string.accept) { _, _ ->
+                                    hideUserFromUsersDirectory(false)
+                                }
+                                .setNegativeButton(R.string.cancel) { _, _ ->
+                                    hideFromUsersDirectoryPreference.isChecked = true
+                                }
+                                .setOnCancelListener { _ ->
+                                    hideFromUsersDirectoryPreference.isChecked = true
+                                }
+                                .show()
+                    } else {
+                        hideUserFromUsersDirectory(hidden)
+                    }
 
                     true
                 }
