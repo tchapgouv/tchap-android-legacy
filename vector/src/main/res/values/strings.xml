@@ -676,6 +676,7 @@
     <string name="settings_show_read_receipts_summary">Click on the read receipts for a detailed list.</string>
     <string name="settings_show_join_leave_messages">Show join and leave events</string>
     <string name="settings_show_join_leave_messages_summary">Invites, kicks, and bans are unaffected.</string>
+    <string name="settings_hide_join_leave_messages_prompt">Do you want to hide all join and leave events?\n\nNote that this action will restart the app and it may take some time.</string>
     <string name="settings_show_avatar_display_name_changes_messages">Show account events</string>
     <string name="settings_show_avatar_display_name_changes_messages_summary">Includes avatar and display name changes.</string>
     <string name="settings_vibrate_on_mention">Vibrate when mentioning a user</string>

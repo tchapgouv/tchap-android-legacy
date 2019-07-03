@@ -258,6 +258,10 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
         findPreference(PreferencesManager.SETTINGS_HIDE_FROM_USERS_DIRECTORY_KEY) as CheckBoxPreference
     }
 
+    private val showJoinLeaveMessagesPreference by lazy {
+        findPreference(PreferencesManager.SETTINGS_SHOW_JOIN_LEAVE_MESSAGES_KEY) as CheckBoxPreference
+    }
+
     /* ==========================================================================================
      * Life cycle
      * ========================================================================================== */
@@ -849,6 +853,31 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                 }
             } else {
                 mUserSettingsCategory.removePreference(it)
+            }
+        }
+
+        // Handle the case where the user changes the last messages handling rules.
+        showJoinLeaveMessagesPreference.let {
+            it.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+                // If the user decides to hide the join and leave events, this impacts the last message
+                // handling at the room summary level. Some existing last messages are not valid anymore.
+                // We have to reload the sessions in this case to prevent the sdk from failing to handle
+                // existing summaries (see `manageBackEvents` in `MXEventTimeline` class).
+                if (!showJoinLeaveMessagesPreference.isChecked) {
+                    AlertDialog.Builder(activity)
+                            .setMessage(R.string.settings_hide_join_leave_messages_prompt)
+                            .setPositiveButton(R.string.yes) { _, _ ->
+                                Matrix.getInstance(appContext).reloadSessions(appContext)
+                            }
+                            .setNegativeButton(R.string.no) { _, _ ->
+                                showJoinLeaveMessagesPreference.isChecked = true
+                            }
+                            .setOnCancelListener { _ ->
+                                showJoinLeaveMessagesPreference.isChecked = true
+                            }
+                            .show()
+                }
+                true
             }
         }
     }

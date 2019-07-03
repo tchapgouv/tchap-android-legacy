@@ -1927,26 +1927,40 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             RoomMember roomMember = JsonUtils.toRoomMember(event.getContent());
             String membership = roomMember.membership;
 
-            if (!PreferencesManager.showJoinLeaveMessages(mContext)) {
-                isSupported = !TextUtils.equals(membership, RoomMember.MEMBERSHIP_LEAVE) && !TextUtils.equals(membership, RoomMember.MEMBERSHIP_JOIN);
+            if (!PreferencesManager.showJoinLeaveMessages(mContext)
+                    && (TextUtils.equals(membership, RoomMember.MEMBERSHIP_LEAVE) || TextUtils.equals(membership, RoomMember.MEMBERSHIP_JOIN))) {
+                // Check whether this is an actual leave or join event
+                // (in this case the membership has changed compare to the prev-content).
+                EventContent prevEventContent = event.getPrevContent();
+                if ((null != prevEventContent)) {
+                    String prevMembership = prevEventContent.membership;
+                    isSupported = TextUtils.equals(prevMembership, membership);
+                } else {
+                    isSupported = false;
+                }
             }
 
-            if (isSupported && !PreferencesManager.showAvatarDisplayNameChangeMessages(mContext) && TextUtils.equals(membership, RoomMember.MEMBERSHIP_JOIN)) {
+            if (isSupported
+                    && !PreferencesManager.showAvatarDisplayNameChangeMessages(mContext)
+                    && TextUtils.equals(membership, RoomMember.MEMBERSHIP_JOIN)) {
                 EventContent eventContent = JsonUtils.toEventContent(event.getContentAsJsonObject());
                 EventContent prevEventContent = event.getPrevContent();
 
                 String senderDisplayName = eventContent.displayname;
-                String prevUserDisplayName = null;
                 String avatar = eventContent.avatar_url;
-                String prevAvatar = null;
 
+                // Check whether this event corresponds to a display name or an avatar change.
                 if ((null != prevEventContent)) {
-                    prevUserDisplayName = prevEventContent.displayname;
-                    prevAvatar = prevEventContent.avatar_url;
-                }
+                    String prevUserDisplayName = prevEventContent.displayname;
+                    String prevAvatar = prevEventContent.avatar_url;
+                    String prevMembership = prevEventContent.membership;
 
-                // !Updated display name && same avatar
-                isSupported = TextUtils.equals(prevUserDisplayName, senderDisplayName) && TextUtils.equals(avatar, prevAvatar);
+
+                    if (TextUtils.equals(prevMembership, RoomMember.MEMBERSHIP_JOIN)) {
+                        isSupported = TextUtils.equals(prevUserDisplayName, senderDisplayName) && TextUtils.equals(avatar, prevAvatar);
+                    }
+
+                }
             }
         }
 
