@@ -30,12 +30,13 @@ import android.text.TextUtils;
 import org.matrix.androidsdk.HomeServerConnectionConfig;
 import org.matrix.androidsdk.MXDataHandler;
 import org.matrix.androidsdk.MXSession;
+import org.matrix.androidsdk.core.JsonUtils;
 import org.matrix.androidsdk.crypto.IncomingRoomKeyRequest;
 import org.matrix.androidsdk.crypto.IncomingRoomKeyRequestCancellation;
-import org.matrix.androidsdk.crypto.MXCrypto;
 import org.matrix.androidsdk.crypto.RoomKeysRequestListener;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomState;
+import org.matrix.androidsdk.data.RoomSummary;
 import org.matrix.androidsdk.data.metrics.MetricsListener;
 import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.data.store.MXFileStore;
@@ -45,9 +46,10 @@ import org.matrix.androidsdk.core.listeners.IMXNetworkEventListener;
 import org.matrix.androidsdk.listeners.MXEventListener;
 import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.core.callback.SimpleApiCallback;
-import org.matrix.androidsdk.rest.client.LoginRestClient;
 import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.core.model.MatrixError;
+import org.matrix.androidsdk.rest.model.EventContent;
+import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.login.Credentials;
 import org.matrix.androidsdk.ssl.Fingerprint;
 import org.matrix.androidsdk.ssl.UnrecognizedCertificateException;
@@ -109,6 +111,9 @@ public class Matrix {
 
     // tell if the client should be logged out
     public boolean mHasBeenDisconnected = false;
+
+    // tell whether an expired account is processing
+    private boolean mIsSuspendedOnExpiredAccount = false;
 
     // i.e the event has been read from another client
     private static final MXEventListener mLiveEventListener = new MXEventListener() {
@@ -211,6 +216,39 @@ public class Matrix {
             // Update the configuration error codes.
             // EXPIRED_ACCOUNT: the account validity expired, the user should have received an email to renew his validity.
             MatrixError.mConfigurationErrorCodes.add(EXPIRED_ACCOUNT);
+
+            // Add a RoomSummary listener to override the method used to handle the last message of the rooms.
+            RoomSummary.setRoomSummaryListener(new RoomSummary.RoomSummaryListener() {
+                @Override
+                public boolean isSupportedEvent(Event event) {
+                    // Consider first the default implementation
+                    // Note: display name and avatar change are already ignored by this implementation.
+                    boolean isSupported = RoomSummary.isSupportedEventDefaultImplementation(event);
+
+                    // If the event is seen as supported by the default implementation,
+                    // Check whether the user wants to hide the join and leave events
+                    if (isSupported && !PreferencesManager.showJoinLeaveMessages(appContext)) {
+                        String type = event.getType();
+                        if (TextUtils.equals(Event.EVENT_TYPE_STATE_ROOM_MEMBER, type)) {
+                            RoomMember roomMember = JsonUtils.toRoomMember(event.getContent());
+                            String membership = roomMember.membership;
+
+                            if (TextUtils.equals(membership, RoomMember.MEMBERSHIP_LEAVE) || TextUtils.equals(membership, RoomMember.MEMBERSHIP_JOIN)) {
+                                // Check whether this is an actual leave or join event
+                                // (in this case the membership has changed compare to the prev-content).
+                                EventContent prevEventContent = event.getPrevContent();
+                                if ((null != prevEventContent)) {
+                                    String prevMembership = prevEventContent.membership;
+                                    isSupported = TextUtils.equals(prevMembership, membership);
+                                } else {
+                                    isSupported = false;
+                                }
+                            }
+                        }
+                    }
+                    return isSupported;
+                }
+            });
         }
         return instance;
     }
@@ -545,6 +583,13 @@ public class Matrix {
 
         session.getDataHandler().removeListener(mLiveEventListener);
 
+        // Clear media scan database
+        // TODO The media scan database clear should be handled during the media cache clear when the MediaScanManager will be moved into the sdk.
+        Realm realm = Realm.getDefaultInstance();
+        MediaScanManager mediaScanManager = new MediaScanManager(session.getMediaScanRestClient(), realm);
+        mediaScanManager.clearAntiVirusScanResults();
+        realm.close();
+
         ApiCallback<Void> callback = new SimpleApiCallback<Void>() {
             @Override
             public void onSuccess(Void info) {
@@ -565,13 +610,6 @@ public class Matrix {
         } else {
             session.clear(context, callback);
         }
-
-        // Clear media scan database
-        // TODO The media scan database clear should be handled during the media cache clear when the MediaScanManager will be moved into the sdk.
-        Realm realm = Realm.getDefaultInstance();
-        MediaScanManager mediaScanManager = new MediaScanManager(session.getMediaScanRestClient(), realm);
-        mediaScanManager.clearAntiVirusScanResults();
-        realm.close();
     }
 
     /**
@@ -800,12 +838,13 @@ public class Matrix {
      * @param context the context
      */
     private void suspendTchapOnExpiredAccount(final Context context) {
-        if (null != VectorApp.getCurrentActivity()) {
+        if (null != VectorApp.getCurrentActivity() && !mIsSuspendedOnExpiredAccount) {
             Log.e(LOG_TAG, "## suspendTchapOnExpiredAccount");
+            mIsSuspendedOnExpiredAccount = true;
 
-            CommonActivityUtils.logout(context, getMXSessions(context), false, new SimpleApiCallback<Void>() {
+            CommonActivityUtils.logout(context, getMXSessions(context), false, new ApiCallback<Void>() {
                 @Override
-                public void onSuccess(Void info) {
+                public void onSuccess(Void aVoid) {
                     synchronized (LOG_TAG) {
                         // build a new sessions list
                         List<HomeServerConnectionConfig> configs = mLoginStorage.getCredentialsList();
@@ -824,6 +863,26 @@ public class Matrix {
                         }
                     });
                 }
+
+                private void onError(String errorMessage) {
+                    Log.e(LOG_TAG, "## suspendTchapOnExpiredAccount(): logout failed " + errorMessage);
+                    mIsSuspendedOnExpiredAccount = false;
+                }
+
+                @Override
+                public void onNetworkError(Exception e) {
+                    onError(e.getMessage());
+                }
+
+                @Override
+                public void onMatrixError(MatrixError e) {
+                    onError(e.getMessage());
+                }
+
+                @Override
+                public void onUnexpectedError(Exception e) {
+                    onError(e.getMessage());
+                }
             });
         }
     }
@@ -840,6 +899,7 @@ public class Matrix {
                 .setPositiveButton(R.string.tchap_expired_account_resume_button, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        mIsSuspendedOnExpiredAccount = false;
                         // Launch the splash screen to reload the session.
                         Intent intent = new Intent(context.getApplicationContext(), SplashActivity.class);
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

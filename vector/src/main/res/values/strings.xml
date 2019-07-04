@@ -71,6 +71,7 @@
     <string name="or">or</string>
     <string name="invite">Invite</string>
     <string name="offline">Offline</string>
+    <string name="accept">Accept</string>
 
     <!-- actions -->
     <string name="action_exit">Exit</string>
@@ -676,6 +677,7 @@
     <string name="settings_show_read_receipts_summary">Click on the read receipts for a detailed list.</string>
     <string name="settings_show_join_leave_messages">Show join and leave events</string>
     <string name="settings_show_join_leave_messages_summary">Invites, kicks, and bans are unaffected.</string>
+    <string name="settings_hide_join_leave_messages_prompt">Do you want to hide all join and leave events?\n\nNote that this action will restart the app and it may take some time.</string>
     <string name="settings_show_avatar_display_name_changes_messages">Show account events</string>
     <string name="settings_show_avatar_display_name_changes_messages_summary">Includes avatar and display name changes.</string>
     <string name="settings_vibrate_on_mention">Vibrate when mentioning a user</string>
@@ -740,6 +742,7 @@
 
     <string name="settings_hide_from_users_directory_title">Subscribe to the red list.</string>
     <string name="settings_hide_from_users_directory_summary">"Other users won't be able to find my account in their search results."</string>
+    <string name="settings_show_external_user_in_users_directory_prompt">To disable this option, you must accept that your email address is visible to the other users.</string>
 
     <string name="settings_delete_notification_targets_confirmation">Are you sure you want to remove this notification target?</string>
 
