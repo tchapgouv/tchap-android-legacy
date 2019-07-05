@@ -28,8 +28,10 @@ public class HexagonMaskView extends android.support.v7.widget.AppCompatImageVie
     private Path hexagonPath;
     private Path hexagonBorderPath;
     private float radius;
+    private float radiusBorder;
     private float width, height;
     private int maskColor;
+    private int borderColor;
 
     public HexagonMaskView(Context context) {
         super(context);
@@ -50,6 +52,7 @@ public class HexagonMaskView extends android.support.v7.widget.AppCompatImageVie
         hexagonPath = new Path();
         hexagonBorderPath = new Path();
         maskColor = Color.WHITE;
+        borderColor = Color.LTGRAY;
     }
 
     public void setRadius(float r) {
@@ -59,6 +62,11 @@ public class HexagonMaskView extends android.support.v7.widget.AppCompatImageVie
 
     public void setMaskColor(int color) {
         this.maskColor = color;
+        invalidate();
+    }
+
+    public void setBorderColor(int color) {
+        this.borderColor = color;
         invalidate();
     }
 
@@ -74,7 +82,6 @@ public class HexagonMaskView extends android.support.v7.widget.AppCompatImageVie
         hexagonPath.lineTo(centerX + triangleHeight, centerY + radius/2);
         hexagonPath.moveTo(centerX, centerY + radius);
 
-        float radiusBorder = radius - 2;
         float triangleBorderHeight = (float) (Math.sqrt(3) * radiusBorder / 2);
         hexagonBorderPath.moveTo(centerX, centerY + radiusBorder);
         hexagonBorderPath.lineTo(centerX - triangleBorderHeight, centerY + radiusBorder/2);
@@ -90,7 +97,7 @@ public class HexagonMaskView extends android.support.v7.widget.AppCompatImageVie
     public void onDraw(Canvas c){
         super.onDraw(c);
         c.clipPath(hexagonBorderPath, Region.Op.DIFFERENCE);
-        c.drawColor(Color.LTGRAY);
+        c.drawColor(borderColor);
         c.save();
         c.clipPath(hexagonPath, Region.Op.DIFFERENCE);
         c.drawColor(maskColor);
@@ -104,6 +111,7 @@ public class HexagonMaskView extends android.support.v7.widget.AppCompatImageVie
         width = this.getMeasuredWidth();
         height = this.getMeasuredHeight();
         radius = height / 2;
+        radiusBorder = (float) (0.80 * radius);
         calculatePath();
     }
 }

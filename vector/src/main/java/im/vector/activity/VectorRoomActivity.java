@@ -35,6 +35,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -94,7 +95,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import fr.gouv.tchap.activity.TchapDirectRoomDetailsActivity;
+import fr.gouv.tchap.sdk.session.room.model.RoomAccessRulesKt;
 import fr.gouv.tchap.util.DinsicUtils;
+import fr.gouv.tchap.util.HexagonMaskView;
 import fr.gouv.tchap.util.LiveSecurityChecks;
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -255,6 +258,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
     TextView mActionBarCustomTopic;
 
     private ImageView mActionBarHeaderRoomAvatar;
+    private HexagonMaskView mActionBarHeaderHexagonRoomAvatar;
 
     // notifications area
     @BindView(R.id.room_notifications_area)
@@ -644,6 +648,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
         configureToolbar();
 
         mActionBarHeaderRoomAvatar = toolbar.findViewById(R.id.avatar_img);
+        mActionBarHeaderHexagonRoomAvatar = toolbar.findViewById(R.id.avatar_h_img);
 
         mCallId = intent.getStringExtra(EXTRA_START_CALL_ID);
         mEventId = intent.getStringExtra(EXTRA_EVENT_ID);
@@ -2824,29 +2829,34 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
     private void updateRoomHeaderAvatar() {
         if (null != mRoom) {
             if (mRoom.isDirect()) {
-                toolbar.findViewById(R.id.avatar_h_img).setVisibility(View.INVISIBLE);
-                mActionBarHeaderRoomAvatar = toolbar.findViewById(R.id.avatar_img);
-                toolbar.findViewById(R.id.avatar_img).setVisibility(View.VISIBLE);
+                mActionBarHeaderHexagonRoomAvatar.setVisibility(View.INVISIBLE);
+                mActionBarHeaderRoomAvatar.setVisibility(View.VISIBLE);
+                VectorUtils.loadRoomAvatar(this, mSession, mActionBarHeaderRoomAvatar, mRoom);
             } else {
-                toolbar.findViewById(R.id.avatar_img).setVisibility(View.INVISIBLE);
-                mActionBarHeaderRoomAvatar = toolbar.findViewById(R.id.avatar_h_img);
-                toolbar.findViewById(R.id.avatar_h_img).setVisibility(View.VISIBLE);
+                mActionBarHeaderHexagonRoomAvatar.setVisibility(View.VISIBLE);
+                mActionBarHeaderRoomAvatar.setVisibility(View.INVISIBLE);
+                VectorUtils.loadRoomAvatar(this, mSession, mActionBarHeaderHexagonRoomAvatar, mRoom);
+                // Set the right border color
+                if (TextUtils.equals(DinsicUtils.getRoomAccessRule(mSession,mRoom), RoomAccessRulesKt.RESTRICTED)) {
+                    mActionBarHeaderHexagonRoomAvatar.setBorderColor(ContextCompat.getColor(this, R.color.restricted_room_avatar_border_color));
+                } else {
+                    mActionBarHeaderHexagonRoomAvatar.setBorderColor(ContextCompat.getColor(this, R.color.unrestricted_room_avatar_border_color));
+                }
             }
-            VectorUtils.loadRoomAvatar(this, mSession, mActionBarHeaderRoomAvatar, mRoom);
         } else if (null != sRoomPreviewData) {
-            toolbar.findViewById(R.id.avatar_img).setVisibility(View.INVISIBLE);
-            mActionBarHeaderRoomAvatar = toolbar.findViewById(R.id.avatar_h_img);
-            toolbar.findViewById(R.id.avatar_h_img).setVisibility(View.VISIBLE);
+            mActionBarHeaderHexagonRoomAvatar.setVisibility(View.VISIBLE);
+            mActionBarHeaderRoomAvatar.setVisibility(View.INVISIBLE);
 
             String roomName = sRoomPreviewData.getRoomName();
             if (TextUtils.isEmpty(roomName)) {
                 roomName = " ";
             }
-            VectorUtils.loadUserAvatar(this, sRoomPreviewData.getSession(), mActionBarHeaderRoomAvatar, sRoomPreviewData.getRoomAvatarUrl(), sRoomPreviewData.getRoomId(), roomName);
+            VectorUtils.loadUserAvatar(this, sRoomPreviewData.getSession(), mActionBarHeaderHexagonRoomAvatar, sRoomPreviewData.getRoomAvatarUrl(), sRoomPreviewData.getRoomId(), roomName);
+            // The room preview is only supported for public room which are restricted by default (external users can not join them)
+            mActionBarHeaderHexagonRoomAvatar.setBorderColor(ContextCompat.getColor(this, R.color.restricted_room_avatar_border_color));
         } else if (null != mTchapUser) {
-            toolbar.findViewById(R.id.avatar_h_img).setVisibility(View.INVISIBLE);
-            mActionBarHeaderRoomAvatar = toolbar.findViewById(R.id.avatar_img);
-            toolbar.findViewById(R.id.avatar_img).setVisibility(View.VISIBLE);
+            mActionBarHeaderHexagonRoomAvatar.setVisibility(View.INVISIBLE);
+            mActionBarHeaderRoomAvatar.setVisibility(View.VISIBLE);
             VectorUtils.loadUserAvatar(this, mSession, mActionBarHeaderRoomAvatar, mTchapUser);
         }
     }
