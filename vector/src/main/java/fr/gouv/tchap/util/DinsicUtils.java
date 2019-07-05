@@ -47,6 +47,7 @@ import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.core.callback.SimpleApiCallback;
 import org.matrix.androidsdk.core.model.MatrixError;
+import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.rest.model.pid.RoomThirdPartyInvite;
@@ -54,14 +55,18 @@ import org.matrix.androidsdk.rest.model.pid.ThreePid;
 import org.matrix.androidsdk.core.Log;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import fr.gouv.tchap.sdk.rest.client.TchapThirdPidRestClient;
+import fr.gouv.tchap.sdk.session.room.model.RoomAccessRulesKt;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.VectorAppCompatActivity;
@@ -69,7 +74,6 @@ import im.vector.activity.VectorRoomActivity;
 import im.vector.adapters.ParticipantAdapterItem;
 import im.vector.contacts.Contact;
 import im.vector.contacts.ContactsManager;
-import im.vector.contacts.PIDsRetriever;
 import im.vector.util.RoomUtils;
 
 public class DinsicUtils {
@@ -884,6 +888,85 @@ public class DinsicUtils {
         }
 
         return displayName;
+    }
+
+    /**
+     * Get the current room access rule.
+     *
+     * @param session the current session.
+     * @param room    the room.
+     * @return the room access rule see {@link RoomAccessRulesKt}.
+     */
+    @NonNull
+    public static String getRoomAccessRule(MXSession session, @NonNull Room room) {
+        RoomState roomState = room.getState();
+
+        List<Event> roomAccessRulesEvents = roomState.getStateEvents(new HashSet<>(Arrays.asList(RoomAccessRulesKt.STATE_EVENT_TYPE)));
+        String rule = null;
+
+        if (roomAccessRulesEvents.isEmpty()) {
+            Log.d(LOG_TAG, "## getRoomAccessRule(): no rule is defined");
+        } else {
+            Event roomAccessRulesEvent = roomAccessRulesEvents.get(roomAccessRulesEvents.size() - 1);
+
+            // Sanity check: be sure to consider the most recent state event
+            for (int index = 0; index < roomAccessRulesEvents.size() - 1; index ++) {
+                Event event = roomAccessRulesEvents.get(index);
+                if (roomAccessRulesEvent.originServerTs < event.originServerTs) {
+                    roomAccessRulesEvent = event;
+                }
+            }
+
+            rule = RoomAccessRulesKt.getRule(roomAccessRulesEvent);
+            Log.d(LOG_TAG, "## getRoomAccessRule(): the rule " + rule + " is defined");
+        }
+
+        if (rule == null) {
+            // Consider here the rooms without room access rule
+            if (room.isDirect()) {
+                rule = RoomAccessRulesKt.DIRECT;
+
+//                // Add the corresponding state event in the room state
+//                setRoomAccessRule(session, room, RoomAccessRulesKt.DIRECT, new ApiCallback<Void>() {
+//                    @Override
+//                    public void onSuccess(Void info) {
+//                        Log.d(LOG_TAG, "## getRoomAccessRule(): the room access rules state event (direct) has been added in the room state");
+//                    }
+//
+//                    private void onError(String errorMessage) {
+//                        Log.e(LOG_TAG, "## getRoomAccessRule(): failed to add a room access rules state event " + errorMessage);
+//                    }
+//
+//                    @Override
+//                    public void onNetworkError(Exception e) {
+//                        onError(e.getMessage());
+//                    }
+//
+//                    @Override
+//                    public void onMatrixError(MatrixError e) {
+//                        onError(e.getMessage());
+//                    }
+//
+//                    @Override
+//                    public void onUnexpectedError(Exception e) {
+//                        onError(e.getMessage());
+//                    }
+//                });
+
+            } else {
+                rule = RoomAccessRulesKt.RESTRICTED;
+            }
+        }
+
+        return rule;
+    }
+
+    public static void setRoomAccessRule (MXSession session, Room room, @NonNull String rule, final ApiCallback<Void> callback) {
+
+        Map<String, Object> content = new HashMap<>();
+        content.put(RoomAccessRulesKt.STATE_EVENT_CONTENT_KEY_RULE, rule);
+
+        session.getRoomsApiClient().sendStateEvent(room.getRoomId(), RoomAccessRulesKt.STATE_EVENT_TYPE, "", content, callback);
     }
 
     /* get contacts from direct chats */

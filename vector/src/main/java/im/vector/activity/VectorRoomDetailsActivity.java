@@ -21,28 +21,28 @@ package im.vector.activity;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.View;
-import android.view.WindowManager;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import org.matrix.androidsdk.fragments.MatrixMessageListFragment;
 import org.matrix.androidsdk.listeners.MXEventListener;
 import org.matrix.androidsdk.core.Log;
-import org.matrix.androidsdk.data.Room;
 
 import java.util.List;
 
 import butterknife.BindView;
+import fr.gouv.tchap.sdk.session.room.model.RoomAccessRulesKt;
 import fr.gouv.tchap.util.DinsicUtils;
+import fr.gouv.tchap.util.HexagonMaskView;
 import fr.gouv.tchap.util.LiveSecurityChecks;
 import im.vector.Matrix;
 import im.vector.R;
@@ -94,7 +94,7 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
 
     private TextView mActionBarCustomTitle;
     private TextView mActionBarCustomTopic;
-    private ImageView mAvatar;
+    private HexagonMaskView mAvatar;
 
     // activity life cycle management:
     // - Bundle keys
@@ -527,12 +527,16 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
     private void setAvatar() {
         if (null != mRoom) {
             VectorUtils.loadRoomAvatar(this, mSession, mAvatar, mRoom);
+            // Set the right border color
+            if (TextUtils.equals(DinsicUtils.getRoomAccessRule(mSession,mRoom), RoomAccessRulesKt.RESTRICTED)) {
+                mAvatar.setBorderColor(ContextCompat.getColor(this, R.color.restricted_room_avatar_border_color));
+            } else {
+                mAvatar.setBorderColor(ContextCompat.getColor(this, R.color.unrestricted_room_avatar_border_color));
+            }
         }
     }
-    public void setAvatar(Room myRoom) {
-        if (null != mRoom) {
-            VectorUtils.loadRoomAvatar(this, mSession, mAvatar, myRoom);
-        }
+    public void refreshAvatar() {
+        setAvatar();
     }
 
 }
