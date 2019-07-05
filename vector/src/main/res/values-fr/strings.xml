@@ -37,6 +37,7 @@
     <string name="room_no_conference_call_in_encrypted_rooms">Les téléconférences ne sont pas prises en charge dans les salons chiffrées</string>
     <string name="or">ou</string>
     <string name="invite">Inviter</string>
+    <string name="accept">Accepter</string>
 
     <string name="action_sign_out">Se déconnecter</string>
     <string name="action_sign_out_confirmation">Pour des raisons de sécurité, la déconnexion supprimera toutes les clés de chiffrement de bout en bout, rendant l\'historique des conversations chiffrées inaccessible lorsque vous vous reconnecterez.
@@ -601,6 +602,7 @@ Veuillez noter que cette action redémarrera l\'application et pourra prendre un
 
     <string name="settings_hide_from_users_directory_title">Inscrire mon compte sur liste rouge</string>
     <string name="settings_hide_from_users_directory_summary">Les autres utilisateurs ne pourront pas découvrir mon compte lors de leurs recherches</string>
+    <string name="settings_show_external_user_in_users_directory_prompt">Pour désactiver cette option, vous devez accepter que votre adresse email soit visible des autres utilisateurs lors de leurs recherches.</string>
 
     <string name="settings_delete_notification_targets_confirmation">Voulez-vous vraiment supprimer cette cible de notification ?</string>
 
@@ -1162,6 +1164,7 @@ Veuillez noter que cette action redémarrera l\'application et pourra prendre un
     <string name="settings_show_read_receipts_summary">Cliquer sur les accusés de réception pour une liste détaillée.</string>
     <string name="settings_show_join_leave_messages">Afficher les notifications d\'arrivée et de départ</string>
     <string name="settings_show_join_leave_messages_summary">Les invitations, expulsions et bannissements ne sont pas concernés.</string>
+    <string name="settings_hide_join_leave_messages_prompt">Voulez-vous cacher tous les messages d’arrivée et de départ ?\n\nVeuillez noter que cette action redémarrera l’application et pourra prendre un certain temps.</string>
     <string name="settings_show_avatar_display_name_changes_messages">Afficher les événements liés au compte</string>
     <string name="settings_show_avatar_display_name_changes_messages_summary">Cela inclut les changements d\'avatar et de nom affiché.</string>
     <string name="settings_password">Mot de passe</string>
