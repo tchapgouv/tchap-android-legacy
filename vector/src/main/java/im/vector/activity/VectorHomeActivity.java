@@ -344,11 +344,16 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
         if (version != BuildConfig.VERSION_CODE) {
             Log.d(LOG_TAG, "The application has been updated from version " + version + " to version " + BuildConfig.VERSION_CODE);
 
-            // TODO add some dedicated actions here
-
             preferences.edit()
                     .putInt(PreferencesManager.VERSION_BUILD, BuildConfig.VERSION_CODE)
                     .apply();
+
+            // Add some dedicated actions here
+            if (version < 49) {
+                // Force a clear cache, this is required because of the new last message handling (PR #490).
+                Matrix.getInstance(this).reloadSessions(this);
+                return;
+            }
         }
 
         // Remove Analytics tracking until Tchap defines its own instance
