@@ -1,3 +1,14 @@
+Changes in Tchap 1.0.27 (2019-07-05)
+===================================================
+
+Improvements:
+ * Prompt external users before displaying their email in user directory #482
+ * Update matrix-sdk.aar libs - Revision:3e3cd0a4ad6c36cff3bd925b916a9c611a656853 [3e3cd0a4] PR #490
+
+Bug Fix:
+ * Bug Fix - Blink of the expired account dialog #487
+ * Rooms list: Fix the rooms order when the user decided to ignore join/leave events #485
+
 Changes in Tchap 1.0.26 (2019-06-18)
 ===================================================
 
