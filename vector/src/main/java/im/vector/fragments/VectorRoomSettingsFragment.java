@@ -77,6 +77,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import fr.gouv.tchap.sdk.session.room.model.RoomAccessRulesKt;
 import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.activity.SelectPictureActivity;
 import im.vector.Matrix;
@@ -119,6 +120,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
     private static final String PREF_KEY_ROOM_NOTIFICATIONS_LIST = "roomNotificationPreference";
     private static final String PREF_KEY_ROOM_LEAVE = "roomLeave";
     private static final String PREF_KEY_REMOVE_FROM_ROOMS_DIRECTORY = "removeFromRoomsDirectory";
+    private static final String PREF_KEY_ROOM_ACCESS_RULE = "roomAccessRule";
     private static final String PREF_KEY_ROOM_INTERNAL_ID = "roomInternalId";
     private static final String PREF_KEY_ADDRESSES = "addresses";
     private static final String PREF_KEY_ADVANCED = "advanced";
@@ -164,6 +166,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
     private EditTextPreference mRoomNameEditTxt;
     private EditTextPreference mRoomTopicEditTxt;
     private Preference mRemoveFromDirectoryPreference;
+    private Preference mRoomAccessRulePreference;
     private CheckBoxPreference mRoomDirectoryVisibilitySwitch;
     private ListPreference mRoomTagListPreference;
     private VectorListPreference mRoomAccessRulesListPreference;
@@ -297,9 +300,15 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
                             || Event.EVENT_TYPE_STATE_HISTORY_VISIBILITY.equals(eventType)
                             || Event.EVENT_TYPE_STATE_ROOM_JOIN_RULES.equals(eventType)    // room access rules
                             || Event.EVENT_TYPE_STATE_ROOM_GUEST_ACCESS.equals(eventType)  // room access rules
-                            ) {
+                            || RoomAccessRulesKt.STATE_EVENT_TYPE.equals(eventType)) {
                         Log.d(LOG_TAG, "## onLiveEvent() event = " + eventType);
                         updateUi();
+
+                        if (RoomAccessRulesKt.STATE_EVENT_TYPE.equals(eventType)
+                                && getActivity() instanceof VectorRoomDetailsActivity) {
+                            // Refresh the avatar border color
+                            ((VectorRoomDetailsActivity) getActivity()).refreshAvatar();
+                        }
                     }
 
                     if (Event.EVENT_TYPE_MESSAGE_ENCRYPTION.equals(eventType)) {
@@ -512,6 +521,9 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
             });
         }
 
+        // Handle the room access rules
+        mRoomAccessRulePreference = findPreference(PREF_KEY_ROOM_ACCESS_RULE);
+
         // init the room avatar: session and room
         mRoomPhotoAvatar.setConfiguration(mSession, mRoom);
         mRoomPhotoAvatar.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -531,7 +543,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
         setRetainInstance(true);
     }
 
-    private void removeFromRoomsDirectory () {
+    private void removeFromRoomsDirectory() {
         displayLoadingView();
 
         // The room will become private
@@ -594,6 +606,13 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
     private void onRemoveFromDirectoryError(final String errorMessage) {
         hideLoadingView(UPDATE_UI);
         Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT).show();
+    }
+
+    private void allowExternalsToJoin() {
+        displayLoadingView();
+
+        // The room will become unrestricted
+        DinsicUtils.setRoomAccessRule(mSession, mRoom, RoomAccessRulesKt.UNRESTRICTED, mUpdateCallback);
     }
 
     @Override
@@ -855,6 +874,43 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
                 PreferenceScreen preferenceScreen = getPreferenceScreen();
                 preferenceScreen.removePreference(mRemoveFromDirectoryPreference);
                 mRemoveFromDirectoryPreference = null;
+            }
+        }
+
+        if (null != mRoomAccessRulePreference) {
+            // Get the current room access
+            mRoomAccessRulePreference.setOnPreferenceClickListener(null);
+            mRoomAccessRulePreference.setEnabled(true);
+
+            String rule = DinsicUtils.getRoomAccessRule(mSession,mRoom);
+            if (TextUtils.equals(rule, RoomAccessRulesKt.RESTRICTED)) {
+                if (isAdmin && isConnected) {
+                    mRoomAccessRulePreference.setTitle(getString(R.string.tchap_room_settings_allow_external_users_to_join));
+                    mRoomAccessRulePreference.setSummary(null);
+                    mRoomAccessRulePreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                        @Override
+                        public boolean onPreferenceClick(Preference preference) {
+                            new AlertDialog.Builder(getActivity())
+                                    .setTitle(R.string.dialog_title_warning)
+                                    .setMessage(R.string.tchap_room_settings_allow_external_users_to_join_prompt_msg)
+                                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            allowExternalsToJoin();
+                                        }
+                                    })
+                                    .setNegativeButton(R.string.cancel, null)
+                                    .show();
+                            return true;
+                        }
+                    });
+                } else {
+                    mRoomAccessRulePreference.setTitle(getString(R.string.tchap_room_settings_room_access_title));
+                    mRoomAccessRulePreference.setSummary(getString(R.string.tchap_room_settings_room_access_restricted));
+                }
+            } else {
+                mRoomAccessRulePreference.setTitle(getString(R.string.tchap_room_settings_room_access_title));
+                mRoomAccessRulePreference.setSummary(getString(R.string.tchap_room_settings_room_access_unrestricted));
             }
         }
 
