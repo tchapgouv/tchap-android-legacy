@@ -320,7 +320,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                 if (resultCode == RESULT_OK) {
                     // We have retrieved the list of members to invite from RoomInviteMembersActivity.
                     // This list can not be empty because the add button for the members selection is only activated if at least 1 member is selected.
-                    // This list contains only matrixIds because the RoomInviteMembersActivity was opened in TCHAP_ONLY or FEDERATED_TCHAP_ONLY mode.
+                    // This list contains only matrixIds because the RoomInviteMembersActivity was opened in TCHAP_ONLY or NON_FEDERATED_TCHAP_ONLY mode.
                     showWaitingView();
                     invalidateOptionsMenu();
                     mRoomParams.invitedUserIds = mParticipantsIds;
@@ -618,11 +618,11 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         Intent intent = new Intent(TchapRoomCreationActivity.this, VectorRoomInviteMembersActivity.class);
         intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
         intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_ACTION_ACTIVITY_MODE, VectorRoomInviteMembersActivity.ActionMode.RETURN_SELECTED_USER_IDS);
-        // Check whether the federation has been disabled to limit the invitation to the federated users
+        // Check whether the federation has been disabled to limit the invitation to the non federated users
         if (null == mRoomParams.creation_content) {
             intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY);
         } else {
-            intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.FEDERATED_TCHAP_ONLY);
+            intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.NON_FEDERATED_TCHAP_ONLY);
         }
 
         if (!mParticipantsIds.isEmpty()) {

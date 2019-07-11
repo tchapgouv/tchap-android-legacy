@@ -267,7 +267,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                             // Consider the contact filter here
                             switch (mContactsFilter) {
                                 case TCHAP_ONLY:
-                                case FEDERATED_TCHAP_ONLY:
+                                case NON_FEDERATED_TCHAP_ONLY:
                                     if (null == mxid) {
                                         // we ignore this email and go to the next one if any
                                         continue;
@@ -748,7 +748,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
             mFirstEntry = null;
         }
 
-        if (mContactsFilter.equals(VectorRoomInviteMembersActivity.ContactsFilter.FEDERATED_TCHAP_ONLY)) {
+        if (mContactsFilter.equals(VectorRoomInviteMembersActivity.ContactsFilter.NON_FEDERATED_TCHAP_ONLY)) {
             // Remove all the users which are not federated
             // TODO improve the handling of this filter by removing not federated users during the participants list building.
             String userHSName = DinsicUtils.getHomeServerNameFromMXIdentifier(mSession.getMyUserId());
