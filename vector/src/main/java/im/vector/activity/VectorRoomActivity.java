@@ -2076,7 +2076,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
                 mSendAttachedFileView.setEnabled(false);
                 showWaitingView();
 
-                mSession.createDirectMessageRoom(mTchapUser.user_id, new ApiCallback<String>() {
+                DinsicUtils.createDirectChat(mSession, mTchapUser.user_id, new ApiCallback<String>() {
                     @Override
                     public void onSuccess(final String roomId) {
                         hideWaitingView();

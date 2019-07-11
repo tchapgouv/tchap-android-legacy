@@ -36,6 +36,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.widget.Toast;
 
+import org.matrix.androidsdk.core.JsonUtils;
 import org.matrix.androidsdk.core.MXPatterns;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
@@ -47,6 +48,7 @@ import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.core.callback.SimpleApiCallback;
 import org.matrix.androidsdk.core.model.MatrixError;
+import org.matrix.androidsdk.rest.model.CreateRoomParams;
 import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.User;
@@ -525,7 +527,7 @@ public class DinsicUtils {
             if (!DinsicUtils.isExternalTchapSession(session)) {
                 succeeded = true;
                 activity.showWaitingView();
-                session.createDirectMessageRoom(participantId, prepareDirectChatCallBack);
+                createDirectChat(session, participantId, prepareDirectChatCallBack);
             } else {
                 alertSimpleMsg(activity, activity.getString(R.string.room_creation_forbidden));
             }
@@ -713,6 +715,41 @@ public class DinsicUtils {
 
             CommonActivityUtils.goToRoomPage(activity, session, params);
         }
+    }
+
+    /**
+     * Create a direct chat room with one participant.<br>
+     * The participant can be a user ID or mail address. Once the room is created, on success, the room
+     * is set as a "direct message" with the participant.
+     *
+     * @param session            the current session
+     * @param participantUserId  user ID (or user mail) to be invited in the direct message room
+     * @param createRoomCallBack async call back response
+     * @return true if the invite was performed, false otherwise
+     */
+    public static boolean createDirectChat(final MXSession session, final String participantUserId, final ApiCallback<String> createRoomCallBack) {
+        boolean retCode = false;
+
+        if (!TextUtils.isEmpty(participantUserId)) {
+            retCode = true;
+            CreateRoomParams params = new CreateRoomParams();
+
+            params.setDirectMessage();
+            params.addParticipantIds(session.getHomeServerConfig(), Arrays.asList(participantUserId));
+
+            // Add the right room access rule
+            Event roomAccessRulesEvent = new Event();
+            roomAccessRulesEvent.type = RoomAccessRulesKt.STATE_EVENT_TYPE;
+            Map<String, String> contentMap = new HashMap<>();
+            contentMap.put(RoomAccessRulesKt.STATE_EVENT_CONTENT_KEY_RULE, RoomAccessRulesKt.DIRECT);
+            roomAccessRulesEvent.updateContent(JsonUtils.getGson(false).toJsonTree(contentMap));
+            roomAccessRulesEvent.stateKey = "";
+            params.initialStates = Arrays.asList(roomAccessRulesEvent);
+
+            session.createRoom(params, createRoomCallBack);
+        }
+
+        return retCode;
     }
 
     //=============================================================================================

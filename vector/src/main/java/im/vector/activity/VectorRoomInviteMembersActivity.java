@@ -822,7 +822,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
 
                         // The email owner is able to create a tchap account,
                         // we create a direct chat with him, and invite him by email to join Tchap.
-                        mSession.createDirectMessageRoom(email, new ApiCallback<String>() {
+                        DinsicUtils.createDirectChat(mSession, email, new ApiCallback<String>() {
                             @Override
                             public void onSuccess(final String roomId) {
                                 // For each successful direct chat creation and invitation,
@@ -903,7 +903,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
      * @param email        the email used to discovere him
      */
     private void inviteDiscoveredTchapUser(final String tchapUserId, final String email) {
-        mSession.createDirectMessageRoom(tchapUserId, new ApiCallback<String>() {
+        DinsicUtils.createDirectChat(mSession, tchapUserId, new ApiCallback<String>() {
             @Override
             public void onSuccess(final String roomId) {
                 // and we notify the user by a toast
