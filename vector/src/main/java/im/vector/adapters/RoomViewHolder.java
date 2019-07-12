@@ -229,7 +229,7 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
         } else if (null != vRoomAvatarHexagon) {
             VectorUtils.loadRoomAvatar(context, session, vRoomAvatarHexagon, room);
             // Set the right border color
-            if (TextUtils.equals(DinsicUtils.getRoomAccessRule(session,room), RoomAccessRulesKt.RESTRICTED)) {
+            if (TextUtils.equals(DinsicUtils.getRoomAccessRule(room), RoomAccessRulesKt.RESTRICTED)) {
                 vRoomAvatarHexagon.setBorderColor(ContextCompat.getColor(context, R.color.restricted_room_avatar_border_color));
             } else {
                 vRoomAvatarHexagon.setBorderColor(ContextCompat.getColor(context, R.color.unrestricted_room_avatar_border_color));

@@ -50,6 +50,7 @@ import org.matrix.androidsdk.core.callback.SimpleApiCallback;
 import org.matrix.androidsdk.core.model.MatrixError;
 import org.matrix.androidsdk.rest.model.CreateRoomParams;
 import org.matrix.androidsdk.rest.model.Event;
+import org.matrix.androidsdk.rest.model.RoomCreateContent;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.rest.model.pid.RoomThirdPartyInvite;
@@ -282,7 +283,7 @@ public class DinsicUtils {
     public static boolean isExternalTchapUser(String tchapUserId) {
         String host = getHomeServerNameFromMXIdentifier(tchapUserId);
         if (host != null) {
-            return (host.startsWith("e.") || host.startsWith("externe."));
+            return (host.startsWith("e.") || host.startsWith("agent.externe."));
         }
         return true;
     }
@@ -928,14 +929,31 @@ public class DinsicUtils {
     }
 
     /**
+     * Tell whether users on other servers can join this room.
+     *
+     * @param room    the room.
+     * @return true if this is a federated room.
+     */
+    public static boolean isFederatedRoom(@NonNull Room room) {
+        RoomState roomState = room.getState();
+
+        RoomCreateContent roomCreateContent = roomState.getRoomCreateContent();
+        if (roomCreateContent != null && roomCreateContent.isFederated != null) {
+            return roomCreateContent.isFederated;
+        } else {
+            // The room is federated by default
+            return true;
+        }
+    }
+
+    /**
      * Get the current room access rule.
      *
-     * @param session the current session.
      * @param room    the room.
      * @return the room access rule see {@link RoomAccessRulesKt}.
      */
     @NonNull
-    public static String getRoomAccessRule(MXSession session, @NonNull Room room) {
+    public static String getRoomAccessRule(@NonNull Room room) {
         RoomState roomState = room.getState();
 
         List<Event> roomAccessRulesEvents = roomState.getStateEvents(new HashSet<>(Arrays.asList(RoomAccessRulesKt.STATE_EVENT_TYPE)));
@@ -963,7 +981,7 @@ public class DinsicUtils {
             if (room.isDirect()) {
                 rule = RoomAccessRulesKt.DIRECT;
 
-//                // Add the corresponding state event in the room state
+//                // TODO or not here?: Add the corresponding state event in the room state
 //                setRoomAccessRule(session, room, RoomAccessRulesKt.DIRECT, new ApiCallback<Void>() {
 //                    @Override
 //                    public void onSuccess(Void info) {

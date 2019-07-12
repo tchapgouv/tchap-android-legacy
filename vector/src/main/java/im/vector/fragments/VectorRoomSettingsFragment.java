@@ -882,7 +882,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
             mRoomAccessRulePreference.setOnPreferenceClickListener(null);
             mRoomAccessRulePreference.setEnabled(true);
 
-            String rule = DinsicUtils.getRoomAccessRule(mSession,mRoom);
+            String rule = DinsicUtils.getRoomAccessRule(mRoom);
             if (TextUtils.equals(rule, RoomAccessRulesKt.RESTRICTED)) {
                 // The room admin is able to open a "private room" to the external users
                 // (We name "private rooms" those which require an invite to be joined)

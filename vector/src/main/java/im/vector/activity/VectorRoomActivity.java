@@ -2837,7 +2837,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
                 mActionBarHeaderRoomAvatar.setVisibility(View.INVISIBLE);
                 VectorUtils.loadRoomAvatar(this, mSession, mActionBarHeaderHexagonRoomAvatar, mRoom);
                 // Set the right border color
-                if (TextUtils.equals(DinsicUtils.getRoomAccessRule(mSession,mRoom), RoomAccessRulesKt.RESTRICTED)) {
+                if (TextUtils.equals(DinsicUtils.getRoomAccessRule(mRoom), RoomAccessRulesKt.RESTRICTED)) {
                     mActionBarHeaderHexagonRoomAvatar.setBorderColor(ContextCompat.getColor(this, R.color.restricted_room_avatar_border_color));
                 } else {
                     mActionBarHeaderHexagonRoomAvatar.setBorderColor(ContextCompat.getColor(this, R.color.unrestricted_room_avatar_border_color));
