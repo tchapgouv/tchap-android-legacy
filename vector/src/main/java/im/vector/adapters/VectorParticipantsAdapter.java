@@ -267,7 +267,8 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                             // Consider the contact filter here
                             switch (mContactsFilter) {
                                 case TCHAP_ONLY:
-                                case NON_FEDERATED_TCHAP_ONLY:
+                                case TCHAP_ONLY_WITHOUT_EXTERNALS:
+                                case TCHAP_ONLY_WITHOUT_FEDERATION:
                                     if (null == mxid) {
                                         // we ignore this email and go to the next one if any
                                         continue;
@@ -748,14 +749,26 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
             mFirstEntry = null;
         }
 
-        if (mContactsFilter.equals(VectorRoomInviteMembersActivity.ContactsFilter.NON_FEDERATED_TCHAP_ONLY)) {
-            // Remove all the users which are not federated
-            // TODO improve the handling of this filter by removing not federated users during the participants list building.
+        if (mContactsFilter.equals(VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY_WITHOUT_FEDERATION)) {
+            // Remove all the users who comes from the federation
+            // TODO improve the handling of this filter by removing these users during the participants list building.
             String userHSName = DinsicUtils.getHomeServerNameFromMXIdentifier(mSession.getMyUserId());
             for (int index = 0; index < participantItemList.size();) {
                 ParticipantAdapterItem participant = participantItemList.get(index);
                 // Note: participant.mUserId cannot be null here
                 if (!DinsicUtils.getHomeServerNameFromMXIdentifier(participant.mUserId).equals(userHSName)) {
+                    participantItemList.remove(participant);
+                } else {
+                    index++;
+                }
+            }
+        } else if (mContactsFilter.equals(VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY_WITHOUT_EXTERNALS)) {
+            // Remove all the external users
+            // TODO improve the handling of this filter by removing these users during the participants list building.
+            for (int index = 0; index < participantItemList.size();) {
+                ParticipantAdapterItem participant = participantItemList.get(index);
+                // Note: participant.mUserId cannot be null here
+                if (DinsicUtils.isExternalTchapUser(participant.mUserId)) {
                     participantItemList.remove(participant);
                 } else {
                     index++;
