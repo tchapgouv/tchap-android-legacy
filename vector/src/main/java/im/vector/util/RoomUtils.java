@@ -38,12 +38,14 @@ import android.view.View;
 import android.widget.PopupMenu;
 
 import org.matrix.androidsdk.MXSession;
+import org.matrix.androidsdk.core.model.MatrixError;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomAccountData;
 import org.matrix.androidsdk.data.RoomState;
 import org.matrix.androidsdk.data.RoomSummary;
 import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.rest.model.Event;
+import org.matrix.androidsdk.rest.model.PowerLevels;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.core.BingRulesManager;
@@ -63,6 +65,7 @@ import java.util.regex.Pattern;
 import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.Matrix;
 import im.vector.R;
+import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.VectorRoomActivity;
 import im.vector.adapters.AdapterUtils;
 import im.vector.ui.themes.ThemeUtils;
@@ -663,9 +666,81 @@ public class RoomUtils {
      * Display a confirmation dialog when user wants to leave a room
      *
      * @param context
+     * @param session
+     * @param room
      * @param onClickListener
      */
-    public static void showLeaveRoomDialog(final Context context, final DialogInterface.OnClickListener onClickListener) {
+    public static void showLeaveRoomDialog(final Context context, @NonNull final MXSession session, @NonNull final Room room, @NonNull final DialogInterface.OnClickListener onClickListener) {
+        // Check whether the user is the last admin.
+        PowerLevels powerLevels = room.getState().getPowerLevels();
+        if (null != powerLevels) {
+            int powerLevel = powerLevels.getUserPowerLevel(session.getMyUserId());
+            boolean isAdmin = (powerLevel >= CommonActivityUtils.UTILS_POWER_LEVEL_ADMIN);
+
+            if (isAdmin) {
+                // Check other members's power level.
+                room.getJoinedMembersAsync(new ApiCallback<List<RoomMember>>() {
+
+                    private void onDone(boolean isLastAdmin) {
+                        String message;
+                        if (isLastAdmin) {
+                            message = context.getString(R.string.tchap_room_admin_leave_prompt_msg);
+                        } else {
+                            message = context.getString(R.string.room_participants_leave_prompt_msg);
+                        }
+
+                        new AlertDialog.Builder(context)
+                                .setTitle(R.string.room_participants_leave_prompt_title)
+                                .setMessage(message)
+                                .setPositiveButton(R.string.leave, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        onClickListener.onClick(dialog, which);
+                                    }
+                                })
+                                .setNegativeButton(R.string.cancel, null)
+                                .show();
+                    }
+                    @Override
+                    public void onSuccess(List<RoomMember> members) {
+                        boolean isLastAdmin = true;
+                        for (RoomMember roomMember : members) {
+                            String memberUserId = roomMember.getUserId();
+                            if (!TextUtils.equals(memberUserId, session.getMyUserId())
+                                    && (powerLevels.getUserPowerLevel(memberUserId) >= CommonActivityUtils.UTILS_POWER_LEVEL_ADMIN) ) {
+                                isLastAdmin = false;
+                                break;
+                            }
+                        }
+                        onDone(isLastAdmin);
+                    }
+
+                    @Override
+                    public void onNetworkError(Exception e) {
+                        Log.e(LOG_TAG, "showLeaveRoomDialog onNetworkError " + e.getLocalizedMessage(), e);
+                        // We consider the user is the last admin by default
+                        onDone(true);
+                    }
+
+                    @Override
+                    public void onMatrixError(MatrixError e) {
+                        Log.e(LOG_TAG, "showLeaveRoomDialog onMatrixError " + e.getLocalizedMessage());
+                        // We consider the user is the last admin by default
+                        onDone(true);
+                    }
+
+                    @Override
+                    public void onUnexpectedError(Exception e) {
+                        Log.e(LOG_TAG, "showLeaveRoomDialog onUnexpectedError " + e.getLocalizedMessage(), e);
+                        // We consider the user is the last admin by default
+                        onDone(true);
+                    }
+                });
+                return;
+            }
+        }
+
+        // Display the default dialog
         new AlertDialog.Builder(context)
                 .setTitle(R.string.room_participants_leave_prompt_title)
                 .setMessage(R.string.room_participants_leave_prompt_msg)
