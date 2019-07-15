@@ -2076,7 +2076,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
                 mSendAttachedFileView.setEnabled(false);
                 showWaitingView();
 
-                mSession.createDirectMessageRoom(mTchapUser.user_id, new ApiCallback<String>() {
+                DinsicUtils.createDirectChat(mSession, mTchapUser.user_id, new ApiCallback<String>() {
                     @Override
                     public void onSuccess(final String roomId) {
                         hideWaitingView();
@@ -2837,7 +2837,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
                 mActionBarHeaderRoomAvatar.setVisibility(View.INVISIBLE);
                 VectorUtils.loadRoomAvatar(this, mSession, mActionBarHeaderHexagonRoomAvatar, mRoom);
                 // Set the right border color
-                if (TextUtils.equals(DinsicUtils.getRoomAccessRule(mSession,mRoom), RoomAccessRulesKt.RESTRICTED)) {
+                if (TextUtils.equals(DinsicUtils.getRoomAccessRule(mRoom), RoomAccessRulesKt.RESTRICTED)) {
                     mActionBarHeaderHexagonRoomAvatar.setBorderColor(ContextCompat.getColor(this, R.color.restricted_room_avatar_border_color));
                 } else {
                     mActionBarHeaderHexagonRoomAvatar.setBorderColor(ContextCompat.getColor(this, R.color.unrestricted_room_avatar_border_color));

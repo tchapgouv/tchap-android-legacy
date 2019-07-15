@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 
 import androidx.core.widget.ToastKt;
+import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.R;
 import im.vector.adapters.ParticipantAdapterItem;
 import im.vector.adapters.VectorRoomCreationAdapter;
@@ -323,7 +324,7 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
                 } else {
                     // direct message flow
                     showWaitingView();
-                    mSession.createDirectMessageRoom(otherUserId, mCreateDirectMessageCallBack);
+                    DinsicUtils.createDirectChat(mSession, otherUserId, mCreateDirectMessageCallBack);
                 }
             }
 

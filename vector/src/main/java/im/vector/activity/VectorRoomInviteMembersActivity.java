@@ -115,7 +115,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
     // This enum is used to filter the displayed contacts.
     // Note: the Tchap users for who a discussion (direct chat) exists will be considered as local contacts.
     // This means they will appear in the local contacts section.
-    public enum ContactsFilter { ALL, TCHAP_ONLY, FEDERATED_TCHAP_ONLY, NO_TCHAP_ONLY }
+    public enum ContactsFilter { ALL, TCHAP_ONLY, TCHAP_ONLY_WITHOUT_EXTERNALS, TCHAP_ONLY_WITHOUT_FEDERATION, NO_TCHAP_ONLY }
     private ContactsFilter mContactsFilter = ContactsFilter.ALL;
 
     // account data
@@ -139,7 +139,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
 
     // The list of the identifiers of the current selected contacts
     // The type of these identifiers depends on the mContactsFilter:
-    // - matrix id when mContactsFilter = ContactsFilter.TCHAP_ONLY or ContactsFilter.FEDERATED_TCHAP_ONLY
+    // - matrix id when mContactsFilter = ContactsFilter.TCHAP_ONLY, ContactsFilter.TCHAP_ONLY_WITHOUT_EXTERNALS or ContactsFilter.TCHAP_ONLY_WITHOUT_FEDERATION
     // - email address when mContactsFilter = ContactsFilter.NO_TCHAP_ONLY
     // - both in the other cases
     ArrayList<String> mUserIdsToInvite = new ArrayList<>();
@@ -822,7 +822,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
 
                         // The email owner is able to create a tchap account,
                         // we create a direct chat with him, and invite him by email to join Tchap.
-                        mSession.createDirectMessageRoom(email, new ApiCallback<String>() {
+                        DinsicUtils.createDirectChat(mSession, email, new ApiCallback<String>() {
                             @Override
                             public void onSuccess(final String roomId) {
                                 // For each successful direct chat creation and invitation,
@@ -903,7 +903,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
      * @param email        the email used to discovere him
      */
     private void inviteDiscoveredTchapUser(final String tchapUserId, final String email) {
-        mSession.createDirectMessageRoom(tchapUserId, new ApiCallback<String>() {
+        DinsicUtils.createDirectChat(mSession, tchapUserId, new ApiCallback<String>() {
             @Override
             public void onSuccess(final String roomId) {
                 // and we notify the user by a toast

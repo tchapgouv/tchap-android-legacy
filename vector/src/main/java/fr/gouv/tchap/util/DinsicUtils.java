@@ -36,6 +36,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.widget.Toast;
 
+import org.matrix.androidsdk.core.JsonUtils;
 import org.matrix.androidsdk.core.MXPatterns;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
@@ -47,7 +48,9 @@ import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.core.callback.SimpleApiCallback;
 import org.matrix.androidsdk.core.model.MatrixError;
+import org.matrix.androidsdk.rest.model.CreateRoomParams;
 import org.matrix.androidsdk.rest.model.Event;
+import org.matrix.androidsdk.rest.model.RoomCreateContent;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.rest.model.pid.RoomThirdPartyInvite;
@@ -280,7 +283,7 @@ public class DinsicUtils {
     public static boolean isExternalTchapUser(String tchapUserId) {
         String host = getHomeServerNameFromMXIdentifier(tchapUserId);
         if (host != null) {
-            return (host.startsWith("e.") || host.startsWith("externe."));
+            return (host.startsWith("e.") || host.startsWith("agent.externe."));
         }
         return true;
     }
@@ -525,7 +528,7 @@ public class DinsicUtils {
             if (!DinsicUtils.isExternalTchapSession(session)) {
                 succeeded = true;
                 activity.showWaitingView();
-                session.createDirectMessageRoom(participantId, prepareDirectChatCallBack);
+                createDirectChat(session, participantId, prepareDirectChatCallBack);
             } else {
                 alertSimpleMsg(activity, activity.getString(R.string.room_creation_forbidden));
             }
@@ -715,6 +718,41 @@ public class DinsicUtils {
         }
     }
 
+    /**
+     * Create a direct chat room with one participant.<br>
+     * The participant can be a user ID or mail address. Once the room is created, on success, the room
+     * is set as a "direct message" with the participant.
+     *
+     * @param session            the current session
+     * @param participantUserId  user ID (or user mail) to be invited in the direct message room
+     * @param createRoomCallBack async call back response
+     * @return true if the invite was performed, false otherwise
+     */
+    public static boolean createDirectChat(final MXSession session, final String participantUserId, final ApiCallback<String> createRoomCallBack) {
+        boolean retCode = false;
+
+        if (!TextUtils.isEmpty(participantUserId)) {
+            retCode = true;
+            CreateRoomParams params = new CreateRoomParams();
+
+            params.setDirectMessage();
+            params.addParticipantIds(session.getHomeServerConfig(), Arrays.asList(participantUserId));
+
+            // Add the right room access rule
+            Event roomAccessRulesEvent = new Event();
+            roomAccessRulesEvent.type = RoomAccessRulesKt.STATE_EVENT_TYPE;
+            Map<String, String> contentMap = new HashMap<>();
+            contentMap.put(RoomAccessRulesKt.STATE_EVENT_CONTENT_KEY_RULE, RoomAccessRulesKt.DIRECT);
+            roomAccessRulesEvent.updateContent(JsonUtils.getGson(false).toJsonTree(contentMap));
+            roomAccessRulesEvent.stateKey = "";
+            params.initialStates = Arrays.asList(roomAccessRulesEvent);
+
+            session.createRoom(params, createRoomCallBack);
+        }
+
+        return retCode;
+    }
+
     //=============================================================================================
     // Handle Rooms
     //=============================================================================================
@@ -891,14 +929,31 @@ public class DinsicUtils {
     }
 
     /**
+     * Tell whether users on other servers can join this room.
+     *
+     * @param room    the room.
+     * @return true if this is a federated room.
+     */
+    public static boolean isFederatedRoom(@NonNull Room room) {
+        RoomState roomState = room.getState();
+
+        RoomCreateContent roomCreateContent = roomState.getRoomCreateContent();
+        if (roomCreateContent != null && roomCreateContent.isFederated != null) {
+            return roomCreateContent.isFederated;
+        } else {
+            // The room is federated by default
+            return true;
+        }
+    }
+
+    /**
      * Get the current room access rule.
      *
-     * @param session the current session.
      * @param room    the room.
      * @return the room access rule see {@link RoomAccessRulesKt}.
      */
     @NonNull
-    public static String getRoomAccessRule(MXSession session, @NonNull Room room) {
+    public static String getRoomAccessRule(@NonNull Room room) {
         RoomState roomState = room.getState();
 
         List<Event> roomAccessRulesEvents = roomState.getStateEvents(new HashSet<>(Arrays.asList(RoomAccessRulesKt.STATE_EVENT_TYPE)));
@@ -926,7 +981,7 @@ public class DinsicUtils {
             if (room.isDirect()) {
                 rule = RoomAccessRulesKt.DIRECT;
 
-//                // Add the corresponding state event in the room state
+//                // TODO or not here?: Add the corresponding state event in the room state
 //                setRoomAccessRule(session, room, RoomAccessRulesKt.DIRECT, new ApiCallback<Void>() {
 //                    @Override
 //                    public void onSuccess(Void info) {

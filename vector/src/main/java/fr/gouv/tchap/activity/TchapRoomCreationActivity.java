@@ -226,6 +226,18 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
             Log.d(LOG_TAG, "## restricted");
             setRoomAccessRule(RoomAccessRulesKt.RESTRICTED);
             hexagonMaskView.setBorderColor(ContextCompat.getColor(this, R.color.restricted_room_avatar_border_color));
+
+            if (!mParticipantsIds.isEmpty()) {
+                // Remove the potential selected external users
+                for (int index = 0; index < mParticipantsIds.size();) {
+                    String selectedUserId = mParticipantsIds.get(index);
+                    if (DinsicUtils.isExternalTchapUser(selectedUserId)) {
+                        mParticipantsIds.remove(selectedUserId);
+                    } else {
+                        index++;
+                    }
+                }
+            }
         }
     }
 
@@ -319,8 +331,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
                 if (resultCode == RESULT_OK) {
                     // We have retrieved the list of members to invite from RoomInviteMembersActivity.
-                    // This list can not be empty because the add button for the members selection is only activated if at least 1 member is selected.
-                    // This list contains only matrixIds because the RoomInviteMembersActivity was opened in TCHAP_ONLY or FEDERATED_TCHAP_ONLY mode.
+                    // This list contains only matrixIds because the RoomInviteMembersActivity was opened in TCHAP_ONLY, TCHAP_ONLY_WITHOUT_EXTERNALS or TCHAP_ONLY_WITHOUT_FEDERATION mode.
                     showWaitingView();
                     invalidateOptionsMenu();
                     mRoomParams.invitedUserIds = mParticipantsIds;
@@ -618,11 +629,16 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         Intent intent = new Intent(TchapRoomCreationActivity.this, VectorRoomInviteMembersActivity.class);
         intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
         intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_ACTION_ACTIVITY_MODE, VectorRoomInviteMembersActivity.ActionMode.RETURN_SELECTED_USER_IDS);
-        // Check whether the federation has been disabled to limit the invitation to the federated users
+        // Check whether the federation has been disabled to limit the invitation to the non federated users
         if (null == mRoomParams.creation_content) {
-            intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY);
+            // Check whether the external users are allowed or not
+            if (externalAccessRoomSwitch.isChecked()) {
+                intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY);
+            } else {
+                intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY_WITHOUT_EXTERNALS);
+            }
         } else {
-            intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.FEDERATED_TCHAP_ONLY);
+            intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY_WITHOUT_FEDERATION);
         }
 
         if (!mParticipantsIds.isEmpty()) {

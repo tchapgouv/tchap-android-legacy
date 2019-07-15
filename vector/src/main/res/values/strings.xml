@@ -1074,6 +1074,11 @@
     // tchap room settings
     <string name="tchap_room_settings_remove_from_directory">Remove this room from the rooms directory</string>
     <string name="tchap_room_settings_remove_from_directory_prompt_msg"><b>This action is irreversible.</b>\nAre you sure you want to remove this room from the rooms directory?</string>
+    <string name="tchap_room_settings_room_access_title">Additional information</string>
+    <string name="tchap_room_settings_room_access_restricted">The externals are not allowed to join this room</string>
+    <string name="tchap_room_settings_room_access_unrestricted">The externals are allowed to join this room</string>
+    <string name="tchap_room_settings_allow_external_users_to_join">Allow the externals to join this room</string>
+    <string name="tchap_room_settings_allow_external_users_to_join_prompt_msg"><b>This action is irreversible.</b>\nAre you sure you want to allow the externals to join this room?</string>
 
     // tchap account validity
     <string name="tchap_expired_account">The validity period of your account has expired.\nAn email has been sent to you in order to renew it. Once you’ve followed the link it contains, click below.</string>
