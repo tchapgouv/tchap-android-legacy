@@ -49,6 +49,7 @@ import org.matrix.androidsdk.HomeServerConnectionConfig;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.core.callback.SimpleApiCallback;
+import org.matrix.androidsdk.core.callback.SuccessCallback;
 import org.matrix.androidsdk.rest.client.ProfileRestClient;
 import org.matrix.androidsdk.core.model.MatrixError;
 import org.matrix.androidsdk.rest.model.login.RegistrationFlowResponse;
@@ -65,10 +66,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.regex.Pattern;
 
 import butterknife.BindView;
 import butterknife.OnClick;
+import fr.gouv.tchap.sdk.rest.client.TchapPasswordPolicyRestClient;
 import fr.gouv.tchap.sdk.rest.client.TchapRestClient;
+import fr.gouv.tchap.sdk.rest.model.PasswordPolicy;
 import fr.gouv.tchap.sdk.rest.model.Platform;
 import fr.gouv.tchap.util.HomeServerConnectionConfigFactoryKt;
 import im.vector.LoginHandler;
@@ -686,9 +690,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         } else if (TextUtils.isEmpty(password)) {
             Toast.makeText(getApplicationContext(), getString(R.string.auth_reset_password_missing_password), Toast.LENGTH_SHORT).show();
             return;
-        } else if (password.length() < MIN_PASSWORD_LENGTH) {
-            Toast.makeText(getApplicationContext(), getString(R.string.auth_invalid_password), Toast.LENGTH_SHORT).show();
-            return;
         } else if (!TextUtils.equals(password, passwordCheck)) {
             Toast.makeText(getApplicationContext(), getString(R.string.auth_password_dont_match), Toast.LENGTH_SHORT).show();
             return;
@@ -723,81 +724,90 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 mCurrentEmail = email;
 
                 final HomeServerConnectionConfig hsConfig = getHsConfig();
-                ProfileRestClient pRest = new ProfileRestClient(hsConfig);
 
-                pRest.forgetPassword(email, new ApiCallback<ThreePid>() {
-                    @Override
-                    public void onSuccess(ThreePid thirdPid) {
-                        if (mMode == MODE_FORGOT_PASSWORD) {
-                            Log.d(LOG_TAG, "## onForgotPasswordClick(): requestEmailValidationToken succeeds");
+                // Check password validity
+                checkPasswordValidity(password, hsConfig, isValid -> {
+                    if (isValid) {
+                        // Pursue the forget pwd process
+                        ProfileRestClient pRest = new ProfileRestClient(hsConfig);
+                        pRest.forgetPassword(email, new ApiCallback<ThreePid>() {
+                            @Override
+                            public void onSuccess(ThreePid thirdPid) {
+                                if (mMode == MODE_FORGOT_PASSWORD) {
+                                    Log.d(LOG_TAG, "## onForgotPasswordClick(): requestEmailValidationToken succeeds");
 
-                            enableLoadingScreen(false);
+                                    enableLoadingScreen(false);
 
-                            // refresh the messages
-                            mMode = MODE_FORGOT_PASSWORD_WAITING_VALIDATION;
-                            refreshDisplay();
+                                    // refresh the messages
+                                    mMode = MODE_FORGOT_PASSWORD_WAITING_VALIDATION;
+                                    refreshDisplay();
 
-                            mForgotPid = new ThreePidCredentials();
-                            mForgotPid.clientSecret = thirdPid.clientSecret;
-                            mForgotPid.idServer = hsConfig.getIdentityServerUri().getHost();
-                            mForgotPid.sid = thirdPid.sid;
-                        }
-                    }
+                                    mForgotPid = new ThreePidCredentials();
+                                    mForgotPid.clientSecret = thirdPid.clientSecret;
+                                    mForgotPid.idServer = hsConfig.getIdentityServerUri().getHost();
+                                    mForgotPid.sid = thirdPid.sid;
+                                }
+                            }
 
-                    /**
-                     * Display a toast to warn that the operation failed
-                     * @param errorMessage the error message.
-                     */
-                    private void onError(final String errorMessage) {
-                        Log.e(LOG_TAG, "## onForgotPasswordClick(): requestEmailValidationToken fails with error " + errorMessage);
+                            /**
+                             * Display a toast to warn that the operation failed
+                             * @param errorMessage the error message.
+                             */
+                            private void onError(final String errorMessage) {
+                                Log.e(LOG_TAG, "## onForgotPasswordClick(): requestEmailValidationToken fails with error " + errorMessage);
 
-                        if (mMode == MODE_FORGOT_PASSWORD) {
-                            enableLoadingScreen(false);
-                            Toast.makeText(TchapLoginActivity.this, errorMessage, Toast.LENGTH_LONG).show();
-                        }
-                    }
+                                if (mMode == MODE_FORGOT_PASSWORD) {
+                                    enableLoadingScreen(false);
+                                    Toast.makeText(TchapLoginActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                                }
+                            }
 
-                    @Override
-                    public void onNetworkError(final Exception e) {
-                        if (mMode == MODE_FORGOT_PASSWORD) {
-                            UnrecognizedCertificateException unrecCertEx = CertUtil.getCertificateException(e);
-                            if (unrecCertEx != null) {
-                                final Fingerprint fingerprint = unrecCertEx.getFingerprint();
+                            @Override
+                            public void onNetworkError(final Exception e) {
+                                if (mMode == MODE_FORGOT_PASSWORD) {
+                                    UnrecognizedCertificateException unrecCertEx = CertUtil.getCertificateException(e);
+                                    if (unrecCertEx != null) {
+                                        final Fingerprint fingerprint = unrecCertEx.getFingerprint();
 
-                                UnrecognizedCertHandler.show(hsConfig, fingerprint, false, new UnrecognizedCertHandler.Callback() {
-                                    @Override
-                                    public void onAccept() {
-                                        onForgotPasswordClick();
-                                    }
+                                        UnrecognizedCertHandler.show(hsConfig, fingerprint, false, new UnrecognizedCertHandler.Callback() {
+                                            @Override
+                                            public void onAccept() {
+                                                onForgotPasswordClick();
+                                            }
 
-                                    @Override
-                                    public void onIgnore() {
+                                            @Override
+                                            public void onIgnore() {
+                                                onError(e.getLocalizedMessage());
+                                            }
+
+                                            @Override
+                                            public void onReject() {
+                                                onError(e.getLocalizedMessage());
+                                            }
+                                        });
+                                    } else {
                                         onError(e.getLocalizedMessage());
                                     }
+                                }
+                            }
 
-                                    @Override
-                                    public void onReject() {
-                                        onError(e.getLocalizedMessage());
-                                    }
-                                });
-                            } else {
+                            @Override
+                            public void onUnexpectedError(Exception e) {
                                 onError(e.getLocalizedMessage());
                             }
-                        }
-                    }
 
-                    @Override
-                    public void onUnexpectedError(Exception e) {
-                        onError(e.getLocalizedMessage());
-                    }
-
-                    @Override
-                    public void onMatrixError(MatrixError e) {
-                        if (TextUtils.equals(MatrixError.THREEPID_NOT_FOUND, e.errcode)) {
-                            onError(getString(R.string.account_email_not_found_error));
-                        } else {
-                            onError(e.getLocalizedMessage());
-                        }
+                            @Override
+                            public void onMatrixError(MatrixError e) {
+                                if (TextUtils.equals(MatrixError.THREEPID_NOT_FOUND, e.errcode)) {
+                                    onError(getString(R.string.account_email_not_found_error));
+                                } else {
+                                    onError(e.getLocalizedMessage());
+                                }
+                            }
+                        });
+                    } else {
+                        enableLoadingScreen(false);
+                        Toast.makeText(getApplicationContext(), getString(R.string.tchap_password_weak_pwd_error), Toast.LENGTH_LONG).show();
                     }
                 });
             }
@@ -1240,6 +1250,58 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             // The registration flows are already known, pursue the current action.
             callback.onSuccess(null);
         }
+    }
+
+    /**
+     * Checks whether a given password complies with the homeserver's policy.
+     */
+    private void checkPasswordValidity(final String password, final HomeServerConnectionConfig hsConfig, final SuccessCallback<Boolean> callback) {
+        Log.d(LOG_TAG, "## checkPasswordValidity(): IN");
+        TchapPasswordPolicyRestClient restClient = new TchapPasswordPolicyRestClient(hsConfig);
+
+        restClient.getPasswordPolicy(new ApiCallback<PasswordPolicy>() {
+            @Override
+            public void onSuccess(PasswordPolicy policy) {
+                Log.d(LOG_TAG, "## checkPasswordValidity(): getPasswordPolicy succeeds");
+                Boolean isValid = true;
+
+                // Check first the password length
+                if (password.length() < policy.minLength) {
+                    isValid = false;
+                } else if (policy.isDigitRequired && !Pattern.compile("[0-9]").matcher(password).find()) {
+                    isValid = false;
+                } else if (policy.isUppercaseRequired && !Pattern.compile("[ABCDEFGHIJKLMNOPQRSTUVWXYZ]").matcher(password).find()) {
+                    isValid = false;
+                } else if (policy.isUppercaseRequired && !Pattern.compile("[abcdefghijklmnopqrstuvwxyz]").matcher(password).find()) {
+                    isValid = false;
+                } else if (policy.isSymbolRequired && !Pattern.compile("[^a-zA-Z0-9]").matcher(password).find()) {
+                    isValid = false;
+                }
+
+                callback.onSuccess(isValid);
+            }
+
+            private void onError(final String errorMessage) {
+                Log.e(LOG_TAG, "## checkPasswordValidity(): getPasswordPolicy fails with error " + errorMessage);
+                // Ignore this error for the moment (some servers did not support this request yet), check only the pwd length.
+                callback.onSuccess(password.length() >= MIN_PASSWORD_LENGTH);
+            }
+
+            @Override
+            public void onNetworkError(final Exception e) {
+                onError(e.getLocalizedMessage());
+            }
+
+            @Override
+            public void onUnexpectedError(Exception e) {
+                onError(e.getLocalizedMessage());
+            }
+
+            @Override
+            public void onMatrixError(MatrixError e) {
+                onError(e.getLocalizedMessage());
+            }
+        });
     }
 
     /**
@@ -1918,9 +1980,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         if (TextUtils.isEmpty(password)) {
             Toast.makeText(getApplicationContext(), getString(R.string.auth_missing_password), Toast.LENGTH_SHORT).show();
             return;
-        } else if (password.length() < MIN_PASSWORD_LENGTH) {
-            Toast.makeText(getApplicationContext(), getString(R.string.auth_invalid_password), Toast.LENGTH_SHORT).show();
-            return;
         } else if (!TextUtils.equals(password, passwordCheck)) {
             Toast.makeText(getApplicationContext(), getString(R.string.auth_password_dont_match), Toast.LENGTH_SHORT).show();
             return;
@@ -1950,17 +2009,28 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 mTchapPlatform = platform;
                 mCurrentEmail = emailAddress;
 
-                RegistrationManager.getInstance().setHsConfig(getHsConfig());
-                // The username is forced by the Tchap server, we don't send it anymore.
-                RegistrationManager.getInstance().setAccountData(null, password);
+                final HomeServerConnectionConfig hsConfig = getHsConfig();
 
-                RegistrationManager.getInstance().clearThreePid();
-                RegistrationManager.getInstance().addEmailThreePid(new ThreePid(mCurrentEmail, ThreePid.MEDIUM_EMAIL));
+                // Check password validity
+                checkPasswordValidity(password, hsConfig, isValid -> {
+                    if (isValid) {
+                        // Pursue the registration`
+                        RegistrationManager.getInstance().setHsConfig(hsConfig);
+                        // The username is forced by the Tchap server, we don't send it anymore.
+                        RegistrationManager.getInstance().setAccountData(null, password);
 
-                checkRegistrationFlows(new SimpleApiCallback<Void>() {
-                    @Override
-                    public void onSuccess(Void info) {
-                        RegistrationManager.getInstance().attemptRegistration(TchapLoginActivity.this, TchapLoginActivity.this);
+                        RegistrationManager.getInstance().clearThreePid();
+                        RegistrationManager.getInstance().addEmailThreePid(new ThreePid(mCurrentEmail, ThreePid.MEDIUM_EMAIL));
+
+                        checkRegistrationFlows(new SimpleApiCallback<Void>() {
+                            @Override
+                            public void onSuccess(Void info) {
+                                RegistrationManager.getInstance().attemptRegistration(TchapLoginActivity.this, TchapLoginActivity.this);
+                            }
+                        });
+                    } else {
+                        enableLoadingScreen(false);
+                        Toast.makeText(getApplicationContext(), getString(R.string.tchap_password_weak_pwd_error), Toast.LENGTH_LONG).show();
                     }
                 });
             }
