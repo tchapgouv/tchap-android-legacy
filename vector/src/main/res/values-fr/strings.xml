@@ -1194,12 +1194,12 @@ Veuillez noter que cette action redémarrera l\'application et pourra prendre un
     <string name="security_dialog_title">Sécurité</string>
     <string name="detect_accessibility_service">Détecter si un service d’accessibilité est actif.</string>
     <string name="accessibility_security_dialog_message">Un service d’accessibilité est actif. Il observe le clavier et les fenêtres.</string>
-    <string name="security_dialog_start">Démarrer quand même.</string>
-    <string name="security_dialog_start_an_stop_detecting">Ne plus me prévenir.</string>
-    <string name="security_dialog_stop">Sortir.</string>
+    <string name="security_dialog_start">Démarrer quand même</string>
+    <string name="security_dialog_start_an_stop_detecting">Ne plus me prévenir</string>
+    <string name="security_dialog_stop">Sortir</string>
     <string name="detect_notification_listener">Détecter si un écouteur de notification est actif.</string>
     <string name="notification_security_dialog_message">Un écouteur de notification lit le contenu des notifications de message. Les écouteurs suivant sont activés :</string>
-    <string name="security_dialog_continue">Continuer.</string>
+    <string name="security_dialog_continue">Continuer</string>
     <string name="accessibility_change_security_dialog_message">Un service d’accessibilité a été activé. Il observe le clavier et les fenêtres.</string>
     <string name="notification_change_security_dialog_message">Un écouteur de notification lit le contenu des notifications de message. Les écouteurs suivant ont été activés :</string>
 
