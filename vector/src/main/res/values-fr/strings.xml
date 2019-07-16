@@ -225,7 +225,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="room_participants_action_devices_list">Afficher la liste des appareils</string>
     <string name="people_search_local_contacts">Contacts locaux (%d)</string>
     <string name="people_search_filter_text">Utilisateurs Matrix uniquement</string>
-    <string name="people_search_invite_by_id_dialog_title">Inviter un utilisateur par email</string>
+    <string name="people_search_invite_by_id_dialog_title">Inviter par email</string>
     <string name="people_search_invite_by_id_dialog_hint">Email</string>
     <string name="people_invalid_warning_msg">Pour inviter un contact un email est requis</string>
     <string name="people_edit_contact_warning_msg">Accès à la fiche contact impossible</string>

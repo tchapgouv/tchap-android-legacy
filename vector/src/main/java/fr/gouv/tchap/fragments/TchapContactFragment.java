@@ -139,21 +139,19 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
             startRemoteKnownContactsSearch(true);
         }
 
-        // Hide Invite by email button for the moment
-        mInviteContactLayout.setVisibility(View.GONE);
-//        // Hide Invite by email button for external users
-//        if (DinsicUtils.isExternalTchapSession(mSession)) {
-//            mInviteContactLayout.setVisibility(View.GONE);
-//        } else {
-//            mInviteContactLayout.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    // We launch a VectorRoomInviteMembersActivity activity to invite
-//                    // some non-tchap contacts by using their email
-//                    mActivity.createNewChat(VectorRoomInviteMembersActivity.ActionMode.SEND_INVITE, VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY);
-//                }
-//            });
-//        }
+        // Hide Invite by email button for external users
+        if (DinsicUtils.isExternalTchapSession(mSession)) {
+            mInviteContactLayout.setVisibility(View.GONE);
+        } else {
+            mInviteContactLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // We launch a VectorRoomInviteMembersActivity activity to invite
+                    // some non-tchap contacts by using their email
+                    mActivity.createNewChat(VectorRoomInviteMembersActivity.ActionMode.SEND_INVITE, VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY);
+                }
+            });
+        }
 
 
         if (!ContactsManager.getInstance().isContactBookAccessRequested()) {
