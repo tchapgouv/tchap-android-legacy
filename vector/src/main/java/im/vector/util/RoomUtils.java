@@ -692,12 +692,7 @@ public class RoomUtils {
                         new AlertDialog.Builder(context)
                                 .setTitle(R.string.room_participants_leave_prompt_title)
                                 .setMessage(message)
-                                .setPositiveButton(R.string.leave, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        onClickListener.onClick(dialog, which);
-                                    }
-                                })
+                                .setPositiveButton(R.string.leave, onClickListener)
                                 .setNegativeButton(R.string.cancel, null)
                                 .show();
                     }
@@ -744,12 +739,7 @@ public class RoomUtils {
         new AlertDialog.Builder(context)
                 .setTitle(R.string.room_participants_leave_prompt_title)
                 .setMessage(R.string.room_participants_leave_prompt_msg)
-                .setPositiveButton(R.string.leave, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        onClickListener.onClick(dialog, which);
-                    }
-                })
+                .setPositiveButton(R.string.leave, onClickListener)
                 .setNegativeButton(R.string.cancel, null)
                 .show();
     }
