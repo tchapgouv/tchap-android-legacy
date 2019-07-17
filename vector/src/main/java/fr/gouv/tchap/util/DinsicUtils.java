@@ -281,11 +281,21 @@ public class DinsicUtils {
      * @return true if external
      */
     public static boolean isExternalTchapUser(String tchapUserId) {
-        String host = getHomeServerNameFromMXIdentifier(tchapUserId);
-        if (host != null) {
-            return (host.startsWith("e.") || host.startsWith("agent.externe."));
+        String homeServerName = getHomeServerNameFromMXIdentifier(tchapUserId);
+        if (homeServerName != null) {
+            return isExternalTchapServer(homeServerName);
         }
         return true;
+    }
+
+    /**
+     * Tells whether a homeserver name corresponds to an external server or not
+     *
+     * @param homeServerName
+     * @return true if external
+     */
+    public static boolean isExternalTchapServer(@NonNull String homeServerName) {
+        return (homeServerName.startsWith("e.") || homeServerName.startsWith("agent.externe."));
     }
 
     /**
