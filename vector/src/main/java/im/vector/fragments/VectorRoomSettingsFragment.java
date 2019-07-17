@@ -89,6 +89,7 @@ import im.vector.preference.VectorCustomActionEditTextPreference;
 import im.vector.preference.VectorListPreference;
 import im.vector.settings.VectorLocale;
 import im.vector.ui.themes.ThemeUtils;
+import im.vector.util.RoomUtils;
 import im.vector.util.SystemUtilsKt;
 import im.vector.util.VectorUtils;
 import fr.gouv.tchap.preference.TchapRoomAvatarPreference;
@@ -439,59 +440,54 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     // leave room
-                    new AlertDialog.Builder(getActivity())
-                            .setTitle(R.string.room_participants_leave_prompt_title)
-                            .setMessage(R.string.room_participants_leave_prompt_msg)
-                            .setPositiveButton(R.string.leave, new DialogInterface.OnClickListener() {
+                    RoomUtils.showLeaveRoomDialog(getActivity(), mSession, mRoom, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            displayLoadingView();
+
+                            mRoom.leave(new ApiCallback<Void>() {
                                 @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    displayLoadingView();
-
-                                    mRoom.leave(new ApiCallback<Void>() {
-                                        @Override
-                                        public void onSuccess(Void info) {
-                                            if (null != getActivity()) {
-                                                getActivity().runOnUiThread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        getActivity().finish();
-                                                    }
-                                                });
+                                public void onSuccess(Void info) {
+                                    if (null != getActivity()) {
+                                        getActivity().runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                getActivity().finish();
                                             }
-                                        }
-
-                                        private void onError(final String errorMessage) {
-                                            if (null != getActivity()) {
-                                                getActivity().runOnUiThread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        hideLoadingView(true);
-                                                        Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT).show();
-                                                    }
-                                                });
-                                            }
-                                        }
-
-                                        @Override
-                                        public void onNetworkError(Exception e) {
-                                            onError(e.getLocalizedMessage());
-                                        }
-
-                                        @Override
-                                        public void onMatrixError(MatrixError e) {
-                                            onError(e.getLocalizedMessage());
-                                        }
-
-                                        @Override
-                                        public void onUnexpectedError(Exception e) {
-                                            onError(e.getLocalizedMessage());
-                                        }
-                                    });
-
+                                        });
+                                    }
                                 }
-                            })
-                            .setNegativeButton(R.string.cancel, null)
-                            .show();
+
+                                private void onError(final String errorMessage) {
+                                    if (null != getActivity()) {
+                                        getActivity().runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                hideLoadingView(true);
+                                                Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                    }
+                                }
+
+                                @Override
+                                public void onNetworkError(Exception e) {
+                                    onError(e.getLocalizedMessage());
+                                }
+
+                                @Override
+                                public void onMatrixError(MatrixError e) {
+                                    onError(e.getLocalizedMessage());
+                                }
+
+                                @Override
+                                public void onUnexpectedError(Exception e) {
+                                    onError(e.getLocalizedMessage());
+                                }
+                            });
+
+                        }
+                    });
                     return true;
                 }
             });

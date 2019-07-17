@@ -1042,6 +1042,7 @@
     <string name="tchap_room_creation_save_avatar_failed">Failed to save picture.\n Do you want to retry?</string>
 
     <!-- tchap new strings -->
+    <string name="tchap_room_admin_leave_prompt_msg">Are you sure you want to leave the room?\n\nThe room will no longer be administered, and you may not be able to join it again</string>
     <string name="tchap_invite_contacts_to_tchap">Invite contacts in Tchap</string>
     <string name="tchap_invite_contacts_by_email">Invite contacts by email</string>
     <string name="tchap_invite_contacts_to_room">Invite contacts in Room</string>

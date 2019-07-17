@@ -963,70 +963,65 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
             @Override
             public void onLeaveClick() {
                 // The user is trying to leave with unsaved changes. Warn about that
-                new AlertDialog.Builder(getActivity())
-                        .setTitle(R.string.room_participants_leave_prompt_title)
-                        .setMessage(R.string.room_participants_leave_prompt_msg)
-                        .setPositiveButton(R.string.leave, new DialogInterface.OnClickListener() {
+                RoomUtils.showLeaveRoomDialog(getActivity(), mSession, mRoom, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mProgressView.setVisibility(View.VISIBLE);
+
+                        mRoom.leave(new ApiCallback<Void>() {
                             @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                mProgressView.setVisibility(View.VISIBLE);
-
-                                mRoom.leave(new ApiCallback<Void>() {
-                                    @Override
-                                    public void onSuccess(Void info) {
-                                        if (null != getActivity()) {
-                                            getActivity().runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    getActivity().finish();
-                                                }
-                                            });
+                            public void onSuccess(Void info) {
+                                if (null != getActivity()) {
+                                    getActivity().runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            getActivity().finish();
                                         }
-                                    }
-
-                                    private void onError(final String errorMessage) {
-                                        if (null != getActivity()) {
-                                            getActivity().runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    mProgressView.setVisibility(View.GONE);
-                                                    Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT).show();
-                                                }
-                                            });
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onNetworkError(Exception e) {
-                                        onError(e.getLocalizedMessage());
-                                    }
-
-                                    @Override
-                                    public void onMatrixError(final MatrixError e) {
-                                        if (getVectorActivity() != null && MatrixError.M_CONSENT_NOT_GIVEN.equals(e.errcode)) {
-                                            getVectorActivity().runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    mProgressView.setVisibility(View.GONE);
-
-                                                    getVectorActivity().getConsentNotGivenHelper().displayDialog(e);
-                                                }
-                                            });
-                                        } else {
-                                            onError(e.getLocalizedMessage());
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onUnexpectedError(Exception e) {
-                                        onError(e.getLocalizedMessage());
-                                    }
-                                });
-
+                                    });
+                                }
                             }
-                        })
-                        .setNegativeButton(R.string.cancel, null)
-                        .show();
+
+                            private void onError(final String errorMessage) {
+                                if (null != getActivity()) {
+                                    getActivity().runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            mProgressView.setVisibility(View.GONE);
+                                            Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                }
+                            }
+
+                            @Override
+                            public void onNetworkError(Exception e) {
+                                onError(e.getLocalizedMessage());
+                            }
+
+                            @Override
+                            public void onMatrixError(final MatrixError e) {
+                                if (getVectorActivity() != null && MatrixError.M_CONSENT_NOT_GIVEN.equals(e.errcode)) {
+                                    getVectorActivity().runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            mProgressView.setVisibility(View.GONE);
+
+                                            getVectorActivity().getConsentNotGivenHelper().displayDialog(e);
+                                        }
+                                    });
+                                } else {
+                                    onError(e.getLocalizedMessage());
+                                }
+                            }
+
+                            @Override
+                            public void onUnexpectedError(Exception e) {
+                                onError(e.getLocalizedMessage());
+                            }
+                        });
+
+                    }
+                });
             }
 
             @Override

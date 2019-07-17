@@ -253,21 +253,24 @@ public abstract class AbsHomeFragment extends VectorBaseFragment implements
 
     @Override
     public void onLeaveRoom(final MXSession session, final String roomId) {
-        RoomUtils.showLeaveRoomDialog(getActivity(), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (mActivity != null && !mActivity.isFinishing()) {
-                    mActivity.onRejectInvitation(roomId, new SimpleApiCallback<Void>() {
-                        @Override
-                        public void onSuccess(Void info) {
-                            if (mOnRoomChangedListener != null) {
-                                mOnRoomChangedListener.onRoomLeft(roomId);
+        Room room = mSession.getDataHandler().getRoom(roomId);
+        if (room != null) {
+            RoomUtils.showLeaveRoomDialog(getActivity(), session, room, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    if (mActivity != null && !mActivity.isFinishing()) {
+                        mActivity.onRejectInvitation(roomId, new SimpleApiCallback<Void>() {
+                            @Override
+                            public void onSuccess(Void info) {
+                                if (mOnRoomChangedListener != null) {
+                                    mOnRoomChangedListener.onRoomLeft(roomId);
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     @Override

@@ -73,6 +73,7 @@ import im.vector.fragments.VectorUnknownDevicesFragment;
 import im.vector.ui.themes.ActivityOtherThemes;
 import im.vector.util.CallsManager;
 import im.vector.util.PermissionsToolsKt;
+import im.vector.util.RoomUtils;
 import im.vector.util.VectorUtils;
 import fr.gouv.tchap.util.DinsicUtils;
 
@@ -442,8 +443,27 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
             case ITEM_ACTION_LEAVE:
                 Log.d(LOG_TAG, "## performItemAction(): Leave the room");
                 if (null != mRoom) {
-                    enableProgressBarView(CommonActivityUtils.UTILS_DISPLAY_PROGRESS_BAR);
-                    mRoom.leave(mRoomActionsListener);
+                    // Prompt the user before leaving only if he is room admin.
+                    boolean isAdmin = false;
+
+                    PowerLevels powerLevels = mRoom.getState().getPowerLevels();
+                    if (null != powerLevels) {
+                        int powerLevel = powerLevels.getUserPowerLevel(mSession.getMyUserId());
+                        isAdmin = (powerLevel >= CommonActivityUtils.UTILS_POWER_LEVEL_ADMIN);
+                    }
+
+                    if (isAdmin) {
+                        RoomUtils.showLeaveRoomDialog(this, mSession, mRoom, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                enableProgressBarView(CommonActivityUtils.UTILS_DISPLAY_PROGRESS_BAR);
+                                mRoom.leave(mRoomActionsListener);
+                            }
+                        });
+                    } else {
+                        enableProgressBarView(CommonActivityUtils.UTILS_DISPLAY_PROGRESS_BAR);
+                        mRoom.leave(mRoomActionsListener);
+                    }
                 }
                 break;
 
