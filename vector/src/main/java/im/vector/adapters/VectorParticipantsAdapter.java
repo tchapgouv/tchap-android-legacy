@@ -242,12 +242,9 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
 
         if (null != contacts) {
             for (Contact contact : contacts) {
-                // Show contacts without emails only in two cases :
-                // 1) when all contacts are displaying
-                // 2) when no tchap users are displaying
+                // Show contacts without emails only when no tchap users are displaying
                 if (contact.getEmails().isEmpty()
-                        && (mContactsFilter == VectorRoomInviteMembersActivity.ContactsFilter.ALL
-                        || mContactsFilter == VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY)) {
+                        && mContactsFilter == VectorRoomInviteMembersActivity.ContactsFilter.ALL_WITHOUT_TCHAP_USERS) {
                     Contact dummyContact = new Contact(contact.getContactId());
                     dummyContact.setDisplayName(contact.getDisplayName());
                     dummyContact.addEmailAdress(mContext.getString(R.string.no_email));
@@ -266,15 +263,15 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
 
                             // Consider the contact filter here
                             switch (mContactsFilter) {
-                                case TCHAP_ONLY:
-                                case TCHAP_ONLY_WITHOUT_EXTERNALS:
-                                case TCHAP_ONLY_WITHOUT_FEDERATION:
+                                case TCHAP_USERS_ONLY:
+                                case TCHAP_USERS_ONLY_WITHOUT_EXTERNALS:
+                                case TCHAP_USERS_ONLY_WITHOUT_FEDERATION:
                                     if (null == mxid) {
                                         // we ignore this email and go to the next one if any
                                         continue;
                                     }
                                     break;
-                                case NO_TCHAP_ONLY:
+                                case ALL_WITHOUT_TCHAP_USERS:
                                     if (null != mxid) {
                                         // we ignore this email and go to the next one if any
                                         continue;
@@ -361,7 +358,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
             @Override
             public void onSuccess(Void info) {
                 List<ParticipantAdapterItem> participants = new ArrayList<>();
-                if (mContactsFilter != VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY) {
+                if (mContactsFilter != VectorRoomInviteMembersActivity.ContactsFilter.ALL_WITHOUT_TCHAP_USERS) {
                     // Add first all known matrix users
                     participants.addAll(VectorUtils.listKnownParticipants(mSession).values());
 
@@ -449,7 +446,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
 
             if (null != mContactsParticipants) {
                 List<ParticipantAdapterItem> newContactList;
-                if (mContactsFilter != VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY) {
+                if (mContactsFilter != VectorRoomInviteMembersActivity.ContactsFilter.ALL_WITHOUT_TCHAP_USERS) {
                     // Initialize the participants list with the tchap users extracted from the
                     // current discussions (direct chats).
                     newContactList = DinsicUtils.getContactsFromDirectChats(mSession);
@@ -517,9 +514,9 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
         }
 
         // Search in the user directories is disabled for the extern users.
-        // Search is processed only if the VectorRoomInviteMembersActivity is NOT in a NO_TCHAP_ONLY mode
-        // In NO_TCHAP_ONLY mode, we don't want to display the Tchap users on the search result
-        if (DinsicUtils.isExternalTchapSession(mSession) || mContactsFilter == VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY) {
+        // Search is processed only if the VectorRoomInviteMembersActivity is NOT in a ALL_WITHOUT_TCHAP_USERS mode
+        // In ALL_WITHOUT_TCHAP_USERS mode, we don't want to display the Tchap users on the search result
+        if (DinsicUtils.isExternalTchapSession(mSession) || mContactsFilter == VectorRoomInviteMembersActivity.ContactsFilter.ALL_WITHOUT_TCHAP_USERS) {
             searchAccountKnownContacts(theFirstEntry, new ArrayList<ParticipantAdapterItem>(), true, searchListener);
             return;
         }
@@ -647,7 +644,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                             @Override
                             public void onSuccess(Void info) {
                                 List<ParticipantAdapterItem> list;
-                                if (mContactsFilter != VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY) {
+                                if (mContactsFilter != VectorRoomInviteMembersActivity.ContactsFilter.ALL_WITHOUT_TCHAP_USERS) {
                                     // Initialize the participants list with the tchap users extracted from the
                                     // current discussions (direct chats).
                                     list = DinsicUtils.getContactsFromDirectChats(mSession);
@@ -692,6 +689,10 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                         // Remove the used members from the contact list
                         iterator.remove();
                     }
+                }
+
+                synchronized (LOG_TAG) {
+                    mContactsParticipants = contactsParticipants;
                 }
             }
 
@@ -749,31 +750,33 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
             mFirstEntry = null;
         }
 
-        if (mContactsFilter.equals(VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY_WITHOUT_FEDERATION)) {
-            // Remove all the users who comes from the federation
-            // TODO improve the handling of this filter by removing these users during the participants list building.
-            String userHSName = DinsicUtils.getHomeServerNameFromMXIdentifier(mSession.getMyUserId());
-            for (int index = 0; index < participantItemList.size();) {
-                ParticipantAdapterItem participant = participantItemList.get(index);
-                // Note: participant.mUserId cannot be null here
-                if (!DinsicUtils.getHomeServerNameFromMXIdentifier(participant.mUserId).equals(userHSName)) {
-                    participantItemList.remove(participant);
-                } else {
-                    index++;
+        // Filter some participants according to "mContactsFilter" value.
+        switch (mContactsFilter) {
+            case ALL_WITHOUT_EXTERNALS:
+            case TCHAP_USERS_ONLY_WITHOUT_EXTERNALS:
+                // Remove all the external Tchap users
+                // TODO improve the handling of this filter by removing these users during the participants list building.
+                for (Iterator<ParticipantAdapterItem> iterator = participantItemList.iterator(); iterator.hasNext(); ) {
+                    ParticipantAdapterItem participant = iterator.next();
+                    if (participant.isMatrixUser()
+                            && DinsicUtils.isExternalTchapUser(participant.mUserId)) {
+                        iterator.remove();
+                    }
                 }
-            }
-        } else if (mContactsFilter.equals(VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY_WITHOUT_EXTERNALS)) {
-            // Remove all the external users
-            // TODO improve the handling of this filter by removing these users during the participants list building.
-            for (int index = 0; index < participantItemList.size();) {
-                ParticipantAdapterItem participant = participantItemList.get(index);
-                // Note: participant.mUserId cannot be null here
-                if (DinsicUtils.isExternalTchapUser(participant.mUserId)) {
-                    participantItemList.remove(participant);
-                } else {
-                    index++;
+                break;
+            case ALL_WITHOUT_FEDERATION:
+            case TCHAP_USERS_ONLY_WITHOUT_FEDERATION:
+                // Remove all the Tchap users who don't belong to same host than the current user.
+                // TODO improve the handling of this filter by removing these users during the participants list building.
+                String userHSName = DinsicUtils.getHomeServerNameFromMXIdentifier(mSession.getMyUserId());
+                for (Iterator<ParticipantAdapterItem> iterator = participantItemList.iterator(); iterator.hasNext(); ) {
+                    ParticipantAdapterItem participant = iterator.next();
+                    if (participant.isMatrixUser()
+                            && !DinsicUtils.getHomeServerNameFromMXIdentifier(participant.mUserId).equals(userHSName)) {
+                        iterator.remove();
+                    }
                 }
-            }
+                break;
         }
 
         // split the participants in sections
@@ -793,10 +796,10 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
             }
         }
 
-        if (!mContactsFilter.equals(VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY) && TextUtils.isEmpty(mPattern)) {
-            // Some TCHAP users may have been selected during a search session
-            // We add them in the current contacts book if they are not present (by creating a fake participant)
-            // in order to display them as selected
+        if (TextUtils.isEmpty(mPattern)) {
+            // When there is no search in progress, we add in the local contacts section the following items by creating a fake participant:
+            // - the Tchap users selected in the users directory (if they are not present yet).
+            // - the email addresses added manually.
             for (String selectedUserId : mCurrentSelectedUsers) {
                 if (MXPatterns.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(selectedUserId).matches()) {
                     String displayName;
@@ -807,6 +810,10 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
                         displayName = DinsicUtils.computeDisplayNameFromUserId(selectedUserId);
 
                     ParticipantAdapterItem participant = new ParticipantAdapterItem(displayName, null, selectedUserId, true);
+                    if (!DinsicUtils.participantAlreadyAdded(contactBookList, participant))
+                        contactBookList.add(participant);
+                } else if (android.util.Patterns.EMAIL_ADDRESS.matcher(selectedUserId).matches()) {
+                    ParticipantAdapterItem participant = new ParticipantAdapterItem(selectedUserId, null, selectedUserId, true);
                     if (!DinsicUtils.participantAlreadyAdded(contactBookList, participant))
                         contactBookList.add(participant);
                 }
@@ -825,12 +832,12 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
 
         // display the local contacts
         if (contactBookList.size() > 0) {
-            // the contacts are sorted by alphabetical method
-            Collections.sort(contactBookList, ParticipantAdapterItem.alphaComparator);// tchapAlphaComparator);
+            // the contacts are sorted by alphabetical method, but the item added manually are displayed first.
+            Collections.sort(contactBookList, ParticipantAdapterItem.tchapComparator);
         }
         mParticipantsListsList.add(contactBookList);
 
-        if (!mContactsFilter.equals(VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY) && !TextUtils.isEmpty(mPattern)) {
+        if (!mContactsFilter.equals(VectorRoomInviteMembersActivity.ContactsFilter.ALL_WITHOUT_TCHAP_USERS) && !TextUtils.isEmpty(mPattern)) {
             if ((roomContactsList.size() > 0) && sort) {
                 Collections.sort(roomContactsList, mSortMethod);
             }
@@ -1157,12 +1164,16 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
             nameTextView.setPadding(0, 0, 0, 0);
             nameTextView.setTypeface(null, Typeface.ITALIC);
 
-            emailTextView.setVisibility(View.VISIBLE);
-            // We display an additional information like email or phone number.
-            if (participant.mContact.getEmails().size() > 0) {
-                emailTextView.setText(participant.mContact.getEmails().get(0));
-            } else if (participant.mContact.getPhonenumbers().size() > 0) {
-                emailTextView.setText(participant.mContact.getPhonenumbers().get(0).mRawPhoneNumber);
+            if (participant.mContact != null) {
+                emailTextView.setVisibility(View.VISIBLE);
+                // We display an additional information like email or phone number.
+                if (participant.mContact.getEmails().size() > 0) {
+                    emailTextView.setText(participant.mContact.getEmails().get(0));
+                } else if (participant.mContact.getPhonenumbers().size() > 0) {
+                    emailTextView.setText(participant.mContact.getPhonenumbers().get(0).mRawPhoneNumber);
+                }
+            } else {
+                emailTextView.setVisibility(View.GONE);
             }
         }
 

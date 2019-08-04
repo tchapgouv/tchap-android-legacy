@@ -97,7 +97,7 @@ public class TchapContactAdapter extends AbsAdapter {
                 TYPE_HEADER_LOCAL_CONTACTS,
                 TYPE_CONTACT,
                 new ArrayList<ParticipantAdapterItem>(),
-                ParticipantAdapterItem.tchapAlphaComparator);
+                ParticipantAdapterItem.alphaComparator);
         mLocalContactsSection.setEmptyViewPlaceholder(!ContactsManager.getInstance().isContactBookAccessAllowed() ? mNoContactAccessPlaceholder : mNoResultPlaceholder);
 
         mKnownContactsSection = new KnownContactsAdapterSection(

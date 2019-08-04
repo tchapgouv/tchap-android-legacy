@@ -331,7 +331,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
                 if (resultCode == RESULT_OK) {
                     // We have retrieved the list of members to invite from RoomInviteMembersActivity.
-                    // This list contains only matrixIds because the RoomInviteMembersActivity was opened in TCHAP_ONLY, TCHAP_ONLY_WITHOUT_EXTERNALS or TCHAP_ONLY_WITHOUT_FEDERATION mode.
+                    // This list contains only matrixIds because the RoomInviteMembersActivity was opened in TCHAP_USERS_ONLY, TCHAP_USERS_ONLY_WITHOUT_EXTERNALS or TCHAP_USERS_ONLY_WITHOUT_FEDERATION mode.
                     showWaitingView();
                     invalidateOptionsMenu();
                     mRoomParams.invitedUserIds = mParticipantsIds;
@@ -633,12 +633,12 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         if (null == mRoomParams.creation_content) {
             // Check whether the external users are allowed or not
             if (externalAccessRoomSwitch.isChecked()) {
-                intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY);
+                intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_USERS_ONLY);
             } else {
-                intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY_WITHOUT_EXTERNALS);
+                intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_USERS_ONLY_WITHOUT_EXTERNALS);
             }
         } else {
-            intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY_WITHOUT_FEDERATION);
+            intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_USERS_ONLY_WITHOUT_FEDERATION);
         }
 
         if (!mParticipantsIds.isEmpty()) {

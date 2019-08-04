@@ -148,7 +148,7 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
                 public void onClick(View v) {
                     // We launch a VectorRoomInviteMembersActivity activity to invite
                     // some non-tchap contacts by using their email
-                    mActivity.createNewChat(VectorRoomInviteMembersActivity.ActionMode.SEND_INVITE, VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY);
+                    mActivity.createNewChat(VectorRoomInviteMembersActivity.ActionMode.SEND_INVITE, VectorRoomInviteMembersActivity.ContactsFilter.ALL_WITHOUT_TCHAP_USERS);
                 }
             });
         }
