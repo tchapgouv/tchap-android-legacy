@@ -496,7 +496,7 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
      * @param theFirstEntry  the first entry in the result.
      * @param searchListener the search result listener
      */
-    private void refresh(final ParticipantAdapterItem theFirstEntry, final OnParticipantsSearchListener searchListener) {
+    public void refresh(final ParticipantAdapterItem theFirstEntry, final OnParticipantsSearchListener searchListener) {
         if (!mSession.isAlive()) {
             Log.e(LOG_TAG, "refresh : the session is not anymore active");
             return;

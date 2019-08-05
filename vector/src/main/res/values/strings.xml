@@ -1052,10 +1052,13 @@
     <string name="tchap_discussion_already_exist">A discussion with %s already exists</string>
     <string name="tchap_start_discussion_with_discovered_user">%s already uses Tchap, a discussion has been created with this contact</string>
     <string name="tchap_invite_unreachable_message">%s cannot be reached for the moment by Tchap</string>
+    <string name="tchap_invite_unauthorized_title_restricted_room">The externals are not allowed to join this room</string>
+    <string name="tchap_invite_unauthorized_title_unfederated_room">Only the members of the domain \"%s\" are allowed</string>
+    <string name="tchap_invite_unauthorized_message">Unable to send invite to %s</string>
     <string name="tchap_send_invite_failed">Failed to send invitation to %s</string>
     <string name="tchap_send_invite_network_error">Unable to send invite: Network error</string>
     <string name="tchap_send_invite_confirmation">You will receive a notification when \n your guest joins the Tchap community</string>
-    <plurals name="tchap_succes_invite__notification">
+    <plurals name="tchap_succes_invite_notification">
         <item quantity="one">%d invitation has been sent.</item>
         <item quantity="other">%d invitations have been sent.</item>
     </plurals>

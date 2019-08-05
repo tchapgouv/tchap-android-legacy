@@ -51,6 +51,7 @@ import org.matrix.androidsdk.rest.model.pid.ThreePid;
 import org.matrix.androidsdk.core.Log;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -377,7 +378,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                     if (mActionMode == ActionMode.START_DIRECT_CHAT) {
                         DinsicUtils.startDirectChat(VectorRoomInviteMembersActivity.this, mSession, participantItem);
                     } else {
-                        updateParticipantListToInvite(participantItem);
+                        onSelectedParticipant(participantItem);
                     }
                 }
                 return ret;
@@ -604,21 +605,28 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
     }
 
     /**
-     * Add or remove selected contacts to a list to invite them
+     * Add or remove the selected contact to the pending list to invite
      *
      * @param item the selected participants
      */
-    private void updateParticipantListToInvite(ParticipantAdapterItem item) {
+    private void onSelectedParticipant(ParticipantAdapterItem item) {
         ParticipantAdapterItem participantAdapterItem = item;
         if (item.mIsValid) {
-            if (!mUserIdsToInvite.contains(participantAdapterItem.mUserId)) {
-                mUserIdsToInvite.add(participantAdapterItem.mUserId);
+            String userId = participantAdapterItem.mUserId;
+            if (mUserIdsToInvite.contains(userId)) {
+                mUserIdsToInvite.remove(userId);
+                mAdapter.setSelectedUserIds(mUserIdsToInvite);
+                mAdapter.notifyDataSetChanged();
+                invalidateOptionsMenu();
+            } else if (android.util.Patterns.EMAIL_ADDRESS.matcher(userId).matches()) {
+                // Check if the email is allowed to join before adding it
+                onSelectedEmails(Arrays.asList(userId));
             } else {
-                mUserIdsToInvite.remove(participantAdapterItem.mUserId);
+                mUserIdsToInvite.add(userId);
+                mAdapter.setSelectedUserIds(mUserIdsToInvite);
+                mAdapter.notifyDataSetChanged();
+                invalidateOptionsMenu();
             }
-            mAdapter.setSelectedUserIds(mUserIdsToInvite);
-            mAdapter.notifyDataSetChanged();
-            invalidateOptionsMenu();
         } else {
             DinsicUtils.editContact(VectorRoomInviteMembersActivity.this, getApplicationContext(), item);
         }
@@ -676,8 +684,8 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                         // Invite one by one the provided email addresses
                         handleIndividualInviteByEmail(emails);
                     } else if (mActionMode == ActionMode.RETURN_SELECTED_USER_IDS) {
-                        // Add each email in the current selection
-                        addUserIdsToInvite(emails);
+                        // Add emails in the current selection
+                        onSelectedEmails(emails);
                     } else {
                         Log.e(LOG_TAG, "## displayDialogToInviteByEmail() unsupported case");
                     }
@@ -1046,7 +1054,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         Log.e(LOG_TAG, "##inviteNoTchapUserByEmail : display notification" );
 
         // Handle notification
-        SpannableString text = new SpannableString(getResources().getQuantityString(R.plurals.tchap_succes_invite__notification, mSuccessCount, mSuccessCount));
+        SpannableString text = new SpannableString(getResources().getQuantityString(R.plurals.tchap_succes_invite_notification, mSuccessCount, mSuccessCount));
         Toast.makeText(VectorRoomInviteMembersActivity.this, text + " \n" + getString(R.string.tchap_send_invite_confirmation), Toast.LENGTH_LONG).show();
 
         // @TODO FIXME create a new function in NotificationUtils to handle the local notif on sent invitations
@@ -1069,8 +1077,112 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
 //        notificationManager.notify(1, builder.build());
     }
 
-    private void addUserIdsToInvite(final List<String> userIds) {
-        for (String id : userIds) {
+    private void onSelectedEmails(final List<String> emails) {
+        // Check whether the emails are allowed to join the room before adding them
+        if (0 != mCount) {
+            Log.e(LOG_TAG, "##onSelectedEmails: a process is already in progress");
+            return;
+        }
+
+        showWaitingView();
+        mCount = emails.size();
+        final List<String> filteredEmails = new ArrayList<>();
+        String userHSName = DinsicUtils.getHomeServerNameFromMXIdentifier(mSession.getMyUserId());
+
+        for (final String email : emails) {
+            // For each email of the list, call server to check if Tchap registration is available for this email
+            // We will use this request to check whether the email is allowed too.
+            TchapLoginActivity.discoverTchapPlatform(this, email, new ApiCallback<Platform>() {
+                private void onError(String title, String message) {
+                    Log.e(LOG_TAG, "##onSelectedEmails: " + message);
+                    new AlertDialog.Builder(VectorRoomInviteMembersActivity.this)
+                            .setTitle(title)
+                            .setMessage(message)
+                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                    // We decrement the counter before testing if it is equal to zero.
+                                    // If the counter is equal to zero, it means that we have reached the end of the list.
+                                    if (-- mCount == 0) {
+                                        hideWaitingView();
+                                        if (!filteredEmails.isEmpty()) {
+                                            addEmailsToInvite(filteredEmails);
+                                        }
+                                    }
+                                }
+                            })
+                            .show();
+                }
+
+                @Override
+                public void onSuccess(Platform platform) {
+                    // Check whether the returned platform is valid
+                    if (null == platform.hs || platform.hs.isEmpty()) {
+                        // The email owner is not able to create a tchap account,
+                        onError(null, getString(R.string.tchap_invite_unreachable_message, email));
+                        return;
+                    }
+
+                    // We check if this email is allowed
+                    switch (mContactsFilter) {
+                        case ALL:
+                        case ALL_WITHOUT_TCHAP_USERS:
+                            // There is no restriction on emails.
+                            filteredEmails.add(email);
+                            break;
+                        case ALL_WITHOUT_EXTERNALS:
+                            if (!DinsicUtils.isExternalTchapServer(platform.hs)) {
+                                filteredEmails.add(email);
+                            } else {
+                                onError(getString(R.string.tchap_invite_unauthorized_title_restricted_room), getString(R.string.tchap_invite_unauthorized_message, email));
+                                return;
+                            }
+                            break;
+                        case ALL_WITHOUT_FEDERATION:
+                            if (TextUtils.equals(platform.hs, userHSName)) {
+                                filteredEmails.add(email);
+                            } else {
+                                String userHSDomain = DinsicUtils.getHomeServerDisplayNameFromMXIdentifier(mSession.getMyUserId());
+                                onError(getString(R.string.tchap_invite_unauthorized_title_unfederated_room, userHSDomain), getString(R.string.tchap_invite_unauthorized_message, email));
+                                return;
+                            }
+                            break;
+                        default:
+                            // Ignore
+                            Log.e(LOG_TAG, "## onSelectedEmails() unsupported case");
+                    }
+
+                    // We decrement the counter before testing if it is equal to zero.
+                    // If the counter is equal to zero, it means that we have reached the end of the list.
+                    if (-- mCount == 0) {
+                        hideWaitingView();
+                        if (!filteredEmails.isEmpty()) {
+                            addEmailsToInvite(filteredEmails);
+                        }
+                    }
+                }
+
+                @Override
+                public void onNetworkError(Exception e) {
+                    onError(null, getString(R.string.tchap_send_invite_network_error));
+                }
+
+                @Override
+                public void onMatrixError(MatrixError matrixError) {
+                    onError(null, getString(R.string.tchap_invite_unreachable_message, email));
+                }
+
+                @Override
+                public void onUnexpectedError(Exception e) {
+                    onError(null, getString(R.string.tchap_invite_unreachable_message, email));
+                }
+            } );
+        }
+    }
+
+    private void addEmailsToInvite(final List<String> emails) {
+        for (String id : emails) {
             if (!mUserIdsToInvite.contains(id)) {
                 mUserIdsToInvite.add(id);
             }
@@ -1079,7 +1191,8 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         mAdapter.notifyDataSetChanged();
 
         // Force refresh
-        onPatternUpdate(false);
+        mAdapter.refresh(null, null);
+
         invalidateOptionsMenu();
     }
 }
