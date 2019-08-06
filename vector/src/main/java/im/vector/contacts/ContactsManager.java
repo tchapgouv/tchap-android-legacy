@@ -144,7 +144,7 @@ public class ContactsManager implements SharedPreferences.OnSharedPreferenceChan
         public void onFailure(String accountId) {
             // ignore the current response because the request has been cancelled
             if (!mIsRetrievingPids) {
-                Log.d(LOG_TAG, "## Retrieve a PIDS success whereas it is not expected");
+                Log.d(LOG_TAG, "## Retrieve a PIDS failed whereas it is not expected");
                 return;
             }
 
@@ -162,7 +162,7 @@ public class ContactsManager implements SharedPreferences.OnSharedPreferenceChan
         public void onSuccess(final String accountId) {
             // ignore the current response because the request has been cancelled
             if (!mIsRetrievingPids) {
-                Log.d(LOG_TAG, "## Retrieve a PIDS success whereas it is not expected");
+                Log.d(LOG_TAG, "## Retrieve a PIDS succeeded whereas it is not expected");
                 return;
             }
 

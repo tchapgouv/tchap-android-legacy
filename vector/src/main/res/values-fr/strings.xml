@@ -38,6 +38,7 @@
     <string name="or">ou</string>
     <string name="invite">Inviter</string>
     <string name="accept">Accepter</string>
+    <string name="add">Ajouter</string>
 
     <string name="action_sign_out">Se déconnecter</string>
     <string name="action_sign_out_confirmation">Pour des raisons de sécurité, la déconnexion supprimera toutes les clés de chiffrement de bout en bout, rendant l\'historique des conversations chiffrées inaccessible lorsque vous vous reconnecterez.
@@ -840,10 +841,13 @@ Appareils inconnus :</string>
     <string name="tchap_discussion_already_exist">Une discussion avec %s existe déjà</string>
     <string name="tchap_start_discussion_with_discovered_user">%s utilise déjà Tchap, une discussion vient d’être crée avec ce contact</string>
     <string name="tchap_invite_unreachable_message">%s n’est pas joignable pour l’instant par Tchap</string>
+    <string name="tchap_invite_unauthorized_title_restricted_room">Les externes ne sont pas autorisés à rejoindre ce salon</string>
+    <string name="tchap_invite_unauthorized_title_unfederated_room">Seuls les membres du domaine \"%s\" sont autorisés</string>
+    <string name="tchap_invite_unauthorized_message">Il n\'est pas possible d\'inviter : %s</string>
     <string name="tchap_send_invite_failed">Echec de l’envoi de l’invitation à %s</string>
-    <string name="tchap_send_invite_network_error">Impossible d’envoyer une invitation: erreur réseau</string>
+    <string name="tchap_send_invite_network_error">Impossible d’envoyer une invitation : erreur réseau</string>
     <string name="tchap_send_invite_confirmation">Vous recevrez une notification lorsque \n votre invité rejoindra la communauté Tchap</string>
-    <plurals name="tchap_succes_invite__notification">
+    <plurals name="tchap_succes_invite_notification">
         <item quantity="one">%d invitation a bien été envoyée.</item>
         <item quantity="other">%d invitations ont bien été envoyées.</item>
     </plurals>

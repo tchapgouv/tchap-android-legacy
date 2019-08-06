@@ -2333,20 +2333,6 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
     }
 
     /**
-     * Launch the invite people activity
-     */
-    private void launchInvitePeople() {
-        if ((null != mSession) && (null != mRoom)) {
-            Intent intent = new Intent(this, VectorRoomInviteMembersActivity.class);
-            intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
-            intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_ROOM_ID, mRoom.getRoomId());
-            intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_ADD_CONFIRMATION_DIALOG, true);
-            intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.ALL);
-            startActivityForResult(intent, INVITE_USER_REQUEST_CODE);
-        }
-    }
-
-    /**
      * Launch audio recorder intent
      */
     private void launchAudioRecorderIntent() {

@@ -187,12 +187,13 @@ public class ParticipantAdapterItem implements java.io.Serializable {
     };
 
     /**
-     * Get a comparator to sort members, first tchap users, then alphabetically
+     * Get a comparator to sort participants, keep first those without contact in order to highlight
+     * the item added manually, then alphabetically.
      *
      * @param session
      * @return
      */
-    public static final Comparator<ParticipantAdapterItem> tchapAlphaComparator = new Comparator<ParticipantAdapterItem>() {
+    public static final Comparator<ParticipantAdapterItem> tchapComparator = new Comparator<ParticipantAdapterItem>() {
         @Override
         public int compare(ParticipantAdapterItem part1, ParticipantAdapterItem part2) {
             String lhs = part1.getComparisonDisplayName();
@@ -205,9 +206,9 @@ public class ParticipantAdapterItem implements java.io.Serializable {
             }
 
 
-            if (part1.isMatrixUser() && !part2.isMatrixUser())
+            if (part1.mContact == null && part2.mContact != null)
                 return -1;
-            else if (!part1.isMatrixUser() && part2.isMatrixUser())
+            else if (part1.mContact != null && part2.mContact == null)
                 return +1;
 
             return String.CASE_INSENSITIVE_ORDER.compare(lhs, rhs);
