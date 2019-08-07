@@ -1,3 +1,14 @@
+Changes in Tchap 1.0.28 (2019-08-07)
+===================================================
+
+Improvements:
+ * Prompt the last room admin before letting him leave the room #496
+ * Update matrix-sdk.aar libs - Revision:3b808f63d44bbf9d68a204b56cc607c34b47d964 [3b808f63] (v0.9.26)
+ * Include 64bits version of the libraries in the APK PR #506
+
+Bug Fix:
+ * Improve accessibility service notifications #448
+
 Changes in Tchap 1.0.27 (2019-07-05)
 ===================================================
 
