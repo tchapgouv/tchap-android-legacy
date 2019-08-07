@@ -134,7 +134,7 @@
         <item name="android:typeface">sans</item>
 
         <!-- android ui button -->
-        <item name="colorAccent">@color/vector_green_color</item>
+        <item name="colorAccent">?attr/vctr_primary_text_color</item>
 
         <!-- custom action bar -->
         <item name="android:actionBarStyle">@style/Vector.Styled.ActionBar</item>

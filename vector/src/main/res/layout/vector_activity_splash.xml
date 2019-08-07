@@ -6,17 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!--
-    <pl.droidsonroids.gif.GifImageView
-        android:id="@+id/animated_logo_image_view"
-        android:src="@drawable/tchap_splash"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:adjustViewBounds="true"
-        android:scaleType="fitXY"
-        android:visibility="visible"/>
-        -->
-
     <ImageView
         android:id="@+id/splash_logo_image_view"
         android:src="@drawable/tchap_splash_screen"
