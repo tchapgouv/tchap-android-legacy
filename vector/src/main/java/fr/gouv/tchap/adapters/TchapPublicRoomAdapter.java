@@ -222,7 +222,7 @@ public class TchapPublicRoomAdapter extends AbsAdapter {
 
             // Display the room avatar with a restricted border (all public rooms are not allowed to the external users)
             VectorUtils.loadUserAvatar(mContext, mSession, vPublicRoomAvatar, publicRoom.avatarUrl, publicRoom.roomId, roomName);
-            vPublicRoomAvatar.setBorderColor(ContextCompat.getColor(mContext, R.color.restricted_room_avatar_border_color));
+            vPublicRoomAvatar.setBorderSettings(ContextCompat.getColor(mContext, R.color.restricted_room_avatar_border_color), 3);
 
             // set the topic
             vRoomTopic.setText(publicRoom.topic);

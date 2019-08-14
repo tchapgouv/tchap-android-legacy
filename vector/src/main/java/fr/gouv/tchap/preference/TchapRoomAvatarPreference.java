@@ -51,8 +51,7 @@ public class TchapRoomAvatarPreference extends HexagonAvatarPreference {
     public void refreshAvatar() {
         if ((null != mAvatarView) && (null != mRoom)) {
             VectorUtils.loadRoomAvatar(getContext(), mSession, mAvatarView, mRoom);
-            // Display no border color here
-            mAvatarView.setBorderColor(Color.TRANSPARENT);
+            // Keep the default settings for the avatar border
         }
     }
 

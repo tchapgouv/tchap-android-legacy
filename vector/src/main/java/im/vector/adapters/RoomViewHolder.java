@@ -221,18 +221,16 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
                 vRoomAvatarHexagon.setVisibility(View.VISIBLE);
                 VectorUtils.loadRoomAvatar(context, session, vRoomAvatarHexagon, room);
 
-                // Set the right border color
                 // The room_access_rules state event is not available in the invite state.
-                // That is why no border is displayed for "salon" invite
-                vRoomAvatarHexagon.setBorderColor(Color.TRANSPARENT);
+                // That is why we keep the default settings for the avatar border.
             }
         } else if (null != vRoomAvatarHexagon) {
             VectorUtils.loadRoomAvatar(context, session, vRoomAvatarHexagon, room);
             // Set the right border color
             if (TextUtils.equals(DinsicUtils.getRoomAccessRule(room), RoomAccessRulesKt.RESTRICTED)) {
-                vRoomAvatarHexagon.setBorderColor(ContextCompat.getColor(context, R.color.restricted_room_avatar_border_color));
+                vRoomAvatarHexagon.setBorderSettings(ContextCompat.getColor(context, R.color.restricted_room_avatar_border_color), 3);
             } else {
-                vRoomAvatarHexagon.setBorderColor(ContextCompat.getColor(context, R.color.unrestricted_room_avatar_border_color));
+                vRoomAvatarHexagon.setBorderSettings(ContextCompat.getColor(context, R.color.unrestricted_room_avatar_border_color), 10);
             }
         } else if (null != vRoomAvatar) {
             VectorUtils.loadRoomAvatar(context, session, vRoomAvatar, room);

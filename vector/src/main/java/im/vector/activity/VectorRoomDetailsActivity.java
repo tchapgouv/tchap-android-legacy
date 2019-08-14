@@ -529,9 +529,9 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
             VectorUtils.loadRoomAvatar(this, mSession, mAvatar, mRoom);
             // Set the right border color
             if (TextUtils.equals(DinsicUtils.getRoomAccessRule(mRoom), RoomAccessRulesKt.RESTRICTED)) {
-                mAvatar.setBorderColor(ContextCompat.getColor(this, R.color.restricted_room_avatar_border_color));
+                mAvatar.setBorderSettings(ContextCompat.getColor(this, R.color.restricted_room_avatar_border_color), 3);
             } else {
-                mAvatar.setBorderColor(ContextCompat.getColor(this, R.color.unrestricted_room_avatar_border_color));
+                mAvatar.setBorderSettings(ContextCompat.getColor(this, R.color.unrestricted_room_avatar_border_color), 10);
             }
         }
     }

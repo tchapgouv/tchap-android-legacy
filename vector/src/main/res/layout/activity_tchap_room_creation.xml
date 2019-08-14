@@ -36,7 +36,7 @@
                         android:id="@+id/hexagon_mask_view"
                         android:layout_width="95dp"
                         android:layout_height="95dp"
-                        android:background="@color/vector_tchap_hexagon_background_color_dark_grey"/>
+                        android:src="@color/vector_tchap_hexagon_background_color_dark_grey"/>
 
                     <TextView
                         android:id="@+id/tv_add_avatar_image"

@@ -157,7 +157,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         disableFederationText.setText(getString(R.string.tchap_room_creation_disable_federation, userHSDomain));
 
         // Set the right border color on avatar
-        hexagonMaskView.setBorderColor(ContextCompat.getColor(this, R.color.restricted_room_avatar_border_color));
+        hexagonMaskView.setBorderSettings(ContextCompat.getColor(this, R.color.restricted_room_avatar_border_color), 3);
     }
 
     @Override
@@ -221,11 +221,11 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         if (externalAccessRoomSwitch.isChecked()) {
             Log.d(LOG_TAG, "## unrestricted");
             setRoomAccessRule(RoomAccessRulesKt.UNRESTRICTED);
-            hexagonMaskView.setBorderColor(ContextCompat.getColor(this, R.color.unrestricted_room_avatar_border_color));
+            hexagonMaskView.setBorderSettings(ContextCompat.getColor(this, R.color.unrestricted_room_avatar_border_color), 10);
         } else {
             Log.d(LOG_TAG, "## restricted");
             setRoomAccessRule(RoomAccessRulesKt.RESTRICTED);
-            hexagonMaskView.setBorderColor(ContextCompat.getColor(this, R.color.restricted_room_avatar_border_color));
+            hexagonMaskView.setBorderSettings(ContextCompat.getColor(this, R.color.restricted_room_avatar_border_color), 3);
 
             if (!mParticipantsIds.isEmpty()) {
                 // Remove the potential selected external users

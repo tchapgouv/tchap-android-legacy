@@ -2824,9 +2824,9 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
                 VectorUtils.loadRoomAvatar(this, mSession, mActionBarHeaderHexagonRoomAvatar, mRoom);
                 // Set the right border color
                 if (TextUtils.equals(DinsicUtils.getRoomAccessRule(mRoom), RoomAccessRulesKt.RESTRICTED)) {
-                    mActionBarHeaderHexagonRoomAvatar.setBorderColor(ContextCompat.getColor(this, R.color.restricted_room_avatar_border_color));
+                    mActionBarHeaderHexagonRoomAvatar.setBorderSettings(ContextCompat.getColor(this, R.color.restricted_room_avatar_border_color), 3);
                 } else {
-                    mActionBarHeaderHexagonRoomAvatar.setBorderColor(ContextCompat.getColor(this, R.color.unrestricted_room_avatar_border_color));
+                    mActionBarHeaderHexagonRoomAvatar.setBorderSettings(ContextCompat.getColor(this, R.color.unrestricted_room_avatar_border_color), 10);
                 }
             }
         } else if (null != sRoomPreviewData) {
@@ -2839,7 +2839,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
             }
             VectorUtils.loadUserAvatar(this, sRoomPreviewData.getSession(), mActionBarHeaderHexagonRoomAvatar, sRoomPreviewData.getRoomAvatarUrl(), sRoomPreviewData.getRoomId(), roomName);
             // The room preview is only supported for public room which are restricted by default (external users can not join them)
-            mActionBarHeaderHexagonRoomAvatar.setBorderColor(ContextCompat.getColor(this, R.color.restricted_room_avatar_border_color));
+            mActionBarHeaderHexagonRoomAvatar.setBorderSettings(ContextCompat.getColor(this, R.color.restricted_room_avatar_border_color), 3);
         } else if (null != mTchapUser) {
             mActionBarHeaderHexagonRoomAvatar.setVisibility(View.INVISIBLE);
             mActionBarHeaderRoomAvatar.setVisibility(View.VISIBLE);
