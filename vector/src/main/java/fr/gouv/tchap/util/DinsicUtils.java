@@ -896,6 +896,8 @@ public class DinsicUtils {
                     }
                 }
             }
+        } else if (MXPatterns.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(displayName).matches()) {
+            displayName = computeDisplayNameFromUserId(displayName);
         }
 
         return displayName;
