@@ -200,47 +200,51 @@ public class DinsicUtils {
         if (null != tchapUserId && MXPatterns.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(tchapUserId).matches()) {
             // Remove first the host from the id by ignoring the first character '@' too.
             String identifier = tchapUserId.substring(1, tchapUserId.indexOf(":"));
-            int index = identifier.lastIndexOf("-");
-            if (-1 != index) {
-                // Retrieve the user name
-                displayName = identifier.substring(0, index);
-                String[] components = displayName.split("\\.");
 
-                StringBuilder builder = new StringBuilder();
-                for (String component : components) {
-                    if (!component.isEmpty()) {
-                        if (builder.length() > 0) {
-                            // Add space between components
-                            builder.append(" ");
-                        }
+            if (isExternalTchapUser(tchapUserId)) {
+                displayName = identifier;
+            } else {
+                int index = identifier.lastIndexOf("-");
+                if (-1 != index) {
+                    // Retrieve the user name
+                    displayName = identifier.substring(0, index);
+                    String[] components = displayName.split("\\.");
 
-                        // Check whether the component contains some '-'
-                        if (component.contains("-")) {
-                            // Capitalize each sub component
-                            String[] subComponents = component.split("-");
-                            for (int i = 0; i < subComponents.length - 1; i++) {
-                                String subComponent = subComponents[i];
-                                builder.append(subComponent.substring(0, 1).toUpperCase());
-                                if (subComponent.length() > 1) {
-                                    builder.append(subComponent.substring(1));
-                                }
-                                builder.append("-");
+                    StringBuilder builder = new StringBuilder();
+                    for (String component : components) {
+                        if (!component.isEmpty()) {
+                            if (builder.length() > 0) {
+                                // Add space between components
+                                builder.append(" ");
                             }
-                            // Retrieve the last sub-component
-                            component = subComponents[subComponents.length - 1];
-                        }
 
-                        // Capitalize the component (or the last sub-component)
-                        builder.append(component.substring(0, 1).toUpperCase());
-                        if (component.length() > 1) {
-                            builder.append(component.substring(1));
+                            // Check whether the component contains some '-'
+                            if (component.contains("-")) {
+                                // Capitalize each sub component
+                                String[] subComponents = component.split("-");
+                                for (int i = 0; i < subComponents.length - 1; i++) {
+                                    String subComponent = subComponents[i];
+                                    builder.append(subComponent.substring(0, 1).toUpperCase());
+                                    if (subComponent.length() > 1) {
+                                        builder.append(subComponent.substring(1));
+                                    }
+                                    builder.append("-");
+                                }
+                                // Retrieve the last sub-component
+                                component = subComponents[subComponents.length - 1];
+                            }
+
+                            // Capitalize the component (or the last sub-component)
+                            builder.append(component.substring(0, 1).toUpperCase());
+                            if (component.length() > 1) {
+                                builder.append(component.substring(1));
+                            }
                         }
                     }
-                }
-                displayName = builder.toString();
+                    displayName = builder.toString();
 
-                // TODO: decide if we should append the extracted domain. This is not relevant for
-                // the moment because of the test users.
+                    // TODO: decide if we should append the extracted domain. This is not relevant for
+                    // the moment because of the test users.
                 /*// add first term of domain
                 components = identifier.split("-");
                 if (components.length > 1) {
@@ -256,6 +260,7 @@ public class DinsicUtils {
                         }
                     }
                 }*/
+                }
             }
         }
 

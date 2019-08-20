@@ -281,7 +281,13 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
 
                             // TODO check whether there is an issue to use the same id for several dummy contacts
                             Contact dummyContact = new Contact(contact.getContactId());
-                            dummyContact.setDisplayName(contact.getDisplayName());
+                            // Use the email as display name for external users
+                            if (mxid != null && DinsicUtils.isExternalTchapUser(mxid.mMatrixId)) {
+                                dummyContact.setDisplayName(email);
+                            } else {
+                                // Use the local contact display name
+                                dummyContact.setDisplayName(contact.getDisplayName());
+                            }
                             dummyContact.addEmailAdress(email);
                             dummyContact.setThumbnailUri(contact.getThumbnailUri());
 
@@ -802,12 +808,15 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
             // - the email addresses added manually.
             for (String selectedUserId : mCurrentSelectedUsers) {
                 if (MXPatterns.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(selectedUserId).matches()) {
-                    String displayName;
+                    String displayName = null;
                     User user = mSession.getDataHandler().getUser(selectedUserId);
-                    if (null != user)
+                    if (null != user) {
                         displayName = user.displayname;
-                    else
+                    }
+
+                    if (TextUtils.isEmpty(displayName)) {
                         displayName = DinsicUtils.computeDisplayNameFromUserId(selectedUserId);
+                    }
 
                     ParticipantAdapterItem participant = new ParticipantAdapterItem(displayName, null, selectedUserId, true);
                     if (!DinsicUtils.participantAlreadyAdded(contactBookList, participant))
@@ -1125,28 +1134,8 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
         if (participant.isMatrixUser()){
             onlineStatusImageView.setVisibility(VectorUtils.isUserOnline(mContext, mSession, participant.mUserId, null) ? View.VISIBLE : View.GONE);
 
-            // display the participant's domain
+            // display the participant's domain (if any)
             String domainName = DinsicUtils.getDomainFromDisplayName(participant.mDisplayName);
-
-            if (null == domainName || domainName.isEmpty()) {
-                // sanity check
-                if (null != participant.mContact && !participant.mContact.getEmails().isEmpty()) {
-                    // We extract the domain of this tchap user from the his email
-                    String emailAddress = participant.mContact.getEmails().get(0);
-                    String[] components2 = emailAddress.split("@");
-
-                    if (components2.length > 1) {
-                        String domain = components2[1].substring(0,components2[1].indexOf("."));
-                        String formattedDomain;
-                        if (domain.length() > 1) {
-                            formattedDomain = domain.substring(0, 1).toUpperCase() + domain.substring(1);
-                        } else {
-                            formattedDomain = domain.substring(0, 1).toUpperCase();
-                        }
-                        domainName = formattedDomain;
-                    }
-                }
-            }
             domainNameTextView.setText(domainName);
             domainNameTextView.setVisibility(View.VISIBLE);
             domainNameTextView.setPadding(0, 33, 0, 0);
