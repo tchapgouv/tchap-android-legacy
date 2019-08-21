@@ -189,6 +189,7 @@ public class DinsicUtils {
      * Build a display name from the tchap user identifier.
      * We don't extract the domain for the moment in order to not display unexpected information.
      * For example in case of "@jean-philippe.martin-modernisation.fr:matrix.org", this will return "Jean-Philippe Martin".
+     * Note: in case of an external user identifier, we return the local part of the id which corresponds to their email.
      *
      * @param tchapUserId user id
      * @return displayName without domain, null if the id is not valid.
@@ -202,7 +203,12 @@ public class DinsicUtils {
             String identifier = tchapUserId.substring(1, tchapUserId.indexOf(":"));
 
             if (isExternalTchapUser(tchapUserId)) {
-                displayName = identifier;
+                // Replace the '-' character if there is only one
+                if (identifier.split("-").length == 2) {
+                    displayName = identifier.replace("-", "@");
+                } else {
+                    displayName = identifier;
+                }
             } else {
                 int index = identifier.lastIndexOf("-");
                 if (-1 != index) {
