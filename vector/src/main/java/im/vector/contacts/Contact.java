@@ -151,7 +151,7 @@ public class Contact implements java.io.Serializable {
     // phone numbers list
     private final List<PhoneNumber> mPhoneNumbers = new ArrayList<>();
 
-    // emails list
+    // emails list (stored in lowercase)
     private final List<String> mEmails = new ArrayList<>();
 
     // MXID by medium (email or phone number)
@@ -182,17 +182,20 @@ public class Contact implements java.io.Serializable {
     /**
      * Add an email address to the list.
      *
-     * @param anEmailAddress the email address to add
+     * @param emailAddress the email address to add
      */
-    public void addEmailAdress(String anEmailAddress) {
-        if (mEmails.indexOf(anEmailAddress) < 0) {
-            mEmails.add(anEmailAddress);
+    public void addEmailAdress(String emailAddress) {
+        // Force the email in lowercase before storing it
+        emailAddress = emailAddress.toLowerCase(VectorLocale.INSTANCE.getApplicationLocale());
+
+        if (mEmails.indexOf(emailAddress) < 0) {
+            mEmails.add(emailAddress);
 
             // test if the email address also matches to a matrix ID
-            MXID mxid = PIDsRetriever.getInstance().getMXID(anEmailAddress);
+            MXID mxid = PIDsRetriever.getInstance().getMXID(emailAddress);
 
             if (null != mxid) {
-                mMXIDsByElement.put(anEmailAddress, mxid);
+                mMXIDsByElement.put(emailAddress, mxid);
             }
         }
     }
@@ -310,7 +313,7 @@ public class Contact implements java.io.Serializable {
 
         if (!matched) {
             for (String email : mEmails) {
-                matched |= email.toLowerCase(VectorLocale.INSTANCE.getApplicationLocale()).contains(pattern);
+                matched |= email.contains(pattern);
             }
         }
 
