@@ -64,6 +64,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 
 import butterknife.BindView;
@@ -677,7 +678,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         onClick();
 
         // parameters
-        final String email = mForgotEmailTextView.getText().toString().toLowerCase(VectorLocale.INSTANCE.getApplicationLocale()).trim();
+        final String email = mForgotEmailTextView.getText().toString().toLowerCase(Locale.ROOT).trim();
         final String password = mForgotPassword1TextView.getText().toString().trim();
         final String passwordCheck = mForgotPassword2TextView.getText().toString().trim();
 
@@ -1281,7 +1282,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         }
 
 
-        final String emailAddress = mLoginEmailTextView.getText().toString().toLowerCase(VectorLocale.INSTANCE.getApplicationLocale()).trim();
+        final String emailAddress = mLoginEmailTextView.getText().toString().toLowerCase(Locale.ROOT).trim();
         final String password = mLoginPasswordTextView.getText().toString().trim();
 
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(emailAddress).matches()) {
@@ -1890,7 +1891,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         }
 
         // Check the provided email
-        final String emailAddress = mCreationEmailAddressTextView.getText().toString().toLowerCase(VectorLocale.INSTANCE.getApplicationLocale()).trim();
+        final String emailAddress = mCreationEmailAddressTextView.getText().toString().toLowerCase(Locale.ROOT).trim();
         if (TextUtils.isEmpty(emailAddress) || !android.util.Patterns.EMAIL_ADDRESS.matcher(emailAddress).matches()) {
             Toast.makeText(this, R.string.auth_invalid_email, Toast.LENGTH_SHORT).show();
             return;

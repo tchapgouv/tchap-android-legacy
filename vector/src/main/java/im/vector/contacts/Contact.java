@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -186,7 +187,7 @@ public class Contact implements java.io.Serializable {
      */
     public void addEmailAdress(String emailAddress) {
         // Force the email in lowercase before storing it
-        emailAddress = emailAddress.toLowerCase(VectorLocale.INSTANCE.getApplicationLocale());
+        emailAddress = emailAddress.toLowerCase(Locale.ROOT);
 
         if (mEmails.indexOf(emailAddress) < 0) {
             mEmails.add(emailAddress);
