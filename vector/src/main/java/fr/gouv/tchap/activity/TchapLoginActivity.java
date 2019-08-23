@@ -88,7 +88,6 @@ import im.vector.features.hhs.ResourceLimitDialogHelper;
 import im.vector.push.fcm.FcmHelper;
 import im.vector.receiver.VectorUniversalLinkReceiver;
 import im.vector.services.EventStreamService;
-import im.vector.settings.VectorLocale;
 
 /**
  * Displays the login screen.
