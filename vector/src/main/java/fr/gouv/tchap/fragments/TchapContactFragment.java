@@ -476,7 +476,13 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
                                 // Create a contact for this Tchap user
                                 // TODO check whether there is an issue to use the same id for several dummy contacts
                                 Contact dummyContact = new Contact(contact.getContactId());
-                                dummyContact.setDisplayName(contact.getDisplayName());
+                                // Use the email as display name for external users
+                                if (DinsicUtils.isExternalTchapUser(mxid.mMatrixId)) {
+                                    dummyContact.setDisplayName(email);
+                                } else {
+                                    // Use the local contact display name
+                                    dummyContact.setDisplayName(contact.getDisplayName());
+                                }
                                 dummyContact.addEmailAdress(email);
                                 dummyContact.setThumbnailUri(contact.getThumbnailUri());
                                 ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);

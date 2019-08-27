@@ -189,6 +189,7 @@ public class DinsicUtils {
      * Build a display name from the tchap user identifier.
      * We don't extract the domain for the moment in order to not display unexpected information.
      * For example in case of "@jean-philippe.martin-modernisation.fr:matrix.org", this will return "Jean-Philippe Martin".
+     * Note: in case of an external user identifier, we return the local part of the id which corresponds to their email.
      *
      * @param tchapUserId user id
      * @return displayName without domain, null if the id is not valid.
@@ -200,47 +201,56 @@ public class DinsicUtils {
         if (null != tchapUserId && MXPatterns.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(tchapUserId).matches()) {
             // Remove first the host from the id by ignoring the first character '@' too.
             String identifier = tchapUserId.substring(1, tchapUserId.indexOf(":"));
-            int index = identifier.lastIndexOf("-");
-            if (-1 != index) {
-                // Retrieve the user name
-                displayName = identifier.substring(0, index);
-                String[] components = displayName.split("\\.");
 
-                StringBuilder builder = new StringBuilder();
-                for (String component : components) {
-                    if (!component.isEmpty()) {
-                        if (builder.length() > 0) {
-                            // Add space between components
-                            builder.append(" ");
-                        }
+            if (isExternalTchapUser(tchapUserId)) {
+                // Replace the '-' character if there is only one
+                if (identifier.split("-").length == 2) {
+                    displayName = identifier.replace("-", "@");
+                } else {
+                    displayName = identifier;
+                }
+            } else {
+                int index = identifier.lastIndexOf("-");
+                if (-1 != index) {
+                    // Retrieve the user name
+                    displayName = identifier.substring(0, index);
+                    String[] components = displayName.split("\\.");
 
-                        // Check whether the component contains some '-'
-                        if (component.contains("-")) {
-                            // Capitalize each sub component
-                            String[] subComponents = component.split("-");
-                            for (int i = 0; i < subComponents.length - 1; i++) {
-                                String subComponent = subComponents[i];
-                                builder.append(subComponent.substring(0, 1).toUpperCase());
-                                if (subComponent.length() > 1) {
-                                    builder.append(subComponent.substring(1));
-                                }
-                                builder.append("-");
+                    StringBuilder builder = new StringBuilder();
+                    for (String component : components) {
+                        if (!component.isEmpty()) {
+                            if (builder.length() > 0) {
+                                // Add space between components
+                                builder.append(" ");
                             }
-                            // Retrieve the last sub-component
-                            component = subComponents[subComponents.length - 1];
-                        }
 
-                        // Capitalize the component (or the last sub-component)
-                        builder.append(component.substring(0, 1).toUpperCase());
-                        if (component.length() > 1) {
-                            builder.append(component.substring(1));
+                            // Check whether the component contains some '-'
+                            if (component.contains("-")) {
+                                // Capitalize each sub component
+                                String[] subComponents = component.split("-");
+                                for (int i = 0; i < subComponents.length - 1; i++) {
+                                    String subComponent = subComponents[i];
+                                    builder.append(subComponent.substring(0, 1).toUpperCase());
+                                    if (subComponent.length() > 1) {
+                                        builder.append(subComponent.substring(1));
+                                    }
+                                    builder.append("-");
+                                }
+                                // Retrieve the last sub-component
+                                component = subComponents[subComponents.length - 1];
+                            }
+
+                            // Capitalize the component (or the last sub-component)
+                            builder.append(component.substring(0, 1).toUpperCase());
+                            if (component.length() > 1) {
+                                builder.append(component.substring(1));
+                            }
                         }
                     }
-                }
-                displayName = builder.toString();
+                    displayName = builder.toString();
 
-                // TODO: decide if we should append the extracted domain. This is not relevant for
-                // the moment because of the test users.
+                    // TODO: decide if we should append the extracted domain. This is not relevant for
+                    // the moment because of the test users.
                 /*// add first term of domain
                 components = identifier.split("-");
                 if (components.length > 1) {
@@ -256,6 +266,7 @@ public class DinsicUtils {
                         }
                     }
                 }*/
+                }
             }
         }
 
@@ -783,18 +794,6 @@ public class DinsicUtils {
             signUrl = roomEmailInvitation.signUrl;
         }
 
-        // Patch: Check in the current room state if a third party invite has been accepted by the tchap user.
-        // Save this information in the room preview data before joining the room
-        // because the room state will be flushed during this operation.
-        // This information will be useful to consider or not the new joined room as a direct chat (see onNewJoinedRoom).
-        RoomMember roomMember = room.getMember(session.getMyUserId());
-        if (null != roomMember && null != roomMember.thirdPartyInvite && null == roomPreviewData.getRoomState()) {
-            if (null != room.getState().memberWithThirdPartyInviteToken(roomMember.thirdPartyInvite.signed.token)) {
-                Log.d(LOG_TAG, "## joinRoom: save third party invites in the room preview.");
-                roomPreviewData.setRoomState(room.getState());
-            }
-        }
-
         room.joinWithThirdPartySigned(roomPreviewData.getRoomIdOrAlias(), signUrl, callback);
     }
 
@@ -822,45 +821,15 @@ public class DinsicUtils {
             }
 
             // Check whether this new room must be added to the user's direct chats before opening it.
-            if (2 == room.getNumberOfMembers() && !room.isDirect()) {
-                Boolean isDirect = false;
-
-                // Consider here the 3rd party invites for which the is_direct flag is not available.
-                // TODO Test this use case when the invite by email will be enabled again.
-                Collection<RoomThirdPartyInvite> thirdPartyInvites = room.getState().thirdPartyInvites();
-                // Consider the case where only one invite has been observed.
-                if (thirdPartyInvites.size() == 1) {
-                    Log.d(LOG_TAG, "## onNewJoinedRoom(): Consider the third party invite");
-                    RoomThirdPartyInvite invite = thirdPartyInvites.iterator().next();
-
-                    // Check whether the user has accepted this third party invite or not
-                    RoomMember roomMember = room.getState().memberWithThirdPartyInviteToken(invite.token);
-                    if (null != roomMember && roomMember.getUserId().equals(myUserId)) {
-                        isDirect = true;
-                    } else if (null != roomPreviewData.getRoomState()){
-                        // Most of the time the room state is not ready, the pagination is in progress
-                        // Consider here the room state saved in the room preview (before joining the room).
-                        roomMember = roomPreviewData.getRoomState().memberWithThirdPartyInviteToken(invite.token);
-                        if (null != roomMember && roomMember.getUserId().equals(myUserId)) {
-                            isDirect = true;
-                        }
+            if (getRoomAccessRule(room).equals(RoomAccessRulesKt.DIRECT) && !room.isDirect()) {
+                Log.d(LOG_TAG, "## onNewJoinedRoom(): this new joined room is direct");
+                CommonActivityUtils.setToggleDirectMessageRoom(session, roomPreviewData.getRoomId(), null, new SimpleApiCallback<Void>() {
+                    @Override
+                    public void onSuccess(Void info) {
+                        // Open the room activity for this room.
+                        CommonActivityUtils.goToRoomPage(activity, session, params);
                     }
-                }
-
-                // Check whether we have to update the direct dictionary before opening this room.
-                if (isDirect) {
-                    Log.d(LOG_TAG, "## onNewJoinedRoom(): this new joined room is direct");
-                    CommonActivityUtils.setToggleDirectMessageRoom(session, roomPreviewData.getRoomId(), null, new SimpleApiCallback<Void>() {
-                        @Override
-                        public void onSuccess(Void info) {
-                            // Open the room activity for this room.
-                            CommonActivityUtils.goToRoomPage(activity, session, params);
-                        }
-                    });
-                } else {
-                    // Open the room activity for this room.
-                    CommonActivityUtils.goToRoomPage(activity, session, params);
-                }
+                });
             } else {
                 // Open the room activity for this room.
                 CommonActivityUtils.goToRoomPage(activity, session, params);
@@ -933,6 +902,8 @@ public class DinsicUtils {
                     }
                 }
             }
+        } else if (MXPatterns.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(displayName).matches()) {
+            displayName = computeDisplayNameFromUserId(displayName);
         }
 
         return displayName;
