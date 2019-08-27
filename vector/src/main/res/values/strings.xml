@@ -1086,9 +1086,10 @@
     <string name="tchap_room_settings_allow_external_users_to_join_prompt_msg"><b>This action is irreversible.</b>\nAre you sure you want to allow the externals to join this room?</string>
 
     // tchap account validity
-    <string name="tchap_expired_account">The validity period of your account has expired.\nAn email has been sent to you in order to renew it. Once you’ve followed the link it contains, click below.</string>
+    <string name="tchap_expired_account_msg">The validity period of your account has expired. An email has been sent to you in order to renew it. Once you’ve followed the link it contains, click below.</string>
     <string name="tchap_expired_account_resume_button">I renewed the validity of my account</string>
     <string name="tchap_request_renewal_email_button">Request a renewal email</string>
+    <string name="tchap_expired_account_on_new_sent_email_msg">A new email has been sent to you in order to renew your account validity. Once you’ve followed the link it contains, click below.</string>
 
     <!-- group details -->
     <string name="group_details_home">Home</string>

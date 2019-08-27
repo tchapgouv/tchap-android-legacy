@@ -817,17 +817,24 @@ public class Matrix {
                 Matrix.getInstance(context).getPushManager().clearFcmData(new SimpleApiCallback<Void>() {
                     @Override
                     public void onSuccess(final Void anything) {
-                        Intent intent = new Intent(context.getApplicationContext(), SplashActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        context.getApplicationContext().startActivity(intent);
-
-                        if (null != VectorApp.getCurrentActivity()) {
-                            VectorApp.getCurrentActivity().finish();
-                        }
+                        launchSplashScreen(context);
                     }
                 });
             }
         });
+    }
+
+    /**
+     * Launch the splash screen to reload the session.
+     */
+    private void launchSplashScreen(final Context context) {
+        Intent intent = new Intent(context.getApplicationContext(), SplashActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        context.getApplicationContext().startActivity(intent);
+
+        if (null != VectorApp.getCurrentActivity()) {
+            VectorApp.getCurrentActivity().finish();
+        }
     }
 
     /**
@@ -896,19 +903,12 @@ public class Matrix {
         final AlertDialog.Builder builder = new AlertDialog.Builder(currentActivity);
 
         mExpiredAccountDialog = builder
-                .setMessage(R.string.tchap_expired_account)
+                .setMessage(R.string.tchap_expired_account_msg)
                 .setCancelable(false)
                 .setPositiveButton(R.string.tchap_expired_account_resume_button, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        // Launch the splash screen to reload the session.
-                        Intent intent = new Intent(context.getApplicationContext(), SplashActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        context.getApplicationContext().startActivity(intent);
-
-                        if (null != VectorApp.getCurrentActivity()) {
-                            VectorApp.getCurrentActivity().finish();
-                        }
+                        launchSplashScreen(context);
                     }
                 })
                 .setNeutralButton(R.string.tchap_request_renewal_email_button, new DialogInterface.OnClickListener() {
@@ -920,9 +920,38 @@ public class Matrix {
                             public void onSuccess(Void aVoid) {
                                 // Just log the information
                                 Log.i(LOG_TAG, "a renewal email has been requested");
-                                displayExpiredAccountDialog(context);
+                                onRequestedRenewalEmail(context);
                             }
                         });
+                    }
+                })
+                .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        mExpiredAccountDialog = null;
+                    }
+                })
+                .show();
+
+        mExpiredAccountDialog.setOwnerActivity(currentActivity);
+    }
+
+    /**
+     * Prompt the user to renew his account validity by checking his emails.
+     *
+     * @param context the context
+     */
+    private void onRequestedRenewalEmail(final Context context) {
+        final Activity currentActivity = VectorApp.getCurrentActivity();
+        final AlertDialog.Builder builder = new AlertDialog.Builder(currentActivity);
+
+        mExpiredAccountDialog = builder
+                .setMessage(R.string.tchap_expired_account_on_new_sent_email_msg)
+                .setCancelable(false)
+                .setPositiveButton(R.string.tchap_expired_account_resume_button, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        launchSplashScreen(context);
                     }
                 })
                 .setOnDismissListener(new DialogInterface.OnDismissListener() {
