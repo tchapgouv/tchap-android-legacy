@@ -66,8 +66,6 @@ public class SplashActivity extends MXCActionBarActivity {
 
     private final long mLaunchTime = System.currentTimeMillis();
 
-    private static final String NEED_TO_CLEAR_CACHE_BEFORE_81200 = "NEED_TO_CLEAR_CACHE_BEFORE_81200";
-
     /* ==========================================================================================
      * UI
      * ========================================================================================== */

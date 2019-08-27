@@ -173,23 +173,18 @@ public class AutoCompletedUserAdapter extends ArrayAdapter<User> {
         @Override
         protected FilterResults performFiltering(CharSequence prefix) {
             FilterResults results = new FilterResults();
-            List<User> newValues;
+            List<User> newValues = new ArrayList<>();
+            // Tchap: do not display matrix id in the application
+            mIsSearchingMatrixId = false;
 
-            if (prefix == null || prefix.length() == 0) {
-                newValues = new ArrayList<>();
-                mIsSearchingMatrixId = true;
-            } else {
-                newValues = new ArrayList<>();
+            if (prefix != null) {
                 String prefixString = prefix.toString().toLowerCase(VectorLocale.INSTANCE.getApplicationLocale());
-                mIsSearchingMatrixId = prefixString.startsWith("@");
+                if (prefixString.startsWith("@")) {
+                    // Remove this character
+                    prefixString = prefixString.substring(1);
+                }
 
-                if (mIsSearchingMatrixId) {
-                    for (User user : mUsersList) {
-                        if ((null != user.user_id) && user.user_id.toLowerCase(VectorLocale.INSTANCE.getApplicationLocale()).startsWith(prefixString)) {
-                            newValues.add(user);
-                        }
-                    }
-                } else {
+                if (prefixString.length() > 0) {
                     for (User user : mUsersList) {
                         if ((null != user.displayname) && user.displayname.toLowerCase(VectorLocale.INSTANCE.getApplicationLocale()).startsWith(prefixString)) {
                             newValues.add(user);
@@ -197,6 +192,29 @@ public class AutoCompletedUserAdapter extends ArrayAdapter<User> {
                     }
                 }
             }
+
+//            if (prefix == null || prefix.length() == 0) {
+//                newValues = new ArrayList<>();
+//                mIsSearchingMatrixId = true;
+//            } else {
+//                newValues = new ArrayList<>();
+//                String prefixString = prefix.toString().toLowerCase(VectorLocale.INSTANCE.getApplicationLocale());
+//                mIsSearchingMatrixId = prefixString.startsWith("@");
+//
+//                if (mIsSearchingMatrixId) {
+//                    for (User user : mUsersList) {
+//                        if ((null != user.user_id) && user.user_id.toLowerCase(VectorLocale.INSTANCE.getApplicationLocale()).startsWith(prefixString)) {
+//                            newValues.add(user);
+//                        }
+//                    }
+//                } else {
+//                    for (User user : mUsersList) {
+//                        if ((null != user.displayname) && user.displayname.toLowerCase(VectorLocale.INSTANCE.getApplicationLocale()).startsWith(prefixString)) {
+//                            newValues.add(user);
+//                        }
+//                    }
+//                }
+//            }
 
             // sort the results
             if (mIsSearchingMatrixId) {
