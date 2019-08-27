@@ -325,6 +325,10 @@ public class VectorApp extends MultiDexApplication {
             @Override
             public void onActivityDestroyed(Activity activity) {
                 Log.d(LOG_TAG, "onActivityDestroyed " + activity);
+
+                // Handle the potential expired account dialog
+                Matrix.getInstance(VectorApp.this).dismissExpiredAccountDialogIfAnyOnActivityDestroyed(activity);
+
                 mCreatedActivities.remove(activity.toString());
                 mLocalesByActivity.remove(activity.toString());
 
