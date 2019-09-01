@@ -1,3 +1,14 @@
+Changes in Tchap 1.0.29 (2019-09-01)
+===================================================
+
+Improvements:
+ * Force the email address in lower case #514
+ * Prod: pin the certificat of the external instance
+ * Fix notification problem when the WAKE_LOCK permission is not granted PR #390
+
+Bug Fix:
+ * Room member completion: Do not display the matrix identifier #357
+
 Changes in Tchap 1.0.28 (2019-08-07)
 ===================================================
 
