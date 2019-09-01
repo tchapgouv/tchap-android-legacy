@@ -947,17 +947,14 @@ public class Matrix {
 
         mExpiredAccountDialog = builder
                 .setMessage(R.string.tchap_expired_account_on_new_sent_email_msg)
-                .setCancelable(false)
-                .setPositiveButton(R.string.tchap_expired_account_resume_button, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        launchSplashScreen(context);
-                    }
-                })
+                .setPositiveButton(R.string.tchap_expired_account_resume_button, null)
                 .setOnDismissListener(new DialogInterface.OnDismissListener() {
                     @Override
                     public void onDismiss(DialogInterface dialog) {
                         mExpiredAccountDialog = null;
+
+                        // Relaunch the app
+                        launchSplashScreen(context);
                     }
                 })
                 .show();
