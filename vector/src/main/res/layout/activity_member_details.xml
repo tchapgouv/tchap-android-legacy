@@ -77,7 +77,7 @@
                 android:textSize="14sp" />
         </RelativeLayout>
 
-        <android.support.v7.widget.Toolbar
+        <androidx.appcompat.widget.Toolbar
             android:id="@+id/member_details_toolbar"
             style="@style/VectorToolbarStyle"
             android:layout_width="match_parent"
@@ -87,7 +87,7 @@
             app:contentInsetEnd="0dp"
             app:contentInsetStart="0dp">
 
-        </android.support.v7.widget.Toolbar>
+        </androidx.appcompat.widget.Toolbar>
     </RelativeLayout>
 
     <!-- the member actions list: start new room, Make admin, block.. -->

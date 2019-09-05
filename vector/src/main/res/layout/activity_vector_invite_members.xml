@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:focusableInTouchMode="true">
 
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/search_view_external"
         style="@style/VectorToolbarStyle"
         android:layout_width="match_parent"
@@ -16,7 +16,7 @@
 
         <!-- The search view is added in the toolbar not in the menu
              to ensure that the overflow icon menu is not hidden.-->
-        <android.support.v7.widget.SearchView
+        <androidx.appcompat.widget.SearchView
             android:id="@+id/external_search_view"
             android:layout_width="match_parent"
             android:layout_height="30dp"
@@ -25,7 +25,7 @@
             android:layout_marginRight="10dp"
             android:clickable="true"
             android:textAlignment="center" />
-    </android.support.v7.widget.Toolbar>
+    </androidx.appcompat.widget.Toolbar>
 
     <RelativeLayout
         android:id="@+id/ly_invite_contacts_by_email"

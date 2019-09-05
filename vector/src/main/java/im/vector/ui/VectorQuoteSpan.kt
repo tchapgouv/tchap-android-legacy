@@ -19,7 +19,7 @@ package im.vector.ui
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.support.v4.content.ContextCompat
+import androidx.core.content.ContextCompat
 import android.text.Layout
 import android.text.style.LineBackgroundSpan
 import android.text.style.LeadingMarginSpan

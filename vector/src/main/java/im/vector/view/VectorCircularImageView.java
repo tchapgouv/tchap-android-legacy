@@ -24,10 +24,10 @@ import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
-import android.support.annotation.Nullable;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
-import android.support.v4.util.LruCache;
+import androidx.annotation.Nullable;
+import androidx.core.graphics.drawable.RoundedBitmapDrawable;
+import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
+import androidx.collection.LruCache;
 import android.util.AttributeSet;
 import android.util.Pair;
 
@@ -44,7 +44,7 @@ import im.vector.util.BitmapUtilKt;
 /**
  * Display a circular image.
  */
-public class VectorCircularImageView extends android.support.v7.widget.AppCompatImageView {
+public class VectorCircularImageView extends androidx.appcompat.widget.AppCompatImageView {
     private static final String LOG_TAG = VectorCircularImageView.class.getSimpleName();
 
     public VectorCircularImageView(Context context) {

@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <android.support.v7.widget.Toolbar
+        <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             style="@style/TchapRoomToolbarStyle"
             android:layout_width="match_parent"
@@ -19,7 +19,7 @@
 
             <include layout="@layout/tchap_room_or_direct_action_bar_custo_layout" />
 
-        </android.support.v7.widget.Toolbar>
+        </androidx.appcompat.widget.Toolbar>
 
     </FrameLayout>
 

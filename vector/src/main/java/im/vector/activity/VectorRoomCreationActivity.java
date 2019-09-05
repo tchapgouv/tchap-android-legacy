@@ -29,6 +29,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import org.jetbrains.anko.ToastsKt;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.core.callback.ApiCallback;
@@ -44,7 +45,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import androidx.core.widget.ToastKt;
 import im.vector.R;
 import im.vector.adapters.ParticipantAdapterItem;
 import im.vector.adapters.VectorRoomCreationAdapter;
@@ -329,17 +329,17 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
 
             @Override
             public void onNetworkError(Exception e) {
-                ToastKt.toast(VectorRoomCreationActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT);
+                ToastsKt.toast(VectorRoomCreationActivity.this, e.getLocalizedMessage());
             }
 
             @Override
             public void onMatrixError(MatrixError e) {
-                ToastKt.toast(VectorRoomCreationActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT);
+                ToastsKt.toast(VectorRoomCreationActivity.this, e.getLocalizedMessage());
             }
 
             @Override
             public void onUnexpectedError(Exception e) {
-                ToastKt.toast(VectorRoomCreationActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT);
+                ToastsKt.toast(VectorRoomCreationActivity.this, e.getLocalizedMessage());
             }
         });
     }

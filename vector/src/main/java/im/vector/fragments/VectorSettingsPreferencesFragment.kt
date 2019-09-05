@@ -30,9 +30,9 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.preference.*
-import android.support.design.widget.TextInputEditText
-import android.support.v4.content.ContextCompat
-import android.support.v7.app.AlertDialog
+import com.google.android.material.textfield.TextInputEditText
+import androidx.core.content.ContextCompat
+import androidx.appcompat.app.AlertDialog
 import android.text.Editable
 import android.text.TextUtils
 import android.text.TextWatcher
@@ -43,7 +43,8 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.core.content.edit
-import androidx.core.widget.toast
+import org.jetbrains.anko.toast
+import org.jetbrains.anko.longToast
 import com.bumptech.glide.Glide
 import com.google.i18n.phonenumbers.NumberParseException
 import com.google.i18n.phonenumbers.PhoneNumberUtil
@@ -1151,7 +1152,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                         val newPwd = newPasswordText.text.toString().trim()
 
                         if (newPwd.length < TchapLoginActivity.MIN_PASSWORD_LENGTH) {
-                            activity?.toast(R.string.auth_invalid_password, Toast.LENGTH_SHORT)
+                            activity?.toast(R.string.auth_invalid_password)
                             return@setPositiveButton
                         }
 
@@ -1171,7 +1172,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                                                     .setPositiveButton(R.string.ok, null)
                                                     .show()
                                         } else {
-                                            activity?.toast(textId, Toast.LENGTH_LONG)
+                                            activity?.longToast(textId)
                                         }
                                     }
                                 }
