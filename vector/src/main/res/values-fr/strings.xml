@@ -553,6 +553,7 @@ Les messages chiffrés ne seront pas visibles sur les clients qui n\'ont pas enc
 
     <string name="room_participants_leave_prompt_msg">Voulez-vous vraiment quitter cette conversation ?</string>
     <string name="room_participants_remove_prompt_msg">Voulez-vous vraiment exclure %s de cette conversation ?</string>
+    <string name="room_participants_remove_3pid_invite_prompt_msg">Voulez-vous vraiment retirer cette invitation ?</string>
     <string name="room_participants_idle">Inactif</string>
     <string name="room_participants_action_ignore">Masquer tous les messages de cet utilisateur</string>
     <string name="room_participants_action_unignore">Afficher tous les messages de cet utilisateur</string>

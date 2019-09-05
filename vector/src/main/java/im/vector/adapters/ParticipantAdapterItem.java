@@ -27,6 +27,7 @@ import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.User;
+import org.matrix.androidsdk.rest.model.pid.RoomThirdPartyInvite;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -60,9 +61,10 @@ public class ParticipantAdapterItem implements java.io.Serializable {
     // true when valid email or valid matrix id
     public boolean mIsValid = true;
 
-    // the data is extracted either from a room member or a contact
+    // the data is extracted either from a room member, a contact or a room third party invite
     public RoomMember mRoomMember;
     public Contact mContact;
+    public RoomThirdPartyInvite mRoomThirdPartyInvite;
 
     // search fields
     private List<String> mDisplayNameComponents;
@@ -116,6 +118,22 @@ public class ParticipantAdapterItem implements java.io.Serializable {
         mAvatarUrl = contact.getThumbnailUri();
         mRoomMember = null;
         mContact = contact;
+        initSearchByPatternFields();
+    }
+
+    /**
+     * Constructor from a room third-party invite.
+     *
+     * @param thirdPartyInvite the invite.
+     */
+    public ParticipantAdapterItem(RoomThirdPartyInvite thirdPartyInvite) {
+        mDisplayName = thirdPartyInvite.display_name;
+        mUserId = null;
+        mAvatarUrl = null;
+        mIsValid = false;
+
+        mRoomThirdPartyInvite = thirdPartyInvite;
+
         initSearchByPatternFields();
     }
 
