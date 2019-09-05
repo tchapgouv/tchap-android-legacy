@@ -18,7 +18,7 @@
 package im.vector.adapters;
 
 import android.content.Context;
-import android.support.v4.content.ContextCompat;
+import androidx.core.content.ContextCompat;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
@@ -38,7 +38,6 @@ import org.matrix.androidsdk.core.Log;
 import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.R;
 import im.vector.util.RiotEventDisplay;
-import im.vector.util.VectorUtils;
 
 /**
  * An adapter which display a list of messages found after a search

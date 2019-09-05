@@ -17,6 +17,7 @@ package im.vector.view;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import androidx.viewpager.widget.ViewPager;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
@@ -25,7 +26,7 @@ import org.matrix.androidsdk.core.Log;
 /**
  * Patch the issue "https://code.google.com/p/android/issues/detail?id=66620"
  */
-public class RiotViewPager extends android.support.v4.view.ViewPager {
+public class RiotViewPager extends ViewPager {
     private static final String LOG_TAG = RiotViewPager.class.getSimpleName();
 
     public RiotViewPager(Context context) {

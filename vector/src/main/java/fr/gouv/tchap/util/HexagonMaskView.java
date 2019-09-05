@@ -24,7 +24,7 @@ import android.graphics.Path;
 import android.graphics.Region;
 import android.util.AttributeSet;
 
-public class HexagonMaskView extends android.support.v7.widget.AppCompatImageView {
+public class HexagonMaskView extends androidx.appcompat.widget.AppCompatImageView {
     private Path hexagonPath;
     private Path hexagonBorderPath;
     private float radius;

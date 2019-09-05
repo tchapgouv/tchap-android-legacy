@@ -18,7 +18,7 @@
 package im.vector;
 
 import android.content.Context;
-import android.support.annotation.StringRes;
+import androidx.annotation.StringRes;
 import android.text.TextUtils;
 
 import org.matrix.androidsdk.HomeServerConnectionConfig;
@@ -32,7 +32,6 @@ import org.matrix.androidsdk.rest.model.login.AuthParams;
 import org.matrix.androidsdk.rest.model.login.AuthParamsCaptcha;
 import org.matrix.androidsdk.rest.model.login.AuthParamsThreePid;
 import org.matrix.androidsdk.rest.model.login.Credentials;
-import org.matrix.androidsdk.rest.model.login.LoginFlow;
 import org.matrix.androidsdk.rest.model.login.RegistrationFlowResponse;
 import org.matrix.androidsdk.rest.model.login.RegistrationParams;
 import org.matrix.androidsdk.rest.model.pid.ThreePid;
@@ -42,14 +41,8 @@ import org.matrix.androidsdk.ssl.UnrecognizedCertificateException;
 import org.matrix.androidsdk.core.JsonUtils;
 import org.matrix.androidsdk.core.Log;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.util.UrlUtilKt;

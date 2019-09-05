@@ -19,14 +19,14 @@ package im.vector.activity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.TabLayout;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
+import com.google.android.material.tabs.TabLayout;
+
+import androidx.fragment.app.Fragment;
+import androidx.viewpager.widget.ViewPager;
+import androidx.appcompat.app.ActionBar;
 import android.text.TextUtils;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ProgressBar;
 
@@ -255,10 +255,10 @@ public class VectorGroupDetailsActivity extends MXCActionBarActivity {
     protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        List<android.support.v4.app.Fragment> allFragments = getSupportFragmentManager().getFragments();
+        List<Fragment> allFragments = getSupportFragmentManager().getFragments();
 
         // dispatch the result to each fragments
-        for (android.support.v4.app.Fragment fragment : allFragments) {
+        for (Fragment fragment : allFragments) {
             fragment.onActivityResult(requestCode, resultCode, data);
         }
     }

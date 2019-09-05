@@ -25,9 +25,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -46,6 +46,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.jetbrains.anko.ToastsKt;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomState;
@@ -67,7 +68,6 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import androidx.core.widget.ToastKt;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.MXCActionBarActivity;
@@ -199,7 +199,7 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
                             }
                         });
                     } else {
-                        ToastKt.toast(getActivity(), errorMessage, Toast.LENGTH_SHORT);
+                        ToastsKt.toast(getActivity(), errorMessage);
                     }
                 }
             });

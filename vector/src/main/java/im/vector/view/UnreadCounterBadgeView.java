@@ -18,8 +18,8 @@ package im.vector.view;
 
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
-import android.support.annotation.IntDef;
-import android.support.v4.content.ContextCompat;
+import androidx.annotation.IntDef;
+import androidx.core.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;

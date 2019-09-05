@@ -1,4 +1,4 @@
-<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawer_layout"
@@ -7,14 +7,14 @@
     android:background="@color/riot_primary_background_color_light"
     android:fitsSystemWindows="true">
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:descendantFocusability="beforeDescendants"
         android:focusableInTouchMode="true"
         tools:context="org.matrix.vector.activity.VectorHomeActivity">
 
-        <android.support.v7.widget.Toolbar
+        <androidx.appcompat.widget.Toolbar
             android:id="@+id/home_toolbar"
             style="@style/VectorToolbarStyle"
             android:layout_width="0dp"
@@ -25,7 +25,7 @@
 
             <!-- The search view is added in the toolbar not in the menu
                  to ensure that the overflow icon menu is not hidden.-->
-            <android.support.v7.widget.SearchView
+            <androidx.appcompat.widget.SearchView
                 android:id="@+id/search_view"
                 android:layout_width="match_parent"
                 android:layout_height="30dp"
@@ -36,9 +36,9 @@
                 android:background="@drawable/tchap_search_field"
                 android:clickable="true"
                 android:textAlignment="center" />
-        </android.support.v7.widget.Toolbar>
+        </androidx.appcompat.widget.Toolbar>
 
-        <android.support.design.widget.TabLayout
+        <com.google.android.material.tabs.TabLayout
             android:id="@+id/tab_layout"
             android:layout_width="match_parent"
             android:layout_height="45dp"
@@ -56,20 +56,20 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/home_toolbar">
 
-            <android.support.design.widget.TabItem
+            <com.google.android.material.tabs.TabItem
                 android:id="@+id/tab_item_conversations"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 tools:text="dummy" />
 
-            <android.support.design.widget.TabItem
+            <com.google.android.material.tabs.TabItem
                 android:id="@+id/tab_item_contacts"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 tools:text="dummy" />
-        </android.support.design.widget.TabLayout>
+        </com.google.android.material.tabs.TabLayout>
 
         <ProgressBar
             android:id="@+id/home_recents_sync_in_progress"
@@ -185,9 +185,9 @@
 
         </FrameLayout>
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <android.support.design.widget.NavigationView
+    <com.google.android.material.navigation.NavigationView
         android:id="@+id/navigation_view"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
@@ -231,5 +231,5 @@
                 android:textColor="@color/tchap_navigation_menu_text_color"
                 android:textSize="12sp" />
         </LinearLayout>
-    </android.support.design.widget.NavigationView>
-</android.support.v4.widget.DrawerLayout>
+    </com.google.android.material.navigation.NavigationView>
+</androidx.drawerlayout.widget.DrawerLayout>

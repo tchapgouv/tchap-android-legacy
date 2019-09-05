@@ -29,12 +29,12 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.ContactsContract;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.widget.Toast;
+import androidx.fragment.app.FragmentActivity;
 
 import org.matrix.androidsdk.core.MXPatterns;
 import org.matrix.androidsdk.MXSession;
@@ -69,7 +69,6 @@ import im.vector.activity.VectorRoomActivity;
 import im.vector.adapters.ParticipantAdapterItem;
 import im.vector.contacts.Contact;
 import im.vector.contacts.ContactsManager;
-import im.vector.contacts.PIDsRetriever;
 import im.vector.util.RoomUtils;
 
 public class DinsicUtils {
@@ -343,7 +342,7 @@ public class DinsicUtils {
         }
     }
 
-    public static void editContact(final FragmentActivity activity, final Context theContext,final ParticipantAdapterItem item) {
+    public static void editContact(final FragmentActivity activity, final Context theContext, final ParticipantAdapterItem item) {
         if (ContactsManager.getInstance().isContactBookAccessAllowed()) {
             //enterEmailAddress(item.mContact);
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
