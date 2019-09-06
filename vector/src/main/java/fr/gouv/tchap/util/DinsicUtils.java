@@ -885,6 +885,25 @@ public class DinsicUtils {
         return displayName;
     }
 
+    /**
+     * Return the room avatar.
+     * Tchap client handles the room avatar with a different manner than the SDK one:
+     * - Do not use by default a member avatar for the room avatar, except for the direct chats.
+     *
+     * @param room    the room.
+     * @return the room avatar url.
+     */
+    @Nullable
+    public static String getRoomAvatarUrl(@NonNull Room room) {
+        String avatarUrl;
+        if (room.isDirect()) {
+            avatarUrl = room.getAvatarUrl();
+        } else {
+            avatarUrl = room.getState().getAvatarUrl();
+        }
+        return avatarUrl;
+    }
+
     /* get contacts from direct chats */
     public static List<ParticipantAdapterItem> getContactsFromDirectChats(final MXSession session) {
         List<ParticipantAdapterItem> participants = new ArrayList<>();

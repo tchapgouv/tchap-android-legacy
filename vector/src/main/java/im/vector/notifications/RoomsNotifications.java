@@ -167,13 +167,14 @@ public class RoomsNotifications implements Parcelable {
         if (!mIsInvitationEvent) {
             int size = mContext.getResources().getDimensionPixelSize(R.dimen.profile_avatar_size);
 
-            File f = mSession.getMediaCache().thumbnailCacheFile(mRoom.getAvatarUrl(), size);
+            String avatarUrl = DinsicUtils.getRoomAvatarUrl(mRoom);
+            File f = mSession.getMediaCache().thumbnailCacheFile(avatarUrl, size);
 
             if (null != f) {
                 mRoomAvatarPath = f.getPath();
             } else {
                 // prepare for the next time
-                mSession.getMediaCache().loadAvatarThumbnail(mSession.getHomeServerConfig(), new ImageView(mContext), mRoom.getAvatarUrl(), size);
+                mSession.getMediaCache().loadAvatarThumbnail(mSession.getHomeServerConfig(), new ImageView(mContext), avatarUrl, size);
             }
         }
 

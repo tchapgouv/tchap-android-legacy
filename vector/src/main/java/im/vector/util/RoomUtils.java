@@ -775,11 +775,12 @@ public class RoomUtils {
         Bitmap bitmap = null;
 
         // try to retrieve the avatar from the medias cache
-        if (!TextUtils.isEmpty(room.getAvatarUrl())) {
+        String roomAvatarUrl = DinsicUtils.getRoomAvatarUrl(room);
+        if (!TextUtils.isEmpty(roomAvatarUrl)) {
             int size = context.getResources().getDimensionPixelSize(R.dimen.profile_avatar_size);
 
             // check if the thumbnail is already downloaded
-            File f = session.getMediaCache().thumbnailCacheFile(room.getAvatarUrl(), size);
+            File f = session.getMediaCache().thumbnailCacheFile(roomAvatarUrl, size);
 
             if (null != f) {
                 BitmapFactory.Options options = new BitmapFactory.Options();
