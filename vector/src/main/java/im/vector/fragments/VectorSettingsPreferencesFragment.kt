@@ -320,40 +320,64 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
         setUserInterfacePreferences()
 
         // Url preview
-        (findPreference(PreferencesManager.SETTINGS_SHOW_URL_PREVIEW_KEY) as VectorSwitchPreference).let {
-            it.isChecked = mSession.isURLPreviewEnabled
-
-            it.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
-                if (null != newValue && newValue as Boolean != mSession.isURLPreviewEnabled) {
-                    displayLoadingView()
-                    mSession.setURLPreviewStatus(newValue, object : ApiCallback<Void> {
-                        override fun onSuccess(info: Void?) {
-                            it.isChecked = mSession.isURLPreviewEnabled
-                            hideLoadingView()
-                        }
-
-                        private fun onError(errorMessage: String) {
-                            activity?.toast(errorMessage)
-
-                            onSuccess(null)
-                        }
-
-                        override fun onNetworkError(e: Exception) {
-                            onError(e.localizedMessage)
-                        }
-
-                        override fun onMatrixError(e: MatrixError) {
-                            onError(e.localizedMessage)
-                        }
-
-                        override fun onUnexpectedError(e: Exception) {
-                            onError(e.localizedMessage)
-                        }
-                    })
+//        (findPreference(PreferencesManager.SETTINGS_SHOW_URL_PREVIEW_KEY) as VectorSwitchPreference).let {
+//            it.isChecked = mSession.isURLPreviewEnabled
+//
+//            it.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
+//                if (null != newValue && newValue as Boolean != mSession.isURLPreviewEnabled) {
+//                    displayLoadingView()
+//                    mSession.setURLPreviewStatus(newValue, object : ApiCallback<Void> {
+//                        override fun onSuccess(info: Void?) {
+//                            it.isChecked = mSession.isURLPreviewEnabled
+//                            hideLoadingView()
+//                        }
+//
+//                        private fun onError(errorMessage: String) {
+//                            activity?.toast(errorMessage)
+//
+//                            onSuccess(null)
+//                        }
+//
+//                        override fun onNetworkError(e: Exception) {
+//                            onError(e.localizedMessage)
+//                        }
+//
+//                        override fun onMatrixError(e: MatrixError) {
+//                            onError(e.localizedMessage)
+//                        }
+//
+//                        override fun onUnexpectedError(e: Exception) {
+//                            onError(e.localizedMessage)
+//                        }
+//                    })
+//                }
+//
+//                false
+//            }
+//        }
+        if (mSession.isURLPreviewEnabled) {
+            // Disable the URLPreview option
+            mSession.setURLPreviewStatus(false, object : ApiCallback<Void> {
+                override fun onSuccess(info: Void?) {
+                    Log.i(LOG_TAG, "## onCreate() URLPreview option has been disabled")
                 }
 
-                false
-            }
+                private fun onError() {
+                    Log.i(LOG_TAG, "## onCreate() failed to disable URLPreview option")
+                }
+
+                override fun onNetworkError(e: Exception) {
+                    onError()
+                }
+
+                override fun onMatrixError(e: MatrixError) {
+                    onError()
+                }
+
+                override fun onUnexpectedError(e: Exception) {
+                    onError()
+                }
+            });
         }
 
         // Themes
