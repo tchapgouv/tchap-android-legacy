@@ -70,11 +70,12 @@
             android:key="SETTINGS_INTERFACE_TEXT_SIZE_KEY"
             android:title="@string/font_size" />
 
-        <im.vector.preference.VectorSwitchPreference
-            android:defaultValue="true"
-            android:key="SETTINGS_SHOW_URL_PREVIEW_KEY"
-            android:summary="@string/settings_inline_url_preview_summary"
-            android:title="@string/settings_inline_url_preview" />
+        <!-- Url preview option is disable for Tchap
+       <im.vector.preference.VectorSwitchPreference
+           android:defaultValue="true"
+           android:key="SETTINGS_SHOW_URL_PREVIEW_KEY"
+           android:summary="@string/settings_inline_url_preview_summary"
+           android:title="@string/settings_inline_url_preview" />-->
 
         <im.vector.preference.VectorSwitchPreference
             android:defaultValue="true"
