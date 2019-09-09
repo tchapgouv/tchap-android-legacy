@@ -333,7 +333,7 @@ public class VectorUtils {
     public static void loadRoomAvatar(Context context, MXSession session, ImageView imageView, Room room) {
         if (null != room) {
             VectorUtils.loadUserAvatar(context,
-                    session, imageView, room.getAvatarUrl(), room.getRoomId(), DinsicUtils.getRoomDisplayName(context, room));
+                    session, imageView, DinsicUtils.getRoomAvatarUrl(room), room.getRoomId(), DinsicUtils.getRoomDisplayName(context, room));
         }
     }
 
