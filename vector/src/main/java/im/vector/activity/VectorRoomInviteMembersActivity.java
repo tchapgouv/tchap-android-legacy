@@ -47,11 +47,13 @@ import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.core.model.MatrixError;
 import org.matrix.androidsdk.rest.model.User;
+import org.matrix.androidsdk.rest.model.pid.RoomThirdPartyInvite;
 import org.matrix.androidsdk.rest.model.pid.ThreePid;
 import org.matrix.androidsdk.core.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -867,55 +869,8 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                         return;
                     }
 
-                    // We check if this email has been already invited
-                    // (pendingInvites are ignored here because we could not have a pending invite related to an email)
-                    Room existingRoom = DinsicUtils.isDirectChatRoomAlreadyExist(email, mSession, false);
-                    if (null != existingRoom) {
-                        // If a direct chat already exists, we do not re-invite the NoTchapUser except
-                        // if the email is bound to the external instance (for which the invites may expire).
-                        if (DinsicUtils.isExternalTchapServer(platform.hs)) {
-                            // Leave this empty discussion, we will invite again this email.
-                            // We don't have a way for the moment to check if the invite expired or not...
-                            existingRoom.leave(new ApiCallback<Void>() {
-                                @Override
-                                public void onSuccess(Void info) {
-                                    Log.d(LOG_TAG, "an empty discussion has been left (to renew the invite)");
-                                }
-
-                                private void onError(String errorMessage) {
-                                    Log.d(LOG_TAG, "failed to leave the empty discussion" + errorMessage);
-                                }
-
-                                @Override
-                                public void onNetworkError(Exception e) {
-                                    onError(e.getLocalizedMessage());
-                                }
-                                @Override
-                                public void onMatrixError(MatrixError e) {
-                                    onError(e.getLocalizedMessage());
-                                }
-                                @Override
-                                public void onUnexpectedError(Exception e) {
-                                    onError(e.getLocalizedMessage());
-                                }
-                            });
-                        } else {
-                            // Notify the user that the invite has been already sent
-                            String message = getString(R.string.tchap_invite_already_send_message, email);
-                            Toast.makeText(VectorRoomInviteMembersActivity.this, message, Toast.LENGTH_LONG).show();
-
-                            // We decrement the counter before testing if it is equal to zero.
-                            // If the counter is equal to zero, it means that we have reached the end of the list.
-                            if (-- mCount == 0) {
-                                onNoTchapInviteDone(finish);
-                            }
-                            return;
-                        }
-                    }
-
-                    // The email owner is able to create a tchap account,
-                    // we create a direct chat with him, and invite him by email to join Tchap.
-                    DinsicUtils.createDirectChat(mSession, email, new ApiCallback<String>() {
+                    // Define the callback used to handle the result of the direct chat creation
+                    ApiCallback<String> createDirectChatCallBack = new ApiCallback<String>() {
                         @Override
                         public void onSuccess(final String roomId) {
                             // For each successful direct chat creation and invitation,
@@ -967,7 +922,116 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                         public void onUnexpectedError(final Exception e) {
                             onError(e.getLocalizedMessage());
                         }
-                    });
+                    };
+
+                    // We check if this email has been already invited
+                    // (pendingInvites are ignored here because we could not have a pending invite related to an email)
+                    Room existingRoom = DinsicUtils.isDirectChatRoomAlreadyExist(email, mSession, false);
+                    if (null != existingRoom) {
+                        // If a direct chat already exists, we do not re-invite the NoTchapUser except
+                        // if the email is bound to the external instance (for which the invites may expire).
+                        if (DinsicUtils.isExternalTchapServer(platform.hs)) {
+                            // Revoke the pending invite and leave this empty discussion, we will invite again this email.
+                            // We don't have a way for the moment to check if the invite expired or not...
+
+                            // Define the callback used to leave the existing discussion
+                            ApiCallback<Void> leaveRoomCallBack = new ApiCallback<Void>() {
+                                @Override
+                                public void onSuccess(Void info) {
+                                    Log.d(LOG_TAG, "an empty discussion has been left (to renew the invite)");
+                                    DinsicUtils.createDirectChat(mSession, email, createDirectChatCallBack);
+                                }
+
+                                private void onError(String errorMessage) {
+                                    Log.e(LOG_TAG, "failed to leave discussion" + errorMessage);
+                                    // Something wrong happened  - No new invite is sent
+                                    String message = getString(R.string.tchap_send_invite_failed, email);
+                                    Toast.makeText(VectorRoomInviteMembersActivity.this, message, Toast.LENGTH_LONG).show();
+
+                                    // We decrement the counter before testing if it is equal to zero.
+                                    // If the counter is equal to zero, it means that we have reached the end of the list.
+                                    if (-- mCount == 0) {
+                                        onNoTchapInviteDone(finish);
+                                    }
+                                }
+
+                                @Override
+                                public void onNetworkError(Exception e) {
+                                    onError(e.getLocalizedMessage());
+                                }
+                                @Override
+                                public void onMatrixError(MatrixError e) {
+                                    onError(e.getLocalizedMessage());
+                                }
+                                @Override
+                                public void onUnexpectedError(Exception e) {
+                                    onError(e.getLocalizedMessage());
+                                }
+                            };
+
+                            // Retrieve the token of the pending 3pid (if any)
+                            String pendingInviteToken = null;
+                            List<RoomThirdPartyInvite> thirdPartyInvites = new ArrayList<>(existingRoom.getState().thirdPartyInvites());
+                            if (thirdPartyInvites.size() != 0) {
+                                // Only one invite is expected
+                                RoomThirdPartyInvite pendingInvite = thirdPartyInvites.get(0);
+                                pendingInviteToken = pendingInvite.token;
+                            }
+
+                            if (pendingInviteToken != null) {
+                                // Revoke the invite
+                                mSession.getRoomsApiClient().sendStateEvent(existingRoom.getRoomId(), Event.EVENT_TYPE_STATE_ROOM_THIRD_PARTY_INVITE, pendingInviteToken, new HashMap<String, Object>(), new ApiCallback<Void>() {
+                                    @Override
+                                    public void onSuccess(Void info) {
+                                        existingRoom.leave(leaveRoomCallBack);
+                                    }
+
+                                    private void onError(String errorMessage) {
+                                        Log.e(LOG_TAG, "failed to revoke 3pid invite" + errorMessage);
+                                        // Consider the invite is still relevant...
+                                        String message = getString(R.string.tchap_invite_already_send_message, email);
+                                        Toast.makeText(VectorRoomInviteMembersActivity.this, message, Toast.LENGTH_LONG).show();
+
+                                        // We decrement the counter before testing if it is equal to zero.
+                                        // If the counter is equal to zero, it means that we have reached the end of the list.
+                                        if (-- mCount == 0) {
+                                            onNoTchapInviteDone(finish);
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onNetworkError(Exception e) {
+                                        onError(e.getLocalizedMessage());
+                                    }
+                                    @Override
+                                    public void onMatrixError(MatrixError e) {
+                                        onError(e.getLocalizedMessage());
+                                    }
+                                    @Override
+                                    public void onUnexpectedError(Exception e) {
+                                        onError(e.getLocalizedMessage());
+                                    }
+                                });
+                            } else {
+                                Log.d(LOG_TAG, "There is no invite to revoke");
+                                existingRoom.leave(leaveRoomCallBack);
+                            }
+                        } else {
+                            // Notify the user that the invite has been already sent
+                            String message = getString(R.string.tchap_invite_already_send_message, email);
+                            Toast.makeText(VectorRoomInviteMembersActivity.this, message, Toast.LENGTH_LONG).show();
+
+                            // We decrement the counter before testing if it is equal to zero.
+                            // If the counter is equal to zero, it means that we have reached the end of the list.
+                            if (-- mCount == 0) {
+                                onNoTchapInviteDone(finish);
+                            }
+                        }
+                    } else {
+                        // The email owner is able to create a tchap account,
+                        // we create a direct chat with him, and invite him by email to join Tchap.
+                        DinsicUtils.createDirectChat(mSession, email, createDirectChatCallBack);
+                    }
                 }
 
                 @Override
