@@ -413,6 +413,7 @@
     <string name="room_participants_leave_prompt_title">Leave room</string>
     <string name="room_participants_leave_prompt_msg">Are you sure you want to leave the room?</string>
     <string name="room_participants_remove_prompt_msg">Are you sure you want to remove %s from this chat?</string>
+    <string name="room_participants_remove_3pid_invite_prompt_msg">Are you sure you want to revoke this invite?</string>
     <string name="room_participants_create">Create</string>
 
     <string name="room_participants_online">Online</string>
@@ -1200,6 +1201,7 @@
     <string name="notice_room_name_removed">%1$s removed the room name</string>
     <string name="notice_room_topic_removed">%1$s removed the room topic</string>
     <string name="notice_room_third_party_invite">%1$s sent an invitation to %2$s to join the room</string>
+    <string name="notice_room_third_party_revoked_invite">%1$s revoked the invitation for %2$s to join the room</string>
     <string name="room_error_join_failed_empty_room">It is not currently possible to re-join an empty room.</string>
 
     <string name="tab_rooms_title">ROOMS</string>
