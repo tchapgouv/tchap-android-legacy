@@ -833,12 +833,18 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
                 new ApiCallback<Void>() {
                     @Override
                     public void onSuccess(Void info) {
-                        mProgressView.setVisibility(View.GONE);
+                        if (isAdded()) {
+                            mProgressView.setVisibility(View.GONE);
+                            // refresh the display
+                            mAdapter.notifyDataSetChanged();
+                        }
                     }
 
                     private void onError(String errorMessage) {
-                        mProgressView.setVisibility(View.GONE);
-                        Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT).show();
+                        if (isAdded()) {
+                            mProgressView.setVisibility(View.GONE);
+                            Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT).show();
+                        }
                     }
 
                     @Override
