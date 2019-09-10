@@ -18,7 +18,7 @@ package fr.gouv.tchap.util
 
 import android.net.Uri
 import android.os.Build
-import android.support.annotation.VisibleForTesting
+import androidx.annotation.VisibleForTesting
 import fr.gouv.tchap.config.CERTIFICATE_FINGERPRINT_LIST
 import fr.gouv.tchap.config.ENABLE_CERTIFICATE_PINNING
 import org.matrix.androidsdk.HomeServerConnectionConfig

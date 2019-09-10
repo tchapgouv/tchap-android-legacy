@@ -20,7 +20,7 @@ package im.vector.util;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.support.v4.util.Pair;
+import androidx.core.util.Pair;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 

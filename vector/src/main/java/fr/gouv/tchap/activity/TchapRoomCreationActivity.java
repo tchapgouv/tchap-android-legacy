@@ -23,10 +23,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
-import android.support.annotation.Nullable;
-import android.support.design.widget.TextInputEditText;
-import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
+import com.google.android.material.textfield.TextInputEditText;
+
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;

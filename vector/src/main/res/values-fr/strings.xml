@@ -554,6 +554,7 @@ Les messages chiffrés ne seront pas visibles sur les clients qui n\'ont pas enc
 
     <string name="room_participants_leave_prompt_msg">Voulez-vous vraiment quitter cette conversation ?</string>
     <string name="room_participants_remove_prompt_msg">Voulez-vous vraiment exclure %s de cette conversation ?</string>
+    <string name="room_participants_remove_3pid_invite_prompt_msg">Voulez-vous vraiment retirer cette invitation ?</string>
     <string name="room_participants_idle">Inactif</string>
     <string name="room_participants_action_ignore">Masquer tous les messages de cet utilisateur</string>
     <string name="room_participants_action_unignore">Afficher tous les messages de cet utilisateur</string>
@@ -1202,6 +1203,7 @@ Veuillez noter que cette action redémarrera l\'application et pourra prendre un
     <string name="notice_room_name_removed">%1$s a supprimé le nom du salon</string>
     <string name="notice_room_topic_removed">%1$s a supprimé le sujet du salon</string>
     <string name="notice_room_third_party_invite">%1$s a envoyé une invitation à %2$s pour rejoindre la conversation</string>
+    <string name="notice_room_third_party_revoked_invite">%1$s a retiré l’invitation de %2$s pour rejoindre la conversation</string>
     <string name="room_error_join_failed_empty_room">Il est impossible pour le moment de revenir dans une conversation vide.</string>
 
     <string name="tab_rooms_title">CONVERSATIONS</string>

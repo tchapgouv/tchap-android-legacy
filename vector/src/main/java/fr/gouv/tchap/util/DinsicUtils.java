@@ -29,12 +29,12 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.ContactsContract;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.widget.Toast;
+import androidx.fragment.app.FragmentActivity;
 
 import org.matrix.androidsdk.core.JsonUtils;
 import org.matrix.androidsdk.core.MXPatterns;
@@ -371,7 +371,7 @@ public class DinsicUtils {
         }
     }
 
-    public static void editContact(final FragmentActivity activity, final Context theContext,final ParticipantAdapterItem item) {
+    public static void editContact(final FragmentActivity activity, final Context theContext, final ParticipantAdapterItem item) {
         if (ContactsManager.getInstance().isContactBookAccessAllowed()) {
             //enterEmailAddress(item.mContact);
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
@@ -1003,6 +1003,25 @@ public class DinsicUtils {
         content.put(RoomAccessRulesKt.STATE_EVENT_CONTENT_KEY_RULE, rule);
 
         session.getRoomsApiClient().sendStateEvent(room.getRoomId(), RoomAccessRulesKt.STATE_EVENT_TYPE, "", content, callback);
+    }
+
+    /**
+     * Return the room avatar.
+     * Tchap client handles the room avatar with a different manner than the SDK one:
+     * - Do not use by default a member avatar for the room avatar, except for the direct chats.
+     *
+     * @param room    the room.
+     * @return the room avatar url.
+     */
+    @Nullable
+    public static String getRoomAvatarUrl(@NonNull Room room) {
+        String avatarUrl;
+        if (room.isDirect()) {
+            avatarUrl = room.getAvatarUrl();
+        } else {
+            avatarUrl = room.getState().getAvatarUrl();
+        }
+        return avatarUrl;
     }
 
     /* get contacts from direct chats */

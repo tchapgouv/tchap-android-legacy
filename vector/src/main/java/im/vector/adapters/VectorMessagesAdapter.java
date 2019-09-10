@@ -27,8 +27,8 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -97,7 +97,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import fr.gouv.tchap.media.AntiVirusScanStatus;
 import fr.gouv.tchap.media.MediaScanManager;
 import fr.gouv.tchap.model.MediaScan;
 import im.vector.R;

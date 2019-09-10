@@ -23,19 +23,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.widget.SearchView;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.appcompat.widget.SearchView;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 
 import org.matrix.androidsdk.MXSession;
 
@@ -51,7 +50,7 @@ import im.vector.activity.VectorAppCompatActivity;
 /**
  * List all the public rooms by considering all known room directories.
  */
-public class TchapPublicRoomSelectionActivity extends VectorAppCompatActivity implements android.support.v7.widget.SearchView.OnQueryTextListener {
+public class TchapPublicRoomSelectionActivity extends VectorAppCompatActivity implements androidx.appcompat.widget.SearchView.OnQueryTextListener {
 
     private static final String LOG_TAG = TchapPublicRoomSelectionActivity.class.getSimpleName();
 
@@ -187,10 +186,10 @@ public class TchapPublicRoomSelectionActivity extends VectorAppCompatActivity im
             searchEditFrame.setLayoutParams(searchEditFrameParams);
         }
 
-        ImageView searchMagIcon = mSearchView.findViewById(android.support.v7.appcompat.R.id.search_mag_icon);
+        ImageView searchMagIcon = mSearchView.findViewById(androidx.appcompat.R.id.search_mag_icon);
         searchMagIcon.setColorFilter(ContextCompat.getColor(this, R.color.tchap_search_bar_text));
 
-        ImageView searchCloseIcon = mSearchView.findViewById(android.support.v7.appcompat.R.id.search_close_btn);
+        ImageView searchCloseIcon = mSearchView.findViewById(androidx.appcompat.R.id.search_close_btn);
         searchCloseIcon.setColorFilter(ContextCompat.getColor(this, R.color.tchap_search_bar_text));
 
         mSearchView.setMaxWidth(Integer.MAX_VALUE);

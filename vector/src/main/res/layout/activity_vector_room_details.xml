@@ -9,7 +9,7 @@
         android:layout_height="match_parent"
         android:id="@+id/room_details_head">
 
-        <android.support.v7.widget.Toolbar
+        <androidx.appcompat.widget.Toolbar
             android:id="@+id/room_toolbar"
             style="@style/TchapRoomToolbarStyle"
             android:layout_width="match_parent"
@@ -20,10 +20,10 @@
 
             <include layout="@layout/tchap_room_action_bar_custo_layout" />
 
-        </android.support.v7.widget.Toolbar>
+        </androidx.appcompat.widget.Toolbar>
 
 
-    <android.support.design.widget.TabLayout
+    <com.google.android.material.tabs.TabLayout
         android:id="@+id/tab_layout"
         android:layout_width="match_parent"
         android:layout_height="45dp"
@@ -41,21 +41,21 @@
         app:tabSelectedTextColor="@color/tchap_text_color_light"
         app:tabTextAppearance="@style/Vector.RoomToolbar.Title">
 
-        <android.support.design.widget.TabItem
+        <com.google.android.material.tabs.TabItem
             android:id="@+id/tab_item_people"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:tag="people"
             android:text="@string/room_details_people" />
-        <android.support.design.widget.TabItem
+        <com.google.android.material.tabs.TabItem
             android:id="@+id/tab_item_files"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:tag="files"
             android:text="@string/room_details_files" />
-        <android.support.design.widget.TabItem
+        <com.google.android.material.tabs.TabItem
             android:id="@+id/tab_item_details"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -63,7 +63,7 @@
             android:tag="settings"
             android:text="@string/room_details_settings"/>
 
-    </android.support.design.widget.TabLayout>
+    </com.google.android.material.tabs.TabLayout>
         <View
             android:id="@+id/header_bottom_separator"
             android:layout_below="@+id/tab_layout"

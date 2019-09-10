@@ -16,7 +16,7 @@
 
 package fr.gouv.tchap.media;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import org.matrix.androidsdk.rest.model.MediaScanResult;
 

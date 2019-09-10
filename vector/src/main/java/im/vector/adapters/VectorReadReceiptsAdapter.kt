@@ -18,7 +18,7 @@ package im.vector.adapters
 
 import android.content.Context
 import android.graphics.Typeface
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.StyleSpan
@@ -44,7 +44,7 @@ class VectorReadReceiptsAdapter(private val mContext: Context,
                                 private val mRoom: Room,
                                 private val list: ArrayList<ReceiptData>,
                                 private val listener: VectorReadReceiptsAdapterListener) :
-        RecyclerView.Adapter<VectorReadReceiptsAdapter.ReadReceiptViewHolder>() {
+        androidx.recyclerview.widget.RecyclerView.Adapter<VectorReadReceiptsAdapter.ReadReceiptViewHolder>() {
 
     interface VectorReadReceiptsAdapterListener {
         fun onMemberClicked(userId: String)
@@ -123,7 +123,7 @@ class VectorReadReceiptsAdapter(private val mContext: Context,
         }
     }
 
-    class ReadReceiptViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
+    class ReadReceiptViewHolder(val view: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(view) {
         @BindView(R.id.avatar_img_vector)
         lateinit var imageView: ImageView
 

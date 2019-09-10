@@ -19,9 +19,10 @@ package fr.gouv.tchap.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.app.ActionBar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.fragment.app.FragmentManager;
+import androidx.appcompat.app.ActionBar;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -37,7 +38,6 @@ import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.VectorHomeActivity;
 import im.vector.fragments.VectorSearchRoomFilesListFragment;
-import im.vector.util.VectorUtils;
 
 /**
  * This class implements the direct room details screen
@@ -59,7 +59,7 @@ public class TchapDirectRoomDetailsActivity extends TchapContactActionBarActivit
     private String mRoomId;
     private String mMatrixId;
 
-    private android.support.v7.widget.Toolbar mToolbar;
+    private androidx.appcompat.widget.Toolbar mToolbar;
     private FragmentManager mFragmentManager;
 
     private final MXEventListener mEventListener = new MXEventListener() {
@@ -155,10 +155,10 @@ public class TchapDirectRoomDetailsActivity extends TchapContactActionBarActivit
     protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        List<android.support.v4.app.Fragment> allFragments = getSupportFragmentManager().getFragments();
+        List<Fragment> allFragments = getSupportFragmentManager().getFragments();
 
         // dispatch the result to each fragments
-        for (android.support.v4.app.Fragment fragment : allFragments) {
+        for (Fragment fragment : allFragments) {
             fragment.onActivityResult(requestCode, resultCode, data);
         }
     }

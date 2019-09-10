@@ -30,7 +30,7 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.SystemClock;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;

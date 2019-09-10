@@ -24,14 +24,14 @@ import android.graphics.Bitmap
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.support.v7.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
 import android.text.TextUtils
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.*
 import android.widget.TextView
 import androidx.core.view.isInvisible
-import androidx.core.widget.toast
+import org.jetbrains.anko.toast
 import butterknife.BindView
 import butterknife.OnClick
 import im.vector.Matrix

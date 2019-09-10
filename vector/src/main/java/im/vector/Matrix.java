@@ -23,8 +23,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AlertDialog;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import android.text.TextUtils;
 
 import org.matrix.androidsdk.HomeServerConnectionConfig;
@@ -915,12 +915,32 @@ public class Matrix {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         TchapValidityRestClient validityRestClient = new TchapValidityRestClient(getDefaultSession().getHomeServerConfig());
-                        validityRestClient.requestRenewalEmail(new SimpleApiCallback<Void>() {
+                        validityRestClient.requestRenewalEmail(new ApiCallback<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 // Just log the information
                                 Log.i(LOG_TAG, "a renewal email has been requested");
                                 onRequestedRenewalEmail(context);
+                            }
+
+                            private void onError(final String errorMessage) {
+                                Log.e(LOG_TAG, "request for a renewal email failed " + errorMessage);
+                                displayExpiredAccountDialog(context);
+                            }
+
+                            @Override
+                            public void onNetworkError(Exception e) {
+                                onError(e.getLocalizedMessage());
+                            }
+
+                            @Override
+                            public void onMatrixError(MatrixError e) {
+                                onError(e.getLocalizedMessage());
+                            }
+
+                            @Override
+                            public void onUnexpectedError(Exception e) {
+                                onError(e.getLocalizedMessage());
                             }
                         });
                     }

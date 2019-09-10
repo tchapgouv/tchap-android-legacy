@@ -20,14 +20,13 @@ package im.vector.adapters;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Handler;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
-import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -396,9 +395,11 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
                     Collection<RoomThirdPartyInvite> thirdPartyInvites = mRoom.getState().thirdPartyInvites();
 
                     for (RoomThirdPartyInvite invite : thirdPartyInvites) {
-                        // If the home server has converted the 3pid invite into a room member, do not show it
-                        if (null == mRoom.getState().memberWithThirdPartyInviteToken(invite.token)) {
-                            ParticipantAdapterItem participant = new ParticipantAdapterItem(invite.display_name, "", null, true);
+                        // If the home server has converted the 3pid invite into a room member, do not show it.
+                        // If the invite has been revoked (null display name), ignore it too.
+                        if (null == mRoom.getState().memberWithThirdPartyInviteToken(invite.token)
+                                && invite.display_name != null) {
+                            ParticipantAdapterItem participant = new ParticipantAdapterItem(invite);
 
                             if ((!isSearchEnabled) || participant.contains(mSearchPattern)) {
                                 invitedMembers.add(participant);
@@ -910,7 +911,9 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
         });
 
         // SWIPE: the swipe should be enabled when there is no search and the user can kick other members
-        if (isSearchMode || isActionsMenuHidden || (null == participant.mRoomMember)) {
+        if (isSearchMode
+                || isActionsMenuHidden
+                || (null == participant.mRoomMember && null == participant.mRoomThirdPartyInvite)) {
             viewHolder.mSwipeCellLayout.setOnTouchListener(null);
         } else {
             viewHolder.mSwipeCellLayout.setOnTouchListener(new View.OnTouchListener() {
@@ -945,7 +948,7 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
                             if (Math.abs(x - mStartX) < 10) {
                                 // ignore the cancel event
                                 if (event.getAction() == MotionEvent.ACTION_UP) {
-                                    if (null != mOnParticipantsListener) {
+                                    if (null != mOnParticipantsListener && !TextUtils.isEmpty(participant.mUserId)) {
                                         mOnParticipantsListener.onClick(participant);
                                     }
                                 }

@@ -19,7 +19,7 @@ package im.vector.activity
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.support.annotation.StringRes
+import androidx.annotation.StringRes
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import butterknife.BindView
