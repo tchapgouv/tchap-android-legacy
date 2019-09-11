@@ -35,6 +35,12 @@
         android:key="removeFromRoomsDirectory"
         android:title="@string/tchap_room_settings_remove_from_directory" />
 
+    <!-- the current room access rule (a restricted room may become unrestrictive) -->
+    <im.vector.preference.VectorCustomActionEditTextPreference
+        android:key="roomAccessRule"
+        android:title="@string/tchap_room_settings_room_access_title"
+        android:summary="@string/tchap_room_settings_room_access_restricted"/>
+
     <!--im.vector.preference.VectorDividerCategory /-->
 
     <!-- no addresses section in tchap at this step of the product

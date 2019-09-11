@@ -13,6 +13,7 @@
     <dimen name="item_decoration_left_margin">72dp</dimen>
 
     <dimen name="chat_avatar_size">40dp</dimen>
+    <dimen name="hexagonal_avatar_size">45dp</dimen>
     <dimen name="member_list_avatar_size">60dp</dimen>
     <dimen name="big_avatar_size">140dp</dimen>
 

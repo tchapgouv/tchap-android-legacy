@@ -23,7 +23,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
+import android.text.TextUtils;
 import com.google.android.material.textfield.TextInputEditText;
+
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -35,18 +38,21 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.matrix.androidsdk.MXSession;
+import org.matrix.androidsdk.core.JsonUtils;
 import org.matrix.androidsdk.data.RoomState;
 import org.matrix.androidsdk.listeners.MXMediaUploadListener;
 import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.core.callback.SimpleApiCallback;
 import org.matrix.androidsdk.rest.model.CreateRoomParams;
 import org.matrix.androidsdk.core.model.MatrixError;
+import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.rest.model.RoomDirectoryVisibility;
 import org.matrix.androidsdk.core.Log;
 import org.matrix.androidsdk.core.ResourceUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +63,7 @@ import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
 
+import fr.gouv.tchap.sdk.session.room.model.RoomAccessRulesKt;
 import fr.gouv.tchap.util.DinsicUtils;
 import fr.gouv.tchap.util.HexagonMaskView;
 import com.bumptech.glide.Glide;
@@ -93,8 +100,14 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     @BindView(R.id.et_room_name)
     TextInputEditText etRoomName;
 
-    @BindView(R.id.switch_public_private_rooms)
-    Switch switchPublicPrivateRoom;
+    @BindView(R.id.tv_external_access)
+    TextView externalAccessRoomText;
+
+    @BindView(R.id.switch_external_access_room)
+    Switch externalAccessRoomSwitch;
+
+    @BindView(R.id.switch_public_private_room)
+    Switch publicPrivateRoomSwitch;
 
     @BindView(R.id.ll_federation_option)
     View federationOption;
@@ -103,7 +116,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     TextView disableFederationText;
 
     @BindView(R.id.switch_disable_federation)
-    Switch switchDisableFederation;
+    Switch disableFederationSwitch;
 
     @BindView(R.id.tv_public_private_room_description)
     TextView tvPublicPrivateRoomDescription;
@@ -126,8 +139,10 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
         setTitle(R.string.tchap_room_creation_title);
 
-        // Initialize default room params as private
-        switchPublicPrivateRoom.setChecked(false);
+        // Initialize default room params as private and restricted
+        externalAccessRoomSwitch.setChecked(false);
+        setRoomAccessRule(RoomAccessRulesKt.RESTRICTED);
+        publicPrivateRoomSwitch.setChecked(false);
         mRoomParams.visibility = RoomDirectoryVisibility.DIRECTORY_VISIBILITY_PRIVATE;
         mRoomParams.preset = CreateRoomParams.PRESET_PRIVATE_CHAT;
         // Hide the encrypted messages sent before the member is invited.
@@ -141,6 +156,9 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         // Prepare disable federation label by adding the hs display name of the current user.
         String userHSDomain = DinsicUtils.getHomeServerDisplayNameFromMXIdentifier(mSession.getMyUserId());
         disableFederationText.setText(getString(R.string.tchap_room_creation_disable_federation, userHSDomain));
+
+        // Set the right border color on avatar
+        hexagonMaskView.setBorderSettings(ContextCompat.getColor(this, R.color.restricted_room_avatar_border_color), 3);
     }
 
     @Override
@@ -199,16 +217,43 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         startActivityForResult(intent, REQ_CODE_UPDATE_ROOM_AVATAR);
     }
 
+    @OnCheckedChanged(R.id.switch_external_access_room)
+    void setRoomExternalAccess() {
+        if (externalAccessRoomSwitch.isChecked()) {
+            Log.d(LOG_TAG, "## unrestricted");
+            setRoomAccessRule(RoomAccessRulesKt.UNRESTRICTED);
+            hexagonMaskView.setBorderSettings(ContextCompat.getColor(this, R.color.unrestricted_room_avatar_border_color), 10);
+        } else {
+            Log.d(LOG_TAG, "## restricted");
+            setRoomAccessRule(RoomAccessRulesKt.RESTRICTED);
+            hexagonMaskView.setBorderSettings(ContextCompat.getColor(this, R.color.restricted_room_avatar_border_color), 3);
 
-    @OnCheckedChanged(R.id.switch_public_private_rooms)
+            if (!mParticipantsIds.isEmpty()) {
+                // Remove the potential selected external users
+                for (int index = 0; index < mParticipantsIds.size();) {
+                    String selectedUserId = mParticipantsIds.get(index);
+                    if (DinsicUtils.isExternalTchapUser(selectedUserId)) {
+                        mParticipantsIds.remove(selectedUserId);
+                    } else {
+                        index++;
+                    }
+                }
+            }
+        }
+    }
+
+    @OnCheckedChanged(R.id.switch_public_private_room)
     void setRoomPrivacy() {
-        if (switchPublicPrivateRoom.isChecked()) {
+        if (publicPrivateRoomSwitch.isChecked()) {
             tvPublicPrivateRoomDescription.setTextColor(ContextCompat.getColor(this, R.color.vector_fuchsia_color));
             mRoomParams.visibility = RoomDirectoryVisibility.DIRECTORY_VISIBILITY_PUBLIC;
             mRoomParams.preset = CreateRoomParams.PRESET_PUBLIC_CHAT;
             mRoomParams.setHistoryVisibility(RoomState.HISTORY_VISIBILITY_WORLD_READABLE);
             Log.d(LOG_TAG, "## public");
             federationOption.setVisibility(View.VISIBLE);
+            // Disable room external access option
+            updateRoomExternalAccessOption(false);
+
         } else {
             tvPublicPrivateRoomDescription.setTextColor(ContextCompat.getColor(this, R.color.vector_tchap_text_color_light_grey));
             mRoomParams.visibility = RoomDirectoryVisibility.DIRECTORY_VISIBILITY_PRIVATE;
@@ -217,15 +262,17 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
             mRoomParams.setHistoryVisibility(RoomState.HISTORY_VISIBILITY_INVITED);
             Log.d(LOG_TAG, "## private");
             // Remove potential change related to the federation
-            switchDisableFederation.setChecked(false);
+            disableFederationSwitch.setChecked(false);
             federationOption.setVisibility(View.GONE);
             mRoomParams.creation_content = null;
+            // Enable the room access option
+            updateRoomExternalAccessOption(true);
         }
     }
 
     @OnCheckedChanged(R.id.switch_disable_federation)
     void setRoomFederation() {
-        if (switchDisableFederation.isChecked()) {
+        if (disableFederationSwitch.isChecked()) {
             Map<String, Object> params = new HashMap<>();
             params.put("m.federate", false);
             mRoomParams.creation_content = params;
@@ -285,8 +332,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
                 if (resultCode == RESULT_OK) {
                     // We have retrieved the list of members to invite from RoomInviteMembersActivity.
-                    // This list can not be empty because the add button for the members selection is only activated if at least 1 member is selected.
-                    // This list contains only matrixIds because the RoomInviteMembersActivity was opened in TCHAP_ONLY or FEDERATED_TCHAP_ONLY mode.
+                    // This list contains only matrixIds because the RoomInviteMembersActivity was opened in TCHAP_USERS_ONLY, TCHAP_USERS_ONLY_WITHOUT_EXTERNALS or TCHAP_USERS_ONLY_WITHOUT_FEDERATION mode.
                     showWaitingView();
                     invalidateOptionsMenu();
                     mRoomParams.invitedUserIds = mParticipantsIds;
@@ -295,6 +341,52 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                     invalidateOptionsMenu();
                 }
                 break;
+        }
+    }
+
+    /**
+     * Force the room access rule in the room creation parameters.
+     *
+     * @param roomAccessRule the expected room access rule, set null to remove any existing value.
+     *                          see {@link RoomAccessRulesKt}
+     */
+    private void setRoomAccessRule(@Nullable String roomAccessRule) {
+        // Remove the existing value if any.
+        if (mRoomParams.initialStates != null && !mRoomParams.initialStates.isEmpty()) {
+            final List<Event> newInitialStates = new ArrayList<>();
+            for (Event event : mRoomParams.initialStates) {
+                if (!event.type.equals(RoomAccessRulesKt.STATE_EVENT_TYPE)) {
+                    newInitialStates.add(event);
+                }
+            }
+            mRoomParams.initialStates = newInitialStates;
+        }
+
+        if (!TextUtils.isEmpty(roomAccessRule)) {
+            Event roomAccessRulesEvent = new Event();
+            roomAccessRulesEvent.type = RoomAccessRulesKt.STATE_EVENT_TYPE;
+
+            Map<String, String> contentMap = new HashMap<>();
+            contentMap.put(RoomAccessRulesKt.STATE_EVENT_CONTENT_KEY_RULE, roomAccessRule);
+            roomAccessRulesEvent.updateContent(JsonUtils.getGson(false).toJsonTree(contentMap));
+            roomAccessRulesEvent.stateKey = "";
+
+            if (null == mRoomParams.initialStates) {
+                mRoomParams.initialStates = Arrays.asList(roomAccessRulesEvent);
+            } else {
+                mRoomParams.initialStates.add(roomAccessRulesEvent);
+            }
+        }
+    }
+
+    private void updateRoomExternalAccessOption(boolean enable) {
+        externalAccessRoomSwitch.setEnabled(enable);
+        if (enable) {
+            externalAccessRoomText.setTextColor(ContextCompat.getColor(this, R.color.vector_tchap_text_color_dark));
+        } else {
+            externalAccessRoomText.setTextColor(ContextCompat.getColor(this, R.color.vector_tchap_text_color_light_grey));
+            // Remove any pending change
+            externalAccessRoomSwitch.setChecked(false);
         }
     }
 
@@ -538,11 +630,16 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         Intent intent = new Intent(TchapRoomCreationActivity.this, VectorRoomInviteMembersActivity.class);
         intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
         intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_ACTION_ACTIVITY_MODE, VectorRoomInviteMembersActivity.ActionMode.RETURN_SELECTED_USER_IDS);
-        // Check whether the federation has been disabled to limit the invitation to the federated users
+        // Check whether the federation has been disabled to limit the invitation to the non federated users
         if (null == mRoomParams.creation_content) {
-            intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY);
+            // Check whether the external users are allowed or not
+            if (externalAccessRoomSwitch.isChecked()) {
+                intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_USERS_ONLY);
+            } else {
+                intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_USERS_ONLY_WITHOUT_EXTERNALS);
+            }
         } else {
-            intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.FEDERATED_TCHAP_ONLY);
+            intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_USERS_ONLY_WITHOUT_FEDERATION);
         }
 
         if (!mParticipantsIds.isEmpty()) {

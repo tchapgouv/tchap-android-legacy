@@ -2147,7 +2147,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
         mFloatingActionsMenu.collapse();
         // Create a new direct chat with an existing tchap user
         // Multi-selection will be disabled
-        createNewChat(VectorRoomInviteMembersActivity.ActionMode.START_DIRECT_CHAT, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY);
+        createNewChat(VectorRoomInviteMembersActivity.ActionMode.START_DIRECT_CHAT, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_USERS_ONLY);
     }
 
     @OnClick(R.id.button_create_room)

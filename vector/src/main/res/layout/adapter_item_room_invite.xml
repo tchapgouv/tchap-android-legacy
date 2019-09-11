@@ -3,30 +3,27 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/invite_view"
     android:layout_width="match_parent"
-    android:layout_height="130dp"
-    android:paddingStart="16dp"
-    android:paddingLeft="16dp"
-    android:paddingEnd="16dp"
-    android:paddingRight="16dp">
+    android:layout_height="130dp">
 
     <RelativeLayout
         android:id="@+id/room_desc"
         android:layout_width="match_parent"
         android:layout_height="74dp">
 
-        <LinearLayout
+        <FrameLayout
             android:id="@+id/room_avatar_layout"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="@dimen/hexagonal_avatar_size"
+            android:layout_height="@dimen/hexagonal_avatar_size"
             android:layout_centerVertical="true"
             android:layout_marginLeft="16dp">
 
             <fr.gouv.tchap.util.HexagonMaskView
                 android:id="@+id/room_avatar_hexagon"
-                android:layout_width="@dimen/chat_avatar_size"
-                android:layout_height="@dimen/chat_avatar_size"
-                android:maxWidth="@dimen/chat_avatar_size"
-                android:maxHeight="@dimen/chat_avatar_size"
+                android:layout_gravity="center"
+                android:layout_width="@dimen/hexagonal_avatar_size"
+                android:layout_height="@dimen/hexagonal_avatar_size"
+                android:maxWidth="@dimen/hexagonal_avatar_size"
+                android:maxHeight="@dimen/hexagonal_avatar_size"
                 android:scaleType="centerCrop"
                 android:adjustViewBounds="true"
                 android:background="@color/riot_primary_background_color_light"
@@ -34,31 +31,22 @@
 
             <im.vector.view.VectorCircularImageView
                 android:id="@+id/room_avatar"
+                android:layout_gravity="center"
                 android:layout_width="@dimen/chat_avatar_size"
                 android:layout_height="@dimen/chat_avatar_size"
                 tools:src="#22000000"
+                tools:visibility="visible"
                 android:visibility="gone"/>
-        </LinearLayout>
-
-        <ImageView
-            android:id="@+id/room_avatar_direct_chat_icon"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_alignStart="@+id/room_avatar_layout"
-            android:layout_alignLeft="@+id/room_avatar_layout"
-            android:layout_alignTop="@+id/room_avatar_layout"
-            android:layout_marginStart="30dp"
-            android:layout_marginLeft="30dp"
-            android:src="@drawable/icon_person"
-            android:visibility="invisible"
-            tools:visibility="visible" />
+        </FrameLayout>
 
         <ImageView
             android:id="@+id/room_avatar_encrypted_icon"
             android:layout_width="15dp"
             android:layout_height="15dp"
-            android:layout_alignEnd="@+id/room_avatar_direct_chat_icon"
-            android:layout_alignRight="@+id/room_avatar_direct_chat_icon"
+            android:layout_alignStart="@+id/room_avatar_layout"
+            android:layout_alignLeft="@+id/room_avatar_layout"
+            android:layout_marginStart="33dp"
+            android:layout_marginLeft="33dp"
             android:layout_alignBottom="@+id/room_avatar_layout"
             android:src="@drawable/e2e_verified"
             android:tint="?attr/padlock_icon_tint_color"
@@ -135,7 +123,7 @@
             android:layout_height="match_parent"
             android:background="?attr/vctr_default_icon_tint_color"
             android:fontFamily="sans-serif-medium"
-            android:minWidth="100dp"
+            android:minWidth="130dp"
             android:text="@string/join"
             android:textColor="@android:color/white"
             android:textSize="14sp" />
@@ -148,7 +136,7 @@
             android:layout_marginLeft="16dp"
             android:background="?attr/vctr_default_icon_tint_color"
             android:fontFamily="sans-serif-medium"
-            android:minWidth="100dp"
+            android:minWidth="130dp"
             android:text="@string/reject"
             android:textColor="@android:color/white"
             android:textSize="14sp" />

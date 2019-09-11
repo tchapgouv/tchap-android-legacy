@@ -24,6 +24,7 @@ import android.graphics.drawable.GradientDrawable;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -40,6 +41,7 @@ import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import fr.gouv.tchap.sdk.session.room.model.RoomAccessRulesKt;
 import fr.gouv.tchap.util.DinsicUtils;
 import fr.gouv.tchap.util.HexagonMaskView;
 import im.vector.R;
@@ -54,6 +56,7 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
     @Nullable
     View vRoomPinFavorite;
 
+    @Nullable
     @BindView(R.id.room_avatar)
     ImageView vRoomAvatar;
 
@@ -206,18 +209,30 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
             vSenderDisplayName.setVisibility(View.VISIBLE);
         }
 
-        // Check whether an hexagonal avatar shape has been defined in the layout,
-        // in order to use it for a no direct chat room.
-        // For example, this is the case for the invitations display.
-        if (null != vRoomAvatarHexagon && !isDirectChat) {
-            vRoomAvatar.setVisibility(View.GONE);
-            vRoomAvatarHexagon.setVisibility(View.VISIBLE);
-            VectorUtils.loadRoomAvatar(context, session, vRoomAvatarHexagon, room);
-        } else {
-            vRoomAvatar.setVisibility(View.VISIBLE);
-            if (null != vRoomAvatarHexagon) {
+        // Check whether both avatar shapes have been defined in the layout.
+        // This is the case for the invitations.
+        if (null != vRoomAvatarHexagon && null != vRoomAvatar) {
+            if (isDirectChat) {
+                vRoomAvatar.setVisibility(View.VISIBLE);
                 vRoomAvatarHexagon.setVisibility(View.GONE);
+                VectorUtils.loadRoomAvatar(context, session, vRoomAvatar, room);
+            } else {
+                vRoomAvatar.setVisibility(View.GONE);
+                vRoomAvatarHexagon.setVisibility(View.VISIBLE);
+                VectorUtils.loadRoomAvatar(context, session, vRoomAvatarHexagon, room);
+
+                // The room_access_rules state event is not available in the invite state.
+                // That is why we keep the default settings for the avatar border.
             }
+        } else if (null != vRoomAvatarHexagon) {
+            VectorUtils.loadRoomAvatar(context, session, vRoomAvatarHexagon, room);
+            // Set the right border color
+            if (TextUtils.equals(DinsicUtils.getRoomAccessRule(room), RoomAccessRulesKt.RESTRICTED)) {
+                vRoomAvatarHexagon.setBorderSettings(ContextCompat.getColor(context, R.color.restricted_room_avatar_border_color), 3);
+            } else {
+                vRoomAvatarHexagon.setBorderSettings(ContextCompat.getColor(context, R.color.unrestricted_room_avatar_border_color), 10);
+            }
+        } else if (null != vRoomAvatar) {
             VectorUtils.loadRoomAvatar(context, session, vRoomAvatar, room);
         }
 

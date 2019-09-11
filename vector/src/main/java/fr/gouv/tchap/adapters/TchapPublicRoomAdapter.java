@@ -26,7 +26,6 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.matrix.androidsdk.data.Room;
@@ -41,6 +40,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import fr.gouv.tchap.util.DinsicUtils;
+import fr.gouv.tchap.util.HexagonMaskView;
 import im.vector.R;
 import im.vector.adapters.AbsAdapter;
 import im.vector.adapters.AdapterSection;
@@ -193,7 +193,7 @@ public class TchapPublicRoomAdapter extends AbsAdapter {
 
     class PublicRoomViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.public_room_avatar)
-        ImageView vPublicRoomAvatar;
+        HexagonMaskView vPublicRoomAvatar;
 
         @BindView(R.id.public_room_name)
         TextView vPublicRoomName;
@@ -220,9 +220,9 @@ public class TchapPublicRoomAdapter extends AbsAdapter {
 
             String roomName = !TextUtils.isEmpty(publicRoom.name) ? publicRoom.name : VectorUtils.getPublicRoomDisplayName(publicRoom);
 
-            // display the room avatar
-            vPublicRoomAvatar.setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent));
+            // Display the room avatar with a restricted border (all public rooms are not allowed to the external users)
             VectorUtils.loadUserAvatar(mContext, mSession, vPublicRoomAvatar, publicRoom.avatarUrl, publicRoom.roomId, roomName);
+            vPublicRoomAvatar.setBorderSettings(ContextCompat.getColor(mContext, R.color.restricted_room_avatar_border_color), 3);
 
             // set the topic
             vRoomTopic.setText(publicRoom.topic);

@@ -1165,6 +1165,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 
             val dialog = AlertDialog.Builder(activity)
                     .setTitle(R.string.settings_change_password)
+                    .setMessage(R.string.tchap_change_password_help)
                     .setView(view)
                     .setPositiveButton(R.string.save) { _, _ ->
                         if (null != activity) {
@@ -1189,13 +1190,26 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                                     // and the code is called in the right thread
                                     activity.runOnUiThread {
                                         hideLoadingView()
+
+                                        var titleId = textId
+                                        var messageId: Int? = null
+
                                         if (textId == R.string.settings_password_updated) {
+                                            titleId = R.string.settings_change_pwd_success_title
+                                            messageId = R.string.settings_change_pwd_success_msg
+                                        } else if (textId == R.string.tchap_password_weak_pwd_error
+                                                || textId == R.string.tchap_password_pwd_in_dict_error) {
+                                            titleId = R.string.settings_fail_to_update_password
+                                            messageId = textId
+                                        }
+
+                                        messageId?.let {
                                             AlertDialog.Builder(activity)
-                                                    .setTitle(R.string.settings_change_pwd_success_title)
-                                                    .setMessage(R.string.settings_change_pwd_success_msg)
+                                                    .setTitle(titleId)
+                                                    .setMessage(messageId)
                                                     .setPositiveButton(R.string.ok, null)
                                                     .show()
-                                        } else {
+                                        } ?: run {
                                             activity?.longToast(textId)
                                         }
                                     }
@@ -1211,7 +1225,18 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                             }
 
                             override fun onMatrixError(e: MatrixError) {
-                                onDone(R.string.settings_fail_to_update_password)
+                                if (TextUtils.equals(MatrixError.PASSWORD_TOO_SHORT, e.errcode)
+                                        || TextUtils.equals(MatrixError.PASSWORD_NO_DIGIT, e.errcode)
+                                        || TextUtils.equals(MatrixError.PASSWORD_NO_UPPERCASE, e.errcode)
+                                        || TextUtils.equals(MatrixError.PASSWORD_NO_LOWERCASE, e.errcode)
+                                        || TextUtils.equals(MatrixError.PASSWORD_NO_SYMBOL, e.errcode)
+                                        || TextUtils.equals(MatrixError.WEAK_PASSWORD, e.errcode)) {
+                                    onDone(R.string.tchap_password_weak_pwd_error)
+                                } else if (TextUtils.equals(MatrixError.PASSWORD_IN_DICTIONARY, e.errcode)) {
+                                    onDone(R.string.tchap_password_pwd_in_dict_error)
+                                } else {
+                                    onDone(R.string.settings_fail_to_update_password)
+                                }
                             }
 
                             override fun onUnexpectedError(e: Exception) {

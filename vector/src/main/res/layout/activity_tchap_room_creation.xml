@@ -36,7 +36,7 @@
                         android:id="@+id/hexagon_mask_view"
                         android:layout_width="95dp"
                         android:layout_height="95dp"
-                        android:background="@color/vector_tchap_hexagon_background_color_dark_grey"/>
+                        android:src="@color/vector_tchap_hexagon_background_color_dark_grey"/>
 
                     <TextView
                         android:id="@+id/tv_add_avatar_image"
@@ -84,6 +84,32 @@
                 android:orientation="horizontal">
 
                 <TextView
+                    android:id="@+id/tv_external_access"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/tchap_room_creation_unrestricted"
+                    android:textSize="15sp"
+                    android:paddingBottom="3dp"
+                    android:textColor="@color/vector_tchap_text_color_dark"/>
+
+                <Switch
+                    android:id="@+id/switch_external_access_room"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="false"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:descendantFocusability="beforeDescendants"
+                android:focusableInTouchMode="true"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="7dp"
+                android:orientation="horizontal">
+
+                <TextView
                     android:id="@+id/tv_public_room"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -94,7 +120,7 @@
                     android:textColor="@color/vector_tchap_text_color_dark"/>
 
                 <Switch
-                    android:id="@+id/switch_public_private_rooms"
+                    android:id="@+id/switch_public_private_room"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:checked="false"/>

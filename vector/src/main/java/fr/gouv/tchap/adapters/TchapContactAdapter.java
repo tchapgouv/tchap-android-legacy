@@ -97,7 +97,7 @@ public class TchapContactAdapter extends AbsAdapter {
                 TYPE_HEADER_LOCAL_CONTACTS,
                 TYPE_CONTACT,
                 new ArrayList<ParticipantAdapterItem>(),
-                ParticipantAdapterItem.tchapAlphaComparator);
+                ParticipantAdapterItem.alphaComparator);
         mLocalContactsSection.setEmptyViewPlaceholder(!ContactsManager.getInstance().isContactBookAccessAllowed() ? mNoContactAccessPlaceholder : mNoResultPlaceholder);
 
         mKnownContactsSection = new KnownContactsAdapterSection(
@@ -410,29 +410,8 @@ public class TchapContactAdapter extends AbsAdapter {
             if (participant.isMatrixUser()) {
                 vContactAvatar.clearColorFilter();
 
-                // display the participant's domain
-                // TODO External users : domain visibility should be GONE
+                // display the participant's domain (if any)
                 String domainName = DinsicUtils.getDomainFromDisplayName(participant.mDisplayName);
-
-                if (null == domainName || domainName.isEmpty()) {
-                    // sanity check
-                    if (null != participant.mContact && !participant.mContact.getEmails().isEmpty()) {
-                        // We extract the domain of this tchap user from the his email
-                        String emailAddress = participant.mContact.getEmails().get(0);
-                        String[] components2 = emailAddress.split("@");
-
-                        if (components2.length > 1) {
-                            String domain = components2[1].substring(0,components2[1].indexOf("."));
-                            String formattedDomain;
-                            if (domain.length() > 1) {
-                                formattedDomain = domain.substring(0, 1).toUpperCase() + domain.substring(1);
-                            } else {
-                                formattedDomain = domain.substring(0, 1).toUpperCase();
-                            }
-                            domainName = formattedDomain;
-                        }
-                    }
-                }
                 vContactDomain.setVisibility(View.VISIBLE);
                 vContactDomain.setText(domainName);
 

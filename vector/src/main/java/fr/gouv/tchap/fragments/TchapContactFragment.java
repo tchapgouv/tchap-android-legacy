@@ -50,6 +50,7 @@ import java.util.List;
 import butterknife.BindView;
 import im.vector.R;
 import im.vector.activity.VectorAppCompatActivity;
+import im.vector.activity.VectorRoomInviteMembersActivity;
 import im.vector.adapters.ParticipantAdapterItem;
 import fr.gouv.tchap.adapters.TchapContactAdapter;
 import im.vector.contacts.Contact;
@@ -138,21 +139,19 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
             startRemoteKnownContactsSearch(true);
         }
 
-        // Hide Invite by email button for the moment
-        mInviteContactLayout.setVisibility(View.GONE);
-//        // Hide Invite by email button for external users
-//        if (DinsicUtils.isExternalTchapSession(mSession)) {
-//            mInviteContactLayout.setVisibility(View.GONE);
-//        } else {
-//            mInviteContactLayout.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    // We launch a VectorRoomInviteMembersActivity activity to invite
-//                    // some non-tchap contacts by using their email
-//                    mActivity.createNewChat(VectorRoomInviteMembersActivity.ActionMode.SEND_INVITE, VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY);
-//                }
-//            });
-//        }
+        // Hide Invite by email button for external users
+        if (DinsicUtils.isExternalTchapSession(mSession)) {
+            mInviteContactLayout.setVisibility(View.GONE);
+        } else {
+            mInviteContactLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // We launch a VectorRoomInviteMembersActivity activity to invite
+                    // some non-tchap contacts by using their email
+                    mActivity.createNewChat(VectorRoomInviteMembersActivity.ActionMode.SEND_INVITE, VectorRoomInviteMembersActivity.ContactsFilter.ALL_WITHOUT_TCHAP_USERS);
+                }
+            });
+        }
 
 
         if (!ContactsManager.getInstance().isContactBookAccessRequested()) {
@@ -477,7 +476,13 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
                                 // Create a contact for this Tchap user
                                 // TODO check whether there is an issue to use the same id for several dummy contacts
                                 Contact dummyContact = new Contact(contact.getContactId());
-                                dummyContact.setDisplayName(contact.getDisplayName());
+                                // Use the email as display name for external users
+                                if (DinsicUtils.isExternalTchapUser(mxid.mMatrixId)) {
+                                    dummyContact.setDisplayName(email);
+                                } else {
+                                    // Use the local contact display name
+                                    dummyContact.setDisplayName(contact.getDisplayName());
+                                }
                                 dummyContact.addEmailAdress(email);
                                 dummyContact.setThumbnailUri(contact.getThumbnailUri());
                                 ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);
