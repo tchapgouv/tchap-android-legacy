@@ -1273,7 +1273,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                     isValid = false;
                 } else if (policy.isUppercaseRequired && !Pattern.compile("[ABCDEFGHIJKLMNOPQRSTUVWXYZ]").matcher(password).find()) {
                     isValid = false;
-                } else if (policy.isUppercaseRequired && !Pattern.compile("[abcdefghijklmnopqrstuvwxyz]").matcher(password).find()) {
+                } else if (policy.isLowercaseRequired && !Pattern.compile("[abcdefghijklmnopqrstuvwxyz]").matcher(password).find()) {
                     isValid = false;
                 } else if (policy.isSymbolRequired && !Pattern.compile("[^a-zA-Z0-9]").matcher(password).find()) {
                     isValid = false;
