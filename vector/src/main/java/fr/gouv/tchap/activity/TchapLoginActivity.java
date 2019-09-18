@@ -75,6 +75,7 @@ import fr.gouv.tchap.sdk.rest.client.TchapPasswordPolicyRestClient;
 import fr.gouv.tchap.sdk.rest.client.TchapRestClient;
 import fr.gouv.tchap.sdk.rest.model.PasswordPolicy;
 import fr.gouv.tchap.sdk.rest.model.Platform;
+import fr.gouv.tchap.util.DinsicUtils;
 import fr.gouv.tchap.util.HomeServerConnectionConfigFactoryKt;
 import im.vector.LoginHandler;
 import im.vector.Matrix;
@@ -2010,30 +2011,34 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 mTchapPlatform = platform;
                 mCurrentEmail = emailAddress;
 
-                final HomeServerConnectionConfig hsConfig = getHsConfig();
-
-                // Check password validity
-                checkPasswordValidity(password, hsConfig, isValid -> {
-                    if (isValid) {
-                        // Pursue the registration`
-                        RegistrationManager.getInstance().setHsConfig(hsConfig);
-                        // The username is forced by the Tchap server, we don't send it anymore.
-                        RegistrationManager.getInstance().setAccountData(null, password);
-
-                        RegistrationManager.getInstance().clearThreePid();
-                        RegistrationManager.getInstance().addEmailThreePid(new ThreePid(mCurrentEmail, ThreePid.MEDIUM_EMAIL));
-
-                        checkRegistrationFlows(new SimpleApiCallback<Void>() {
-                            @Override
-                            public void onSuccess(Void info) {
-                                RegistrationManager.getInstance().attemptRegistration(TchapLoginActivity.this, TchapLoginActivity.this);
-                            }
-                        });
-                    } else {
-                        enableLoadingScreen(false);
-                        Toast.makeText(getApplicationContext(), getString(R.string.tchap_password_weak_pwd_error), Toast.LENGTH_LONG).show();
+                // Prompt the user before creating an external account
+                if (DinsicUtils.isExternalTchapServer(platform.hs)) {
+                    if (mCurrentDialog != null) {
+                        mCurrentDialog.dismiss();
                     }
-                });
+                    mCurrentDialog = new AlertDialog.Builder(TchapLoginActivity.this)
+                            .setTitle(R.string.dialog_title_warning)
+                            .setCancelable(false)
+                            .setMessage(R.string.tchap_register_warning_for_external)
+                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // Check password validity to pursue registration
+                                    checkPasswordValidityBeforeRegistration(password);
+                                }
+                            })
+                            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    enableLoadingScreen(false);
+                                }
+                            })
+                            .show();
+
+                } else {
+                    // Check password validity to pursue registration
+                    checkPasswordValidityBeforeRegistration(password);
+                }
             }
 
             @Override
@@ -2049,6 +2054,32 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             @Override
             public void onUnexpectedError(Exception e) {
                 onError(e.getLocalizedMessage());
+            }
+        });
+    }
+
+    private void checkPasswordValidityBeforeRegistration(final String password) {
+        final HomeServerConnectionConfig hsConfig = getHsConfig();
+
+        checkPasswordValidity(password, hsConfig, isValid -> {
+            if (isValid) {
+                // Pursue the registration`
+                RegistrationManager.getInstance().setHsConfig(hsConfig);
+                // The username is forced by the Tchap server, we don't send it anymore.
+                RegistrationManager.getInstance().setAccountData(null, password);
+
+                RegistrationManager.getInstance().clearThreePid();
+                RegistrationManager.getInstance().addEmailThreePid(new ThreePid(mCurrentEmail, ThreePid.MEDIUM_EMAIL));
+
+                checkRegistrationFlows(new SimpleApiCallback<Void>() {
+                    @Override
+                    public void onSuccess(Void info) {
+                        RegistrationManager.getInstance().attemptRegistration(TchapLoginActivity.this, TchapLoginActivity.this);
+                    }
+                });
+            } else {
+                enableLoadingScreen(false);
+                Toast.makeText(getApplicationContext(), getString(R.string.tchap_password_weak_pwd_error), Toast.LENGTH_LONG).show();
             }
         });
     }
