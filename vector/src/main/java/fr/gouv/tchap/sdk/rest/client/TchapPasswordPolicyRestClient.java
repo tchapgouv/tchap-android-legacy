@@ -17,6 +17,7 @@ package fr.gouv.tchap.sdk.rest.client;
 
 import org.matrix.androidsdk.HomeServerConnectionConfig;
 import org.matrix.androidsdk.RestClient;
+import org.matrix.androidsdk.core.JsonUtils;
 import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.core.rest.DefaultRetrofit2CallbackWrapper;
 
@@ -29,7 +30,7 @@ public class TchapPasswordPolicyRestClient extends RestClient<TchapPasswordPolic
      * {@inheritDoc}
      */
     public TchapPasswordPolicyRestClient(HomeServerConnectionConfig hsConfig) {
-        super(hsConfig, TchapPasswordPolicyApi.class, URI_API_PREFIX_PATH_UNSTABLE, false, false);
+        super(hsConfig, TchapPasswordPolicyApi.class, URI_API_PREFIX_PATH_UNSTABLE, JsonUtils.getGson(false), false);
     }
 
     /**

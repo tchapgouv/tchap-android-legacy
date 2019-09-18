@@ -19,6 +19,7 @@ package im.vector.widgets;
 import android.content.Context;
 
 import org.matrix.androidsdk.RestClient;
+import org.matrix.androidsdk.core.JsonUtils;
 import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.rest.callback.RestAdapterCallback;
 
@@ -35,7 +36,7 @@ class WidgetsRestClient extends RestClient<WidgetsApi> {
         super(HomeServerConnectionConfigFactoryKt.createHomeServerConnectionConfig(context.getString(R.string.integrations_rest_url), null),
                 WidgetsApi.class,
                 "api/",
-                false);
+                JsonUtils.getGson(false));
     }
 
     /**
