@@ -467,8 +467,6 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                     Intent intent = new Intent();
                     intent.putExtra(EXTRA_OUT_SELECTED_USER_IDS, mUserIdsToInvite);
                     setResult(RESULT_CANCELED, intent);
-                } else {
-                    startActivity(new Intent(this, VectorHomeActivity.class));
                 }
                 finish();
                 return true;
@@ -1108,8 +1106,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         }
 
         if (finish) {
-            // We close the current screen and we come back on the hme screen.
-            startActivity(new Intent(this, VectorHomeActivity.class));
+            // We go back to the home screen.
             finish();
         }
     }
