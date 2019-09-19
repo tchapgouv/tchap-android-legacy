@@ -1112,6 +1112,7 @@
     <string name="tchap_connection_password_help">Your password must include a lower-case letter, an upper-case letter, a number and a symbol and be at a minimum 8 characters in length.</string>
     <string name="tchap_connection_password_confirm">Password confirmation</string>
     <string name="tchap_connection_forgotten_email">I have forgotten my password</string>
+    <string name="tchap_register_warning_for_external">Your email domain is not registered on Tchap. If you have received an invite, you will be able to create a Tchap account, which will allow you to join only the private discussions in which you are invited.</string>
     <string name="tchap_register_wait_for_email_title">An e-mail has been sent</string>
     <string name="tchap_register_wait_for_email_subtitle">Please open it and click in the link it contains to create your account</string>
     <string name="tchap_register_wait_for_email_login_button">Go to login screen</string>
