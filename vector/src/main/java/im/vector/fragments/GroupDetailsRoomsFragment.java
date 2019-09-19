@@ -79,7 +79,7 @@ public class GroupDetailsRoomsFragment extends GroupDetailsBaseFragment {
     @Override
     protected void initViews() {
         int margin = (int) getResources().getDimension(R.dimen.item_decoration_left_margin);
-        mRecycler.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
+        mRecycler.setLayoutManager(new LinearLayoutManager(getActivity(), RecyclerView.VERTICAL, false));
         mRecycler.addItemDecoration(new SimpleDividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL, margin));
         mRecycler.addItemDecoration(new EmptyViewItemDecoration(getActivity(), DividerItemDecoration.VERTICAL, 40, 16, 14));
         mAdapter = new GroupDetailsRoomsAdapter(getActivity(), new GroupDetailsRoomsAdapter.OnSelectRoomListener() {

@@ -146,7 +146,7 @@ public class CountryPickerActivity extends VectorAppCompatActivity implements Co
 
         mCountryRecyclerView = findViewById(R.id.country_recycler_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        layoutManager.setOrientation(RecyclerView.VERTICAL);
         mCountryRecyclerView.setLayoutManager(layoutManager);
         mCountryAdapter = new CountryAdapter(PhoneNumberUtils.getCountriesWithIndicator(), mWithIndicator, this);
         mCountryRecyclerView.setAdapter(mCountryAdapter);
