@@ -1071,6 +1071,9 @@
     // tchap discussion
     <string name="tchap_cannot_invite_deactivated_account_user">The remote user left definitely this room</string>
 
+    // tchap room
+    <string name="tchap_room_access_unrestricted">Room accessible to external users</string>
+
     // tchap scan media
     <string name="tchap_scan_media_unavailable">Scan Unavailable</string>
     <string name="tchap_scan_media_in_progress">Antivirus Scanning</string>

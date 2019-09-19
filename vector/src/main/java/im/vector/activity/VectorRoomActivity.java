@@ -257,6 +257,9 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
     @BindView(R.id.room_action_bar_topic)
     TextView mActionBarCustomTopic;
 
+    @BindView(R.id.room_action_bar_access_info)
+    TextView mActionBarAccessInfo;
+
     private ImageView mActionBarHeaderRoomAvatar;
     private HexagonMaskView mActionBarHeaderHexagonRoomAvatar;
 
@@ -2903,6 +2906,15 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
         }
     }
 
+    private void updateRoomAccessInfo() {
+        // Hide the textView by default
+        mActionBarAccessInfo.setVisibility(View.GONE);
+        if (null != mRoom
+                && TextUtils.equals(DinsicUtils.getRoomAccessRule(mRoom), RoomAccessRulesKt.UNRESTRICTED)) {
+            mActionBarAccessInfo.setVisibility(View.VISIBLE);
+        }
+    }
+
     /**
      * Update the UI content of the action bar header view
      */
@@ -2912,6 +2924,9 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
 
         // update the room name
         setTitle();
+
+        // update the room access info
+        updateRoomAccessInfo();
     }
 
     /**
