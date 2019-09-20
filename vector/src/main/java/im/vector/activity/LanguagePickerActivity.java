@@ -132,7 +132,7 @@ public class LanguagePickerActivity extends VectorAppCompatActivity implements L
         mLanguagesEmptyView = findViewById(R.id.languages_empty_view);
         RecyclerView languagesRecyclerView = findViewById(R.id.languages_recycler_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        layoutManager.setOrientation(RecyclerView.VERTICAL);
         languagesRecyclerView.setLayoutManager(layoutManager);
         mAdapter = new LanguagesAdapter(VectorLocale.INSTANCE.getSupportedLocales(), this);
         languagesRecyclerView.setAdapter(mAdapter);
