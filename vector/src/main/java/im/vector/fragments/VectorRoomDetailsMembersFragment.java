@@ -25,9 +25,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -46,6 +46,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.jetbrains.anko.ToastsKt;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomState;
@@ -58,6 +59,7 @@ import org.matrix.androidsdk.core.model.MatrixError;
 import org.matrix.androidsdk.rest.model.PowerLevels;
 import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.core.Log;
+import org.matrix.androidsdk.rest.model.pid.RoomThirdPartyInvite;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -67,7 +69,8 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import androidx.core.widget.ToastKt;
+import fr.gouv.tchap.sdk.session.room.model.RoomAccessRulesKt;
+import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.MXCActionBarActivity;
@@ -199,7 +202,7 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
                             }
                         });
                     } else {
-                        ToastKt.toast(getActivity(), errorMessage, Toast.LENGTH_SHORT);
+                        ToastsKt.toast(getActivity(), errorMessage);
                     }
                 }
             });
@@ -817,6 +820,50 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
         );
     }
 
+    /**
+     * Revoke a third party invite
+     *
+     * @param thirdPartyInvite an invite
+     */
+    private void revokeInvite(RoomThirdPartyInvite thirdPartyInvite) {
+        mProgressView.setVisibility(View.VISIBLE);
+
+        mSession.getRoomsApiClient().sendStateEvent(mRoom.getRoomId(),
+                Event.EVENT_TYPE_STATE_ROOM_THIRD_PARTY_INVITE,
+                thirdPartyInvite.token,
+                new HashMap<String, Object>(),
+                new ApiCallback<Void>() {
+                    @Override
+                    public void onSuccess(Void info) {
+                        if (isAdded()) {
+                            mProgressView.setVisibility(View.GONE);
+                            // refresh the display
+                            mAdapter.notifyDataSetChanged();
+                        }
+                    }
+
+                    private void onError(String errorMessage) {
+                        if (isAdded()) {
+                            mProgressView.setVisibility(View.GONE);
+                            Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onNetworkError(Exception e) {
+                        onError(e.getLocalizedMessage());
+                    }
+                    @Override
+                    public void onMatrixError(MatrixError e) {
+                        onError(e.getLocalizedMessage());
+                    }
+                    @Override
+                    public void onUnexpectedError(Exception e) {
+                        onError(e.getLocalizedMessage());
+                    }
+                });
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -843,12 +890,21 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
         mAddMembersButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // pop to the home activity
                 Intent intent = new Intent(getActivity(), VectorRoomInviteMembersActivity.class);
                 intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
                 intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_ROOM_ID, mRoom.getRoomId());
-                intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_ADD_CONFIRMATION_DIALOG, true);
-                intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY);
+                //intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_ADD_CONFIRMATION_DIALOG, true);
+
+                if (DinsicUtils.isFederatedRoom(mRoom)) {
+                    if (TextUtils.equals(DinsicUtils.getRoomAccessRule(mRoom), RoomAccessRulesKt.RESTRICTED)) {
+                        intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.ALL_WITHOUT_EXTERNALS);
+                    } else {
+                        intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.ALL);
+                    }
+                } else {
+                    intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.ALL_WITHOUT_FEDERATION);
+                }
+
                 getActivity().startActivityForResult(intent, INVITE_USER_REQUEST_CODE);
             }
         });
@@ -934,18 +990,33 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
 
             @Override
             public void onRemoveClick(final ParticipantAdapterItem participantItem) {
-                // Ask for confirmation
-                new AlertDialog.Builder(getActivity())
-                        .setTitle(R.string.dialog_title_confirmation)
-                        .setMessage(getString(R.string.room_participants_remove_prompt_msg, participantItem.mDisplayName))
-                        .setPositiveButton(R.string.remove, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                kickUsers(Collections.singletonList(participantItem.mUserId));
-                            }
-                        })
-                        .setNegativeButton(R.string.cancel, null)
-                        .show();
+                // Ask for confirmation.
+                // Check whether this participant item is related to a third-party invite.
+                if (participantItem.mRoomThirdPartyInvite != null) {
+                    new AlertDialog.Builder(getActivity())
+                            .setTitle(R.string.dialog_title_confirmation)
+                            .setMessage(getString(R.string.room_participants_remove_3pid_invite_prompt_msg))
+                            .setPositiveButton(R.string.remove, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    revokeInvite(participantItem.mRoomThirdPartyInvite);
+                                }
+                            })
+                            .setNegativeButton(R.string.cancel, null)
+                            .show();
+                } else {
+                    new AlertDialog.Builder(getActivity())
+                            .setTitle(R.string.dialog_title_confirmation)
+                            .setMessage(getString(R.string.room_participants_remove_prompt_msg, participantItem.mDisplayName))
+                            .setPositiveButton(R.string.remove, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    kickUsers(Collections.singletonList(participantItem.mUserId));
+                                }
+                            })
+                            .setNegativeButton(R.string.cancel, null)
+                            .show();
+                }
             }
 
             @Override

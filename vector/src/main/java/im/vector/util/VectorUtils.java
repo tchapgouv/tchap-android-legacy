@@ -34,9 +34,9 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
-import android.support.annotation.Nullable;
-import android.support.v4.util.LruCache;
-import android.support.v7.app.AlertDialog;
+import androidx.annotation.Nullable;
+import androidx.collection.LruCache;
+import androidx.appcompat.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewParent;
@@ -333,7 +333,7 @@ public class VectorUtils {
     public static void loadRoomAvatar(Context context, MXSession session, ImageView imageView, Room room) {
         if (null != room) {
             VectorUtils.loadUserAvatar(context,
-                    session, imageView, room.getAvatarUrl(), room.getRoomId(), DinsicUtils.getRoomDisplayName(context, room));
+                    session, imageView, DinsicUtils.getRoomAvatarUrl(room), room.getRoomId(), DinsicUtils.getRoomDisplayName(context, room));
         }
     }
 

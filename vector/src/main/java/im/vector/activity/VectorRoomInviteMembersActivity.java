@@ -18,14 +18,14 @@
 
 package im.vector.activity;
 
-import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.support.annotation.NonNull;
-import android.support.v4.content.ContextCompat;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import android.text.Editable;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -47,10 +47,13 @@ import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.core.model.MatrixError;
 import org.matrix.androidsdk.rest.model.User;
+import org.matrix.androidsdk.rest.model.pid.RoomThirdPartyInvite;
 import org.matrix.androidsdk.rest.model.pid.ThreePid;
 import org.matrix.androidsdk.core.Log;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -76,7 +79,7 @@ import im.vector.view.VectorAutoCompleteTextView;
 /**
  * This class provides a way to search other user to invite them in a dedicated room
  */
-public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implements android.support.v7.widget.SearchView.OnQueryTextListener {
+public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implements androidx.appcompat.widget.SearchView.OnQueryTextListener {
 
     private static final String LOG_TAG = VectorRoomInviteMembersActivity.class.getSimpleName();
 
@@ -113,9 +116,42 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
     private ActionMode mActionMode = ActionMode.RETURN_SELECTED_USER_IDS;
 
     // This enum is used to filter the displayed contacts.
-    // Note: the Tchap users for who a discussion (direct chat) exists will be considered as local contacts.
-    // This means they will appear in the local contacts section.
-    public enum ContactsFilter { ALL, TCHAP_ONLY, FEDERATED_TCHAP_ONLY, NO_TCHAP_ONLY }
+    public enum ContactsFilter {
+        /**
+         * Display all the local contacts who have email(s).
+         * The contacts with several emails are displayed several times (One item by email).
+         * When an email is bound to a Tchap account, the Tchap display name is used and
+         * the email is hidden. Else the name defined in the local contacts book is used with the email.
+         * Note: the Tchap users for who a discussion (direct chat) exists will be considered as local contacts.
+         * This means they will appear in the local contacts section.
+         * The search in the Tchap users directory is available (except if the current user is external).
+         */
+        ALL,
+        /**
+         * Same as ALL, but the contacts related to the external Tchap server(s) are excluded.
+         */
+        ALL_WITHOUT_EXTERNALS,
+        /**
+         * Same as ALL, but only the contacts bound to the same host than the current user are displayed.
+         */
+        ALL_WITHOUT_FEDERATION,
+        /**
+         * Display only the Tchap users.
+         */
+        TCHAP_USERS_ONLY,
+        /**
+         * Display only the Tchap users by excluding the external ones.
+         */
+        TCHAP_USERS_ONLY_WITHOUT_EXTERNALS,
+        /**
+         * Display only the Tchap users hosted on the same host than the current user.
+         */
+        TCHAP_USERS_ONLY_WITHOUT_FEDERATION,
+        /**
+         * Display the local contacts who are not Tchap users yet.
+         * The local contacts without email are included here, we support the contact edition in this case.
+         */
+        ALL_WITHOUT_TCHAP_USERS }
     private ContactsFilter mContactsFilter = ContactsFilter.ALL;
 
     // account data
@@ -123,7 +159,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
 
     // main UI items
     private View mParentLayout;
-    private android.support.v7.widget.SearchView mSearchView;
+    private androidx.appcompat.widget.SearchView mSearchView;
 
     @BindView(R.id.room_details_members_list)
     ExpandableListView mListView;
@@ -139,8 +175,8 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
 
     // The list of the identifiers of the current selected contacts
     // The type of these identifiers depends on the mContactsFilter:
-    // - matrix id when mContactsFilter = ContactsFilter.TCHAP_ONLY or ContactsFilter.FEDERATED_TCHAP_ONLY
-    // - email address when mContactsFilter = ContactsFilter.NO_TCHAP_ONLY
+    // - matrix id when mContactsFilter = ContactsFilter.TCHAP_USERS_ONLY, ContactsFilter.TCHAP_USERS_ONLY_WITHOUT_EXTERNALS or ContactsFilter.TCHAP_USERS_ONLY_WITHOUT_FEDERATION
+    // - email address when mContactsFilter = ContactsFilter.ALL_WITHOUT_TCHAP_USERS
     // - both in the other cases
     ArrayList<String> mUserIdsToInvite = new ArrayList<>();
 
@@ -310,7 +346,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         mAdapter.setSelectedUserIds(mUserIdsToInvite);
 
         // Support the contact edition in case of no tchap users
-        if (mContactsFilter.equals(ContactsFilter.NO_TCHAP_ONLY)) {
+        if (mContactsFilter.equals(ContactsFilter.ALL_WITHOUT_TCHAP_USERS)) {
             mAdapter.setEditParticipantListener(new VectorParticipantsAdapter.VectorParticipantsAdapterEditListener() {
                 @Override
                 public void editContactForm(final ParticipantAdapterItem participant) {
@@ -321,9 +357,9 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
             });
         }
 
-        // To avoid inviting myself, I do not have to appear in the list of users to invite.
-        if (!mHiddenParticipantItems.contains(mSession.getMyUser())) {
-            ParticipantAdapterItem me = new ParticipantAdapterItem(mSession.getMyUser());
+        // Hide the current user by default.
+        ParticipantAdapterItem me = new ParticipantAdapterItem(mSession.getMyUser());
+        if (!DinsicUtils.participantAlreadyAdded(mHiddenParticipantItems, me)) {
             mHiddenParticipantItems.add(me);
         }
 
@@ -339,34 +375,39 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
 
                 if (item instanceof ParticipantAdapterItem) {
                     final ParticipantAdapterItem participantItem = (ParticipantAdapterItem) item;
+                    ret = true;
 
                     if (mActionMode == ActionMode.START_DIRECT_CHAT) {
                         DinsicUtils.startDirectChat(VectorRoomInviteMembersActivity.this, mSession, participantItem);
                     } else {
-                        updateParticipantListToInvite(participantItem);
-                        mAdapter.notifyDataSetChanged();
-                        invalidateOptionsMenu();
+                        onSelectedParticipant(participantItem);
                     }
                 }
                 return ret;
             }
         });
 
-        View inviteByIdTextView = findViewById(R.id.ly_invite_contacts_by_email);
-        if (mActionMode == ActionMode.SEND_INVITE) {
-            inviteByIdTextView.setVisibility(View.VISIBLE);
-            inviteByIdTextView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(DinsicUtils.isExternalTchapSession(mSession)) {
-                        DinsicUtils.alertSimpleMsg(VectorRoomInviteMembersActivity.this, getString(R.string.action_forbidden));
-                    } else {
-                        displayInviteByUserId();
-                    }
-                }
-            });
-        } else {
-            inviteByIdTextView.setVisibility(View.GONE);
+        View inviteByEmailView = findViewById(R.id.ly_invite_contacts_by_email);
+        inviteByEmailView.setVisibility(View.GONE);
+        // Show this option when no tchap contacts are allowed, AND the current user is not an external one.
+        if(DinsicUtils.isExternalTchapSession(mSession) == false) {
+            switch (mContactsFilter) {
+                case ALL:
+                case ALL_WITHOUT_EXTERNALS:
+                case ALL_WITHOUT_FEDERATION:
+                case ALL_WITHOUT_TCHAP_USERS:
+                    inviteByEmailView.setVisibility(View.VISIBLE);
+                    inviteByEmailView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            // Cancel the potential search
+                            mSearchView.setQuery("", false);
+                            mParentLayout.requestFocus();
+
+                            displayDialogToInviteByEmail();
+                        }
+                    });
+            }
         }
 
         // Check permission to access contacts
@@ -387,10 +428,10 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
             searchEditFrameParams.rightMargin = -15;
             searchEditFrame.setLayoutParams(searchEditFrameParams);
         }
-        ImageView searchMagIcon = mSearchView.findViewById(android.support.v7.appcompat.R.id.search_mag_icon);
+        ImageView searchMagIcon = mSearchView.findViewById(androidx.appcompat.R.id.search_mag_icon);
         searchMagIcon.setColorFilter(ContextCompat.getColor(VectorRoomInviteMembersActivity.this, R.color.tchap_search_bar_text));
 
-        ImageView searchCloseIcon = mSearchView.findViewById(android.support.v7.appcompat.R.id.search_close_btn);
+        ImageView searchCloseIcon = mSearchView.findViewById(androidx.appcompat.R.id.search_close_btn);
         searchCloseIcon.setColorFilter(ContextCompat.getColor(this, R.color.tchap_search_bar_text));
 
         mSearchView.setMaxWidth(Integer.MAX_VALUE);
@@ -426,8 +467,6 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                     Intent intent = new Intent();
                     intent.putExtra(EXTRA_OUT_SELECTED_USER_IDS, mUserIdsToInvite);
                     setResult(RESULT_CANCELED, intent);
-                } else {
-                    startActivity(new Intent(this, VectorHomeActivity.class));
                 }
                 finish();
                 return true;
@@ -566,30 +605,37 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
     }
 
     /**
-     * Add or remove selected contacts to a list to invite them
+     * Add or remove the selected contact to the pending list to invite
      *
      * @param item the selected participants
      */
-    private void updateParticipantListToInvite(ParticipantAdapterItem item) {
-        boolean ret = false;
+    private void onSelectedParticipant(ParticipantAdapterItem item) {
         ParticipantAdapterItem participantAdapterItem = item;
         if (item.mIsValid) {
-            if (!mUserIdsToInvite.contains(participantAdapterItem.mUserId)) {
-                mUserIdsToInvite.add(participantAdapterItem.mUserId);
+            String userId = participantAdapterItem.mUserId;
+            if (mUserIdsToInvite.contains(userId)) {
+                mUserIdsToInvite.remove(userId);
+                mAdapter.setSelectedUserIds(mUserIdsToInvite);
+                mAdapter.notifyDataSetChanged();
+                invalidateOptionsMenu();
+            } else if (android.util.Patterns.EMAIL_ADDRESS.matcher(userId).matches()) {
+                // Check if the email is allowed to join before adding it
+                onSelectedEmails(Arrays.asList(userId));
             } else {
-                mUserIdsToInvite.remove(participantAdapterItem.mUserId);
+                mUserIdsToInvite.add(userId);
+                mAdapter.setSelectedUserIds(mUserIdsToInvite);
+                mAdapter.notifyDataSetChanged();
+                invalidateOptionsMenu();
             }
-            mAdapter.setSelectedUserIds(mUserIdsToInvite);
-            ret = true;
         } else {
             DinsicUtils.editContact(VectorRoomInviteMembersActivity.this, getApplicationContext(), item);
         }
     }
 
     /**
-     * Display the invitation dialog.
+     * Display the dialog used to invite by email
      */
-    private void displayInviteByUserId() {
+    private void displayDialogToInviteByEmail() {
         View dialogLayout = getLayoutInflater().inflate(R.layout.dialog_invite_by_id, null);
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(this)
@@ -601,7 +647,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         // inviteTextView.initAutoCompletion(mSession);
 
         final AlertDialog inviteDialog = builder
-                .setPositiveButton(R.string.invite, new DialogInterface.OnClickListener() {
+                .setPositiveButton(mActionMode == ActionMode.SEND_INVITE ? R.string.invite : R.string.add, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // will be overridden to avoid dismissing the dialog while displaying the progress
@@ -630,98 +676,19 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                             String userEmail = text.substring(matcher.start(0), matcher.end(0));
                             emails.add(userEmail);
                         } catch (Exception e) {
-                            Log.e(LOG_TAG, "## displayInviteByUserEmail() " + e.getMessage());
+                            Log.e(LOG_TAG, "## displayDialogToInviteByEmail() " + e.getMessage());
                         }
                     }
 
-                    // In order to prepare the lookup on 3pids,
-                    // We have to specify the type of media : email or phone number.
-                    // In this case, the media type always is an email.
-                    // That's why we create a new list of the same size as the list of emails,
-                    // in which the media type always is an email.
-                    final List<String> medias = new ArrayList<>();
-
-                    for (String email : emails) {
-                        medias.add(ThreePid.MEDIUM_EMAIL);
+                    if (mActionMode == ActionMode.SEND_INVITE) {
+                        // Invite one by one the provided email addresses
+                        handleIndividualInviteByEmail(emails);
+                    } else if (mActionMode == ActionMode.RETURN_SELECTED_USER_IDS) {
+                        // Add emails in the current selection
+                        onSelectedEmails(emails);
+                    } else {
+                        Log.e(LOG_TAG, "## displayDialogToInviteByEmail() unsupported case");
                     }
-
-                    // Check for each email whether there is an associated account with a Matrix id.
-                    showWaitingView();
-
-                    final ApiCallback<List<String>> callback = new ApiCallback<List<String>>() {
-                        @Override
-                        public void onSuccess(final List<String> pids) {
-                            Log.e(LOG_TAG, "bulkLookup: success " + pids.size());
-
-                            for (int index = 0; index < emails.size();) {
-                                final String email = emails.get(index);
-                                String mxId = pids.get(index);
-
-                                if (!TextUtils.isEmpty(mxId)) {
-                                    // We check here if a discussion already exists for this Tchap user.
-                                    // We consider the pendingInvites because we could have a pending invite from this Tchap user.
-                                    Room existingRoom = DinsicUtils.isDirectChatRoomAlreadyExist(mxId, mSession, true);
-
-                                    if (null != existingRoom) {
-                                        // If a direct chat already exists, we do not invite him
-                                        // We remove this email from the list to invite.
-                                        emails.remove(index);
-                                        pids.remove(index);
-
-                                        // and we notify the user by a toast
-                                        String message = getString(R.string.tchap_discussion_already_exist, email);
-                                        Toast.makeText(VectorRoomInviteMembersActivity.this, message, Toast.LENGTH_LONG).show();
-
-                                    } else {
-                                        // Presently, invite a Tchap user by his email is not supported correctly.
-                                        // The resulting room is seen as direct for the inviter and not for the receiver.
-                                        // Patch : we invite him by considering his id instead of the email.
-                                        emails.remove(index);
-                                        pids.remove(index);
-                                        inviteDiscoveredTchapUser(mxId, email);
-                                    }
-                                } else {
-                                    index ++;
-                                }
-                            }
-
-                            hideWaitingView();
-
-                            if (!emails.isEmpty()) {
-                                // Invite each typed email by creating a direct chat
-                                // Stay in the activity if there is at least one contact selected
-                                inviteNoTchapContactsByEmail(emails, mUserIdsToInvite.isEmpty());
-                            }
-                        }
-
-                        /**
-                         * Common error routine
-                         * @param errorMessage the error message
-                         */
-                        private void onError(String errorMessage) {
-                            Log.e(LOG_TAG, "## bulkLookup: failed " + errorMessage);
-                            Toast.makeText(VectorRoomInviteMembersActivity.this, errorMessage, Toast.LENGTH_LONG).show();
-                        }
-
-                        @Override
-                        public void onNetworkError(Exception e) {
-                            onError(e.getMessage());
-                        }
-
-                        @Override
-                        public void onMatrixError(MatrixError e) {
-                            onError(e.getMessage());
-                        }
-
-                        @Override
-                        public void onUnexpectedError(Exception e) {
-                            onError(e.getMessage());
-                        }
-                    };
-
-                    // Use the proxied lookup API
-                    TchapThirdPidRestClient tchapThirdPidRestClient = new TchapThirdPidRestClient(mSession.getHomeServerConfig());
-                    tchapThirdPidRestClient.bulkLookup(emails, medias, callback);
 
                     inviteDialog.dismiss();
                 }
@@ -762,8 +729,103 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
     }
 
     //==============================================================================================
-    // Handle room creation with a list  of users id
+    // Handle room creation with a list of emails
     //==============================================================================================
+
+    private void handleIndividualInviteByEmail(final List<String> emails) {
+        // In order to prepare the lookup on 3pids,
+        // We have to specify the type of media : email or phone number.
+        // In this case, the media type always is an email.
+        // That's why we create a new list of the same size as the list of emails,
+        // in which the media type always is an email.
+        final List<String> medias = new ArrayList<>();
+
+        for (String email : emails) {
+            medias.add(ThreePid.MEDIUM_EMAIL);
+        }
+
+        // Check for each email whether there is an associated account with a Matrix id.
+        showWaitingView();
+
+        final ApiCallback<List<String>> callback = new ApiCallback<List<String>>() {
+            @Override
+            public void onSuccess(final List<String> pids) {
+                Log.e(LOG_TAG, "bulkLookup: success " + pids.size());
+
+                for (int index = 0; index < emails.size();) {
+                    final String email = emails.get(index);
+                    String mxId = pids.get(index);
+
+                    if (!TextUtils.isEmpty(mxId)) {
+                        // We check here if a discussion already exists for this Tchap user.
+                        // We consider the pendingInvites because we could have a pending invite from this Tchap user.
+                        Room existingRoom = DinsicUtils.isDirectChatRoomAlreadyExist(mxId, mSession, true);
+
+                        if (null != existingRoom) {
+                            // If a direct chat already exists, we do not invite him
+                            // We remove this email from the list to invite.
+                            emails.remove(index);
+                            pids.remove(index);
+
+                            // and we notify the user by a toast
+                            String message = getString(R.string.tchap_discussion_already_exist, email);
+                            Toast.makeText(VectorRoomInviteMembersActivity.this, message, Toast.LENGTH_LONG).show();
+
+                        } else {
+                            // Presently, invite a Tchap user by his email is not supported correctly.
+                            // The resulting room is seen as direct for the inviter and not for the receiver.
+                            // Patch : we invite him by considering his id instead of the email.
+                            emails.remove(index);
+                            pids.remove(index);
+                            inviteDiscoveredTchapUser(mxId, email);
+                        }
+                    } else {
+                        index ++;
+                    }
+                }
+
+                hideWaitingView();
+
+                if (!emails.isEmpty()) {
+                    // Invite each typed email by creating a direct chat
+                    // Stay in the activity if there is at least one contact selected
+                    inviteNoTchapContactsByEmail(emails, mUserIdsToInvite.isEmpty());
+                }
+            }
+
+            /**
+             * Common error routine
+             * @param errorMessage the error message
+             */
+            private void onError(String errorMessage) {
+                Log.e(LOG_TAG, "## bulkLookup: failed " + errorMessage);
+                hideWaitingView();
+                if (TextUtils.isEmpty(errorMessage)) {
+                    errorMessage = getString(R.string.tchap_error_message_default);
+                }
+                Toast.makeText(VectorRoomInviteMembersActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onNetworkError(Exception e) {
+                onError(e.getMessage());
+            }
+
+            @Override
+            public void onMatrixError(MatrixError e) {
+                onError(e.getMessage());
+            }
+
+            @Override
+            public void onUnexpectedError(Exception e) {
+                onError(e.getMessage());
+            }
+        };
+
+        // Use the proxied lookup API
+        TchapThirdPidRestClient tchapThirdPidRestClient = new TchapThirdPidRestClient(mSession.getHomeServerConfig());
+        tchapThirdPidRestClient.bulkLookup(emails, medias, callback);
+    }
 
     /**
      * Invite by email one or more no-Tchap user(s)
@@ -771,7 +833,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
      * @param emails  the participant's email list
      * @param finish  tell whether the activity should be closed after this operation.
      */
-    private void inviteNoTchapContactsByEmail (final ArrayList<String> emails, final boolean finish) {
+    private void inviteNoTchapContactsByEmail (final List<String> emails, final boolean finish) {
 
         if (0 != mCount) {
             Log.e(LOG_TAG, "##inviteNoTchapContactsByEmail : invitations are being sent");
@@ -783,116 +845,209 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         mSuccessCount = 0;
 
         for (final String email : emails) {
-            // We check if this email has been already invited
-            // (pendingInvites are ignored here because we could not have a pending invite related to an email)
-            Room existingRoom = DinsicUtils.isDirectChatRoomAlreadyExist(email, mSession, false);
+            // For each email of the list, call server to check if Tchap registration is available for this email
+            // We will use this request to identify the emails bound to the external instance too.
+            TchapLoginActivity.discoverTchapPlatform(this, email, new ApiCallback<Platform>() {
+                private void onError(String message) {
+                    Toast.makeText(VectorRoomInviteMembersActivity.this, message, Toast.LENGTH_LONG).show();
 
-            if (null != existingRoom) {
-                // If a direct chat already exists, we do not re-invite the NoTchapUser
-                // and we notify the user by a toast
-                String message = getString(R.string.tchap_invite_already_send_message, email);
-                Toast.makeText(VectorRoomInviteMembersActivity.this, message, Toast.LENGTH_LONG).show();
-
-                // We decrement the counter before testing if it is equal to zero.
-                // If the counter is equal to zero, it means that we have reached the end of the list.
-                if (-- mCount == 0) {
-                    onNoTchapInviteDone(finish);
+                    // We decrement the counter before testing if it is equal to zero.
+                    // If the counter is equal to zero, it means that we have reached the end of the list.
+                    if (-- mCount == 0) {
+                        onNoTchapInviteDone(finish);
+                    }
                 }
-            } else {
-                // For each email of the list, call server to check if Tchap registration is available for this email
-                TchapLoginActivity.discoverTchapPlatform(this, email, new ApiCallback<Platform>() {
-                    private void onError(String message) {
-                        Toast.makeText(VectorRoomInviteMembersActivity.this, message, Toast.LENGTH_LONG).show();
 
-                        // We decrement the counter before testing if it is equal to zero.
-                        // If the counter is equal to zero, it means that we have reached the end of the list.
-                        if (-- mCount == 0) {
-                            onNoTchapInviteDone(finish);
-                        }
+                @Override
+                public void onSuccess(Platform platform) {
+                    // Check whether the returned platform is valid
+                    if (null == platform.hs || platform.hs.isEmpty()) {
+                        // The email owner is not able to create a tchap account,
+                        onError(getString(R.string.tchap_invite_unreachable_message, email));
+                        return;
                     }
 
-                    @Override
-                    public void onSuccess(Platform platform) {
-                        // Check whether the returned platform is valid
-                        if (null == platform.hs || platform.hs.isEmpty()) {
-                            // The email owner is not able to create a tchap account,
-                            onError(getString(R.string.tchap_invite_unreachable_message, email));
-                            return;
+                    // Define the callback used to handle the result of the direct chat creation
+                    ApiCallback<String> createDirectChatCallBack = new ApiCallback<String>() {
+                        @Override
+                        public void onSuccess(final String roomId) {
+                            // For each successful direct chat creation and invitation,
+                            // we increment the counter "mSuccessCount".
+                            mSuccessCount ++;
+
+                            if (-- mCount == 0) {
+                                onNoTchapInviteDone(finish);
+                            }
                         }
 
-                        // The email owner is able to create a tchap account,
-                        // we create a direct chat with him, and invite him by email to join Tchap.
-                        mSession.createDirectMessageRoom(email, new ApiCallback<String>() {
-                            @Override
-                            public void onSuccess(final String roomId) {
-                                // For each successful direct chat creation and invitation,
-                                // we increment the counter "mSuccessCount".
-                                mSuccessCount ++;
+                        private void onError(final String message) {
+                            Log.e(LOG_TAG, "##inviteNoTchapUserByEmail failed : " + message);
+                            new AlertDialog.Builder(VectorRoomInviteMembersActivity.this)
+                                    .setMessage(getString(R.string.tchap_send_invite_failed, email))
+                                    .setPositiveButton(R.string.ok, null)
+                                    .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                                        @Override
+                                        public void onDismiss(DialogInterface dialog) {
 
-                                if (-- mCount == 0) {
-                                    onNoTchapInviteDone(finish);
-                                }
-                            }
-
-                            private void onError(final String message) {
-                                Log.e(LOG_TAG, "##inviteNoTchapUserByEmail failed : " + message);
-                                new AlertDialog.Builder(VectorRoomInviteMembersActivity.this)
-                                        .setMessage(getString(R.string.tchap_send_invite_failed, email))
-                                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-
-                                                // Despite the error, we continue the process
-                                                // until we reach the end of the list.
-                                                if (-- mCount == 0) {
-                                                    onNoTchapInviteDone(finish);
-                                                }
+                                            // Despite the error, we continue the process
+                                            // until we reach the end of the list.
+                                            if (-- mCount == 0) {
+                                                onNoTchapInviteDone(finish);
                                             }
-                                        })
-                                        .show();
-                            }
+                                        }
+                                    })
+                                    .show();
+                        }
 
-                            @Override
-                            public void onNetworkError(Exception e) {
+                        @Override
+                        public void onNetworkError(Exception e) {
+                            onError(e.getLocalizedMessage());
+                        }
+
+                        @Override
+                        public void onMatrixError(final MatrixError e) {
+                            if (MatrixError.M_CONSENT_NOT_GIVEN.equals(e.errcode)) {
+                                // Request the consent only once, and cancel the invite(s)
+                                if (mCount != 0) {
+                                    mCount = 0;
+                                    getConsentNotGivenHelper().displayDialog(e);
+                                }
+                            } else {
                                 onError(e.getLocalizedMessage());
                             }
+                        }
 
-                            @Override
-                            public void onMatrixError(final MatrixError e) {
-                                if (MatrixError.M_CONSENT_NOT_GIVEN.equals(e.errcode)) {
-                                    // Request the consent only once, and cancel the invite(s)
-                                    if (mCount != 0) {
-                                        mCount = 0;
-                                        getConsentNotGivenHelper().displayDialog(e);
+                        @Override
+                        public void onUnexpectedError(final Exception e) {
+                            onError(e.getLocalizedMessage());
+                        }
+                    };
+
+                    // We check if this email has been already invited
+                    // (pendingInvites are ignored here because we could not have a pending invite related to an email)
+                    Room existingRoom = DinsicUtils.isDirectChatRoomAlreadyExist(email, mSession, false);
+                    if (null != existingRoom) {
+                        // If a direct chat already exists, we do not re-invite the NoTchapUser except
+                        // if the email is bound to the external instance (for which the invites may expire).
+                        if (DinsicUtils.isExternalTchapServer(platform.hs)) {
+                            // Revoke the pending invite and leave this empty discussion, we will invite again this email.
+                            // We don't have a way for the moment to check if the invite expired or not...
+
+                            // Define the callback used to leave the existing discussion
+                            ApiCallback<Void> leaveRoomCallBack = new ApiCallback<Void>() {
+                                @Override
+                                public void onSuccess(Void info) {
+                                    Log.d(LOG_TAG, "an empty discussion has been left (to renew the invite)");
+                                    DinsicUtils.createDirectChat(mSession, email, createDirectChatCallBack);
+                                }
+
+                                private void onError(String errorMessage) {
+                                    Log.e(LOG_TAG, "failed to leave discussion" + errorMessage);
+                                    // Something wrong happened  - No new invite is sent
+                                    String message = getString(R.string.tchap_send_invite_failed, email);
+                                    Toast.makeText(VectorRoomInviteMembersActivity.this, message, Toast.LENGTH_LONG).show();
+
+                                    // We decrement the counter before testing if it is equal to zero.
+                                    // If the counter is equal to zero, it means that we have reached the end of the list.
+                                    if (-- mCount == 0) {
+                                        onNoTchapInviteDone(finish);
                                     }
-                                } else {
+                                }
+
+                                @Override
+                                public void onNetworkError(Exception e) {
                                     onError(e.getLocalizedMessage());
                                 }
+                                @Override
+                                public void onMatrixError(MatrixError e) {
+                                    onError(e.getLocalizedMessage());
+                                }
+                                @Override
+                                public void onUnexpectedError(Exception e) {
+                                    onError(e.getLocalizedMessage());
+                                }
+                            };
+
+                            // Retrieve the token of the pending 3pid (if any)
+                            String pendingInviteToken = null;
+                            List<RoomThirdPartyInvite> thirdPartyInvites = new ArrayList<>(existingRoom.getState().thirdPartyInvites());
+                            if (thirdPartyInvites.size() != 0) {
+                                // Only one invite is expected
+                                RoomThirdPartyInvite pendingInvite = thirdPartyInvites.get(0);
+                                pendingInviteToken = pendingInvite.token;
                             }
 
-                            @Override
-                            public void onUnexpectedError(final Exception e) {
-                                onError(e.getLocalizedMessage());
+                            if (pendingInviteToken != null) {
+                                // Revoke the invite
+                                mSession.getRoomsApiClient().sendStateEvent(existingRoom.getRoomId(), Event.EVENT_TYPE_STATE_ROOM_THIRD_PARTY_INVITE, pendingInviteToken, new HashMap<String, Object>(), new ApiCallback<Void>() {
+                                    @Override
+                                    public void onSuccess(Void info) {
+                                        existingRoom.leave(leaveRoomCallBack);
+                                    }
+
+                                    private void onError(String errorMessage) {
+                                        Log.e(LOG_TAG, "failed to revoke 3pid invite" + errorMessage);
+                                        // Consider the invite is still relevant...
+                                        String message = getString(R.string.tchap_invite_already_send_message, email);
+                                        Toast.makeText(VectorRoomInviteMembersActivity.this, message, Toast.LENGTH_LONG).show();
+
+                                        // We decrement the counter before testing if it is equal to zero.
+                                        // If the counter is equal to zero, it means that we have reached the end of the list.
+                                        if (-- mCount == 0) {
+                                            onNoTchapInviteDone(finish);
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onNetworkError(Exception e) {
+                                        onError(e.getLocalizedMessage());
+                                    }
+                                    @Override
+                                    public void onMatrixError(MatrixError e) {
+                                        onError(e.getLocalizedMessage());
+                                    }
+                                    @Override
+                                    public void onUnexpectedError(Exception e) {
+                                        onError(e.getLocalizedMessage());
+                                    }
+                                });
+                            } else {
+                                Log.d(LOG_TAG, "There is no invite to revoke");
+                                existingRoom.leave(leaveRoomCallBack);
                             }
-                        });
-                    }
+                        } else {
+                            // Notify the user that the invite has been already sent
+                            String message = getString(R.string.tchap_invite_already_send_message, email);
+                            Toast.makeText(VectorRoomInviteMembersActivity.this, message, Toast.LENGTH_LONG).show();
 
-                    @Override
-                    public void onNetworkError(Exception e) {
-                        onError(getString(R.string.tchap_send_invite_network_error));
+                            // We decrement the counter before testing if it is equal to zero.
+                            // If the counter is equal to zero, it means that we have reached the end of the list.
+                            if (-- mCount == 0) {
+                                onNoTchapInviteDone(finish);
+                            }
+                        }
+                    } else {
+                        // The email owner is able to create a tchap account,
+                        // we create a direct chat with him, and invite him by email to join Tchap.
+                        DinsicUtils.createDirectChat(mSession, email, createDirectChatCallBack);
                     }
+                }
 
-                    @Override
-                    public void onMatrixError(MatrixError matrixError) {
-                        onError(getString(R.string.tchap_invite_unreachable_message, email));
-                    }
+                @Override
+                public void onNetworkError(Exception e) {
+                    onError(getString(R.string.tchap_send_invite_network_error));
+                }
 
-                    @Override
-                    public void onUnexpectedError(Exception e) {
-                        onError(getString(R.string.tchap_invite_unreachable_message, email));
-                    }
-                } );
-            }
+                @Override
+                public void onMatrixError(MatrixError matrixError) {
+                    onError(getString(R.string.tchap_invite_unreachable_message, email));
+                }
+
+                @Override
+                public void onUnexpectedError(Exception e) {
+                    onError(getString(R.string.tchap_invite_unreachable_message, email));
+                }
+            } );
         }
     }
 
@@ -903,7 +1058,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
      * @param email        the email used to discovere him
      */
     private void inviteDiscoveredTchapUser(final String tchapUserId, final String email) {
-        mSession.createDirectMessageRoom(tchapUserId, new ApiCallback<String>() {
+        DinsicUtils.createDirectChat(mSession, tchapUserId, new ApiCallback<String>() {
             @Override
             public void onSuccess(final String roomId) {
                 // and we notify the user by a toast
@@ -952,8 +1107,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         }
 
         if (finish) {
-            // We close the current screen and we come back on the hme screen.
-            startActivity(new Intent(this, VectorHomeActivity.class));
+            // We go back to the home screen.
             finish();
         }
     }
@@ -962,8 +1116,8 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         Log.e(LOG_TAG, "##inviteNoTchapUserByEmail : display notification" );
 
         // Handle notification
-        SpannableString text = new SpannableString(getResources().getQuantityString(R.plurals.tchap_succes_invite__notification, mSuccessCount, mSuccessCount));
-        Toast.makeText(VectorRoomInviteMembersActivity.this, text + " \n" + getString(R.string.tchap_send_invite_confirmation), Toast.LENGTH_SHORT).show();
+        SpannableString text = new SpannableString(getResources().getQuantityString(R.plurals.tchap_succes_invite_notification, mSuccessCount, mSuccessCount));
+        Toast.makeText(VectorRoomInviteMembersActivity.this, text + " \n" + getString(R.string.tchap_send_invite_confirmation), Toast.LENGTH_LONG).show();
 
         // @TODO FIXME create a new function in NotificationUtils to handle the local notif on sent invitations
 //        Intent intent = new Intent(this, VectorHomeActivity.class);
@@ -983,5 +1137,124 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
 //
 //        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 //        notificationManager.notify(1, builder.build());
+    }
+
+    private void onSelectedEmails(final List<String> emails) {
+        // Check whether the emails are allowed to join the room before adding them
+        if (0 != mCount) {
+            Log.e(LOG_TAG, "##onSelectedEmails: a process is already in progress");
+            return;
+        }
+
+        showWaitingView();
+        mCount = emails.size();
+        final List<String> filteredEmails = new ArrayList<>();
+        String userHSName = DinsicUtils.getHomeServerNameFromMXIdentifier(mSession.getMyUserId());
+
+        for (final String email : emails) {
+            // For each email of the list, call server to check if Tchap registration is available for this email
+            // We will use this request to check whether the email is allowed too.
+            TchapLoginActivity.discoverTchapPlatform(this, email, new ApiCallback<Platform>() {
+                private void onError(String title, String message) {
+                    Log.e(LOG_TAG, "##onSelectedEmails: " + message);
+                    new AlertDialog.Builder(VectorRoomInviteMembersActivity.this)
+                            .setTitle(title)
+                            .setMessage(message)
+                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                    // We decrement the counter before testing if it is equal to zero.
+                                    // If the counter is equal to zero, it means that we have reached the end of the list.
+                                    if (-- mCount == 0) {
+                                        hideWaitingView();
+                                        if (!filteredEmails.isEmpty()) {
+                                            addEmailsToInvite(filteredEmails);
+                                        }
+                                    }
+                                }
+                            })
+                            .show();
+                }
+
+                @Override
+                public void onSuccess(Platform platform) {
+                    // Check whether the returned platform is valid
+                    if (null == platform.hs || platform.hs.isEmpty()) {
+                        // The email owner is not able to create a tchap account,
+                        onError(null, getString(R.string.tchap_invite_unreachable_message, email));
+                        return;
+                    }
+
+                    // We check if this email is allowed
+                    switch (mContactsFilter) {
+                        case ALL:
+                        case ALL_WITHOUT_TCHAP_USERS:
+                            // There is no restriction on emails.
+                            filteredEmails.add(email);
+                            break;
+                        case ALL_WITHOUT_EXTERNALS:
+                            if (!DinsicUtils.isExternalTchapServer(platform.hs)) {
+                                filteredEmails.add(email);
+                            } else {
+                                onError(getString(R.string.tchap_invite_unauthorized_title_restricted_room), getString(R.string.tchap_invite_unauthorized_message, email));
+                                return;
+                            }
+                            break;
+                        case ALL_WITHOUT_FEDERATION:
+                            if (TextUtils.equals(platform.hs, userHSName)) {
+                                filteredEmails.add(email);
+                            } else {
+                                String userHSDomain = DinsicUtils.getHomeServerDisplayNameFromMXIdentifier(mSession.getMyUserId());
+                                onError(getString(R.string.tchap_invite_unauthorized_title_unfederated_room, userHSDomain), getString(R.string.tchap_invite_unauthorized_message, email));
+                                return;
+                            }
+                            break;
+                        default:
+                            // Ignore
+                            Log.e(LOG_TAG, "## onSelectedEmails() unsupported case");
+                    }
+
+                    // We decrement the counter before testing if it is equal to zero.
+                    // If the counter is equal to zero, it means that we have reached the end of the list.
+                    if (-- mCount == 0) {
+                        hideWaitingView();
+                        if (!filteredEmails.isEmpty()) {
+                            addEmailsToInvite(filteredEmails);
+                        }
+                    }
+                }
+
+                @Override
+                public void onNetworkError(Exception e) {
+                    onError(null, getString(R.string.tchap_send_invite_network_error));
+                }
+
+                @Override
+                public void onMatrixError(MatrixError matrixError) {
+                    onError(null, getString(R.string.tchap_invite_unreachable_message, email));
+                }
+
+                @Override
+                public void onUnexpectedError(Exception e) {
+                    onError(null, getString(R.string.tchap_invite_unreachable_message, email));
+                }
+            } );
+        }
+    }
+
+    private void addEmailsToInvite(final List<String> emails) {
+        for (String id : emails) {
+            if (!mUserIdsToInvite.contains(id)) {
+                mUserIdsToInvite.add(id);
+            }
+        }
+        mAdapter.setSelectedUserIds(mUserIdsToInvite);
+        mAdapter.notifyDataSetChanged();
+
+        // Force refresh
+        mAdapter.refresh(null, null);
+
+        invalidateOptionsMenu();
     }
 }

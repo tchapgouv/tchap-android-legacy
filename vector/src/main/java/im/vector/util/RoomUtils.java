@@ -28,8 +28,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Icon;
 import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AlertDialog;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.ContextThemeWrapper;
 import android.view.Gravity;
@@ -775,11 +775,12 @@ public class RoomUtils {
         Bitmap bitmap = null;
 
         // try to retrieve the avatar from the medias cache
-        if (!TextUtils.isEmpty(room.getAvatarUrl())) {
+        String roomAvatarUrl = DinsicUtils.getRoomAvatarUrl(room);
+        if (!TextUtils.isEmpty(roomAvatarUrl)) {
             int size = context.getResources().getDimensionPixelSize(R.dimen.profile_avatar_size);
 
             // check if the thumbnail is already downloaded
-            File f = session.getMediaCache().thumbnailCacheFile(room.getAvatarUrl(), size);
+            File f = session.getMediaCache().thumbnailCacheFile(roomAvatarUrl, size);
 
             if (null != f) {
                 BitmapFactory.Options options = new BitmapFactory.Options();

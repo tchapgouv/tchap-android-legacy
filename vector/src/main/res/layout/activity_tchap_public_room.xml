@@ -1,4 +1,4 @@
-<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawer_layout_public_room"
@@ -13,7 +13,7 @@
         android:descendantFocusability="beforeDescendants"
         android:focusableInTouchMode="true">
 
-        <android.support.v7.widget.Toolbar
+        <androidx.appcompat.widget.Toolbar
             android:id="@+id/home_toolbar"
             style="@style/VectorToolbarStyle"
             android:layout_width="match_parent"
@@ -23,7 +23,7 @@
 
             <!-- The search view is added in the toolbar not in the menu
                  to ensure that the overflow icon menu is not hidden.-->
-            <android.support.v7.widget.SearchView
+            <androidx.appcompat.widget.SearchView
                 android:id="@+id/search_view"
                 android:layout_width="match_parent"
                 android:layout_height="30dp"
@@ -31,7 +31,7 @@
                 android:layout_marginLeft="7dp"
                 android:layout_marginRight="10dp"
                 android:clickable="true" />
-        </android.support.v7.widget.Toolbar>
+        </androidx.appcompat.widget.Toolbar>
 
         <ProgressBar
             android:id="@+id/home_recents_sync_in_progress"
@@ -80,7 +80,7 @@
         </RelativeLayout>
     </RelativeLayout>
 
-    <android.support.design.widget.NavigationView
+    <com.google.android.material.navigation.NavigationView
         android:id="@+id/navigation_view"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
@@ -92,4 +92,4 @@
         app:menu="@menu/vector_home_sliding_menu"
         app:theme="@style/NavigationViewStyle" />
 
-</android.support.v4.widget.DrawerLayout>
+</androidx.drawerlayout.widget.DrawerLayout>

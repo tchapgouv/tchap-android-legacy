@@ -44,16 +44,30 @@
             tools:text="topic"
             android:layout_below="@+id/room_action_bar_title"/>
 
+        <TextView
+            android:id="@+id/room_action_bar_access_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:gravity="center_horizontal"
+            android:textColor="@color/vector_tchap_text_color_dark_grey"
+            android:textSize="10sp"
+            android:text="@string/tchap_room_access_unrestricted"
+            android:textStyle="italic"
+            android:visibility="gone"
+            tools:visibility="visible"
+            android:layout_below="@+id/room_action_bar_topic"/>
+
     </RelativeLayout>
 
     <fr.gouv.tchap.util.HexagonMaskView
         android:id="@+id/avatar_h_img"
-        android:layout_width="@dimen/chat_avatar_size"
-        android:layout_height="@dimen/chat_avatar_size"
+        android:layout_width="@dimen/hexagonal_avatar_size"
+        android:layout_height="@dimen/hexagonal_avatar_size"
         android:layout_marginRight="5dp"
         android:layout_marginEnd="5dp"
-        android:maxWidth="@dimen/chat_avatar_size"
-        android:maxHeight="@dimen/chat_avatar_size"
+        android:maxWidth="@dimen/hexagonal_avatar_size"
+        android:maxHeight="@dimen/hexagonal_avatar_size"
 
         android:scaleType="centerCrop"
         android:adjustViewBounds="true"

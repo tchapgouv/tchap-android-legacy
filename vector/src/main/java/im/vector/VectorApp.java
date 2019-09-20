@@ -33,8 +33,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
-import android.support.multidex.MultiDex;
-import android.support.multidex.MultiDexApplication;
+import androidx.multidex.MultiDex;
+import androidx.multidex.MultiDexApplication;
 import android.text.TextUtils;
 
 import com.facebook.stetho.Stetho;
@@ -325,6 +325,10 @@ public class VectorApp extends MultiDexApplication {
             @Override
             public void onActivityDestroyed(Activity activity) {
                 Log.d(LOG_TAG, "onActivityDestroyed " + activity);
+
+                // Handle the potential expired account dialog
+                Matrix.getInstance(VectorApp.this).dismissExpiredAccountDialogIfAnyOnActivityDestroyed(activity);
+
                 mCreatedActivities.remove(activity.toString());
                 mLocalesByActivity.remove(activity.toString());
 

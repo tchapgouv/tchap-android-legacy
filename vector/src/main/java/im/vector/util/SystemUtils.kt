@@ -26,7 +26,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
-import androidx.core.widget.toast
+import org.jetbrains.anko.toast
 import im.vector.R
 import im.vector.settings.VectorLocale
 import org.matrix.androidsdk.core.Log

@@ -26,8 +26,8 @@ import android.net.Uri
 import android.os.Build
 import android.provider.Browser
 import android.provider.MediaStore
-import android.support.v4.content.FileProvider
-import androidx.core.widget.toast
+import androidx.core.content.FileProvider
+import org.jetbrains.anko.toast
 import im.vector.BuildConfig
 import im.vector.R
 import org.matrix.androidsdk.core.Log

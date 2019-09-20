@@ -16,7 +16,7 @@
 package im.vector.view;
 
 import android.content.Context;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import android.util.AttributeSet;
 
 import java.lang.ref.WeakReference;

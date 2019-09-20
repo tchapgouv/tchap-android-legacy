@@ -37,22 +37,18 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
-import android.support.annotation.ColorRes;
-import android.support.annotation.NonNull;
-import android.support.design.widget.NavigationView;
-import android.support.design.widget.TabLayout;
-import android.support.design.widget.TextInputEditText;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.SearchView;
-import android.support.v7.widget.Toolbar;
-import android.support.v4.app.FragmentTransaction;
+import androidx.annotation.ColorRes;
+import androidx.annotation.NonNull;
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.textfield.TextInputEditText;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
 import android.text.Editable;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -113,6 +109,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import butterknife.BindView;
 import fr.gouv.tchap.activity.TchapRoomCreationActivity;
 import fr.gouv.tchap.activity.TchapPublicRoomSelectionActivity;
@@ -1062,7 +1062,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
         }
         */
         // Set color of toolbar search view
-        EditText edit = mSearchView.findViewById(android.support.v7.appcompat.R.id.search_src_text);
+        EditText edit = mSearchView.findViewById(androidx.appcompat.R.id.search_src_text);
         edit.setTextColor(ThemeUtils.INSTANCE.getColor(this, R.attr.vctr_primary_text_color));
         edit.setHintTextColor(ThemeUtils.INSTANCE.getColor(this, R.attr.vctr_primary_hint_text_color));
         edit.setTextSize(15);
@@ -2147,7 +2147,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
         mFloatingActionsMenu.collapse();
         // Create a new direct chat with an existing tchap user
         // Multi-selection will be disabled
-        createNewChat(VectorRoomInviteMembersActivity.ActionMode.START_DIRECT_CHAT, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_ONLY);
+        createNewChat(VectorRoomInviteMembersActivity.ActionMode.START_DIRECT_CHAT, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_USERS_ONLY);
     }
 
     @OnClick(R.id.button_create_room)

@@ -30,9 +30,9 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.preference.*
-import android.support.design.widget.TextInputEditText
-import android.support.v4.content.ContextCompat
-import android.support.v7.app.AlertDialog
+import com.google.android.material.textfield.TextInputEditText
+import androidx.core.content.ContextCompat
+import androidx.appcompat.app.AlertDialog
 import android.text.Editable
 import android.text.TextUtils
 import android.text.TextWatcher
@@ -43,7 +43,8 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.core.content.edit
-import androidx.core.widget.toast
+import org.jetbrains.anko.toast
+import org.jetbrains.anko.longToast
 import com.bumptech.glide.Glide
 import com.google.i18n.phonenumbers.NumberParseException
 import com.google.i18n.phonenumbers.PhoneNumberUtil
@@ -319,40 +320,64 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
         setUserInterfacePreferences()
 
         // Url preview
-        (findPreference(PreferencesManager.SETTINGS_SHOW_URL_PREVIEW_KEY) as VectorSwitchPreference).let {
-            it.isChecked = mSession.isURLPreviewEnabled
-
-            it.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
-                if (null != newValue && newValue as Boolean != mSession.isURLPreviewEnabled) {
-                    displayLoadingView()
-                    mSession.setURLPreviewStatus(newValue, object : ApiCallback<Void> {
-                        override fun onSuccess(info: Void?) {
-                            it.isChecked = mSession.isURLPreviewEnabled
-                            hideLoadingView()
-                        }
-
-                        private fun onError(errorMessage: String) {
-                            activity?.toast(errorMessage)
-
-                            onSuccess(null)
-                        }
-
-                        override fun onNetworkError(e: Exception) {
-                            onError(e.localizedMessage)
-                        }
-
-                        override fun onMatrixError(e: MatrixError) {
-                            onError(e.localizedMessage)
-                        }
-
-                        override fun onUnexpectedError(e: Exception) {
-                            onError(e.localizedMessage)
-                        }
-                    })
+//        (findPreference(PreferencesManager.SETTINGS_SHOW_URL_PREVIEW_KEY) as VectorSwitchPreference).let {
+//            it.isChecked = mSession.isURLPreviewEnabled
+//
+//            it.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
+//                if (null != newValue && newValue as Boolean != mSession.isURLPreviewEnabled) {
+//                    displayLoadingView()
+//                    mSession.setURLPreviewStatus(newValue, object : ApiCallback<Void> {
+//                        override fun onSuccess(info: Void?) {
+//                            it.isChecked = mSession.isURLPreviewEnabled
+//                            hideLoadingView()
+//                        }
+//
+//                        private fun onError(errorMessage: String) {
+//                            activity?.toast(errorMessage)
+//
+//                            onSuccess(null)
+//                        }
+//
+//                        override fun onNetworkError(e: Exception) {
+//                            onError(e.localizedMessage)
+//                        }
+//
+//                        override fun onMatrixError(e: MatrixError) {
+//                            onError(e.localizedMessage)
+//                        }
+//
+//                        override fun onUnexpectedError(e: Exception) {
+//                            onError(e.localizedMessage)
+//                        }
+//                    })
+//                }
+//
+//                false
+//            }
+//        }
+        if (mSession.isURLPreviewEnabled) {
+            // Disable the URLPreview option
+            mSession.setURLPreviewStatus(false, object : ApiCallback<Void> {
+                override fun onSuccess(info: Void?) {
+                    Log.i(LOG_TAG, "## onCreate() URLPreview option has been disabled")
                 }
 
-                false
-            }
+                private fun onError() {
+                    Log.i(LOG_TAG, "## onCreate() failed to disable URLPreview option")
+                }
+
+                override fun onNetworkError(e: Exception) {
+                    onError()
+                }
+
+                override fun onMatrixError(e: MatrixError) {
+                    onError()
+                }
+
+                override fun onUnexpectedError(e: Exception) {
+                    onError()
+                }
+            });
         }
 
         // Themes
@@ -1140,6 +1165,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 
             val dialog = AlertDialog.Builder(activity)
                     .setTitle(R.string.settings_change_password)
+                    .setMessage(R.string.tchap_change_password_help)
                     .setView(view)
                     .setPositiveButton(R.string.save) { _, _ ->
                         if (null != activity) {
@@ -1151,7 +1177,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                         val newPwd = newPasswordText.text.toString().trim()
 
                         if (newPwd.length < TchapLoginActivity.MIN_PASSWORD_LENGTH) {
-                            activity?.toast(R.string.auth_invalid_password, Toast.LENGTH_SHORT)
+                            activity?.toast(R.string.auth_invalid_password)
                             return@setPositiveButton
                         }
 
@@ -1164,14 +1190,27 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                                     // and the code is called in the right thread
                                     activity.runOnUiThread {
                                         hideLoadingView()
+
+                                        var titleId = textId
+                                        var messageId: Int? = null
+
                                         if (textId == R.string.settings_password_updated) {
+                                            titleId = R.string.settings_change_pwd_success_title
+                                            messageId = R.string.settings_change_pwd_success_msg
+                                        } else if (textId == R.string.tchap_password_weak_pwd_error
+                                                || textId == R.string.tchap_password_pwd_in_dict_error) {
+                                            titleId = R.string.settings_fail_to_update_password
+                                            messageId = textId
+                                        }
+
+                                        messageId?.let {
                                             AlertDialog.Builder(activity)
-                                                    .setTitle(R.string.settings_change_pwd_success_title)
-                                                    .setMessage(R.string.settings_change_pwd_success_msg)
+                                                    .setTitle(titleId)
+                                                    .setMessage(messageId)
                                                     .setPositiveButton(R.string.ok, null)
                                                     .show()
-                                        } else {
-                                            activity?.toast(textId, Toast.LENGTH_LONG)
+                                        } ?: run {
+                                            activity?.longToast(textId)
                                         }
                                     }
                                 }
@@ -1186,7 +1225,18 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                             }
 
                             override fun onMatrixError(e: MatrixError) {
-                                onDone(R.string.settings_fail_to_update_password)
+                                if (TextUtils.equals(MatrixError.PASSWORD_TOO_SHORT, e.errcode)
+                                        || TextUtils.equals(MatrixError.PASSWORD_NO_DIGIT, e.errcode)
+                                        || TextUtils.equals(MatrixError.PASSWORD_NO_UPPERCASE, e.errcode)
+                                        || TextUtils.equals(MatrixError.PASSWORD_NO_LOWERCASE, e.errcode)
+                                        || TextUtils.equals(MatrixError.PASSWORD_NO_SYMBOL, e.errcode)
+                                        || TextUtils.equals(MatrixError.WEAK_PASSWORD, e.errcode)) {
+                                    onDone(R.string.tchap_password_weak_pwd_error)
+                                } else if (TextUtils.equals(MatrixError.PASSWORD_IN_DICTIONARY, e.errcode)) {
+                                    onDone(R.string.tchap_password_pwd_in_dict_error)
+                                } else {
+                                    onDone(R.string.settings_fail_to_update_password)
+                                }
                             }
 
                             override fun onUnexpectedError(e: Exception) {

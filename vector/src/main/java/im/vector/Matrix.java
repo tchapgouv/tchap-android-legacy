@@ -23,8 +23,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AlertDialog;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import android.text.TextUtils;
 
 import org.matrix.androidsdk.HomeServerConnectionConfig;
@@ -112,8 +112,8 @@ public class Matrix {
     // tell if the client should be logged out
     public boolean mHasBeenDisconnected = false;
 
-    // tell whether an expired account is processing
-    private boolean mIsSuspendedOnExpiredAccount = false;
+    // The potential dialog used to alert an expired account.
+    private AlertDialog mExpiredAccountDialog = null;
 
     // i.e the event has been read from another client
     private static final MXEventListener mLiveEventListener = new MXEventListener() {
@@ -817,17 +817,24 @@ public class Matrix {
                 Matrix.getInstance(context).getPushManager().clearFcmData(new SimpleApiCallback<Void>() {
                     @Override
                     public void onSuccess(final Void anything) {
-                        Intent intent = new Intent(context.getApplicationContext(), SplashActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        context.getApplicationContext().startActivity(intent);
-
-                        if (null != VectorApp.getCurrentActivity()) {
-                            VectorApp.getCurrentActivity().finish();
-                        }
+                        launchSplashScreen(context);
                     }
                 });
             }
         });
+    }
+
+    /**
+     * Launch the splash screen to reload the session.
+     */
+    private void launchSplashScreen(final Context context) {
+        Intent intent = new Intent(context.getApplicationContext(), SplashActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        context.getApplicationContext().startActivity(intent);
+
+        if (null != VectorApp.getCurrentActivity()) {
+            VectorApp.getCurrentActivity().finish();
+        }
     }
 
     /**
@@ -838,11 +845,28 @@ public class Matrix {
      * @param context the context
      */
     private void suspendTchapOnExpiredAccount(final Context context) {
-        if (null != VectorApp.getCurrentActivity() && !mIsSuspendedOnExpiredAccount) {
-            Log.e(LOG_TAG, "## suspendTchapOnExpiredAccount");
-            mIsSuspendedOnExpiredAccount = true;
+        Log.i(LOG_TAG, "## suspendTchapOnExpiredAccount");
 
-            CommonActivityUtils.logout(context, getMXSessions(context), false, new ApiCallback<Void>() {
+        // Check whether the application is actually running and available.
+        // Check "isAlive" flag to know whether a logout is in progress on the current session.
+        final MXSession currentSession = getDefaultSession();
+        final Activity currentActivity = VectorApp.getCurrentActivity();
+        if (currentSession == null || !currentSession.isAlive() || currentActivity == null) {
+            Log.w(LOG_TAG, "## suspendTchapOnExpiredAccount: ignored (app busy)");
+            return;
+        }
+
+        // If a dialog already exists, check whether it is displayed on the current activity.
+        // Dismiss it if this is not the case.
+        if (mExpiredAccountDialog != null && mExpiredAccountDialog.getOwnerActivity() != currentActivity)
+        {
+            Log.i(LOG_TAG, "## suspendTchapOnExpiredAccount: dismiss existing dialog");
+            mExpiredAccountDialog.dismiss();
+        }
+
+        // Check whether the expired account is not already handled.
+        if (mExpiredAccountDialog == null) {
+            CommonActivityUtils.logout(context, getMXSessions(context), false, new SimpleApiCallback<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
                     synchronized (LOG_TAG) {
@@ -863,27 +887,9 @@ public class Matrix {
                         }
                     });
                 }
-
-                private void onError(String errorMessage) {
-                    Log.e(LOG_TAG, "## suspendTchapOnExpiredAccount(): logout failed " + errorMessage);
-                    mIsSuspendedOnExpiredAccount = false;
-                }
-
-                @Override
-                public void onNetworkError(Exception e) {
-                    onError(e.getMessage());
-                }
-
-                @Override
-                public void onMatrixError(MatrixError e) {
-                    onError(e.getMessage());
-                }
-
-                @Override
-                public void onUnexpectedError(Exception e) {
-                    onError(e.getMessage());
-                }
             });
+        } else {
+            Log.w(LOG_TAG, "## suspendTchapOnExpiredAccount: ignored (already handled)");
         }
     }
 
@@ -893,38 +899,101 @@ public class Matrix {
      * @param context the context
      */
     private void displayExpiredAccountDialog(final Context context) {
-        new AlertDialog.Builder(VectorApp.getCurrentActivity())
-                .setMessage(R.string.tchap_expired_account)
+        final Activity currentActivity = VectorApp.getCurrentActivity();
+        final AlertDialog.Builder builder = new AlertDialog.Builder(currentActivity);
+
+        mExpiredAccountDialog = builder
+                .setMessage(R.string.tchap_expired_account_msg)
                 .setCancelable(false)
                 .setPositiveButton(R.string.tchap_expired_account_resume_button, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        mIsSuspendedOnExpiredAccount = false;
-                        // Launch the splash screen to reload the session.
-                        Intent intent = new Intent(context.getApplicationContext(), SplashActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        context.getApplicationContext().startActivity(intent);
-
-                        if (null != VectorApp.getCurrentActivity()) {
-                            VectorApp.getCurrentActivity().finish();
-                        }
+                        launchSplashScreen(context);
                     }
                 })
                 .setNeutralButton(R.string.tchap_request_renewal_email_button, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         TchapValidityRestClient validityRestClient = new TchapValidityRestClient(getDefaultSession().getHomeServerConfig());
-                        validityRestClient.requestRenewalEmail(new SimpleApiCallback<Void>() {
+                        validityRestClient.requestRenewalEmail(new ApiCallback<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 // Just log the information
                                 Log.i(LOG_TAG, "a renewal email has been requested");
+                                onRequestedRenewalEmail(context);
+                            }
+
+                            private void onError(final String errorMessage) {
+                                Log.e(LOG_TAG, "request for a renewal email failed " + errorMessage);
+                                displayExpiredAccountDialog(context);
+                            }
+
+                            @Override
+                            public void onNetworkError(Exception e) {
+                                onError(e.getLocalizedMessage());
+                            }
+
+                            @Override
+                            public void onMatrixError(MatrixError e) {
+                                onError(e.getLocalizedMessage());
+                            }
+
+                            @Override
+                            public void onUnexpectedError(Exception e) {
+                                onError(e.getLocalizedMessage());
                             }
                         });
-                        displayExpiredAccountDialog(context);
+                    }
+                })
+                .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        mExpiredAccountDialog = null;
                     }
                 })
                 .show();
+
+        mExpiredAccountDialog.setOwnerActivity(currentActivity);
+    }
+
+    /**
+     * Prompt the user to renew his account validity by checking his emails.
+     *
+     * @param context the context
+     */
+    private void onRequestedRenewalEmail(final Context context) {
+        final Activity currentActivity = VectorApp.getCurrentActivity();
+        final AlertDialog.Builder builder = new AlertDialog.Builder(currentActivity);
+
+        mExpiredAccountDialog = builder
+                .setMessage(R.string.tchap_expired_account_on_new_sent_email_msg)
+                .setPositiveButton(R.string.tchap_expired_account_resume_button, null)
+                .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        mExpiredAccountDialog = null;
+
+                        // Relaunch the app
+                        launchSplashScreen(context);
+                    }
+                })
+                .show();
+
+        mExpiredAccountDialog.setOwnerActivity(currentActivity);
+    }
+
+    /**
+     * Handle the case where the application destroys the activity on which the expired account
+     * dialog is displayed.
+     *
+     *  @param activity the destroyed activity
+     */
+    public void dismissExpiredAccountDialogIfAnyOnActivityDestroyed(Activity activity) {
+        if (mExpiredAccountDialog != null) {
+            if (mExpiredAccountDialog.getOwnerActivity() == activity) {
+                mExpiredAccountDialog.dismiss();
+            }
+        }
     }
 
     /**

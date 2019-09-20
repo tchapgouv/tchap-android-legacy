@@ -21,28 +21,31 @@ package im.vector.activity;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.TabLayout;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.Toolbar;
+import androidx.annotation.NonNull;
+import com.google.android.material.tabs.TabLayout;
+
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+
+import android.text.TextUtils;
 import android.view.View;
-import android.view.WindowManager;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import org.matrix.androidsdk.fragments.MatrixMessageListFragment;
 import org.matrix.androidsdk.listeners.MXEventListener;
 import org.matrix.androidsdk.core.Log;
-import org.matrix.androidsdk.data.Room;
 
 import java.util.List;
 
 import butterknife.BindView;
+import fr.gouv.tchap.sdk.session.room.model.RoomAccessRulesKt;
 import fr.gouv.tchap.util.DinsicUtils;
+import fr.gouv.tchap.util.HexagonMaskView;
 import fr.gouv.tchap.util.LiveSecurityChecks;
 import im.vector.Matrix;
 import im.vector.R;
@@ -94,7 +97,7 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
 
     private TextView mActionBarCustomTitle;
     private TextView mActionBarCustomTopic;
-    private ImageView mAvatar;
+    private HexagonMaskView mAvatar;
 
     // activity life cycle management:
     // - Bundle keys
@@ -241,10 +244,10 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
     protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        List<android.support.v4.app.Fragment> allFragments = getSupportFragmentManager().getFragments();
+        List<Fragment> allFragments = getSupportFragmentManager().getFragments();
 
         // dispatch the result to each fragments
-        for (android.support.v4.app.Fragment fragment : allFragments) {
+        for (Fragment fragment : allFragments) {
             fragment.onActivityResult(requestCode, resultCode, data);
         }
     }
@@ -527,12 +530,16 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
     private void setAvatar() {
         if (null != mRoom) {
             VectorUtils.loadRoomAvatar(this, mSession, mAvatar, mRoom);
+            // Set the right border color
+            if (TextUtils.equals(DinsicUtils.getRoomAccessRule(mRoom), RoomAccessRulesKt.RESTRICTED)) {
+                mAvatar.setBorderSettings(ContextCompat.getColor(this, R.color.restricted_room_avatar_border_color), 3);
+            } else {
+                mAvatar.setBorderSettings(ContextCompat.getColor(this, R.color.unrestricted_room_avatar_border_color), 10);
+            }
         }
     }
-    public void setAvatar(Room myRoom) {
-        if (null != mRoom) {
-            VectorUtils.loadRoomAvatar(this, mSession, mAvatar, myRoom);
-        }
+    public void refreshAvatar() {
+        setAvatar();
     }
 
 }

@@ -21,11 +21,11 @@ import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Looper;
-import android.support.annotation.NonNull;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -139,21 +139,19 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
             startRemoteKnownContactsSearch(true);
         }
 
-        // Hide Invite by email button for the moment
-        mInviteContactLayout.setVisibility(View.GONE);
-//        // Hide Invite by email button for external users
-//        if (DinsicUtils.isExternalTchapSession(mSession)) {
-//            mInviteContactLayout.setVisibility(View.GONE);
-//        } else {
-//            mInviteContactLayout.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    // We launch a VectorRoomInviteMembersActivity activity to invite
-//                    // some non-tchap contacts by using their email
-//                    mActivity.createNewChat(VectorRoomInviteMembersActivity.ActionMode.SEND_INVITE, VectorRoomInviteMembersActivity.ContactsFilter.NO_TCHAP_ONLY);
-//                }
-//            });
-//        }
+        // Hide Invite by email button for external users
+        if (DinsicUtils.isExternalTchapSession(mSession)) {
+            mInviteContactLayout.setVisibility(View.GONE);
+        } else {
+            mInviteContactLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // We launch a VectorRoomInviteMembersActivity activity to invite
+                    // some non-tchap contacts by using their email
+                    mActivity.createNewChat(VectorRoomInviteMembersActivity.ActionMode.SEND_INVITE, VectorRoomInviteMembersActivity.ContactsFilter.ALL_WITHOUT_TCHAP_USERS);
+                }
+            });
+        }
 
 
         if (!ContactsManager.getInstance().isContactBookAccessRequested()) {
@@ -265,7 +263,7 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
      */
     private void initViews() {
         int margin = (int) getResources().getDimension(R.dimen.item_decoration_left_margin);
-        mRecycler.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
+        mRecycler.setLayoutManager(new LinearLayoutManager(getActivity(), RecyclerView.VERTICAL, false));
         mRecycler.addItemDecoration(new SimpleDividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL, margin));
         mRecycler.addItemDecoration(new EmptyViewItemDecoration(getActivity(), DividerItemDecoration.VERTICAL, 40, 16, 14));
         mAdapter = new TchapContactAdapter(getActivity(), new TchapContactAdapter.OnSelectItemListener() {
@@ -478,7 +476,13 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
                                 // Create a contact for this Tchap user
                                 // TODO check whether there is an issue to use the same id for several dummy contacts
                                 Contact dummyContact = new Contact(contact.getContactId());
-                                dummyContact.setDisplayName(contact.getDisplayName());
+                                // Use the email as display name for external users
+                                if (DinsicUtils.isExternalTchapUser(mxid.mMatrixId)) {
+                                    dummyContact.setDisplayName(email);
+                                } else {
+                                    // Use the local contact display name
+                                    dummyContact.setDisplayName(contact.getDisplayName());
+                                }
                                 dummyContact.addEmailAdress(email);
                                 dummyContact.setThumbnailUri(contact.getThumbnailUri());
                                 ParticipantAdapterItem participant = new ParticipantAdapterItem(dummyContact);

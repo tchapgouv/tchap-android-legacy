@@ -18,7 +18,6 @@
 package fr.gouv.tchap.util;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -29,13 +28,15 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.ContactsContract;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.widget.Toast;
+import androidx.fragment.app.FragmentActivity;
 
+import org.matrix.androidsdk.core.JsonUtils;
 import org.matrix.androidsdk.core.MXPatterns;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
@@ -47,6 +48,9 @@ import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.core.callback.SimpleApiCallback;
 import org.matrix.androidsdk.core.model.MatrixError;
+import org.matrix.androidsdk.rest.model.CreateRoomParams;
+import org.matrix.androidsdk.rest.model.Event;
+import org.matrix.androidsdk.rest.model.RoomCreateContent;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.rest.model.pid.RoomThirdPartyInvite;
@@ -54,14 +58,18 @@ import org.matrix.androidsdk.rest.model.pid.ThreePid;
 import org.matrix.androidsdk.core.Log;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import fr.gouv.tchap.sdk.rest.client.TchapThirdPidRestClient;
+import fr.gouv.tchap.sdk.session.room.model.RoomAccessRulesKt;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.VectorAppCompatActivity;
@@ -69,7 +77,6 @@ import im.vector.activity.VectorRoomActivity;
 import im.vector.adapters.ParticipantAdapterItem;
 import im.vector.contacts.Contact;
 import im.vector.contacts.ContactsManager;
-import im.vector.contacts.PIDsRetriever;
 import im.vector.util.RoomUtils;
 
 public class DinsicUtils {
@@ -182,6 +189,7 @@ public class DinsicUtils {
      * Build a display name from the tchap user identifier.
      * We don't extract the domain for the moment in order to not display unexpected information.
      * For example in case of "@jean-philippe.martin-modernisation.fr:matrix.org", this will return "Jean-Philippe Martin".
+     * Note: in case of an external user identifier, we return the local part of the id which corresponds to their email.
      *
      * @param tchapUserId user id
      * @return displayName without domain, null if the id is not valid.
@@ -193,47 +201,56 @@ public class DinsicUtils {
         if (null != tchapUserId && MXPatterns.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(tchapUserId).matches()) {
             // Remove first the host from the id by ignoring the first character '@' too.
             String identifier = tchapUserId.substring(1, tchapUserId.indexOf(":"));
-            int index = identifier.lastIndexOf("-");
-            if (-1 != index) {
-                // Retrieve the user name
-                displayName = identifier.substring(0, index);
-                String[] components = displayName.split("\\.");
 
-                StringBuilder builder = new StringBuilder();
-                for (String component : components) {
-                    if (!component.isEmpty()) {
-                        if (builder.length() > 0) {
-                            // Add space between components
-                            builder.append(" ");
-                        }
+            if (isExternalTchapUser(tchapUserId)) {
+                // Replace the '-' character if there is only one
+                if (identifier.split("-").length == 2) {
+                    displayName = identifier.replace("-", "@");
+                } else {
+                    displayName = identifier;
+                }
+            } else {
+                int index = identifier.lastIndexOf("-");
+                if (-1 != index) {
+                    // Retrieve the user name
+                    displayName = identifier.substring(0, index);
+                    String[] components = displayName.split("\\.");
 
-                        // Check whether the component contains some '-'
-                        if (component.contains("-")) {
-                            // Capitalize each sub component
-                            String[] subComponents = component.split("-");
-                            for (int i = 0; i < subComponents.length - 1; i++) {
-                                String subComponent = subComponents[i];
-                                builder.append(subComponent.substring(0, 1).toUpperCase());
-                                if (subComponent.length() > 1) {
-                                    builder.append(subComponent.substring(1));
-                                }
-                                builder.append("-");
+                    StringBuilder builder = new StringBuilder();
+                    for (String component : components) {
+                        if (!component.isEmpty()) {
+                            if (builder.length() > 0) {
+                                // Add space between components
+                                builder.append(" ");
                             }
-                            // Retrieve the last sub-component
-                            component = subComponents[subComponents.length - 1];
-                        }
 
-                        // Capitalize the component (or the last sub-component)
-                        builder.append(component.substring(0, 1).toUpperCase());
-                        if (component.length() > 1) {
-                            builder.append(component.substring(1));
+                            // Check whether the component contains some '-'
+                            if (component.contains("-")) {
+                                // Capitalize each sub component
+                                String[] subComponents = component.split("-");
+                                for (int i = 0; i < subComponents.length - 1; i++) {
+                                    String subComponent = subComponents[i];
+                                    builder.append(subComponent.substring(0, 1).toUpperCase());
+                                    if (subComponent.length() > 1) {
+                                        builder.append(subComponent.substring(1));
+                                    }
+                                    builder.append("-");
+                                }
+                                // Retrieve the last sub-component
+                                component = subComponents[subComponents.length - 1];
+                            }
+
+                            // Capitalize the component (or the last sub-component)
+                            builder.append(component.substring(0, 1).toUpperCase());
+                            if (component.length() > 1) {
+                                builder.append(component.substring(1));
+                            }
                         }
                     }
-                }
-                displayName = builder.toString();
+                    displayName = builder.toString();
 
-                // TODO: decide if we should append the extracted domain. This is not relevant for
-                // the moment because of the test users.
+                    // TODO: decide if we should append the extracted domain. This is not relevant for
+                    // the moment because of the test users.
                 /*// add first term of domain
                 components = identifier.split("-");
                 if (components.length > 1) {
@@ -249,6 +266,7 @@ public class DinsicUtils {
                         }
                     }
                 }*/
+                }
             }
         }
 
@@ -274,11 +292,21 @@ public class DinsicUtils {
      * @return true if external
      */
     public static boolean isExternalTchapUser(String tchapUserId) {
-        String host = getHomeServerNameFromMXIdentifier(tchapUserId);
-        if (host != null) {
-            return (host.startsWith("e.") || host.startsWith("externe."));
+        String homeServerName = getHomeServerNameFromMXIdentifier(tchapUserId);
+        if (homeServerName != null) {
+            return isExternalTchapServer(homeServerName);
         }
         return true;
+    }
+
+    /**
+     * Tells whether a homeserver name corresponds to an external server or not
+     *
+     * @param homeServerName
+     * @return true if external
+     */
+    public static boolean isExternalTchapServer(@NonNull String homeServerName) {
+        return (homeServerName.startsWith("e.") || homeServerName.startsWith("agent.externe."));
     }
 
     /**
@@ -343,7 +371,7 @@ public class DinsicUtils {
         }
     }
 
-    public static void editContact(final FragmentActivity activity, final Context theContext,final ParticipantAdapterItem item) {
+    public static void editContact(final FragmentActivity activity, final Context theContext, final ParticipantAdapterItem item) {
         if (ContactsManager.getInstance().isContactBookAccessAllowed()) {
             //enterEmailAddress(item.mContact);
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
@@ -521,7 +549,7 @@ public class DinsicUtils {
             if (!DinsicUtils.isExternalTchapSession(session)) {
                 succeeded = true;
                 activity.showWaitingView();
-                session.createDirectMessageRoom(participantId, prepareDirectChatCallBack);
+                createDirectChat(session, participantId, prepareDirectChatCallBack);
             } else {
                 alertSimpleMsg(activity, activity.getString(R.string.room_creation_forbidden));
             }
@@ -711,6 +739,41 @@ public class DinsicUtils {
         }
     }
 
+    /**
+     * Create a direct chat room with one participant.<br>
+     * The participant can be a user ID or mail address. Once the room is created, on success, the room
+     * is set as a "direct message" with the participant.
+     *
+     * @param session            the current session
+     * @param participantUserId  user ID (or user mail) to be invited in the direct message room
+     * @param createRoomCallBack async call back response
+     * @return true if the invite was performed, false otherwise
+     */
+    public static boolean createDirectChat(final MXSession session, final String participantUserId, final ApiCallback<String> createRoomCallBack) {
+        boolean retCode = false;
+
+        if (!TextUtils.isEmpty(participantUserId)) {
+            retCode = true;
+            CreateRoomParams params = new CreateRoomParams();
+
+            params.setDirectMessage();
+            params.addParticipantIds(session.getHomeServerConfig(), Arrays.asList(participantUserId));
+
+            // Add the right room access rule
+            Event roomAccessRulesEvent = new Event();
+            roomAccessRulesEvent.type = RoomAccessRulesKt.STATE_EVENT_TYPE;
+            Map<String, String> contentMap = new HashMap<>();
+            contentMap.put(RoomAccessRulesKt.STATE_EVENT_CONTENT_KEY_RULE, RoomAccessRulesKt.DIRECT);
+            roomAccessRulesEvent.updateContent(JsonUtils.getGson(false).toJsonTree(contentMap));
+            roomAccessRulesEvent.stateKey = "";
+            params.initialStates = Arrays.asList(roomAccessRulesEvent);
+
+            session.createRoom(params, createRoomCallBack);
+        }
+
+        return retCode;
+    }
+
     //=============================================================================================
     // Handle Rooms
     //=============================================================================================
@@ -729,18 +792,6 @@ public class DinsicUtils {
 
         if (null != roomEmailInvitation) {
             signUrl = roomEmailInvitation.signUrl;
-        }
-
-        // Patch: Check in the current room state if a third party invite has been accepted by the tchap user.
-        // Save this information in the room preview data before joining the room
-        // because the room state will be flushed during this operation.
-        // This information will be useful to consider or not the new joined room as a direct chat (see onNewJoinedRoom).
-        RoomMember roomMember = room.getMember(session.getMyUserId());
-        if (null != roomMember && null != roomMember.thirdPartyInvite && null == roomPreviewData.getRoomState()) {
-            if (null != room.getState().memberWithThirdPartyInviteToken(roomMember.thirdPartyInvite.signed.token)) {
-                Log.d(LOG_TAG, "## joinRoom: save third party invites in the room preview.");
-                roomPreviewData.setRoomState(room.getState());
-            }
         }
 
         room.joinWithThirdPartySigned(roomPreviewData.getRoomIdOrAlias(), signUrl, callback);
@@ -770,45 +821,15 @@ public class DinsicUtils {
             }
 
             // Check whether this new room must be added to the user's direct chats before opening it.
-            if (2 == room.getNumberOfMembers() && !room.isDirect()) {
-                Boolean isDirect = false;
-
-                // Consider here the 3rd party invites for which the is_direct flag is not available.
-                // TODO Test this use case when the invite by email will be enabled again.
-                Collection<RoomThirdPartyInvite> thirdPartyInvites = room.getState().thirdPartyInvites();
-                // Consider the case where only one invite has been observed.
-                if (thirdPartyInvites.size() == 1) {
-                    Log.d(LOG_TAG, "## onNewJoinedRoom(): Consider the third party invite");
-                    RoomThirdPartyInvite invite = thirdPartyInvites.iterator().next();
-
-                    // Check whether the user has accepted this third party invite or not
-                    RoomMember roomMember = room.getState().memberWithThirdPartyInviteToken(invite.token);
-                    if (null != roomMember && roomMember.getUserId().equals(myUserId)) {
-                        isDirect = true;
-                    } else if (null != roomPreviewData.getRoomState()){
-                        // Most of the time the room state is not ready, the pagination is in progress
-                        // Consider here the room state saved in the room preview (before joining the room).
-                        roomMember = roomPreviewData.getRoomState().memberWithThirdPartyInviteToken(invite.token);
-                        if (null != roomMember && roomMember.getUserId().equals(myUserId)) {
-                            isDirect = true;
-                        }
+            if (getRoomAccessRule(room).equals(RoomAccessRulesKt.DIRECT) && !room.isDirect()) {
+                Log.d(LOG_TAG, "## onNewJoinedRoom(): this new joined room is direct");
+                CommonActivityUtils.setToggleDirectMessageRoom(session, roomPreviewData.getRoomId(), null, new SimpleApiCallback<Void>() {
+                    @Override
+                    public void onSuccess(Void info) {
+                        // Open the room activity for this room.
+                        CommonActivityUtils.goToRoomPage(activity, session, params);
                     }
-                }
-
-                // Check whether we have to update the direct dictionary before opening this room.
-                if (isDirect) {
-                    Log.d(LOG_TAG, "## onNewJoinedRoom(): this new joined room is direct");
-                    CommonActivityUtils.setToggleDirectMessageRoom(session, roomPreviewData.getRoomId(), null, new SimpleApiCallback<Void>() {
-                        @Override
-                        public void onSuccess(Void info) {
-                            // Open the room activity for this room.
-                            CommonActivityUtils.goToRoomPage(activity, session, params);
-                        }
-                    });
-                } else {
-                    // Open the room activity for this room.
-                    CommonActivityUtils.goToRoomPage(activity, session, params);
-                }
+                });
             } else {
                 // Open the room activity for this room.
                 CommonActivityUtils.goToRoomPage(activity, session, params);
@@ -881,9 +902,126 @@ public class DinsicUtils {
                     }
                 }
             }
+        } else if (MXPatterns.PATTERN_CONTAIN_MATRIX_USER_IDENTIFIER.matcher(displayName).matches()) {
+            displayName = computeDisplayNameFromUserId(displayName);
         }
 
         return displayName;
+    }
+
+    /**
+     * Tell whether users on other servers can join this room.
+     *
+     * @param room    the room.
+     * @return true if this is a federated room.
+     */
+    public static boolean isFederatedRoom(@NonNull Room room) {
+        RoomState roomState = room.getState();
+
+        RoomCreateContent roomCreateContent = roomState.getRoomCreateContent();
+        if (roomCreateContent != null && roomCreateContent.isFederated != null) {
+            return roomCreateContent.isFederated;
+        } else {
+            // The room is federated by default
+            return true;
+        }
+    }
+
+    /**
+     * Get the current room access rule.
+     *
+     * @param room    the room.
+     * @return the room access rule see {@link RoomAccessRulesKt}.
+     */
+    @NonNull
+    public static String getRoomAccessRule(@NonNull Room room) {
+        RoomState roomState = room.getState();
+
+        List<Event> roomAccessRulesEvents = roomState.getStateEvents(new HashSet<>(Arrays.asList(RoomAccessRulesKt.STATE_EVENT_TYPE)));
+        String rule = null;
+
+        if (roomAccessRulesEvents.isEmpty()) {
+            Log.d(LOG_TAG, "## getRoomAccessRule(): no rule is defined");
+        } else {
+            Event roomAccessRulesEvent = roomAccessRulesEvents.get(roomAccessRulesEvents.size() - 1);
+
+            // Sanity check: be sure to consider the most recent state event
+            for (int index = 0; index < roomAccessRulesEvents.size() - 1; index ++) {
+                Event event = roomAccessRulesEvents.get(index);
+                if (roomAccessRulesEvent.originServerTs < event.originServerTs) {
+                    roomAccessRulesEvent = event;
+                }
+            }
+
+            rule = RoomAccessRulesKt.getRule(roomAccessRulesEvent);
+            Log.d(LOG_TAG, "## getRoomAccessRule(): the rule " + rule + " is defined");
+        }
+
+        if (rule == null) {
+            // Consider here the rooms without room access rule
+            if (room.isDirect()) {
+                rule = RoomAccessRulesKt.DIRECT;
+
+//                // TODO or not here?: Add the corresponding state event in the room state
+//                setRoomAccessRule(session, room, RoomAccessRulesKt.DIRECT, new ApiCallback<Void>() {
+//                    @Override
+//                    public void onSuccess(Void info) {
+//                        Log.d(LOG_TAG, "## getRoomAccessRule(): the room access rules state event (direct) has been added in the room state");
+//                    }
+//
+//                    private void onError(String errorMessage) {
+//                        Log.e(LOG_TAG, "## getRoomAccessRule(): failed to add a room access rules state event " + errorMessage);
+//                    }
+//
+//                    @Override
+//                    public void onNetworkError(Exception e) {
+//                        onError(e.getMessage());
+//                    }
+//
+//                    @Override
+//                    public void onMatrixError(MatrixError e) {
+//                        onError(e.getMessage());
+//                    }
+//
+//                    @Override
+//                    public void onUnexpectedError(Exception e) {
+//                        onError(e.getMessage());
+//                    }
+//                });
+
+            } else {
+                rule = RoomAccessRulesKt.RESTRICTED;
+            }
+        }
+
+        return rule;
+    }
+
+    public static void setRoomAccessRule (MXSession session, Room room, @NonNull String rule, final ApiCallback<Void> callback) {
+
+        Map<String, Object> content = new HashMap<>();
+        content.put(RoomAccessRulesKt.STATE_EVENT_CONTENT_KEY_RULE, rule);
+
+        session.getRoomsApiClient().sendStateEvent(room.getRoomId(), RoomAccessRulesKt.STATE_EVENT_TYPE, "", content, callback);
+    }
+
+    /**
+     * Return the room avatar.
+     * Tchap client handles the room avatar with a different manner than the SDK one:
+     * - Do not use by default a member avatar for the room avatar, except for the direct chats.
+     *
+     * @param room    the room.
+     * @return the room avatar url.
+     */
+    @Nullable
+    public static String getRoomAvatarUrl(@NonNull Room room) {
+        String avatarUrl;
+        if (room.isDirect()) {
+            avatarUrl = room.getAvatarUrl();
+        } else {
+            avatarUrl = room.getState().getAvatarUrl();
+        }
+        return avatarUrl;
     }
 
     /* get contacts from direct chats */

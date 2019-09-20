@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/fragment_tchap_first_register"
@@ -10,7 +10,7 @@
     android:paddingRight="22dp"
     android:paddingStart="22dp">
 
-    <android.support.design.widget.TextInputLayout
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tchap_first_register_email_layout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -21,7 +21,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <android.support.design.widget.TextInputEditText
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/tchap_first_register_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -31,7 +31,7 @@
             android:textSize="16sp"
             tools:text="manu@gouv.fr" />
 
-    </android.support.design.widget.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
     <TextView
         android:id="@+id/tchap_first_register_email_help"
@@ -48,7 +48,7 @@
         android:textStyle="italic"
         app:layout_constraintTop_toBottomOf="@+id/tchap_first_register_email_layout" />
 
-    <android.support.design.widget.TextInputLayout
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tchap_first_register_password_layout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -59,7 +59,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tchap_first_register_email_help">
 
-        <android.support.design.widget.TextInputEditText
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/tchap_first_register_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -69,10 +69,24 @@
             android:textSize="16sp"
             tools:text="password" />
 
-    </android.support.design.widget.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
+    <TextView
+        android:id="@+id/tchap_first_register_password_help"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="4dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:layout_marginStart="4dp"
+        android:fontFamily="sans-serif"
+        android:text="@string/tchap_connection_password_help"
+        android:textColor="#a1a1a1"
+        android:textSize="11sp"
+        android:textStyle="italic"
+        app:layout_constraintTop_toBottomOf="@+id/tchap_first_register_password_layout" />
 
-    <android.support.design.widget.TextInputLayout
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tchap_first_register_password_confirm_layout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -81,9 +95,9 @@
         app:hintTextAppearance="@style/TchapTextInputLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tchap_first_register_password_layout">
+        app:layout_constraintTop_toBottomOf="@+id/tchap_first_register_password_help">
 
-        <android.support.design.widget.TextInputEditText
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/tchap_first_register_password_confirm"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -94,7 +108,7 @@
             android:textSize="16sp"
             tools:text="password" />
 
-    </android.support.design.widget.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

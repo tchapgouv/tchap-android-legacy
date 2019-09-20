@@ -22,9 +22,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.ExifInterface;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AlertDialog;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.MenuItem;
@@ -36,7 +36,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.jetbrains.annotations.NotNull;
-import org.matrix.androidsdk.core.MXPatterns;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.call.IMXCall;
 import org.matrix.androidsdk.crypto.MXCryptoError;
@@ -1174,7 +1173,7 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
         } else {
             // use a toolbar instead of the actionbar
             // to be able to display a large header
-            android.support.v7.widget.Toolbar toolbar = findViewById(R.id.room_toolbar);
+            androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.room_toolbar);
             setSupportActionBar(toolbar);
 
             if (null != getSupportActionBar()) {

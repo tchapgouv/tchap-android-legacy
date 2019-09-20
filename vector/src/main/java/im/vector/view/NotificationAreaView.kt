@@ -20,7 +20,7 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
 import android.preference.PreferenceManager
-import android.support.v4.content.ContextCompat
+import androidx.core.content.ContextCompat
 import android.text.SpannableString
 import android.text.TextPaint
 import android.text.TextUtils

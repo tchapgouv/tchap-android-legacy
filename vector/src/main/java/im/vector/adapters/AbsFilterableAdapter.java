@@ -18,7 +18,7 @@
 package im.vector.adapters;
 
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.widget.Filter;
 import android.widget.Filterable;
 

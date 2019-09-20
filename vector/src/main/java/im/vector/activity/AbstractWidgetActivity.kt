@@ -21,9 +21,9 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
-import android.support.annotation.CallSuper
+import androidx.annotation.CallSuper
 import android.webkit.*
-import androidx.core.widget.toast
+import org.jetbrains.anko.toast
 import butterknife.BindView
 import com.google.gson.reflect.TypeToken
 import im.vector.Matrix

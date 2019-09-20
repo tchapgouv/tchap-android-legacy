@@ -20,16 +20,15 @@ package fr.gouv.tchap.util;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Region;
 import android.util.AttributeSet;
 
-public class HexagonMaskView extends android.support.v7.widget.AppCompatImageView {
+public class HexagonMaskView extends androidx.appcompat.widget.AppCompatImageView {
     private Path hexagonPath;
-    private Path hexagonBorderPath;
-    private float radius;
     private float width, height;
-    private int maskColor;
+    private Paint borderPaint;
+    private int borderRatio;
 
     public HexagonMaskView(Context context) {
         super(context);
@@ -46,64 +45,82 @@ public class HexagonMaskView extends android.support.v7.widget.AppCompatImageVie
         init();
     }
 
+    /**
+     * Define the border settings
+     *
+     * @param color the border color (Color.LTGRAY by default).
+     * @param ratio the ratio of the border width to the radius of the hexagon (value between 0 and 100, default value: 3)
+     */
+    public void setBorderSettings(int color, int ratio) {
+        this.borderPaint.setColor(color);
+
+        if (ratio < 0) {
+            ratio = 0;
+        } else if (ratio > 100) {
+            ratio = 100;
+        }
+
+        if (this.borderRatio != ratio) {
+            this.borderRatio = ratio;
+            // The hexagon path must be updated
+            calculatePath();
+        } else {
+            invalidate();
+        }
+    }
+
     private void init() {
         hexagonPath = new Path();
-        hexagonBorderPath = new Path();
-        maskColor = Color.WHITE;
-    }
-
-    public void setRadius(float r) {
-        this.radius = r;
-        calculatePath();
-    }
-
-    public void setMaskColor(int color) {
-        this.maskColor = color;
-        invalidate();
+        borderPaint = new Paint();
+        borderPaint.setAntiAlias(true);
+        borderPaint.setStyle(Paint.Style.STROKE);
+        borderPaint.setColor(Color.LTGRAY);
+        borderRatio = 3;
     }
 
     private void calculatePath() {
-        float triangleHeight = (float) (Math.sqrt(3) * radius / 2);
+        // Compute the radius of the hexagon, and the border width
+        float radius = height/2;
+        float borderWidth = (radius * borderRatio)/100;
+        borderPaint.setStrokeWidth(borderWidth);
+
+        // Define the hexagon path by placing it in the middle of the border.
+        float pathRadius = radius - borderWidth/2;
+        float triangleHeight = (float) (Math.sqrt(3) * pathRadius / 2);
         float centerX = width/2;
         float centerY = height/2;
-        hexagonPath.moveTo(centerX, centerY + radius);
-        hexagonPath.lineTo(centerX - triangleHeight, centerY + radius/2);
-        hexagonPath.lineTo(centerX - triangleHeight, centerY - radius/2);
-        hexagonPath.lineTo(centerX, centerY - radius);
-        hexagonPath.lineTo(centerX + triangleHeight, centerY - radius/2);
-        hexagonPath.lineTo(centerX + triangleHeight, centerY + radius/2);
-        hexagonPath.moveTo(centerX, centerY + radius);
 
-        float radiusBorder = radius - 2;
-        float triangleBorderHeight = (float) (Math.sqrt(3) * radiusBorder / 2);
-        hexagonBorderPath.moveTo(centerX, centerY + radiusBorder);
-        hexagonBorderPath.lineTo(centerX - triangleBorderHeight, centerY + radiusBorder/2);
-        hexagonBorderPath.lineTo(centerX - triangleBorderHeight, centerY - radiusBorder/2);
-        hexagonBorderPath.lineTo(centerX, centerY - radiusBorder);
-        hexagonBorderPath.lineTo(centerX + triangleBorderHeight, centerY - radiusBorder/2);
-        hexagonBorderPath.lineTo(centerX + triangleBorderHeight, centerY + radiusBorder/2);
-        hexagonBorderPath.moveTo(centerX, centerY + radiusBorder);
+        hexagonPath.reset();
+        hexagonPath.moveTo(centerX, centerY + pathRadius);
+        hexagonPath.lineTo(centerX - triangleHeight, centerY + pathRadius/2);
+        hexagonPath.lineTo(centerX - triangleHeight, centerY - pathRadius/2);
+        hexagonPath.lineTo(centerX, centerY - pathRadius);
+        hexagonPath.lineTo(centerX + triangleHeight, centerY - pathRadius/2);
+        hexagonPath.lineTo(centerX + triangleHeight, centerY + pathRadius/2);
+        hexagonPath.lineTo(centerX, centerY + pathRadius);
+        // Add again the first segment to get the right display of the border.
+        hexagonPath.lineTo(centerX - triangleHeight, centerY + pathRadius/2);
         invalidate();
     }
 
     @Override
     public void onDraw(Canvas c){
+        // Apply a clip to draw the bitmap inside an hexagon shape
+        c.save();
+        c.clipPath(hexagonPath);
         super.onDraw(c);
-        c.clipPath(hexagonBorderPath, Region.Op.DIFFERENCE);
-        c.drawColor(Color.LTGRAY);
-        c.save();
-        c.clipPath(hexagonPath, Region.Op.DIFFERENCE);
-        c.drawColor(maskColor);
-        c.save();
+        // Restore the canvas context
+        c.restore();
+        // Draw the border
+        c.drawPath(hexagonPath, borderPaint);
     }
 
-    // getting the view size and default radius
+    // getting the view size
     @Override
     public void onMeasure(int widthMeasureSpec, int heightMeasureSpec){
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         width = this.getMeasuredWidth();
         height = this.getMeasuredHeight();
-        radius = height / 2;
         calculatePath();
     }
 }

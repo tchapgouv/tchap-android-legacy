@@ -23,8 +23,8 @@ buildscript {
 
 // global properties used in sub modules
 ext {
-    versionCodeProp = 52
-    versionNameProp = "1.0.29"
+    versionCodeProp = 53
+    versionNameProp = "1.0.30"
     versionBuild = System.getenv("BUILD_NUMBER") as Integer ?: 0
     buildNumberProp = "${versionBuild}"
 }
@@ -35,6 +35,10 @@ allprojects {
     ext.okhttp_version = '3.12.3'
 
     repositories {
+        // Jitsi repo
+        maven {
+            url "https://github.com/vector-im/jitsi_libre_maven/raw/master/releases"
+        }
         google()
         jcenter()
         maven {
@@ -42,10 +46,6 @@ allprojects {
         }
         maven {
             url "https://jitpack.io"
-        }
-        // Jitsi repo
-        maven {
-            url "https://github.com/jitsi/jitsi-maven-repository/raw/master/releases"
         }
     }
 }

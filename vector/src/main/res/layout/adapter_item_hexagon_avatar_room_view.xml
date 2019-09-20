@@ -6,11 +6,11 @@
     android:layout_height="match_parent">
 
     <fr.gouv.tchap.util.HexagonMaskView
-        android:id="@+id/room_avatar"
-        android:layout_width="@dimen/chat_avatar_size"
-        android:layout_height="@dimen/chat_avatar_size"
-        android:maxWidth="@dimen/chat_avatar_size"
-        android:maxHeight="@dimen/chat_avatar_size"
+        android:id="@+id/room_avatar_hexagon"
+        android:layout_width="@dimen/hexagonal_avatar_size"
+        android:layout_height="@dimen/hexagonal_avatar_size"
+        android:maxWidth="@dimen/hexagonal_avatar_size"
+        android:maxHeight="@dimen/hexagonal_avatar_size"
         android:scaleType="centerCrop"
         android:adjustViewBounds="true"
         android:background="@color/riot_primary_background_color_light"
