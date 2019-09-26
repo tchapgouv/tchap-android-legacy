@@ -1,3 +1,9 @@
+Changes in Tchap 1.0.31 (2019-09-26)
+===================================================
+
+Only one change:
+ * Force a cache clearing to handle correctly the recent changes.
+
 Changes in Tchap 1.0.30 (2019-09-19)
 ===================================================
 
