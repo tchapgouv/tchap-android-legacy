@@ -267,7 +267,7 @@ dependencies {
     //implementation project(':matrix-sdk-core')
 
     /************* jitsi **************/
-    withvoipImplementation('org.jitsi.react:jitsi-meet-sdk:2.2.2@aar')
+    withvoipImplementation('org.jitsi.react:jitsi-meet-sdk:2.2.2')
 
     // another tracking than GA
     implementation 'org.piwik.sdk:piwik-sdk:2.0.0'
