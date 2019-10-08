@@ -70,9 +70,9 @@
 
         <!-- list colors -->
         <!--Header/Panel Background-->
-        <item name="vctr_list_header_background_color">#FFF3F8FD</item>
+        <item name="vctr_list_header_background_color">#FFF6F6F6</item>
         <!--Header/Panel Text Primary-->
-        <item name="vctr_list_header_primary_text_color">#FF61708B</item>
+        <item name="vctr_list_header_primary_text_color">#FF000000</item>
         <!--Header/Panel Text Secondary-->
         <item name="vctr_list_header_secondary_text_color">#FFC8C8CD</item>
 

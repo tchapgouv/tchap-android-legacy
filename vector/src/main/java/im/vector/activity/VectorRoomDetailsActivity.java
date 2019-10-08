@@ -23,7 +23,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 
 import android.text.TextUtils;
@@ -83,7 +82,6 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
     public static final int SETTINGS_TAB_INDEX = 2;
 
     private int mCurrentTabIndex = -1;
-    private Toolbar mToolbar;
     private ActionBar mActionBar;
 
     @BindView(R.id.tab_layout)
@@ -173,10 +171,7 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
         // UI widgets binding & init fields
         setWaitingView(findViewById(R.id.settings_loading_layout));
 
-        // tab creation and restore tabs UI context
-        // use a toolbar instead of the actionbar
-        mToolbar = findViewById(R.id.room_toolbar);
-        setSupportActionBar(mToolbar);
+        configureToolbar();
 
         if (null != getSupportActionBar()) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);

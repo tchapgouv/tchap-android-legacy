@@ -227,7 +227,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragmentCompat(), SharedPref
         findPreference(PreferencesManager.SETTINGS_ENABLE_BACKGROUND_SYNC_PREFERENCE_KEY) as SwitchPreference
     }
 //    private val mUseRiotCallRingtonePreference by lazy {
-//        findPreference(PreferencesManager.SETTINGS_CALL_RINGTONE_USE_RIOT_PREFERENCE_KEY) as CheckBoxPreference
+//        findPreference(PreferencesManager.SETTINGS_CALL_RINGTONE_USE_RIOT_PREFERENCE_KEY) as SwitchPreference
 //    }
 //    private val mCallRingtonePreference by lazy {
 //        findPreference(PreferencesManager.SETTINGS_CALL_RINGTONE_URI_PREFERENCE_KEY)
@@ -266,15 +266,15 @@ class VectorSettingsPreferencesFragment : PreferenceFragmentCompat(), SharedPref
 
 //    // encrypt to unverified devices
 //    private val sendToUnverifiedDevicesPref by lazy {
-//        findPreference(PreferencesManager.SETTINGS_ENCRYPTION_NEVER_SENT_TO_PREFERENCE_KEY) as CheckBoxPreference
+//        findPreference(PreferencesManager.SETTINGS_ENCRYPTION_NEVER_SENT_TO_PREFERENCE_KEY) as SwitchPreference
 //    }
 
     private val hideFromUsersDirectoryPreference by lazy {
-        findPreference(PreferencesManager.SETTINGS_HIDE_FROM_USERS_DIRECTORY_KEY) as CheckBoxPreference
+        findPreference(PreferencesManager.SETTINGS_HIDE_FROM_USERS_DIRECTORY_KEY) as SwitchPreference
     }
 
     private val showJoinLeaveMessagesPreference by lazy {
-        findPreference(PreferencesManager.SETTINGS_SHOW_JOIN_LEAVE_MESSAGES_KEY) as CheckBoxPreference
+        findPreference(PreferencesManager.SETTINGS_SHOW_JOIN_LEAVE_MESSAGES_KEY) as SwitchPreference
     }
 
     /* ==========================================================================================
@@ -473,7 +473,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragmentCompat(), SharedPref
         refreshIgnoredUsersList()
 
         // Lab
-//        val useCryptoPref = findPreference(PreferencesManager.SETTINGS_ROOM_SETTINGS_LABS_END_TO_END_PREFERENCE_KEY) as CheckBoxPreference
+//        val useCryptoPref = findPreference(PreferencesManager.SETTINGS_ROOM_SETTINGS_LABS_END_TO_END_PREFERENCE_KEY) as SwitchPreference
 //        val cryptoIsEnabledPref = findPreference(PreferencesManager.SETTINGS_ROOM_SETTINGS_LABS_END_TO_END_IS_ACTIVE_PREFERENCE_KEY)
 //
 //        if (mSession.isCryptoEnabled) {

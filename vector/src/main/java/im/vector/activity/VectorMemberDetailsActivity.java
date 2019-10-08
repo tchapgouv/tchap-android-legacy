@@ -1175,10 +1175,7 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
             Log.e(LOG_TAG, "## onCreate(): Parameters init failure");
             finish();
         } else {
-            // use a toolbar instead of the actionbar
-            // to be able to display a large header
-            androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.room_toolbar);
-            setSupportActionBar(toolbar);
+            configureToolbar();
 
             if (null != getSupportActionBar()) {
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);

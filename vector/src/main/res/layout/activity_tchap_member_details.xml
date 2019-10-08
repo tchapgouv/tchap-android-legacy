@@ -15,7 +15,7 @@
         android:layout_height="wrap_content">
 
         <androidx.appcompat.widget.Toolbar
-            android:id="@+id/room_toavatar_imgolbar"
+            android:id="@+id/toolbar"
             style="@style/TchapRoomToolbarStyle"
             android:layout_width="match_parent"
             android:layout_height="72dp"

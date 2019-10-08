@@ -22,9 +22,7 @@ import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.fragment.app.FragmentManager;
-import androidx.appcompat.app.ActionBar;
 import android.view.MenuItem;
-import android.view.View;
 
 import org.matrix.androidsdk.fragments.MatrixMessageListFragment;
 import org.matrix.androidsdk.listeners.MXEventListener;
@@ -55,7 +53,6 @@ public class TchapDirectRoomDetailsActivity extends TchapContactActionBarActivit
     private String mRoomId;
     private String mMatrixId;
 
-    private androidx.appcompat.widget.Toolbar mToolbar;
     private FragmentManager mFragmentManager;
 
     private final MXEventListener mEventListener = new MXEventListener() {
@@ -119,10 +116,7 @@ public class TchapDirectRoomDetailsActivity extends TchapContactActionBarActivit
         // UI widgets binding & init fields
         setWaitingView(findViewById(R.id.settings_loading_layout));
 
-        // use a toolbar instead of the actionbar
-
-        mToolbar = findViewById(R.id.room_toolbar);
-        setSupportActionBar(mToolbar);
+        configureToolbar();
 
         mFragmentManager = getSupportFragmentManager();
         if (null != getSupportActionBar()) {

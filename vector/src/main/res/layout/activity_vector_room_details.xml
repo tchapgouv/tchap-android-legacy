@@ -10,7 +10,7 @@
         android:id="@+id/room_details_head">
 
         <androidx.appcompat.widget.Toolbar
-            android:id="@+id/room_toolbar"
+            android:id="@+id/toolbar"
             style="@style/TchapRoomToolbarStyle"
             android:layout_width="match_parent"
             android:layout_height="72dp"
@@ -27,7 +27,7 @@
         android:id="@+id/tab_layout"
         android:layout_width="match_parent"
         android:layout_height="45dp"
-        android:layout_below="@+id/room_toolbar"
+        android:layout_below="@+id/toolbar"
 
         app:tabGravity="fill"
         app:tabIndicatorColor="@color/tchap_text_color_light"
