@@ -37,9 +37,9 @@ import org.matrix.androidsdk.call.IMXCallsManagerListener;
 import org.matrix.androidsdk.call.MXCallListener;
 import org.matrix.androidsdk.call.MXCallsManagerListener;
 import org.matrix.androidsdk.call.VideoLayoutConfiguration;
+import org.matrix.androidsdk.core.Log;
 import org.matrix.androidsdk.crypto.data.MXDeviceInfo;
 import org.matrix.androidsdk.crypto.data.MXUsersDevicesMap;
-import org.matrix.androidsdk.core.Log;
 
 import java.util.List;
 
@@ -49,7 +49,7 @@ import im.vector.VectorApp;
 import im.vector.activity.VectorCallViewActivity;
 import im.vector.activity.VectorHomeActivity;
 import im.vector.notifications.NotificationUtils;
-import im.vector.services.EventStreamService;
+import im.vector.services.CallService;
 
 /**
  * This class contains the call toolbox.
@@ -230,10 +230,13 @@ public class CallsManager {
                     switch (state) {
                         case IMXCall.CALL_STATE_CREATED:
                             if (mActiveCall.isIncoming()) {
-                                if (EventStreamService.getInstance() != null) {
-                                    EventStreamService.getInstance().displayIncomingCallNotification(mActiveCall.getSession(),
-                                            mActiveCall.getRoom(), null, mActiveCall.getCallId(), null);
-                                }
+                                CallService.Companion.onIncomingCall(mContext,
+                                        mActiveCall.isVideo(),
+                                        mActiveCall.getRoom().getRoomDisplayName(mContext),
+                                        mActiveCall.getRoom().getRoomId(),
+                                        mActiveCall.getSession().getMyUserId(),
+                                        mActiveCall.getCallId());
+
                                 startRinging();
                             }
                             break;
@@ -248,10 +251,13 @@ public class CallsManager {
                             break;
 
                         case IMXCall.CALL_STATE_CONNECTED:
-                            if (EventStreamService.getInstance() != null) {
-                                EventStreamService.getInstance().displayCallInProgressNotification(mActiveCall.getSession(),
-                                        mActiveCall.getRoom(), mActiveCall.getCallId());
-                            }
+                            CallService.Companion.onPendingCall(mContext,
+                                    mActiveCall.isVideo(),
+                                    mActiveCall.getRoom().getRoomDisplayName(mContext),
+                                    mActiveCall.getRoom().getRoomId(),
+                                    mActiveCall.getSession().getMyUserId(),
+                                    mActiveCall.getCallId());
+
                             mCallSoundsManager.stopSounds();
                             requestAudioFocus();
 
@@ -481,9 +487,7 @@ public class CallsManager {
         if ((null != mActiveCall) && !hasActiveCall) {
             Log.e(LOG_TAG, "## checkDeadCalls() : fix an infinite ringing");
 
-            if (EventStreamService.getInstance() != null) {
-                EventStreamService.getInstance().hideCallNotifications();
-            }
+            CallService.Companion.onNoActiveCall(mContext);
 
             releaseCall();
         }
@@ -662,9 +666,7 @@ public class CallsManager {
             mCallView = null;
             mLocalVideoLayoutConfig = null;
 
-            if (EventStreamService.getInstance() != null) {
-                EventStreamService.getInstance().hideCallNotifications();
-            }
+            CallService.Companion.onNoActiveCall(mContext);
         }
     }
 }

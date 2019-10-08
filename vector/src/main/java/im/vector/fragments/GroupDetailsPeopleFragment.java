@@ -19,39 +19,36 @@
 package im.vector.fragments;
 
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.widget.Filter;
+
+import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.SearchView;
-import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Filter;
 
 import org.matrix.androidsdk.rest.model.group.GroupUser;
 
 import butterknife.BindView;
 import im.vector.R;
-
 import im.vector.adapters.GroupDetailsPeopleAdapter;
 import im.vector.util.GroupUtils;
 import im.vector.view.EmptyViewItemDecoration;
 import im.vector.view.SimpleDividerItemDecoration;
 
 public class GroupDetailsPeopleFragment extends GroupDetailsBaseFragment {
-    @BindView(R.id.recyclerview)
+    @BindView(R.id.people_recyclerview)
     RecyclerView mRecycler;
 
-    @BindView(R.id.search_view)
+    @BindView(R.id.people_search_view)
     SearchView mSearchView;
 
     private GroupDetailsPeopleAdapter mAdapter;
     private String mCurrentFilter;
 
     @Override
-    public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_group_details_people, container, false);
+    public int getLayoutResId() {
+        return R.layout.fragment_group_details_people;
     }
 
     @Override
@@ -78,7 +75,7 @@ public class GroupDetailsPeopleFragment extends GroupDetailsBaseFragment {
     @Override
     protected void initViews() {
         int margin = (int) getResources().getDimension(R.dimen.item_decoration_left_margin);
-        mRecycler.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
+        mRecycler.setLayoutManager(new LinearLayoutManager(getActivity(), RecyclerView.VERTICAL, false));
         mRecycler.addItemDecoration(new SimpleDividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL, margin));
         mRecycler.addItemDecoration(new EmptyViewItemDecoration(getActivity(), DividerItemDecoration.VERTICAL, 40, 16, 14));
         mAdapter = new GroupDetailsPeopleAdapter(getActivity(), new GroupDetailsPeopleAdapter.OnSelectUserListener() {

@@ -19,9 +19,6 @@ package im.vector.activity;
 
 import android.content.Context;
 import android.content.Intent;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
-import androidx.appcompat.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -31,16 +28,17 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.jetbrains.annotations.NotNull;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+
 import org.matrix.androidsdk.MXSession;
+import org.matrix.androidsdk.core.Log;
 import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.core.model.MatrixError;
 import org.matrix.androidsdk.rest.model.pid.ThreePid;
-import org.matrix.androidsdk.core.Log;
 
 import im.vector.Matrix;
 import im.vector.R;
-import im.vector.ui.themes.ActivityOtherThemes;
 
 public class PhoneNumberVerificationActivity extends VectorAppCompatActivity implements TextView.OnEditorActionListener, TextWatcher {
 
@@ -78,12 +76,6 @@ public class PhoneNumberVerificationActivity extends VectorAppCompatActivity imp
      * *********************************************************************************************
      */
 
-    @NotNull
-    @Override
-    public ActivityOtherThemes getOtherThemes() {
-        return ActivityOtherThemes.NoActionBar.INSTANCE;
-    }
-
     @Override
     public int getLayoutRes() {
         return R.layout.activity_phone_number_verification;
@@ -96,12 +88,7 @@ public class PhoneNumberVerificationActivity extends VectorAppCompatActivity imp
 
     @Override
     public void initUiAndData() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (null != getSupportActionBar()) {
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
+        configureToolbar();
 
         mPhoneNumberCode = findViewById(R.id.phone_number_code_value);
         mPhoneNumberCodeLayout = findViewById(R.id.phone_number_code);

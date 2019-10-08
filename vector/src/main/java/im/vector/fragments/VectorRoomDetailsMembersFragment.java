@@ -25,18 +25,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
@@ -46,20 +41,25 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
 import org.jetbrains.anko.ToastsKt;
+import org.jetbrains.annotations.NotNull;
 import org.matrix.androidsdk.MXSession;
+import org.matrix.androidsdk.core.Log;
+import org.matrix.androidsdk.core.callback.ApiCallback;
+import org.matrix.androidsdk.core.callback.SimpleApiCallback;
+import org.matrix.androidsdk.core.model.MatrixError;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomState;
 import org.matrix.androidsdk.db.MXMediaCache;
 import org.matrix.androidsdk.listeners.MXEventListener;
-import org.matrix.androidsdk.core.callback.ApiCallback;
-import org.matrix.androidsdk.core.callback.SimpleApiCallback;
+import org.matrix.androidsdk.rest.model.pid.RoomThirdPartyInvite;
 import org.matrix.androidsdk.rest.model.Event;
-import org.matrix.androidsdk.core.model.MatrixError;
 import org.matrix.androidsdk.rest.model.PowerLevels;
 import org.matrix.androidsdk.rest.model.User;
-import org.matrix.androidsdk.core.Log;
-import org.matrix.androidsdk.rest.model.pid.RoomThirdPartyInvite;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -69,6 +69,7 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import butterknife.BindView;
 import fr.gouv.tchap.sdk.session.room.model.RoomAccessRulesKt;
 import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.R;
@@ -97,9 +98,11 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
     private Room mRoom;
 
     // fragment items
-    private View mProgressView;
+    @BindView(R.id.add_participants_progress_view)
+    View mProgressView;
     private VectorRoomDetailsMembersAdapter mAdapter;
-    private ExpandableListView mParticipantsListView;
+    @BindView(R.id.room_details_members_exp_list_view)
+    ExpandableListView mParticipantsListView;
     private Map<Integer, Boolean> mIsListViewGroupExpandedMap;
 
     private boolean mIsMultiSelectionMode;
@@ -321,14 +324,16 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
         }
     };
 
-
-    // top view
-    private View mViewHierarchy;
-    private EditText mPatternToSearchEditText;
-    private TextView mSearchNoResultTextView;
-    private ImageView mClearSearchImageView;
-    private String mPatternValue;
-    private View mAddMembersButton;
+    // search room members management
+    @BindView(R.id.search_value_edit_text)
+    EditText mPatternToSearchEditText;
+    @BindView(R.id.search_no_results_text_view)
+    TextView mSearchNoResultTextView;
+    @BindView(R.id.clear_search_icon_image_view)
+    ImageView mClearSearchImageView;
+    String mPatternValue;
+    @BindView(R.id.ly_invite_contacts_to_room)
+    View mAddMembersButton;
 
     // create an instance of the fragment
     public static VectorRoomDetailsMembersFragment newInstance() {
@@ -452,10 +457,14 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
         }
     }
 
-    @SuppressLint("LongLogTag")
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mViewHierarchy = inflater.inflate(R.layout.fragment_vector_add_participants, container, false);
+    public int getLayoutResId() {
+        return R.layout.fragment_vector_add_participants;
+    }
+
+    @Override
+    public void onViewCreated(@NotNull View view, @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         Activity activity = getActivity();
 
@@ -468,7 +477,7 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
             if ((null != mSession) && mSession.isAlive()) {
                 finalizeInit();
             } else {
-                Log.e(LOG_TAG, "## onCreateView : the session is null -> kill the activity");
+                Log.e(LOG_TAG, "## onViewCreated : the session is null -> kill the activity");
                 if (null != getActivity()) {
                     getActivity().finish();
                 }
@@ -489,8 +498,6 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
         setHasOptionsMenu(true);
 
         mUIHandler = new Handler(Looper.getMainLooper());
-
-        return mViewHierarchy;
     }
 
     @Override
@@ -501,7 +508,7 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
         }
 
         // Inflate the menu; this adds items to the action bar if it is present.
-        getActivity().getMenuInflater().inflate(R.menu.vector_room_details_add_people, menu);
+        inflater.inflate(R.menu.vector_room_details_add_people, menu);
         ThemeUtils.INSTANCE.tintMenuIcons(menu, ThemeUtils.INSTANCE.getColor(getContext(), R.attr.vctr_icon_tint_on_dark_action_bar_color));
 
         mRemoveMembersMenuItem = menu.findItem(R.id.ic_action_room_details_delete);
@@ -885,8 +892,6 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
     private void finalizeInit() {
         MXMediaCache mxMediaCache = mSession.getMediaCache();
 
-        mAddMembersButton = mViewHierarchy.findViewById(R.id.ly_invite_contacts_to_room);
-
         mAddMembersButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -908,11 +913,6 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
                 getActivity().startActivityForResult(intent, INVITE_USER_REQUEST_CODE);
             }
         });
-
-        // search room members management
-        mPatternToSearchEditText = mViewHierarchy.findViewById(R.id.search_value_edit_text);
-        mClearSearchImageView = mViewHierarchy.findViewById(R.id.clear_search_icon_image_view);
-        mSearchNoResultTextView = mViewHierarchy.findViewById(R.id.search_no_results_text_view);
 
         // add IME search action handler
         mPatternToSearchEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -945,8 +945,6 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
             }
         });
 
-        mProgressView = mViewHierarchy.findViewById(R.id.add_participants_progress_view);
-        mParticipantsListView = mViewHierarchy.findViewById(R.id.room_details_members_exp_list_view);
         mAdapter = new VectorRoomDetailsMembersAdapter(getActivity(),
                 R.layout.adapter_item_vector_add_participants, R.layout.adapter_item_vector_recent_header, mSession, mRoom.getRoomId(), mxMediaCache);
         mParticipantsListView.setAdapter(mAdapter);

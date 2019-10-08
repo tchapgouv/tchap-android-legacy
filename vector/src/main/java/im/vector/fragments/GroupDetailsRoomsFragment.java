@@ -19,15 +19,13 @@
 package im.vector.fragments;
 
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.widget.Filter;
+
+import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.SearchView;
-import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Filter;
 
 import org.matrix.androidsdk.core.callback.SuccessCallback;
 import org.matrix.androidsdk.rest.model.group.GroupRoom;
@@ -40,18 +38,18 @@ import im.vector.view.EmptyViewItemDecoration;
 import im.vector.view.SimpleDividerItemDecoration;
 
 public class GroupDetailsRoomsFragment extends GroupDetailsBaseFragment {
-    @BindView(R.id.recyclerview)
+    @BindView(R.id.group_recyclerview)
     RecyclerView mRecycler;
 
-    @BindView(R.id.search_view)
+    @BindView(R.id.group_search_view)
     SearchView mSearchView;
 
     private GroupDetailsRoomsAdapter mAdapter;
     private String mCurrentFilter;
 
     @Override
-    public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_group_details_rooms, container, false);
+    public int getLayoutResId() {
+        return R.layout.fragment_group_details_rooms;
     }
 
     @Override
@@ -79,7 +77,7 @@ public class GroupDetailsRoomsFragment extends GroupDetailsBaseFragment {
     @Override
     protected void initViews() {
         int margin = (int) getResources().getDimension(R.dimen.item_decoration_left_margin);
-        mRecycler.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
+        mRecycler.setLayoutManager(new LinearLayoutManager(getActivity(), RecyclerView.VERTICAL, false));
         mRecycler.addItemDecoration(new SimpleDividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL, margin));
         mRecycler.addItemDecoration(new EmptyViewItemDecoration(getActivity(), DividerItemDecoration.VERTICAL, 40, 16, 14));
         mAdapter = new GroupDetailsRoomsAdapter(getActivity(), new GroupDetailsRoomsAdapter.OnSelectRoomListener() {

@@ -17,15 +17,16 @@
 package im.vector.adapters;
 
 import android.content.Context;
-import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
+
 import org.matrix.androidsdk.MXSession;
-import org.matrix.androidsdk.rest.model.group.GroupRoom;
 import org.matrix.androidsdk.core.Log;
+import org.matrix.androidsdk.rest.model.group.GroupRoom;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -35,7 +36,7 @@ import im.vector.util.VectorUtils;
 public class GroupRoomViewHolder extends RecyclerView.ViewHolder {
     private static final String LOG_TAG = GroupRoomViewHolder.class.getSimpleName();
 
-    @BindView(R.id.contact_avatar)
+    @BindView(R.id.adapter_item_group_contact_avatar)
     ImageView vContactAvatar;
 
     @BindView(R.id.contact_name)

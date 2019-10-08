@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         app:layout_constraintTop_toTopOf="parent"
-        android:background="?attr/vctr_primary_color"
+        android:background="?colorPrimary"
         tools:title="Title of the web page" />
 
     <WebView

@@ -2,6 +2,7 @@
  * Copyright 2014 OpenMarket Ltd
  * Copyright 2017 Vector Creations Ltd
  * Copyright 2018 New Vector Ltd
+ * Copyright 2019 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +25,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -32,10 +32,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.preference.PreferenceManager;
-import androidx.multidex.MultiDex;
 import androidx.multidex.MultiDexApplication;
 import android.text.TextUtils;
+
+import androidx.annotation.Nullable;
+import androidx.lifecycle.ProcessLifecycleOwner;
 
 import com.facebook.stetho.Stetho;
 
@@ -66,10 +67,12 @@ import im.vector.analytics.AppAnalytics;
 import im.vector.analytics.e2e.DecryptionFailureTracker;
 import im.vector.contacts.ContactsManager;
 import im.vector.contacts.PIDsRetriever;
+import im.vector.notifications.NotificationDrawerManager;
+import im.vector.notifications.NotificationUtils;
 import im.vector.push.PushManager;
-import im.vector.services.EventStreamService;
 import im.vector.settings.FontScale;
 import im.vector.settings.VectorLocale;
+import im.vector.tools.VectorUncaughtExceptionHandler;
 import im.vector.ui.themes.ThemeUtils;
 import im.vector.util.CallsManager;
 import im.vector.util.PermissionsToolsKt;
@@ -79,15 +82,13 @@ import im.vector.util.RageShake;
 import im.vector.util.VectorMarkdownParser;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
+import im.vector.util.VectorUtils;
 
 /**
  * The main application injection point
  */
 public class VectorApp extends MultiDexApplication {
     private static final String LOG_TAG = VectorApp.class.getSimpleName();
-
-    // key to save the crash status
-    private static final String PREFS_CRASH_KEY = "PREFS_CRASH_KEY";
 
     /**
      * The current instance.
@@ -138,6 +139,17 @@ public class VectorApp extends MultiDexApplication {
      */
     private VectorMarkdownParser mMarkdownParser;
 
+    private NotificationDrawerManager mNotificationDrawerManager;
+
+    public NotificationDrawerManager getNotificationDrawerManager() {
+        return mNotificationDrawerManager;
+    }
+
+    /**
+     * Lifecycle observer to start/stop eventstream service
+     */
+    private VectorLifeCycleObserver mLifeCycleListener;
+
     /**
      * Calls manager
      */
@@ -181,12 +193,6 @@ public class VectorApp extends MultiDexApplication {
     };
 
     @Override
-    protected void attachBaseContext(Context base) {
-        super.attachBaseContext(base);
-        MultiDex.install(this);
-    }
-
-    @Override
     public void onCreate() {
         Log.d(LOG_TAG, "onCreate");
         super.onCreate();
@@ -199,17 +205,31 @@ public class VectorApp extends MultiDexApplication {
                 .build();
         Realm.setDefaultConfiguration(config);
 
+//        PreferencesManager.setIntegrationManagerUrls(this,
+//                getString(R.string.integrations_ui_url),
+//                getString(R.string.integrations_rest_url),
+//                getString(R.string.integrations_jitsi_widget_url));
+
+        mLifeCycleListener = new VectorLifeCycleObserver();
+        ProcessLifecycleOwner.get().getLifecycle().addObserver(mLifeCycleListener);
+
         if (BuildConfig.DEBUG) {
             Stetho.initializeWithDefaults(this);
         }
 
+        VectorUtils.initAvatarColors(this);
+        mNotificationDrawerManager = new NotificationDrawerManager(this);
+        NotificationUtils.INSTANCE.createNotificationChannels(this);
+
         // init the REST client
         MXSession.initUserAgent(this, BuildConfig.FLAVOR);
+
+        VectorUncaughtExceptionHandler.INSTANCE.activate();
 
         instance = this;
         mCallsManager = new CallsManager(this);
         // Tchap disable analytics
-        mAppAnalytics = new AppAnalytics(this);//new PiwikAnalytics(this));
+        mAppAnalytics = new AppAnalytics(this);//, new MatomoAnalytics(this));
         mDecryptionFailureTracker = new DecryptionFailureTracker(mAppAnalytics);
 
         mActivityTransitionTimer = null;
@@ -223,6 +243,9 @@ public class VectorApp extends MultiDexApplication {
         } else {
             SDK_VERSION_STRING = "";
         }
+
+        VectorUncaughtExceptionHandler.INSTANCE.setVersions(VECTOR_VERSION_STRING, SDK_VERSION_STRING);
+
         mLogsDirectoryFile = new File(getCacheDir().getAbsolutePath() + "/logs");
 
         org.matrix.androidsdk.core.Log.setLogDirectory(mLogsDirectoryFile);
@@ -253,7 +276,7 @@ public class VectorApp extends MultiDexApplication {
             public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
                 Log.d(LOG_TAG, "onActivityCreated " + activity);
                 mCreatedActivities.add(activity.toString());
-                // piwik
+                // matomo
                 onNewScreen(activity);
             }
 
@@ -393,12 +416,12 @@ public class VectorApp extends MultiDexApplication {
      * Suspend background threads.
      */
     private void suspendApp() {
-        PushManager pushManager = Matrix.getInstance(VectorApp.this).getPushManager();
+        PushManager pushManager = Matrix.getInstance(this).getPushManager();
 
         // suspend the events thread if the client uses FCM
         if (!pushManager.isBackgroundSyncAllowed() || (pushManager.useFcm() && pushManager.hasRegistrationToken())) {
             Log.d(LOG_TAG, "suspendApp ; pause the event stream");
-            CommonActivityUtils.pauseEventStream(VectorApp.this);
+            //CommonActivityUtils.pauseEventStream(this);
         } else {
             Log.d(LOG_TAG, "suspendApp ; the event stream is not paused because FCM is disabled.");
         }
@@ -415,7 +438,7 @@ public class VectorApp extends MultiDexApplication {
                 // remove older medias
                 if ((System.currentTimeMillis() - mLastMediasCheck) < (24 * 60 * 60 * 1000)) {
                     mLastMediasCheck = System.currentTimeMillis();
-                    session.removeMediaBefore(VectorApp.this, PreferencesManager.getMinMediasLastAccessTime(getApplicationContext()));
+                    session.removeMediaBefore(this, PreferencesManager.getMinMediasLastAccessTime(getApplicationContext()));
                 }
 
                 if (session.getDataHandler().areLeftRoomsSynced()) {
@@ -510,19 +533,13 @@ public class VectorApp extends MultiDexApplication {
         }
 
         if (isAppInBackground() && !mIsCallingInBackground) {
-            // the event stream service has been killed
-            if (EventStreamService.isStopped()) {
-                CommonActivityUtils.startEventStreamService(VectorApp.this);
-            } else {
-                CommonActivityUtils.resumeEventStream(VectorApp.this);
 
-                // try to perform a FCM registration if it failed
-                // or if the FCM server generated a new push key
-                PushManager pushManager = Matrix.getInstance(this).getPushManager();
+            // try to perform a FCM registration if it failed
+            // or if the FCM server generated a new push key
+            PushManager pushManager = Matrix.getInstance(this).getPushManager();
 
-                if (null != pushManager) {
-                    pushManager.checkRegistrations();
-                }
+            if (null != pushManager) {
+                pushManager.checkRegistrations();
             }
 
             // get the contact update at application launch
@@ -555,7 +572,7 @@ public class VectorApp extends MultiDexApplication {
      *
      * @param activity the current activity, null if there is no more one.
      */
-    private void setCurrentActivity(Activity activity) {
+    private void setCurrentActivity(@Nullable Activity activity) {
         Log.d(LOG_TAG, "## setCurrentActivity() : from " + mCurrentActivity + " to " + activity);
 
         if (VectorApp.isAppInBackground() && (null != activity)) {
@@ -585,7 +602,7 @@ public class VectorApp extends MultiDexApplication {
         mCurrentActivity = activity;
 
         if (null != mCurrentActivity) {
-            KeyRequestHandler.getSharedInstance().processNextRequest();
+            PopupAlertManager.INSTANCE.onNewActivityDisplayed(mCurrentActivity);
         }
     }
 
@@ -747,27 +764,6 @@ public class VectorApp extends MultiDexApplication {
         return isSyncing;
     }
 
-    /**
-     * Tells if the application crashed
-     *
-     * @return true if the application crashed
-     */
-    public boolean didAppCrash() {
-        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(VectorApp.getInstance());
-        return preferences.getBoolean(PREFS_CRASH_KEY, false);
-    }
-
-
-    /**
-     * Clear the crash status
-     */
-    public void clearAppCrashStatus() {
-        PreferenceManager.getDefaultSharedPreferences(VectorApp.getInstance())
-                .edit()
-                .remove(PREFS_CRASH_KEY)
-                .apply();
-    }
-
     //==============================================================================================================
     // Locale management
     //==============================================================================================================
@@ -909,5 +905,6 @@ public class VectorApp extends MultiDexApplication {
     private void onAppPause() {
         mDecryptionFailureTracker.dispatch();
         mAppAnalytics.forceDispatch();
+        mNotificationDrawerManager.persistInfo();
     }
 }

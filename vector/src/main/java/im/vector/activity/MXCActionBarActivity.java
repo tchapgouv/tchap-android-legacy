@@ -21,14 +21,15 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
-import android.view.KeyEvent;
-import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
@@ -63,7 +64,7 @@ public abstract class MXCActionBarActivity extends VectorAppCompatActivity {
     /**
      * Return the used MXSession from an intent.
      *
-     * @param intent  the intent
+     * @param intent the intent
      * @return the MXSession if it exists, or null.
      */
     @Nullable
@@ -156,7 +157,9 @@ public abstract class MXCActionBarActivity extends VectorAppCompatActivity {
     protected void onPause() {
         super.onPause();
         Matrix.removeSessionErrorListener(this);
-        dismissDialogs(this);
+        // Keep the unused method for now, and track unwanted side effects.
+        // Also the history of the body is strange, ylecollen has added code with comment, and remove it the next day, leaving the comment.
+        // dismissDialogs(this);
     }
 
     @Override

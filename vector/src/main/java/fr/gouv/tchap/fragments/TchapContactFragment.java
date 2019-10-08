@@ -27,19 +27,17 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Filter;
 
+import org.matrix.androidsdk.core.Log;
+import org.matrix.androidsdk.core.callback.ApiCallback;
+import org.matrix.androidsdk.core.model.MatrixError;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.listeners.MXEventListener;
-import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.rest.model.Event;
-import org.matrix.androidsdk.core.model.MatrixError;
 import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.rest.model.search.SearchUsersResponse;
-import org.matrix.androidsdk.core.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,6 +56,7 @@ import im.vector.contacts.ContactsManager;
 import im.vector.contacts.PIDsRetriever;
 import im.vector.fragments.AbsHomeFragment;
 import fr.gouv.tchap.util.DinsicUtils;
+import im.vector.ui.themes.ThemeUtils;
 import im.vector.util.HomeRoomsViewModel;
 import im.vector.util.PermissionsToolsKt;
 import im.vector.util.VectorUtils;
@@ -107,8 +106,8 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
      */
 
     @Override
-    public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_people_and_invite, container, false);
+    public int getLayoutResId() {
+        return R.layout.fragment_people_and_invite;
     }
 
     @Override
@@ -123,8 +122,11 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
             }
         };
 
-        mPrimaryColor = ContextCompat.getColor(getActivity(), R.color.tab_people);
-        mSecondaryColor = ContextCompat.getColor(getActivity(), R.color.tab_people_secondary);
+        mPrimaryColor = ThemeUtils.INSTANCE.getColor(getActivity(), R.attr.vctr_tab_home);
+        mSecondaryColor = ThemeUtils.INSTANCE.getColor(getActivity(), R.attr.vctr_tab_home_secondary);
+
+        mFabColor = ContextCompat.getColor(getActivity(), R.color.tab_people);
+        mFabPressedColor = ContextCompat.getColor(getActivity(), R.color.tab_people_secondary);
 
         initViews();
 
@@ -263,7 +265,7 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
      */
     private void initViews() {
         int margin = (int) getResources().getDimension(R.dimen.item_decoration_left_margin);
-        mRecycler.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
+        mRecycler.setLayoutManager(new LinearLayoutManager(getActivity(), RecyclerView.VERTICAL, false));
         mRecycler.addItemDecoration(new SimpleDividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL, margin));
         mRecycler.addItemDecoration(new EmptyViewItemDecoration(getActivity(), DividerItemDecoration.VERTICAL, 40, 16, 14));
         mAdapter = new TchapContactAdapter(getActivity(), new TchapContactAdapter.OnSelectItemListener() {

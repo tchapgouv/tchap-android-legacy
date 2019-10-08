@@ -19,9 +19,6 @@ package im.vector.activity;
 
 import android.content.Context;
 import android.content.Intent;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
-import androidx.appcompat.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -32,20 +29,20 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 
-import org.jetbrains.annotations.NotNull;
 import org.matrix.androidsdk.MXSession;
+import org.matrix.androidsdk.core.Log;
 import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.core.model.MatrixError;
 import org.matrix.androidsdk.rest.model.pid.ThreePid;
-import org.matrix.androidsdk.core.Log;
 
 import im.vector.Matrix;
 import im.vector.R;
-import im.vector.ui.themes.ActivityOtherThemes;
 import im.vector.util.PhoneNumberUtils;
 
 public class PhoneNumberAdditionActivity extends VectorAppCompatActivity implements TextView.OnEditorActionListener, TextWatcher, View.OnClickListener {
@@ -92,12 +89,6 @@ public class PhoneNumberAdditionActivity extends VectorAppCompatActivity impleme
      * *********************************************************************************************
      */
 
-    @NotNull
-    @Override
-    public ActivityOtherThemes getOtherThemes() {
-        return ActivityOtherThemes.NoActionBar.INSTANCE;
-    }
-
     @Override
     public int getLayoutRes() {
         return R.layout.activity_phone_number_addition;
@@ -110,12 +101,7 @@ public class PhoneNumberAdditionActivity extends VectorAppCompatActivity impleme
 
     @Override
     public void initUiAndData() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (null != getSupportActionBar()) {
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
+        configureToolbar();
 
         mCountry = findViewById(R.id.phone_number_country_value);
         mCountryLayout = findViewById(R.id.phone_number_country);

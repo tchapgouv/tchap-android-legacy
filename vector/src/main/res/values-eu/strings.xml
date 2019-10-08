@@ -16,7 +16,7 @@
     <string name="send">Bidali</string>
     <string name="copy">Kopiatu</string>
     <string name="resend">Birbidali</string>
-    <string name="redact">Ezabatu</string>
+    <string name="redact">Kendu</string>
     <string name="quote">Aipua</string>
     <string name="share">Partekatu</string>
     <string name="later">Geroago</string>
@@ -28,9 +28,10 @@
     <string name="rename">Aldatu izena</string>
     <string name="report_content">Salatu edukia</string>
     <string name="active_call">Dei aktiboa</string>
-    <string name="ongoing_conference_call">Konferentzia deia abian. Elkartu ahotsa edo bideoa erabiliz.</string>
-    <string name="ongoing_conference_call_voice">ahotsa</string>
-    <string name="ongoing_conference_call_video">bideoa</string>
+    <string name="ongoing_conference_call">Konferentzia deia abian.
+\nElkartu %1$s edo %2$s gisa</string>
+    <string name="ongoing_conference_call_voice">Ahotsa</string>
+    <string name="ongoing_conference_call_video">Bideoa</string>
     <string name="cannot_start_call">Ezin da deia hasi, saiatu geroago</string>
     <string name="missing_permissions_warning">Baimenak falta direnez, ezaugarri batzuk falta daitezke…</string>
     <string name="missing_permissions_to_start_conf_call">Gonbidatzeko baimena behar duzu gela honetan konferentzia bat hasteko</string>
@@ -42,8 +43,6 @@
     <string name="invite">Gonbidatu</string>
 
     <string name="action_sign_out">Amaitu saioa</string>
-    <string name="action_sign_out_confirmation">Segurtasunagatik, saioa amaitzean muturretik muturrerako zifratze gako guztiak ezabatuko dira, eta ezin izango duzu aurreko txat historia osoa irakurri berriro hasten baduzu.
-Hautatu esportatu babes-kopia bat egiteko saioa amaitu aurretik.</string>
     <string name="action_voice_call">Ahots deia</string>
     <string name="action_video_call">Bideo deia</string>
     <string name="action_global_search">Bilaketa globala</string>
@@ -63,10 +62,10 @@ Hautatu esportatu babes-kopia bat egiteko saioa amaitu aurretik.</string>
     <string name="bottom_action_people">Jendea</string>
     <string name="bottom_action_rooms">Gelak</string>
 
-    <string name="home_filter_placeholder_home">Bilatu gelak</string>
-    <string name="home_filter_placeholder_favorites">Bilatu gogokoak</string>
-    <string name="home_filter_placeholder_people">Bilatu jendea</string>
-    <string name="home_filter_placeholder_rooms">Bilatu gelak</string>
+    <string name="home_filter_placeholder_home">Iragazi gelen izenak</string>
+    <string name="home_filter_placeholder_favorites">Iragazi gogokoak</string>
+    <string name="home_filter_placeholder_people">Iragazi jendea</string>
+    <string name="home_filter_placeholder_rooms">Iragazi gelen izenak</string>
 
     <string name="invitations_header">Gonbidapenak</string>
     <string name="low_priority_header">Lehentasun baxua</string>
@@ -94,8 +93,8 @@ Hautatu esportatu babes-kopia bat egiteko saioa amaitu aurretik.</string>
     <string name="send_bug_report_description">Azaldu akatsa. Zer egin duzu? Zer espero zenuen? Zer gertatu da benetan?</string>
     <string name="send_bug_report_placeholder">Azaldu zure arazoa hemen</string>
     <string name="send_bug_report_logs_description">Akatsak aztertzeari begira, bezero honen egunkariak arazte-txosten honekin batera bidaliko dira. Arazte-txosten hau, egunkariak eta pantaila-argazkia barne, ez dira publikoki ikusgai egongo. Goiko testua besterik ez baduzu bidali nahi, desmarkatu:</string>
-    <string name="send_bug_report_alert_message">Telefonoa amorruz astintzen zabiltzala dirudi. Akats baten berri eman nahi duzu?</string>
-    <string name="send_bug_report_app_crashed">Azken aldian aplikazioa kraskatu da. Kraskatze txostena bidali nahi duzu?</string>
+    <string name="send_bug_report_alert_message">Telefonoa amorruz astintzen zabiltzala dirudi. Arazte-txostena ireki nahi duzu?</string>
+    <string name="send_bug_report_app_crashed">Aurrekoan aplikazioa kraskatu da. Kraskatze-txostena ireki nahi duzu\?</string>
 
     <string name="send_bug_report_sent">Arazte-txostena ongi bidali da</string>
     <string name="send_bug_report_failed">Huts egin du arazte-txostenaren bidalketak (%s)</string>
@@ -106,7 +105,7 @@ Hautatu esportatu babes-kopia bat egiteko saioa amaitu aurretik.</string>
 
     <string name="join_room">Elkartu gelara</string>
     <string name="username">Erabiltzaile-izena</string>
-    <string name="create_account">Erregistratu</string>
+    <string name="create_account">Sortu kontua</string>
     <string name="login">Hasi saioa</string>
     <string name="logout">Amaitu saioa</string>
     <string name="hs_url">Hasiera zerbitzariaren URL-a</string>
@@ -121,7 +120,7 @@ Hautatu esportatu babes-kopia bat egiteko saioa amaitu aurretik.</string>
     <string name="option_take_photo_video">Atera argazkia edo bideoa</string>
 
     <string name="auth_login">Hasi saioa</string>
-    <string name="auth_register">Erregistratu</string>
+    <string name="auth_register">Sortu kontua</string>
     <string name="auth_submit">Bidali</string>
     <string name="auth_skip">Saltatu</string>
     <string name="auth_send_reset_email">Bidali berrezartzeko e-maila</string>
@@ -218,7 +217,7 @@ Saiotik atera zaizu gailu guztietan eta ez dituzu jakinarazpenak jasoko. Jakinar
     <string name="incoming_call">Deia jasotzen</string>
     <string name="incoming_video_call">Bideo-deia jasotzen</string>
     <string name="incoming_voice_call">Ahots-deia jasotzen</string>
-    <string name="call_in_progress">Deia martxan</string>
+    <string name="call_in_progress">Deia abioan…</string>
 
     <string name="call_error_user_not_responding">Urruneko aldeak ez du erantzun.</string>
     <string name="call_error_ice_failed">Media konexioak huts egin du</string>
@@ -263,15 +262,12 @@ Barkatu eragozpenak.</string>
     <string name="permissions_rationale_msg_storage">Riotek zure argazki eta bideoen liburutegia atzitzeko baimena behar du eranskinak gorde ahal izateko.
 
 Baimendu sarbidea hurrengo laster-leihoan zure telefonotik fitxategiak bidali ahal izateko.</string>
-    <string name="permissions_rationale_msg_contacts">Riotek zure helbide-liburua atzitzeko baimen behar du beste Matrix erabiltzaileak bere e-mail helbide edo telefono zenbakiaren bidez aurkitzeko.
+    <string name="permissions_rationale_msg_contacts">Riot-ek zure helbide-liburua egiaztatu dezake Matrix erabiltzaileak bere e-mail helbide edo telefono zenbakiaren bidez aurkitzeko. Honetarako zure helbide-liburua partekatzea onartzen baduzu, sakatu onartu hurrengo laster-leihoan.</string>
+    <string name="permissions_msg_contacts_warning_other_androids">Riot-ek zure helbide-liburua egiaztatu dezake Matrix erabiltzaileak bere e-mail helbide edo telefono zenbakiaren bidez aurkitzeko. 
+\n
+\nHonetarako zure helbide-liburua partekatzea onartzen duzu\?</string>
 
-Baimendu sarbidea hurrengo laster-leihoan Riot bitartez kontaktatu ditzakezun erabiltzaileak aurkitzeko.</string>
-    <string name="permissions_msg_contacts_warning_other_androids">Riotek zure helbide-liburua atzitzeko baimen behar du beste Matrix erabiltzaileak bere e-mail helbide eta telefono zenbakiaren bidez aurkitzeko.
-
-Baimendu Riotek zure kontaktuak atzitzea?</string>
-
-    <string name="room_preview_unlinked_email_warning">Zure gonbidapena bidali da %s helbidera, hau ez dago kontu honetara lotuta.
-Beste kontu batekin hasi dezakezu saioa, edo e-mail hau kontu honetara gehitu.</string>
+    <string name="room_preview_unlinked_email_warning">Zure gonbidapena bidali da %s helbidera, hau ez dago kontu honetara lotuta. Beste kontu batekin hasi dezakezu saioa, edo e-mail hau zure kontura gehitu.</string>
     <string name="room_preview_try_join_an_unknown_room">%s taldera sartzen saiatzen ari zara. Elkartu taldera elkarrizketan parte hartzeko?</string>
     <string name="room_preview_try_join_an_unknown_room_default">gela bat</string>
     <string name="room_preview_room_interactions_disabled">Hau gelaren aurrebista bat da. Gelako elkarrekintzak desgaituta daude.</string>
@@ -279,14 +275,6 @@ Beste kontu batekin hasi dezakezu saioa, edo e-mail hau kontu honetara gehitu.</
     <string name="room_creation_title">Txat berria</string>
     <string name="room_creation_add_member">Gehitu kidea</string>
     <string name="room_title_one_member">kide 1</string>
-    <string name="room_e2e_alert_title">Abisua!</string>
-    <string name="room_e2e_alert_message">Muturretik muturrera zifratzea beta egoeran dago eta agian ez dabil behar bezala.
-
-Ez zenuke datuak babesteko erabili behar oraindik.
-
-Gailuek ezin izango dute gelara elkartu aurreko historiala deszifratu.
-
-Zifratutako mezuak ez dira zifratzea oraindik ezarrita ez duten beste gailuetan ikusiko.</string>
 
     <string name="room_participants_leave_prompt_title">Atera gelatik</string>
     <string name="room_participants_leave_prompt_msg">Ziur gelatik atera nahi duzula?</string>
@@ -343,7 +331,7 @@ Ziur zaude?</string>
     <string name="room_unsent_messages_notification">Bidali gabeko mezuak daude. %1$s edo %2$s orain?</string>
     <string name="room_unknown_devices_messages_notification">Mezuak ez dira bidali gailu ezezagunak daudelako. %1$s edo %2$s orain?</string>
     <string name="room_prompt_resend">Birbidali dena</string>
-    <string name="room_prompt_cancel">utzi dena</string>
+    <string name="room_prompt_cancel">Utzi dena</string>
     <string name="room_resend_unsent_messages">Birbidali bidali gabeko mezuak</string>
     <string name="room_delete_unsent_messages">Ezabatu bidali gabeko mezuak</string>
     <string name="room_message_file_not_found">Ez da fitxategia aurkitu</string>
@@ -396,7 +384,7 @@ Kontuan izan ekintza honek aplikazioa berrabiaraziko duela eta denbora bat behar
     <string name="room_recents_join_room_prompt">Idatzi gelaren IDa edo ezizena</string>
 
     <string name="directory_search_results_title">Arakatu direktorioa</string>
-    <string name="directory_searching_title">Direktorioa bilatzen..</string>
+    <string name="directory_searching_title">Direktorioa bilatzen…</string>
 
     <string name="room_settings_favourite">Gogokoa</string>
     <string name="room_settings_de_prioritize">Jaitsi lehentasuna</string>
@@ -417,7 +405,7 @@ Kontuan izan ekintza honek aplikazioa berrabiaraziko duela eta denbora bat behar
     <string name="settings_add_email_address">Gehitu e-mail helbidea</string>
     <string name="settings_phone_number">Telefonoa</string>
     <string name="settings_add_phone_number">Gehitu telefono zenbakia</string>
-    <string name="settings_app_info_link_summary">Aplikazioaren sistema-informazio pantaila</string>
+    <string name="settings_app_info_link_summary">Erakutsi aplikazioaren informazioa sistemaren ezarpenetan.</string>
     <string name="settings_app_info_link_title">Aplikazioaren informazioa</string>
 
     <string name="settings_enable_all_notif">Gaitu jakinarazpenak kontu honetarako</string>
@@ -434,7 +422,7 @@ Kontuan izan ekintza honek aplikazioa berrabiaraziko duela eta denbora bat behar
     <string name="settings_background_sync">Bigarren planoko sinkronizazioa</string>
     <string name="settings_enable_background_sync">Gaitu bigarren planoko sinkronizazioa</string>
     <string name="settings_set_sync_timeout">Sinkronizazio eskaerak debora-muga gainditu du</string>
-    <string name="settings_set_sync_delay">Bi sinkronizazio eskaeren arteko itxaronaldia</string>
+    <string name="settings_set_sync_delay">Eskaeren arteko itxaronaldia</string>
     <string name="settings_second">segundo</string>
     <string name="settings_seconds">segundo</string>
 
@@ -460,7 +448,7 @@ Kontuan izan ekintza honek aplikazioa berrabiaraziko duela eta denbora bat behar
     <string name="settings_pin_missed_notifications">Finkatu ikusi gabeko jakinarazpenak dituzten gelak</string>
     <string name="settings_pin_unread_messages">Finkatu irakurri gabeko mezuak dituzten gelak</string>
     <string name="settings_devices_list">Gailuak</string>
-    <string name="settings_always_show_timestamps">Erakutsi beti mezuen denbora-zigilua</string>
+    <string name="settings_always_show_timestamps">Erakutsi mezu guztien denbora-zigilua</string>
     <string name="devices_details_dialog_title">Gailuaren xehetasunak</string>
     <string name="devices_details_id_title">ID</string>
     <string name="devices_details_name_title">Izena</string>
@@ -478,20 +466,20 @@ Jarraitzeko, idatzi zure pasahitza.</string>
     <string name="settings_identity_server">Identitate zerbitzaria</string>
 
     <string name="settings_user_interface">Erabiltzaile interfazea</string>
-    <string name="settings_interface_language">Interfazearen hizkuntza</string>
+    <string name="settings_interface_language">Hizkuntza</string>
     <string name="settings_select_language">Hautatu hizkuntza</string>
 
     <string name="account_email_validation_title">Egiaztaketa egiteke</string>
     <string name="account_email_validation_message">Irakurri zure e-maila eta egin klik dakarren estekan. Behin eginda, egin klik Jarraitu botoian.</string>
-    <string name="account_email_validation_error">Ezin izan da e-mail helbidea egiaztatu. Irakurrri zure e-maila eta egin klik dakarren estekan. Behin eginda, egin klik Jarraitu botoian</string>
-    <string name="account_email_already_used_error">E-mail helbide hau erabilita dago</string>
-    <string name="account_email_not_found_error">Huts egin du e-maila bidaltzean: Ez da e-mail helbide hau aurkitu</string>
-    <string name="account_phone_number_already_used_error">Telefono zenbaki hau erabilita dago</string>
+    <string name="account_email_validation_error">Ezin izan da e-mail helbidea egiaztatu. Irakurrri zure e-maila eta egin klik dakarren estekan. Behin eginda, egin klik Jarraitu botoian.</string>
+    <string name="account_email_already_used_error">E-mail helbide hau erabilita dago jada.</string>
+    <string name="account_email_not_found_error">Ez da e-mail helbide hau aurkitu.</string>
+    <string name="account_phone_number_already_used_error">Telefono zenbaki hau erabilita dago jada.</string>
 
     <string name="settings_change_password">Aldatu pasahitza</string>
-    <string name="settings_old_password">Pasahitz zaharra</string>
+    <string name="settings_old_password">Oraingo pasahitza</string>
     <string name="settings_new_password">Pasahitz berria</string>
-    <string name="settings_confirm_password">Berretsi pasahitza</string>
+    <string name="settings_confirm_password">Berretsi pasahitza berria</string>
     <string name="settings_fail_to_update_password">Huts egin du pasahitza eguneratzean</string>
     <string name="settings_password_updated">Zure pasahitza eguneratu da</string>
     <string name="settings_unignore_user">%s erabiltzailearen mezu guztiak erakutsi?
@@ -579,7 +567,6 @@ Kontuan izan ekintza honek aplikazioa berrabiaraziko duela eta denbora bat behar
     <string name="room_settings_addresses_e2e_disabled">Zifratzea desgaituta dago gela honetan.</string>
     <string name="room_settings_addresses_e2e_encryption_warning">Gaitu zifratzea
 (Abisua: ezin da desgaitu gero!)</string>
-    <string name="room_settings_addresses_e2e_prompt_title">Abisua!</string>
     <string name="directory_title">Direktorioa</string>
 
     <string name="failed_to_load_timeline_position">%s gela honetako denbora-lerroko puntu zehatz kargatzen saiatu da baina ezin izan du aurkitu.</string>
@@ -602,11 +589,11 @@ Kontuan izan ekintza honek aplikazioa berrabiaraziko duela eta denbora bat behar
     <string name="encryption_information_verification">Egiaztaketa</string>
     <string name="encryption_information_ed25519_fingerprint">Ed25519 hatz-marka</string>
 
-    <string name="encryption_export_e2e_room_keys">Esportatu gelako E2E gakoak</string>
-    <string name="encryption_export_room_keys">Esportatu gelako gakoak</string>
+    <string name="encryption_export_e2e_room_keys">Esportatu E2E geletako gakoak</string>
+    <string name="encryption_export_room_keys">Esportatu geletako gakoak</string>
     <string name="encryption_export_export">Esportatu</string>
-    <string name="encryption_import_enter_passphrase">Idatzi pasaesaldia</string>
-    <string name="encryption_export_confirm_passphrase">Berretsi pasaesaldia</string>
+    <string name="passphrase_enter_passphrase">Idatzi pasaesaldia</string>
+    <string name="passphrase_confirm_passphrase">Berretsi pasaesaldia</string>
     <string name="encryption_export_saved_as">Gelako E2E gakoak \'%s\' helbidean gorde dira
 
 Abisua: Fitxategi hau ezabatu daiteke aplikazioa desinstalatzen bada.</string>
@@ -615,7 +602,7 @@ Abisua: Fitxategi hau ezabatu daiteke aplikazioa desinstalatzen bada.</string>
     <string name="encryption_import_room_keys">Inportatu gelako gakoak</string>
     <string name="encryption_import_import">Inportatu</string>
     <string name="encryption_never_send_to_unverified_devices_title">Zifratu egiaztatutako gailuetarako besterik ez</string>
-    <string name="encryption_never_send_to_unverified_devices_summary">Ez bidali inoiz zifratutako mezuak egiaztatu gabeko gailuetara gailu honetatik</string>
+    <string name="encryption_never_send_to_unverified_devices_summary">Ez bidali inoiz zifratutako mezuak egiaztatu gabeko gailuetara gailu honetatik.</string>
 
     <string name="encryption_information_not_verified">EZ egiaztatuta</string>
     <string name="encryption_information_verified">Egiaztatuta</string>
@@ -654,16 +641,6 @@ Gailu ezezagunak:</string>
 
     <string name="historical_placeholder">Bilatu historiala</string>
 
-    <string name="room_settings_addresses_e2e_prompt_message">Muturretik muturrera zifratzea beta egoeran dago eta agian ez dabil behar bezala.
-
-Ez zenuke datuak babesteko erabili behar oraindik.
-
-Gailuek ezin izango dute gelara elkartu aurreko historiala deszifratu.
-
-Behin gela bateko zifratzea gaituta ezin da gero desgaitu (oraingoz)
-
-Zifratutako mezuak ez dira zifratzea oraindik ezarrita ez duten beste gailuetan ikusiko.</string>
-
     <string name="offline">Deskonektatuta</string>
 
     <string name="user_directory_header">Erabiltzaile direktorioa</string>
@@ -684,20 +661,20 @@ Zifratutako mezuak ez dira zifratzea oraindik ezarrita ez duten beste gailuetan 
     <string name="dark_theme">Itxura iluna</string>
     <string name="black_them">Itxura beltza</string>
 
-    <string name="notification_sync_in_progress">Sinkronizatzen</string>
+    <string name="notification_sync_in_progress">Sinkronizatzen…</string>
     <string name="notification_listening_for_events">Entzun gertaerak</string>
 
     <string name="login_mobile_device">Mugikorra</string>
 
     <string name="settings_notification_ringtone">Jakinarazpen-soinua</string>
-    <string name="settings_12_24_timestamps">Erakutsi denbora-zigiluak 12 ordutako formatuan (adib 2:30pm)</string>
+    <string name="settings_12_24_timestamps">Erakutsi denbora-zigiluak 12 ordutako formatuan</string>
 
     <string name="widget_no_power_to_manage">Baimena behar duzu gela honetako trepetak kudeatzeko</string>
     <string name="widget_creation_failure">Trepetaren sorrerak huts egin du</string>
     <string name="event_formatter_widget_added">%1$s gehitu du %2$s erabiltzaileak</string>
     <string name="event_formatter_widget_removed">%1$s kendu du %2$s erabiltzaileak</string>
-    <string name="settings_labs_create_conference_with_jitsi">Sortu konferentzia deiak jitsi bidez</string>
-    <string name="widget_delete_message_confirmation">Ziur trepeta ezabatu nahi duzula?</string>
+    <string name="settings_labs_create_conference_with_jitsi">Sortu konferentzia deiak Jitsi bidez</string>
+    <string name="widget_delete_message_confirmation">Ziur trepeta ezabatu nahi duzula gela honetatik?</string>
 
     <!-- Widget Integration Manager -->
     <string name="widget_integration_unable_to_create">Ezin izan da trepeta sortu.</string>
@@ -735,7 +712,6 @@ Zifratutako mezuak ez dira zifratzea oraindik ezarrita ez duten beste gailuetan 
 
     <!-- notification statuses -->
     <string name="notification_off">Ez</string>
-    <string name="notification_on">Bai</string>
     <string name="notification_noisy">Zaratatsua</string>
 
     <string name="encrypted_message">Zifratutako mezua</string>
@@ -753,7 +729,7 @@ Zifratutako mezuak ez dira zifratzea oraindik ezarrita ez duten beste gailuetan 
     <string name="action_exit">Irten</string>
     <string name="bottom_action_groups">Komunitateak</string>
 
-    <string name="home_filter_placeholder_groups">Bilatu komunitateak</string>
+    <string name="home_filter_placeholder_groups">Iragazi komunitateen izenak</string>
 
     <string name="groups_invite_header">Gonbidatu</string>
     <string name="groups_header">Komunitateak</string>
@@ -773,8 +749,8 @@ Zifratutako mezuak ez dira zifratzea oraindik ezarrita ez duten beste gailuetan 
     <string name="room_settings_mute">Mututu</string>
     <string name="room_settings_add_homescreen_shortcut">Gehitu hasiera pantailako laster-bidea</string>
 
-    <string name="settings_inline_url_preview">Gaitu URL-en aurrebistak lehenetsita</string>
-    <string name="settings_vibrate_on_mention">Bibratu aipatzean</string>
+    <string name="settings_inline_url_preview">URL-en aurrebista</string>
+    <string name="settings_vibrate_on_mention">Bibratu erabiltzaile bat aipatzean</string>
 
     <string name="room_settings_room_notifications_title">Jakinarazpenak</string>
     <string name="room_settings_add_new_group">Komunitatearen ID berria (adib. +foo:matrix.org)</string>
@@ -868,21 +844,17 @@ Zifratutako mezuak ez dira zifratzea oraindik ezarrita ez duten beste gailuetan 
     <string name="avatar">Abatarra</string>
 
     <string name="settings_notification_privacy">Jakinarazpenen pribatutasuna</string>
-    <string name="settings_notification_privacy_warning">Riot.im bigarren planoan dabil zure jakinarazpen mezuaren edukia pribatu mantentzeko. Aukera hau aldatu dezakezu bateria aurrezteko.</string>
     <string name="settings_notification_privacy_normal">Arrunta</string>
-    <string name="settings_notification_privacy_power_saving">Energia aurrezteko aukerak</string>
-    <string name="settings_notification_privacy_low_detail">Xehetasun gutxiko jakinarazpenak</string>
     <string name="settings_notification_privacy_reduced">Pribatutasun murriztua</string>
     <string name="settings_notification_privacy_need_permission">Aplikazioak bigarren planoan aritzeko baimenak behar ditu</string>
-    <string name="settings_notification_privacy_no_permission">Aplikazioak <b>ez</b> du bigarren planoan aritzeko baimenik behar</string>
-    <string name="settings_notification_privacy_fcm">• Jakinarazpenak Google Cloud Messaging bidez bidaltzen dira</string>
+    <string name="settings_notification_privacy_fcm">• Jakinarazpenak Firebase Cloud Messaging bidez bidaltzen dira</string>
     <string name="settings_notification_privacy_metadata">• Jakinarazpenek meta-datuak besterik ez dituzte</string>
     <string name="settings_notification_privacy_secure_message_content">• Jakinarazpen mezuaren edukia <b>Matrix hasiera-zerbitzarian gorde da seguru</b></string>
     <string name="settings_notification_privacy_nosecure_message_content">• Jakinarazpenek <b>mezuen datuak eta metadatuak dituzte</b></string>
     <string name="settings_notification_privacy_message_content_not_shown">• Jakinarazpenek <b>ez dute mezuaren edukia erakutsiko</b></string>
 
     <string name="startup_notification_privacy_title">Jakinarazpenen pribatutasuna</string>
-    <string name="startup_notification_privacy_message">Riot bigarren planoan aritu daiteke zure jakinarazpenak modu seguru eta pribatuan kudeatzeko (baterian eragina izan lezake).</string>
+    <string name="startup_notification_privacy_message">Riot bigarren planoan aritu daiteke zure jakinarazpenak modu seguru eta pribatuan kudeatzeko. Honek baterian eragina izan lezake.</string>
     <string name="startup_notification_privacy_button_grant">Eman baimena</string>
     <string name="startup_notification_privacy_button_other">Aukeratu beste zerbait</string>
 
@@ -935,7 +907,7 @@ Matrix-eko mezuen ikusgaitasuna e-mail sistemaren antekoa da. Guk zure mezuak ah
     <string name="go_on_with">jarraitu honekin…</string>
     <string name="error_no_external_application_found">Ez da ekintza hau burutzeko kanpo aplikaziorik aurkitu.</string>
 
-    <string name="settings_labs_enable_send_voice">Bidali ahots mezua (Hirugarrengoen kanpo aplikazio bat behar da ahots-mezuak grabatzeko)</string>
+    <string name="settings_labs_enable_send_voice">Bidali ahots mezuak</string>
 
     <string name="error_empty_field_your_password">Sartu zure pasahitza.</string>
 
@@ -1026,7 +998,7 @@ Kontuan izan ekintza honek aplikazioa berrabiaraziko duela eta denbora bat behar
     <string name="dialog_title_error">Errorea</string>
 
     <string name="settings_lazy_loading_title">Kargatu gelako kideak modu alperrean</string>
-    <string name="settings_lazy_loading_description">Hobetu errendimendua kideak lehen ikustaldian bakarrik kargatuz</string>
+    <string name="settings_lazy_loading_description">Hobetu errendimendua kideak lehen ikustaldian bakarrik kargatuz.</string>
     <string name="error_lazy_loading_not_supported_by_home_server">Zure hasiera-zerbitzariak ez du oraindik erabiltzaileen karga alperra onartzen. Saiatu geroago.</string>
 
     <string name="unknown_error">Errore bat gertatu da</string>
@@ -1035,8 +1007,8 @@ Kontuan izan ekintza honek aplikazioa berrabiaraziko duela eta denbora bat behar
 
     <string name="room_sliding_menu_version_x">%s bertsioa</string>
     <string name="encryption_export_notice">Sortu esportatutako gakoak zifratzeko pasaesaldi bat. Pasaesaldi hori gakoak inportatzeko sartu beharko duzu.</string>
-    <string name="encryption_export_create_passphrase">Sortu pasaesaldia</string>
-    <string name="encryption_export_passphrase_dont_match">Pasaesaldiak berdinak izan behar dira</string>
+    <string name="passphrase_create_passphrase">Sortu pasaesaldia</string>
+    <string name="passphrase_passphrase_does_not_match">Pasaesaldiak berdinak izan behar dira</string>
     <string name="merged_events_expand">hedatu</string>
     <string name="merged_events_collapse">tolestu</string>
 
@@ -1049,5 +1021,603 @@ Kontuan izan ekintza honek aplikazioa berrabiaraziko duela eta denbora bat behar
     <string name="generic_label_and_value">%1$s: %2$s</string>
     <string name="plus_x">+%d</string>
     <string name="x_plus">%d+</string>
+
+    <string name="call_anyway">Deitu hala ere</string>
+    <string name="settings_call_category">Deiak</string>
+    <string name="settings_call_ringtone_use_riot_ringtone">Erabili Rioten lehenetsitako dei-doinua jasotako deientzat</string>
+    <string name="settings_call_ringtone_title">Jasotako deien doinua</string>
+    <string name="settings_call_ringtone_dialog_title">Hautatu deientzako doinua:</string>
+
+    <string name="room_participants_action_kick">Kanporatu</string>
+    <plurals name="room_participants_kick_prompt_msg">
+        <item quantity="one">Ziur erabiltzaile hau txat honetatik kanporatu nahi duzula?</item>
+        <item quantity="other">Ziur erabiltzaile hauek txat honetatik kanporatu nahi dituzula?</item>
+    </plurals>
+    <string name="reason_hint">Arrazoia</string>
+
+    <string name="settings_inline_url_preview_summary">Erakutsi txateko esteken aurrebista hasiera-zerbitzariak onartzen badu.</string>
+    <string name="settings_send_typing_notifs">Bidali idazte jakinarazpenak</string>
+    <string name="settings_send_typing_notifs_summary">Eman beste erabiltzaileei ezagutzera idazten ari zarela.</string>
+    <string name="settings_send_markdown">Markdown formatua</string>
+    <string name="settings_send_markdown_summary">Eman formatua mezuei markdown sintaxia erabiliz hauek bidali aurretik. Honek formatu aurreratua ahalbidetzen du, adibidez letra etzana adierazteko asteriskoekin inguratzea.</string>
+    <string name="settings_show_read_receipts">Erakutsi irakurragiriak</string>
+    <string name="settings_show_read_receipts_summary">Egin klik irakurragirietan zerrenda xehetsu bat ikusteko.</string>
+    <string name="settings_show_join_leave_messages">Erakutsi batu eta ateratze gertaerak</string>
+    <string name="settings_show_join_leave_messages_summary">Gonbidapen, kanporatze eta debekuei ez die eragiten.</string>
+    <string name="settings_show_avatar_display_name_changes_messages">Erakutsi kontuen gertaerak</string>
+    <string name="settings_show_avatar_display_name_changes_messages_summary">Abatar eta izen aldaketak barne-hartzen ditu.</string>
+    <string name="settings_password">Pasahitza</string>
+    <string name="settings_labs_native_camera_summary">Abiatu sistemaren kamera, eta ez kamera pantaila pertsonalizatua.</string>
+    <string name="settings_labs_enable_send_voice_summary">Aukera honek hirugarrengoen aplikazio bat behar du mezuak grabatzeko.</string>
+
+    <string name="command_problem_with_parameters">\"%s\" komandoak parametro gehiago behar ditu, edo parametroren bat okerra da.</string>
+    <string name="markdown_has_been_enabled">Markdown aktibatu da.</string>
+    <string name="markdown_has_been_disabled">Markdown desaktibatu da.</string>
+
+    <string name="accept">Onartu</string>
+
+    <string name="auth_accept_policies">Berrikusi eta onartu hasiera-zerbitzari honen politikak:</string>
+
+    <string name="encryption_import_room_keys_success">%1$d/%2$d gako ongi inportatu dira.</string>
+
+    <string name="settings_notification_troubleshoot">Egiaztatu arazoak jakinarazpenekin</string>
+    <string name="settings_troubleshoot_diagnostic">Arazoak egiaztatzen</string>
+    <string name="settings_troubleshoot_diagnostic_run_button_title">Abiatu probak</string>
+    <string name="settings_troubleshoot_diagnostic_running_status">Exekutatzen… (%1$d / %2$d)</string>
+    <string name="settings_troubleshoot_diagnostic_success_status">Oinarrizko diagnostikoa ongi dago. Oraindik ez badituzu jakinarazpenak jasotzen, bidali arazte-txosten bat ikertu dezagun.</string>
+    <string name="settings_troubleshoot_diagnostic_failure_status_with_quickfix">Gutxienez proba batek kale egin du, saiatu proposatutako konponketa(k).</string>
+    <string name="settings_troubleshoot_diagnostic_failure_status_no_quickfix">Gutxienez proba batek kale egin du, bidali mesedez arazte-txosten bat ikertu dezagun.</string>
+
+    <string name="settings_troubleshoot_test_system_settings_title">Sistemaren ezarpenak.</string>
+    <string name="settings_troubleshoot_test_system_settings_success">Jakinarazpenak aktibatuta daude sistemaren ezarpenetan.</string>
+    <string name="settings_troubleshoot_test_system_settings_failed">Jakinarazpenak desaktibatuta daude sistemaren ezarpenetan.
+Egiaztatu sistemaren ezarpenak.</string>
+    <string name="open_settings">Ireki ezarpenak</string>
+
+    <string name="settings_troubleshoot_test_account_settings_title">Kontuaren ezarpenak.</string>
+    <string name="settings_troubleshoot_test_account_settings_success">Jakinarazpenak aktibatuta daude zure kontuarentzat.</string>
+    <string name="settings_troubleshoot_test_account_settings_failed">Jakinarazpenak desaktibatuta daude zure kontuarentzat.
+Egiaztatu zure kontuaren ezarpenak.</string>
+    <string name="settings_troubleshoot_test_account_settings_quickfix">Aktibatu</string>
+
+    <string name="settings_troubleshoot_test_device_settings_title">Gailuaren ezarpenak.</string>
+    <string name="settings_troubleshoot_test_device_settings_success">Jakinarazpenak aktibatuta daude gailu honentzat.</string>
+    <string name="settings_troubleshoot_test_device_settings_failed">Jakinarazpenak ez daude aktibatuta gailu honentzat.
+Egiaztatu Riot ezarpenak.</string>
+    <string name="settings_troubleshoot_test_device_settings_quickfix">Aktibatu</string>
+
+    <string name="settings_troubleshoot_test_play_services_title">Play Services egiaztaketa</string>
+    <string name="settings_troubleshoot_test_play_services_success">Google Play Services APK eskuragarri eta egunean dago.</string>
+    <string name="settings_troubleshoot_test_play_services_failed">Riot-ek Google Play Services erabiltzen du baina antza ez dago ondo konfiguratuta:
+%1$s</string>
+    <string name="settings_troubleshoot_test_play_services_quickfix">Konpondu Play Services</string>
+
+    <string name="settings_troubleshoot_test_fcm_title">Firebase token-a</string>
+    <string name="settings_troubleshoot_test_fcm_success">FCM token-a ongi jaso da:
+%1$s</string>
+    <string name="settings_troubleshoot_test_fcm_failed">Huts egin du FCM token-a jasotzean:
+%1$s</string>
+
+    <string name="settings_troubleshoot_test_token_registration_title">Token erregistroa</string>
+    <string name="settings_troubleshoot_test_token_registration_success">FCM token-a ongi erregistratu da hasiera-zerbitzarian.</string>
+    <string name="settings_troubleshoot_test_token_registration_failed">Huts egin du FCM token-a hasiera zerbitzarian erregistratzean:
+%1$s</string>
+
+    <string name="settings_troubleshoot_test_foreground_service_started_title">Jakinarazpen zerbitzua</string>
+    <string name="settings_troubleshoot_test_foreground_service_startedt_success">Jakinarazpen zerbitzua abian dago.</string>
+    <string name="settings_troubleshoot_test_foreground_service_started_failed">Jakinarazpen zerbitzua ez dago abian.
+Berrabiarazi aplikazioa.</string>
+    <string name="settings_troubleshoot_test_foreground_service_started_quickfix">Hasi zerbitzua</string>
+
+    <string name="settings_troubleshoot_test_service_restart_title">Jakinarazpen zerbitzua automatikoki berrabiarazi</string>
+    <string name="settings_troubleshoot_test_service_restart_success">Zerbitzua hil da eta automatikoki berrabiarazi da.</string>
+    <string name="settings_troubleshoot_test_service_restart_failed">Zerbitzuak huts egin du berrabiaraztean</string>
+
+    <string name="settings_troubleshoot_test_service_boot_title">Hasi abioan</string>
+    <string name="settings_troubleshoot_test_service_boot_success">Zerbitzua gailua berrabiaraztean hasiko da.</string>
+    <string name="settings_troubleshoot_test_service_boot_failed">Zerbitzua ez da hasiko gailua berrabiaraztean, ez duzu jakinarazpenik jasoko Riot behin ireki arte.</string>
+    <string name="settings_troubleshoot_test_service_boot_quickfix">Gaitu abioan hastea</string>
+
+    <string name="settings_troubleshoot_test_bg_restricted_title">Egiaztatu bigarren planoko murrizketak</string>
+    <string name="settings_troubleshoot_test_bg_restricted_success">Bigarren planoko murrizketak desaktibatuta daude Riot-entzat. Proba hau datu mugikorrekin egin behar da (Ez WiFi).
+%1$s</string>
+    <string name="settings_troubleshoot_test_bg_restricted_failed">Bigarren planoko murrizketak aktibatuta daude Riot-entzat.
+Aplikazioa egiten saiatzen ari dena agresiboki murriztuko zaio bigarren planoan dagoenean, eta honek jakinarazpenetan eragina izan dezake.
+%1$s</string>
+    <string name="settings_troubleshoot_test_bg_restricted_quickfix">Desaktibatu murrizketak</string>
+
+    <string name="settings_troubleshoot_test_battery_title">Bateria optimizazioa</string>
+    <string name="settings_troubleshoot_test_battery_success">Bateria optimizazioak ez du eraginik Riot-engan.</string>
+    <string name="settings_troubleshoot_test_battery_quickfix">Ezikusi optimizazioa</string>
+
+    <string name="startup_notification_fdroid_battery_optim_title">Bigaren planoko konexioa</string>
+    <string name="startup_notification_fdroid_battery_optim_button_grant">Eman baimena</string>
+
+    <string name="account_email_error">Errore bat gertatu da zure e-mail kontua egiaztatzean.</string>
+
+    <string name="account_phone_number_error">Errore bat gertatu da zure telefono zenbakia egiaztatzean.</string>
+    <string name="account_additional_info">Informazio gehigarria: %s</string>
+
+    <string name="no_valid_google_play_services_apk">Ez da baliozko Google Play Services APK-rik aurkitu. Jakinarazpenak agian ez dira ongi ibiliko.</string>
+
+    <string name="store_title">Riot.im - Komunikatu, zure erara</string>
+    <string name="store_short_description">Txat seguru eta unibertsala zure kontrolpean erabat.</string>
+    <string name="settings_troubleshoot_test_battery_failed">Erabiltzaile batek gailu bat deskonektatuta eta erabili gabe uzten badu denbora batez, pantaila itzalita duela, gailua kuluxka moduan sartzen da. Honek aplikazioak sarera konektatzea eragozten du eta beraien lanak atzeratzen ditu, baita ohiko alarmak.</string>
+    <string name="startup_notification_fdroid_battery_optim_message">Riot-ek bigarren planoko konexio arin bat behar du jakinarazpen fidagarriak izateko.
+Hurrengo pantailan Riot-i bigarren planoan aritzeko baimena eskatuko zaizu, onartu ezazu mesedez.</string>
+    <string name="store_full_description">"Txaterako aplikazio bat, zure kontrolpean eta erabat malgua. Riot-ek zuk nahi duzun eran komunikatzea ahalbidetzen dizu. [matrix] erabiltzeko egina, komunikaziorako estandar ireki eta deszentralizatua.
+\n
+\nEskuratu matrix.org kontu bat doan, ezarri zure zerbitzari propioa  https://modular.im bidez, edo erabili beste Matrix zerbitzari bat.
+\n
+\nZergatik erabili RIot.im\?
+\n
+\n* KOMUNIKAZIO OSOA: Sortu gelak zure lantalde, adiskide, edo komunitateentzat, zuk nahi bezalakoak! Txateatu, partekatu fitxategiak, gehitu trepetak eta egin ahots eta bideo deiak, den dena doan.
+\n
+\n* INTEGRAZIO AHALTSUAK: Erabili Riot.im jada ezagutu eta maite dituzun tresnekin. Riot.im erabiliz beste txat aplikazioetako erabiltzaileekin ere aritu zaitezke.
+\n
+\n* PRIBATUA ETA SEGURUA: Mantendu zure elkarrizketak sekretupean. Muturretik muturrerako zifratzeak pribatua den hori pribatu izaten jarraituko duela bermatzen du.
+\n
+\n* IREKIA, EZ ITXIA; Kode irekikoa, eta Matrix sarearen gainean eraikia. Izan zure datuen jabe zure zerbitzaria ostatatuz, edo zuretzat fidagarria den bat aukeratuz.
+\n
+\n* ZUREKIN EDONON: Mantendu kontaktua zure gailuetan zehar guztiz sinkronizatutako mezuen historial batekin, eta web bidez https://riot.im helbidean."</string>
+
+    <string name="video_call_in_progress">Bide-deia abioan…</string>
+
+    <string name="store_whats_new">"Etengabe egiten dizkiogu hobekuntzak eta aldaketak Riot.im aplikazioari.
+Aldaketen zerrenda osoa hemen aurkitu daiteke: %1$s.
+Ezer galtzen ez duzula ziurtatzeko, mantendu eguneraketak piztuta."</string>
+    <string name="title_activity_keys_backup_setup">Gakoen babes-kopia</string>
+    <string name="title_activity_keys_backup_restore">Erabili gakoen babes-kopia</string>
+    <string name="keys_backup_is_not_finished_please_wait">Gakoen babes-kopia ez da amaitu, itxaron mesedez…</string>
+
+    <string name="skip">Saltatu</string>
+    <string name="done">Egina</string>
+
+    <string name="settings_notification_advanced">Jakinarazpenen ezarpen aurreratuak</string>
+    <string name="settings_notification_advanced_summary">Ezarri jakinarazpenen garrantzia gertaerako, konfiguratu soinua, leda, bibrazioa</string>
+    <string name="settings_notification_by_event">Jakinarazpenen garrantzia gertaerako</string>
+
+    <string name="settings_troubleshoot_test_bing_settings_title">Ezarpen pertsonalizatuak.</string>
+    <string name="settings_troubleshoot_test_bing_settings_quickfix">Egiaztatu ezarpenak</string>
+
+    <string name="settings_troubleshoot_test_fcm_failed_account_missing_quick_fix">Gehitu kontua</string>
+
+    <string name="settings_noisy_notifications_preferences">Konfiguratu jakinarazpen zaratatsuak</string>
+    <string name="settings_call_notifications_preferences">Konfiguratu deien jakinarazpenak</string>
+    <string name="settings_silent_notifications_preferences">Konfiguratu jakinarazpen isilak</string>
+    <string name="settings_system_preferences_summary">Hautatu LED-aren kolorea, bibrazioa, soinua…</string>
+
+
+    <string name="settings_cryptography_manage_keys">Gako kriptografikoen kudeaketa</string>
+    <string name="encryption_settings_manage_message_recovery_summary">Kudeatu gakoen babes-kopia</string>
+
+    <string name="notification_silent">Isila</string>
+    <string name="passphrase_empty_error_message">Idatzi pasaesaldia</string>
+    <string name="passphrase_passphrase_too_weak">Pasaesaldia ahulegia da</string>
+
+    <string name="keys_backup_passphrase_not_empty_error_message">Ezabatu pasaesaldia Riot aplikazioak berreskuratze gako bat sortu dezan nahi baduzu.</string>
+    <string name="keys_backup_no_session_error">Ez dago Matrix saiorik eskuragarri</string>
+
+    <string name="keys_backup_setup_step1_title">Ez galdu inoiz zifratutako mezuak</string>
+    <string name="keys_backup_setup_step2_button_title">Ezarri pasaesaldia</string>
+    <string name="keys_backup_setup_step3_button_title">Eginda</string>
+    <string name="keys_backup_setup_step3_copy_button_title">Gorde berreskuratze gakoa</string>
+    <string name="keys_backup_setup_step3_save_button_title">Gorde fitxategi gisa</string>
+    <string name="keys_backup_setup_step3_please_make_copy">Egin kopia bat mesedez</string>
+    <string name="keys_backup_setup_step3_share_intent_chooser_title">Partekatu berreskuratze gakoa honekin…</string>
+    <string name="recovery_key">Berreskuratze gakoa</string>
+    <string name="unexpected_error">Ustekabeko errorea</string>
+    <string name="keys_backup_setup_backup_started_title">Babes-kopia hasita</string>
+    <string name="keys_backup_setup_skip_title">Ziur al zaude?</string>
+    <string name="keys_backup_setup_skip_msg">Mezuak galdu ditzakezu saioa amaitzen baduzu edo gailua galtzen baduzu.</string>
+
+    <string name="keys_backup_restore_use_recovery_key">erabili berreskuratze-gakoa</string>
+    <string name="keys_backup_restore_with_passphrase_helper_with_link">Ez badakizu zure berreskuratze pasaesaldia, %s.</string>
+
+    <string name="keys_backup_restore_with_recovery_key">Erabili zure berreskuratze-gakoa zure zifratutako mezuen historiala desblokeatzeko</string>
+    <string name="keys_backup_restore_key_enter_hint">Sartu berreskuratze-gakoa</string>
+
+    <string name="keys_backup_restore_setup_recovery_key">Mezuen berreskuratzea</string>
+
+    <string name="keys_backup_restore_with_key_helper">Berreskuratze gakoa galdu duzu? Berria sortu dezakezu ezarpenetan.</string>
+    <string name="network_error_please_check_and_retry">Sare errorea: Egiaztatu konexioa eta saiatu berriro.</string>
+
+    <string name="keys_backup_restoring_waiting_message">Babes-kopia berrezartzen:</string>
+    <string name="keys_backup_unlock_button">Desblokeatu historiala</string>
+    <string name="keys_backup_recovery_code_empty_error_message">Sartu berreskuratze-gakoa</string>
+    <string name="keys_backup_restore_success_title">Babes-kopia berrezarrita %s !</string>
+    <string name="keys_backup_no_keysbackup_sdk_error">Saioko kriptografia ez dago aktibatuta</string>
+
+
+    <string name="keys_backup_settings_restore_backup_button">Berrezarri babes-kopia</string>
+    <string name="keys_backup_settings_delete_backup_button">Ezabatu babes-kopia</string>
+
+    <string name="settings_troubleshoot_test_bing_settings_success_with_warn">Kontuan izan mezu mota batzuk isilak izateko ezarri direla (soinurik gabeko jakinarazpena sortuko dute).</string>
+    <string name="settings_troubleshoot_test_bing_settings_failed">Jakinarazpen batzuk desgaituta daude zure ezarpen pertsonaletan.</string>
+    <string name="settings_troubleshoot_test_bing_settings_failed_to_load_rules">Hutsegitea arau pertsonalak kargatzean, saiatu berriro.</string>
+    <string name="settings_troubleshoot_test_fcm_failed_too_many_registration">[%1$s]
+Errore hau Riot-en kontroletik kanpo dago eta Google-en arabera, errore honek esan nahi du gailuko aplikazio gehiegik erabiltzen dutela FCM. Errore hau ezohiko aplikazio kopuru bat dagoenean gertatzen da, ez lioke erabiltzaile arrunt bati eragingo.</string>
+    <string name="settings_troubleshoot_test_fcm_failed_service_not_available">"[%1$s]
+Errore hau Riot-en kontroletik kanpo dago. Hainbat arrazoiengatik gerta daiteke eta geroago berriro saiatzen bazara agian badabil,  egiaztatu ere Google Play Service-ek ez duela datuen erabilera mugatua sistemaren ezarpenetan, edo zure gailuaren ordua ondo ezarrita dagoela, ROM pertsonalizatuekin gertatu daiteke ere."</string>
+    <string name="settings_troubleshoot_test_fcm_failed_account_missing">[%1$s]
+Errore hau Riot-en kontroletik kanpo dago. Ez dago Google konturik gailuan. Ireki kontuen kudeatzailea eta gehitu Google kontu bat.</string>
+    <string name="keys_backup_setup_step1_description">Zifratutako geletako mezuak muturretik muturrera zifratuta daude. Hartzaileak/ek eta zuk eta ez beste inork irakurri ditzakezue mezuok.
+\n
+\nEgin zure gakoen babes-kopia segurua mezuak ez galtzeko.</string>
+    <string name="recovery_key_export_saved_as_warning">Berreskuratze gakoa \'%s\' karpetan gorde da.
+
+Abisua: Fitxategi hau ezabatu daiteke aplikazioa desinstalatzen bada.</string>
+
+    <string name="keys_backup_setup_step3_generating_key_status">Berreskuratze gakoa sortzen pasaesaldia erabiliz, honek hainbat segundo behar ditzake.</string>
+    <string name="keys_backup_setup_backup_started_message">Bigarren planoan zure zifratze gakoen babes-kopia egiten ari da zure hasiera zerbitzarian. Lehen aldian hainbat minutu behar litezke.</string>
+
+
+    <string name="keys_backup_restore_is_getting_backup_version">Babes-kopiaren bertsioa eskuratzen…</string>
+    <string name="keys_backup_restore_with_passphrase">Erabili zure berreskuratze pasaesaldia zure zifratutako mezuen historiala desblokeatzeko</string>
+    <string name="keys_backup_passphrase_error_decrypt">Ezin izan da babes-kopia deszifratu pasaesaldi honekin: egiaztatu pasaesaldi zuzena idatzi duzula.</string>
+    <string name="keys_backup_recovery_code_error_decrypt">Ezin izan da babes-kopia deszifratu berreskuratze gako honekin: egiaztatu berreskuratze gako egokia sartu duzula.</string>
+
+    <string name="keys_backup_restore_success_description">"%1$d  saio gako berrezarri dira, eta gailu honek ezagutzen ez zituen %2$d gako berri gehitu dira"</string>
+    <plurals name="keys_backup_restore_success_description_part1">
+        <item quantity="one">Berrezarri gako %d duen babes-kopia.</item>
+        <item quantity="other">Berrezarri %d gako dituen babes-kopia.</item>
+    </plurals>
+    <plurals name="keys_backup_restore_success_description_part2">
+        <item quantity="one">Gako berri %d gehitu da gailu honetara.</item>
+        <item quantity="other">%d gako berri gehitu dira gailu honetara.</item>
+    </plurals>
+
+    <string name="keys_backup_get_version_error">Hutsegitea berreskuratze gakoaren azken bertsioa jasotzean (%s).</string>
+    <string name="keys_backup_settings_status_ok">Gakoen babes-kopia ongi ezarri da gailu honetan.</string>
+    <string name="keys_backup_settings_status_ko">Gakoen babes-kopia ez dago aktibo gailu honetan.</string>
+    <string name="keys_backup_settings_status_not_setup">Ez da zure gakoen babes-kopia egiten gailu honetatik.</string>
+
+
+    <string name="keys_backup_settings_signature_from_unknown_device">Babes-kopiak %s ID-a duen gailu ezezagun baten sinadura du.</string>
+    <string name="keys_backup_settings_valid_signature_from_this_device">Babes-kopiak gailu honen baliozko sinadura bat du.</string>
+    <string name="keys_backup_settings_valid_signature_from_verified_device">Babes-kopiak egiaztatutako %s gailuaren baliozko sinadura bat du.</string>
+    <string name="keys_backup_settings_valid_signature_from_unverified_device">Babes-kopiak egiaztatu gabeko %s gailuaren baliozko sinadura bat du</string>
+    <string name="keys_backup_settings_invalid_signature_from_verified_device">Babes-kopiak egiaztatutako %s gailuaren sinadura baliogabe bat du</string>
+    <string name="keys_backup_settings_invalid_signature_from_unverified_device">Babes-kopiak egiaztatu gabeko %s gailuaren baliogabeko sinadura bat du</string>
+    <string name="keys_backup_get_trust_error">Hutsegitea babes-kopiaren fidagarritasun informazioa jasotzean (%s).</string>
+
+    <string name="keys_backup_settings_untrusted_backup">Mezu seguruen berreskuratzea gailu honetan erabiltzeko, sartu pasaesaldia eta berreskuratze gakoa orain.</string>
+    <string name="keys_backup_settings_deleting_backup">Babes-kopia ezabatzen…</string>
+    <string name="keys_backup_settings_delete_backup_error">Babes-kopia ezabatzean huts egin du (%s)</string>
+
+    <string name="keys_backup_settings_delete_confirm_title">Ezabatu babes-kopia</string>
+    <string name="keys_backup_settings_delete_confirm_message">Ezabatu zure zifratze-gakoen babeskopia zerbitzaritik? Ezin izango duzu zure berreskuratze gakoa erabili zifratutako mezuen historiala irakurtzeko.</string>
+
+    <string name="sign_out_bottom_sheet_warning_no_backup">Zifratutako mezuak galduko dituzu saioa orain amaitzen baduzu</string>
+    <string name="sign_out_bottom_sheet_warning_backing_up">Gakoen babes-kopia abian. Saioa orain amaitzen baduzu zure zifratutako mezuak atzitzeko aukera galduko duzu.</string>
+    <string name="sign_out_bottom_sheet_warning_backup_not_active">Gakoen babes-kopia segurua zure gailu guztietan aktibatu beharko litzateke zifratutako mezuetara sarbidea ez galtzeko.</string>
+    <string name="sign_out_bottom_sheet_dont_want_secure_messages">Ez ditut nire zifratutako mezuak nahi</string>
+    <string name="sign_out_bottom_sheet_backing_up_keys">Gakoen babes-kopia egiten…</string>
+    <string name="keys_backup_activate">Erabili gakoen babes-kopia</string>
+    <string name="are_you_sure">Ziur al zaude\?</string>
+    <string name="backup">Babes-kopia</string>
+    <string name="notification_sync_init">Zerbitzua hasieratzen</string>
+    <string name="sign_out_bottom_sheet_will_lose_secure_messages">Zure mezu zifratuetara sarbidea galduko duzu ez baduzu gakoen babes-kopia egiten saioa amaitu aurretik.</string>
+
+    <string name="stay">Geratu</string>
+    <string name="abort">Abortatu</string>
+    <string name="ignore">Ezikusi</string>
+
+    <string name="action_sign_out_confirmation_simple">Ziur saioa amaitu nahi duzula\?</string>
+    <string name="auth_login_sso">Hasi saioa urrats batean</string>
+    <string name="login_error_unknown_host">URL-a ez dago eskuragarri, egiaztatu mesedez</string>
+    <string name="login_error_ssl_handshake">Zure gailuak zaharkitutako TLS segurtasun protokolo bat darabil, erasotu daitekeena, zure segurtasunerako ezin izango zara konektatu</string>
+    <string name="settings_send_message_with_enter">Bidali mezua Sartu tekla sakatuta</string>
+    <string name="settings_send_message_with_enter_summary">Teklatuko Sartu teklak mezua bidaliko du lerro saltoa sartu ordez</string>
+
+    <string name="settings_data_save_mode_summary">Datuak aurrezteko moduak presentzia eguneratzeak eta idazte-jakinarazpenak iragazten ditu.</string>
+
+    <string name="settings_change_password_submit">Eguneratu pasahitza</string>
+    <string name="settings_fail_to_update_password_invalid_current_password">Pasahitza baliogabea da</string>
+    <string name="passwords_do_not_match">Pasahitzak ez datoz bat</string>
+
+    <string name="settings_media">Multimedia</string>
+    <string name="settings_default_compression">Lehenetsitako konpresioa</string>
+    <string name="compression_opt_list_choose">Hautatu</string>
+    <string name="settings_default_media_source">Lehenetsitako multimediaren iturria</string>
+    <string name="media_source_choose">Hautatu</string>
+    <string name="settings_play_shutter_sound">Egin kliskatze soinua</string>
+
+    <string name="encryption_message_recovery">Zifratutako mezuak berreskuratzea</string>
+    <string name="error_empty_field_enter_user_name">Sartu erabiltzaile-izena.</string>
+    <string name="keys_backup_setup">Hasi gakoen babes-kopia erabiltzen</string>
+    <string name="keys_backup_setup_step1_advanced">(Aurreratua)</string>
+    <string name="keys_backup_setup_step1_manual_export">Esportatu gakoak manualki</string>
+
+    <string name="keys_backup_setup_step2_text_title">Babestu zure babes-kopia pasaesaldi batekin.</string>
+    <string name="keys_backup_setup_step2_text_description">Zure gakoen zifratutako kopia bat gordeko dugu zure hasiera-zerbitzarian. Babestu babes-kopia pasaesaldi batekin seguru mantentzeko.
+\n
+\nSegurtasun hobe baterako, pasaesaldi hau eta zure kontuaren pasahitza desberdinak izan beharko lirateke.</string>
+    <string name="keys_backup_setup_creating_backup">Babes-kopia sortzen</string>
+    <string name="keys_backup_setup_step1_recovery_key_alternative">Edo, babestu zure babes-kopia berreskuratze gako batekin, eta toki seguruan gorde.</string>
+    <string name="keys_backup_setup_step2_skip_button_title">(Aurreratua) Ezarri berreskuratze gakoa</string>
+    <string name="keys_backup_setup_step3_success_title">Ongi!</string>
+    <string name="keys_backup_setup_step3_text_line1">Zure gakoen babes-kopia egiten ari da.</string>
+    <string name="keys_backup_setup_step3_text_line2">Zure berreskuratze gakoa badaezpadakoa da, pasaesaldia ahazten baduzu zure zifratutako mezuak berreskuratzeko gakoa erabili dezakezu.
+\nGorde zure berreskuratze gakoa toki oso seguruan, pasahitz kudeatzaile batean esaterako (edo gordailu kutxan)</string>
+    <string name="keys_backup_setup_step3_text_line2_no_passphrase">Gorde zure berreskuratze gakoa toki oso seguruan, esaterako pasahitz kudeatzaile batean (edo gordailu kutxan)</string>
+    <string name="keys_backup_setup_step3_button_title_no_passphrase">Kopia bat egin dut</string>
+    <string name="keys_backup_setup_step3_share_recovery_file">Partekatu</string>
+    <string name="keys_backup_restoring_computing_key_waiting_message">Berreskuratze gakoa kalkulatzen…</string>
+    <string name="keys_backup_restoring_downloading_backup_waiting_message">Gakoak deskargatzen…</string>
+    <string name="keys_backup_restoring_importing_keys_waiting_message">Gakoak inportatzen…</string>
+    <string name="new_recovery_method_popup_title">Gakoen babes-kopia berria</string>
+    <string name="new_recovery_method_popup_description">Zifratutako mezuen gako babes-kopia berri bat antzeman da.
+\n
+\nEz baduzu zuk berreskuratze metodo berri bat ezarri, erasotzaile batek zure kontua atzitzeko saiakerak egiten egon daiteke. Aldatu zure kontuaren pasahitza eta ezarri berreskuratze metodo berri bat berehala ezarpenetan.</string>
+    <string name="new_recovery_method_popup_was_me">Ni izan naiz</string>
+    <string name="keys_backup_banner_setup_line1">Ez galdu inoiz zifratutako mezuak</string>
+    <string name="keys_backup_banner_setup_line2">Hasi gakoen babes-kopia egiten</string>
+
+    <string name="keys_backup_banner_recover_line1">Ez galdu inoiz zifratutako mezuak</string>
+    <string name="keys_backup_banner_recover_line2">Erabili gakoen babes-kopia</string>
+
+    <string name="keys_backup_banner_update_line1">Zifratutako mezuen gako berriak</string>
+    <string name="keys_backup_banner_update_line2">Kudeatu gakoen babes-kopian</string>
+
+    <string name="keys_backup_banner_in_progress">Gakoen babes-kopia egiten…</string>
+
+    <string name="keys_backup_info_keys_all_backup_up">Gako guztien babes-kopia egin da</string>
+    <plurals name="keys_backup_info_keys_backing_up">
+        <item quantity="one">Gako %den babes-kopia egiten…</item>
+        <item quantity="other">%d gakoen babes kopia egiten…</item>
+    </plurals>
+
+    <string name="keys_backup_info_title_version">Bertsioa</string>
+    <string name="keys_backup_info_title_algorithm">Algoritmoa</string>
+    <string name="keys_backup_info_title_signature">Sinadura</string>
+
+    <string name="autodiscover_invalid_response">Baliogabeko hasiera-zerbitzari deskubritze erantzuna</string>
+    <string name="autodiscover_well_known_autofill_dialog_title">Automatikoki osatu zerbitzariaren aukerak</string>
+    <string name="autodiscover_well_known_autofill_dialog_message">"Riot-ek pertsonalizatutako zerbitzari konfigurazio bat antzeman du zure erabiltzaile id-arentzat \"%1$s\" domeinuan:
+\n%2$s"</string>
+    <string name="autodiscover_well_known_autofill_confirm">Erabili konfigurazioa</string>
+
+    <string name="action_mark_room_read">Markatu irakurritako gisa</string>
+    <string name="settings_notification_privacy_no_background_sync">Aplikazioak <b>ez</b> du hasiera-zerbitzarira bigarren planoan konektatzeko beharrik, bateria aurreztu beharko litzateke</string>
+    <plurals name="notification_compat_summary_line_for_room">
+        <item quantity="one">%1$s: mezu 1</item>
+        <item quantity="other">%1$s: %2$d mezu</item>
+    </plurals>
+    <plurals name="notification_compat_summary_title">
+        <item quantity="one">jakinarazpen %d</item>
+        <item quantity="other">%d jakinarazpen</item>
+    </plurals>
+
+    <string name="notification_unknown_new_event">Gertaera berria</string>
+    <string name="notification_unknown_room_name">Gela</string>
+    <string name="notification_new_messages">Mezu berriak</string>
+    <string name="notification_new_invitation">Gonbidapen berria</string>
+    <string name="notification_sender_me">Ni</string>
+    <string name="notification_inline_reply_failed">** Bidalketak huts egin du, ireki gela</string>
+
+    <string name="error_jitsi_not_supported_on_old_device">Sentitzen dugu, gailu zaharretan ezin dira Jitsi bidezko konferentzia deiak egin (Android OS 5.0 baino zaharragoak)</string>
+
+    <string name="title_activity_verify_device">Egiaztatu gailua</string>
+
+    <string name="encryption_information_unknown_ip">ip ezezaguna</string>
+    <string name="you_added_a_new_device_with_info">"Gailu berri bat zifratze gakoak eskatzen ari da.
+\nGailuaren izena: %1$s
+\nAzkenekoz ikusia:  %2$s
+\nEz baduzu saioa zuk hasi beste gailu batekin, ezikusi eskari hau."</string>
+    <string name="your_unverified_device_requesting_with_info">"Egiaztatu gabeko gailu bat zifratze gakoak eskatzen ari da.
+\nGailuaren izena: %1$s
+\nAzkenekoz ikusia:  %2$s
+\nEz baduzu saioa zuk hasi beste gailu batekin, ezikusi eskari hau."</string>
+
+    <string name="start_verification_short_label">Egiaztatu</string>
+    <string name="share_without_verifying_short_label">Partekatu</string>
+    <string name="key_share_request">Gakoa partekatzeko eskaria</string>
+    <string name="ignore_request_short_label">Ezikusi</string>
+
+    <string name="sas_verify_title">Egiaztatu testu kate labur bat alderatuz.</string>
+    <string name="sas_security_advise">Segurtasun gehiagorako, hau aurrez aurre edo komunikatzeko beste bide fidagarri bat erabiliz egitea aholkatzen dizugu.</string>
+    <string name="sas_verify_start_button_title">Hasi egiaztaketa</string>
+    <string name="sas_incoming_request_title">Jasotako egiaztaketa eskaria</string>
+    <string name="sas_incoming_request_description">Egiaztatu gailu hau fidagarri gisa markatzeko. Gailuak fidagarritzat jotzeak lasaitasuna ematen dizu muturretik muturrera zifratutako mezuak erabiltzean.</string>
+    <string name="sas_incoming_request_description_2">Gailu hau egiaztatzean fidagarri gisa markatuko da, eta zure gailua fidagarri gisa markatuko zaio ere zure kideari.</string>
+
+    <string name="sas_emoji_description">"Egiaztatu gailu hau honako emojia kidearen pantailan agertu  dela baieztatuz"</string>
+    <string name="sas_decimal_description">"Egiaztatu gailu hau honako zenbaki hauek kidearen pantailan agertu  direla baieztatuz"</string>
+
+    <string name="sas_incoming_verification_request_dialog">Egiaztaketa eskari bat jaso duzu.</string>
+    <string name="sas_view_request_action">Ikusi eskaria</string>
+    <string name="sas_waiting_for_partner">Kideak baieztatu bitartean zain…</string>
+
+    <string name="sas_verified">Egiaztatuta!</string>
+    <string name="sas_verified_successful">Ongi egiaztatu duzu gailu hau.</string>
+    <string name="sas_verified_successful_description">Kide honekin partekatutako mezu seguruak muturretik muturrera zifratuta daude eta ezin ditu beste inork irakurri.</string>
+    <string name="sas_got_it">Ulertuta</string>
+
+    <string name="sas_verifying_keys">Ez da ezer agertzen\? Bezero guztiek ez dute onartzen egiaztaketa interaktiboa oraindik. Erabili egiaztaketa metodo zaharra.</string>
+    <string name="sas_legacy_verification_button_title">Erabili egiaztaketa metodo zaharra.</string>
+
+    <string name="sas_verification_request_notification_channel_title">Gako-egiaztaketa</string>
+    <string name="sas_cancelled_dialog_title">Eskaria ezeztatuta</string>
+    <string name="sas_cancelled_by_other">Beste aldeak egiaztaketa ezeztatu du.
+\n%s</string>
+    <string name="sas_cancelled_by_me">Egiaztaketa ezeztatu da.
+\nArrazoia: %s</string>
+
+    <string name="sas_verification_request_notification_channel">Gailu-egiaztaketa interaktiboa</string>
+    <string name="sas_incoming_request_notif_title">Egiaztaketa eskaria</string>
+    <string name="sas_incoming_request_notif_content">%s erabiltzaileak zure gailua egiaztatu nahi du</string>
+
+    <string name="sas_error_m_user">Erabiltzaileak egiaztaketa ezeztatu du</string>
+    <string name="sas_error_m_timeout">Egiaztaketarako denbora-muga agortu da</string>
+    <string name="sas_error_m_unknown_transaction">Gailuak ez du transakzio horren berri</string>
+    <string name="sas_error_m_unknown_method">Gailua ez dator bat gako adostasunean, hash, MAC, edo SAS metodoan</string>
+    <string name="sas_error_m_mismatched_commitment">Hash-a ez dator bat</string>
+    <string name="sas_error_m_mismatched_sas">SAS-a ez dator bat</string>
+    <string name="sas_error_m_unexpected_message">Gailuak ustekabeko mezu bat jaso du</string>
+    <string name="sas_error_m_invalid_message">Baliogabeko mezu bat jaso da</string>
+    <string name="sas_error_m_key_mismatch">Gakoa ez dator bat</string>
+    <string name="sas_error_m_user_error">Erabiltzailea ez dator bat</string>
+    <string name="sas_error_unknown">Errore ezezaguna</string>
+
+    <string name="keys_backup_setup_override_backup_prompt_tile">Badago babes-kopia bat zure hasiera-zerbitzarian</string>
+    <string name="keys_backup_setup_override_backup_prompt_description">Badirudi gakoen babes-kopia ezarri duzula beste gailu betetik. Orain sortzen ari zarenarekin ordeztu nahi duzu\?</string>
+    <string name="keys_backup_setup_override_replace">Ordeztu</string>
+    <string name="keys_backup_setup_override_stop">Gelditu</string>
+
+    <string name="keys_backup_settings_checking_backup_state">Babes-kopiaren egoera egiaztatzen</string>
+    <string name="invalid_or_expired_credentials">Zure saioa amaitu da baliogabeko edo iraungitako kredentzialak direla eta.</string>
+
+    <string name="edit">Editatu</string>
+    <string name="reply">Erantzun</string>
+
+    <string name="global_retry">Saiatu berriro</string>
+    <string name="room_list_empty">Elkartu gelaren batetara aplikazioa erabiltzen hasteko.</string>
+    <string name="send_you_invite">Gonbidapen bat bidali dizu</string>
+    <string name="invited_by">%s erabiltzaileak gonbidatuta</string>
+
+    <string name="room_list_catchup_empty_title">Egunean zaude!</string>
+    <string name="room_list_catchup_empty_body">Ez duzu irakurri gabeko mezu gehiagorik</string>
+    <string name="room_list_catchup_welcome_title">Ongi etorri etxera!</string>
+    <string name="room_list_catchup_welcome_body">Jarri egunean hemengo irakurri gabeko mezuekin</string>
+    <string name="room_list_people_empty_title">Elkarrizketak</string>
+    <string name="room_list_people_empty_body">Zure mezu zuzenetako elkarrizketak hemen bistaratuko dira</string>
+    <string name="room_list_rooms_empty_title">Gelak</string>
+    <string name="room_list_rooms_empty_body">Zure gelak hemen bistaratuko dira</string>
+
+    <string name="title_activity_emoji_reaction_picker">Erreakzioak</string>
+    <string name="reactions_agree">Ados</string>
+    <string name="reactions_like">Gogokoa</string>
+    <string name="message_add_reaction">Gehitu erreakzioa</string>
+    <string name="message_view_reaction">Ikusi errekzioak</string>
+    <string name="reactions">Erreakzioak</string>
+
+    <string name="event_redacted_by_user_reason">Gertaera ezabatu du erabiltzaileak</string>
+    <string name="event_redacted_by_admin_reason">Gertaera moderatu du gelako administratzaileak</string>
+    <string name="last_edited_info_message">%s erabiltzaileak editatuta, azkenekoz: %s</string>
+
+
+    <string name="malformed_message">Gaizki formatutako gertaera, ezin da bistaratu</string>
+    <string name="create_new_room">Sortu gela berria</string>
+    <string name="error_no_network">Sarerik ez. Egiaztatu zure internet konexioa.</string>
+    <string name="action_change">Aldatu</string>
+    <string name="change_room_directory_network">Aldatu sarea</string>
+    <string name="please_wait">Itxaron mesedez…</string>
+    <string name="group_all_communities">Komunitate guztiak</string>
+
+    <string name="room_preview_no_preview">Gela hau ezin da aurreikusi</string>
+    <string name="room_preview_world_readable_room_not_supported_yet">Munduak irakurtzeko moduko gelaren aurrebista ez da oraindik onartzen RiotX bezeroan</string>
+
+    <string name="fab_menu_create_room">Gelak</string>
+    <string name="fab_menu_create_chat">Mezu zuzenak</string>
+
+    <string name="create_room_title">Gela berria</string>
+    <string name="create_room_action_create">SORTU</string>
+    <string name="create_room_name_hint">Gelaren izena</string>
+    <string name="create_room_public_title">Publikoa</string>
+    <string name="create_room_public_description">Edonor elkartu daiteke gela honetara</string>
+    <string name="create_room_directory_title">Gelen direktorioa</string>
+    <string name="create_room_directory_description">Argitaratu gela hau gelen direktorioan</string>
+
+    <string name="keys_backup_unable_to_get_trust_info">Errore bat gertatu da konfiantzazko informazioa jasotzean</string>
+    <string name="keys_backup_unable_to_get_keys_backup_data">Errore bat gertatu da gakoen babes-kopiaren datuak jasotzean</string>
+
+    <string name="alpha_disclaimer_title">Ongi etorri betara!</string>
+    <string name="alpha_disclaimer_content_line_1">RiotX oraindik garapenean dagoenez, ezaugarri batzuk faltan bota ditzakezu eta akatsen bat aurkitu dezakezu.</string>
+    <string name="alpha_disclaimer_content_line_2_gplay">Azken ezaugarrien zerrenda hemen dago beti : %1$s, eta akatsak aurkitzen badituzu bidali mesedez akatsen txosten bat Hasiera pantailako goi ezkerreko menua erabiliz, eta ahalik eta lasterren konponduko dugu.</string>
+    <string name="alpha_disclaimer_content_line_2_gplay_colored_part">Play Store-ko deskripzioa</string>
+    <string name="alpha_disclaimer_content_line_2_fdroid">Akatsak aurkitzen badituzu bidali mesedez akatsen txosten bat Hasiera pantailako goi ezkerreko menua erabiliz, eta ahalik eta lasterren konponduko dugu.</string>
+
+    <string name="import_e2e_keys_from_file">"Inportatu e2e gakoak \"%1$s\"  fitxategitik."</string>
+
+    <string name="settings_sdk_version">Matrix SDK bertsioa</string>
+    <string name="settings_other_third_party_notices">Beste hirugarrengoen adierazpenak</string>
+    <string name="navigate_to_room_when_already_in_the_room">Gela hau ikusten ari zara dagoeneko!</string>
+
+    <string name="quick_reactions">Erreakzio azkarrak</string>
+
+    <string name="settings_general_title">Orokorra</string>
+    <string name="settings_preferences">Hobespenak</string>
+    <string name="settings_security_and_privacy">Segurtasuna eta pribatutasuna</string>
+    <string name="settings_expert">Aditua</string>
+    <string name="settings_push_rules">Push arauak</string>
+    <string name="settings_push_rules_no_rules">Ez da push araurik zehaztu</string>
+    <string name="settings_push_gateway_no_pushers">Ez dago push arauentzako erregistratutako atebiderik</string>
+
+    <string name="push_gateway_item_app_id">app_id:</string>
+    <string name="push_gateway_item_push_key">push_gakoa:</string>
+    <string name="push_gateway_item_device_name">gailu_izena:</string>
+    <string name="push_gateway_item_url">Url-a:</string>
+    <string name="push_gateway_item_format">Formatua:</string>
+
+    <string name="preference_voice_and_video">Ahotsa eta bideoa</string>
+    <string name="preference_root_help_about">Laguntza eta honi buruz</string>
+
+
+    <string name="settings_troubleshoot_test_token_registration_quick_fix">Erregistratu token-a</string>
+
+    <string name="send_suggestion">Egin iradokizun bat</string>
+    <string name="send_suggestion_content">Idatzi zure iradokizuna azpian.</string>
+    <string name="send_suggestion_report_placeholder">Deskribatu zure iradokizuna hemen</string>
+    <string name="send_suggestion_sent">Eskerrik asko, iradokizuna ongi bidali da</string>
+    <string name="send_suggestion_failed">Huts egin su iradokizuna bidaltzean (%s)</string>
+
+    <string name="settings_labs_show_hidden_events_in_timeline">Erakutsi ezkutatutako gertaerak denbora lerroan</string>
+
+    <string name="store_riotx_title">RiotX - Hurrengo belaunaldiko Matrix bezeroa</string>
+    <string name="store_riotx_short_description">Matrix-erako bezero azkarrago eta arinago bat azken Android tresnak erabiliz eginak</string>
+    <string name="store_riotx_full_description">RiotX bezero berri bat da Matrix protokoloarentzako (Matrix.org): komunikazioa seguru eta deszentralizatuarentzako sare libre bat. RiotX Android plataformarako Riot bezeroaren berridazketa oso bat da, erabat berridatzitako Android SDK-n oinarritua.
+\n
+\nAbisua: hau beta bertsio bat da. RiotX garapen aktiboan dago eta baditu mugak zein akatsak (gehiegi ez espero dugu). Iruzkin guztiak ongi etorriak dira!
+\n
+\nRiotX bezeroak honakoa ahalbidetzen du: • Badagoen kontu batean saioa hasi • Gelak sortu eta gela publikoetara elkartu • Gonbidapenak onartu edo ukatu • Erabiltzailearen gelak zerrendatu • Gelaren xehetasunak ikusi • Testuzko mezuak bidali • Eranskinak bidali • Zifratutako geletan mezuak irakurri eta idatzi • Zifratzea: E2Egakoen babeskopia, gailuaren egiaztaketa aurreratua, gakoa partekatzeko eskaria eta erantzuna • Push jakinarazpena • Gai argia, iluna eta beltza
+\n
+\nEz dira oraindik Riot bezeroaren ezaugarri guztiak ezarri RiotX bezeroan. Falta diren (eta laster etorriko direnen) artean nabarmenak dira: • Kontua sortzea • Gelaren ezarpenak (gelako kideak zerrendatzea, eta abar.) • Txat zuzenerako gelak sortzea • Deiak • Trepetak • …</string>
+
+    <string name="push_gateway_item_app_display_name">app_display_name:</string>
+    <string name="bottom_action_people_x">Mezu zuzenak</string>
+
+    <string name="send_file_step_idle">Itxaroten…</string>
+    <string name="send_file_step_encrypting_thumbnail">Iruditxoa zifratzen…</string>
+    <string name="send_file_step_sending_thumbnail">"Iruditxoa bidaltzen  (%1$s / %2$s)"</string>
+    <string name="send_file_step_encrypting_file">Fitxategia zifratzen…</string>
+    <string name="send_file_step_sending_file">"Fitxategia bidaltzen  (%1$s / %2$s)"</string>
+
+    <string name="downloading_file">%1$s fitxategia deskargatzen…</string>
+    <string name="downloaded_file">%1$s fitxategia deskargatu da!</string>
+
+    <string name="edited_suffix">(editatua)</string>
+
+    <string name="riotx_no_registration_notice">%1$s kontua sortzeko.</string>
+    <string name="riotx_no_registration_notice_colored_part">Erabili aplikazio zaharra</string>
+
+
+    <string name="message_edits">Mezuen edizioak</string>
+    <string name="no_message_edits_found">Ez da ediziorik aurkitu</string>
+
+    <string name="room_filtering_filter_hint">Iragazi elkarrizketak…</string>
+    <string name="room_filtering_footer_title">Ezin duzu bilatzen ari zarena aurkitu\?</string>
+    <string name="room_filtering_footer_create_new_room">Sortu gela berria</string>
+    <string name="room_filtering_footer_create_new_direct_message">Bidali mezu zuzen berri bat</string>
+    <string name="room_filtering_footer_open_room_directory">Ikusi gelen direktorioa</string>
+
+    <string name="room_directory_search_hint">Izena edo ID-a (#adibidea:matrix.org)</string>
+
+    <string name="labs_swipe_to_reply_in_timeline">Gaitu hatza pasatzea denbora-lerroan erantzuteko</string>
+
+    <string name="link_copied_to_clipboard">Esteka arbelera kopiatu da</string>
+
+    <string name="settings_integration_manager">Integrazio kudeatzailea</string>
+
+    <string name="integration_manager_not_configured">Ez da integrazio kudeatzailerik konfiguratu.</string>
+    <string name="add_by_matrix_id">Gehitu matrix ID bidez</string>
+    <string name="creating_direct_room">Gela sortzen…</string>
+    <string name="direct_room_no_known_users">Ez da emaitzarik aurkitu, erabili gehitu matrix ID bidez zerbitzarian bilatzeko.</string>
+    <string name="direct_room_start_search">Hasi idazten emaitzak jasotzeko</string>
+    <string name="direct_room_filter_hint">Iragazi erabiltzaile-izena edo ID-a erabiliz…</string>
+
+    <string name="joining_room">Gelara elkartzen…</string>
+
+    <string name="message_view_edit_history">Ikusi edizioen historiala</string>
 
 </resources>

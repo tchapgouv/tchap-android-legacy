@@ -12,22 +12,29 @@
         android:src="@drawable/tchap_ic_pin_room"
         android:visibility="invisible" />
 
-    <include
-        android:id="@+id/room_avatar_layout"
-        layout="@layout/adapter_item_circular_avatar_room_view"
+    <im.vector.view.VectorCircularImageView
+        android:id="@+id/room_avatar"
         android:layout_width="40dp"
         android:layout_height="40dp"
+        android:layout_marginStart="6dp"
         android:layout_marginLeft="6dp"
         android:layout_marginTop="18dp"
-        android:layout_toRightOf="@+id/room_pin_ic" />
+        android:layout_toEndOf="@+id/room_pin_ic"
+        android:layout_toRightOf="@+id/room_pin_ic"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/avatar"
+        android:scaleType="centerCrop"
+        tools:src="@tools:sample/avatars"/>
 
     <ImageView
         android:id="@+id/room_avatar_encrypted_icon"
         android:layout_width="15dp"
         android:layout_height="15dp"
-        android:layout_alignBottom="@+id/room_avatar_layout"
+        android:layout_alignBottom="@+id/room_avatar"
+        android:layout_marginStart="-10dp"
         android:layout_marginLeft="-10dp"
-        android:layout_toRightOf="@+id/room_avatar_layout"
+        android:layout_toEndOf="@+id/room_avatar"
+        android:layout_toRightOf="@+id/room_avatar"
         android:src="@drawable/e2e_verified"
         android:tint="?attr/padlock_icon_tint_color"
         android:visibility="invisible"
@@ -37,9 +44,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
+        android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="10dp"
-        android:layout_toRightOf="@+id/room_avatar_layout"
+        android:layout_toEndOf="@+id/room_avatar"
+        android:layout_toRightOf="@+id/room_avatar"
+        android:paddingEnd="10dp"
         android:paddingRight="10dp">
 
         <!-- unread count badge -->
@@ -48,8 +58,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBaseline="@+id/room_name"
+            android:layout_alignParentStart="true"
             android:layout_alignParentLeft="true"
+            android:layout_marginStart="3dp"
             android:layout_marginLeft="3dp"
+            android:layout_marginEnd="5dp"
             android:layout_marginRight="5dp"
             android:gravity="center"
             android:minWidth="25dp"
@@ -65,6 +78,7 @@
             android:id="@+id/room_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_toEndOf="@+id/room_unread_count"
             android:layout_toRightOf="@+id/room_unread_count"
             android:ellipsize="end"
             android:fontFamily="sans-serif-regular"
@@ -80,8 +94,10 @@
             android:id="@+id/notification_mute_bell"
             android:layout_width="16dp"
             android:layout_height="16dp"
+            android:layout_marginStart="7dp"
             android:layout_marginLeft="7dp"
             android:layout_marginTop="2dp"
+            android:layout_toEndOf="@+id/room_name"
             android:layout_toRightOf="@+id/room_name"
             android:src="@drawable/tchap_ic_notification_mute_bell"
             android:visibility="gone" />
@@ -90,8 +106,9 @@
             android:id="@+id/room_member_domain"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="right"
+            android:layout_gravity="end"
             android:layout_marginTop="4dp"
+            android:layout_toStartOf="@+id/room_more_action_ic"
             android:layout_toLeftOf="@+id/room_more_action_ic"
             android:ellipsize="end"
             android:gravity="right"
@@ -107,6 +124,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/room_name"
+            android:layout_marginEnd="25dp"
             android:layout_marginRight="25dp"
             android:layout_marginTop="3dp"
             android:ellipsize="end"
@@ -120,6 +138,7 @@
             android:layout_width="15dp"
             android:layout_height="15dp"
             android:layout_alignBottom="@+id/room_name"
+            android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_alignTop="@+id/room_name"
             android:src="@drawable/vector_actions_9b"
@@ -130,9 +149,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
+            android:layout_marginEnd="5dp"
             android:layout_marginRight="5dp"
-            android:textColor="?attr/vctr_default_text_light_color"
+            android:textColor="?android:attr/textColorSecondary"
             android:textSize="12sp"
             tools:text="14 Mar" />
     </RelativeLayout>
@@ -141,7 +162,9 @@
         android:id="@+id/room_more_action_anchor"
         android:layout_width="1dp"
         android:layout_height="1dp"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
+        android:layout_marginEnd="20dp"
         android:layout_marginRight="20dp"
         android:visibility="gone" />
 
@@ -149,5 +172,6 @@
         android:id="@+id/room_more_action_click_area"
         android:layout_width="40dp"
         android:layout_height="match_parent"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true" />
 </RelativeLayout>

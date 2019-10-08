@@ -34,12 +34,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcelable;
-import android.preference.PreferenceManager;
-import androidx.annotation.NonNull;
-import androidx.fragment.app.FragmentActivity;
 
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -47,18 +42,25 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.matrix.androidsdk.MXDataHandler;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.preference.PreferenceManager;
+import androidx.core.content.ContextCompat;
+
 import org.matrix.androidsdk.MXSession;
+import org.matrix.androidsdk.core.Log;
+import org.matrix.androidsdk.core.callback.ApiCallback;
+import org.matrix.androidsdk.core.callback.SimpleApiCallback;
+import org.matrix.androidsdk.core.model.MatrixError;
 import org.matrix.androidsdk.crypto.data.MXDeviceInfo;
 import org.matrix.androidsdk.crypto.data.MXUsersDevicesMap;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomPreviewData;
 import org.matrix.androidsdk.data.RoomSummary;
 import org.matrix.androidsdk.db.MXMediaCache;
-import org.matrix.androidsdk.core.callback.ApiCallback;
-import org.matrix.androidsdk.core.callback.SimpleApiCallback;
-import org.matrix.androidsdk.core.model.MatrixError;
-import org.matrix.androidsdk.core.Log;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -85,10 +87,10 @@ import im.vector.contacts.ContactsManager;
 import im.vector.contacts.PIDsRetriever;
 import im.vector.extensions.MatrixSdkExtensionsKt;
 import im.vector.fragments.VectorUnknownDevicesFragment;
-import im.vector.push.PushManager;
-import im.vector.services.EventStreamService;
+import im.vector.listeners.YesNoListener;
+import im.vector.services.EventStreamServiceX;
+import im.vector.ui.badge.BadgeProxy;
 import im.vector.util.PreferencesManager;
-import me.leolin.shortcutbadger.ShortcutBadger;
 
 /**
  * Contains useful functions which are called in multiple activities.
@@ -149,6 +151,8 @@ public class CommonActivityUtils {
 
         if (session.isAlive()) {
             // stop the service
+            EventStreamServiceX.Companion.onLogout(context);
+            /*
             EventStreamService eventStreamService = EventStreamService.getInstance();
 
             // reported by a rageshake
@@ -157,13 +161,14 @@ public class CommonActivityUtils {
                 matrixIds.add(session.getMyUserId());
                 eventStreamService.stopAccounts(matrixIds);
             }
+            */
 
             // Publish to the server that we're now offline
             MyPresenceManager.getInstance(context, session).advertiseOffline();
             MyPresenceManager.remove(session);
 
             // clear notification
-            EventStreamService.removeNotification();
+            VectorApp.getInstance().getNotificationDrawerManager().clearAllEvents();
 
             // unregister from the push server.
             Matrix.getInstance(context).getPushManager().unregister(session, null);
@@ -179,16 +184,18 @@ public class CommonActivityUtils {
     }
 
     public static boolean shouldRestartApp(Context context) {
-        EventStreamService eventStreamService = EventStreamService.getInstance();
+        // EventStreamService eventStreamService = EventStreamService.getInstance();
 
         if (!Matrix.hasValidSessions()) {
             Log.e(LOG_TAG, "shouldRestartApp : the client has no valid session");
         }
 
+        /*
         if (null == eventStreamService) {
             Log.e(LOG_TAG, "eventStreamService is null : restart the event stream");
             CommonActivityUtils.startEventStreamService(context);
         }
+        */
 
         return !Matrix.hasValidSessions();
     }
@@ -254,12 +261,17 @@ public class CommonActivityUtils {
                 .apply();
     }
 
+
+    public static void restartApp(Context activity) {
+        restartApp(activity, false);
+    }
+
     /**
      * Restart the application after 100ms
      *
      * @param activity activity
      */
-    public static void restartApp(Activity activity) {
+    public static void restartApp(Context activity, boolean invalidatedCredentials) {
         // clear the preferences
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
 
@@ -275,7 +287,12 @@ public class CommonActivityUtils {
                     .putBoolean(RESTART_IN_PROGRESS_KEY, true)
                     .apply();
 
-            PendingIntent mPendingIntent = PendingIntent.getActivity(activity, 314159, new Intent(activity, TchapLoginActivity.class), PendingIntent.FLAG_CANCEL_CURRENT);
+            Intent loginIntent = new Intent(activity, TchapLoginActivity.class);
+            if (invalidatedCredentials) {
+                loginIntent.putExtra(TchapLoginActivity.EXTRA_RESTART_FROM_INVALID_CREDENTIALS, true);
+            }
+            PendingIntent mPendingIntent =
+                    PendingIntent.getActivity(activity, 314159, loginIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
             // so restart the application after 100ms
             AlarmManager mgr = (AlarmManager) activity.getSystemService(Context.ALARM_SERVICE);
@@ -284,7 +301,9 @@ public class CommonActivityUtils {
             System.exit(0);
         } else {
             Log.e(LOG_TAG, "The application is restarting, please wait !!");
-            activity.finish();
+            if (activity instanceof Activity) {
+                ((Activity) activity).finish();
+            }
         }
     }
 
@@ -296,6 +315,68 @@ public class CommonActivityUtils {
      */
     public static void logout(Activity activity) {
         logout(activity, true);
+    }
+
+    private static boolean isRecoveringFromInvalidatedToken = false;
+
+    public static void recoverInvalidatedToken() {
+
+        if (isRecoveringFromInvalidatedToken) {
+            //ignore, we are doing it
+            return;
+        }
+        isRecoveringFromInvalidatedToken = true;
+        Context context = VectorApp.getCurrentActivity() != null ? VectorApp.getCurrentActivity() : VectorApp.getInstance();
+
+        try {
+            VectorApp.getInstance().getNotificationDrawerManager().clearAllEvents();
+            EventStreamServiceX.Companion.onLogout(context);
+            // stopEventStream(context);
+
+            BadgeProxy.INSTANCE.updateBadgeCount(context, 0);
+
+            MXSession session = Matrix.getInstance(context).getDefaultSession();
+
+            // Publish to the server that we're now offline
+            MyPresenceManager.getInstance(context, session).advertiseOffline();
+            MyPresenceManager.remove(session);
+
+            // clear the preferences
+            PreferencesManager.clearPreferences(context);
+
+            // reset the FCM
+            Matrix.getInstance(context).getPushManager().resetFCMRegistration();
+
+            // clear the preferences
+            Matrix.getInstance(context).getPushManager().clearPreferences();
+
+            // Clear the credentials
+            Matrix.getInstance(context).getLoginStorage().clear();
+
+            // clear the tmp store list
+            Matrix.getInstance(context).clearTmpStoresList();
+
+            // reset the contacts
+            PIDsRetriever.getInstance().reset();
+            ContactsManager.getInstance().reset();
+
+            MXMediaCache.clearThumbnailsCache(context);
+
+            Matrix.getInstance(context).clearSessions(context, true, new SimpleApiCallback<Void>() {
+
+                @Override
+                public void onSuccess(Void info) {
+
+                }
+            });
+            session.clear(context);
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "## recoverInvalidatedToken: Error while cleaning: ", e);
+        } finally {
+            // go to login page
+            CommonActivityUtils.restartApp(context, true);
+            isRecoveringFromInvalidatedToken = false;
+        }
     }
 
     /**
@@ -310,14 +391,11 @@ public class CommonActivityUtils {
         // if no activity is provided, use the application context instead.
         final Context context = (null == activity) ? VectorApp.getInstance().getApplicationContext() : activity;
 
-        EventStreamService.removeNotification();
-        stopEventStream(context);
+        VectorApp.getInstance().getNotificationDrawerManager().clearAllEvents();
+        EventStreamServiceX.Companion.onLogout(activity);
+        // stopEventStream(context);
 
-        try {
-            ShortcutBadger.setBadge(context, 0);
-        } catch (Exception e) {
-            Log.d(LOG_TAG, "## logout(): Exception Msg=" + e.getMessage(), e);
-        }
+        BadgeProxy.INSTANCE.updateBadgeCount(context, 0);
 
         // warn that the user logs out
         Collection<MXSession> sessions = Matrix.getMXSessions(context);
@@ -337,15 +415,10 @@ public class CommonActivityUtils {
             // display a dummy activity until the logout is done
             Matrix.getInstance(context).getPushManager().clearPreferences();
 
-            if (null != activity) {
-                // go to login page
-                activity.startActivity(new Intent(activity, LoggingOutActivity.class));
-                activity.finish();
-            } else {
-                Intent intent = new Intent(context, LoggingOutActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                context.startActivity(intent);
-            }
+            Intent intent = new Intent(context, LoggingOutActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            context.startActivity(intent);
+
         }
 
         // clear credentials
@@ -367,13 +440,14 @@ public class CommonActivityUtils {
 
                 if (goToLoginPage) {
                     Activity activeActivity = VectorApp.getCurrentActivity();
+
+                    // go to login page
+                    Intent intent = new Intent(activeActivity, TchapLoginActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
                     if (null != activeActivity) {
-                        // go to login page
-                        activeActivity.startActivity(new Intent(activeActivity, TchapLoginActivity.class));
-                        activeActivity.finish();
+                        activeActivity.startActivity(intent);
                     } else {
-                        Intent intent = new Intent(context, TchapLoginActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         context.startActivity(intent);
                     }
                 }
@@ -401,14 +475,11 @@ public class CommonActivityUtils {
 
             @Override
             public void onSuccess(Void info) {
-                EventStreamService.removeNotification();
-                stopEventStream(context);
+                VectorApp.getInstance().getNotificationDrawerManager().clearAllEvents();
+                EventStreamServiceX.Companion.onLogout(context);
+                // stopEventStream(context);
 
-                try {
-                    ShortcutBadger.setBadge(context, 0);
-                } catch (Exception e) {
-                    Log.d(LOG_TAG, "## logout(): Exception Msg=" + e.getMessage(), e);
-                }
+                BadgeProxy.INSTANCE.updateBadgeCount(context, 0);
 
                 // Publish to the server that we're now offline
                 MyPresenceManager.getInstance(context, mxSession).advertiseOffline();
@@ -449,163 +520,6 @@ public class CommonActivityUtils {
         Intent intent = new Intent(activity, TchapLoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         activity.startActivity(intent);
-    }
-
-    //==============================================================================================================
-    // Events stream service
-    //==============================================================================================================
-
-    /**
-     * Indicate if a user is logged out or not. If no default session is enabled,
-     * no user is logged.
-     *
-     * @param aContext App context
-     * @return true if no user is logged in, false otherwise
-     */
-    private static boolean isUserLogout(Context aContext) {
-        boolean retCode = false;
-
-        if (null == aContext) {
-            retCode = true;
-        } else {
-            if (null == Matrix.getInstance(aContext.getApplicationContext()).getDefaultSession()) {
-                retCode = true;
-            }
-        }
-
-        return retCode;
-    }
-
-    /**
-     * Send an action to the events service.
-     *
-     * @param context the context.
-     * @param action  the action to send.
-     */
-    private static void sendEventStreamAction(Context context, EventStreamService.StreamAction action) {
-        Context appContext = context.getApplicationContext();
-
-        if (!isUserLogout(appContext)) {
-            Intent eventStreamService = new Intent(appContext, EventStreamService.class);
-
-            if ((action == EventStreamService.StreamAction.CATCHUP) && (EventStreamService.isStopped())) {
-                Log.d(LOG_TAG, "sendEventStreamAction : auto restart");
-                eventStreamService.putExtra(EventStreamService.EXTRA_AUTO_RESTART_ACTION, EventStreamService.EXTRA_AUTO_RESTART_ACTION);
-            } else {
-                Log.d(LOG_TAG, "sendEventStreamAction " + action);
-                eventStreamService.putExtra(EventStreamService.EXTRA_STREAM_ACTION, action.ordinal());
-            }
-
-            appContext.startService(eventStreamService);
-        } else {
-            Log.d(LOG_TAG, "## sendEventStreamAction(): \"" + action + "\" action not sent - user logged out");
-        }
-    }
-
-    /**
-     * Stop the event stream.
-     *
-     * @param context the context.
-     */
-    private static void stopEventStream(Context context) {
-        Log.d(LOG_TAG, "stopEventStream");
-        sendEventStreamAction(context, EventStreamService.StreamAction.STOP);
-    }
-
-    /**
-     * Pause the event stream.
-     *
-     * @param context the context.
-     */
-    public static void pauseEventStream(Context context) {
-        Log.d(LOG_TAG, "pauseEventStream");
-        sendEventStreamAction(context, EventStreamService.StreamAction.PAUSE);
-    }
-
-    /**
-     * Resume the events stream
-     *
-     * @param context the context.
-     */
-    public static void resumeEventStream(Context context) {
-        Log.d(LOG_TAG, "resumeEventStream");
-        sendEventStreamAction(context, EventStreamService.StreamAction.RESUME);
-    }
-
-    /**
-     * Trigger a event stream catchup i.e. there is only sync/ call.
-     *
-     * @param context the context.
-     */
-    public static void catchupEventStream(Context context) {
-        if (VectorApp.isAppInBackground()) {
-            Log.d(LOG_TAG, "catchupEventStream");
-            sendEventStreamAction(context, EventStreamService.StreamAction.CATCHUP);
-        }
-    }
-
-    /**
-     * Warn the events stream that there was a push status update.
-     *
-     * @param context the context.
-     */
-    public static void onPushUpdate(Context context) {
-        Log.d(LOG_TAG, "onPushUpdate");
-        sendEventStreamAction(context, EventStreamService.StreamAction.PUSH_STATUS_UPDATE);
-    }
-
-    /**
-     * Start the events stream service.
-     *
-     * @param context the context.
-     */
-    public static void startEventStreamService(Context context) {
-        // the events stream service is launched
-        // either the application has never be launched
-        // or the service has been killed on low memory
-        if (EventStreamService.isStopped()) {
-            List<String> matrixIds = new ArrayList<>();
-            Collection<MXSession> sessions = Matrix.getInstance(context.getApplicationContext()).getSessions();
-
-            if ((null != sessions) && (sessions.size() > 0)) {
-                PushManager pushManager = Matrix.getInstance(context).getPushManager();
-                Log.e(LOG_TAG, "## startEventStreamService() : restart EventStreamService");
-
-                for (MXSession session : sessions) {
-                    // reported by GA
-                    if ((null != session.getDataHandler()) && (null != session.getDataHandler().getStore())) {
-                        boolean isSessionReady = session.getDataHandler().getStore().isReady();
-
-                        if (!isSessionReady) {
-                            Log.e(LOG_TAG, "## startEventStreamService() : the session " + session.getMyUserId() + " is not opened");
-                            session.getDataHandler().getStore().open();
-                        } else {
-                            // it seems that the crypto is not always restarted properly after a crash
-                            Log.e(LOG_TAG, "## startEventStreamService() : check if the crypto of the session " + session.getMyUserId());
-                            session.checkCrypto();
-                        }
-
-                        session.setSyncDelay(pushManager.isBackgroundSyncAllowed() ? pushManager.getBackgroundSyncDelay() : 0);
-                        session.setSyncTimeout(pushManager.getBackgroundSyncTimeOut());
-
-                        // session to activate
-                        matrixIds.add(session.getCredentials().userId);
-                    }
-                }
-
-                // check size
-                if (matrixIds.size() > 0) {
-                    Intent intent = new Intent(context, EventStreamService.class);
-                    intent.putExtra(EventStreamService.EXTRA_MATRIX_IDS, matrixIds.toArray(new String[matrixIds.size()]));
-                    intent.putExtra(EventStreamService.EXTRA_STREAM_ACTION, EventStreamService.StreamAction.START.ordinal());
-                    ContextCompat.startForegroundService(context, intent);
-                }
-            }
-
-            if (EventStreamService.getInstance() != null) {
-                EventStreamService.getInstance().refreshForegroundNotification();
-            }
-        }
     }
 
     //==============================================================================================================
@@ -1218,89 +1132,6 @@ public class CommonActivityUtils {
     }
 
     //==============================================================================================================
-    // Application badge (displayed in the launcher)
-    //==============================================================================================================
-
-    private static int mBadgeValue = 0;
-
-    /**
-     * Update the application badge value.
-     *
-     * @param context    the context
-     * @param badgeValue the new badge value
-     */
-    public static void updateBadgeCount(Context context, int badgeValue) {
-        try {
-            mBadgeValue = badgeValue;
-            ShortcutBadger.setBadge(context, badgeValue);
-        } catch (Exception e) {
-            Log.e(LOG_TAG, "## updateBadgeCount(): Exception Msg=" + e.getMessage(), e);
-        }
-    }
-
-    /**
-     * Refresh the badge count for specific configurations.<br>
-     * The refresh is only effective if the device is:
-     * <ul><li>offline</li><li>does not support FCM</li>
-     * <li>FCM registration failed</li>
-     * <br>Notifications rooms are parsed to track the notification count value.
-     *
-     * @param aSession session value
-     * @param aContext App context
-     */
-    public static void specificUpdateBadgeUnreadCount(MXSession aSession, Context aContext) {
-        MXDataHandler dataHandler;
-
-        // sanity check
-        if ((null == aContext) || (null == aSession)) {
-            Log.w(LOG_TAG, "## specificUpdateBadgeUnreadCount(): invalid input null values");
-        } else if ((null == (dataHandler = aSession.getDataHandler()))) {
-            Log.w(LOG_TAG, "## specificUpdateBadgeUnreadCount(): invalid DataHandler instance");
-        } else {
-            if (aSession.isAlive()) {
-                boolean isRefreshRequired;
-                PushManager pushManager = Matrix.getInstance(aContext).getPushManager();
-
-                // update the badge count if the device is offline, FCM is not supported or FCM registration failed
-                isRefreshRequired = !Matrix.getInstance(aContext).isConnected();
-                isRefreshRequired |= (null != pushManager) && (!pushManager.useFcm() || !pushManager.hasRegistrationToken());
-
-                if (isRefreshRequired) {
-                    updateBadgeCount(aContext, dataHandler);
-                }
-            }
-        }
-    }
-
-    /**
-     * Update the badge count value according to the rooms content.
-     *
-     * @param aContext     App context
-     * @param aDataHandler data handler instance
-     */
-    private static void updateBadgeCount(Context aContext, MXDataHandler aDataHandler) {
-        //sanity check
-        if ((null == aContext) || (null == aDataHandler)) {
-            Log.w(LOG_TAG, "## updateBadgeCount(): invalid input null values");
-        } else if (null == aDataHandler.getStore()) {
-            Log.w(LOG_TAG, "## updateBadgeCount(): invalid store instance");
-        } else {
-            List<Room> roomCompleteList = new ArrayList<>(aDataHandler.getStore().getRooms());
-            int unreadRoomsCount = 0;
-
-            for (Room room : roomCompleteList) {
-                if (room.getNotificationCount() > 0) {
-                    unreadRoomsCount++;
-                }
-            }
-
-            // update the badge counter
-            Log.d(LOG_TAG, "## updateBadgeCount(): badge update count=" + unreadRoomsCount);
-            CommonActivityUtils.updateBadgeCount(aContext, unreadRoomsCount);
-        }
-    }
-
-    //==============================================================================================================
     // Low memory management
     //==============================================================================================================
 
@@ -1368,7 +1199,7 @@ public class CommonActivityUtils {
                     CommonActivityUtils.restartApp(activity);
                 } else {
                     Log.e(LOW_MEMORY_LOG_TAG, "clear the application cache");
-                    Matrix.getInstance(activity).reloadSessions(activity);
+                    Matrix.getInstance(activity).reloadSessions(activity, true);
                 }
             } else {
                 Log.e(LOW_MEMORY_LOG_TAG, "Wait to be concerned");
@@ -1403,20 +1234,45 @@ public class CommonActivityUtils {
      *
      * @param deviceInfo the device info
      */
-    static public <T> void displayDeviceVerificationDialog(final MXDeviceInfo deviceInfo,
-                                                           final String sender,
-                                                           final MXSession session,
-                                                           Activity activiy,
-                                                           final ApiCallback<Void> callback) {
-
+    public static void displayDeviceVerificationDialog(final MXDeviceInfo deviceInfo,
+                                                       final String sender,
+                                                       final MXSession session,
+                                                       Activity activity,
+                                                       @Nullable Fragment fragment,
+                                                       int reqCode) {
         // sanity check
         if ((null == deviceInfo) || (null == sender) || (null == session)) {
             Log.e(LOG_TAG, "## displayDeviceVerificationDialog(): invalid input parameters");
             return;
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(activiy);
-        LayoutInflater inflater = activiy.getLayoutInflater();
+        //Priority is to use new verification method, and fallback to older if user chooses to
+
+        Intent intent = SASVerificationActivity.Companion.outgoingIntent(activity, session.getMyUserId(), deviceInfo.userId, deviceInfo.deviceId);
+        if (fragment != null) {
+            fragment.startActivityForResult(intent, reqCode);
+        } else {
+            activity.startActivityForResult(intent, reqCode);
+        }
+    }
+
+    /**
+     * Display the device verification warning
+     *
+     * @param deviceInfo the device info
+     */
+    public static void displayDeviceVerificationDialogLegacy(final MXDeviceInfo deviceInfo,
+                                                             final String sender,
+                                                             final MXSession session,
+                                                             Activity activity,
+                                                             @NonNull final YesNoListener yesNoListener) {
+        // sanity check
+        if ((null == deviceInfo) || (null == sender) || (null == session)) {
+            Log.e(LOG_TAG, "## displayDeviceVerificationDialog(): invalid input parameters");
+            return;
+        }
+
+        LayoutInflater inflater = activity.getLayoutInflater();
 
         View layout = inflater.inflate(R.layout.dialog_device_verify, null);
 
@@ -1431,21 +1287,26 @@ public class CommonActivityUtils {
         textView = layout.findViewById(R.id.encrypted_device_info_device_key);
         textView.setText(MatrixSdkExtensionsKt.getFingerprintHumanReadable(deviceInfo));
 
-        builder
+        new AlertDialog.Builder(activity)
                 .setTitle(R.string.encryption_information_verify_device)
                 .setView(layout)
                 .setPositiveButton(R.string.encryption_information_verify, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        session.getCrypto().setDeviceVerification(MXDeviceInfo.DEVICE_VERIFICATION_VERIFIED, deviceInfo.deviceId, sender, callback);
+                        session.getCrypto().setDeviceVerification(MXDeviceInfo.DEVICE_VERIFICATION_VERIFIED, deviceInfo.deviceId, sender,
+                                new SimpleApiCallback<Void>() {
+                                    // Note: onSuccess() is the only method which will be called
+                                    @Override
+                                    public void onSuccess(Void info) {
+                                        yesNoListener.yes();
+                                    }
+                                });
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        if (null != callback) {
-                            callback.onSuccess(null);
-                        }
+                        yesNoListener.no();
                     }
                 })
                 .show();

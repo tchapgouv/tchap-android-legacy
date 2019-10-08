@@ -30,14 +30,14 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import org.jetbrains.anko.ToastsKt;
-import org.matrix.androidsdk.data.Room;
-import org.matrix.androidsdk.data.store.IMXStore;
+import org.matrix.androidsdk.core.Log;
 import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.core.callback.SimpleApiCallback;
-import org.matrix.androidsdk.rest.model.CreateRoomParams;
 import org.matrix.androidsdk.core.model.MatrixError;
+import org.matrix.androidsdk.data.Room;
+import org.matrix.androidsdk.data.store.IMXStore;
+import org.matrix.androidsdk.rest.model.CreateRoomParams;
 import org.matrix.androidsdk.rest.model.RoomMember;
-import org.matrix.androidsdk.core.Log;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -124,6 +124,8 @@ public class VectorRoomCreationActivity extends MXCActionBarActivity {
 
     @Override
     public void initUiAndData() {
+        configureToolbar();
+
         if (CommonActivityUtils.shouldRestartApp(this)) {
             Log.e(LOG_TAG, "onCreate : Restart the application.");
             CommonActivityUtils.restartApp(this);

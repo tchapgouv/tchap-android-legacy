@@ -19,13 +19,14 @@
 package im.vector.adapters;
 
 import android.content.Context;
-import androidx.core.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.core.content.ContextCompat;
 
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
@@ -38,7 +39,6 @@ import im.vector.R;
 import im.vector.activity.VectorMemberDetailsActivity;
 import im.vector.ui.themes.ThemeUtils;
 import im.vector.util.VectorUtils;
-import im.vector.view.VectorCircularImageView;
 
 /**
  * An adapter which can display the available actions list
@@ -97,7 +97,7 @@ public class VectorMemberDetailsAdapter extends BaseExpandableListAdapter {
      * Recycle view holder class.
      */
     private static class MemberDetailsViewHolder {
-        final VectorCircularImageView mVectorCircularImageView;
+        final ImageView mVectorCircularImageView;
         final ImageView mActionImageView;
         final TextView mActionDescTextView;
         final View mRoomAvatarLayout;
@@ -366,7 +366,7 @@ public class VectorMemberDetailsAdapter extends BaseExpandableListAdapter {
         // room selection
         if (null != currentItem.mRoom) {
             // room name
-            viewHolder.mActionDescTextView.setTextColor(ThemeUtils.INSTANCE.getColor(mContext, R.attr.vctr_riot_primary_text_color));
+            viewHolder.mActionDescTextView.setTextColor(ThemeUtils.INSTANCE.getColor(mContext, android.R.attr.textColorTertiary));
             viewHolder.mActionDescTextView.setText(DinsicUtils.getRoomDisplayName(mContext, currentItem.mRoom));
 
             // room avatar
@@ -392,13 +392,18 @@ public class VectorMemberDetailsAdapter extends BaseExpandableListAdapter {
 
             viewHolder.mActionImageView.setImageResource(currentItem.mIconResourceId);
 
-            if (currentItem.mIconResourceId != R.drawable.ic_remove_circle_outline_red) {
+            if (currentItem.mIconResourceId == R.drawable.ic_remove_circle_outline_red) {
+                // Tint in red
+                viewHolder.mActionImageView.setImageDrawable(
+                        ThemeUtils.INSTANCE.tintDrawableWithColor(viewHolder.mActionImageView.getDrawable(),
+                                ContextCompat.getColor(mContext, R.color.vector_fuchsia_color)));
+            } else {
                 viewHolder.mActionImageView.setImageDrawable(
                         ThemeUtils.INSTANCE.tintDrawable(mContext, viewHolder.mActionImageView.getDrawable(), R.attr.vctr_settings_icon_tint_color));
             }
 
             // update the text colour: specific colour is required for the remove action
-            int colourTxt = ThemeUtils.INSTANCE.getColor(mContext, R.attr.vctr_riot_primary_text_color);
+            int colourTxt = ThemeUtils.INSTANCE.getColor(mContext, android.R.attr.textColorTertiary);
 
             if (VectorMemberDetailsActivity.ITEM_ACTION_KICK == currentItem.mActionType) {
                 colourTxt = ContextCompat.getColor(mContext, R.color.vector_fuchsia_color);

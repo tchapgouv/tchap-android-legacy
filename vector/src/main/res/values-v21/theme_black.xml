@@ -1,11 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
     <style name="AppTheme.Black" parent="AppTheme.Base.Black">
-        <item name="android:navigationBarColor">?attr/vctr_primary_dark_color</item>
-    </style>
+        <item name="android:navigationBarColor">?colorPrimaryDark</item>
 
-    <style name="AppTheme.NoActionBar.Black" parent="AppTheme.NoActionBar.Base.Black">
-        <item name="android:navigationBarColor">?attr/vctr_primary_dark_color</item>
+        <!-- enable window content transitions -->
+        <item name="android:windowContentTransitions">true</item>
     </style>
 
 </resources>

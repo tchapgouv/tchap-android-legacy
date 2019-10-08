@@ -17,7 +17,6 @@
 package im.vector.util
 
 import android.app.Activity
-import android.app.Fragment
 import android.content.ActivityNotFoundException
 import android.content.ContentValues
 import android.content.Context
@@ -27,9 +26,10 @@ import android.os.Build
 import android.provider.Browser
 import android.provider.MediaStore
 import androidx.core.content.FileProvider
-import org.jetbrains.anko.toast
+import androidx.fragment.app.Fragment
 import im.vector.BuildConfig
 import im.vector.R
+import org.jetbrains.anko.toast
 import org.matrix.androidsdk.core.Log
 import java.io.File
 import java.text.SimpleDateFormat
@@ -53,6 +53,7 @@ fun openUrlInExternalBrowser(context: Context, uri: Uri?) {
     uri?.let {
         val browserIntent = Intent(Intent.ACTION_VIEW, it).apply {
             putExtra(Browser.EXTRA_APPLICATION_ID, context.packageName)
+            putExtra(Browser.EXTRA_CREATE_NEW_TAB, true)
         }
 
         try {
@@ -237,5 +238,20 @@ fun openMedia(activity: Activity, savedMediaPath: String, mimeType: String) {
         activity.startActivity(intent)
     } catch (activityNotFoundException: ActivityNotFoundException) {
         activity.toast(R.string.error_no_external_application_found)
+    }
+}
+
+/**
+ * Open the play store to the provided application Id
+ */
+fun openPlayStore(activity: Activity, appId: String) {
+    try {
+        activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$appId")))
+    } catch (activityNotFoundException: android.content.ActivityNotFoundException) {
+        try {
+            activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=$appId")))
+        } catch (activityNotFoundException: ActivityNotFoundException) {
+            activity.toast(R.string.error_no_external_application_found)
+        }
     }
 }

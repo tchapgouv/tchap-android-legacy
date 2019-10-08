@@ -19,11 +19,11 @@ package im.vector.activity
 
 import android.content.Context
 import android.content.Intent
-import androidx.annotation.CallSuper
 import android.text.TextUtils
+import androidx.annotation.CallSuper
 import im.vector.R
+import im.vector.extensions.appendParamToUrl
 import im.vector.types.JsonDict
-import im.vector.ui.themes.ActivityOtherThemes
 import im.vector.util.toJsonMap
 import im.vector.widgets.WidgetsManager
 import org.matrix.androidsdk.core.callback.ApiCallback
@@ -31,7 +31,6 @@ import org.matrix.androidsdk.rest.model.Event
 import org.matrix.androidsdk.core.model.MatrixError
 import org.matrix.androidsdk.rest.model.RoomMember
 import org.matrix.androidsdk.core.Log
-import java.net.URLEncoder
 import java.util.*
 
 class IntegrationManagerActivity : AbstractWidgetActivity() {
@@ -42,8 +41,6 @@ class IntegrationManagerActivity : AbstractWidgetActivity() {
 
     private var mWidgetId: String? = null
     private var mScreenId: String? = null
-
-    override fun getOtherThemes() = ActivityOtherThemes.NoActionBar
 
     override fun getLayoutRes() = R.layout.activity_integration_manager
 
@@ -58,35 +55,39 @@ class IntegrationManagerActivity : AbstractWidgetActivity() {
 
         waitingView = findViewById(R.id.integration_progress_layout)
 
-        showWaitingView()
-
         super.initUiAndData()
+
+        // Some widgets need popup to be enabled
+        mWebView.settings.javaScriptCanOpenWindowsAutomatically = true
     }
 
     /* ==========================================================================================
      * IMPLEMENTS METHOD
      * ========================================================================================== */
 
+    override fun canScalarTokenBeProvided() = true
+
     /**
      * Compute the integration URL
      *
      * @return the integration URL
      */
-    override fun buildInterfaceUrl(scalarToken: String): String? {
+    override fun buildInterfaceUrl(scalarToken: String?): String? {
         try {
-            var url = getString(R.string.integrations_ui_url) + "?" +
-                    "scalar_token=" + URLEncoder.encode(scalarToken, "utf-8") + "&" +
-                    "room_id=" + URLEncoder.encode(mRoom!!.roomId, "utf-8")
-
-            if (null != mWidgetId) {
-                url += "&integ_id=" + URLEncoder.encode(mWidgetId, "utf-8")
-            }
-
-            if (null != mScreenId) {
-                url += "&screen=" + URLEncoder.encode(mScreenId, "utf-8")
-            }
-
-            return url
+            return StringBuilder(widgetManager.uiUrl)
+                    .apply {
+                        scalarToken?.let {
+                            appendParamToUrl("scalar_token", it)
+                        }
+                        mWidgetId?.let {
+                            appendParamToUrl("integ_id", it)
+                        }
+                        mScreenId?.let {
+                            appendParamToUrl("screen", it)
+                        }
+                    }
+                    .appendParamToUrl("room_id", mRoom!!.roomId)
+                    .toString()
         } catch (e: Exception) {
             Log.e(LOG_TAG, "## buildInterfaceUrl() failed " + e.message, e)
         }
@@ -258,7 +259,7 @@ class IntegrationManagerActivity : AbstractWidgetActivity() {
 
         Log.d(LOG_TAG, "Received request to get widget in room " + mRoom!!.roomId)
 
-        val widgets = WidgetsManager.getSharedInstance().getActiveWidgets(mSession, mRoom)
+        val widgets = widgetManager.getActiveWidgets(mSession, mRoom)
         val responseData = ArrayList<JsonDict<Any>>()
 
         for (widget in widgets) {

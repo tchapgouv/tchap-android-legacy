@@ -87,14 +87,6 @@
                 android:layout_gravity="center"
                 android:visibility="visible"/>
         </FrameLayout>
-
-        <ProgressBar
-            android:id="@+id/search_load_oldest_progress"
-            android:layout_height="40dp"
-            android:layout_width="match_parent"
-            android:layout_alignParentLeft="true"
-            android:visibility="gone"
-            android:indeterminate="true" />
     </RelativeLayout>
 
 </RelativeLayout>

@@ -27,17 +27,18 @@ import android.database.Cursor;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
-import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
-import androidx.core.content.ContextCompat;
 import android.text.TextUtils;
 
+import androidx.core.content.ContextCompat;
+import androidx.preference.PreferenceManager;
+
 import org.matrix.androidsdk.MXSession;
-import org.matrix.androidsdk.core.listeners.IMXNetworkEventListener;
+import org.matrix.androidsdk.core.Log;
 import org.matrix.androidsdk.core.callback.ApiCallback;
+import org.matrix.androidsdk.core.listeners.IMXNetworkEventListener;
 import org.matrix.androidsdk.core.model.MatrixError;
 import org.matrix.androidsdk.rest.model.User;
-import org.matrix.androidsdk.core.Log;
 
 import java.util.ArrayList;
 import java.util.Collection;

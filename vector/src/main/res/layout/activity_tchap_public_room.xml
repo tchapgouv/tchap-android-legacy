@@ -39,7 +39,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/home_toolbar"
-            android:background="@color/vector_green_color"
+            android:background="?attr/colorAccent"
             android:indeterminate="true"
             android:visibility="gone" />
 
@@ -61,7 +61,7 @@
                 android:id="@+id/fragment_container"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="?attr/vctr_riot_primary_background_color" />
+                android:background="?android:attr/colorBackground" />
 
             <FrameLayout
                 android:id="@+id/listView_spinner_views"
@@ -85,7 +85,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="?attr/vctr_riot_primary_background_color"
+        android:background="?android:attr/colorBackground"
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/vector_home_menu_header"
         app:itemIconTint="?attr/vctr_home_navigation_icon_color"

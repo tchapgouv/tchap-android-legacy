@@ -20,7 +20,6 @@ package im.vector.adapters;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Handler;
-import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -32,17 +31,19 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+
 import org.matrix.androidsdk.MXDataHandler;
 import org.matrix.androidsdk.MXSession;
-import org.matrix.androidsdk.data.Room;
-import org.matrix.androidsdk.db.MXMediaCache;
+import org.matrix.androidsdk.core.Log;
 import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.core.model.MatrixError;
+import org.matrix.androidsdk.data.Room;
+import org.matrix.androidsdk.db.MXMediaCache;
 import org.matrix.androidsdk.rest.model.PowerLevels;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.rest.model.pid.RoomThirdPartyInvite;
-import org.matrix.androidsdk.core.Log;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -731,10 +732,8 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
         // set the group title
         String titleValue = getGroupTitle(aGroupPosition);
         viewHolder.mTitleTxtView.setText(titleValue);
-
-        // set the expander logo
-        int expanderLogoResId = aIsExpanded ? R.drawable.ic_material_expand_more_black : R.drawable.ic_material_expand_less_black;
-        viewHolder.mExpanderLogoImageView.setImageResource(expanderLogoResId);
+        int expandLogoRes = aIsExpanded ? R.drawable.ic_material_expand_more_black : R.drawable.ic_material_expand_less_black;
+        viewHolder.mExpanderLogoImageView.setImageResource(expandLogoRes);
 
         return aConvertView;
     }
@@ -975,7 +974,7 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
             });
         }
 
-        int backgroundColor = ThemeUtils.INSTANCE.getColor(mContext, R.attr.vctr_riot_primary_background_color);
+        int backgroundColor = ThemeUtils.INSTANCE.getColor(mContext, android.R.attr.colorBackground);
 
         viewHolder.mSwipeCellLayout.setBackgroundColor(backgroundColor);
 

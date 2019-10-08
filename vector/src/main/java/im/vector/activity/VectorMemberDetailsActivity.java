@@ -18,13 +18,11 @@
  */
 package im.vector.activity;
 
+import android.app.ActivityOptions;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.ExifInterface;
-import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
+import android.os.Build;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.MenuItem;
@@ -35,9 +33,15 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.jetbrains.annotations.NotNull;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.call.IMXCall;
+import org.matrix.androidsdk.core.Log;
+import org.matrix.androidsdk.core.callback.ApiCallback;
+import org.matrix.androidsdk.core.callback.SimpleApiCallback;
+import org.matrix.androidsdk.core.model.MatrixError;
 import org.matrix.androidsdk.crypto.MXCryptoError;
 import org.matrix.androidsdk.crypto.data.MXDeviceInfo;
 import org.matrix.androidsdk.crypto.data.MXUsersDevicesMap;
@@ -45,14 +49,10 @@ import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomState;
 import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.listeners.MXEventListener;
-import org.matrix.androidsdk.core.callback.ApiCallback;
-import org.matrix.androidsdk.core.callback.SimpleApiCallback;
 import org.matrix.androidsdk.rest.model.Event;
-import org.matrix.androidsdk.core.model.MatrixError;
 import org.matrix.androidsdk.rest.model.PowerLevels;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.User;
-import org.matrix.androidsdk.core.Log;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -63,16 +63,17 @@ import java.util.Map;
 
 import fr.gouv.tchap.activity.TchapContactActionBarActivity;
 import butterknife.BindView;
+import butterknife.OnClick;
 import im.vector.Matrix;
 import im.vector.R;
 import im.vector.adapters.VectorMemberDetailsAdapter;
 import im.vector.adapters.VectorMemberDetailsDevicesAdapter;
 import im.vector.extensions.MatrixSdkExtensionsKt;
 import im.vector.fragments.VectorUnknownDevicesFragment;
-import im.vector.ui.themes.ActivityOtherThemes;
 import im.vector.util.CallsManager;
 import im.vector.util.PermissionsToolsKt;
 import im.vector.util.RoomUtils;
+import im.vector.util.SystemUtilsKt;
 import im.vector.util.VectorUtils;
 import fr.gouv.tchap.util.DinsicUtils;
 
@@ -92,8 +93,6 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
     public static final String EXTRA_STORE_ID = "EXTRA_STORE_ID";
 
     public static final String RESULT_MENTION_ID = "RESULT_MENTION_ID";
-
-    private static final String AVATAR_FULLSCREEN_MODE = "AVATAR_FULLSCREEN_MODE";
 
     // list view items associated actions
     private static final int ITEM_ACTION_INVITE = 0;
@@ -117,6 +116,9 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
     private static final int VECTOR_ROOM_MODERATOR_LEVEL = 50;
     private static final int VECTOR_ROOM_ADMIN_LEVEL = 100;
 
+
+    private static final int DEVICE_VERIFICATION_REQ_CODE = 12;
+
     // internal info
     private Room mRoom;
     @Nullable
@@ -130,16 +132,10 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
     private VectorMemberDetailsDevicesAdapter mDevicesListViewAdapter;
 
     // UI widgets
-    @BindView(R.id.avatar_img)
+    @BindView(R.id.member_detail_avatar)
     ImageView mMemberAvatarImageView;
     @BindView(R.id.member_details_presence)
     TextView mPresenceTextView;
-
-    // full screen avatar
-    @BindView(R.id.member_details_fullscreen_avatar_layout)
-    View mFullMemberAvatarLayout;
-    @BindView(R.id.member_details_fullscreen_avatar_image_view)
-    ImageView mFullMemberAvatarImageView;
 
     // listview
     @BindView(R.id.member_details_actions_list_view)
@@ -244,6 +240,15 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
             }
         }
     };
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == DEVICE_VERIFICATION_REQ_CODE) {
+            refreshUserDevicesList();
+            return;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 
     // Room action listeners. Every time an action is detected the UI must be updated.
     private final ApiCallback<Void> mRoomActionsListener = new SimpleApiCallback<Void>(this) {
@@ -676,6 +681,11 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
      * @param aVisibilityToSet View.GONE to hide the view, View.VISIBLE to show
      */
     private void setScreenDevicesListVisibility(int aVisibilityToSet) {
+        if (mDevicesListHeaderView == null) {
+            // Activity is destroyed
+            return;
+        }
+
         mDevicesListHeaderView.setVisibility(aVisibilityToSet);
         mDevicesListView.setVisibility(aVisibilityToSet);
 
@@ -1139,12 +1149,6 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
         }
     }
 
-    @NotNull
-    @Override
-    public ActivityOtherThemes getOtherThemes() {
-        return ActivityOtherThemes.NoActionBar.INSTANCE;
-    }
-
     @Override
     public int getLayoutRes() {
         return R.layout.activity_tchap_member_details;
@@ -1216,20 +1220,6 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
                 }
             });
 
-            mFullMemberAvatarImageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    hideFullScreenAvatar();
-                }
-            });
-
-            mFullMemberAvatarLayout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    hideFullScreenAvatar();
-                }
-            });
-
             // update the UI
             updateUi();
 
@@ -1239,10 +1229,6 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
                 public void onSuccess(Boolean info) {
                     // update the UI
                     updateUi();
-
-                    if (!isFirstCreation() && getSavedInstanceState().getBoolean(AVATAR_FULLSCREEN_MODE, false)) {
-                        displayFullScreenAvatar();
-                    }
                 }
             });
 
@@ -1261,10 +1247,7 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if ((KeyEvent.KEYCODE_BACK == keyCode)) {
-            if (View.VISIBLE == mFullMemberAvatarLayout.getVisibility()) {
-                hideFullScreenAvatar();
-                return true;
-            } else if ((View.VISIBLE == mDevicesListView.getVisibility())) {
+            if ((View.VISIBLE == mDevicesListView.getVisibility())) {
                 setScreenDevicesListVisibility(View.GONE);
                 return true;
             }
@@ -1273,29 +1256,6 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
         return super.onKeyDown(keyCode, event);
     }
 
-
-    @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        // Always call the superclass so it can save the view hierarchy state
-        super.onSaveInstanceState(savedInstanceState);
-        savedInstanceState.putBoolean(AVATAR_FULLSCREEN_MODE, View.VISIBLE == mFullMemberAvatarLayout.getVisibility());
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-
-        if (savedInstanceState.getBoolean(AVATAR_FULLSCREEN_MODE, false)) {
-            displayFullScreenAvatar();
-        }
-    }
-
-    /**
-     * Hide the fullscreen avatar.
-     */
-    private void hideFullScreenAvatar() {
-        mFullMemberAvatarLayout.setVisibility(View.GONE);
-    }
 
     /**
      * Display the user/member avatar in fullscreen.
@@ -1319,9 +1279,14 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
         }
 
         if (!TextUtils.isEmpty(avatarUrl)) {
-            mFullMemberAvatarLayout.setVisibility(View.VISIBLE);
-            mSession.getMediaCache().loadBitmap(mSession.getHomeServerConfig(),
-                    mFullMemberAvatarImageView, avatarUrl, 0, ExifInterface.ORIENTATION_UNDEFINED, null, null);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                ActivityOptions options =
+                        ActivityOptions.makeSceneTransitionAnimation(this, mMemberAvatarImageView, "vector_transition_avatar");
+                startActivity(VectorAvatarViewerActivity.Companion.getIntent(this, mSession.getMyUserId(), avatarUrl), options.toBundle());
+            } else {
+                // No transition
+                startActivity(VectorAvatarViewerActivity.Companion.getIntent(this, mSession.getMyUserId(), avatarUrl));
+            }
         }
     }
 
@@ -1445,7 +1410,7 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
         }
 
 
-            // disable the progress bar
+        // disable the progress bar
         enableProgressBarView(CommonActivityUtils.UTILS_HIDE_PROGRESS_BAR);
 
         // UI updates
@@ -1546,7 +1511,6 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
                 mRoom.addEventListener(mLiveEventsListener);
             }
             mSession.getDataHandler().addListener(mPresenceEventsListener);
-
             updateAdapterListViewTchapItems();
         }
     }
@@ -1564,27 +1528,39 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
         }
     }
 
+    /* ==========================================================================================
+     * UI Event
+     * ========================================================================================== */
+
     // ********* IDevicesAdapterListener implementation *********
+
+    private void refreshUserDevicesList() {
+        // Refresh the adapter data
+        List<MXDeviceInfo> deviceList = mSession.getCrypto().getUserDevices(mMemberId);
+
+        mDevicesListViewAdapter.clear();
+        mDevicesListViewAdapter.addAll(deviceList);
+    }
 
     private final ApiCallback<Void> mDevicesVerificationCallback = new ApiCallback<Void>() {
         @Override
         public void onSuccess(Void info) {
-            mDevicesListViewAdapter.notifyDataSetChanged();
+            refreshUserDevicesList();
         }
 
         @Override
         public void onNetworkError(Exception e) {
-            mDevicesListViewAdapter.notifyDataSetChanged();
+            refreshUserDevicesList();
         }
 
         @Override
         public void onMatrixError(MatrixError e) {
-            mDevicesListViewAdapter.notifyDataSetChanged();
+            refreshUserDevicesList();
         }
 
         @Override
         public void onUnexpectedError(Exception e) {
-            mDevicesListViewAdapter.notifyDataSetChanged();
+            refreshUserDevicesList();
         }
     };
 
@@ -1598,7 +1574,8 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
 
             case MXDeviceInfo.DEVICE_VERIFICATION_UNVERIFIED:
             default: // Blocked
-                CommonActivityUtils.displayDeviceVerificationDialog(aDeviceInfo, mMemberId, mSession, this, mDevicesVerificationCallback);
+                CommonActivityUtils
+                        .displayDeviceVerificationDialog(aDeviceInfo, mMemberId, mSession, this, null, DEVICE_VERIFICATION_REQ_CODE);
                 break;
         }
     }
@@ -1612,8 +1589,6 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
             mSession.getCrypto()
                     .setDeviceVerification(MXDeviceInfo.DEVICE_VERIFICATION_BLOCKED, aDeviceInfo.deviceId, aDeviceInfo.userId, mDevicesVerificationCallback);
         }
-
-        mDevicesListViewAdapter.notifyDataSetChanged();
     }
     // ***********************************************************
 }

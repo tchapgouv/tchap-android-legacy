@@ -16,9 +16,9 @@
 package im.vector.util
 
 import org.matrix.androidsdk.MXSession
+import org.matrix.androidsdk.core.Log
 import org.matrix.androidsdk.data.Room
 import org.matrix.androidsdk.data.RoomTag
-import org.matrix.androidsdk.core.Log
 
 /**
  * This class is responsible for filtering and ranking rooms whenever there is a need to update in the context of the HomeScreens

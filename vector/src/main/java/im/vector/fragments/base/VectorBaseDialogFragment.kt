@@ -17,7 +17,6 @@
 package im.vector.fragments.base
 
 import android.content.Context
-import androidx.fragment.app.DialogFragment
 import org.matrix.androidsdk.core.Log
 
 /**

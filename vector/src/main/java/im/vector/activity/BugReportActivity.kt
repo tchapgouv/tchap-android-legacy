@@ -70,15 +70,14 @@ class BugReportActivity : MXCActionBarActivity() {
     override fun getLayoutRes() = R.layout.activity_bug_report
 
     override fun initUiAndData() {
-        supportActionBar?.let {
-            it.setDisplayShowHomeEnabled(true)
-            it.setDisplayHomeAsUpEnabled(true)
-        }
+        configureToolbar()
 
         if (BugReporter.getScreenshot() != null) {
             mScreenShotPreview.setImageBitmap(BugReporter.getScreenshot())
         } else {
             mScreenShotPreview.isVisible = false
+            mIncludeScreenShotButton.isChecked = false
+            mIncludeScreenShotButton.isEnabled = false
         }
     }
 
@@ -193,6 +192,13 @@ class BugReportActivity : MXCActionBarActivity() {
     @OnCheckedChanged(R.id.bug_report_button_include_screenshot)
     internal fun onSendScreenshotChanged() {
         mScreenShotPreview.isVisible = mIncludeScreenShotButton.isChecked && BugReporter.getScreenshot() != null
+    }
+
+    override fun onBackPressed() {
+        // Ensure there is no crash status remaining, which will be sent later on by mistake
+        BugReporter.deleteCrashFile(this)
+
+        super.onBackPressed()
     }
 
     /* ==========================================================================================

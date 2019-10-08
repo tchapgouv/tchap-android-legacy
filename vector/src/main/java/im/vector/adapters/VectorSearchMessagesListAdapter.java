@@ -18,7 +18,6 @@
 package im.vector.adapters;
 
 import android.content.Context;
-import androidx.core.content.ContextCompat;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
@@ -29,14 +28,15 @@ import android.widget.TextView;
 
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.adapters.MessageRow;
+import org.matrix.androidsdk.core.EventDisplay;
+import org.matrix.androidsdk.core.Log;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.db.MXMediaCache;
 import org.matrix.androidsdk.rest.model.Event;
-import org.matrix.androidsdk.core.EventDisplay;
-import org.matrix.androidsdk.core.Log;
 
 import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.R;
+import im.vector.ui.themes.ThemeUtils;
 import im.vector.util.RiotEventDisplay;
 
 /**
@@ -70,7 +70,7 @@ public class VectorSearchMessagesListAdapter extends VectorMessagesAdapter {
         setNotifyOnChange(true);
         mDisplayRoomName = displayRoomName;
 
-        mBackgroundColorSpan = new BackgroundColorSpan(ContextCompat.getColor(mContext, R.color.vector_green_color));
+        mBackgroundColorSpan = new BackgroundColorSpan(ThemeUtils.INSTANCE.getColor(mContext, R.attr.colorAccent));
     }
 
     /**
@@ -110,7 +110,7 @@ public class VectorSearchMessagesListAdapter extends VectorMessagesAdapter {
             Room room = mSession.getDataHandler().getStore().getRoom(event.roomId);
 
             // refresh the avatar
-            ImageView avatarView = convertView.findViewById(R.id.messagesAdapter_roundAvatar).findViewById(R.id.avatar_img);
+            ImageView avatarView = convertView.findViewById(R.id.messagesAdapter_avatar);
             mHelper.loadMemberAvatar(avatarView, row);
 
             // display the sender

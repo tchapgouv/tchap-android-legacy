@@ -23,9 +23,6 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.Toast;
@@ -37,6 +34,7 @@ import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.core.model.MatrixError;
 import org.matrix.androidsdk.rest.model.publicroom.PublicRoom;
 import org.matrix.androidsdk.core.Log;
+import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,6 +52,7 @@ import im.vector.activity.VectorAppCompatActivity;
 import im.vector.activity.VectorRoomActivity;
 import im.vector.adapters.AdapterSection;
 import im.vector.fragments.VectorBaseFragment;
+import im.vector.ui.themes.ThemeUtils;
 import im.vector.view.EmptyViewItemDecoration;
 import im.vector.view.SectionView;
 import im.vector.view.SimpleDividerItemDecoration;
@@ -98,8 +97,8 @@ public class TchapPublicRoomsFragment extends VectorBaseFragment {
      */
 
     @Override
-    public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_rooms, container, false);
+    public int getLayoutResId() {
+        return R.layout.fragment_rooms;
     }
 
     @Override
@@ -207,7 +206,7 @@ public class TchapPublicRoomsFragment extends VectorBaseFragment {
 
     private void initViews() {
         int margin = (int) getResources().getDimension(R.dimen.item_decoration_left_margin);
-        mRecycler.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
+        mRecycler.setLayoutManager(new LinearLayoutManager(getActivity(), RecyclerView.VERTICAL, false));
         mRecycler.addItemDecoration(new SimpleDividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL, margin));
         mRecycler.addItemDecoration(new EmptyViewItemDecoration(getActivity(), DividerItemDecoration.VERTICAL, 40, 16, 14));
 
@@ -413,7 +412,7 @@ public class TchapPublicRoomsFragment extends VectorBaseFragment {
                     }
 
                     private void onError(String message) {
-                        if (null != getActivity()) {
+                        if (isAdded()) {
                             Log.e(LOG_TAG, "## startPublicRoomsSearch() failed " + message);
                             // Pb here when a lot of federation doesn't work, a lot of messages make a crash
                             //    Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
@@ -482,7 +481,7 @@ public class TchapPublicRoomsFragment extends VectorBaseFragment {
         boolean isForwarding = mPublicRoomsManagers.get(hostIndex).forwardPaginate(new ApiCallback<List<PublicRoom>>() {
             @Override
             public void onSuccess(final List<PublicRoom> publicRooms) {
-                if (null != getActivity()) {
+                if (isAdded()) {
                     // unplug the scroll listener if there is no more data to find
                     if (PublicRoomsManager.getInstance().hasMoreResults()) {
                         mMorePublicRooms = true;
@@ -504,7 +503,7 @@ public class TchapPublicRoomsFragment extends VectorBaseFragment {
             }
 
             private void onError(String message) {
-                if (null != getActivity()) {
+                if (isAdded()) {
                     Log.e(LOG_TAG, "## forwardPaginate() failed " + message);
                     Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
                 }
@@ -553,7 +552,7 @@ public class TchapPublicRoomsFragment extends VectorBaseFragment {
      * Remove the public rooms listener
      */
     private void removePublicRoomsListener() {
-        mRecycler.removeOnScrollListener(null);
+        mRecycler.removeOnScrollListener(mPublicRoomScrollListener);
     }
 
 }

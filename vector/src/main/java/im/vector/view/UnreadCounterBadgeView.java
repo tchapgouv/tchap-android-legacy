@@ -17,20 +17,22 @@
 package im.vector.view;
 
 import android.content.Context;
-import android.graphics.drawable.GradientDrawable;
-import androidx.annotation.IntDef;
-import androidx.core.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import androidx.annotation.IntDef;
+import androidx.core.content.ContextCompat;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 import im.vector.R;
+import im.vector.ui.themes.ThemeUtils;
 import im.vector.util.RoomUtils;
+import im.vector.util.ViewUtilKt;
 
 /**
  * Badge for the bottom navigation bar of the Home Activity
@@ -89,17 +91,18 @@ public class UnreadCounterBadgeView extends FrameLayout {
             mCounterTextView.setText(text);
 
             setVisibility(View.VISIBLE);
-            GradientDrawable shape = new GradientDrawable();
-            shape.setShape(GradientDrawable.RECTANGLE);
-            shape.setCornerRadius(100);
+
+            int color;
+
             if (status == HIGHLIGHTED) {
-                shape.setColor(ContextCompat.getColor(getContext(), R.color.vector_fuchsia_color));
+                color = ContextCompat.getColor(getContext(), R.color.vector_fuchsia_color);
             } else if (status == NOTIFIED) {
-                shape.setColor(ContextCompat.getColor(getContext(), R.color.vector_green_color));
+                color = ThemeUtils.INSTANCE.getColor(getContext(), R.attr.vctr_notice_secondary);
             } else { //if (status == DEFAULT)
-                shape.setColor(ContextCompat.getColor(getContext(), R.color.vector_silver_color));
+                color = ThemeUtils.INSTANCE.getColor(getContext(), R.attr.vctr_unread_room_indent_color);
             }
-            mCounterTextView.setBackground(shape);
+
+            ViewUtilKt.setRoundBackground(mCounterTextView, color);
         } else {
             setVisibility(View.GONE);
         }

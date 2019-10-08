@@ -1,15 +1,18 @@
-repositories {
-    mavenCentral()
-}
+import com.android.build.OutputFile
 
 apply plugin: 'com.android.application'
 apply plugin: 'android-soexcluder'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'realm-android'
+apply plugin: 'kotlin-android-extensions'
 
 buildscript {
     repositories {
+        google()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
         jcenter()
     }
 
@@ -19,6 +22,15 @@ buildscript {
         classpath "io.realm:realm-gradle-plugin:5.12.0"
     }
 }
+
+kapt {
+    correctErrorTypes = true
+}
+
+//// map for the version codes
+//// x86 must have greater values than arm, see https://software.intel.com/en-us/android/articles/google-play-supports-cpu-architecture-filtering-for-multiple-apk
+//// 64 bits have greater value than 32 bits
+//ext.abiVersionCodes = ["armeabi-v7a": 1, "arm64-v8a": 2, "x86": 3, "x86_64": 4].withDefault { 0 }
 
 android {
     compileSdkVersion 28
@@ -43,11 +55,14 @@ android {
         // Use Vector drawables
         vectorDrawables.useSupportLibrary = true
 
+        // Keep abiFilter for the universalApk
         ndk {
             abiFilters "armeabi-v7a", "x86", 'arm64-v8a', 'x86_64'
         }
 
         multiDexEnabled true
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     signingConfigs {
@@ -59,6 +74,34 @@ android {
         }
     }
 
+    // Ref: https://developer.android.com/studio/build/configure-apk-splits.html
+//    splits {
+//        // Configures multiple APKs based on ABI.
+//        abi {
+//            // Enables building multiple APKs per ABI.
+//            enable true
+//
+//            // By default all ABIs are included, so use reset() and include to specify that we only
+//            // want APKs for armeabi-v7a, x86, arm64-v8a and x86_64.
+//
+//            // Resets the list of ABIs that Gradle should create APKs for to none.
+//            reset()
+//
+//            // Specifies a list of ABIs that Gradle should create APKs for.
+//            include "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
+//
+//            // Generate a universal APK that includes all ABIs, so user who install from CI tool can use this one by default.
+//            universalApk true
+//        }
+//    }
+
+//    android.applicationVariants.all { variant ->
+//        variant.outputs.each { output ->
+//            def baseAbiVersionCode = project.ext.abiVersionCodes.get(output.getFilter(OutputFile.ABI))
+//            output.versionCodeOverride = baseAbiVersionCode * 10_000_000 + variant.versionCode
+//        }
+//    }
+
     dexOptions {
         jumboMode true
         javaMaxHeapSize "2g"
@@ -66,28 +109,27 @@ android {
 
     buildTypes {
         debug {
+            resValue "bool", "debug_mode", "true"
             resValue "string", "git_revision", "\"${gitRevision()}\""
             resValue "string", "git_revision_date", "\"${gitRevisionDate()}\""
             resValue "string", "git_branch_name", "\"${gitBranchName()}\""
             resValue "string", "build_number", rootProject.ext.buildNumberProp
-            minifyEnabled false
-        }
-
-        release {
-            resValue "string", "git_revision", "\"${gitRevision()}\""
-            resValue "string", "git_revision_date", "\"${gitRevisionDate()}\""
-            resValue "string", "git_branch_name", "\"${gitBranchName()}\""
-            resValue "string", "build_number", rootProject.ext.buildNumberProp
+            buildConfigField "boolean", "LOW_PRIVACY_LOG_ENABLE", "false"
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
 
-        matrixorg.initWith(buildTypes.release)
-        matrixorg {
+        release {
             signingConfig signingConfigs.release
-
-            // When building with source of the SDK, there is no buildType 'matrixorg' in the SDK so fallback to 'release'
-            matchingFallbacks = ['release']
+            
+            resValue "bool", "debug_mode", "false"
+            resValue "string", "git_revision", "\"${gitRevision()}\""
+            resValue "string", "git_revision_date", "\"${gitRevisionDate()}\""
+            resValue "string", "git_branch_name", "\"${gitBranchName()}\""
+            resValue "string", "build_number", rootProject.ext.buildNumberProp
+            buildConfigField "boolean", "LOW_PRIVACY_LOG_ENABLE", "false"
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 
@@ -175,15 +217,19 @@ android {
         flatDir {
             dir 'libs'
         }
+    }
 
-        maven {
-            url "https://s3.amazonaws.com/repo.commonsware.com"
-        }
-
-        maven {
-            url "https://oss.sonatype.org/content/repositories/snapshots"
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
         }
     }
+}
+
+apply plugin: 'org.jetbrains.kotlin.android.extensions'
+
+androidExtensions {
+    experimental = true
 }
 
 static def gitRevision() {
@@ -228,28 +274,44 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     kapt 'com.jakewharton:butterknife-compiler:10.1.0'
 
+    // Work manager
+    // (Java only)
+    implementation "android.arch.work:work-runtime:1.0.1"
+    // Kotlin + coroutines
+    implementation "android.arch.work:work-runtime-ktx:1.0.1"
+
     // UI
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'com.getbase:floatingactionbutton:1.10.1'
     implementation 'com.binaryfork:spanny:1.0.4'
     implementation 'com.github.chrisbanes:PhotoView:2.1.4'
 
+    // Epoxy
+    implementation 'com.airbnb.android:epoxy:3.7.0'
+    kapt 'com.airbnb.android:epoxy-processor:3.7.0'
+
     // Network
-    implementation 'com.squareup.retrofit2:retrofit:2.4.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.6.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
     implementation "com.google.code.gson:gson:$gson_version"
     implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
-    implementation 'com.squareup.okhttp3:okhttp-urlconnection:3.10.0'
+    implementation 'com.squareup.okhttp3:okhttp-urlconnection:3.12.1'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.10.0'
     implementation 'com.facebook.stetho:stetho:1.5.0'
     implementation 'com.facebook.stetho:stetho-okhttp3:1.5.0'
-    implementation 'com.squareup.okio:okio:1.13.0'
+    implementation 'com.squareup.okio:okio:1.17.2'
 
     // Use Glide library to display image (Gif supported)
-    implementation 'com.github.bumptech.glide:glide:4.7.1'
-    kapt 'com.github.bumptech.glide:compiler:4.7.1'
+    implementation 'com.github.bumptech.glide:glide:4.9.0'
+    kapt 'com.github.bumptech.glide:compiler:4.9.0'
+
+    // Passphrase strength helper
+    implementation 'com.nulab-inc:zxcvbn:1.2.5'
 
     implementation 'com.googlecode.libphonenumber:libphonenumber:8.9.12'
+
+    //Alerter
+    implementation 'com.tapadoo.android:alerter:4.0.3'
 
     /************* Matrix SDK management **************/
     // update settings.gradle
@@ -259,7 +321,7 @@ dependencies {
     implementation(name: 'matrix-sdk-crypto', ext: 'aar')
     implementation(name: 'olm-sdk', ext: 'aar')
     // use the matrix SDK as external dependency
-    //implementation 'com.github.matrix-org:matrix-android-sdk:v0.9.23'
+    //implementation 'com.github.matrix-org:matrix-android-sdk:v0.9.27'
     // use the matrix SDK as a sub project
     // you have to uncomment some lines in settings.gradle
     //implementation project(':matrix-sdk')
@@ -269,8 +331,9 @@ dependencies {
     /************* jitsi **************/
     withvoipImplementation('org.jitsi.react:jitsi-meet-sdk:2.2.2@aar')
 
+    /************* analytics **************/
     // another tracking than GA
-    implementation 'org.piwik.sdk:piwik-sdk:2.0.0'
+    implementation 'org.matomo.sdk:tracker:4.0.2'
 
     /************* flavors management **************/
 
@@ -281,13 +344,35 @@ dependencies {
         exclude group: 'com.google.firebase', module: 'firebase-measurement-connector'
     }
 
-    // fdroid flavor only
+    // appfdroid flavor only
 
     // Test
+    testImplementation 'junit:junit:4.12' // Test
+    testImplementation 'androidx.test:runner:1.2.0'
+    testImplementation 'androidx.test:rules:1.2.0'
+    testImplementation 'org.mockito:mockito-core:2.23.0'
     testImplementation 'junit:junit:4.12'
+    testImplementation 'org.hamcrest:hamcrest-library:1.3'
+    testImplementation 'org.apache.maven:maven-ant-tasks:2.1.3' // fixes issue on linux/mac
+    testImplementation "org.robolectric:robolectric:4.0.2"
+
+    // Robolectric
+    androidTestImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test:rules:1.2.0'
 }
 
+//Ensure we never move past okhttp 3.12.x
+configurations.all {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        if (details.requested.group == 'com.squareup.okhttp3' && details.requested.name == 'okhttp') {
+            details.useVersion '3.12.3'
+            details.because '3.13+ dropped support for android <5'
+        }
+    }
+}
 
-if (!getGradle().getStartParameter().getTaskRequests().toString().contains("fdroid")) {
+if (!getGradle().getStartParameter().getTaskRequests().toString().contains("Appfdroid")
+        && !getGradle().getStartParameter().getTaskRequests().toString().contains("assembleAndroidTest")) {
     apply plugin: 'com.google.gms.google-services'
 }

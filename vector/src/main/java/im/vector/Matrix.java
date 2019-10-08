@@ -2,6 +2,7 @@
  * Copyright 2016 OpenMarket Ltd
  * Copyright 2017 Vector Creations Ltd
  * Copyright 2018 New Vector Ltd
+ * Copyright 2019 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,10 +24,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import org.jetbrains.annotations.NotNull;
 import org.matrix.androidsdk.HomeServerConnectionConfig;
 import org.matrix.androidsdk.MXDataHandler;
 import org.matrix.androidsdk.MXSession;
@@ -34,6 +38,14 @@ import org.matrix.androidsdk.core.JsonUtils;
 import org.matrix.androidsdk.crypto.IncomingRoomKeyRequest;
 import org.matrix.androidsdk.crypto.IncomingRoomKeyRequestCancellation;
 import org.matrix.androidsdk.crypto.RoomKeysRequestListener;
+import org.matrix.androidsdk.core.BingRulesManager;
+import org.matrix.androidsdk.core.Log;
+import org.matrix.androidsdk.core.callback.ApiCallback;
+import org.matrix.androidsdk.core.callback.SimpleApiCallback;
+import org.matrix.androidsdk.core.listeners.IMXNetworkEventListener;
+import org.matrix.androidsdk.core.model.MatrixError;
+import org.matrix.androidsdk.crypto.keysbackup.KeysBackup;
+import org.matrix.androidsdk.crypto.keysbackup.KeysBackupStateManager;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomState;
 import org.matrix.androidsdk.data.RoomSummary;
@@ -42,37 +54,36 @@ import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.data.store.MXFileStore;
 import org.matrix.androidsdk.db.MXLatestChatMessageCache;
 import org.matrix.androidsdk.db.MXMediaCache;
-import org.matrix.androidsdk.core.listeners.IMXNetworkEventListener;
 import org.matrix.androidsdk.listeners.MXEventListener;
-import org.matrix.androidsdk.core.callback.ApiCallback;
-import org.matrix.androidsdk.core.callback.SimpleApiCallback;
 import org.matrix.androidsdk.rest.model.Event;
-import org.matrix.androidsdk.core.model.MatrixError;
 import org.matrix.androidsdk.rest.model.EventContent;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.login.Credentials;
 import org.matrix.androidsdk.ssl.Fingerprint;
 import org.matrix.androidsdk.ssl.UnrecognizedCertificateException;
-import org.matrix.androidsdk.core.BingRulesManager;
-import org.matrix.androidsdk.core.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import fr.gouv.tchap.media.MediaScanManager;
 import fr.gouv.tchap.sdk.rest.client.TchapValidityRestClient;
 import im.vector.activity.CommonActivityUtils;
+import im.vector.activity.KeysBackupManageActivity;
 import im.vector.activity.SplashActivity;
 import im.vector.analytics.MetricsListenerProxy;
 import im.vector.push.PushManager;
-import im.vector.services.EventStreamService;
 import im.vector.store.LoginStorage;
+import im.vector.tools.VectorUncaughtExceptionHandler;
+import im.vector.ui.badge.BadgeProxy;
 import im.vector.util.PreferencesManager;
+import im.vector.widgets.WidgetManagerProvider;
 import im.vector.widgets.WidgetsManager;
 import io.realm.Realm;
 
@@ -115,6 +126,12 @@ public class Matrix {
     // The potential dialog used to alert an expired account.
     private AlertDialog mExpiredAccountDialog = null;
 
+    public Map<String, KeysBackupStateManager.KeysBackupStateListener> keyBackupStateListeners = new HashMap<>();
+
+    // Request Handler
+    @Nullable
+    private KeyRequestHandler mKeyRequestHandler;
+
     // i.e the event has been read from another client
     private static final MXEventListener mLiveEventListener = new MXEventListener() {
         boolean mClearCacheRequired = false;
@@ -132,7 +149,10 @@ public class Matrix {
             mRefreshUnreadCounter |= Event.EVENT_TYPE_MESSAGE.equals(event.getType()) || Event.EVENT_TYPE_RECEIPT.equals(event.getType());
 
             // TODO update to manage multisessions
-            WidgetsManager.getSharedInstance().onLiveEvent(instance.getDefaultSession(), event);
+            WidgetsManager wm = WidgetManagerProvider.INSTANCE.getWidgetManager(VectorApp.getInstance().getApplicationContext());
+            if (wm != null) {
+                wm.onLiveEvent(instance.getDefaultSession(), event);
+            }
         }
 
         @Override
@@ -143,7 +163,7 @@ public class Matrix {
             if ((null != instance) && (null != instance.mMXSessions)) {
                 if (mClearCacheRequired && !VectorApp.isAppInBackground()) {
                     mClearCacheRequired = false;
-                    instance.reloadSessions(VectorApp.getInstance());
+                    instance.reloadSessions(VectorApp.getInstance(), true);
                 } else if (mRefreshUnreadCounter) {
                     PushManager pushManager = instance.getPushManager();
 
@@ -175,7 +195,7 @@ public class Matrix {
                         }
 
                         // update the badge counter
-                        CommonActivityUtils.updateBadgeCount(instance.mAppContext, roomCount);
+                        BadgeProxy.INSTANCE.updateBadgeCount(instance.mAppContext, roomCount);
                     }
                 }
 
@@ -186,7 +206,7 @@ public class Matrix {
             mRefreshUnreadCounter = false;
 
             Log.d(LOG_TAG, "onLiveEventsChunkProcessed ");
-            EventStreamService.checkDisplayedNotifications();
+            //EventStreamService.checkDisplayedNotifications();
         }
     };
 
@@ -359,7 +379,7 @@ public class Matrix {
             return null;
         }
 
-        boolean appDidCrash = VectorApp.getInstance().didAppCrash();
+        boolean appDidCrash = VectorUncaughtExceptionHandler.INSTANCE.didAppCrash(mAppContext);
 
         Set<String> matrixIds = new HashSet<>();
         sessions = new ArrayList<>();
@@ -547,6 +567,12 @@ public class Matrix {
                 mLoginStorage.removeCredentials(session.getHomeServerConfig());
 
                 session.getDataHandler().removeListener(mLiveEventListener);
+                if (keyBackupStateListeners.get(session.getMyUserId()) != null) {
+                    if (session.getCrypto() != null) {
+                        session.getCrypto().getKeysBackup().removeListener(keyBackupStateListeners.get(session.getMyUserId()));
+                    }
+                    keyBackupStateListeners.remove(session.getMyUserId());
+                }
 
                 VectorApp.removeSyncingSession(session);
 
@@ -582,6 +608,12 @@ public class Matrix {
         }
 
         session.getDataHandler().removeListener(mLiveEventListener);
+        if (keyBackupStateListeners.get(session.getMyUserId()) != null) {
+            if (session.getCrypto() != null) {
+                session.getCrypto().getKeysBackup().removeListener(keyBackupStateListeners.get(session.getMyUserId()));
+            }
+            keyBackupStateListeners.remove(session.getMyUserId());
+        }
 
         // Clear media scan database
         // TODO The media scan database clear should be handled during the media cache clear when the MediaScanManager will be moved into the sdk.
@@ -722,7 +754,7 @@ public class Matrix {
                 if (TextUtils.equals(matrixErrorCode, MatrixError.UNKNOWN_TOKEN)) {
                     if (null != VectorApp.getCurrentActivity()) {
                         Log.e(LOG_TAG, "## createSession() : onTokenCorrupted");
-                        CommonActivityUtils.logout(VectorApp.getCurrentActivity());
+                        CommonActivityUtils.recoverInvalidatedToken();
                     }
                 } else if (TextUtils.equals(matrixErrorCode, EXPIRED_ACCOUNT)) {
                     instance.suspendTchapOnExpiredAccount(VectorApp.getInstance());
@@ -769,25 +801,71 @@ public class Matrix {
         session.setUseDataSaveMode(PreferencesManager.useDataSaveMode(context));
 
         dataHandler.addListener(new MXEventListener() {
+            // FIXME Use onCryptoSyncComplete() to instantiate mKeyRequestHandler?
+            @Override
+            public void onCryptoSyncComplete() {
+                Log.d(LOG_TAG, "onCryptoSyncComplete");
+            }
+
             @Override
             public void onInitialSyncComplete(String toToken) {
+                Log.d(LOG_TAG, "onInitialSyncComplete");
+
                 if (null != session.getCrypto()) {
+                    mKeyRequestHandler = new KeyRequestHandler(session);
+
                     session.getCrypto().addRoomKeysRequestListener(new RoomKeysRequestListener() {
                         @Override
                         public void onRoomKeyRequest(IncomingRoomKeyRequest request) {
-                            KeyRequestHandler.getSharedInstance().handleKeyRequest(request);
+                            mKeyRequestHandler.handleKeyRequest(request);
                         }
 
                         @Override
                         public void onRoomKeyRequestCancellation(IncomingRoomKeyRequestCancellation request) {
-                            KeyRequestHandler.getSharedInstance().handleKeyRequestCancellation(request);
+                            mKeyRequestHandler.handleKeyRequestCancellation(request);
                         }
                     });
+                    IncomingVerificationRequestHandler.INSTANCE.initialize(session.getCrypto().getShortCodeVerificationManager());
+                    registerKeyBackupStateListener(session);
                 }
             }
         });
 
+
         return session;
+    }
+
+    private void registerKeyBackupStateListener(MXSession session) {
+        if (session.getCrypto() != null) {
+            KeysBackup keysBackup = session.getCrypto().getKeysBackup();
+            final String matrixID = session.getMyUserId();
+            if (keyBackupStateListeners.get(matrixID) == null) {
+                KeysBackupStateManager.KeysBackupStateListener keyBackupStateListener = new KeysBackupStateManager.KeysBackupStateListener() {
+                    @Override
+                    public void onStateChange(@NotNull KeysBackupStateManager.KeysBackupState newState) {
+                        if (KeysBackupStateManager.KeysBackupState.WrongBackUpVersion == newState) {
+                            //We should show the popup
+                            Activity activity = VectorApp.getCurrentActivity();
+                            //This is fake multi session :/ i should be able to have current session...
+                            if (activity != null) {
+                                new AlertDialog.Builder(activity)
+                                        .setTitle(R.string.new_recovery_method_popup_title)
+                                        .setMessage(R.string.new_recovery_method_popup_description)
+                                        .setPositiveButton(R.string.open_settings, (dialog, which) -> {
+                                            activity.startActivity(KeysBackupManageActivity.Companion.intent(activity, matrixID));
+                                        })
+                                        .setNegativeButton(R.string.new_recovery_method_popup_was_me, null)
+                                        .show();
+                            }
+                        }
+                    }
+                };
+                keyBackupStateListeners.put(matrixID, keyBackupStateListener);
+            }
+            keysBackup.addListener(keyBackupStateListeners.get(matrixID));
+        } else {
+            Log.e(LOG_TAG, "## Failed to register keybackup state listener");
+        }
     }
 
     /**
@@ -795,9 +873,10 @@ public class Matrix {
      * The session caches are cleared before being reloaded.
      * Any opened activity is closed and the application switches to the splash screen.
      *
-     * @param context the context
+     * @param context        the context
+     * @param launchActivity
      */
-    public void reloadSessions(final Context context) {
+    public void reloadSessions(final Context context, boolean launchActivity) {
         Log.e(LOG_TAG, "## reloadSessions");
 
         CommonActivityUtils.logout(context, getMXSessions(context), false, new SimpleApiCallback<Void>() {
@@ -817,7 +896,7 @@ public class Matrix {
                 Matrix.getInstance(context).getPushManager().clearFcmData(new SimpleApiCallback<Void>() {
                     @Override
                     public void onSuccess(final Void anything) {
-                        launchSplashScreen(context);
+                        launchSplashScreen(context, launchActivity);
                     }
                 });
             }
@@ -827,13 +906,22 @@ public class Matrix {
     /**
      * Launch the splash screen to reload the session.
      */
-    private void launchSplashScreen(final Context context) {
-        Intent intent = new Intent(context.getApplicationContext(), SplashActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        context.getApplicationContext().startActivity(intent);
+    private void launchSplashScreen(final Context context, boolean launchActivity) {
+        if (launchActivity) {
+            Intent intent = new Intent(context.getApplicationContext(), SplashActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            context.getApplicationContext().startActivity(intent);
+        }
 
         if (null != VectorApp.getCurrentActivity()) {
             VectorApp.getCurrentActivity().finish();
+
+            if (launchActivity) {
+                if (context instanceof SplashActivity) {
+                    // Avoid bad visual effect, due to check of lazy loading status
+                    ((SplashActivity) context).overridePendingTransition(0, 0);
+                }
+            }
         }
     }
 
@@ -908,7 +996,7 @@ public class Matrix {
                 .setPositiveButton(R.string.tchap_expired_account_resume_button, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        launchSplashScreen(context);
+                        launchSplashScreen(context, true);
                     }
                 })
                 .setNeutralButton(R.string.tchap_request_renewal_email_button, new DialogInterface.OnClickListener() {
@@ -974,7 +1062,7 @@ public class Matrix {
                         mExpiredAccountDialog = null;
 
                         // Relaunch the app
-                        launchSplashScreen(context);
+                        launchSplashScreen(context, true);
                     }
                 })
                 .show();

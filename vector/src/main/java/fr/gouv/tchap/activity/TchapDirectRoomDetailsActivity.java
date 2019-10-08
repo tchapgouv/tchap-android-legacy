@@ -52,10 +52,6 @@ public class TchapDirectRoomDetailsActivity extends TchapContactActionBarActivit
 
     private VectorSearchRoomFilesListFragment mSearchFilesFragment;
 
-
-    // UI items
-    private View mLoadOldestContentView;
-
     private String mRoomId;
     private String mMatrixId;
 
@@ -122,8 +118,6 @@ public class TchapDirectRoomDetailsActivity extends TchapContactActionBarActivit
 
         // UI widgets binding & init fields
         setWaitingView(findViewById(R.id.settings_loading_layout));
-        mLoadOldestContentView = findViewById(R.id.search_load_oldest_progress);
-
 
         // use a toolbar instead of the actionbar
 
@@ -234,16 +228,6 @@ public class TchapDirectRoomDetailsActivity extends TchapContactActionBarActivit
     }
 
     /**
-     * Update the tag of the tab with its the UI values
-     *
-     * @param aTabToUpdate the tab to be updated
-     */
-    private void saveUiTabContext(ActionBar.Tab aTabToUpdate) {
-        Bundle tabTag = (Bundle) aTabToUpdate.getTag();
-        aTabToUpdate.setTag(tabTag);
-    }
-
-    /**
      * Reset the UI to its init state:
      * - "waiting while searching" screen disabled
      * - background image visible
@@ -252,10 +236,6 @@ public class TchapDirectRoomDetailsActivity extends TchapContactActionBarActivit
     private void resetUi() {
         // stop "wait while searching" screen
         hideWaitingView();
-
-        if (null != mLoadOldestContentView) {
-            mLoadOldestContentView.setVisibility(View.GONE);
-        }
     }
 
     /**

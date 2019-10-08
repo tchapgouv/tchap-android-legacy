@@ -30,6 +30,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Filter;
 
+import androidx.appcompat.widget.SearchView;
+import androidx.core.view.MenuItemCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import org.jetbrains.annotations.NotNull;
 
 import im.vector.R;
@@ -53,7 +58,7 @@ public class CountryPickerActivity extends VectorAppCompatActivity implements Co
 
     private boolean mWithIndicator;
 
-     /*
+    /*
      * *********************************************************************************************
      * Static methods
      * *********************************************************************************************
@@ -89,14 +94,7 @@ public class CountryPickerActivity extends VectorAppCompatActivity implements Co
 
     @Override
     public void initUiAndData() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        if (toolbar != null) {
-            setSupportActionBar(toolbar);
-            if (getSupportActionBar() != null) {
-                getSupportActionBar().setDisplayShowHomeEnabled(true);
-                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            }
-        }
+        configureToolbar();
 
         final Intent intent = getIntent();
         mWithIndicator = intent.getBooleanExtra(EXTRA_IN_WITH_INDICATOR, false);
@@ -146,7 +144,7 @@ public class CountryPickerActivity extends VectorAppCompatActivity implements Co
 
         mCountryRecyclerView = findViewById(R.id.country_recycler_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        layoutManager.setOrientation(RecyclerView.VERTICAL);
         mCountryRecyclerView.setLayoutManager(layoutManager);
         mCountryAdapter = new CountryAdapter(PhoneNumberUtils.getCountriesWithIndicator(), mWithIndicator, this);
         mCountryRecyclerView.setAdapter(mCountryAdapter);

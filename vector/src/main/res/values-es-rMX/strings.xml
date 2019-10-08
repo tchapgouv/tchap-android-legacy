@@ -32,9 +32,9 @@
     <string name="rename">Renombrar</string>
     <string name="report_content">Reportar contenido</string>
     <string name="active_call">Llamada activa</string>
-    <string name="ongoing_conference_call">Llamada de conferencia en proceso. Unirse con voz o video.</string>
-    <string name="ongoing_conference_call_voice">voz</string>
-    <string name="ongoing_conference_call_video">video</string>
+    <string name="ongoing_conference_call">Llamada de conferencia en proceso.\nUnirse con %1$s o %2$s.</string>
+    <string name="ongoing_conference_call_voice">Voz</string>
+    <string name="ongoing_conference_call_video">Video</string>
     <string name="cannot_start_call">No se puede iniciar la llamada, inténtalo más tarde</string>
     <string name="missing_permissions_warning">Debido a permisos que faltan, algunas características podrían estar ausentes…</string>
     <string name="missing_permissions_to_start_conf_call">Necesitas permiso para realizar una llamada de conferencia en esta sala</string>
@@ -47,8 +47,6 @@
 
     <!-- actions -->
     <string name="action_sign_out">Cerrar la sesión</string>
-    <string name="action_sign_out_confirmation">Por seguridad, al cerrar la sesión, las claves de cifrado de extremo-a-extremo serán borradas haciendo que el historial sea ilegible.
-Seleccione exportar para crear un archivo de respaldo antes de cerrar la sesión.</string>
     <string name="action_voice_call">Llamada de Voz</string>
     <string name="action_video_call">Llamada de Video</string>
     <string name="action_global_search">Búsqueda global</string>
@@ -71,10 +69,10 @@ Seleccione exportar para crear un archivo de respaldo antes de cerrar la sesión
     <string name="bottom_action_rooms">Salas</string>
 
     <!-- Home screen -->
-    <string name="home_filter_placeholder_home">Buscar salas</string>
-    <string name="home_filter_placeholder_favorites">Buscar favoritos</string>
-    <string name="home_filter_placeholder_people">Buscar personas</string>
-    <string name="home_filter_placeholder_rooms">Buscar salas</string>
+    <string name="home_filter_placeholder_home">Filtrar salas</string>
+    <string name="home_filter_placeholder_favorites">Filtrar favoritos</string>
+    <string name="home_filter_placeholder_people">Filtrar personas</string>
+    <string name="home_filter_placeholder_rooms">Filtrar salas</string>
 
     <!-- Home fragment -->
     <string name="invitations_header">Invitaciones</string>
@@ -101,24 +99,24 @@ Seleccione exportar para crear un archivo de respaldo antes de cerrar la sesión
     <string name="send_bug_report_include_logs">Enviar informes</string>
     <string name="send_bug_report_include_crash_logs">Mandar informes de fallas</string>
     <string name="send_bug_report_include_screenshot">Enviar una captura de pantalla</string>
-    <string name="send_bug_report">Informe de Error</string>
+    <string name="send_bug_report">Reporte de Error</string>
     <string name="send_bug_report_description">Por favor describe el error. ¿Qué hiciste? ¿Qué esperabas que sucediera, qué sucedió realmente?</string>
     <string name="send_bug_report_placeholder">Describe tu problema aquí</string>
     <string name="send_bug_report_logs_description">Para diagnosticar problemas, informes de este cliente se enviarán junto a este reporte de error. Este informe, inclusive los registros y la captura de pantalla, no será visible públicamente. Si prefieres solamente enviar el texto de arriba, por favor desmarca:</string>
-    <string name="send_bug_report_alert_message">Pareces estar temblando de frustración. ¿Te gustaría enviar un reporte de error?</string>
+    <string name="send_bug_report_alert_message">Pareces estar temblando de frustración. ¿Te gustaría abrir un reporte de error\?</string>
     <string name="send_bug_report_sent">El reporte de error ha sido enviado</string>
     <string name="send_bug_report_failed">El reporte de error no se pudo enviar (%s)</string>
     <string name="send_bug_report_progress">Progreso (%s%%)</string>
-    <string name="send_bug_report_app_crashed">La aplicación se suspenió en la ultima sesión. ¿Te gustaría enviar un informe de fallas?</string>
+    <string name="send_bug_report_app_crashed">La aplicación se suspendió en la ultima sesión. ¿Te gustaría enviar un informe de fallas\?</string>
 
     <string name="send_files_in">Enviar a</string>
     <string name="read_receipt">Leer</string>
 
     <string name="join_room">Entrar Sala</string>
     <string name="username">Nombre</string>
-    <string name="create_account">Registrar</string>
+    <string name="create_account">Crear Cuenta</string>
     <string name="login">Iniciar sesión</string>
-    <string name="logout">Salir</string>
+    <string name="logout">Cerrar sesión</string>
     <string name="hs_url">Enlace de el Servidor</string>
     <string name="identity_url">Enlace del Servidor Entidad</string>
     <string name="search">Buscar</string>
@@ -132,7 +130,7 @@ Seleccione exportar para crear un archivo de respaldo antes de cerrar la sesión
 
     <!-- Authentication -->
     <string name="auth_login">Iniciar sesión</string>
-    <string name="auth_register">Registrar</string>
+    <string name="auth_register">Crear cuenta</string>
     <string name="auth_submit">Entregar</string>
     <string name="auth_skip">Omitir</string>
     <string name="auth_send_reset_email">Enviar Correo Electrónico de Reinicio</string>
@@ -186,7 +184,7 @@ Seleccione exportar para crear un archivo de respaldo antes de cerrar la sesión
     <string name="login_error_registration_network_error">Inscripción falló: error con la red</string>
     <string name="login_error_unable_register">Inscripción falló</string>
     <string name="login_error_unable_register_mail_ownership">Inscripción falló : el correo electrónico ya esta utilizado por otra cuenta</string>
-    <string name="login_error_invalid_home_server">Escribe enlace válido</string>
+    <string name="login_error_invalid_home_server">Escribe un enlace válido</string>
 
     <string name="login_error_forbidden">Nombre/Contraseña inválido</string>
     <string name="login_error_unknown_token">El token de acceso especificado no fue reconocido</string>
@@ -236,7 +234,7 @@ Disculpe por la inconveniencia.</string>
     <string name="incoming_call">Llamada Entrante</string>
     <string name="incoming_video_call">Llamada de Video Entrante</string>
     <string name="incoming_voice_call">Llamada de Voz Entrante</string>
-    <string name="call_in_progress">Llamada en Processo</string>
+    <string name="call_in_progress">Llamada en Curso…</string>
 
     <string name="call_error_user_not_responding">El lado remoto no pudo contestar.</string>
     <string name="call_error_ice_failed">Conexión de media falló</string>
@@ -260,12 +258,12 @@ Disculpe por la inconveniencia.</string>
 
 ¿Permitir el acceso a Riot para leer tus contactos ?</string>
 
-    <string name="permissions_action_not_performed_missing_permissions">Perdon.. Operación no realizada, debido a permisos faltantes</string>
+    <string name="permissions_action_not_performed_missing_permissions">Perdón. Operación no realizada debido a permisos faltantes</string>
 
     <!-- medias slider string -->
     <string name="media_slider_saved">Guardado</string>
-    <string name="media_slider_saved_message">Guardar en Descargas</string>
-    <string name="yes">SI</string>
+    <string name="media_slider_saved_message">¿Guardar en Descargas\?</string>
+    <string name="yes">SÍ</string>
     <string name="no">NO</string>
     <string name="_continue">Continuar</string>
 
@@ -289,14 +287,6 @@ Disculpe por la inconveniencia.</string>
     <string name="room_creation_title">Chat Nuevo</string>
     <string name="room_creation_add_member">Añadir miembro</string>
     <string name="room_title_one_member">1 miembro</string>
-    <string name="room_e2e_alert_title">¡Aviso!</string>
-    <string name="room_e2e_alert_message">El cifrado de extremo-a-extremo esta en beta y puede ser poco fiable.
-
-No debe usarlo para proteger información.
-
-Los dispositivos no podrán descifrar el historial de la sala desde antes de entrar.
-
-Mensajes cifrados no serán visibles en cuentas que no implementan el cifrado.</string>
 
     <!--  Chat participants -->
     <string name="room_participants_leave_prompt_title">Salir de la sala</string>
@@ -341,7 +331,7 @@ Mensajes cifrados no serán visibles en cuentas que no implementan el cifrado.</
 
     <!--  Chat -->
     <string name="room_menu_search">Buscar</string>
-    <string name="room_one_user_is_typing">%s esta escribiendo…</string>
+    <string name="room_one_user_is_typing">%s está escribiendo…</string>
     <string name="room_two_users_are_typing">%1$s &amp; %2$s están escribiendo…</string>
     <string name="room_many_users_are_typing">%1$s &amp; %2$s &amp; otros están escribiendo…</string>
     <string name="room_message_placeholder_encrypted">Enviar mensaje cifrado…</string>
@@ -380,7 +370,8 @@ Mensajes cifrados no serán visibles en cuentas que no implementan el cifrado.</
 
     <!-- Room events -->
     <string name="room_event_action_report_prompt_reason">Razón por reportar este contenido</string>
-    <string name="room_event_action_report_prompt_ignore_user">¿Desea ocultar todos los mensajes de este usuario?</string>
+    <string name="room_event_action_report_prompt_ignore_user">¿Desea ocultar todos los mensajes de este usuario\?
+\nConsidere que esta acción reiniciará la aplicación y tardar un tiempo.</string>
     <string name="room_event_action_cancel_upload">Cancelar Subida</string>
     <string name="room_event_action_cancel_download">Cancelar Descarga</string>
 
@@ -408,7 +399,7 @@ Mensajes cifrados no serán visibles en cuentas que no implementan el cifrado.</
 
     <!-- Directory -->
     <string name="directory_search_results_title">Buscar directorio</string>
-    <string name="directory_searching_title">Buscando directorio..</string>
+    <string name="directory_searching_title">Buscando directorio…</string>
 
     <!-- home room settings -->
     <string name="room_settings_favourite">Destacar</string>
@@ -450,7 +441,7 @@ Mensajes cifrados no serán visibles en cuentas que no implementan el cifrado.</
     <string name="settings_background_sync">Sincronización interna</string>
     <string name="settings_enable_background_sync">Encender sincronización interna</string>
     <string name="settings_set_sync_timeout">Vencimiento de peticiones de sincronización</string>
-    <string name="settings_set_sync_delay">El tardar entre dos peticiones de sincronización</string>
+    <string name="settings_set_sync_delay">Demora entre cada petición de sincronización</string>
     <string name="settings_second">segundo</string>
     <string name="settings_seconds">segundos</string>
 
@@ -497,14 +488,14 @@ Mensajes cifrados no serán visibles en cuentas que no implementan el cifrado.</
     <string name="account_email_validation_message">Por favor vea su correo electrónico y sigue el enlace que contiene. Una vez hecho, escoje Continuar.</string>
     <string name="account_email_validation_error">"No fue posible verificar su dirección de correo. Por favor revise su casilla y siga el enlace que contiene. Una vez hecho, haga clic en  continuar"</string>
 
-    <string name="account_email_already_used_error">This email address is already in use</string>
-    <string name="account_email_not_found_error">Failed to send email: This email address was not found</string>
-    <string name="account_phone_number_already_used_error">This phone number is already in use</string>
+    <string name="account_email_already_used_error">La dirección de correo electrónico ya está en uso.</string>
+    <string name="account_email_not_found_error">Esta dirección de correo electrónico no fue encontrada.</string>
+    <string name="account_phone_number_already_used_error">Este teléfono ya está en uso.</string>
 
     <string name="settings_change_password">Cambiar Contraseña</string>
-    <string name="settings_old_password">Contraseña anterior</string>
+    <string name="settings_old_password">Contraseña actual</string>
     <string name="settings_new_password">Contraseña nueva</string>
-    <string name="settings_confirm_password">confirmar contraseña</string>
+    <string name="settings_confirm_password">Confirmar nueva contraseña</string>
     <string name="settings_fail_to_update_password">La actualización de su contraseña falló</string>
     <string name="settings_password_updated">Su contraseña fue actualizada</string>
     <string name="settings_unignore_user">¿Mostrar todo los mensajes de %s?</string>
@@ -591,14 +582,6 @@ Mensajes cifrados no serán visibles en cuentas que no implementan el cifrado.</
     <string name="room_settings_addresses_e2e_enabled">La cifración está encendida en esta sala.</string>
     <string name="room_settings_addresses_e2e_disabled">La cifración está apagada en esta sala.</string>
     <string name="room_settings_addresses_e2e_encryption_warning">Encender cifración \n(¡Aviso: no se puede apagar!)</string>
-    <string name="room_settings_addresses_e2e_prompt_title">¡Aviso!</string>
-    <string name="room_settings_addresses_e2e_prompt_message">El cifrado de extremo-a-extremo está en beta y puede ser poco fiable.
-
-No debe usarla para proteger información.
-
-Los dispositivos no podrán descifrar el historial de la sala desde antes de entrar.
-
-Los mensajes cifrados no serán visibles en cuentas que no implementan el cifrado.</string>
 
     <!-- Directory -->
     <string name="directory_title">Directorio</string>
@@ -629,8 +612,8 @@ Los mensajes cifrados no serán visibles en cuentas que no implementan el cifrad
     <string name="encryption_export_room_keys">Exportar claves de salas</string>
     <string name="encryption_export_room_keys_summary">Exportar las claves a un archivo local</string>
     <string name="encryption_export_export">Exportar</string>
-    <string name="encryption_import_enter_passphrase">Escribir Contraseña</string>
-    <string name="encryption_export_confirm_passphrase">Confirmar Contraseña</string>
+    <string name="passphrase_enter_passphrase">Escribir Contraseña</string>
+    <string name="passphrase_confirm_passphrase">Confirmar Contraseña</string>
     <string name="encryption_export_saved_as">Las claves de cifración de Persona-a-Persona se guardaron en \'%s\'</string>
 
     <string name="encryption_import_e2e_room_keys">Importar claves de cifrado de E2E de las salas</string>
@@ -679,7 +662,7 @@ Dispositivos desconocidos:</string>
 
     <!-- historical -->
     <string name="historical_placeholder">Search for historical</string>
-    <string name="notification_sync_in_progress">Sincronizando</string>
+    <string name="notification_sync_in_progress">Sincronizando…</string>
     <string name="loading">Cargando…</string>
 
     <string name="download">Descargar</string>
@@ -752,7 +735,6 @@ Dispositivos desconocidos:</string>
     <string name="community_name">Nombre de la comunidad</string>
     <string name="encrypted_message">Mensaje cifrado</string>
 
-    <string name="notification_on">Activado</string>
     <string name="notification_off">Desactivado</string>
     <string name="command_description_markdown">Activar/desactivar Markdown</string>
     <string name="light_theme">Tema Claro</string>
@@ -775,7 +757,7 @@ Dispositivos desconocidos:</string>
 
     <string name="dialog_title_error">Error</string>
 
-    <string name="home_filter_placeholder_groups">Buscar comunidades</string>
+    <string name="home_filter_placeholder_groups">Filtrar nombres de comunidades</string>
 
     <string name="system_alerts_header">Alertas de Sistema</string>
 
@@ -790,4 +772,15 @@ Dispositivos desconocidos:</string>
     <string name="settings_containing_my_display_name">Mensajes que contienen mi nombre público</string>
     <string name="settings_containing_my_user_name">Mensajes que contienen mi nombre de usuario</string>
     <string name="call_anyway">Llamar de todos modos</string>
+    <string name="title_activity_verify_device">Verificar dispositivo</string>
+
+    <string name="settings_call_category">Llamadas</string>
+    <string name="settings_call_ringtone_use_riot_ringtone">Usar el tono de llamada normal de Riot para llamadas entrantes</string>
+    <string name="settings_call_ringtone_title">Tono para llamadas entrantes</string>
+    <string name="settings_call_ringtone_dialog_title">Elegir sonido de llamadas:</string>
+
+    <string name="reason_hint">Razón</string>
+
+    <string name="room_message_placeholder_reply_to_encrypted">Enviar una respuesta cifrada…</string>
+    <string name="room_message_placeholder_reply_to_not_encrypted">Enviar una respuesta (sin cifrar)…</string>
 </resources>

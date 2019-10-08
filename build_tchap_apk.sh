@@ -7,51 +7,51 @@ rm *.apk
 output="vector/build/outputs/apk"
 
 # Google Play | Protected | Without Voip | Without Pinning
-./gradlew assembleAppProtecteedWithoutvoipWithoutpinningMatrixorg;       cp ${output}/AppProtecteedWithoutvoipWithoutpinning/matrixorg/vector-app-protecteed-withoutvoip-withoutpinning-matrixorg.apk       ./tchapProtectedWithoutVoipGooglePlay.apk
+./gradlew assembleAppProtecteedWithoutvoipWithoutpinningRelease;       cp ${output}/AppProtecteedWithoutvoipWithoutpinning/matrixorg/vector-app-protecteed-withoutvoip-withoutpinning-matrixorg.apk       ./tchapProtectedWithoutVoipGooglePlay.apk
 
 # Google Play | Protected |   With Voip  | Without Pinning
-./gradlew assembleAppProtecteedWithvoipWithoutpinningMatrixorg;          cp ${output}/AppProtecteedWithvoipWithoutpinning/matrixorg/vector-app-protecteed-withvoip-withoutpinning-matrixorg.apk             ./tchapProtectedWithVoipGooglePlay.apk
+./gradlew assembleAppProtecteedWithvoipWithoutpinningRelease;          cp ${output}/AppProtecteedWithvoipWithoutpinning/matrixorg/vector-app-protecteed-withvoip-withoutpinning-matrixorg.apk             ./tchapProtectedWithVoipGooglePlay.apk
 
 # Google Play |  Preprod  | Without Voip | Without Pinning
-./gradlew assembleAppPreprodWithoutvoipWithoutpinningMatrixorg;          cp ${output}/AppPreprodWithoutvoipWithoutpinning/matrixorg/vector-app-preprod-withoutvoip-withoutpinning-matrixorg.apk             ./tchapPreprodWithoutVoipGooglePlay.apk
+./gradlew assembleAppPreprodWithoutvoipWithoutpinningRelease;          cp ${output}/AppPreprodWithoutvoipWithoutpinning/matrixorg/vector-app-preprod-withoutvoip-withoutpinning-matrixorg.apk             ./tchapPreprodWithoutVoipGooglePlay.apk
 
 # Google Play |  Preprod  |   With Voip  | Without Pinning
-./gradlew assembleAppPreprodWithvoipWithoutpinningMatrixorg;             cp ${output}/AppPreprodWithvoipWithoutpinning/matrixorg/vector-app-preprod-withvoip-withoutpinning-matrixorg.apk                   ./tchapPreprodWithVoipGooglePlay.apk
+./gradlew assembleAppPreprodWithvoipWithoutpinningRelease;             cp ${output}/AppPreprodWithvoipWithoutpinning/matrixorg/vector-app-preprod-withvoip-withoutpinning-matrixorg.apk                   ./tchapPreprodWithVoipGooglePlay.apk
 
 # Google Play |   Agent   | Without Voip | Without Pinning
-./gradlew assembleAppAgentWithoutvoipWithoutpinningMatrixorg;            cp ${output}/AppAgentWithoutvoipWithoutpinning/matrixorg/vector-app-agent-withoutvoip-withoutpinning-matrixorg.apk                 ./tchapAgentWithoutVoipGooglePlay.apk
+./gradlew assembleAppAgentWithoutvoipWithoutpinningRelease;            cp ${output}/AppAgentWithoutvoipWithoutpinning/matrixorg/vector-app-agent-withoutvoip-withoutpinning-matrixorg.apk                 ./tchapAgentWithoutVoipGooglePlay.apk
 
 # Google Play |   Agent   |   With Voip  | Without Pinning
-./gradlew assembleAppAgentWithvoipWithoutpinningMatrixorg;               cp ${output}/AppAgentWithvoipWithoutpinning/matrixorg/vector-app-agent-withvoip-withoutpinning-matrixorg.apk                       ./tchapAgentWithVoipGooglePlay.apk
+./gradlew assembleAppAgentWithvoipWithoutpinningRelease;               cp ${output}/AppAgentWithvoipWithoutpinning/matrixorg/vector-app-agent-withvoip-withoutpinning-matrixorg.apk                       ./tchapAgentWithVoipGooglePlay.apk
 
 # Google Play |   Agent   | Without Voip | With Pinning
-./gradlew assembleAppAgentWithoutvoipWithpinningMatrixorg;               cp ${output}/AppAgentWithoutvoipWithpinning/matrixorg/vector-app-agent-withoutvoip-withpinning-matrixorg.apk                 ./tchapAgentWithoutVoipWithPinningGooglePlay.apk
+./gradlew assembleAppAgentWithoutvoipWithpinningRelease;               cp ${output}/AppAgentWithoutvoipWithpinning/matrixorg/vector-app-agent-withoutvoip-withpinning-matrixorg.apk                 ./tchapAgentWithoutVoipWithPinningGooglePlay.apk
 
 # Google Play |   Agent   |   With Voip  | With Pinning
-./gradlew assembleAppAgentWithvoipWithpinningMatrixorg;                  cp ${output}/AppAgentWithvoipWithpinning/matrixorg/vector-app-agent-withvoip-withpinning-matrixorg.apk                       ./tchapAgentWithVoipWithPinningGooglePlay.apk
+./gradlew assembleAppAgentWithvoipWithpinningRelease;                  cp ${output}/AppAgentWithvoipWithpinning/matrixorg/vector-app-agent-withvoip-withpinning-matrixorg.apk                       ./tchapAgentWithVoipWithPinningGooglePlay.apk
 
 
 #    FDroid   | Protected | Without Voip | Without Pinning
-./gradlew assembleAppfdroidProtecteedWithoutvoipWithoutpinningMatrixorg; cp ${output}/AppfdroidProtecteedWithoutvoipWithoutpinning/matrixorg/vector-appfdroid-protecteed-withoutvoip-withoutpinning-matrixorg.apk ./tchapProtectedWithoutVoipFDroid.apk
+./gradlew assembleAppfdroidProtecteedWithoutvoipWithoutpinningRelease; cp ${output}/AppfdroidProtecteedWithoutvoipWithoutpinning/matrixorg/vector-appfdroid-protecteed-withoutvoip-withoutpinning-matrixorg.apk ./tchapProtectedWithoutVoipFDroid.apk
 
 #    FDroid   | Protected |   With Voip  | Without Pinning
-./gradlew assembleAppfdroidProtecteedWithvoipWithoutpinningMatrixorg;    cp ${output}/AppfdroidProtecteedWithvoipWithoutpinning/matrixorg/vector-appfdroid-protecteed-withvoip-withoutpinning-matrixorg.apk       ./tchapProtectedWithVoipFDroid.apk
+./gradlew assembleAppfdroidProtecteedWithvoipWithoutpinningRelease;    cp ${output}/AppfdroidProtecteedWithvoipWithoutpinning/matrixorg/vector-appfdroid-protecteed-withvoip-withoutpinning-matrixorg.apk       ./tchapProtectedWithVoipFDroid.apk
 
 #    FDroid   |  Preprod  | Without Voip | Without Pinning
-./gradlew assembleAppfdroidPreprodWithoutvoipWithoutpinningMatrixorg;    cp ${output}/AppfdroidPreprodWithoutvoipWithoutpinning/matrixorg/vector-appfdroid-preprod-withoutvoip-withoutpinning-matrixorg.apk       ./tchapPreprodWithoutVoipFDroid.apk
+./gradlew assembleAppfdroidPreprodWithoutvoipWithoutpinningRelease;    cp ${output}/AppfdroidPreprodWithoutvoipWithoutpinning/matrixorg/vector-appfdroid-preprod-withoutvoip-withoutpinning-matrixorg.apk       ./tchapPreprodWithoutVoipFDroid.apk
 
 #    FDroid   |  Preprod  |   With Voip  | Without Pinning
-./gradlew assembleAppfdroidPreprodWithvoipWithoutpinningMatrixorg;       cp ${output}/AppfdroidPreprodWithvoipWithoutpinning/matrixorg/vector-appfdroid-preprod-withvoip-withoutpinning-matrixorg.apk             ./tchapPreprodWithVoipFDroid.apk
+./gradlew assembleAppfdroidPreprodWithvoipWithoutpinningRelease;       cp ${output}/AppfdroidPreprodWithvoipWithoutpinning/matrixorg/vector-appfdroid-preprod-withvoip-withoutpinning-matrixorg.apk             ./tchapPreprodWithVoipFDroid.apk
 
 #    FDroid   |   Agent   | Without Voip | Without Pinning
-./gradlew assembleAppfdroidAgentWithoutvoipWithoutpinningMatrixorg;      cp ${output}/AppfdroidAgentWithoutvoipWithoutpinning/matrixorg/vector-appfdroid-agent-withoutvoip-withoutpinning-matrixorg.apk           ./tchapAgentWithoutVoipFDroid.apk
+./gradlew assembleAppfdroidAgentWithoutvoipWithoutpinningRelease;      cp ${output}/AppfdroidAgentWithoutvoipWithoutpinning/matrixorg/vector-appfdroid-agent-withoutvoip-withoutpinning-matrixorg.apk           ./tchapAgentWithoutVoipFDroid.apk
 
 #    FDroid   |   Agent   |   With Voip  | Without Pinning
-./gradlew assembleAppfdroidAgentWithvoipWithoutpinningMatrixorg;         cp ${output}/AppfdroidAgentWithvoipWithoutpinning/matrixorg/vector-appfdroid-agent-withvoip-withoutpinning-matrixorg.apk                 ./tchapAgentWithVoipFDroid.apk
+./gradlew assembleAppfdroidAgentWithvoipWithoutpinningRelease;         cp ${output}/AppfdroidAgentWithvoipWithoutpinning/matrixorg/vector-appfdroid-agent-withvoip-withoutpinning-matrixorg.apk                 ./tchapAgentWithVoipFDroid.apk
 
 #    FDroid   |   Agent   | Without Voip | With Pinning
-./gradlew assembleAppfdroidAgentWithoutvoipWithpinningMatrixorg;         cp ${output}/AppfdroidAgentWithoutvoipWithpinning/matrixorg/vector-appfdroid-agent-withoutvoip-withpinning-matrixorg.apk           ./tchapAgentWithoutVoipWithPinningFDroid.apk
+./gradlew assembleAppfdroidAgentWithoutvoipWithpinningRelease;         cp ${output}/AppfdroidAgentWithoutvoipWithpinning/matrixorg/vector-appfdroid-agent-withoutvoip-withpinning-matrixorg.apk           ./tchapAgentWithoutVoipWithPinningFDroid.apk
 
 #    FDroid   |   Agent   |   With Voip  | With Pinning
-./gradlew assembleAppfdroidAgentWithvoipWithpinningMatrixorg;            cp ${output}/AppfdroidAgentWithvoipWithpinning/matrixorg/vector-appfdroid-agent-withvoip-withpinning-matrixorg.apk                 ./tchapAgentWithVoipWithPinningFDroid.apk
+./gradlew assembleAppfdroidAgentWithvoipWithpinningRelease;            cp ${output}/AppfdroidAgentWithvoipWithpinning/matrixorg/vector-appfdroid-agent-withvoip-withpinning-matrixorg.apk                 ./tchapAgentWithVoipWithPinningFDroid.apk
 

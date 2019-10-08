@@ -28,9 +28,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.matrix.androidsdk.core.Log;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.rest.model.publicroom.PublicRoom;
-import org.matrix.androidsdk.core.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;

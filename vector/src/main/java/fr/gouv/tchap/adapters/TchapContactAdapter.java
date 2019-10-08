@@ -21,6 +21,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import androidx.recyclerview.widget.RecyclerView;
+
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -378,7 +379,7 @@ public class TchapContactAdapter extends AbsAdapter {
 
     class ContactViewHolder extends RecyclerView.ViewHolder {
 
-        @BindView(R.id.contact_avatar)
+        @BindView(R.id.adapter_item_contact_avatar)
         ImageView vContactAvatar;
 
         @BindView(R.id.contact_status)

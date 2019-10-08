@@ -24,9 +24,9 @@ import android.text.TextUtils;
 import org.matrix.androidsdk.HomeServerConnectionConfig;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.core.callback.ApiCallback;
+import org.matrix.androidsdk.core.model.MatrixError;
 import org.matrix.androidsdk.rest.client.LoginRestClient;
 import org.matrix.androidsdk.rest.client.ThirdPidRestClient;
-import org.matrix.androidsdk.core.model.MatrixError;
 import org.matrix.androidsdk.rest.model.login.Credentials;
 import org.matrix.androidsdk.rest.model.login.LoginFlow;
 import org.matrix.androidsdk.rest.model.login.RegistrationParams;
@@ -40,17 +40,17 @@ import im.vector.settings.VectorLocale;
 
 public class LoginHandler {
     /**
-     * The account login / creation succeeds so create the dedicated session and store it.
+     * The account login succeeds so create the dedicated session and store it.
      *
      * @param appCtx      the application context.
      * @param hsConfig    the homeserver config
      * @param credentials the credentials
      * @param callback    the callback
      */
-    private void onRegistrationDone(Context appCtx,
-                                    HomeServerConnectionConfig hsConfig,
-                                    Credentials credentials,
-                                    ApiCallback<Void> callback) {
+    private void onLoginDone(Context appCtx,
+                             HomeServerConnectionConfig hsConfig,
+                             Credentials credentials,
+                             ApiCallback<Void> callback) {
         // sanity check - GA issue
         if (TextUtils.isEmpty(credentials.userId)) {
             callback.onMatrixError(new MatrixError(MatrixError.FORBIDDEN, "No user id"));
@@ -98,7 +98,7 @@ public class LoginHandler {
         callLogin(ctx, hsConfig, username, phoneNumber, phoneNumberCountry, password, new UnrecognizedCertApiCallback<Credentials>(hsConfig, callback) {
             @Override
             public void onSuccess(Credentials credentials) {
-                onRegistrationDone(appCtx, hsConfig, credentials, callback);
+                onLoginDone(appCtx, hsConfig, credentials, callback);
             }
 
             @Override
@@ -177,7 +177,9 @@ public class LoginHandler {
                                               final HomeServerConnectionConfig hsConfig,
                                               final ApiCallback<Void> callback) {
         final RegistrationParams params = new RegistrationParams();
+
         final Context appCtx = ctx.getApplicationContext();
+
         LoginRestClient client = new LoginRestClient(hsConfig);
 
         // avoid dispatching the device name
@@ -187,7 +189,7 @@ public class LoginHandler {
             @Override
             public void onSuccess(Credentials credentials) {
                 // Should never happen, onMatrixError() will be called
-                onRegistrationDone(appCtx, hsConfig, credentials, callback);
+                onLoginDone(appCtx, hsConfig, credentials, callback);
             }
 
             @Override

@@ -27,8 +27,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
-import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -54,14 +52,22 @@ import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+
 import com.binaryfork.spanny.Spanny;
 
-import org.matrix.androidsdk.core.MXPatterns;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.adapters.AbstractMessagesAdapter;
 import org.matrix.androidsdk.adapters.MessageRow;
+import org.matrix.androidsdk.core.EventDisplay;
+import org.matrix.androidsdk.core.JsonUtils;
+import org.matrix.androidsdk.core.Log;
+import org.matrix.androidsdk.core.MXPatterns;
+import org.matrix.androidsdk.core.PermalinkUtils;
 import org.matrix.androidsdk.crypto.MXCryptoError;
 import org.matrix.androidsdk.crypto.data.MXDeviceInfo;
+import org.matrix.androidsdk.crypto.model.crypto.EncryptedEventContent;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.db.MXMediaCache;
 import org.matrix.androidsdk.interfaces.HtmlToolbox;
@@ -70,16 +76,13 @@ import org.matrix.androidsdk.rest.model.EventContent;
 import org.matrix.androidsdk.rest.model.PowerLevels;
 import org.matrix.androidsdk.rest.model.RoomCreateContent;
 import org.matrix.androidsdk.rest.model.RoomMember;
-import org.matrix.androidsdk.crypto.model.crypto.EncryptedEventContent;
+
 import org.matrix.androidsdk.crypto.model.crypto.EncryptedFileInfo;
+
 import org.matrix.androidsdk.rest.model.message.FileMessage;
 import org.matrix.androidsdk.rest.model.message.ImageMessage;
 import org.matrix.androidsdk.rest.model.message.Message;
 import org.matrix.androidsdk.rest.model.message.StickerMessage;
-import org.matrix.androidsdk.core.EventDisplay;
-import org.matrix.androidsdk.core.JsonUtils;
-import org.matrix.androidsdk.core.Log;
-import org.matrix.androidsdk.core.PermalinkUtils;
 import org.matrix.androidsdk.view.HtmlTagHandler;
 
 import java.lang.reflect.Field;
@@ -113,6 +116,7 @@ import im.vector.util.MatrixURLSpan;
 import im.vector.util.PreferencesManager;
 import im.vector.util.RiotEventDisplay;
 import im.vector.util.VectorImageGetter;
+import im.vector.util.VectorLinkifyKt;
 import im.vector.widgets.WidgetsManager;
 
 /**
@@ -1170,14 +1174,14 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             if (row.getEvent().isUndelivered() || row.getEvent().isUnknownDevice()) {
                 tsTextView.setTextColor(mNotSentMessageTextColor);
             } else {
-                tsTextView.setTextColor(ThemeUtils.INSTANCE.getColor(mContext, R.attr.vctr_default_text_light_color));
+                tsTextView.setTextColor(ThemeUtils.INSTANCE.getColor(mContext, android.R.attr.textColorSecondary));
             }
 
             tsTextView.setVisibility((((position + 1) == getCount()) || mIsSearchMode || mAlwaysShowTimeStamps) ? View.VISIBLE : View.GONE);
         }
 
         // Sender avatar
-        View avatarLayoutView = mHelper.setSenderAvatar(convertView, row, isMergedView);
+        View avatarView = mHelper.setSenderAvatar(convertView, row, isMergedView);
 
         View bodyLayoutView = convertView.findViewById(R.id.messagesAdapter_body_layout);
 
@@ -1202,7 +1206,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
         manageSelectionMode(convertView, event, msgType);
 
         // read marker
-        setReadMarker(convertView, row, isMergedView, avatarLayoutView, bodyLayoutView);
+        setReadMarker(convertView, row, isMergedView, avatarView, bodyLayoutView);
 
         // download / upload progress layout
         if ((ROW_TYPE_IMAGE == msgType) || (ROW_TYPE_FILE == msgType) || (ROW_TYPE_VIDEO == msgType) || (ROW_TYPE_STICKER == msgType)) {
@@ -1256,7 +1260,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                 bodyTextView.setText(result);
 
                 mHelper.applyLinkMovementMethod(bodyTextView);
-
+                VectorLinkifyKt.vectorCustomLinkify(bodyTextView, true);
                 textViews = new ArrayList<>();
                 textViews.add(bodyTextView);
             }
@@ -1381,7 +1385,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             boolean videoContent = false;
             if (type == ROW_TYPE_IMAGE) {
                 ImageMessage imageMessage = JsonUtils.toImageMessage(event.getContent());
-                if (imageMessage.getMimeType().equals("image/gif")) {
+                if ("image/gif".equals(imageMessage.getMimeType())) {
                     videoContent = true;
                 }
                 message = imageMessage;
@@ -1430,8 +1434,9 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
     }
 
     /**
-     * Notice message management
+     * Notice and RoomMember message management
      *
+     * @param viewType    the viewType
      * @param position    the message position
      * @param convertView the message view
      * @param parent      the parent view
@@ -1463,7 +1468,12 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             } else {
                 SpannableStringBuilder strBuilder = new SpannableStringBuilder(notice);
                 MatrixURLSpan.refreshMatrixSpans(strBuilder, mVectorMessagesAdapterEventsListener);
+                mHelper.applyLinkMovementMethod(noticeTextView);
                 noticeTextView.setText(strBuilder);
+                //In room member we don't want autolink, but do it for m.notice
+                if (viewType == ROW_TYPE_NOTICE) {
+                    VectorLinkifyKt.vectorCustomLinkify(noticeTextView, true);
+                }
             }
 
             View textLayout = convertView.findViewById(R.id.messagesAdapter_text_layout);
@@ -1518,7 +1528,8 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
 
             CharSequence body = "* " + row.getSenderDisplayName() + " " + message.body;
 
-            if (TextUtils.equals(Message.FORMAT_MATRIX_HTML, message.format)) {
+            boolean isCustomHtml = TextUtils.equals(Message.FORMAT_MATRIX_HTML, message.format);
+            if (isCustomHtml) {
                 String htmlString = mHelper.getSanitisedHtml(message.formatted_body);
 
                 if (null != htmlString) {
@@ -1532,6 +1543,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
 
             emoteTextView.setText(strBuilder);
             mHelper.applyLinkMovementMethod(emoteTextView);
+            VectorLinkifyKt.vectorCustomLinkify(emoteTextView, isCustomHtml);
 
             int textColor;
 
@@ -1710,8 +1722,9 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
 
             // set the message marker
             convertView.findViewById(R.id.messagesAdapter_highlight_message_marker)
-                    .setBackgroundColor(ContextCompat.getColor(mContext,
-                            TextUtils.equals(mHighlightedEventId, event.eventId) ? R.color.vector_green_color : android.R.color.transparent));
+                    .setBackgroundColor(TextUtils.equals(mHighlightedEventId, event.eventId) ?
+                            ThemeUtils.INSTANCE.getColor(mContext, R.attr.colorAccent) :
+                            ContextCompat.getColor(mContext, android.R.color.transparent));
 
             // display the day separator
             VectorMessagesAdapterHelper.setHeader(convertView, headerMessage(position), position);
@@ -1743,10 +1756,8 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             convertView = mLayoutInflater.inflate(mRowTypeToLayoutId.get(ROW_TYPE_VERSIONED_ROOM), parent, false);
         }
         final MessageRow row = getItem(position);
-        // In this case, predecessor cannot be null
-        final RoomCreateContent.Predecessor predecessor = row.getRoomCreateContentPredecessor();
-
-        final String roomLink = PermalinkUtils.createPermalink(predecessor.roomId);
+        final RoomCreateContent roomCreateContent = JsonUtils.toRoomCreateContent(row.getEvent().getContent());
+        final String roomLink = PermalinkUtils.createPermalink(roomCreateContent.predecessor.roomId);
         final ClickableSpan urlSpan = new MatrixURLSpan(roomLink, MXPatterns.PATTERN_CONTAIN_APP_LINK_PERMALINK_ROOM_ID, mVectorMessagesAdapterEventsListener);
         final int textColorInt = ContextCompat.getColor(mContext, R.color.riot_primary_text_color_light);
         final CharSequence text = new Spanny(mContext.getString(R.string.room_tombstone_continuation_description),
@@ -1754,6 +1765,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                 new ForegroundColorSpan(textColorInt))
                 .append("\n")
                 .append(mContext.getString(R.string.room_tombstone_predecessor_link), urlSpan, new ForegroundColorSpan(textColorInt));
+
         final TextView versionedTextView = convertView.findViewById(R.id.messagesAdapter_room_versioned_text);
         versionedTextView.setMovementMethod(LinkMovementMethod.getInstance());
         versionedTextView.setText(text);
@@ -2609,7 +2621,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
 
                     // move left the body
                     bodyLayout.setMargins(4, bodyLayout.topMargin, 4, bodyLayout.bottomMargin);
-                    highlightMakerView.setBackgroundColor(ContextCompat.getColor(mContext, R.color.vector_green_color));
+                    highlightMakerView.setBackgroundColor(ThemeUtils.INSTANCE.getColor(mContext, R.attr.colorAccent));
                 }
             } else {
                 highlightMakerView.setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent));
