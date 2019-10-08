@@ -83,6 +83,9 @@ public class TchapRoomsFragment extends AbsHomeFragment implements AbsHomeFragme
         mPrimaryColor = ContextCompat.getColor(getActivity(), R.color.tab_rooms);
         mSecondaryColor = ContextCompat.getColor(getActivity(), R.color.tab_rooms_secondary);
 
+        mFabColor = ContextCompat.getColor(getActivity(), R.color.tab_rooms);
+        mFabPressedColor = ContextCompat.getColor(getActivity(), R.color.tab_rooms_secondary);
+
         initViews();
 
         mOnRoomChangedListener = this;

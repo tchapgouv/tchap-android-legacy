@@ -1,185 +1,197 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:orientation="vertical"
     tools:context="fr.gouv.tchap.activity.TchapRoomCreationActivity">
 
-    <LinearLayout
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        style="@style/VectorToolbarStyle"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_margin="14.5dp">
+        android:layout_height="wrap_content" />
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="visible">
+            android:layout_margin="14.5dp"
+            android:orientation="vertical">
+
+            <FrameLayout
+                android:id="@+id/room_creation_spinner_views"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone">
+
+                <ProgressBar
+                    android:id="@+id/listView_spinner"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center"
+                    android:visibility="visible" />
+            </FrameLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
-                android:layout_marginBottom="60dp"
-                android:descendantFocusability="beforeDescendants"
-                android:focusableInTouchMode="true"
-                android:orientation="horizontal">
+                android:orientation="vertical"
+                android:visibility="visible">
 
-                <RelativeLayout
-                    android:id="@+id/rly_hexagon_avatar"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
-
-                    <fr.gouv.tchap.util.HexagonMaskView
-                        android:id="@+id/hexagon_mask_view"
-                        android:layout_width="95dp"
-                        android:layout_height="95dp"
-                        android:src="@color/vector_tchap_hexagon_background_color_dark_grey"/>
-
-                    <TextView
-                        android:id="@+id/tv_add_avatar_image"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_centerHorizontal="true"
-                        android:gravity="center"
-                        android:layout_margin="1dp"
-                        android:paddingTop="5dp"
-                        android:paddingBottom="5dp"
-                        android:textAllCaps="false"
-                        android:textSize="12sp"
-                        android:text="@string/tchap_room_creation_avatar"
-                        android:textColor="@color/tchap_text_color_light"/>
-                </RelativeLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginRight="10dp"
-                    android:layout_marginTop="15dp"
-                    android:textColorHint="?attr/vctr_default_text_hint_color">
+                    android:layout_marginTop="30dp"
+                    android:layout_marginBottom="60dp"
+                    android:descendantFocusability="beforeDescendants"
+                    android:focusableInTouchMode="true"
+                    android:orientation="horizontal">
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/et_room_name"
+                    <RelativeLayout
+                        android:id="@+id/rly_hexagon_avatar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:id="@+id/tv_add_avatar_image"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerHorizontal="true"
+                            android:layout_centerVertical="true"
+                            android:layout_margin="1dp"
+                            android:gravity="center"
+                            android:paddingTop="5dp"
+                            android:paddingBottom="5dp"
+                            android:text="@string/tchap_room_creation_avatar"
+                            android:textAllCaps="false"
+                            android:textColor="@color/tchap_text_color_light"
+                            android:textSize="12sp" />
+
+                        <fr.gouv.tchap.util.HexagonMaskView
+                            android:id="@+id/hexagon_mask_view"
+                            android:layout_width="95dp"
+                            android:layout_height="95dp"
+                            android:src="@color/vector_tchap_hexagon_background_color_dark_grey" />
+                    </RelativeLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginTop="15dp"
+                        android:layout_marginRight="10dp"
+                        android:textColorHint="?attr/vctr_default_text_hint_color">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/et_room_name"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:hint="@string/tchap_room_creation_name"
+                            android:minHeight="40dp"
+                            android:textColor="@color/vector_tchap_text_color_dark_grey"
+                            android:textSize="18.8sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="7dp"
+                    android:descendantFocusability="beforeDescendants"
+                    android:focusableInTouchMode="true"
+                    android:orientation="horizontal">
+
+                    <Switch
+                        android:id="@+id/switch_external_access_room"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="false" />
+
+                    <TextView
+                        android:id="@+id/tv_external_access"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:textSize="18.8sp"
-                        android:hint="@string/tchap_room_creation_name"
-                        android:minHeight="40dp"
-                        android:textColor="@color/vector_tchap_text_color_dark_grey"/>
-                </com.google.android.material.textfield.TextInputLayout>
-            </LinearLayout>
+                        android:paddingBottom="3dp"
+                        android:text="@string/tchap_room_creation_unrestricted"
+                        android:textColor="@color/vector_tchap_text_color_dark"
+                        android:textSize="15sp" />
+                </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:descendantFocusability="beforeDescendants"
-                android:focusableInTouchMode="true"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="7dp"
-                android:orientation="horizontal">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="7dp"
+                    android:descendantFocusability="beforeDescendants"
+                    android:focusableInTouchMode="true"
+                    android:orientation="horizontal">
+
+                    <Switch
+                        android:id="@+id/switch_public_private_room"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="false" />
+
+                    <TextView
+                        android:id="@+id/tv_public_room"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:paddingBottom="3dp"
+                        android:text="@string/tchap_room_creation_public"
+                        android:textColor="@color/vector_tchap_text_color_dark"
+                        android:textSize="15sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_federation_option"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="7dp"
+                    android:descendantFocusability="beforeDescendants"
+                    android:focusableInTouchMode="true"
+                    android:orientation="horizontal"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <Switch
+                        android:id="@+id/switch_disable_federation"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="false" />
+
+                    <TextView
+                        android:id="@+id/tv_disable_federation"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:paddingBottom="3dp"
+                        android:textColor="@color/vector_tchap_text_color_dark"
+                        android:textSize="15sp"
+                        tools:text="Limit the access to this room to the members of the domain xxx" />
+                </LinearLayout>
 
                 <TextView
-                    android:id="@+id/tv_external_access"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/tchap_room_creation_unrestricted"
-                    android:textSize="15sp"
-                    android:paddingBottom="3dp"
-                    android:textColor="@color/vector_tchap_text_color_dark"/>
-
-                <Switch
-                    android:id="@+id/switch_external_access_room"
+                    android:id="@+id/tv_public_private_room_description"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:checked="false"/>
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginTop="13dp"
+                    android:layout_marginRight="7dp"
+                    android:paddingBottom="10dp"
+                    android:text="@string/tchap_room_creation_public_info"
+                    android:textColor="@color/vector_tchap_text_color_light_grey"
+                    android:textSize="12sp" />
+
             </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:descendantFocusability="beforeDescendants"
-                android:focusableInTouchMode="true"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="7dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/tv_public_room"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/tchap_room_creation_public"
-                    android:textSize="15sp"
-                    android:paddingBottom="3dp"
-                    android:textColor="@color/vector_tchap_text_color_dark"/>
-
-                <Switch
-                    android:id="@+id/switch_public_private_room"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checked="false"/>
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/tv_public_private_room_description"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="13dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="7dp"
-                android:text="@string/tchap_room_creation_public_info"
-                android:textSize="12sp"
-                android:paddingBottom="10dp"
-                android:textColor="@color/vector_tchap_text_color_light_grey"/>
-
-            <LinearLayout
-                android:id="@+id/ll_federation_option"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:descendantFocusability="beforeDescendants"
-                android:focusableInTouchMode="true"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="7dp"
-                android:orientation="horizontal"
-                android:visibility="gone"
-                tools:visibility="visible">
-
-                <TextView
-                    android:id="@+id/tv_disable_federation"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textSize="15sp"
-                    android:paddingBottom="3dp"
-                    android:textColor="@color/vector_tchap_text_color_dark"
-                    tools:text="Limit the access to this room to the members of the domain xxx"/>
-
-                <Switch
-                    android:id="@+id/switch_disable_federation"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checked="false"/>
-            </LinearLayout>
-
         </LinearLayout>
-
-        <FrameLayout
-            android:id="@+id/room_creation_spinner_views"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone">
-            <ProgressBar
-                android:id="@+id/listView_spinner"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:visibility="visible"/>
-        </FrameLayout>
-    </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+    </androidx.core.widget.NestedScrollView>
+</LinearLayout>

@@ -261,6 +261,8 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
     public void initUiAndData() {
         super.initUiAndData();
 
+        configureToolbar();
+
         if (CommonActivityUtils.shouldRestartApp(this)) {
             Log.e(LOG_TAG, "Restart the application.");
             CommonActivityUtils.restartApp(this);

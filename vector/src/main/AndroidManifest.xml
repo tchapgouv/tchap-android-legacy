@@ -129,10 +129,6 @@
             android:label="@string/title_activity_settings"
             android:theme="@style/AppTheme.NoActionBar.Swipe.Light" />
         <activity
-            android:name=".activity.AccountCreationActivity"
-            android:configChanges="orientation|screenSize"
-            android:windowSoftInputMode="stateHidden|adjustResize" />
-        <activity
             android:name=".activity.AccountCreationCaptchaActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/create_account" />
