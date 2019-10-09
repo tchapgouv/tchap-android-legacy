@@ -41,7 +41,6 @@ import androidx.core.content.edit
 import org.jetbrains.anko.toast
 import org.jetbrains.anko.longToast
 import androidx.core.view.isVisible
-import androidx.lifecycle.ViewModelProviders
 import androidx.preference.*
 import com.bumptech.glide.Glide
 import com.google.android.material.textfield.TextInputEditText
@@ -1095,7 +1094,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragmentCompat(), SharedPref
                         .setTitle(R.string.dialog_title_warning)
                         .setMessage(R.string.settings_change_pwd_caution)
                         .setPositiveButton(R.string.settings_change_password) { _, _ -> doShowPasswordChangeDialog() }
-                        .setNegativeButton(R.string.settings_change_pwd_key_backup) { _, _ -> manageKeyBackupBeforePwdUpodate() }
+                        .setNegativeButton(R.string.settings_change_pwd_key_backup) { _, _ -> manageKeyBackupBeforePwdUpdate() }
                         .setNeutralButton(R.string.cancel, null)
                         .show()
             }
@@ -2620,19 +2619,17 @@ class VectorSettingsPreferencesFragment : PreferenceFragmentCompat(), SharedPref
     }
 
     /**
-     * Manage the key backup before updating the passord:
+     * Manage the key backup before updating the password:
      * - set up a new backup if none (by showing manual export option)
      * - manage the pending one if any
      */
-    private fun manageKeyBackupBeforePwdUpodate() {
+    private fun manageKeyBackupBeforePwdUpdate() {
         activity?.let { activity ->
-            // Use the SignOutViewModel to get the current keys backup state
-            val model = ViewModelProviders.of(this).get(SignOutViewModel::class.java)
-            model.init(mSession)
-            when (model.keysBackupState.value) {
-                KeysBackupStateManager.KeysBackupState.Disabled ->
-                    startActivity(KeysBackupSetupActivity.intent(activity, mSession.myUserId, true))
-                else -> startActivity(KeysBackupManageActivity.intent(activity, mSession.myUserId))
+            // Check the current keys backup state
+            if (mSession.crypto?.keysBackup?.state == KeysBackupStateManager.KeysBackupState.Disabled) {
+                startActivity(KeysBackupSetupActivity.intent(activity, mSession.myUserId, true))
+            } else {
+                startActivity(KeysBackupManageActivity.intent(activity, mSession.myUserId))
             }
         }
     }
