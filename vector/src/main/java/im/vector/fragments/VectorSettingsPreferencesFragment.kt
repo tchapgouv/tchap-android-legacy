@@ -41,6 +41,7 @@ import androidx.core.content.edit
 import org.jetbrains.anko.toast
 import org.jetbrains.anko.longToast
 import androidx.core.view.isVisible
+import androidx.lifecycle.ViewModelProviders
 import androidx.preference.*
 import com.bumptech.glide.Glide
 import com.google.android.material.textfield.TextInputEditText
@@ -58,6 +59,7 @@ import im.vector.dialogs.ExportKeysDialog
 import im.vector.extensions.getFingerprintHumanReadable
 import im.vector.extensions.showPassword
 import im.vector.extensions.withArgs
+import im.vector.fragments.signout.SignOutViewModel
 import im.vector.preference.ProgressBarPreference
 import im.vector.preference.UserAvatarPreference
 import im.vector.preference.VectorPreference
@@ -75,6 +77,7 @@ import org.matrix.androidsdk.core.listeners.IMXNetworkEventListener
 import org.matrix.androidsdk.core.model.MatrixError
 import org.matrix.androidsdk.crypto.data.ImportRoomKeysResult
 import org.matrix.androidsdk.crypto.data.MXDeviceInfo
+import org.matrix.androidsdk.crypto.keysbackup.KeysBackupStateManager
 import org.matrix.androidsdk.crypto.model.rest.DeviceInfo
 import org.matrix.androidsdk.crypto.model.rest.DevicesListResponse
 import org.matrix.androidsdk.data.MyUser
@@ -1085,14 +1088,19 @@ class VectorSettingsPreferencesFragment : PreferenceFragmentCompat(), SharedPref
      * Update the password.
      */
     private fun onPasswordUpdateClick() {
-        activity?.let { activity ->
-            AlertDialog.Builder(activity)
-                    .setTitle(R.string.dialog_title_warning)
-                    .setMessage(R.string.settings_change_pwd_caution)
-                    .setPositiveButton(R.string.settings_change_password) { _, _ -> doShowPasswordChangeDialog() }
-                    .setNegativeButton(R.string.encryption_export_room_keys) { _, _ -> exportKeys() }
-                    .setNeutralButton(R.string.cancel, null)
-                    .show()
+        // Use the SignOutViewModel, it observe the keys backup state and this is what we need here
+        if (SignOutViewModel.doYouNeedToBeDisplayed(mSession)) {
+            activity?.let { activity ->
+                AlertDialog.Builder(activity)
+                        .setTitle(R.string.dialog_title_warning)
+                        .setMessage(R.string.settings_change_pwd_caution)
+                        .setPositiveButton(R.string.settings_change_password) { _, _ -> doShowPasswordChangeDialog() }
+                        .setNegativeButton(R.string.settings_change_pwd_key_backup) { _, _ -> manageKeyBackupBeforePwdUpodate() }
+                        .setNeutralButton(R.string.cancel, null)
+                        .show()
+            }
+        } else {
+            doShowPasswordChangeDialog()
         }
     }
 
@@ -2608,6 +2616,24 @@ class VectorSettingsPreferencesFragment : PreferenceFragmentCompat(), SharedPref
             }
         } else {
             Log.e(LOG_TAG, "## displayDeviceDeletionDialog(): sanity check failure")
+        }
+    }
+
+    /**
+     * Manage the key backup before updating the passord:
+     * - set up a new backup if none (by showing manual export option)
+     * - manage the pending one if any
+     */
+    private fun manageKeyBackupBeforePwdUpodate() {
+        activity?.let { activity ->
+            // Use the SignOutViewModel to get the current keys backup state
+            val model = ViewModelProviders.of(this).get(SignOutViewModel::class.java)
+            model.init(mSession)
+            when (model.keysBackupState.value) {
+                KeysBackupStateManager.KeysBackupState.Disabled ->
+                    startActivity(KeysBackupSetupActivity.intent(activity, mSession.myUserId, true))
+                else -> startActivity(KeysBackupManageActivity.intent(activity, mSession.myUserId))
+            }
         }
     }
 
