@@ -329,7 +329,7 @@ dependencies {
     //implementation project(':matrix-sdk-core')
 
     /************* jitsi **************/
-    withvoipImplementation('org.jitsi.react:jitsi-meet-sdk:2.2.2@aar')
+    withvoipImplementation('org.jitsi.react:jitsi-meet-sdk:2.2.2')
 
     /************* analytics **************/
     // another tracking than GA

@@ -827,7 +827,7 @@ Appareils inconnus :</string>
     <string name="tchap_invite_unreachable_message">%s n’est pas joignable pour l’instant par Tchap</string>
     <string name="tchap_invite_unauthorized_title_restricted_room">Les externes ne sont pas autorisés à rejoindre ce salon</string>
     <string name="tchap_invite_unauthorized_title_unfederated_room">Seuls les membres du domaine \"%s\" sont autorisés</string>
-    <string name="tchap_invite_unauthorized_message">Il n’est pas possible d’inviter : %s</string>
+    <string name="tchap_invite_unauthorized_message">Il n\'est pas possible d\'inviter : %s</string>
     <string name="tchap_send_invite_failed">Echec de l’envoi de l’invitation à %s</string>
     <string name="tchap_send_invite_network_error">Impossible d’envoyer une invitation : erreur réseau</string>
     <string name="tchap_send_invite_confirmation">Vous recevrez une notification lorsque \n votre invité rejoindra la communauté Tchap</string>
@@ -842,6 +842,9 @@ Appareils inconnus :</string>
 
     // tchap discussion
     <string name="tchap_cannot_invite_deactivated_account_user">Votre correspondant a quitté définitivement cette discussion.\nVous devez en créer une nouvelle pour le recontacter.</string>
+
+    // tchap room
+    <string name="tchap_room_access_unrestricted">Salon accessible aux externes</string>
 
     // tchap scan media
     <string name="tchap_scan_media_unavailable">Analyse Indisponible</string>
@@ -881,6 +884,7 @@ Appareils inconnus :</string>
     <string name="tchap_connection_password_help">Votre mot de passe doit contenir au moins 8 caractères, avec au moins un caractère de chaque type : majuscule, minuscule, chiffre, caractère spécial.</string>
     <string name="tchap_connection_password_confirm">Confirmer le mot de passe</string>
     <string name="tchap_connection_forgotten_email">J’ai oublié mon mot de passe</string>
+    <string name="tchap_register_warning_for_external">Le domaine de votre adresse email n’est pas déclaré dans Tchap. Si vous avez reçu une invitation, vous allez pouvoir créer un compte Tchap « invité », permettant uniquement de participer aux échanges privés auxquels vous êtes convié.</string>
     <string name="tchap_register_wait_for_email_title">Un email vous a été envoyé à :</string>
     <string name="tchap_register_wait_for_email_subtitle">Merci de cliquer sur le lien proposé dans cet email afin de terminer la création de votre compte. Vous pourrez alors vous connecter en allant sur l’écran de connexion.</string>
     <string name="tchap_register_wait_for_email_login_button">Aller à l’écran de connexion</string>

@@ -17,7 +17,6 @@
 package fr.gouv.tchap.activity;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -28,6 +27,7 @@ import android.text.TextUtils;
 import com.google.android.material.textfield.TextInputEditText;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 
 import android.view.Menu;

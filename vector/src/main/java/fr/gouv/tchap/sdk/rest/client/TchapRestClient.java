@@ -17,6 +17,7 @@ package fr.gouv.tchap.sdk.rest.client;
 
 import org.matrix.androidsdk.HomeServerConnectionConfig;
 import org.matrix.androidsdk.RestClient;
+import org.matrix.androidsdk.core.JsonUtils;
 import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.core.rest.DefaultRetrofit2CallbackWrapper;
 
@@ -30,7 +31,7 @@ public class TchapRestClient extends RestClient<TchapApi> {
      * {@inheritDoc}
      */
     public TchapRestClient(HomeServerConnectionConfig hsConfig) {
-        super(hsConfig, TchapApi.class, URI_API_PREFIX_IDENTITY, false, true);
+        super(hsConfig, TchapApi.class, URI_API_PREFIX_IDENTITY, JsonUtils.getGson(false), true);
     }
 
     /**

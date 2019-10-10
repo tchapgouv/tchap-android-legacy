@@ -18,12 +18,12 @@
 
 package im.vector.activity;
 
-import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import android.text.Editable;
 import android.text.SpannableString;
@@ -469,8 +469,6 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                     Intent intent = new Intent();
                     intent.putExtra(EXTRA_OUT_SELECTED_USER_IDS, mUserIdsToInvite);
                     setResult(RESULT_CANCELED, intent);
-                } else {
-                    startActivity(new Intent(this, VectorHomeActivity.class));
                 }
                 finish();
                 return true;
@@ -888,9 +886,10 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                             Log.e(LOG_TAG, "##inviteNoTchapUserByEmail failed : " + message);
                             new AlertDialog.Builder(VectorRoomInviteMembersActivity.this)
                                     .setMessage(getString(R.string.tchap_send_invite_failed, email))
-                                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                    .setPositiveButton(R.string.ok, null)
+                                    .setOnDismissListener(new DialogInterface.OnDismissListener() {
                                         @Override
-                                        public void onClick(DialogInterface dialog, int which) {
+                                        public void onDismiss(DialogInterface dialog) {
 
                                             // Despite the error, we continue the process
                                             // until we reach the end of the list.
@@ -1110,8 +1109,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         }
 
         if (finish) {
-            // We close the current screen and we come back on the hme screen.
-            startActivity(new Intent(this, VectorHomeActivity.class));
+            // We go back to the home screen.
             finish();
         }
     }

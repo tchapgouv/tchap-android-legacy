@@ -1,3 +1,33 @@
+Changes in Tchap 1.0.31 (2019-09-26)
+===================================================
+
+Only one change:
+ * Force a cache clearing to handle correctly the recent changes.
+
+Changes in Tchap 1.0.30 (2019-09-19)
+===================================================
+
+Improvements:
+ * Update matrix-sdk.aar libs - Revision:b525955b38fe359717d856679c270d1b824f7b5e [b525955b]
+ * Handle the strong password policy forced by the server #465
+ * Room creation: allow or not the external users to join the room #474
+ * Add a marker to indicate whether or not a room can be joined by external users #475
+ * The room admin is able to open the room to the external users #476
+ * Room members: invite new members by their email address #483
+ * Room members: remove the external users from the picker when they are not allowed to join #484
+ * Discussion creation: Add the room access rule value: ".direct" #491
+ * Allow the user to send a new invite to an external email address #499
+ * Remove the URL preview option from the user's settings #527
+ * Room Members: Allow to revoke 3pid invites PR #530
+ * Pin the new agent.externe certificate
+ * Add room access info in the Room title #536
+ * Prompt the user before creating an external account #525
+
+Bug Fixes:
+ * Do not use by default a member avatar for the room avatar #528
+ * The external users are not able to send messages in an encrypted room #539
+ * the displayname of an external is sometime incorrect #511
+
 Changes in Tchap 1.0.29 (2019-09-01)
 ===================================================
 

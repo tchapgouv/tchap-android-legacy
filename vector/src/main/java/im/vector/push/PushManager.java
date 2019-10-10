@@ -192,23 +192,23 @@ public final class PushManager {
      * The FCM could have cleared it (onTokenRefresh).
      */
     public void checkRegistrations() {
-        Log.d(LOG_TAG, "checkRegistrations with state " + mRegistrationState);
+        Log.i(LOG_TAG, "checkRegistrations with state " + mRegistrationState);
 
         if (!useFcm()) {
-            Log.d(LOG_TAG, "checkRegistrations : FCM is disabled");
+            Log.i(LOG_TAG, "checkRegistrations : FCM is disabled");
             return;
         }
 
         // remove the GCM registration token after switching to the FCM one
         if (null != getOldStoredRegistrationToken()) {
-            Log.d(LOG_TAG, "checkRegistrations : remove the GCM registration token after switching to the FCM one");
+            Log.i(LOG_TAG, "checkRegistrations : remove the GCM registration token after switching to the FCM one");
 
             mRegistrationToken = getOldStoredRegistrationToken();
 
             unregister(new ApiCallback<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
-                    Log.d(LOG_TAG, "resetFCMRegistration : remove the GCM registration token done");
+                    Log.i(LOG_TAG, "resetFCMRegistration : remove the GCM registration token done");
                     clearOldStoredRegistrationToken();
                     mRegistrationToken = null;
 
@@ -238,17 +238,17 @@ public final class PushManager {
                 }
             });
         } else if (mRegistrationState == RegistrationState.UNREGISTRATED) {
-            Log.d(LOG_TAG, "checkPusherRegistration : try to register to FCM server");
+            Log.i(LOG_TAG, "checkPusherRegistration : try to register to FCM server");
 
             if (registerToFcm()) {
                 // register the sessions to the 3rd party server
                 // this setting should be updated from the listener
                 register(null);
 
-                Log.d(LOG_TAG, "checkRegistrations : reregistered");
+                Log.i(LOG_TAG, "checkRegistrations : reregistered");
                 EventStreamServiceX.Companion.onPushUpdate(mContext);
             } else {
-                Log.d(LOG_TAG, "checkRegistrations : onPusherRegistrationFailed");
+                Log.i(LOG_TAG, "checkRegistrations : onPusherRegistrationFailed");
             }
         } else if (mRegistrationState == RegistrationState.FCM_REGISTERED) {
             // register the 3rd party server
@@ -275,7 +275,7 @@ public final class PushManager {
         String registrationToken = getStoredRegistrationToken();
 
         if (TextUtils.isEmpty(registrationToken)) {
-            Log.d(LOG_TAG, "## getFcmRegistrationToken() : undefined token -> getting a new one");
+            Log.i(LOG_TAG, "## getFcmRegistrationToken() : undefined token -> getting a new one");
             registrationToken = FcmHelper.getFcmToken(mContext);
         }
         return registrationToken;
@@ -287,11 +287,11 @@ public final class PushManager {
      * @return true if registration succeed, else return false.
      */
     private boolean registerToFcm() {
-        Log.d(LOG_TAG, "registerToFcm with state " + mRegistrationState);
+        Log.i(LOG_TAG, "registerToFcm with state " + mRegistrationState);
 
         if (!useFcm()) {
             // do not use FCM
-            Log.d(LOG_TAG, "registerPusher : FCM is disabled");
+            Log.i(LOG_TAG, "registerPusher : FCM is disabled");
 
             return false;
         }
@@ -322,26 +322,26 @@ public final class PushManager {
      * @param newToken the new registration token, to register again, or null
      */
     public void resetFCMRegistration(final @Nullable String newToken) {
-        Log.d(LOG_TAG, "resetFCMRegistration");
+        Log.i(LOG_TAG, "resetFCMRegistration");
 
         if (mRegistrationState == RegistrationState.SERVER_REGISTERED) {
-            Log.d(LOG_TAG, "resetFCMRegistration : unregister server before retrieving the new FCM token");
+            Log.i(LOG_TAG, "resetFCMRegistration : unregister server before retrieving the new FCM token");
 
             unregister(new ApiCallback<Void>() {
                 @Override
                 public void onSuccess(Void info) {
-                    Log.d(LOG_TAG, "resetFCMRegistration : un-registration is done --> start the registration process");
+                    Log.i(LOG_TAG, "resetFCMRegistration : un-registration is done --> start the registration process");
                     resetFCMRegistration(newToken);
                 }
 
                 @Override
                 public void onNetworkError(Exception e) {
-                    Log.d(LOG_TAG, "resetFCMRegistration : un-registration failed.");
+                    Log.i(LOG_TAG, "resetFCMRegistration : un-registration failed.");
                 }
 
                 @Override
                 public void onMatrixError(MatrixError e) {
-                    Log.d(LOG_TAG, "resetFCMRegistration : un-registration failed.");
+                    Log.i(LOG_TAG, "resetFCMRegistration : un-registration failed.");
                     //we can assume that it may have succeeded anyway
                     setAndStoreRegistrationState(RegistrationState.FCM_REGISTERED);
                     resetFCMRegistration(newToken);
@@ -349,7 +349,7 @@ public final class PushManager {
 
                 @Override
                 public void onUnexpectedError(Exception e) {
-                    Log.d(LOG_TAG, "resetFCMRegistration : un-registration failed.");
+                    Log.i(LOG_TAG, "resetFCMRegistration : un-registration failed.");
                     //we can assume that it may have succeeded anyway
                     setAndStoreRegistrationState(RegistrationState.FCM_REGISTERED);
                     resetFCMRegistration(newToken);
@@ -358,15 +358,15 @@ public final class PushManager {
         } else {
             final boolean clearEverything = TextUtils.isEmpty(newToken);
 
-            Log.d(LOG_TAG, "resetFCMRegistration : Clear the FCM data");
+            Log.i(LOG_TAG, "resetFCMRegistration : Clear the FCM data");
             clearFcmData(new SimpleApiCallback<Void>() {
                 @Override
                 public void onSuccess(Void info) {
                     if (!clearEverything) {
-                        Log.d(LOG_TAG, "resetFCMRegistration : make a full registration process.");
+                        Log.i(LOG_TAG, "resetFCMRegistration : make a full registration process.");
                         register(null);
                     } else {
-                        Log.d(LOG_TAG, "resetFCMRegistration : Ready to register.");
+                        Log.i(LOG_TAG, "resetFCMRegistration : Ready to register.");
                     }
                 }
             });
@@ -400,7 +400,7 @@ public final class PushManager {
      * @param callback the callback
      */
     private void manage500Error(final ApiCallback<Void> callback) {
-        Log.d(LOG_TAG, "got a 500 error -> reset the registration and try again");
+        Log.i(LOG_TAG, "got a 500 error -> reset the registration and try again");
 
         Timer relaunchTimer = new Timer();
 
@@ -409,12 +409,12 @@ public final class PushManager {
             @Override
             public void run() {
                 if (RegistrationState.SERVER_REGISTERED == mRegistrationState) {
-                    Log.d(LOG_TAG, "500 error : unregister first");
+                    Log.i(LOG_TAG, "500 error : unregister first");
 
                     unregister(new ApiCallback<Void>() {
                         @Override
                         public void onSuccess(Void info) {
-                            Log.d(LOG_TAG, "500 error: unregister success");
+                            Log.i(LOG_TAG, "500 error: unregister success");
 
                             setAndStoreRegistrationToken(null);
                             setAndStoreRegistrationState(RegistrationState.UNREGISTRATED);
@@ -437,7 +437,7 @@ public final class PushManager {
                         }
 
                         private void onError() {
-                            Log.d(LOG_TAG, "500 error : unregister error");
+                            Log.i(LOG_TAG, "500 error : unregister error");
 
                             setAndStoreRegistrationToken(null);
                             setAndStoreRegistrationState(RegistrationState.UNREGISTRATED);
@@ -446,7 +446,7 @@ public final class PushManager {
                     });
 
                 } else {
-                    Log.d(LOG_TAG, "500 error : no FCM token");
+                    Log.i(LOG_TAG, "500 error : no FCM token");
 
                     setAndStoreRegistrationToken(null);
                     setAndStoreRegistrationState(RegistrationState.UNREGISTRATED);
@@ -462,7 +462,7 @@ public final class PushManager {
      */
     public void onAppResume() {
         if (mRegistrationState == RegistrationState.SERVER_REGISTERED) {
-            Log.d(LOG_TAG, "## onAppResume() : force the push registration");
+            Log.i(LOG_TAG, "## onAppResume() : force the push registration");
 
             forceSessionsRegistration(null);
         }
@@ -480,11 +480,11 @@ public final class PushManager {
         // test if the push server registration is allowed
         if (!areDeviceNotificationsAllowed() || !useFcm() || !session.isAlive()) {
             if (!areDeviceNotificationsAllowed()) {
-                Log.d(LOG_TAG, "registerPusher : the user disabled it.");
+                Log.i(LOG_TAG, "registerPusher : the user disabled it.");
             } else if (!session.isAlive()) {
-                Log.d(LOG_TAG, "registerPusher : the session is not anymore alive");
+                Log.i(LOG_TAG, "registerPusher : the session is not anymore alive");
             } else {
-                Log.d(LOG_TAG, "registerPusher : FCM is disabled.");
+                Log.i(LOG_TAG, "registerPusher : FCM is disabled.");
             }
 
             try {
@@ -519,7 +519,7 @@ public final class PushManager {
                 new ApiCallback<Void>() {
                     @Override
                     public void onSuccess(Void info) {
-                        Log.d(LOG_TAG, "registerToThirdPartyServer succeeded");
+                        Log.i(LOG_TAG, "registerToThirdPartyServer succeeded");
 
                         try {
                             callback.onSuccess(null);
@@ -641,19 +641,19 @@ public final class PushManager {
      * @param callback the callback.
      */
     public void register(@Nullable final ApiCallback<Void> callback) {
-        Log.d(LOG_TAG, "register with state " + mRegistrationState);
+        Log.i(LOG_TAG, "register with state " + mRegistrationState);
 
         switch (mRegistrationState) {
             case UNREGISTRATED:
-                Log.d(LOG_TAG, "register unregistrated : try to register again");
+                Log.i(LOG_TAG, "register unregistrated : try to register again");
 
                 // if the registration failed
                 // try to register again
                 if (registerToFcm()) {
-                    Log.d(LOG_TAG, "FCM registration success: register on server side");
+                    Log.i(LOG_TAG, "FCM registration success: register on server side");
                     register(callback);
                 } else {
-                    Log.d(LOG_TAG, "FCM registration failed");
+                    Log.i(LOG_TAG, "FCM registration failed");
                     if (callback != null) {
                         callback.onUnexpectedError(new Exception("FCM registration failed"));
                     }
@@ -713,7 +713,7 @@ public final class PushManager {
     private void registerToThirdPartyServerRecursive(final ArrayList<MXSession> sessions, final int index) {
         // reach this end of the list ?
         if (index >= sessions.size()) {
-            Log.d(LOG_TAG, "registerSessions : all the sessions are registered");
+            Log.i(LOG_TAG, "registerSessions : all the sessions are registered");
             setAndStoreRegistrationState(RegistrationState.SERVER_REGISTERED);
 
             // disable the application start on device boot
@@ -778,7 +778,7 @@ public final class PushManager {
      * @param callback the callback.
      */
     public void unregister(@Nullable final ApiCallback<Void> callback) {
-        Log.d(LOG_TAG, "unregister with state " + mRegistrationState);
+        Log.i(LOG_TAG, "unregister with state " + mRegistrationState);
 
         if (mRegistrationState == RegistrationState.SERVER_UNREGISTRATING) {
             // please wait
@@ -912,7 +912,7 @@ public final class PushManager {
                 new ApiCallback<Void>() {
                     @Override
                     public void onSuccess(Void info) {
-                        Log.d(LOG_TAG, "unregisterSession succeeded");
+                        Log.i(LOG_TAG, "unregisterSession succeeded");
 
                         if (null != callback) {
                             try {
@@ -1295,7 +1295,7 @@ public final class PushManager {
      * Remove the old registration token
      */
     private void clearOldStoredRegistrationToken() {
-        Log.d(LOG_TAG, "Remove old registration token");
+        Log.i(LOG_TAG, "Remove old registration token");
 
         getPushSharedPreferences()
                 .edit()
@@ -1309,7 +1309,7 @@ public final class PushManager {
      * @param registrationToken the registration token
      */
     private void setAndStoreRegistrationToken(String registrationToken) {
-        Log.d(LOG_TAG, "Saving registration token");
+        Log.i(LOG_TAG, "Saving registration token");
 
         mRegistrationToken = registrationToken;
 

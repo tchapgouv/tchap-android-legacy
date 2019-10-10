@@ -17,27 +17,29 @@ package fr.gouv.tchap.sdk.rest.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import fr.gouv.tchap.activity.TchapLoginActivity;
+
 /**
  * Class to contain a password policy.
  */
 public class PasswordPolicy {
     // Minimum accepted length for a password.
     @SerializedName("m.minimum_length")
-    public Integer minLength;
+    public int minLength = TchapLoginActivity.MIN_PASSWORD_LENGTH;
 
     // Whether a password must contain at least one digit.
     @SerializedName("m.require_digit")
-    public Boolean isDigitRequired;
+    public boolean isDigitRequired = false;
 
     // Whether a password must contain at least one symbol.
     @SerializedName("m.require_symbol")
-    public Boolean isSymbolRequired;
+    public boolean isSymbolRequired = false;
 
     // Whether a password must contain at least one uppercase letter.
     @SerializedName("m.require_uppercase")
-    public Boolean isUppercaseRequired;
+    public boolean isUppercaseRequired = false;
 
     // Whether a password must contain at least one lowercase letter.
     @SerializedName("m.require_lowercase")
-    public Boolean isLowercaseRequired;
+    public boolean isLowercaseRequired = false;
 }
