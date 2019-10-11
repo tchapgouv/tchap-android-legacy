@@ -1185,42 +1185,6 @@ Na ďalšej obrazovke vás systém požiada o povolenie vždy bežať na pozadí
 
     <string name="no_valid_google_play_services_apk">Nenájdená aktívna aplikácia Služby Google Play. Je možné, že nebude správne fungovať doručovanie oznámení.</string>
 
-    <string name="store_title">Riot.im - Komunikujte, Podľa seba</string>
-    <string name="store_whats_new">"Riot.im neustále aktualizujeme s vylepšeniami a zmenami.
-Podrobný zoznam zmien (anglicky) nájdete na adrese: %1$s.
-Aby ste nič nezmeškali, nevypínajte prosím automatické aktualizácie."</string>
-    <string name="store_short_description">Univerzálna a bezpečná aplikácia na okamžitú komunikáciu úplne pod vašou kontrolou.</string>
-    <string name="store_full_description">Riot.im je jednoduché a elegantné prostredie určené na vzájomnú spoluprácu, ktoré združuje vaše rôzne konverzácie a integrácie do jedinej aplikácii.
-
-Postavený nad skupinovými konverzáciami, Riot.im vám umožňuje zdieľať správy, obrázky, videá aj akékoľvek súbory - pracovať s vlastnými nástrojmi a pristupovať ku všetkým vašim komunitám pod jednou strechou. S jednou jedinou totožnosťou si vystačíte pre všetky vaše tímy: nie je potrebné prepínať sa medzi viacerými účtami, môžete komunikovať s ľuďmi s rôznych organizácií vo verejných alebo súkromných miestnostiach: od profesionálnych projektov až po školské výlety, Riot.im sa stane centrom všetkych vašich diskusií!
-
-Už teraz so E2E šifrovaním!
-
-Hlavné vlastnosti:
-
-• Okamžité zdieľanie správ, obrázkov, videí a akýchkoľvek ďalších typov súborov v skupinách ľubovoľnej veľkosti
-• Audio a video 1-1 aj konferenčné hovory založené na WebRTC
-• End-to-end encryption (E2E šifrovanie) s využitím knižnice Olm (https://matrix.org/git/olm)
-• Zistite, kto číta vaše správy s potvrdeniami o prečítaní
-• Komunikácia s používateľmi kdekoľvek v ekosystéme Matrix.org - nie len používateľmi Riot.im!
-• Vyhľadávanie a pozývanie používateľov zadaním ich emailovej adresy
-• Aktívne diskusie vo verejných hosťom prístupných miestnostiach
-• Vysoká škálovateľnosť: podporuje stovky miestností a tisíce používateľov
-• Kompletne synchronizovaná história konverzácií naprieč vašimi zariadeniami a prehliadačmi internetu
-• Podrobne nastaviteľné oznámenia synchronizované so všetkými vašimi zariadeniami
-• Nekonečná história konverzácii s možnosťou vyhľadávania
-• Trvalé odkazy na jednotlivé správy
-• Kompletné vyhľadávanie v obsahu správ
-• Podpora pre jazyky RTL ako napr. Arabčina
-
-Pre vývojárov:
-• Riot.im je matrix klient postavený nad otvoreným štandardom a ekosystémom Matrix.org, tak že vzájomná kompatibilita s ostatnými matrix aplikáciami, servermi a integráciami je samozrejmosťou
-• Zverejnený ako open-source pod liberálnou licenciou Apache License - zdrojový kód získate z https://github.com/vector-im/vector-android. Pull requests welcome!
-• Triviálne rozšíriteľný cez otvorené rozhranie Matrix klient-server (https://matrix.org/docs/spec)
-• Spustite si vlastný server! Môžete sa pripojiť k predvolenému serveru matrix.org alebo spustiť si vlastný Domovský server Matrix (napr. https://matrix.org/docs/projects/server/synapse.html)
-
-Objavte skutočne výkonné možnosti otvorenej spolupráce s Riot.im!</string>
-
     <string name="notification_sync_init">Inicializácia služby</string>
     <string name="title_activity_keys_backup_setup">Zálohovanie kľúčov</string>
     <string name="title_activity_keys_backup_restore">Obnoviť kľúče zo zálohy</string>

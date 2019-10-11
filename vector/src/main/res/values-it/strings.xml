@@ -1193,29 +1193,8 @@ Nella schermata successiva ti verrà chiesto di consentire a Riot di funzionare 
 
     <string name="no_valid_google_play_services_apk">Nessun valido APK Google Play Services è stato trovato. Le notifiche non funzioneranno correttamente.</string>
 
-    <string name="store_title">Riot.im - Comunica, a modo tuo</string>
-    <string name="store_short_description">Un\'app universale di chat sicure interamente sotto il tuo controllo.</string>
-    <string name="store_full_description">Un\'app di chat, sotto il tuo controllo e interamente flessibile. Riot ti permette di comunicare a modo tuo. Creata per [matrix] - lo standard per le comunicazioni aperte, decentralizzate. 
-\n 
-\nOttieni un account matrix.org gratuito, ottieni il tuo server su https://modular.im, o usa un altro server Matrix. 
-\n 
-\nPerché scegliere Riot.im\? 
-\n 
-\n• COMUNICAZIONE COMPLETA: crea stanze per i tuoi team, i tuoi amici, la tua comunità - come preferisci! Chatta, condividi file, aggiungi widget e fai videochiamate vocali - tutto gratuito. 
-\n 
-\n• GRANDI INTEGRAZIONI: usa Riot.im con gli strumenti che conosci ed ami. Con Riot.im puoi addirittura chattare con utenti e gruppi su altre app di chat. 
-\n 
-\n• PRIVATO E SICURO: tieni segrete le tue conversazioni. Una crittografia end-to-end allo stato dell\'arte assicura che le comunicazioni private restino tali. 
-\n 
-\n• OPEN, NON CHIUSO: open source e costruito su Matrix. Possiedi i tuoi dati ospitando il tuo server personale, o scegliendone uno di cui ti fidi. 
-\n 
-\n• OVUNQUE TU SIA: resta in contatto ovunque tu sia con la cronologia dei messaggi totalmente sincronizzata tra i tuoi dispositivi ed online su https://riot.im.</string>
-
     <string name="video_call_in_progress">Videochiamata in corso…</string>
 
-    <string name="store_whats_new">"Apportiamo continuamente cambiamenti e migliorie a Riot.im.
-Il registro completo delle modifiche si può trovare qui: %1$s.
-Per essere certo di non perdere nulla, mantieni gli aggiornamenti attivi."</string>
     <string name="title_activity_keys_backup_setup">Backup chiave</string>
     <string name="title_activity_keys_backup_restore">Usa backup chiave</string>
     <string name="keys_backup_is_not_finished_please_wait">Il backup delle chiavi non è concluso, attendere prego…</string>
@@ -1612,16 +1591,6 @@ Per essere certo di non perdere nulla, mantieni gli aggiornamenti attivi."</stri
     <string name="send_suggestion_failed">L\'invio del suggerimento è fallito (%s)</string>
 
     <string name="settings_labs_show_hidden_events_in_timeline">Mostra eventi nascosti nella cronologia</string>
-
-    <string name="store_riotx_title">RiotX - Client Matrix di nuova generazione</string>
-    <string name="store_riotx_short_description">Un client per Matrix più veloce e leggero usando gli ultimi framework di Android</string>
-    <string name="store_riotx_full_description">RiotX è un nuovo client per il protocollo Matrix (Matrix.org): una rete aperta per comunicazioni sicure e decentralizzate. RiotX è una riscrittura totale del client Riot Android, basata su una riscrittura completa dell\'SDK Android di Matrix.
-\n
-\nDisclaimer: questa è una versione beta. RiotX è attualmente in uno sviluppo attivo e contiene limitazioni ed errori (speriamo non troppi). I suggerimenti sono ben accetti!
-\n
-\nRiotX supporta: • Accesso ad account esistente • Crea stanze ed entra in stanze pubbliche • Accetta e rifiuta inviti • Elenca stanze utenti • Vedi dettagli stanza • Invia messaggi di testo • Invia allegati • Leggi e scrivi messaggi in stanze cifrate • Crypto: backup chiavi E2E, verifica avanzata dispositivi, richiesta e risposta condivisione chiavi • Notifiche push • Tema chiaro, scuro e nero
-\n
-\nNon tutte le funzioni di Riot sono già implementate in RiotX. Principali funzioni mancanti (prossimamente!): • Creazione account • Impostazioni stanza (elenca membri stanza, ecc.) • Creazione di stanze di chat diretta • Chiamate • Widget • …</string>
 
     <string name="room_list_catchup_empty_title">Non hai nulla di nuovo da vedere!</string>
     <string name="bottom_action_people_x">Messaggi diretti</string>

@@ -1244,11 +1244,6 @@ Haluatko lisätä paketteja?</string>
     <string name="x_plus">%d+</string>
     <string name="no_valid_google_play_services_apk">Kelvollista Google Play Services APK:ta ei löytynyt. Ilmoitukset eivät ehkä toimi oikein.</string>
 
-    <string name="store_title">Riot.im - Kommunikoi, sinun tavallasi</string>
-    <string name="store_whats_new">"Olemme aina tekemässä muutoksia ja parannuksia Riot.im:ään.
-Täydellisen muutoslokin löydät täältä: %1$s.
-Jotta et menetä mitään, automaattiset päivitykset kannattaa pitää käytössä."</string>
-    <string name="store_short_description">Universaali ja turvallinen keskusteluohjelma kokonaan sinun hallinnassa.</string>
     <string name="passphrase_create_passphrase">Luo salalause</string>
     <string name="passphrase_passphrase_does_not_match">Salalause ei täsmää</string>
     <string name="passphrase_empty_error_message">Syötä salalause</string>
@@ -1395,22 +1390,6 @@ Jotta et menetä mitään, automaattiset päivitykset kannattaa pitää käytös
 
     <string name="notification_unread_notified_messages_in_room">%1$s -&gt; %2$s</string>
 
-    <string name="store_full_description">Keskusteluohjelma, joka on täysin hallinnoitavissasi ja erittäin joustava. Riot sallii sinun kommunikoivan juuri sillä tavalla kuin haluat. [matrix]-sovellus — avoimen ja hajautetun kommunikaation standardi.
-\n
-\nKäytä ilmaista matrix.org-tunnusta, hanki oma palvelimesi osoitteesta https://modular.im tai käytä muuta Matrix-palvelinta.
-\n
-\nMiksi valita Riot.im\?
-\n
-\n• Täydellinen kommunikaatio: rakenna huoneita tiimeillesi, ystävillesi ja yhteisöllesi — juuri niin kuin haluat! Keskustele, jaa tiedostoja, lisää sovelmia ja tee ääni‐ ja videopuheluita — kaikki tämä ilmaiseksi.
-\n
-\n• Tehokkaat integraatiot: Käytä Riotia juuri niillä työkaluilla, jotka tiedät ja joita rakastat. Riot.im jopa mahdollistaa keskustelun henkilöiden kanssa, jotka käyttävät eri keskusteluohjelmia.
-\n
-\n• Yksityinen ja turvallinen: Pidä keskustelusi salaisina. Nykyaikainen osapuolten välinen salaus pitää huolen, että yksityiset keskustelut pysyvät yksityisenä.
-\n
-\n• Avoin, ei suljettu: Avointa koodia, ja rakennettu käyttämään Matrixia. Voit omistaa oman datasi ylläpitämällä omaa palvelintasi, tai käyttämällä palvelinta, johon luotat.
-\n
-\n• Kaikkialla, missä olet: pysy yhteydessä siellä, missä ikinä oletkin täysin synkronoidulla viestihistorialla kaikkien laitteidesi ja sivun https://riot.im välillä.</string>
-
     <string name="new_recovery_method_popup_description">Uusi avainvarmuuskopio on löydetty.
 \n
 \nJos et asettanut uutta palautustapaa, hyökkääjä saattaa yrittää päästä käsiksi tunnukseesi. Vaihda tunnuksesi salasana ja aseta uusi palautustapa asetuksissa välittömästi.</string>
@@ -1552,9 +1531,6 @@ Jotta et menetä mitään, automaattiset päivitykset kannattaa pitää käytös
     <string name="send_suggestion_failed">Ehdotuksen lähettäminen epäonnistui (%s)</string>
 
     <string name="settings_labs_show_hidden_events_in_timeline">Näytä piilotetut tapahtumat aikajanalla</string>
-
-    <string name="store_riotx_title">RiotX - seuraavan sukupolven Matrix-asiakasohjelma</string>
-    <string name="store_riotx_short_description">Nopeampi ja kevyempi Matrix-asiakasohjelma</string>
     <string name="bottom_action_people_x">Yksityisviestit</string>
 
     <string name="send_file_step_idle">Odotetaan…</string>

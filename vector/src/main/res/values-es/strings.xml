@@ -1307,23 +1307,6 @@ Ten en cuenta que esta acción reiniciará la aplicación y puede tardar algo de
     <string name="x_plus">%d+</string>
     <string name="no_valid_google_play_services_apk">No se ha encontrado ningún APK válido de Servicios de Google Play. Las notificaciones podrían no funcionar correctamente.</string>
 
-    <string name="store_title">Riot.im - Comunicate a tu manera</string>
-    <string name="store_whats_new">Siempre estamos haciendo cambios y mejoras para Riot.im. Puedes encontrar el registro de cambios aqui: %1$s. Para asegurarte de que no te pierdes nada, tan solo mantén las actualizaciones activadas.</string>
-    <string name="store_short_description">Una app de chat universal completamente bajo tu control.</string>
-    <string name="store_full_description">Una app de chat, bajo tu total control y completamente flexible. Riot deja que te comuniques de la manera que prefieras. Hecho para [matrix] - el estándar para la comunicación abierta y descentralizada.
-\nConsigue tu cuenta de matrix.org gratis. Consigue tu servidor en https://modular.im o usa otro servidor de Matrix.
-\nPor qué escoger a Riot.im\?
-\n
-\n• COMUNICACIÓN COMPLETA: Crea salas para tus equipos, tus amigos, vuestra comunidad - de la forma que quieras! Chatea, comparte archivos, añade widgets y haz llamadas de voz y video - Todo de forma gratuita.
-\n
-\n• POTENTES INTEGRACIONES: Usa Riot.im con las herramientas que conoces y que mas te gustan. Con Riot.im puedes hasta chatear con usuarios y grupos de otras apps de chat.
-\n
-\n• PRIVADA Y SEGURA: Mantén privadas tus conversaciones. La condición de encriptación de extremo a extremo asegura que las conversaciones privadas sigan siendo siempre privadas.
-\n
-\n• ABIERTO, NO CERRADO: Código abierto y construido en Matrix. Posee tus propios datos alojando tu propio servidor o selecciona uno en el que confíes.
-\n
-\n• ALLÁ DONDE ESTÉS: Mantente en contacto dondequiera que estés con el historial de mensajes totalmente sincronizado a través de todos tus dispositivos online en http://riot.im.</string>
-
     <string name="passphrase_empty_error_message">Por favor introduzca una contraseña</string>
     <string name="passphrase_passphrase_too_weak">La contraseña que has introducido es muy débil</string>
 

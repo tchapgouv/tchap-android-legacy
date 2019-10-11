@@ -1146,29 +1146,8 @@ A következő képernyőn el kell fogadnod, hogy a Riot folyamatosan fusson a h�
 
     <string name="no_valid_google_play_services_apk">Érvényes Google Play Services APK nem található. Az értesítések megbízhatatlanul működhetnek.</string>
 
-    <string name="store_title">Riot.im - Beszélgess, ahogy tetszik</string>
-    <string name="store_short_description">Egy biztonságos és univerzális csevegő alkalmazás az irányításod alatt.</string>
-    <string name="store_full_description">A csevegő alkalmazás ami személyre szabható és az irányításod alatt marad. Riot megteremti a lehetőséget, hogy úgy beszélgess ahogy szeretnél. A [matrix] hálózathoz tervezve - ami egy nyílt és elosztott hálózat.
-\n
-\nKészíts egy ingyenes matrix.org fiókot vagy igényelj egy saját szervert a https://modular.im -től, de üzemeltethetsz is saját Matrix szervert.
-\n
-\nMiért válaszd a Riot.im-et\?
-\n
-\n• TELJES KOMMUNIKÁCIÓ: Nyiss szobákat a csoportod, barátaid, közösséged vagy bárkiknek akiknek szeretnél! Beszélgess, ossz meg fájlokat, adj hozzá kisalkalmazásokat és indíts hang és videóhívásokat - teljesen ingyen.
-\n
-\n• ERŐS KAPCSOLATOK: Használd a Riot-ot a kedvenc eszközeiddel. A Riottal még másik rendszerekben lévő emberekkel és csoportokkal is képes lehetsz beszélgetni.
-\n
-\n• SZEMÉLYES ÉS BIZTONSÁGOS: Tartsd a beszélgetéseidet titokban. A végponttól-végpontig titkosítás biztosítja, hogy a személyes beszélgetések személyesek maradnak.
-\n
-\n• NYÍLT ÉS NEM ZÁRT: Nyílt forrású és a Matrix-hoz készült. Az adataid maradjanak a birtokodban a saját szerver üzemeltetésével vagy válassz olyan szervert amiben megbízol.
-\n
-\n• MINDENHOL AMERRE JÁRSZ: Maradj kapcsolatban a többiekkel mindenhol az eszközeid közötti teljesen szinkronizált üzenetváltásokkal. Akár a https://riot.im -en.</string>
-
     <string name="video_call_in_progress">Videóhívás folyamatban…</string>
 
-    <string name="store_whats_new">"Folyamatosan változtatjuk és javítjuk a Riot.im-et.
-A változások teljes listája itt található: %1$s.
-Nehogy lemaradj bármiről, ezért továbbra is engedélyezd a frissítéseket."</string>
     <string name="title_activity_keys_backup_setup">Kulcs Mentés</string>
     <string name="title_activity_keys_backup_restore">Kulcs mentés felhasználása</string>
     <string name="keys_backup_is_not_finished_please_wait">A kulcsok biztonsági mentése még tart, kérlek várj…</string>
@@ -1568,16 +1547,6 @@ Ha nem te állítottad be a visszaállítási metódust, akkor egy támadó pró
     <string name="send_suggestion_failed">A javaslatot nem sikerült elküldeni (%s)</string>
 
     <string name="settings_labs_show_hidden_events_in_timeline">Rejtett események megjelenítése az idővonalon</string>
-
-    <string name="store_riotx_title">RiotX - Matrix Kliens Új Nemzedéke</string>
-    <string name="store_riotx_short_description">A gyorsabb és kisebb Matrix kliens ami a legfrissebb Android keretrendszert használja</string>
-    <string name="store_riotx_full_description">RiotX a Matrix protokollhoz (Matrix.org) készült új kliens: nyílt hálózat biztonságos és decentralizált kommunikációhoz. RiotX a Riot Android kliens teljesen újraírt változata ami a teljesen újraírt Matrix Android SDK-ra épül.
-\n
-\nFigyelmeztetés: Ez egy béta verzió. RiotX aktív fejlesztés alatt áll és vannak korlátai és (reméljük nem olyan sok) hibái. Minden visszajelzést szívesen fogadunk!
-\n
-\nRiotX ezeket támogatja: • Bejelentkezés létező fiókba • Szoba készítés és nyilvános szobába való belépés • Meghívók fogadása és elutasítás • Felhasználók szobáinak listázása • Szoba adatainak megtekintése • Szöveges üzenet küldése • Csatolmány küldése • Titkosított szobákban üzenetek olvasása és írása • Titkosítás: Végponttól végpontig titkosító kulcsok mentése, fejlett eszköz ellenőrzés, kulcs megosztás kérése és válasz • „Push” értesítések • Világos, sötét és fekete téma
-\n
-\nNem minden Riot funkció támogatott a RiotX-ben jelenleg. A fő hiányzó (és hamarosan elérhető!) funkciók: • Felhasználói fiók létrehozása • Szoba beállítások (szoba tagság mutatása, stb…) • Közvetlen beszélgetések indítása • Hívások • Kisalkalmazások • …</string>
 
     <string name="bottom_action_people_x">Közvetlen beszélgetés</string>
 

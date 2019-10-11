@@ -56,6 +56,12 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content">
 
+                        <fr.gouv.tchap.util.HexagonMaskView
+                            android:id="@+id/hexagon_mask_view"
+                            android:layout_width="95dp"
+                            android:layout_height="95dp"
+                            android:src="@color/vector_tchap_hexagon_background_color_dark_grey" />
+
                         <TextView
                             android:id="@+id/tv_add_avatar_image"
                             android:layout_width="wrap_content"
@@ -70,12 +76,6 @@
                             android:textAllCaps="false"
                             android:textColor="@color/tchap_text_color_light"
                             android:textSize="12sp" />
-
-                        <fr.gouv.tchap.util.HexagonMaskView
-                            android:id="@+id/hexagon_mask_view"
-                            android:layout_width="95dp"
-                            android:layout_height="95dp"
-                            android:src="@color/vector_tchap_hexagon_background_color_dark_grey" />
                     </RelativeLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
