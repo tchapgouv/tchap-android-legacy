@@ -675,7 +675,7 @@ Appareils inconnus :</string>
     <string name="directory_server_fail_to_retrieve_server">Le serveur est peut-être indisponible ou surchargé</string>
     <string name="directory_server_type_homeserver">Saisir un serveur d\'accueil pour lister ses salons publics</string>
 
-    <string name="settings_user_interface">Interface utilisateur</string>
+    <string name="settings_user_interface">Préférences</string>
     <string name="settings_interface_language">Langue</string>
     <string name="settings_select_language">Choisissez une langue</string>
 
@@ -1187,7 +1187,7 @@ Veuillez noter que cette action redémarrera l\'application et pourra prendre un
     <string name="settings_show_join_leave_messages">Afficher les notifications d\'arrivée et de départ</string>
     <string name="settings_show_join_leave_messages_summary">Les invitations, expulsions et bannissements ne sont pas concernés.</string>
     <string name="settings_hide_join_leave_messages_prompt">Voulez-vous cacher tous les messages d’arrivée et de départ ?\n\nVeuillez noter que cette action redémarrera l’application et pourra prendre un certain temps.</string>
-    <string name="settings_show_avatar_display_name_changes_messages">Afficher les événements liés au compte</string>
+    <string name="settings_show_avatar_display_name_changes_messages">Afficher les changements d\'avatar</string>
     <string name="settings_show_avatar_display_name_changes_messages_summary">Cela inclut les changements d\'avatar et de nom affiché.</string>
     <string name="settings_password">Mot de passe</string>
     <string name="settings_labs_native_camera_summary">Lancer l\'appareil photo du système plutôt que l\'écran d\'appareil photo personnalisé.</string>
