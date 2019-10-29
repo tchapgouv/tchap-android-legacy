@@ -68,6 +68,7 @@ import fr.gouv.tchap.media.MediaScanManager;
 import fr.gouv.tchap.sdk.rest.client.TchapValidityRestClient;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.SplashActivity;
+import im.vector.activity.VectorUniversalLinkActivity;
 import im.vector.analytics.MetricsListenerProxy;
 import im.vector.push.PushManager;
 import im.vector.services.EventStreamService;
@@ -849,9 +850,10 @@ public class Matrix {
 
         // Check whether the application is actually running and available.
         // Check "isAlive" flag to know whether a logout is in progress on the current session.
+        // Do not display the expired account alert on the VectorUniversalLinkActivity in order to display some information about the universal link if any.
         final MXSession currentSession = getDefaultSession();
         final Activity currentActivity = VectorApp.getCurrentActivity();
-        if (currentSession == null || !currentSession.isAlive() || currentActivity == null) {
+        if (currentSession == null || !currentSession.isAlive() || currentActivity == null || (currentActivity instanceof VectorUniversalLinkActivity)) {
             Log.w(LOG_TAG, "## suspendTchapOnExpiredAccount: ignored (app busy)");
             return;
         }
@@ -862,6 +864,7 @@ public class Matrix {
         {
             Log.i(LOG_TAG, "## suspendTchapOnExpiredAccount: dismiss existing dialog");
             mExpiredAccountDialog.dismiss();
+            mExpiredAccountDialog = null;
         }
 
         // Check whether the expired account is not already handled.
@@ -993,6 +996,18 @@ public class Matrix {
             if (mExpiredAccountDialog.getOwnerActivity() == activity) {
                 mExpiredAccountDialog.dismiss();
             }
+        }
+    }
+
+    /**
+     * Handle the case where the account validity is renewed whereas the app is running
+     * (see universal link handling).
+     */
+    public void onRenewAccountValidity() {
+        if (mExpiredAccountDialog != null) {
+            // Presently both dialogs have the same positive buttoin : "I renewed..."
+            // We use this button to relaunch properly the app.
+            mExpiredAccountDialog.getButton(DialogInterface.BUTTON_POSITIVE).performClick();
         }
     }
 

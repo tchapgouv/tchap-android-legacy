@@ -19,7 +19,7 @@ import org.matrix.androidsdk.HomeServerConnectionConfig;
 import org.matrix.androidsdk.RestClient;
 import org.matrix.androidsdk.core.JsonUtils;
 import org.matrix.androidsdk.core.callback.ApiCallback;
-import org.matrix.androidsdk.core.rest.DefaultRetrofit2CallbackWrapper;
+import org.matrix.androidsdk.rest.callback.RestAdapterCallback;
 
 import fr.gouv.tchap.sdk.rest.api.TchapApi;
 import fr.gouv.tchap.sdk.rest.model.Platform;
@@ -41,6 +41,6 @@ public class TchapRestClient extends RestClient<TchapApi> {
      * @param callback the callback
      */
     public void info(String address, String medium, final ApiCallback<Platform> callback) {
-        mApi.info(address, medium).enqueue(new DefaultRetrofit2CallbackWrapper<>(callback));
+        mApi.info(address, medium).enqueue(new RestAdapterCallback<>("platformInfo", null, callback, null));
     }
 }
