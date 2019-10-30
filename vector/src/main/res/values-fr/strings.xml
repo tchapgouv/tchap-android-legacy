@@ -883,6 +883,8 @@ Appareils inconnus :</string>
     <string name="tchap_expired_account_resume_button">J’ai renouvelé mon compte</string>
     <string name="tchap_request_renewal_email_button">Demander l’envoi d’un nouvel email</string>
     <string name="tchap_expired_account_on_new_sent_email_msg">Un nouvel email vous a été envoyé pour renouveler la validité de votre compte. Une fois que vous aurez suivi le lien qu’il contient, cliquez ci-dessous.</string>
+    <string name="tchap_renew_account_validity_success_msg">Votre compte a été renouvelé avec succès</string>
+    <string name="tchap_renew_account_validity_invalid_token_msg">Le jeton de renouvellement est invalide</string>
 
     // group details
     <string name="group_details_home">Accueil</string>
