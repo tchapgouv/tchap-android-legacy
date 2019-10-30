@@ -34,9 +34,12 @@ import org.matrix.androidsdk.HomeServerConnectionConfig;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.core.callback.SimpleApiCallback;
+import org.matrix.androidsdk.core.model.HttpError;
 import org.matrix.androidsdk.core.model.MatrixError;
+import org.matrix.androidsdk.core.model.HttpException;
 import org.matrix.androidsdk.core.Log;
 
+import java.net.HttpURLConnection;
 import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.List;
@@ -61,8 +64,8 @@ public class VectorUniversalLinkActivity extends VectorAppCompatActivity {
     private final VectorUniversalLinkReceiver mUniversalLinkReceiver = new VectorUniversalLinkReceiver();
 
     // Account validity query
-    public static final String ACCOUNT_VALIDITY_RENEW_PATH_SUFFIX = "/account_validity/renew";
-    public static final String ACCOUNT_VALIDITY_RENEW_TOKEN = "token";
+    private static final String ACCOUNT_VALIDITY_RENEW_PATH_SUFFIX = "/account_validity/renew";
+    private static final String ACCOUNT_VALIDITY_RENEW_TOKEN = "token";
 
     @Override
     public int getLayoutRes() {
@@ -253,18 +256,26 @@ public class VectorUniversalLinkActivity extends VectorAppCompatActivity {
             }
 
             @Override
-            public void onNetworkError(Exception e) {
-                onError(e.getLocalizedMessage());
+            public void onNetworkError(Exception exception) {
+                onError(exception.getLocalizedMessage());
             }
 
             @Override
-            public void onMatrixError(MatrixError e) {
-                onError(e.getLocalizedMessage());
+            public void onMatrixError(MatrixError error) {
+                onError(error.getLocalizedMessage());
             }
 
             @Override
-            public void onUnexpectedError(Exception e) {
-                onError(getString(R.string.tchap_renew_account_validity_invalid_token_msg));
+            public void onUnexpectedError(Exception exception) {
+                String message = exception.getLocalizedMessage();
+                // Check whether the provided token is invalid
+                if (exception instanceof HttpException) {
+                    HttpError error = ((HttpException) exception).getHttpError();
+                    if (error.getHttpCode() == HttpURLConnection.HTTP_NOT_FOUND) {
+                        message = getString(R.string.tchap_renew_account_validity_invalid_token_msg);
+                    }
+                }
+                onError(message);
             }
 
             private void onError(final String message) {
@@ -279,16 +290,16 @@ public class VectorUniversalLinkActivity extends VectorAppCompatActivity {
             private void onResult(final String message, final Boolean isSuccess) {
                 new AlertDialog.Builder(VectorUniversalLinkActivity.this)
                         .setMessage(message)
-                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        if (isSuccess) {
-                                            Matrix.getInstance(VectorUniversalLinkActivity.this).onRenewAccountValidity();
-                                        }
-                                        bringAppToForeground();
-                                    }
+                        .setPositiveButton(R.string.ok, null)
+                        .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                            @Override
+                            public void onDismiss(DialogInterface dialog) {
+                                if (isSuccess) {
+                                    Matrix.getInstance(VectorUniversalLinkActivity.this).onRenewAccountValidity();
                                 }
-                        )
+                                bringAppToForeground();
+                            }
+                        })
                         .show();
             }
         });
@@ -319,8 +330,8 @@ public class VectorUniversalLinkActivity extends VectorAppCompatActivity {
     // Intent Extras
     public static final String EXTRA_EMAIL_VALIDATION_PARAMS = "EXTRA_EMAIL_VALIDATION_PARAMS";
 
-    // Supported path
-    public static final String EMAIL_VALIDATION_PATH_SUFFIX = "/validate/email/submitToken";
+    // The suffix of the email validation path
+    private static final String EMAIL_VALIDATION_PATH_SUFFIX = "/validate/email/submitToken";
 
     // mail validation url query parameters
     // Examples:

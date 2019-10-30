@@ -1005,7 +1005,7 @@ public class Matrix {
      */
     public void onRenewAccountValidity() {
         if (mExpiredAccountDialog != null) {
-            // Presently both dialogs have the same positive buttoin : "I renewed..."
+            // Presently both dialogs have the same positive button : "I renewed..."
             // We use this button to relaunch properly the app.
             mExpiredAccountDialog.getButton(DialogInterface.BUTTON_POSITIVE).performClick();
         }
