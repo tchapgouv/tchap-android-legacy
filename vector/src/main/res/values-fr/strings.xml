@@ -424,12 +424,12 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="encryption_information_verification">Vérification</string>
     <string name="encryption_information_ed25519_fingerprint">Empreinte Ed25519</string>
 
-    <string name="encryption_export_e2e_room_keys">Exporter les clés E2E des conversations</string>
+    <string name="encryption_export_e2e_room_keys">Exporter les clés des conversations</string>
     <string name="encryption_export_room_keys">Exporter les clés des conversations</string>
     <string name="encryption_export_export">Exporter</string>
     <string name="encryption_import_enter_passphrase">Saisir la phrase secrète</string>
     <string name="encryption_export_confirm_passphrase">Confirmer la phrase secrète</string>
-    <string name="encryption_import_e2e_room_keys">Importer les clés E2E des conversations</string>
+    <string name="encryption_import_e2e_room_keys">Importer les clés des conversations</string>
     <string name="encryption_import_room_keys">Importer les clés des conversations</string>
     <string name="encryption_import_import">Importer</string>
     <string name="encryption_never_send_to_unverified_devices_title">Chiffrer uniquement vers les appareils vérifiés</string>
@@ -652,7 +652,7 @@ Les messages chiffrés ne seront pas visibles sur les clients qui n\'ont pas enc
 
 
     <string name="encryption_export_room_keys_summary">Exporter les clés vers un fichier local</string>
-    <string name="encryption_export_saved_as">Les clés E2E sont sauvegardées dans \"%s\".\n\Avertissement, ce fichier peut être effacé lors de la désinstallation de l\'application.</string>
+    <string name="encryption_export_saved_as">Les clés sont sauvegardées dans \"%s\".\n\Avertissement, ce fichier peut être effacé lors de la désinstallation de l\'application.</string>
 
     <string name="encryption_import_room_keys_summary">Importer les clés à partir d\'un fichier local</string>
     <string name="encryption_never_send_to_unverified_devices_summary">Ne jamais envoyer de messages chiffrés aux appareils non vérifiés depuis cet appareil.</string>
@@ -885,6 +885,12 @@ Appareils inconnus :</string>
     <string name="tchap_expired_account_on_new_sent_email_msg">Un nouvel email vous a été envoyé pour renouveler la validité de votre compte. Une fois que vous aurez suivi le lien qu’il contient, cliquez ci-dessous.</string>
     <string name="tchap_renew_account_validity_success_msg">Votre compte a été renouvelé avec succès</string>
     <string name="tchap_renew_account_validity_invalid_token_msg">Le jeton de renouvellement est invalide</string>
+
+    // tchap android version limitation
+    <string name="tchap_unsupported_android_version_title">Pour des raisons de sécurité, Tchap n’est plus disponible sur les versions d’Android 4.4.4 et inférieures</string>
+    <string name="tchap_unsupported_android_version_message">Merci de bien vouloir vous déconnecter de cet appareil.\nNous vous invitons à exporter vos clés de chiffrement avant la déconnexion, afin de pouvoir déchiffrer l’historique de vos conversations sur un nouvel appareil. Vous pourrez alors les importer dans vos nouveaux appareils, lorsque vous vous reconnecterez.</string>
+    <string name="tchap_unsupported_android_version_export_keys">Exporter les clés</string>
+    <string name="tchap_unsupported_android_version_default_msg">Vous pouvez désinstaller l’application. Merci de votre compréhension.</string>
 
     // group details
     <string name="group_details_home">Accueil</string>
