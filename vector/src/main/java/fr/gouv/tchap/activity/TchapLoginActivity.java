@@ -328,7 +328,14 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             Log.d(LOG_TAG, "## onCreate(): IN with flags " + Integer.toHexString(getIntent().getFlags()));
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        // Limit Tchap to Android 5.0 Lollipop (API 21) and higher
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
+            // Prompt the user (ask him to log out by exporting eventually his keys if a session exists)
+            startActivity(new Intent(this, TchapUnsupportedAndroidVersionActivity.class));
+            finish();
+
+            return;
+        } else {
             WebView.setWebContentsDebuggingEnabled(false);
         }
 
