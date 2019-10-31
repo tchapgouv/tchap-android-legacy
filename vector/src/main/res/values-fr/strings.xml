@@ -424,12 +424,12 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="encryption_information_verification">Vérification</string>
     <string name="encryption_information_ed25519_fingerprint">Empreinte Ed25519</string>
 
-    <string name="encryption_export_e2e_room_keys">Exporter les clés E2E des conversations</string>
+    <string name="encryption_export_e2e_room_keys">Exporter les clés des conversations</string>
     <string name="encryption_export_room_keys">Exporter les clés des conversations</string>
     <string name="encryption_export_export">Exporter</string>
     <string name="encryption_import_enter_passphrase">Saisir la phrase secrète</string>
     <string name="encryption_export_confirm_passphrase">Confirmer la phrase secrète</string>
-    <string name="encryption_import_e2e_room_keys">Importer les clés E2E des conversations</string>
+    <string name="encryption_import_e2e_room_keys">Importer les clés des conversations</string>
     <string name="encryption_import_room_keys">Importer les clés des conversations</string>
     <string name="encryption_import_import">Importer</string>
     <string name="encryption_never_send_to_unverified_devices_title">Chiffrer uniquement vers les appareils vérifiés</string>
@@ -652,7 +652,7 @@ Les messages chiffrés ne seront pas visibles sur les clients qui n\'ont pas enc
 
 
     <string name="encryption_export_room_keys_summary">Exporter les clés vers un fichier local</string>
-    <string name="encryption_export_saved_as">Les clés E2E sont sauvegardées dans \"%s\".\n\Avertissement, ce fichier peut être effacé lors de la désinstallation de l\'application.</string>
+    <string name="encryption_export_saved_as">Les clés sont sauvegardées dans \"%s\".\n\Avertissement, ce fichier peut être effacé lors de la désinstallation de l\'application.</string>
 
     <string name="encryption_import_room_keys_summary">Importer les clés à partir d\'un fichier local</string>
     <string name="encryption_never_send_to_unverified_devices_summary">Ne jamais envoyer de messages chiffrés aux appareils non vérifiés depuis cet appareil.</string>
