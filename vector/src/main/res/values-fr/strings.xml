@@ -890,7 +890,7 @@ Appareils inconnus :</string>
     <string name="tchap_unsupported_android_version_title">Pour des raisons de sécurité, Tchap n’est plus disponible sur les versions d’Android 4.4.4 et inférieures</string>
     <string name="tchap_unsupported_android_version_message">Merci de bien vouloir vous déconnecter de cet appareil.\nNous vous invitons à exporter vos clés de chiffrement avant la déconnexion, afin de pouvoir déchiffrer l’historique de vos conversations sur un nouvel appareil. Vous pourrez alors les importer dans vos nouveaux appareils, lorsque vous vous reconnecterez.</string>
     <string name="tchap_unsupported_android_version_export_keys">Exporter les clés</string>
-    <string name="tchap_unsupported_android_version_default_msg">Vous pouvez désinstaller l’application. Merci de votre compréhension.</string>
+    <string name="tchap_unsupported_android_version_default_msg">Merci de votre compréhension.</string>
 
     // group details
     <string name="group_details_home">Accueil</string>
