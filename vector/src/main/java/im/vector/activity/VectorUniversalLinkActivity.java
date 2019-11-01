@@ -20,9 +20,12 @@ package im.vector.activity;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.widget.Toast;
@@ -31,9 +34,12 @@ import org.matrix.androidsdk.HomeServerConnectionConfig;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.core.callback.SimpleApiCallback;
+import org.matrix.androidsdk.core.model.HttpError;
 import org.matrix.androidsdk.core.model.MatrixError;
+import org.matrix.androidsdk.core.model.HttpException;
 import org.matrix.androidsdk.core.Log;
 
+import java.net.HttpURLConnection;
 import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.List;
@@ -41,6 +47,7 @@ import java.util.Map;
 import java.util.Set;
 
 import fr.gouv.tchap.activity.TchapLoginActivity;
+import fr.gouv.tchap.sdk.rest.client.TchapValidityRestClient;
 import fr.gouv.tchap.util.HomeServerConnectionConfigFactoryKt;
 import im.vector.LoginHandler;
 import im.vector.Matrix;
@@ -56,6 +63,10 @@ public class VectorUniversalLinkActivity extends VectorAppCompatActivity {
 
     private final VectorUniversalLinkReceiver mUniversalLinkReceiver = new VectorUniversalLinkReceiver();
 
+    // Account validity query
+    private static final String ACCOUNT_VALIDITY_RENEW_PATH_SUFFIX = "/account_validity/renew";
+    private static final String ACCOUNT_VALIDITY_RENEW_TOKEN = "token";
+
     @Override
     public int getLayoutRes() {
         // display a spinner while binding the email
@@ -70,17 +81,16 @@ public class VectorUniversalLinkActivity extends VectorAppCompatActivity {
         IntentFilter intentFilter = new IntentFilter(VectorUniversalLinkReceiver.BROADCAST_ACTION_UNIVERSAL_LINK);
         intentFilter.addDataScheme("http");
         intentFilter.addDataScheme("https");
-        intentFilter.addDataAuthority(getString(R.string.universal_link_supported_host), null);
         LocalBroadcastManager.getInstance(this).registerReceiver(mUniversalLinkReceiver, intentFilter);
 
         String intentAction = null;
 
         try {
-            // Special case for link in email validation
-            if (SUPPORTED_PATH_ACCOUNT_EMAIL_VALIDATION.equals(getIntent().getData().getPath())) {
-                // We consider here an email validation
-                Uri intentUri = getIntent().getData();
+            Uri intentUri = getIntent().getData();
+            String dataPath = intentUri.getPath();
 
+            if (dataPath.endsWith(EMAIL_VALIDATION_PATH_SUFFIX)) {
+                // We consider here an email validation
                 final Map<String, String> mailRegParams = parseMailRegistrationLink(intentUri);
 
                 // Assume it is a new account creation when there is a next link, or when no session is already available.
@@ -120,6 +130,8 @@ public class VectorUniversalLinkActivity extends VectorAppCompatActivity {
                 } else {
                     emailBinding(intentUri, mailRegParams);
                 }
+            } else if (dataPath.endsWith(ACCOUNT_VALIDITY_RENEW_PATH_SUFFIX)) {
+                renewAccountValidity(intentUri);
             } else {
                 intentAction = VectorUniversalLinkReceiver.BROADCAST_ACTION_UNIVERSAL_LINK;
             }
@@ -167,24 +179,6 @@ public class VectorUniversalLinkActivity extends VectorAppCompatActivity {
         loginHandler.submitEmailTokenValidation(getApplicationContext(), homeServerConfig, token, clientSecret, identityServerSessId,
                 new ApiCallback<Boolean>() {
 
-                    private void bringAppToForeground() {
-                        final ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-                        List<ActivityManager.RunningTaskInfo> tasklist = am.getRunningTasks(100);
-
-                        if (!tasklist.isEmpty()) {
-                            int nSize = tasklist.size();
-                            for (int i = 0; i < nSize; i++) {
-                                final ActivityManager.RunningTaskInfo taskinfo = tasklist.get(i);
-                                if (taskinfo.topActivity.getPackageName().equals(getApplicationContext().getPackageName())) {
-                                    Log.d(LOG_TAG, "## emailBinding(): bring the app in foreground.");
-                                    am.moveTaskToFront(taskinfo.id, 0);
-                                }
-                            }
-                        }
-
-                        finish();
-                    }
-
                     private void errorHandler(final String errorMessage) {
                         runOnUiThread(new Runnable() {
                             @Override
@@ -226,6 +220,109 @@ public class VectorUniversalLinkActivity extends VectorAppCompatActivity {
                 });
     }
 
+    /**
+     * Renew the account validity
+     *
+     * @param uri  the uri
+     */
+    private void renewAccountValidity(Uri uri) {
+        Log.i(LOG_TAG, "## renewAccountValidity()");
+
+        String serverUrl = uri.getScheme() + "://" + uri.getHost();
+
+        final HomeServerConnectionConfig homeServerConfig = HomeServerConnectionConfigFactoryKt.createHomeServerConnectionConfig(serverUrl, serverUrl);
+
+        String token = null;
+        Set<String> names = uri.getQueryParameterNames();
+        for (String name : names) {
+            if (ACCOUNT_VALIDITY_RENEW_TOKEN.equals(name)) {
+                String value = uri.getQueryParameter(name);
+                try {
+                    token = URLDecoder.decode(value, "UTF-8");
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, "## renewAccountValidity(): Exception - parse query params Msg=" + e.getLocalizedMessage(), e);
+                }
+                break;
+            }
+        }
+
+        TchapValidityRestClient validityRestClient = new TchapValidityRestClient(homeServerConfig);
+        validityRestClient.renewAccountValidity(token, new ApiCallback<Void>() {
+
+            @Override
+            public void onSuccess(Void info) {
+                Log.i(LOG_TAG, "## renewAccountValidity() succeeded");
+                onResult(getString(R.string.tchap_renew_account_validity_success_msg), true);
+            }
+
+            @Override
+            public void onNetworkError(Exception exception) {
+                onError(exception.getLocalizedMessage());
+            }
+
+            @Override
+            public void onMatrixError(MatrixError error) {
+                onError(error.getLocalizedMessage());
+            }
+
+            @Override
+            public void onUnexpectedError(Exception exception) {
+                String message = exception.getLocalizedMessage();
+                // Check whether the provided token is invalid
+                if (exception instanceof HttpException) {
+                    HttpError error = ((HttpException) exception).getHttpError();
+                    if (error.getHttpCode() == HttpURLConnection.HTTP_NOT_FOUND) {
+                        message = getString(R.string.tchap_renew_account_validity_invalid_token_msg);
+                    }
+                }
+                onError(message);
+            }
+
+            private void onError(final String message) {
+                Log.e(LOG_TAG, "## renewAccountValidity() failed: " + message);
+                if (TextUtils.isEmpty(message)) {
+                    onResult(getString(R.string.tchap_error_message_default), false);
+                } else {
+                    onResult(message, false);
+                }
+            }
+
+            private void onResult(final String message, final Boolean isSuccess) {
+                new AlertDialog.Builder(VectorUniversalLinkActivity.this)
+                        .setMessage(message)
+                        .setPositiveButton(R.string.ok, null)
+                        .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                            @Override
+                            public void onDismiss(DialogInterface dialog) {
+                                if (isSuccess) {
+                                    Matrix.getInstance(VectorUniversalLinkActivity.this).onRenewAccountValidity();
+                                }
+                                bringAppToForeground();
+                            }
+                        })
+                        .show();
+            }
+        });
+    }
+
+    private void bringAppToForeground() {
+        final ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> tasklist = am.getRunningTasks(100);
+
+        if (!tasklist.isEmpty()) {
+            int nSize = tasklist.size();
+            for (int i = 0; i < nSize; i++) {
+                final ActivityManager.RunningTaskInfo taskinfo = tasklist.get(i);
+                if (taskinfo.topActivity.getPackageName().equals(getApplicationContext().getPackageName())) {
+                    Log.d(LOG_TAG, "Bring the app in foreground.");
+                    am.moveTaskToFront(taskinfo.id, 0);
+                }
+            }
+        }
+
+        finish();
+    }
+
     /* ==========================================================================================
      * Registration link
      * ========================================================================================== */
@@ -233,8 +330,8 @@ public class VectorUniversalLinkActivity extends VectorAppCompatActivity {
     // Intent Extras
     public static final String EXTRA_EMAIL_VALIDATION_PARAMS = "EXTRA_EMAIL_VALIDATION_PARAMS";
 
-    // Supported path
-    public static final String SUPPORTED_PATH_ACCOUNT_EMAIL_VALIDATION = "/_matrix/identity/api/v1/validate/email/submitToken";
+    // The suffix of the email validation path
+    private static final String EMAIL_VALIDATION_PATH_SUFFIX = "/validate/email/submitToken";
 
     // mail validation url query parameters
     // Examples:
@@ -270,8 +367,6 @@ public class VectorUniversalLinkActivity extends VectorAppCompatActivity {
             // sanity check
             if ((null == uri) || TextUtils.isEmpty(uri.getPath())) {
                 Log.e(LOG_TAG, "## parseMailRegistrationLink : null");
-            } else if (!SUPPORTED_PATH_ACCOUNT_EMAIL_VALIDATION.equals(uri.getPath())) {
-                Log.e(LOG_TAG, "## parseMailRegistrationLink(): not supported");
             } else {
                 String uriFragment, host = uri.getHost();
                 Log.i(LOG_TAG, "## parseMailRegistrationLink(): host=" + host);

@@ -29,6 +29,8 @@ import org.matrix.androidsdk.core.Log;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.gouv.tchap.util.HomeServerConnectionConfigFactoryKt;
+
 /**
  * Stores login credentials in SharedPreferences.
  */
@@ -68,9 +70,11 @@ public class LoginStorage {
                     connectionConfigsStrings.length()
             );
 
+            // Update each stored configuration by adding the parameters required by the Tchap app
             for (int i = 0; i < connectionConfigsStrings.length(); i++) {
+                HomeServerConnectionConfig config = HomeServerConnectionConfig.fromJson(connectionConfigsStrings.getJSONObject(i));
                 configList.add(
-                        HomeServerConnectionConfig.fromJson(connectionConfigsStrings.getJSONObject(i))
+                        HomeServerConnectionConfigFactoryKt.createHomeServerConnectionConfig(config)
                 );
             }
 

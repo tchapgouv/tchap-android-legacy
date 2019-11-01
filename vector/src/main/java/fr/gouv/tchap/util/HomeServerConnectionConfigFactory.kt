@@ -46,6 +46,26 @@ fun createHomeServerConnectionConfig(homeServerUrl: String, identityServerUrl: S
             .build()
 }
 
+/**
+ * Create a HomeServerConnectionConfig from an existing config, and add all the required parameters for the Tchap application
+ */
+fun createHomeServerConnectionConfig(config: HomeServerConnectionConfig): HomeServerConnectionConfig {
+    return HomeServerConnectionConfig.Builder()
+            .withHomeServerUri(config.homeserverUri)
+            .withIdentityServerUri(config.identityServerUri)
+            .withAntiVirusServerUri(config.antiVirusServerUri)
+            .withCredentials(config.credentials)
+            .apply {
+
+                for (certificateFingerprint in CERTIFICATE_FINGERPRINT_LIST) {
+                    addAllowedFingerPrint(Fingerprint(Fingerprint.HashType.SHA256, getBytesFromString(certificateFingerprint)))
+                }
+            }
+            .withTlsLimitations(true, Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT)
+            .withPin(ENABLE_CERTIFICATE_PINNING)
+            .build()
+}
+
 @VisibleForTesting
 fun getBytesFromString(certificateFingerprint: String): ByteArray {
     // Note: will be reassigned with correct size later

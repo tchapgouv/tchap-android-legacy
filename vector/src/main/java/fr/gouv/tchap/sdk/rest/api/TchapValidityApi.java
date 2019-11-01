@@ -16,7 +16,9 @@
 package fr.gouv.tchap.sdk.rest.api;
 
 import retrofit2.Call;
+import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.Query;
 
 public interface TchapValidityApi {
 
@@ -25,4 +27,10 @@ public interface TchapValidityApi {
      */
     @POST("account_validity/send_mail")
     Call<Void> requestRenewalEmail();
+
+    /**
+     * Submit a token to renew the account validity
+     */
+    @GET("account_validity/renew")
+    Call<Void> renewAccountValidity(@Query("token") String token);
 }

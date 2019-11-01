@@ -81,6 +81,10 @@
             android:theme="@style/LoginAppTheme.Light"
             android:windowSoftInputMode="stateHidden|adjustResize">
         </activity>
+        <activity
+            android:name="fr.gouv.tchap.activity.TchapUnsupportedAndroidVersionActivity"
+            android:theme="@style/AppTheme.NoActionBar.Light">
+        </activity>
         <activity android:name="fr.gouv.tchap.activity.TchapRoomCreationActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/tchap_room_creation_title"
