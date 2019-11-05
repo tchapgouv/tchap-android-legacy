@@ -171,10 +171,11 @@ public class UnrecognizedCertHandler {
         //     });
         // }
 
-        // Tchap: user can only reject unknown certificate
+        // Tchap: user can only ignore unknown certificate,
+        builder.setCancelable(false);
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                callback.onReject();
+                callback.onIgnore();
             }
         });
 
@@ -184,10 +185,8 @@ public class UnrecognizedCertHandler {
             @Override
             public void onEventFired(EventEmitter<Activity> emitter, Activity destroyedActivity) {
                 if (activity == destroyedActivity) {
-                    Log.e(LOG_TAG, "Dismissed!");
-                    openDialogIds.remove(dialogId);
+                    callback.onIgnore();
                     dialog.dismiss();
-                    emitter.unregister(this);
                 }
             }
         };

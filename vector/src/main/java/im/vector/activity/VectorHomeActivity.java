@@ -1383,7 +1383,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
                     myBroadcastIntent.setAction(VectorUniversalLinkReceiver.BROADCAST_ACTION_UNIVERSAL_LINK_RESUME);
                     myBroadcastIntent.putExtras(getIntent().getExtras());
                     myBroadcastIntent.putExtra(VectorUniversalLinkReceiver.EXTRA_UNIVERSAL_LINK_SENDER_ID, VectorUniversalLinkReceiver.HOME_SENDER_ID);
-                    sendBroadcast(myBroadcastIntent);
+                    LocalBroadcastManager.getInstance(this).sendBroadcast(myBroadcastIntent);
 
                     showWaitingView();
 

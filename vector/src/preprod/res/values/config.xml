@@ -24,7 +24,7 @@
     <string name="bug_report_default_host" translatable="false">a.tchap.gouv.fr</string>
 
     <!-- Universal link config -->
-    <string name="universal_link_supported_host" translatable="false">beta.tchap.gouv.fr</string>
+    <string name="universal_link_supported_host" translatable="false">www.beta.tchap.gouv.fr</string>
 
     <!-- Widget urls
     <string name="integrations_ui_url" translatable="false">"https://scalar.vector.im/"</string>

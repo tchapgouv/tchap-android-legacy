@@ -1,3 +1,14 @@
+Changes in Tchap 1.0.32 (2019-11-01)
+===================================================
+
+Improvements:
+ * Update the pinned certificates list
+ * Limit Tchap to Android 5.0 Lollipop (API 21) and higher #549
+ 
+Bug Fixes:
+ * [Account Validity] Handle the renewal url in the Tchap application #546
+ * Update stored connection configuration before using them PR #551
+
 Changes in Tchap 1.0.31 (2019-09-26)
 ===================================================
 

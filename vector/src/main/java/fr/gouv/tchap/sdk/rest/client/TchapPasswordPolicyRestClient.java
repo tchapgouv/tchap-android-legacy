@@ -19,7 +19,7 @@ import org.matrix.androidsdk.HomeServerConnectionConfig;
 import org.matrix.androidsdk.RestClient;
 import org.matrix.androidsdk.core.JsonUtils;
 import org.matrix.androidsdk.core.callback.ApiCallback;
-import org.matrix.androidsdk.core.rest.DefaultRetrofit2CallbackWrapper;
+import org.matrix.androidsdk.rest.callback.RestAdapterCallback;
 
 import fr.gouv.tchap.sdk.rest.api.TchapPasswordPolicyApi;
 import fr.gouv.tchap.sdk.rest.model.PasswordPolicy;
@@ -38,6 +38,6 @@ public class TchapPasswordPolicyRestClient extends RestClient<TchapPasswordPolic
      * @param callback the callback
      */
     public void getPasswordPolicy(final ApiCallback<PasswordPolicy> callback) {
-        mApi.passwordPolicy().enqueue(new DefaultRetrofit2CallbackWrapper<>(callback));
+        mApi.passwordPolicy().enqueue(new RestAdapterCallback<>("getPasswordPolicy", null, callback, null));
     }
 }

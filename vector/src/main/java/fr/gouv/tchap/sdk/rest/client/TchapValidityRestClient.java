@@ -19,7 +19,7 @@ import org.matrix.androidsdk.HomeServerConnectionConfig;
 import org.matrix.androidsdk.RestClient;
 import org.matrix.androidsdk.core.JsonUtils;
 import org.matrix.androidsdk.core.callback.ApiCallback;
-import org.matrix.androidsdk.core.rest.DefaultRetrofit2CallbackWrapper;
+import org.matrix.androidsdk.rest.callback.RestAdapterCallback;
 
 import fr.gouv.tchap.sdk.rest.api.TchapValidityApi;
 
@@ -38,6 +38,15 @@ public class TchapValidityRestClient extends RestClient<TchapValidityApi> {
      * @param callback the callback
      */
     public void requestRenewalEmail(final ApiCallback<Void> callback) {
-        mApi.requestRenewalEmail().enqueue(new DefaultRetrofit2CallbackWrapper<>(callback));
+        mApi.requestRenewalEmail().enqueue(new RestAdapterCallback<>("requestRenewalEmail", null, callback, null));
+    }
+
+    /**
+     * Renew the account validity by submitting a token
+     * @param token
+     * @param callback the callback
+     */
+    public void renewAccountValidity(String token, final ApiCallback<Void> callback) {
+        mApi.renewAccountValidity(token).enqueue(new RestAdapterCallback<>("renewAccountValidity", null, callback, null));
     }
 }
