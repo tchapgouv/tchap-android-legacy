@@ -100,8 +100,7 @@
             android:windowSoftInputMode="stateHidden|adjustResize">
         </activity>
         <activity
-            android:name="fr.gouv.tchap.activity.TchapUnsupportedAndroidVersionActivity"
-            android:theme="@style/AppTheme.NoActionBar.Light">
+            android:name="fr.gouv.tchap.activity.TchapUnsupportedAndroidVersionActivity">
         </activity>
         <activity android:name="fr.gouv.tchap.activity.TchapRoomCreationActivity"
             android:configChanges="orientation|screenSize"
