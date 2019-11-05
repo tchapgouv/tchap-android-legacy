@@ -1068,19 +1068,19 @@
     <string name="tchap_burger_menu_info">This app is not approved for\nrestricted information interchange</string>
     <string name="tchap_error_message_default">An error occurred, please try later</string>
 
-    // tchap discussion
+    <!-- tchap discussion -->
     <string name="tchap_cannot_invite_deactivated_account_user">The remote user left definitely this room</string>
 
-    // tchap room
+    <!-- tchap room -->
     <string name="tchap_room_access_unrestricted">Room accessible to external users</string>
 
-    // tchap scan media
+    <!-- tchap scan media -->
     <string name="tchap_scan_media_unavailable">Scan Unavailable</string>
     <string name="tchap_scan_media_in_progress">Antivirus Scanning</string>
     <string name="tchap_scan_media_untrusted_content">Infected File</string>
     <string name="tchap_scan_media_untrusted_content_message">The file (%s) has been blocked</string>
 
-    // tchap room settings
+    <!-- tchap room settings -->
     <string name="tchap_room_settings_remove_from_directory">Remove this room from the rooms directory</string>
     <string name="tchap_room_settings_remove_from_directory_prompt_msg"><b>This action is irreversible.</b>\nAre you sure you want to remove this room from the rooms directory?</string>
     <string name="tchap_room_settings_room_access_title">Additional information</string>
@@ -1089,7 +1089,7 @@
     <string name="tchap_room_settings_allow_external_users_to_join">Allow the externals to join this room</string>
     <string name="tchap_room_settings_allow_external_users_to_join_prompt_msg"><b>This action is irreversible.</b>\nAre you sure you want to allow the externals to join this room?</string>
 
-    // tchap account validity
+    <!-- tchap account validity -->
     <string name="tchap_expired_account_msg">The validity period of your account has expired. An email has been sent to you in order to renew it. Once you’ve followed the link it contains, click below.</string>
     <string name="tchap_expired_account_resume_button">I renewed the validity of my account</string>
     <string name="tchap_request_renewal_email_button">Request a renewal email</string>
@@ -1097,7 +1097,7 @@
     <string name="tchap_renew_account_validity_success_msg">Your account has been renewed with success</string>
     <string name="tchap_renew_account_validity_invalid_token_msg">The token is invalid</string>
 
-    // tchap android version limitation
+    <!-- tchap android version limitation -->
     <string name="tchap_unsupported_android_version_title">For security reasons, Tchap is not supported anymore on Android 4.4.4 and lower</string>
     <string name="tchap_unsupported_android_version_message">Please log out your account from this device.\nIn order to be able to decrypt your chat history when you will log in from another device, we invite you to export your encryption keys before signing out.</string>
     <string name="tchap_unsupported_android_version_export_keys">Export keys</string>
@@ -1219,7 +1219,7 @@
     <string name="x_plus">%d+</string>
     <string name="no_valid_google_play_services_apk">No valid Google Play Services APK found. Notifications may not work properly.</string>
 
-    // Overrided sdk's strings
+    <!-- Overrided sdk's strings -->
     <string name="notice_room_name_changed">%1$s changed the room name to: %2$s</string>
     <string name="notice_made_future_room_visibility">%1$s made future room history visible to %2$s</string>
     <string name="notice_room_visibility_invited">all room members, from the point they are invited.</string>
