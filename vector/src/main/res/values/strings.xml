@@ -1247,4 +1247,9 @@
     <string name="accessibility_change_security_dialog_message">An accessibility service has been activated. It watches keyboard and windows.</string>
     <string name="notification_change_security_dialog_message">A Notification listener reads the content of message notifications. These notifications listeners have been activated :</string>
 
+    <string name="an_update_is_available_critical">A new version is available, for security reason please update your application first</string>
+    <string name="an_update_is_available_mandatory">A new version is available, please update your application</string>
+    <string name="an_update_is_available_info">A new version is available!</string>
+    <string name="an_update_is_available_upgrade_button">Upgrade Tchap</string>
+    <string name="an_update_is_available_open_the_app">Open Tchap</string>
 </resources>

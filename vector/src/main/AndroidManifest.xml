@@ -76,16 +76,18 @@
             </intent-filter>
         </activity>
         <activity
+            android:name="fr.gouv.tchap.activity.TchapVersionCheckActivity"
+            android:theme="@style/AppTheme.NoActionBar.Light" />
+        <activity
             android:name="fr.gouv.tchap.activity.TchapLoginActivity"
             android:configChanges="orientation|screenSize"
             android:theme="@style/LoginAppTheme.Light"
-            android:windowSoftInputMode="stateHidden|adjustResize">
-        </activity>
+            android:windowSoftInputMode="stateHidden|adjustResize"></activity>
         <activity
             android:name="fr.gouv.tchap.activity.TchapUnsupportedAndroidVersionActivity"
-            android:theme="@style/AppTheme.NoActionBar.Light">
-        </activity>
-        <activity android:name="fr.gouv.tchap.activity.TchapRoomCreationActivity"
+            android:theme="@style/AppTheme.NoActionBar.Light"></activity>
+        <activity
+            android:name="fr.gouv.tchap.activity.TchapRoomCreationActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/tchap_room_creation_title"
             android:launchMode="singleTop"
@@ -95,7 +97,8 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="im.vector.activity.VectorHomeActivity" />
         </activity>
-        <activity android:name="fr.gouv.tchap.activity.TchapPublicRoomSelectionActivity"
+        <activity
+            android:name="fr.gouv.tchap.activity.TchapPublicRoomSelectionActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/tchap_room_creation_title"
             android:launchMode="singleTop"
@@ -177,8 +180,8 @@
             android:configChanges="orientation|screenSize"
             android:label="@string/room_details_title"
             android:launchMode="singleTop"
-            android:theme="@style/AppTheme.NoActionBar.Light"
             android:parentActivityName=".activity.VectorRoomActivity"
+            android:theme="@style/AppTheme.NoActionBar.Light"
             android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -323,7 +326,7 @@
         </provider>
 
         <!-- broadcast receiver -->
-       <receiver android:name=".receiver.VectorBootReceiver">
+        <receiver android:name=".receiver.VectorBootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.ACTION_BOOT_COMPLETED" />
                 <action android:name="android.intent.action.BOOT_COMPLETED" />

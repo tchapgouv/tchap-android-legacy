@@ -37,31 +37,19 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
-import androidx.annotation.ColorRes;
-import androidx.annotation.NonNull;
-import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.tabs.TabLayout;
-import com.google.android.material.textfield.TextInputEditText;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.GravityCompat;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.SearchView;
-import androidx.appcompat.widget.Toolbar;
-import androidx.drawerlayout.widget.DrawerLayout;
 import android.text.Editable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
 import android.view.inputmethod.InputMethodManager;
-import android.view.LayoutInflater;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -71,15 +59,39 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.ColorRes;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 import com.getbase.floatingactionbutton.AddFloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.textfield.TextInputEditText;
 
 import org.jetbrains.annotations.NotNull;
 import org.matrix.androidsdk.MXDataHandler;
-import org.matrix.androidsdk.core.MXPatterns;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.call.IMXCall;
+import org.matrix.androidsdk.core.BingRulesManager;
+import org.matrix.androidsdk.core.Log;
+import org.matrix.androidsdk.core.MXPatterns;
+import org.matrix.androidsdk.core.PermalinkUtils;
+import org.matrix.androidsdk.core.callback.ApiCallback;
+import org.matrix.androidsdk.core.callback.SimpleApiCallback;
+import org.matrix.androidsdk.core.callback.SuccessCallback;
+import org.matrix.androidsdk.core.model.MatrixError;
 import org.matrix.androidsdk.crypto.data.MXDeviceInfo;
 import org.matrix.androidsdk.crypto.data.MXUsersDevicesMap;
 import org.matrix.androidsdk.data.MyUser;
@@ -89,13 +101,7 @@ import org.matrix.androidsdk.data.RoomState;
 import org.matrix.androidsdk.data.RoomSummary;
 import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.listeners.MXEventListener;
-import org.matrix.androidsdk.core.callback.ApiCallback;
-import org.matrix.androidsdk.core.callback.SimpleApiCallback;
 import org.matrix.androidsdk.rest.model.Event;
-import org.matrix.androidsdk.core.model.MatrixError;
-import org.matrix.androidsdk.core.BingRulesManager;
-import org.matrix.androidsdk.core.Log;
-import org.matrix.androidsdk.core.PermalinkUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -109,16 +115,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import butterknife.BindView;
-import fr.gouv.tchap.activity.TchapRoomCreationActivity;
-import fr.gouv.tchap.activity.TchapPublicRoomSelectionActivity;
-import fr.gouv.tchap.util.LiveSecurityChecks;
-
 import butterknife.OnClick;
+import fr.gouv.tchap.activity.TchapPublicRoomSelectionActivity;
+import fr.gouv.tchap.activity.TchapRoomCreationActivity;
+import fr.gouv.tchap.activity.TchapVersionCheckActivity;
+import fr.gouv.tchap.config.VersionCheckResult;
+import fr.gouv.tchap.config.VersionChecker;
+import fr.gouv.tchap.fragments.TchapContactFragment;
+import fr.gouv.tchap.fragments.TchapRoomsFragment;
+import fr.gouv.tchap.util.DinsicUtils;
+import fr.gouv.tchap.util.LiveSecurityChecks;
 import im.vector.BuildConfig;
 import im.vector.Matrix;
 import im.vector.MyPresenceManager;
@@ -126,7 +133,6 @@ import im.vector.R;
 import im.vector.VectorApp;
 import im.vector.activity.util.RequestCodesKt;
 import im.vector.fragments.AbsHomeFragment;
-import fr.gouv.tchap.fragments.TchapContactFragment;
 import im.vector.push.PushManager;
 import im.vector.receiver.VectorUniversalLinkReceiver;
 import im.vector.services.EventStreamService;
@@ -134,7 +140,6 @@ import im.vector.ui.themes.ActivityOtherThemes;
 import im.vector.ui.themes.ThemeUtils;
 import im.vector.util.BugReporter;
 import im.vector.util.CallsManager;
-import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.util.HomeRoomsViewModel;
 import im.vector.util.PreferencesManager;
 import im.vector.util.RoomUtils;
@@ -142,7 +147,6 @@ import im.vector.util.SystemUtilsKt;
 import im.vector.util.VectorUtils;
 import im.vector.view.UnreadCounterBadgeView;
 import im.vector.view.VectorPendingCallView;
-import fr.gouv.tchap.fragments.TchapRoomsFragment;
 
 /**
  * Displays the main screen of the app, with rooms the user has joined and the ability to create
@@ -194,8 +198,8 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
     // Key used to restore the proper fragment after orientation change
     private static final String CURRENT_MENU_ID = "CURRENT_MENU_ID";
 
-    private static final int TAB_POSITION_CONVERSATION=0;
-    private static final int TAB_POSITION_CONTACT=1;
+    private static final int TAB_POSITION_CONVERSATION = 0;
+    private static final int TAB_POSITION_CONTACT = 1;
 
     // switch to a room activity
     private Map<String, Object> mAutomaticallyOpenedRoomParams = null;
@@ -273,7 +277,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
     private FragmentManager mFragmentManager;
 
     // The current item selected (top navigation)
-    private int mCurrentMenuId=-1;
+    private int mCurrentMenuId = -1;
 
     // the current displayed fragment
     private String mCurrentFragmentTag;
@@ -513,7 +517,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
         final TabLayout.Tab myTab;
         int myPosition = TAB_POSITION_CONVERSATION;
         if (!isFirstCreation()) {
-            if (getSavedInstanceState().getInt(CURRENT_MENU_ID, TAB_POSITION_CONVERSATION)!= TAB_POSITION_CONVERSATION) {
+            if (getSavedInstanceState().getInt(CURRENT_MENU_ID, TAB_POSITION_CONVERSATION) != TAB_POSITION_CONVERSATION) {
                 myPosition = TAB_POSITION_CONTACT;
             }
         }
@@ -546,6 +550,16 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
 
         securityChecks.checkOnActivityStart();
         applyScreenshotSecurity();
+
+        VersionChecker.INSTANCE.checkVersion(this, new SuccessCallback<VersionCheckResult>() {
+            @Override
+            public void onSuccess(VersionCheckResult versionCheckResult) {
+                if (versionCheckResult instanceof VersionCheckResult.ShowUpgradeScreen) {
+                    startActivity(new Intent(VectorHomeActivity.this, TchapVersionCheckActivity.class));
+                    finish();
+                }
+            }
+        });
 
         MyPresenceManager.createPresenceManager(this, Matrix.getInstance(this).getSessions());
         MyPresenceManager.advertiseAllOnline();
@@ -664,12 +678,11 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
     private void setSelectedTabStyle() {
         for (int menuIndex = 0; menuIndex < mTopNavigationView.getTabCount(); menuIndex++) {
             LinearLayout customTab = (LinearLayout) mTopNavigationView.getTabAt(menuIndex).getCustomView();
-            TextView myText = (TextView)customTab.getChildAt(0);
+            TextView myText = (TextView) customTab.getChildAt(0);
             if (null != myText) {
                 if (menuIndex == mTopNavigationView.getSelectedTabPosition()) {
                     myText.setTypeface(null, Typeface.BOLD);
-                }
-                else {
+                } else {
                     myText.setTypeface(null, Typeface.NORMAL);
                 }
             }
@@ -1011,8 +1024,8 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
         }
     }
 
-    public String getSearchQuery(){
-        return  mSearchView.getQuery().toString();
+    public String getSearchQuery() {
+        return mSearchView.getQuery().toString();
     }
 
     /**
@@ -2013,7 +2026,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
                 UnreadCounterBadgeView badgeView = new UnreadCounterBadgeView(customTab.getContext());
                 FrameLayout.LayoutParams badgeLayoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
                 badgeLayoutParams.setMargins(0, badgeOffsetY, 0, 0);//, iconViewLayoutParams.rightMargin, iconViewLayoutParams.bottomMargin);
-                customTab.addView(badgeView,badgeLayoutParams);
+                customTab.addView(badgeView, badgeLayoutParams);
                 mBadgeViewByIndex.put(menuIndex, badgeView);
             } catch (Exception e) {
                 Log.e(LOG_TAG, "## addUnreadBadges failed " + e.getMessage(), e);

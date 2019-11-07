@@ -1234,4 +1234,9 @@ Veuillez noter que cette action redémarrera l\'application et pourra prendre un
     <string name="accessibility_change_security_dialog_message">Un service d’accessibilité a été activé. Il observe le clavier et les fenêtres.</string>
     <string name="notification_change_security_dialog_message">Un écouteur de notification lit le contenu des notifications de message. Les écouteurs suivant ont été activés :</string>
 
+    <string name="an_update_is_available_critical">Une nouvelle version est disponible, pour des raisons de sécurité veuillez mettre à jour votre application</string>
+    <string name="an_update_is_available_mandatory">Une nouvelle version est disponible, veuillez mettre à jour votre application</string>
+    <string name="an_update_is_available_info">Une nouvelle version est disponible!</string>
+    <string name="an_update_is_available_upgrade_button">Mettre Tchap à jour</string>
+    <string name="an_update_is_available_open_the_app">Ouvrir Tchap</string>
 </resources>

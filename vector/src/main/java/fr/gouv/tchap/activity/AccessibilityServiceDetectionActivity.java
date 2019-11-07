@@ -79,7 +79,7 @@ public class AccessibilityServiceDetectionActivity extends AppCompatActivity {
     private void finish(boolean startNext) {
         finish();
         if(startNext) {
-            Intent start = new Intent(AccessibilityServiceDetectionActivity.this, TchapLoginActivity.class);
+            Intent start = new Intent(this, TchapVersionCheckActivity.class);
             startActivity(start);
         }
     }
