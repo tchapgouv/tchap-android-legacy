@@ -20,6 +20,7 @@ package im.vector.activity;
 
 import android.app.SearchManager;
 import android.content.Context;
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -45,6 +46,7 @@ import org.matrix.androidsdk.core.callback.ApiCallback;
 import androidx.annotation.NonNull;
 
 import org.matrix.androidsdk.core.Log;
+import org.matrix.androidsdk.features.terms.TermsManager;
 import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.core.model.MatrixError;
 import org.matrix.androidsdk.rest.model.User;
@@ -66,6 +68,7 @@ import fr.gouv.tchap.sdk.rest.model.Platform;
 import butterknife.BindView;
 import im.vector.Matrix;
 import im.vector.R;
+import im.vector.activity.util.RequestCodesKt;
 import im.vector.adapters.ParticipantAdapterItem;
 import im.vector.adapters.VectorParticipantsAdapter;
 import im.vector.contacts.Contact;
@@ -208,6 +211,18 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                     mAdapter.onPIdsUpdate();
                 }
             });
+        }
+
+        @Override
+        public void onIdentityServerTermsNotSigned(String token) {
+            startActivityForResult(ReviewTermsActivity.Companion.intent(VectorRoomInviteMembersActivity.this,
+                    TermsManager.ServiceType.IdentityService, mSession.getIdentityServerManager().getIdentityServerUrl() /* cannot be null */, token),
+                    RequestCodesKt.TERMS_REQUEST_CODE);
+        }
+
+        @Override
+        public void onNoIdentityServerDefined() {
+
         }
     };
 
@@ -551,6 +566,15 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         super.onPause();
         mSession.getDataHandler().removeListener(mEventsListener);
         ContactsManager.getInstance().removeListener(mContactsListener);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == RequestCodesKt.TERMS_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            // Launch again the request
+            ContactsManager.getInstance().refreshLocalContactsSnapshot();
+            onPatternUpdate(false);
+        }
     }
 
     @Override

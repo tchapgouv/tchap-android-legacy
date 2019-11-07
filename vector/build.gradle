@@ -111,6 +111,7 @@ android {
 
     buildTypes {
         debug {
+
             resValue "bool", "debug_mode", "true"
             resValue "string", "git_revision", "\"${gitRevision()}\""
             resValue "string", "git_revision_date", "\"${gitRevisionDate()}\""
@@ -290,6 +291,7 @@ dependencies {
 
     // Epoxy
     implementation 'com.airbnb.android:epoxy:3.7.0'
+    implementation 'com.airbnb.android:mvrx:1.0.1'
     kapt 'com.airbnb.android:epoxy-processor:3.7.0'
 
     // Network
@@ -323,7 +325,7 @@ dependencies {
     implementation(name: 'matrix-sdk-crypto', ext: 'aar')
     implementation(name: 'olm-sdk', ext: 'aar')
     // use the matrix SDK as external dependency
-    //implementation 'com.github.matrix-org:matrix-android-sdk:v0.9.27'
+    //implementation 'com.github.matrix-org:matrix-android-sdk:v0.9.30'
     // use the matrix SDK as a sub project
     // you have to uncomment some lines in settings.gradle
     //implementation project(':matrix-sdk')
@@ -335,12 +337,12 @@ dependencies {
 
     /************* analytics **************/
     // another tracking than GA
-    implementation 'org.matomo.sdk:tracker:4.0.2'
+    //implementation 'org.matomo.sdk:tracker:4.0.2'
 
     /************* flavors management **************/
 
     // app flavor only
-    appImplementation('com.google.firebase:firebase-messaging:17.4.0') {
+    appImplementation('com.google.firebase:firebase-messaging:20.0.0') {
         exclude group: 'com.google.firebase', module: 'firebase-core'
         exclude group: 'com.google.firebase', module: 'firebase-analytics'
         exclude group: 'com.google.firebase', module: 'firebase-measurement-connector'

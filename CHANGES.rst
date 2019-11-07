@@ -1,27 +1,73 @@
-Changes in Riot 0.9.6 (2019-XX-XX)
+Changes in Riot 0.9.9 (2019-XX-XX)
 ===================================================
 
-MatrixSdk:
- - Upgrade MatrixSdk to version 0.X.Y.
- - Changelog: https://github.com/matrix-org/matrix-android-sdk/releases/tag/v0.X.Y
+MatrixSdk 🚀:
+ - Upgrade to version 0.X.Y.
 
-Features:
+Features ✨:
  -
 
-Improvements:
+Improvementss 🙌:
  -
 
 Other changes:
  -
 
+Bugfix 🐛:
+ -
+
+Translations 🗣:
+ -
+
+Build 🧱:
+ -
+
+
+Changes in Riot 0.9.8 (2019-10-09)
+===================================================
+
+MatrixSdk 🚀:
+ - Upgrade to version 0.9.30.
+
+Bugfix 🐛:
+ - App crashes for some users (#3348, #3349)
+
+
+Changes in Riot 0.9.7 (2019-10-07)
+===================================================
+
+MatrixSdk:
+ - Upgrade MatrixSdk to version 0.9.29.
+ - Changelog: https://github.com/matrix-org/matrix-android-sdk/releases/tag/v0.9.29
+
+Features:
+ - Privacy: Use the hashed v2 lookup API for 3PIDs (#3257)
+ - Privacy: Prompt to accept identity server policies before inviting them to a room (#3227)
+ - Privacy: Make clear that device names are publicly readable (#3265)
+ - Privacy: Email help text on registration should be updated without binding (#3278)
+ - Privacy: Use wellknown to discover the IS of a HS (#3283)
+ - Privacy: Remove the bind true flag from 3PID adds in settings (#3254)
+ - Privacy: Remove the ability to set an IS at login/registration (#3264)
+ - Privacy: Allow password reset when no IS (#3261)
+ - Privacy: Allow email registration when no IS (#3260)
+ - Privacy: Separate Add and Bind for 3PID (#3300)
+
+Improvements:
+ - Notification [Fdroid] Add a new mode for notification (#3122)
+
+Other changes:
+ - Widgets: Whitelist [MSC1961](https://github.com/matrix-org/matrix-doc/pull/1961) widget urls
+ - Privacy: Remove the bind true flag from 3PID calls on registration (#3252)
+
 Bugfix:
- -
+ - Fix reset password broken UI (#3125)
+ - Execute 1 request instead of 2 for 3Pid lookup (#3344)
 
-Translations:
- -
+Changes in Riot 0.9.6 (2019-09-13)
+===================================================
 
-Build:
- -
+Other changes:
+ - Get around Google limitation of SSO through WebView by modifying the WebView user agent
 
 Changes in Riot 0.9.5 (2019-09-10)
 ===================================================
@@ -1441,25 +1487,25 @@ Changes in Vector 0.2.0 (2016-04-14)
 Changes in Riot 0.9.XX (2019-XX-XX)
 ===================================================
 
-MatrixSdk:
+MatrixSdk 🚀:
  - Upgrade MatrixSdk to version 0.X.Y.
  - Changelog: https://github.com/matrix-org/matrix-android-sdk/releases/tag/v0.X.Y
 
-Features:
+Features ✨:
  -
 
-Improvements:
+Improvements 🙌:
  -
 
 Other changes:
  -
 
-Bugfix:
+Bug fixes 🐛:
  -
 
-Translations:
+Translations 🗣:
  -
 
-Build:
+Build 🧱:
  -
 

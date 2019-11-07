@@ -70,6 +70,7 @@ public class TchapContactAdapter extends AbsAdapter {
 
     private final String mNoContactAccessPlaceholder;
     private final String mNoResultPlaceholder;
+    private final String mNoIdentityServerPlaceholder;
 
     /*
      * *********************************************************************************************
@@ -84,6 +85,7 @@ public class TchapContactAdapter extends AbsAdapter {
         // ButterKnife.bind(this); cannot be applied here
         mNoContactAccessPlaceholder = context.getString(R.string.no_contact_access_placeholder);
         mNoResultPlaceholder = context.getString(R.string.no_result_placeholder);
+        mNoIdentityServerPlaceholder = context.getString(R.string.people_no_identity_server);
 
         mDirectChatsSection = new AdapterSection<>(context, context.getString(R.string.direct_chats_header), -1,
                 R.layout.adapter_item_room_view, TYPE_HEADER_DEFAULT, TYPE_ROOM, new ArrayList<Room>(), RoomUtils.getRoomsDateComparator(mSession, false));
@@ -99,7 +101,8 @@ public class TchapContactAdapter extends AbsAdapter {
                 TYPE_CONTACT,
                 new ArrayList<ParticipantAdapterItem>(),
                 ParticipantAdapterItem.alphaComparator);
-        mLocalContactsSection.setEmptyViewPlaceholder(!ContactsManager.getInstance().isContactBookAccessAllowed() ? mNoContactAccessPlaceholder : mNoResultPlaceholder);
+
+        updateLocalContactsPlaceHolders();
 
         mKnownContactsSection = new KnownContactsAdapterSection(
                 context,
@@ -115,6 +118,18 @@ public class TchapContactAdapter extends AbsAdapter {
 
         addSection(mLocalContactsSection);
         addSection(mKnownContactsSection);
+    }
+
+    private void updateLocalContactsPlaceHolders() {
+        String noItemPlaceholder = mNoResultPlaceholder;
+        if (!ContactsManager.getInstance().isContactBookAccessAllowed()) {
+            noItemPlaceholder = mNoContactAccessPlaceholder;
+        } else {
+            if (mSession.getIdentityServerManager().getIdentityServerUrl() == null) {
+                noItemPlaceholder = mNoIdentityServerPlaceholder;
+            }
+        }
+        mLocalContactsSection.setEmptyViewPlaceholder(noItemPlaceholder);
     }
 
     /*
@@ -207,8 +222,8 @@ public class TchapContactAdapter extends AbsAdapter {
     }
 
     public void setLocalContacts(final List<ParticipantAdapterItem> localContacts) {
-        // updates the placeholder according to the local contacts permissions
-        mLocalContactsSection.setEmptyViewPlaceholder(!ContactsManager.getInstance().isContactBookAccessAllowed() ? mNoContactAccessPlaceholder : mNoResultPlaceholder);
+        // updates the placeholder
+        updateLocalContactsPlaceHolders();
 
         // If the current user is external, remove the external users from the provided list
         if (DinsicUtils.isExternalTchapSession(mSession)) {

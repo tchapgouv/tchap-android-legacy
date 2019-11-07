@@ -212,14 +212,6 @@
     <string name="auth_password_placeholder">Парола</string>
     <string name="auth_new_password_placeholder">Нова парола</string>
     <string name="auth_user_name_placeholder">Потребителско име</string>
-    <string name="auth_add_email_message">Добавете имейл адрес в профила си, за да позволите на потребители да ви откриват и да можете да възстановявате Вашата парола.</string>
-    <string name="auth_add_phone_message">Добавете телефонен номер в профила си, за да позволите на потребители да ви откриват.</string>
-    <string name="auth_add_email_phone_message">Добавете имейл адрес и/или телефонен номер в профила си, за да позволите на потребители да ви откриват.
-
-Имейл адресът също Ви позволява да възстановите Вашата парола.</string>
-    <string name="auth_add_email_and_phone_message">Добавете имейл адрес и телефонен номер в профила си, за да позволите на потребители да Ви откриват.
-
-Имейл адресът също Ви позволява да възстановявате Вашата парола.</string>
     <string name="auth_email_placeholder">Имейл адрес</string>
     <string name="auth_opt_email_placeholder">Имейл адрес (по избор)</string>
     <string name="auth_phone_number_placeholder">Телефонен номер</string>
@@ -1466,7 +1458,7 @@
 
     <string name="event_redacted_by_user_reason">Събитие изтрито от потребителя</string>
     <string name="event_redacted_by_admin_reason">Събитие модерирано от администратор на стаята</string>
-    <string name="last_edited_info_message">Последно редактирано от %s на %s</string>
+    <string name="last_edited_info_message">Последно редактирано от %1$s на %2$s</string>
 
 
     <string name="malformed_message">Повредено събитие, не може да се покаже</string>

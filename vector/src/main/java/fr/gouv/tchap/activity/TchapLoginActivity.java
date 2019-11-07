@@ -737,7 +737,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                     if (isValid) {
                         // Pursue the forget pwd process
                         ProfileRestClient pRest = new ProfileRestClient(hsConfig);
-                        pRest.forgetPassword(email, new ApiCallback<ThreePid>() {
+                        pRest.forgetPassword(hsConfig.getIdentityServerUri(), email, new ApiCallback<ThreePid>() {
                             @Override
                             public void onSuccess(ThreePid thirdPid) {
                                 if (mMode == MODE_FORGOT_PASSWORD) {
@@ -750,9 +750,9 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                                     refreshDisplay();
 
                                     mForgotPid = new ThreePidCredentials();
-                                    mForgotPid.clientSecret = thirdPid.clientSecret;
+                                    mForgotPid.clientSecret = thirdPid.getClientSecret();
                                     mForgotPid.idServer = hsConfig.getIdentityServerUri().getHost();
-                                    mForgotPid.sid = thirdPid.sid;
+                                    mForgotPid.sid = thirdPid.getSid();
                                 }
                             }
 
@@ -1798,6 +1798,15 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     }
 
     @Override
+    public void onIdentityServerMissing() {
+        Log.d(LOG_TAG, "## onIdentityServerMissing()");
+        enableLoadingScreen(false);
+        showMainLayout();
+        refreshDisplay();
+        Toast.makeText(this, R.string.identity_server_not_defined, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
     public void onWaitingCaptcha(String publicKey) {
         if (!TextUtils.isEmpty(publicKey)) {
             Log.d(LOG_TAG, "## onWaitingCaptcha");
@@ -2085,7 +2094,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                 mRegistrationManager.setAccountData(null, password);
 
                 mRegistrationManager.clearThreePid();
-                mRegistrationManager.addEmailThreePid(new ThreePid(mCurrentEmail, ThreePid.MEDIUM_EMAIL));
+                mRegistrationManager.addEmailThreePid(ThreePid.Companion.fromEmail(mCurrentEmail));
 
                 checkRegistrationFlows(new SimpleApiCallback<Void>() {
                     @Override

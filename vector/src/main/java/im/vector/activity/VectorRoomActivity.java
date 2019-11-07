@@ -76,6 +76,7 @@ import org.matrix.androidsdk.data.RoomPreviewData;
 import org.matrix.androidsdk.data.RoomState;
 import org.matrix.androidsdk.data.RoomSummary;
 import org.matrix.androidsdk.db.MXLatestChatMessageCache;
+import org.matrix.androidsdk.features.identityserver.IdentityServerNotConfiguredException;
 import org.matrix.androidsdk.fragments.MatrixMessageListFragment;
 import org.matrix.androidsdk.listeners.MXEventListener;
 import org.matrix.androidsdk.rest.model.Event;
@@ -2005,7 +2006,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
                         Toast.makeText(getApplicationContext(), getString(R.string.tchap_cannot_invite_deactivated_account_user), Toast.LENGTH_LONG).show();
                     } else {
                         Log.d(LOG_TAG, "sendMessageByInvitingLeftMemberInDirectChat: invite again " + leftMemberId);
-                        mRoom.invite(leftMemberId, new ApiCallback<Void>() {
+                        mRoom.invite(mSession, leftMemberId, new ApiCallback<Void>() {
                             @Override
                             public void onSuccess(Void info) {
                                 if (null != mediaIntent) {
@@ -2642,8 +2643,12 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
      */
     private void refreshNotificationsArea() {
         // sanity check
-        // might happen when the application is logged out
-        if ((null == mSession.getDataHandler()) || (null == mRoom) || (null != sRoomPreviewData)) {
+        // might happen when the application is logged out (NPE reported on store)
+        if (null == mSession
+                || (null == mSession.getDataHandler())
+                || (null == mSession.getDataHandler().getStore())
+                || (null == mRoom)
+                || (null != sRoomPreviewData)) {
             return;
         }
         final LimitResourceState limitResourceState = mResourceLimitEventListener.getLimitResourceState();
@@ -3357,7 +3362,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
         if (mRoom != null && (null != userIds) && (userIds.size() > 0)) {
             showWaitingView();
 
-            mRoom.invite(userIds, new ApiCallback<Void>() {
+            mRoom.invite(mSession, userIds, new ApiCallback<Void>() {
 
                 private void onDone(String errorMessage) {
                     if (!TextUtils.isEmpty(errorMessage)) {
@@ -3383,7 +3388,11 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
 
                 @Override
                 public void onUnexpectedError(Exception e) {
-                    onDone(e.getMessage());
+                    if (e instanceof IdentityServerNotConfiguredException) {
+                        onDone(getString(R.string.invite_no_identity_server_error));
+                    } else {
+                        onDone(e.getMessage());
+                    }
                 }
             });
         }

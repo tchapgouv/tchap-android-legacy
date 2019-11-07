@@ -55,6 +55,7 @@ import org.matrix.androidsdk.core.model.MatrixError;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomState;
 import org.matrix.androidsdk.db.MXMediaCache;
+import org.matrix.androidsdk.features.identityserver.IdentityServerNotConfiguredException;
 import org.matrix.androidsdk.listeners.MXEventListener;
 import org.matrix.androidsdk.rest.model.pid.RoomThirdPartyInvite;
 import org.matrix.androidsdk.rest.model.Event;
@@ -320,7 +321,11 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
 
         @Override
         public void onUnexpectedError(Exception e) {
-            onError(e.getLocalizedMessage());
+            if (e instanceof IdentityServerNotConfiguredException) {
+               onError(getString(R.string.invite_no_identity_server_error));
+            } else {
+                onError(e.getLocalizedMessage());
+            }
         }
     };
 
@@ -1127,7 +1132,7 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
      * @param userIds the user IDs list
      */
     private void inviteUserIds(List<String> userIds) {
-        mRoom.invite(userIds, new ApiCallback<Void>() {
+        mRoom.invite(mSession,userIds, new ApiCallback<Void>() {
             @Override
             public void onSuccess(Void info) {
                 mIsInvitingNewMembers = false;
