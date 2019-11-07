@@ -24,6 +24,7 @@ object VersionCheckResultStore {
 
     private const val VERSION_CHECK_RESULT_STORE_TYPE = "VERSION_CHECK_RESULT_STORE_TYPE"
     private const val VERSION_CHECK_RESULT_STORE_MESSAGE = "VERSION_CHECK_RESULT_STORE_MESSAGE"
+    private const val VERSION_CHECK_RESULT_STORE_FOR_VERSION_CODE = "VERSION_CHECK_RESULT_STORE_FOR_VERSION_CODE"
     private const val VERSION_CHECK_RESULT_STORE_CAN_OPEN_APP = "VERSION_CHECK_RESULT_STORE_CAN_OPEN_APP"
 
     fun read(context: Context): VersionCheckResult {
@@ -31,6 +32,7 @@ object VersionCheckResultStore {
             1    -> VersionCheckResult.Ok
             2    -> VersionCheckResult.ShowUpgradeScreen(
                     message = context.defaultSharedPreferences.getString(VERSION_CHECK_RESULT_STORE_MESSAGE, "") ?: "",
+                    forVersionCode = context.defaultSharedPreferences.getInt(VERSION_CHECK_RESULT_STORE_FOR_VERSION_CODE, 0),
                     canOpenApp = context.defaultSharedPreferences.getBoolean(VERSION_CHECK_RESULT_STORE_CAN_OPEN_APP, false))
             else -> VersionCheckResult.Unknown
         }
@@ -42,16 +44,19 @@ object VersionCheckResultStore {
                 is VersionCheckResult.Ok                -> {
                     putInt(VERSION_CHECK_RESULT_STORE_TYPE, 1)
                     remove(VERSION_CHECK_RESULT_STORE_MESSAGE)
+                    remove(VERSION_CHECK_RESULT_STORE_FOR_VERSION_CODE)
                     remove(VERSION_CHECK_RESULT_STORE_CAN_OPEN_APP)
                 }
                 is VersionCheckResult.ShowUpgradeScreen -> {
                     putInt(VERSION_CHECK_RESULT_STORE_TYPE, 2)
                     putString(VERSION_CHECK_RESULT_STORE_MESSAGE, versionCheckResult.message)
+                    putInt(VERSION_CHECK_RESULT_STORE_FOR_VERSION_CODE, versionCheckResult.forVersionCode)
                     putBoolean(VERSION_CHECK_RESULT_STORE_CAN_OPEN_APP, versionCheckResult.canOpenApp)
                 }
                 else                                    -> {
                     putInt(VERSION_CHECK_RESULT_STORE_TYPE, 0)
                     remove(VERSION_CHECK_RESULT_STORE_MESSAGE)
+                    remove(VERSION_CHECK_RESULT_STORE_FOR_VERSION_CODE)
                     remove(VERSION_CHECK_RESULT_STORE_CAN_OPEN_APP)
                 }
             }
