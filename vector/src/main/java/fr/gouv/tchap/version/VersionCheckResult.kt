@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.gouv.tchap.config
+package fr.gouv.tchap.version
 
 sealed class VersionCheckResult {
     /**

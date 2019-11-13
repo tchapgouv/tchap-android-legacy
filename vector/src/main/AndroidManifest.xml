@@ -76,7 +76,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="fr.gouv.tchap.activity.TchapVersionCheckActivity"
+            android:name="fr.gouv.tchap.version.TchapVersionCheckActivity"
             android:theme="@style/AppTheme.NoActionBar.Light" />
         <activity
             android:name="fr.gouv.tchap.activity.TchapLoginActivity"

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.gouv.tchap.config
+package fr.gouv.tchap.version
 
 import android.content.Context
 import androidx.core.content.edit
@@ -57,7 +57,7 @@ object VersionCheckResultStore {
                     putBoolean(VERSION_CHECK_RESULT_STORE_DISPLAY_ONLY_ONCE, versionCheckResult.displayOnlyOnce)
                     putBoolean(VERSION_CHECK_RESULT_STORE_CAN_OPEN_APP, versionCheckResult.canOpenApp)
                 }
-                else                                    -> {
+                else                                                          -> {
                     putInt(VERSION_CHECK_RESULT_STORE_TYPE, 0)
                     remove(VERSION_CHECK_RESULT_STORE_MESSAGE)
                     remove(VERSION_CHECK_RESULT_STORE_FOR_VERSION_CODE)

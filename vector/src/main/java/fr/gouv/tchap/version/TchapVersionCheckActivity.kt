@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package fr.gouv.tchap.activity
+package fr.gouv.tchap.version
 
 import android.content.Intent
 import androidx.core.view.isVisible
 import butterknife.OnClick
-import fr.gouv.tchap.config.VersionCheckResult
-import fr.gouv.tchap.config.VersionChecker
+import fr.gouv.tchap.activity.TchapLoginActivity
 import im.vector.R
 import im.vector.activity.VectorAppCompatActivity
 import im.vector.ui.themes.ActivityOtherThemes

@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import org.matrix.androidsdk.core.Log;
 
+import fr.gouv.tchap.version.TchapVersionCheckActivity;
 import im.vector.R;
 import im.vector.util.PreferencesManager;
 
