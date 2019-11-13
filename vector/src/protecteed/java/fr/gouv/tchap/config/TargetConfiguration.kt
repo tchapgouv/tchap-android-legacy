@@ -18,3 +18,5 @@ package fr.gouv.tchap.config
 
 // Configure here the optional features (if any)
 // ex: const val ENABLE_FEATURE1 = true
+
+const val CONFIGURATION_VARIANT = "secure"

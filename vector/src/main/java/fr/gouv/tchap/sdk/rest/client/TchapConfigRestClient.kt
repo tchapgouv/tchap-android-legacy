@@ -16,6 +16,7 @@
 package fr.gouv.tchap.sdk.rest.client
 
 import android.net.Uri
+import fr.gouv.tchap.config.CONFIGURATION_VARIANT
 import fr.gouv.tchap.sdk.rest.api.TchapConfigApi
 import fr.gouv.tchap.sdk.rest.model.TchapClientConfig
 import org.matrix.androidsdk.HomeServerConnectionConfig
@@ -26,7 +27,7 @@ import org.matrix.androidsdk.rest.callback.RestAdapterCallback
 
 
 class TchapConfigRestClient : RestClient<TchapConfigApi>(HomeServerConnectionConfig.Builder()
-        .withHomeServerUri(Uri.parse("https://example.org"))
+        .withHomeServerUri(Uri.parse("https://www.tchap.gouv.fr"))
         .build(),
         TchapConfigApi::class.java,
         "",
@@ -37,6 +38,7 @@ class TchapConfigRestClient : RestClient<TchapConfigApi>(HomeServerConnectionCon
      * Retrieve the Tchap config.
      */
     fun getClientConfig(callback: ApiCallback<TchapClientConfig>) {
-        mApi.getTchapClientConfig().enqueue(RestAdapterCallback<TchapClientConfig>("getClientConfig", null, callback, null))
+        mApi.getTchapClientConfig(CONFIGURATION_VARIANT)
+                .enqueue(RestAdapterCallback<TchapClientConfig>("getClientConfig", null, callback, null))
     }
 }

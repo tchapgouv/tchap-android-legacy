@@ -18,12 +18,13 @@ package fr.gouv.tchap.sdk.rest.api
 import fr.gouv.tchap.sdk.rest.model.TchapClientConfig
 import retrofit2.Call
 import retrofit2.http.GET
+import retrofit2.http.Path
 
 interface TchapConfigApi {
 
     /**
      * Get the Tchap android configuration version.
      */
-    @GET("https://www.tchap.gouv.fr/client/config/android")
-    fun getTchapClientConfig(): Call<TchapClientConfig>
+    @GET("client/config/{variant}/android")
+    fun getTchapClientConfig(@Path("variant") variant: String): Call<TchapClientConfig>
 }
