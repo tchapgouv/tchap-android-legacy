@@ -27,8 +27,7 @@ import org.matrix.androidsdk.core.Log
 import org.matrix.androidsdk.core.callback.ApiCallback
 import org.matrix.androidsdk.core.callback.SuccessCallback
 import org.matrix.androidsdk.core.model.MatrixError
-import java.util.concurrent.TimeUnit
-
+import java.util.*
 
 object VersionChecker {
 
@@ -36,23 +35,24 @@ object VersionChecker {
     private const val LAST_VERSION_INFO_DISPLAYED_VERSION_CODE = "LAST_VERSION_INFO_DISPLAYED_CODE"
     private const val LOG_TAG = "VersionChecker"
 
-    private val MAX_DELAY_BETWEEN_TWO_REQUEST_MILLIS = TimeUnit.DAYS.toMillis(1)
+    private const val MIN_DELAY_BETWEEN_TWO_REQUEST_MILLIS = 1 * 86_400_000 // TimeUnit.DAYS.toMillis(1)
 
     private val restClient = TchapConfigRestClient()
 
     private lateinit var lastVersionCheckResult: VersionCheckResult
 
     fun checkVersion(context: Context, callback: SuccessCallback<VersionCheckResult>) {
-        val lastCheck = context.defaultSharedPreferences.getLong(LAST_VERSION_CHECK_TS_KEY, 0)
+        val lastDayCheck = context.defaultSharedPreferences.getLong(LAST_VERSION_CHECK_TS_KEY, 0)
+        val currentDay = getCurrentDayMillis()
 
         lastVersionCheckResult = VersionCheckResultStore.read(context)
 
         if (lastVersionCheckResult is VersionCheckResult.Unknown
-                || System.currentTimeMillis() > lastCheck + MAX_DELAY_BETWEEN_TWO_REQUEST_MILLIS) {
+                || currentDay >= lastDayCheck + MIN_DELAY_BETWEEN_TWO_REQUEST_MILLIS) {
             restClient.getClientConfig(object : ApiCallback<TchapClientConfig> {
                 override fun onSuccess(info: TchapClientConfig) {
                     context.defaultSharedPreferences.edit {
-                        putLong(LAST_VERSION_CHECK_TS_KEY, System.currentTimeMillis())
+                        putLong(LAST_VERSION_CHECK_TS_KEY, currentDay)
                     }
 
                     lastVersionCheckResult = info.toVersionCheckResult(context)
@@ -79,6 +79,20 @@ object VersionChecker {
         } else {
             callback.onSuccess(lastVersionCheckResult)
         }
+    }
+
+    /**
+     * Return the timestamp of the current day at 5 AM
+     */
+    private fun getCurrentDayMillis(): Long {
+        return Calendar.getInstance()
+                .apply {
+                    set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                    set(Calendar.HOUR_OF_DAY, 5)
+                }
+                .timeInMillis
     }
 
     fun onUpgradeScreenDisplayed(context: Context, forVersionCode: Int) {
