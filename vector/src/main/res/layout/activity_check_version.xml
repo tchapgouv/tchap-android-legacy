@@ -38,13 +38,13 @@
         android:paddingLeft="32dp"
         android:paddingEnd="32dp"
         android:paddingRight="32dp"
+        android:text="@string/an_update_is_available_upgrade_help"
         android:textColor="@color/tchap_text_color_light"
         android:textSize="14sp"
         android:textStyle="italic"
         app:layout_constraintBottom_toTopOf="@+id/checkVersionButtonsBarrier"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:text="@string/an_update_is_available_upgrade_help" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/checkVersionButtonsBarrier"
@@ -87,7 +87,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:constraint_referenced_ids="checkVersionLogo,checkVersionOpen,checkVersionText,checkVersionUpgrade,checkVersionUpgradeText"
+        app:constraint_referenced_ids="checkVersionLogo,checkVersionText,checkVersionUpgradeText"
         tools:visibility="visible" />
 
     <ProgressBar
