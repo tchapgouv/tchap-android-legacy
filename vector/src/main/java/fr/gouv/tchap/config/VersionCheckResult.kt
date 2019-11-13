@@ -30,5 +30,9 @@ sealed class VersionCheckResult {
     /**
      * the application is not up to date
      */
-    data class ShowUpgradeScreen(val message: String, val forVersionCode: Int, val canOpenApp: Boolean) : VersionCheckResult()
+    data class ShowUpgradeScreen(
+            val message: String,
+            val forVersionCode: Int,
+            val displayOnlyOnce: Boolean,
+            val canOpenApp: Boolean) : VersionCheckResult()
 }

@@ -28,6 +28,24 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:text="@string/an_update_is_available_mandatory" />
 
+    <TextView
+        android:id="@+id/checkVersionUpgradeText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:gravity="center_horizontal"
+        android:paddingStart="32dp"
+        android:paddingLeft="32dp"
+        android:paddingEnd="32dp"
+        android:paddingRight="32dp"
+        android:textColor="@color/tchap_text_color_light"
+        android:textSize="14sp"
+        android:textStyle="italic"
+        app:layout_constraintBottom_toTopOf="@+id/checkVersionUpgrade"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:text="@string/an_update_is_available_upgrade_help" />
+
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/checkVersionUpgrade"
         style="@style/TchapButtonStyle"
@@ -48,18 +66,18 @@
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
         android:layout_marginBottom="16dp"
-        android:text="@string/an_update_is_available_open_the_app"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/checkVersionUpgrade" />
+        app:layout_constraintEnd_toStartOf="@+id/checkVersionUpgrade"
+        tools:text="@string/an_update_is_available_later" />
 
     <androidx.constraintlayout.widget.Group
         android:id="@+id/checkVersionAllViews"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:constraint_referenced_ids="checkVersionLogo,checkVersionOpen,checkVersionText,checkVersionUpgrade"
+        app:constraint_referenced_ids="checkVersionLogo,checkVersionOpen,checkVersionText,checkVersionUpgrade,checkVersionUpgradeText"
         tools:visibility="visible" />
 
     <ProgressBar

@@ -55,6 +55,7 @@ class TchapVersionCheckActivity : VectorAppCompatActivity(), SuccessCallback<Ver
         checkVersionAllViews.isVisible = true
         checkVersionText.text = versionCheckResult.message
         checkVersionOpen.isVisible = versionCheckResult.canOpenApp
+        checkVersionOpen.setText(if (versionCheckResult.displayOnlyOnce) R.string.an_update_is_available_ignore else R.string.an_update_is_available_later)
     }
 
     @OnClick(R.id.checkVersionUpgrade)
