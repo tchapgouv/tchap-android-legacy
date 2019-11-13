@@ -56,11 +56,12 @@ class TchapVersionCheckActivity : VectorAppCompatActivity(), SuccessCallback<Ver
         checkVersionText.text = versionCheckResult.message
         checkVersionOpen.isVisible = versionCheckResult.canOpenApp
         checkVersionOpen.setText(if (versionCheckResult.displayOnlyOnce) R.string.an_update_is_available_ignore else R.string.an_update_is_available_later)
+        checkVersionUpgrade.isVisible = packageName in packageWithList
     }
 
     @OnClick(R.id.checkVersionUpgrade)
     fun openStore() {
-        openPlayStore(this, this.packageName)
+        openPlayStore(this, packageName)
     }
 
     @OnClick(R.id.checkVersionOpen)
@@ -74,5 +75,17 @@ class TchapVersionCheckActivity : VectorAppCompatActivity(), SuccessCallback<Ver
             val start = Intent(this, TchapLoginActivity::class.java)
             startActivity(start)
         }
+    }
+
+    companion object {
+        // White list of the package names for which the "Open PlayStore" button will be displayed
+        // If you do not want the PlayStore button to be displayed, just set to an emptyList like this:
+        // val packageWithList = emptyList<String>()
+        val packageWithList = listOf(
+                // Agent variant of the application
+                "fr.gouv.tchap.a"
+        )
+
+
     }
 }
