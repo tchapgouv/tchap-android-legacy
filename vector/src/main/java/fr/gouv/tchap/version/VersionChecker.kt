@@ -114,8 +114,8 @@ object VersionChecker {
                                 ?: criticalMinVersion?.message?.get("default").takeIf { it.isNullOrEmpty().not() }
                                 ?: context.getString(R.string.an_update_is_available_critical),
                         forVersionCode = criticalMinVersion?.minVersionCode ?: 0,
-                        displayOnlyOnce = false,
-                        canOpenApp = false
+                        displayOnlyOnce = criticalMinVersion?.displayOnlyOnce == true,
+                        canOpenApp = criticalMinVersion?.displayOnlyOnce == true
                 )
             mandatoryMinVersion?.minVersionCode ?: 0 > BuildConfig.VERSION_CODE ->
                 // A mandatory update is available
@@ -124,7 +124,7 @@ object VersionChecker {
                                 ?: mandatoryMinVersion?.message?.get("default").takeIf { it.isNullOrEmpty().not() }
                                 ?: context.getString(R.string.an_update_is_available_mandatory),
                         forVersionCode = mandatoryMinVersion?.minVersionCode ?: 0,
-                        displayOnlyOnce = mandatoryMinVersion?.displayOnlyOnce ?: false,
+                        displayOnlyOnce = mandatoryMinVersion?.displayOnlyOnce == true,
                         canOpenApp = mandatoryMinVersion?.allowOpeningApp == true
                 )
             infoMinVersion?.minVersionCode ?: 0 > BuildConfig.VERSION_CODE      ->
@@ -139,8 +139,8 @@ object VersionChecker {
                                     ?: infoMinVersion?.message?.get("default").takeIf { it.isNullOrEmpty().not() }
                                     ?: context.getString(R.string.an_update_is_available_info),
                             forVersionCode = infoMinVersion?.minVersionCode ?: 0,
-                            displayOnlyOnce = infoMinVersion?.displayOnlyOnce ?: false,
-                            canOpenApp = infoMinVersion?.allowOpeningApp ?: true
+                            displayOnlyOnce = infoMinVersion?.displayOnlyOnce == true,
+                            canOpenApp = infoMinVersion?.allowOpeningApp == true
                     )
                 }
             else                                                                ->
