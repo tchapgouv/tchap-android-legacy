@@ -3,7 +3,7 @@ package fr.gouv.tchap.sdk.session.room.model
 import org.matrix.androidsdk.rest.model.Event
 import org.matrix.androidsdk.core.JsonUtils
 
-const val STATE_EVENT_TYPE = "im.vector.room.access_rules"
+const val EVENT_TYPE_STATE_ROOM_ACCESS_RULES = "im.vector.room.access_rules"
 
 const val STATE_EVENT_CONTENT_KEY_RULE = "rule"
 
@@ -18,5 +18,5 @@ data class RoomAccessRulesContent(
 
 fun getRule(event: Event): String? {
     val content = JsonUtils.toClass(event.contentAsJsonObject, RoomAccessRulesContent::class.java)
-    return content.rule
+    return content?.rule
 }

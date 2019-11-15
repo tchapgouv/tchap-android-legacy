@@ -28,12 +28,15 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.ContactsContract;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.widget.Toast;
+
 import androidx.fragment.app.FragmentActivity;
 
 import org.matrix.androidsdk.core.JsonUtils;
@@ -53,7 +56,6 @@ import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.rest.model.RoomCreateContent;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.User;
-import org.matrix.androidsdk.rest.model.pid.RoomThirdPartyInvite;
 import org.matrix.androidsdk.rest.model.pid.ThreePid;
 import org.matrix.androidsdk.core.Log;
 
@@ -67,9 +69,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import fr.gouv.tchap.sdk.rest.client.TchapThirdPidRestClient;
 import fr.gouv.tchap.sdk.session.room.model.RoomAccessRulesKt;
+import fr.gouv.tchap.sdk.session.room.model.RoomRetentionKt;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.VectorAppCompatActivity;
@@ -97,7 +101,7 @@ public class DinsicUtils {
     }
 
     /**
-     *  Returns the consumer friendly device name
+     * Returns the consumer friendly device name
      */
     public static String getDeviceName() {
         String manufacturer = Build.MANUFACTURER.trim();
@@ -312,20 +316,19 @@ public class DinsicUtils {
     /**
      * Edit contact form
      */
-    public static void editContactForm(Context theContext, Activity myActivity, String editContactWarningMsg, final Contact contact ) {
+    public static void editContactForm(Context theContext, Activity myActivity, String editContactWarningMsg, final Contact contact) {
         LayoutInflater inflater = LayoutInflater.from(theContext);
 
-        Cursor namesCur=null;
-        boolean switchToContact=false;
-        try
-        {
+        Cursor namesCur = null;
+        boolean switchToContact = false;
+        try {
             ContentResolver cr = theContext.getContentResolver();
             namesCur = cr.query(ContactsContract.Data.CONTENT_URI,
                     new String[]{ContactsContract.Contacts.DISPLAY_NAME_PRIMARY,
                             ContactsContract.Contacts.LOOKUP_KEY,
                             ContactsContract.CommonDataKinds.StructuredName.CONTACT_ID
                     },
-                    ContactsContract.Data.MIMETYPE + " = ? AND "+ ContactsContract.Data.CONTACT_ID + " = ?",
+                    ContactsContract.Data.MIMETYPE + " = ? AND " + ContactsContract.Data.CONTACT_ID + " = ?",
 
                     new String[]{ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE,
                             contact.getContactId()}, null);
@@ -348,20 +351,20 @@ public class DinsicUtils {
                     editIntent.setDataAndType(mSelectedContactUri, ContactsContract.Contacts.CONTENT_ITEM_TYPE);
                     editIntent.putExtra("finishActivityOnSaveCompleted", true);
                     myActivity.startActivity(editIntent);
-                    switchToContact=true;
+                    switchToContact = true;
                 }
             }
         } catch (Exception e) {
             Log.e(LOG_TAG, "## editContactForm(): Exception - Msg=" + e.getMessage());
         }
-        if (!switchToContact){
+        if (!switchToContact) {
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(myActivity);
             alertDialogBuilder.setMessage(editContactWarningMsg);
 
             // set dialog message
             alertDialogBuilder
                     .setCancelable(false)
-                    .setPositiveButton(R.string.ok,null);
+                    .setPositiveButton(R.string.ok, null);
 
             // create alert dialog
             AlertDialog alertDialog = alertDialogBuilder.create();
@@ -378,11 +381,11 @@ public class DinsicUtils {
             alertDialogBuilder.setMessage(activity.getString(R.string.people_invalid_warning_msg));
             // set dialog message
             alertDialogBuilder
-                    .setNegativeButton(R.string.cancel,null)
+                    .setNegativeButton(R.string.cancel, null)
                     .setPositiveButton(R.string.action_edit_contact_form,
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
-                                    editContactForm(theContext,activity,activity.getString(R.string.people_edit_contact_warning_msg),item.mContact);
+                                    editContactForm(theContext, activity, activity.getString(R.string.people_edit_contact_warning_msg), item.mContact);
                                 }
                             });
 
@@ -391,8 +394,7 @@ public class DinsicUtils {
             // show it
             alertDialog.show();
 
-        }
-        else {
+        } else {
 
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
             alertDialogBuilder.setMessage(activity.getString(R.string.people_invalid_warning_msg));
@@ -477,10 +479,10 @@ public class DinsicUtils {
      * During this search, the pending invite are considered too.
      * The selected room (if any) may be opened synchronously or not. It depends if the room is ready or not.
      *
-     * @param activity current activity
+     * @param activity      current activity
      * @param participantId : participant id (matrix id ou email)
-     * @param session current session
-     * @param canCreate create the direct chat if it does not exist.
+     * @param session       current session
+     * @param canCreate     create the direct chat if it does not exist.
      * @return boolean that says if the direct chat room is found or not
      */
     public static boolean openDirectChat(final VectorAppCompatActivity activity, String participantId, final MXSession session, boolean canCreate) {
@@ -543,7 +545,7 @@ public class DinsicUtils {
                 params.put(VectorRoomActivity.EXTRA_ROOM_ID, existingRoom.getRoomId());
                 CommonActivityUtils.goToRoomPage(activity, session, params);
             }
-        } else if (canCreate){
+        } else if (canCreate) {
             // direct message flow
             //it will be more open on next sprints ...
             if (!DinsicUtils.isExternalTchapSession(session)) {
@@ -560,8 +562,8 @@ public class DinsicUtils {
     /**
      * Return the first direct chat room for a given user ID.
      *
-     * @param aUserId user ID to search for
-     * @param mSession current session
+     * @param aUserId       user ID to search for
+     * @param mSession      current session
      * @param includeInvite boolean to tell us if pending invitations have to be consider or not
      * @return a room ID if search succeed, null otherwise.
      */
@@ -653,11 +655,11 @@ public class DinsicUtils {
     /**
      * Prepare a direct chat with a selected contact.
      *
-     * @param activity  the current activity
-     * @param session   the current session
+     * @param activity        the current activity
+     * @param session         the current session
      * @param selectedContact the selected contact
      */
-    public static void startDirectChat (final VectorAppCompatActivity activity, final MXSession session, final ParticipantAdapterItem selectedContact) {
+    public static void startDirectChat(final VectorAppCompatActivity activity, final MXSession session, final ParticipantAdapterItem selectedContact) {
         if (selectedContact.mIsValid) {
             // Tell if contact is tchap user
             if (MXPatterns.isUserId(selectedContact.mUserId)) {
@@ -716,9 +718,9 @@ public class DinsicUtils {
     /**
      * Prepare a direct chat with a tchap user.
      *
-     * @param activity      the current activity
-     * @param session       the current session
-     * @param selectedUser  the selected tchap user
+     * @param activity     the current activity
+     * @param session      the current session
+     * @param selectedUser the selected tchap user
      */
     public static void startDirectChat(final VectorAppCompatActivity activity, final MXSession session, User selectedUser) {
         // Consider here that the provided id is a correct matrix identifier, we don't check again
@@ -761,7 +763,7 @@ public class DinsicUtils {
 
             // Add the right room access rule
             Event roomAccessRulesEvent = new Event();
-            roomAccessRulesEvent.type = RoomAccessRulesKt.STATE_EVENT_TYPE;
+            roomAccessRulesEvent.type = RoomAccessRulesKt.EVENT_TYPE_STATE_ROOM_ACCESS_RULES;
             Map<String, String> contentMap = new HashMap<>();
             contentMap.put(RoomAccessRulesKt.STATE_EVENT_CONTENT_KEY_RULE, RoomAccessRulesKt.DIRECT);
             roomAccessRulesEvent.updateContent(JsonUtils.getGson(false).toJsonTree(contentMap));
@@ -802,8 +804,8 @@ public class DinsicUtils {
      * - check whether this is a direct chat.
      * - open the room activity for this room.
      *
-     * @param activity         the current activity. This activity is closed when the joined room is valid.
-     * @param roomPreviewData  the room preview data
+     * @param activity        the current activity. This activity is closed when the joined room is valid.
+     * @param roomPreviewData the room preview data
      */
     public static void onNewJoinedRoom(final Activity activity, final RoomPreviewData roomPreviewData) {
         final MXSession session = roomPreviewData.getSession();
@@ -912,7 +914,7 @@ public class DinsicUtils {
     /**
      * Tell whether users on other servers can join this room.
      *
-     * @param room    the room.
+     * @param room the room.
      * @return true if this is a federated room.
      */
     public static boolean isFederatedRoom(@NonNull Room room) {
@@ -930,14 +932,14 @@ public class DinsicUtils {
     /**
      * Get the current room access rule.
      *
-     * @param room    the room.
+     * @param room the room.
      * @return the room access rule see {@link RoomAccessRulesKt}.
      */
     @NonNull
     public static String getRoomAccessRule(@NonNull Room room) {
         RoomState roomState = room.getState();
 
-        List<Event> roomAccessRulesEvents = roomState.getStateEvents(new HashSet<>(Arrays.asList(RoomAccessRulesKt.STATE_EVENT_TYPE)));
+        List<Event> roomAccessRulesEvents = roomState.getStateEvents(new HashSet<>(Arrays.asList(RoomAccessRulesKt.EVENT_TYPE_STATE_ROOM_ACCESS_RULES)));
         String rule = null;
 
         if (roomAccessRulesEvents.isEmpty()) {
@@ -946,7 +948,7 @@ public class DinsicUtils {
             Event roomAccessRulesEvent = roomAccessRulesEvents.get(roomAccessRulesEvents.size() - 1);
 
             // Sanity check: be sure to consider the most recent state event
-            for (int index = 0; index < roomAccessRulesEvents.size() - 1; index ++) {
+            for (int index = 0; index < roomAccessRulesEvents.size() - 1; index++) {
                 Event event = roomAccessRulesEvents.get(index);
                 if (roomAccessRulesEvent.originServerTs < event.originServerTs) {
                     roomAccessRulesEvent = event;
@@ -997,20 +999,67 @@ public class DinsicUtils {
         return rule;
     }
 
-    public static void setRoomAccessRule (MXSession session, Room room, @NonNull String rule, final ApiCallback<Void> callback) {
+    public static void setRoomAccessRule(MXSession session, Room room, @NonNull String rule, final ApiCallback<Void> callback) {
 
         Map<String, Object> content = new HashMap<>();
         content.put(RoomAccessRulesKt.STATE_EVENT_CONTENT_KEY_RULE, rule);
 
-        session.getRoomsApiClient().sendStateEvent(room.getRoomId(), RoomAccessRulesKt.STATE_EVENT_TYPE, "", content, callback);
+        session.getRoomsApiClient().sendStateEvent(room.getRoomId(), RoomAccessRulesKt.EVENT_TYPE_STATE_ROOM_ACCESS_RULES, "", content, callback);
     }
+
+    /**
+     * Get the current room retention period in days.
+     *
+     * @param room the room.
+     * @return the room retention period
+     */
+    @NonNull
+    public static int getRoomRetention(@NonNull Room room) {
+        RoomState roomState = room.getState();
+
+        List<Event> roomRetentionEvents = roomState.getStateEvents(new HashSet<>(Arrays.asList(RoomRetentionKt.EVENT_TYPE_STATE_ROOM_RETENTION)));
+        int period = RoomRetentionKt.DEFAULT_RETENTION_VALUE;
+
+        if (roomRetentionEvents.isEmpty()) {
+            Log.d(LOG_TAG, "## getRoomRetention(): no period is defined");
+        } else {
+            Event roomRetentionEvent = roomRetentionEvents.get(roomRetentionEvents.size() - 1);
+
+            // Sanity check: be sure to consider the most recent state event
+            for (int index = 0; index < roomRetentionEvents.size() - 1; index++) {
+                Event event = roomRetentionEvents.get(index);
+                if (roomRetentionEvent.originServerTs < event.originServerTs) {
+                    roomRetentionEvent = event;
+                }
+            }
+
+            Integer lifetime = RoomRetentionKt.getMaxLifetime(roomRetentionEvent);
+            if (lifetime != null) {
+                Log.d(LOG_TAG, "## getRoomRetention(): the period " + lifetime + "ms is defined");
+                period = DinsicUtils.convertMsToDays(lifetime.intValue());
+                period = period < 1 ? 1 : period > 365 ? 365 : period;
+            }
+        }
+
+        return period;
+    }
+
+    public static void setRoomRetention(MXSession session, Room room, int periodInDays, final ApiCallback<Void> callback) {
+
+        Map<String, Object> content = new HashMap<>();
+        content.put(RoomRetentionKt.STATE_EVENT_CONTENT_MAX_LIFETIME, DinsicUtils.convertDaysToMs(periodInDays));
+        content.put(RoomRetentionKt.STATE_EVENT_CONTENT_EXPIRE_ON_CLIENTS, true);
+
+        session.getRoomsApiClient().sendStateEvent(room.getRoomId(), RoomRetentionKt.EVENT_TYPE_STATE_ROOM_RETENTION, "", content, callback);
+    }
+
 
     /**
      * Return the room avatar.
      * Tchap client handles the room avatar with a different manner than the SDK one:
      * - Do not use by default a member avatar for the room avatar, except for the direct chats.
      *
-     * @param room    the room.
+     * @param room the room.
      * @return the room avatar url.
      */
     @Nullable
@@ -1058,7 +1107,7 @@ public class DinsicUtils {
                     // a deactivated account user.
                     List<String> roomIdsList = store.getDirectChatRoomsDict().get(key);
                     if (roomIdsList != null && !roomIdsList.isEmpty()) {
-                        for (String roomId: roomIdsList) {
+                        for (String roomId : roomIdsList) {
                             Room room = store.getRoom(roomId);
                             if (null != room) {
                                 RoomMember roomMember = room.getMember(key);
@@ -1076,8 +1125,7 @@ public class DinsicUtils {
                             }
                         }
                     }
-                }
-                else if (android.util.Patterns.EMAIL_ADDRESS.matcher(key).matches()) {
+                } else if (android.util.Patterns.EMAIL_ADDRESS.matcher(key).matches()) {
                     // Check here whether this email corresponds to an actual user id in order to
                     // update the direct chat rooms map (Use the proxied lookup API).
                     TchapThirdPidRestClient tchapThirdPidRestClient = new TchapThirdPidRestClient(session.getHomeServerConfig());
@@ -1122,8 +1170,8 @@ public class DinsicUtils {
      * rooms mapping. The mapping is updated by replacing the email with the actual user id.
      *
      * @param session the current session
-     * @param email the email address to replace.
-     * @param userId the discovered matrix identifier.
+     * @param email   the email address to replace.
+     * @param userId  the discovered matrix identifier.
      */
     private static void updateDirectChatRoomsOnDiscoveredUser(final MXSession session, final String email, final String userId) {
         IMXStore store = session.getDataHandler().getStore();
@@ -1190,5 +1238,29 @@ public class DinsicUtils {
                 }
             });
         }
+    }
+
+    //=============================================================================================
+    // Others
+    //=============================================================================================
+
+    /**
+     * Convert a number of days to a duration in ms.
+     *
+     * @param daysNb number of days.
+     * @return the duration in ms.
+     */
+    public static int convertDaysToMs(int daysNb) {
+        return (int) TimeUnit.DAYS.toMillis(daysNb);
+    }
+
+    /**
+     * Convert a duration (in ms) to a number of days.
+     *
+     * @param durationMs
+     * @return the number of days.
+     */
+    public static int convertMsToDays(int durationMs) {
+        return (int) TimeUnit.MILLISECONDS.toDays(durationMs);
     }
 }
