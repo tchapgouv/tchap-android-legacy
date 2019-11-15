@@ -66,6 +66,7 @@ class TchapVersionCheckActivity : VectorAppCompatActivity(), SuccessCallback<Ver
 
     @OnClick(R.id.checkVersionOpen)
     fun openApp() {
+        VersionChecker.showLater(this)
         finish(true)
     }
 

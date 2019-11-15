@@ -34,6 +34,7 @@ import java.util.*
 object VersionChecker {
 
     private const val LAST_VERSION_CHECK_TS_KEY = "LAST_VERSION_CHECK_TS_KEY"
+    private const val DO_NOT_SHOW_UPGRADE_BEFORE_KEY = "DO_NOT_SHOW_UPGRADE_BEFORE_KEY"
     private const val LAST_VERSION_INFO_DISPLAYED_VERSION_CODE = "LAST_VERSION_INFO_DISPLAYED_CODE"
     private const val LOG_TAG = "VersionChecker"
 
@@ -83,6 +84,13 @@ object VersionChecker {
         }
     }
 
+    fun showLater(context: Context) {
+        context.defaultSharedPreferences.edit {
+            // Wait tomorrow
+            putLong(DO_NOT_SHOW_UPGRADE_BEFORE_KEY, getCurrentDayMillis() + 86_400_000)
+        }
+    }
+
     private fun answer(context: Context, callback: SuccessCallback<VersionCheckResult>) {
         when (val final = lastVersionCheckResult) {
             is VersionCheckResult.Ok,
@@ -92,6 +100,10 @@ object VersionChecker {
                 if (final.displayOnlyOnce
                         && context.defaultSharedPreferences.getInt(LAST_VERSION_INFO_DISPLAYED_VERSION_CODE, 0) == final.forVersionCode) {
                     // Already displayed
+                    callback.onSuccess(VersionCheckResult.Ok)
+                } else if (final.canOpenApp
+                        && getCurrentDayMillis() < context.defaultSharedPreferences.getLong(DO_NOT_SHOW_UPGRADE_BEFORE_KEY, 0)) {
+                    // Already displayed today
                     callback.onSuccess(VersionCheckResult.Ok)
                 } else {
                     callback.onSuccess(final)
