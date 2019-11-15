@@ -21,7 +21,7 @@ import com.google.gson.annotations.SerializedName
 data class MinVersion(
         @JvmField
         @SerializedName("minVersionCode")
-        val minVersionCode: Int = 0,
+        val minVersionCode: Int? = null,
 
         @JvmField
         @SerializedName("minVersionName")
@@ -29,7 +29,7 @@ data class MinVersion(
 
         @JvmField
         @SerializedName("message")
-        val message: Map<String, String> = emptyMap(),
+        val message: Map<String, String>? = null,
 
         @JvmField
         @SerializedName("displayOnlyOnce")

@@ -17,8 +17,10 @@
 package fr.gouv.tchap.version
 
 import android.content.Context
+import androidx.annotation.StringRes
 import androidx.core.content.edit
 import fr.gouv.tchap.sdk.rest.client.TchapConfigRestClient
+import fr.gouv.tchap.sdk.rest.model.MinVersion
 import fr.gouv.tchap.sdk.rest.model.TchapClientConfig
 import im.vector.BuildConfig
 import im.vector.R
@@ -58,26 +60,43 @@ object VersionChecker {
                     lastVersionCheckResult = info.toVersionCheckResult(context)
                     VersionCheckResultStore.write(context, lastVersionCheckResult)
 
-                    callback.onSuccess(lastVersionCheckResult)
+                    answer(context, callback)
                 }
 
                 override fun onUnexpectedError(e: Exception) {
                     Log.e(LOG_TAG, "error", e)
-                    callback.onSuccess(lastVersionCheckResult)
+                    answer(context, callback)
                 }
 
                 override fun onMatrixError(e: MatrixError) {
                     Log.e(LOG_TAG, "error $e")
-                    callback.onSuccess(lastVersionCheckResult)
+                    answer(context, callback)
                 }
 
                 override fun onNetworkError(e: Exception) {
                     Log.e(LOG_TAG, "error", e)
-                    callback.onSuccess(lastVersionCheckResult)
+                    answer(context, callback)
                 }
             })
         } else {
-            callback.onSuccess(lastVersionCheckResult)
+            answer(context, callback)
+        }
+    }
+
+    private fun answer(context: Context, callback: SuccessCallback<VersionCheckResult>) {
+        when (val final = lastVersionCheckResult) {
+            is VersionCheckResult.Ok,
+            is VersionCheckResult.Unknown           -> callback.onSuccess(final)
+            is VersionCheckResult.ShowUpgradeScreen -> {
+                // Check if already displayed
+                if (final.displayOnlyOnce
+                        && context.defaultSharedPreferences.getInt(LAST_VERSION_INFO_DISPLAYED_VERSION_CODE, 0) == final.forVersionCode) {
+                    // Already displayed
+                    callback.onSuccess(VersionCheckResult.Ok)
+                } else {
+                    callback.onSuccess(final)
+                }
+            }
         }
     }
 
@@ -109,43 +128,26 @@ object VersionChecker {
         return when {
             criticalMinVersion?.minVersionCode ?: 0 > BuildConfig.VERSION_CODE  ->
                 // A critical update is available
-                VersionCheckResult.ShowUpgradeScreen(
-                        message = criticalMinVersion?.message?.get(context.getString(R.string.resources_language)).takeIf { it.isNullOrEmpty().not() }
-                                ?: criticalMinVersion?.message?.get("default").takeIf { it.isNullOrEmpty().not() }
-                                ?: context.getString(R.string.an_update_is_available_critical),
-                        forVersionCode = criticalMinVersion?.minVersionCode ?: 0,
-                        displayOnlyOnce = criticalMinVersion?.displayOnlyOnce == true,
-                        canOpenApp = criticalMinVersion?.displayOnlyOnce == true
-                )
+                criticalMinVersion?.toShowUpgradeScreen(context, R.string.an_update_is_available_critical)
             mandatoryMinVersion?.minVersionCode ?: 0 > BuildConfig.VERSION_CODE ->
                 // A mandatory update is available
-                VersionCheckResult.ShowUpgradeScreen(
-                        message = mandatoryMinVersion?.message?.get(context.getString(R.string.resources_language)).takeIf { it.isNullOrEmpty().not() }
-                                ?: mandatoryMinVersion?.message?.get("default").takeIf { it.isNullOrEmpty().not() }
-                                ?: context.getString(R.string.an_update_is_available_mandatory),
-                        forVersionCode = mandatoryMinVersion?.minVersionCode ?: 0,
-                        displayOnlyOnce = mandatoryMinVersion?.displayOnlyOnce == true,
-                        canOpenApp = mandatoryMinVersion?.allowOpeningApp == true
-                )
+                mandatoryMinVersion?.toShowUpgradeScreen(context, R.string.an_update_is_available_mandatory)
             infoMinVersion?.minVersionCode ?: 0 > BuildConfig.VERSION_CODE      ->
-                // An update is available
-                if (infoMinVersion?.displayOnlyOnce == true
-                        && context.defaultSharedPreferences.getInt(LAST_VERSION_INFO_DISPLAYED_VERSION_CODE, 0) == infoMinVersion.minVersionCode) {
-                    // Already displayed
-                    VersionCheckResult.Ok
-                } else {
-                    VersionCheckResult.ShowUpgradeScreen(
-                            message = infoMinVersion?.message?.get(context.getString(R.string.resources_language)).takeIf { it.isNullOrEmpty().not() }
-                                    ?: infoMinVersion?.message?.get("default").takeIf { it.isNullOrEmpty().not() }
-                                    ?: context.getString(R.string.an_update_is_available_info),
-                            forVersionCode = infoMinVersion?.minVersionCode ?: 0,
-                            displayOnlyOnce = infoMinVersion?.displayOnlyOnce == true,
-                            canOpenApp = infoMinVersion?.allowOpeningApp == true
-                    )
-                }
+                infoMinVersion?.toShowUpgradeScreen(context, R.string.an_update_is_available_info)
             else                                                                ->
                 // No update available
                 VersionCheckResult.Ok
-        }
+        } ?: VersionCheckResult.Unknown
+    }
+
+    private fun MinVersion.toShowUpgradeScreen(context: Context, @StringRes defaultMessageResId: Int): VersionCheckResult.ShowUpgradeScreen {
+        return VersionCheckResult.ShowUpgradeScreen(
+                message = message?.get(context.getString(R.string.resources_language)).takeIf { it.isNullOrEmpty().not() }
+                        ?: message?.get("default").takeIf { it.isNullOrEmpty().not() }
+                        ?: context.getString(defaultMessageResId),
+                forVersionCode = minVersionCode ?: 0,
+                displayOnlyOnce = displayOnlyOnce == true,
+                canOpenApp = allowOpeningApp == true
+        )
     }
 }
