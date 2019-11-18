@@ -14,9 +14,25 @@
  * limitations under the License.
  */
 
-package fr.gouv.tchap.config
+package fr.gouv.tchap.version
 
-// Configure here the optional features (if any)
-// ex: const val ENABLE_FEATURE1 = true
+sealed class VersionCheckResult {
+    /**
+     * Config file has not been or cannot be retrieved
+     */
+    object Unknown : VersionCheckResult()
 
-const val CONFIGURATION_VARIANT = "agent"
+    /**
+     * The application is up to date, or no need to display the upgrade message
+     */
+    object Ok : VersionCheckResult()
+
+    /**
+     * the application is not up to date
+     */
+    data class ShowUpgradeScreen(
+            val message: String,
+            val forVersionCode: Int,
+            val displayOnlyOnce: Boolean,
+            val canOpenApp: Boolean) : VersionCheckResult()
+}

@@ -13,10 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package fr.gouv.tchap.sdk.rest.api
 
-package fr.gouv.tchap.config
+import fr.gouv.tchap.sdk.rest.model.TchapClientConfig
+import retrofit2.Call
+import retrofit2.http.GET
+import retrofit2.http.Path
 
-// Configure here the optional features (if any)
-// ex: const val ENABLE_FEATURE1 = true
+interface TchapConfigApi {
 
-const val CONFIGURATION_VARIANT = "agent"
+    /**
+     * Get the Tchap android configuration version.
+     */
+    @GET("client/config/{variant}/android")
+    fun getTchapClientConfig(@Path("variant") variant: String): Call<TchapClientConfig>
+}

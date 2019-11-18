@@ -1,0 +1,31 @@
+{
+  "minimumClientVersion": {
+    "critical": {
+      "minVersionCode": 45,
+      "minVersionName": "1.0.23",
+      "message": {
+        "default": "A new version is available, for security reason, you've been disconnected, please update your application first",
+        "fr": "Une nouvelle version est disponible, pour des raisons de sécurité, vous avez été déconnecté du service. Veuillez mettre à jour votre application"
+      }
+    },
+    "mandatory": {
+      "minVersionCode": 55,
+      "minVersionName": "1.0.32",
+      "message": {
+        "default": "A new version is available, please update your application",
+        "fr": "Une nouvelle version est disponible, veuillez mettre à jour votre application"
+      },
+      "allowOpeningApp": true
+    },
+    "info": {
+      "minVersionCode": 56,
+      "minVersionName": "1.0.33",
+      "message": {
+        "default": "A new version is available!",
+        "fr": "Une nouvelle version est disponible!"
+      },
+      "displayOnlyOnce": true,
+      "allowOpeningApp": true
+    }
+  }
+}
