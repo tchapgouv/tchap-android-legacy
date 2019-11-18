@@ -16,7 +16,16 @@
 
 package fr.gouv.tchap.config
 
-// Configure here the optional features (if any)
-// ex: const val ENABLE_FEATURE1 = true
 
-const val CONFIGURATION_VARIANT = "agent"
+object TchapConfiguration {
+    /**
+     * White list of the package names for which the "Open PlayStore" button will be displayed
+     * in the [TchapVersionCheckActivity]
+     * If you do not want the PlayStore button to be displayed, just set to an emptyList like this:
+     * val packageWhiteList = emptyList<String>()
+     */
+    val packageWhiteList = listOf(
+            // Agent variant of the application
+            "fr.gouv.tchap.a"
+    )
+}

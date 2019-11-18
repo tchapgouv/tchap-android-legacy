@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import org.matrix.androidsdk.core.Log;
 
+import fr.gouv.tchap.version.TchapVersionCheckActivity;
 import im.vector.R;
 import im.vector.util.PreferencesManager;
 
@@ -79,7 +80,7 @@ public class AccessibilityServiceDetectionActivity extends AppCompatActivity {
     private void finish(boolean startNext) {
         finish();
         if(startNext) {
-            Intent start = new Intent(AccessibilityServiceDetectionActivity.this, TchapLoginActivity.class);
+            Intent start = new Intent(this, TchapVersionCheckActivity.class);
             startActivity(start);
         }
     }

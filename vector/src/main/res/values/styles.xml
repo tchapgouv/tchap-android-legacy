@@ -23,6 +23,7 @@
         <item name="android:textColor">?attr/vctr_primary_text_color</item>
         <item name="android:fontFamily">"sans-serif-medium"</item>
     </style>
+
     <style name="Vector.RoomToolbar.Title" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
         <item name="android:textSize">12sp</item>
         <item name="android:textColor">?attr/vctr_primary_text_color</item>
@@ -139,6 +140,13 @@
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:textSize">14sp</item>
         <item name="android:textAllCaps">true</item>
+    </style>
+
+    <style name="TchapButtonStyle" parent="Widget.AppCompat.Button.Colored">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">#FFFFFFFF</item>
     </style>
 
     <style name="TchapLoginButtonStyle" parent="Widget.AppCompat.Button.Borderless">
