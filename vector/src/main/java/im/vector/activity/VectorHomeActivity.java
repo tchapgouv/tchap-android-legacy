@@ -36,6 +36,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.preference.PreferenceManager;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
@@ -68,12 +69,10 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.preference.PreferenceManager;
 
 import com.getbase.floatingactionbutton.AddFloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
-
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 
@@ -87,6 +86,7 @@ import org.matrix.androidsdk.core.MXPatterns;
 import org.matrix.androidsdk.core.PermalinkUtils;
 import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.core.callback.SimpleApiCallback;
+import org.matrix.androidsdk.core.callback.SuccessCallback;
 import org.matrix.androidsdk.core.model.MatrixError;
 import org.matrix.androidsdk.crypto.data.MXDeviceInfo;
 import org.matrix.androidsdk.crypto.data.MXUsersDevicesMap;
@@ -112,8 +112,17 @@ import java.util.Map;
 import java.util.Set;
 
 import butterknife.BindView;
-
 import butterknife.OnClick;
+
+import fr.gouv.tchap.activity.TchapPublicRoomSelectionActivity;
+import fr.gouv.tchap.activity.TchapRoomCreationActivity;
+import fr.gouv.tchap.version.TchapVersionCheckActivity;
+import fr.gouv.tchap.version.VersionCheckResult;
+import fr.gouv.tchap.version.VersionChecker;
+import fr.gouv.tchap.fragments.TchapContactFragment;
+import fr.gouv.tchap.fragments.TchapRoomsFragment;
+import fr.gouv.tchap.util.DinsicUtils;
+import fr.gouv.tchap.util.LiveSecurityChecks;
 import im.vector.BuildConfig;
 import im.vector.Matrix;
 import im.vector.MyPresenceManager;
@@ -137,13 +146,6 @@ import im.vector.util.VectorUtils;
 import im.vector.view.KeysBackupBanner;
 import im.vector.view.UnreadCounterBadgeView;
 import im.vector.view.VectorPendingCallView;
-
-import fr.gouv.tchap.fragments.TchapContactFragment;
-import fr.gouv.tchap.fragments.TchapRoomsFragment;
-import fr.gouv.tchap.util.DinsicUtils;
-import fr.gouv.tchap.activity.TchapRoomCreationActivity;
-import fr.gouv.tchap.activity.TchapPublicRoomSelectionActivity;
-import fr.gouv.tchap.util.LiveSecurityChecks;
 
 /**
  * Displays the main screen of the app, with rooms the user has joined and the ability to create
@@ -198,8 +200,8 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
     // Key used to restore the proper fragment after orientation change
     private static final String CURRENT_MENU_ID = "CURRENT_MENU_ID";
 
-    private static final int TAB_POSITION_CONVERSATION=0;
-    private static final int TAB_POSITION_CONTACT=1;
+    private static final int TAB_POSITION_CONVERSATION = 0;
+    private static final int TAB_POSITION_CONTACT = 1;
 
     // switch to a room activity
     private Map<String, Object> mAutomaticallyOpenedRoomParams = null;
@@ -280,7 +282,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
     private FragmentManager mFragmentManager;
 
     // The current item selected (top navigation)
-    private int mCurrentMenuId=-1;
+    private int mCurrentMenuId = -1;
 
     // the current displayed fragment
     private String mCurrentFragmentTag;
@@ -563,7 +565,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
         final TabLayout.Tab myTab;
         int myPosition = TAB_POSITION_CONVERSATION;
         if (!isFirstCreation()) {
-            if (getSavedInstanceState().getInt(CURRENT_MENU_ID, TAB_POSITION_CONVERSATION)!= TAB_POSITION_CONVERSATION) {
+            if (getSavedInstanceState().getInt(CURRENT_MENU_ID, TAB_POSITION_CONVERSATION) != TAB_POSITION_CONVERSATION) {
                 myPosition = TAB_POSITION_CONTACT;
             }
         }
@@ -596,6 +598,16 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
 
         securityChecks.checkOnActivityStart();
         applyScreenshotSecurity();
+
+        VersionChecker.INSTANCE.checkVersion(this, new SuccessCallback<VersionCheckResult>() {
+            @Override
+            public void onSuccess(VersionCheckResult versionCheckResult) {
+                if (versionCheckResult instanceof VersionCheckResult.ShowUpgradeScreen) {
+                    startActivity(new Intent(VectorHomeActivity.this, TchapVersionCheckActivity.class));
+                    finish();
+                }
+            }
+        });
 
         MyPresenceManager.createPresenceManager(this, Matrix.getInstance(this).getSessions());
         MyPresenceManager.advertiseAllOnline();
@@ -706,12 +718,11 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
     private void setSelectedTabStyle() {
         for (int menuIndex = 0; menuIndex < mTopNavigationView.getTabCount(); menuIndex++) {
             LinearLayout customTab = (LinearLayout) mTopNavigationView.getTabAt(menuIndex).getCustomView();
-            TextView myText = (TextView)customTab.getChildAt(0);
+            TextView myText = (TextView) customTab.getChildAt(0);
             if (null != myText) {
                 if (menuIndex == mTopNavigationView.getSelectedTabPosition()) {
                     myText.setTypeface(null, Typeface.BOLD);
-                }
-                else {
+                } else {
                     myText.setTypeface(null, Typeface.NORMAL);
                 }
             }
@@ -1052,8 +1063,8 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
         }
     }
 
-    public String getSearchQuery(){
-        return  mSearchView.getQuery().toString();
+    public String getSearchQuery() {
+        return mSearchView.getQuery().toString();
     }
 
     /**
@@ -1997,7 +2008,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
                 UnreadCounterBadgeView badgeView = new UnreadCounterBadgeView(customTab.getContext());
                 FrameLayout.LayoutParams badgeLayoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
                 badgeLayoutParams.setMargins(0, badgeOffsetY, 0, 0);//, iconViewLayoutParams.rightMargin, iconViewLayoutParams.bottomMargin);
-                customTab.addView(badgeView,badgeLayoutParams);
+                customTab.addView(badgeView, badgeLayoutParams);
                 mBadgeViewByIndex.put(menuIndex, badgeView);
             } catch (Exception e) {
                 Log.e(LOG_TAG, "## addUnreadBadges failed " + e.getMessage(), e);

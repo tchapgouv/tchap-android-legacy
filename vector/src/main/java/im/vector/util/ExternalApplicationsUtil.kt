@@ -247,7 +247,7 @@ fun openMedia(activity: Activity, savedMediaPath: String, mimeType: String) {
 fun openPlayStore(activity: Activity, appId: String) {
     try {
         activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$appId")))
-    } catch (activityNotFoundException: android.content.ActivityNotFoundException) {
+    } catch (activityNotFoundException: ActivityNotFoundException) {
         try {
             activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=$appId")))
         } catch (activityNotFoundException: ActivityNotFoundException) {

@@ -1893,4 +1893,11 @@ Si vous n’avez pas configuré de nouvelle méthode de récupération, un attaq
     <string name="accessibility_change_security_dialog_message">Un service d’accessibilité a été activé. Il observe le clavier et les fenêtres.</string>
     <string name="notification_change_security_dialog_message">Un écouteur de notification lit le contenu des notifications de message. Les écouteurs suivant ont été activés :</string>
 
+    <string name="an_update_is_available_critical">Une nouvelle version est disponible, pour des raisons de sécurité veuillez mettre à jour votre application</string>
+    <string name="an_update_is_available_mandatory">Une nouvelle version est disponible, veuillez mettre à jour votre application</string>
+    <string name="an_update_is_available_info">Une nouvelle version est disponible!</string>
+    <string name="an_update_is_available_upgrade_help">Si votre téléphone professionnel n’autorise pas l’accès au PlayStore, utilisez le magasin privé de votre ministère pour mettre à jour Tchap.</string>
+    <string name="an_update_is_available_upgrade_button">Ouvrir le PlayStore</string>
+    <string name="an_update_is_available_ignore">Ignorer</string>
+    <string name="an_update_is_available_later">Plus tard</string>
 </resources>
