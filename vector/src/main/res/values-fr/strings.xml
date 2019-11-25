@@ -1237,7 +1237,7 @@ Veuillez noter que cette action redémarrera l\'application et pourra prendre un
     <string name="an_update_is_available_critical">Une nouvelle version est disponible, pour des raisons de sécurité veuillez mettre à jour votre application</string>
     <string name="an_update_is_available_mandatory">Une nouvelle version est disponible, veuillez mettre à jour votre application</string>
     <string name="an_update_is_available_info">Une nouvelle version est disponible!</string>
-    <string name="an_update_is_available_upgrade_help">Si votre téléphone professionnel n’autorise pas l’accès au PlayStore, utilisez le magasin privé de votre ministère pour mettre à jour Tchap.</string>
+    <string name="an_update_is_available_upgrade_help">Si vous utilisez un téléphone professionnel qui n’autorise pas l’accès au PlayStore, veuillez utiliser le magasin privé dédié pour mettre à jour Tchap.</string>
     <string name="an_update_is_available_upgrade_button">Ouvrir le PlayStore</string>
     <string name="an_update_is_available_ignore">Ignorer</string>
     <string name="an_update_is_available_later">Plus tard</string>
