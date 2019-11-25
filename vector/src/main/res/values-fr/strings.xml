@@ -819,7 +819,7 @@ Appareils inconnus :</string>
     <string name="community_id">Identifiant de communauté</string>
     <string name="community_id_hint">Exemple</string>
 
-    // tchap room creation
+    <!-- tchap room creation -->
     <string name="tchap_room_creation_title">Nouveau salon</string>
     <string name="tchap_action_next">Suivant</string>
     <string name="tchap_room_creation_avatar">Ajouter\nune photo</string>
@@ -832,7 +832,7 @@ Appareils inconnus :</string>
     <string name="tchap_room_invite_member_action">Valider</string>
     <string name="tchap_room_creation_save_avatar_failed">La sauvegarde de la photo du salon a échoué. \n Que souhaitez-vous faire ?</string>
 
-    // tchap new strings
+    <!-- tchap new strings -->
     <string name="tchap_room_admin_leave_prompt_msg">Voulez-vous vraiment quitter cette conversation ?\n\nElle ne sera plus administrée, et vous risquez de ne plus pouvoir la joindre de nouveau.</string>
     <string name="tchap_invite_contacts_to_tchap">Inviter des contacts dans Tchap</string>
     <string name="tchap_invite_contacts_by_email">Inviter par e-mail</string>
@@ -857,19 +857,19 @@ Appareils inconnus :</string>
     <string name="tchap_burger_menu_info">Cette application n’est pas approuvée\npour l’échange d’informations en diffusion restreinte</string>
     <string name="tchap_error_message_default">Une erreur est survenue, veuillez réessayer ultérieurement</string>
 
-    // tchap discussion
+    <!-- tchap discussion -->
     <string name="tchap_cannot_invite_deactivated_account_user">Votre correspondant a quitté définitivement cette discussion.\nVous devez en créer une nouvelle pour le recontacter.</string>
 
-    // tchap room
+    <!-- tchap room -->
     <string name="tchap_room_access_unrestricted">Salon accessible aux externes</string>
 
-    // tchap scan media
+    <!-- tchap scan media -->
     <string name="tchap_scan_media_unavailable">Analyse Indisponible</string>
     <string name="tchap_scan_media_in_progress">Analyse Antivirus</string>
     <string name="tchap_scan_media_untrusted_content">Fichier Bloqué</string>
     <string name="tchap_scan_media_untrusted_content_message">Le document (%s) a été filtré par la politique de sécurité</string>
 
-    // tchap room settings
+    <!-- tchap room settings -->
     <string name="tchap_room_settings_remove_from_directory">Retirer ce salon de la liste des salons publics</string>
     <string name="tchap_room_settings_remove_from_directory_prompt_msg"><b>Cette action est irréversible.</b>\nVoulez-vous vraiment retirer ce salon des salons publics ?</string>
     <string name="tchap_room_settings_room_access_title">Information complémentaire :</string>
@@ -878,7 +878,7 @@ Appareils inconnus :</string>
     <string name="tchap_room_settings_allow_external_users_to_join">Autoriser l’accès aux externes à ce salon</string>
     <string name="tchap_room_settings_allow_external_users_to_join_prompt_msg"><b>Cette action est irréversible.</b>\nVoulez-vous vraiment autoriser les externes à rejoindre ce salon ?</string>
 
-    // tchap account validity
+    <!-- tchap account validity -->
     <string name="tchap_expired_account_msg">La durée de validité de votre compte a expiré. Un email vous a été envoyé pour la renouveler. Une fois que vous aurez suivi le lien qu’il contient, cliquez ci-dessous.</string>
     <string name="tchap_expired_account_resume_button">J’ai renouvelé mon compte</string>
     <string name="tchap_request_renewal_email_button">Demander l’envoi d’un nouvel email</string>
@@ -886,13 +886,13 @@ Appareils inconnus :</string>
     <string name="tchap_renew_account_validity_success_msg">Votre compte a été renouvelé avec succès</string>
     <string name="tchap_renew_account_validity_invalid_token_msg">Le jeton de renouvellement est invalide</string>
 
-    // tchap android version limitation
+    <!-- tchap android version limitation -->
     <string name="tchap_unsupported_android_version_title">Pour des raisons de sécurité, Tchap n’est plus disponible sur les versions d’Android 4.4.4 et inférieures</string>
     <string name="tchap_unsupported_android_version_message">Merci de bien vouloir vous déconnecter de cet appareil.\nNous vous invitons à exporter vos clés de chiffrement avant la déconnexion, afin de pouvoir déchiffrer l’historique de vos conversations sur un nouvel appareil. Vous pourrez alors les importer dans vos nouveaux appareils, lorsque vous vous reconnecterez.</string>
     <string name="tchap_unsupported_android_version_export_keys">Exporter les clés</string>
     <string name="tchap_unsupported_android_version_default_msg">Merci de votre compréhension.</string>
 
-    // group details
+    <!-- group details -->
     <string name="group_details_home">Accueil</string>
     <string name="group_details_people">Personnes</string>
     <string name="group_details_rooms">Conversations</string>
@@ -1206,7 +1206,7 @@ Veuillez noter que cette action redémarrera l\'application et pourra prendre un
     <string name="markdown_has_been_disabled">Le Markdown a été désactivé.</string>
 
 
-    // Overrided sdk's strings
+    <!-- Overrided sdk's strings -->
     <string name="notice_room_name_changed">%1$s a changé le nom du salon en : %2$s</string>
     <string name="notice_made_future_room_visibility">%1$s a rendu l’historique futur de la conversation visible pour %2$s</string>
     <string name="notice_room_visibility_invited">tous les membres du salon, depuis qu’ils ont été invités.</string>
@@ -1234,4 +1234,11 @@ Veuillez noter que cette action redémarrera l\'application et pourra prendre un
     <string name="accessibility_change_security_dialog_message">Un service d’accessibilité a été activé. Il observe le clavier et les fenêtres.</string>
     <string name="notification_change_security_dialog_message">Un écouteur de notification lit le contenu des notifications de message. Les écouteurs suivant ont été activés :</string>
 
+    <string name="an_update_is_available_critical">Une nouvelle version est disponible, pour des raisons de sécurité veuillez mettre à jour votre application</string>
+    <string name="an_update_is_available_mandatory">Une nouvelle version est disponible, veuillez mettre à jour votre application</string>
+    <string name="an_update_is_available_info">Une nouvelle version est disponible!</string>
+    <string name="an_update_is_available_upgrade_help">Si votre téléphone professionnel n’autorise pas l’accès au PlayStore, utilisez le magasin privé de votre ministère pour mettre à jour Tchap.</string>
+    <string name="an_update_is_available_upgrade_button">Ouvrir le PlayStore</string>
+    <string name="an_update_is_available_ignore">Ignorer</string>
+    <string name="an_update_is_available_later">Plus tard</string>
 </resources>

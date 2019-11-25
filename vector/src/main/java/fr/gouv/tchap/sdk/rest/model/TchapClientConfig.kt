@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-package fr.gouv.tchap.config
+package fr.gouv.tchap.sdk.rest.model
 
-// Configure here the optional features (if any)
-// ex: const val ENABLE_FEATURE1 = true
+import com.google.gson.annotations.SerializedName
 
-const val CONFIGURATION_VARIANT = "agent"
+data class TchapClientConfig(
+        @JvmField
+        @SerializedName("minimumClientVersion")
+        val minimumClientVersion: MinClientVersion? = null
+)
