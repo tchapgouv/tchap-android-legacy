@@ -1264,7 +1264,7 @@
     <string name="an_update_is_available_critical">A new version is available, for security reason please update your application first</string>
     <string name="an_update_is_available_mandatory">A new version is available, please update your application</string>
     <string name="an_update_is_available_info">A new version is available!</string>
-    <string name="an_update_is_available_upgrade_help">If your professional phone does not allow access to the PlayStore, please use the private application store of your ministry to upgrade Tchap.</string>
+    <string name="an_update_is_available_upgrade_help">If your professional phone does not allow access to the PlayStore, please use the dedicated private application store to upgrade Tchap.</string>
     <string name="an_update_is_available_upgrade_button">Open the PlayStore</string>
     <string name="an_update_is_available_ignore">Ignore</string>
     <string name="an_update_is_available_later">Later</string>
