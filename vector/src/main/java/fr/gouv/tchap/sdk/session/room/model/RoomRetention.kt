@@ -15,19 +15,19 @@ const val DEFAULT_RETENTION_VALUE = 365
 data class RoomRetentionContent(
         @JvmField
         @SerializedName("max_lifetime")
-        var maxLifetime: Int? = null,
+        var maxLifetime: Long? = null,
 
         @JvmField
         @SerializedName("expire_on_clients")
         var expireOnClients: Boolean? = null
 )
 
-fun getMaxLifetime(event: Event): Int? {
+fun getMaxLifetime(event: Event): Long? {
     val content = JsonUtils.toClass(event.contentAsJsonObject, RoomRetentionContent::class.java)
     return content?.maxLifetime
 }
 
 fun getExpireOnClients(event: Event): Boolean {
     val content = JsonUtils.toClass(event.contentAsJsonObject, RoomRetentionContent::class.java)
-    return content?.expireOnClients ?: true
+    return content?.expireOnClients ?: false
 }

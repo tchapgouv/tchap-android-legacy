@@ -1033,10 +1033,10 @@ public class DinsicUtils {
                 }
             }
 
-            Integer lifetime = RoomRetentionKt.getMaxLifetime(roomRetentionEvent);
+            Long lifetime = RoomRetentionKt.getMaxLifetime(roomRetentionEvent);
             if (lifetime != null) {
                 Log.d(LOG_TAG, "## getRoomRetention(): the period " + lifetime + "ms is defined");
-                period = DinsicUtils.convertMsToDays(lifetime.intValue());
+                period = DinsicUtils.convertMsToDays(lifetime.longValue());
                 period = period < 1 ? 1 : period > 365 ? 365 : period;
             }
         }
@@ -1052,7 +1052,6 @@ public class DinsicUtils {
 
         session.getRoomsApiClient().sendStateEvent(room.getRoomId(), RoomRetentionKt.EVENT_TYPE_STATE_ROOM_RETENTION, "", content, callback);
     }
-
 
     /**
      * Return the room avatar.
@@ -1240,6 +1239,68 @@ public class DinsicUtils {
         }
     }
 
+    /**
+     * Clean the storage of a session by removing the expired contents.
+     *
+     * @param session the current session
+     */
+    public static void clearSessionExpiredContents(final MXSession session) {
+        IMXStore store = session.getDataHandler().getStore();
+        if (!store.isReady()) {
+            return;
+        }
+
+        boolean shouldCommitStore = false;
+        Collection<Room> rooms = store.getRooms();
+        for (Room room : rooms) {
+            if (!room.isInvited()) {
+                shouldCommitStore |= clearExpiredRoomContentsFromStore(store, room);
+            }
+        }
+
+        if (shouldCommitStore) {
+            store.commit();
+        }
+    }
+
+    /**
+     * Clean the storage of a room by removing the expired contents.
+     *
+     * @param session the current session
+     * @param room    the room
+     * @return true if the store has been updated.
+     */
+    public static boolean clearExpiredRoomContents(final MXSession session, final Room room) {
+        IMXStore store = session.getDataHandler().getStore();
+        boolean hasStoreChanged = clearExpiredRoomContentsFromStore(store, room);
+        if (hasStoreChanged) {
+            store.commit();
+        }
+        return hasStoreChanged;
+    }
+
+    private static boolean clearExpiredRoomContentsFromStore(final IMXStore store, final Room room) {
+        boolean shouldCommitStore = false;
+        long retentionDurationMs = TimeUnit.DAYS.toMillis(DinsicUtils.getRoomRetention(room));
+
+        Collection<Event> events = store.getRoomMessages(room.getRoomId());
+        if (null != events) {
+            for (Event event : events) {
+                if (event.stateKey == null) {
+                    long eventLifetime = System.currentTimeMillis() - event.getOriginServerTs();
+                    if (eventLifetime > retentionDurationMs) {
+                        store.deleteEvent(event);
+                        shouldCommitStore = true;
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
+
+        return shouldCommitStore;
+    }
+
     //=============================================================================================
     // Others
     //=============================================================================================
@@ -1250,8 +1311,8 @@ public class DinsicUtils {
      * @param daysNb number of days.
      * @return the duration in ms.
      */
-    public static int convertDaysToMs(int daysNb) {
-        return (int) TimeUnit.DAYS.toMillis(daysNb);
+    public static long convertDaysToMs(int daysNb) {
+        return TimeUnit.DAYS.toMillis(daysNb);
     }
 
     /**
@@ -1260,7 +1321,7 @@ public class DinsicUtils {
      * @param durationMs
      * @return the number of days.
      */
-    public static int convertMsToDays(int durationMs) {
+    public static int convertMsToDays(long durationMs) {
         return (int) TimeUnit.MILLISECONDS.toDays(durationMs);
     }
 }

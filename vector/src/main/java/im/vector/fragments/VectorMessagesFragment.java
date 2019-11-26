@@ -57,4 +57,8 @@ public class VectorMessagesFragment extends MatrixMessagesFragment {
             Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT).show();
         }
     }
+
+    public void renewHistory() {
+        requestInitialHistory();
+    }
 }
