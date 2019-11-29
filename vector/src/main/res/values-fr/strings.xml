@@ -867,6 +867,10 @@ Appareils inconnus :</string>
 
     <!-- tchap room -->
     <string name="tchap_room_access_unrestricted">Salon accessible aux externes</string>
+    <plurals name="tchap_room_retention_info">
+        <item quantity="one">Historique limité à %d jour</item>
+        <item quantity="other">Historique limité à %d jours</item>
+    </plurals>
 
     <!-- tchap scan media -->
     <string name="tchap_scan_media_unavailable">Analyse Indisponible</string>

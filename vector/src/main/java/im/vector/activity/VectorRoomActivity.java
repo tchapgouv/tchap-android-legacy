@@ -257,8 +257,8 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
     @BindView(R.id.room_action_bar_topic)
     TextView mActionBarCustomTopic;
 
-    @BindView(R.id.room_action_bar_access_info)
-    TextView mActionBarAccessInfo;
+    @BindView(R.id.room_action_bar_room_info)
+    TextView mActionBarRoomInfo;
 
     private ImageView mActionBarHeaderRoomAvatar;
     private HexagonMaskView mActionBarHeaderHexagonRoomAvatar;
@@ -2907,12 +2907,17 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
     }
 
     private void updateRoomAccessInfo() {
-        // Hide the textView by default
-        mActionBarAccessInfo.setVisibility(View.GONE);
+        StringBuilder roomInfoBuilder = new StringBuilder();
         if (null != mRoom
                 && TextUtils.equals(DinsicUtils.getRoomAccessRule(mRoom), RoomAccessRulesKt.UNRESTRICTED)) {
-            mActionBarAccessInfo.setVisibility(View.VISIBLE);
+            roomInfoBuilder.append(getString(R.string.tchap_room_access_unrestricted));
+            roomInfoBuilder.append(" - ");
         }
+
+        int retentionPeriod = DinsicUtils.getRoomRetention(mRoom);
+        roomInfoBuilder.append(getResources().getQuantityString(R.plurals.tchap_room_retention_info,
+                retentionPeriod, retentionPeriod));
+        mActionBarRoomInfo.setText(roomInfoBuilder.toString());
     }
 
     /**

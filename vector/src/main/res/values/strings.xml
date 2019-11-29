@@ -1078,6 +1078,10 @@
 
     <!-- tchap room -->
     <string name="tchap_room_access_unrestricted">Room accessible to external users</string>
+    <plurals name="tchap_room_retention_info">
+        <item quantity="one">History limited to %d day</item>
+        <item quantity="other">History limited to %d days</item>
+    </plurals>
 
     <!-- tchap scan media -->
     <string name="tchap_scan_media_unavailable">Scan Unavailable</string>
