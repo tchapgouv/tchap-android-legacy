@@ -83,6 +83,8 @@ import im.vector.activity.VectorRoomActivity;
 import im.vector.activity.VectorRoomInviteMembersActivity;
 import im.vector.util.VectorUtils;
 
+import static fr.gouv.tchap.config.TargetConfigurationKt.ENABLE_ROOM_RETENTION;
+
 public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
     private static final String LOG_TAG = TchapRoomCreationActivity.class.getSimpleName();
@@ -150,6 +152,10 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
             }
         });
+
+        if (!ENABLE_ROOM_RETENTION) {
+            roomMessageRetentionText.setVisibility(View.GONE);
+        }
 
         // Initialize default room params as private and restricted
         externalAccessRoomSwitch.setChecked(false);

@@ -95,6 +95,8 @@ import im.vector.util.SystemUtilsKt;
 import im.vector.util.VectorUtils;
 import fr.gouv.tchap.preference.TchapRoomAvatarPreference;
 
+import static fr.gouv.tchap.config.TargetConfigurationKt.ENABLE_ROOM_RETENTION;
+
 public class VectorRoomSettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
     // internal constants values
     private static final String LOG_TAG = VectorRoomSettingsFragment.class.getSimpleName();
@@ -935,7 +937,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
             int period = DinsicUtils.getRoomRetention(mRoom);
 
             // Only the room admin is able to change this value
-            if (isAdmin && isConnected) {
+            if (isAdmin && isConnected && ENABLE_ROOM_RETENTION) {
                 mRoomRetentionPreference.setTitle(getString(R.string.tchap_room_settings_retention_title));
                 mRoomRetentionPreference.setSummary(getResources().getQuantityString(R.plurals.tchap_room_settings_retention_summary,
                         period, period));

@@ -20,3 +20,5 @@ package fr.gouv.tchap.config
 // ex: const val ENABLE_FEATURE1 = true
 
 const val CONFIGURATION_VARIANT = "agent"
+
+const val ENABLE_ROOM_RETENTION = false
