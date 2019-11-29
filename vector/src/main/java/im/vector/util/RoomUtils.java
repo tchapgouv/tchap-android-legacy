@@ -60,6 +60,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import fr.gouv.tchap.util.DinsicUtils;
@@ -373,12 +374,22 @@ public class RoomUtils {
         EventDisplay eventDisplay;
 
         if (null != roomSummary) {
-            if (roomSummary.getLatestReceivedEvent() != null) {
-                eventDisplay = new EventDisplay(context);
-                eventDisplay.setPrependMessagesWithAuthor(false);
-                messageToDisplay = eventDisplay.getTextualDisplay(ThemeUtils.INSTANCE.getColor(context, R.attr.vctr_room_notification_text_color),
-                        roomSummary.getLatestReceivedEvent(),
-                        roomSummary.getLatestRoomState());
+            Event latestEvent= roomSummary.getLatestReceivedEvent();
+            if (latestEvent != null) {
+                // Do not display message for an expired event
+                String roomId = roomSummary.getRoomId();
+                Room room = session.getDataHandler().getStore().getRoom(roomId);
+                if (room != null) {
+                    long retentionDurationMs = TimeUnit.DAYS.toMillis(DinsicUtils.getRoomRetention(room));
+                    long eventLifetime = System.currentTimeMillis() - latestEvent.getOriginServerTs();
+                    if (eventLifetime <= retentionDurationMs) {
+                        eventDisplay = new EventDisplay(context);
+                        eventDisplay.setPrependMessagesWithAuthor(false);
+                        messageToDisplay = eventDisplay.getTextualDisplay(ThemeUtils.INSTANCE.getColor(context, R.attr.vctr_room_notification_text_color),
+                                latestEvent,
+                                roomSummary.getLatestRoomState());
+                    }
+                }
             }
 
             // check if this is an invite
