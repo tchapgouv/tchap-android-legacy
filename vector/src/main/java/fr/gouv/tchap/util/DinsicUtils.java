@@ -230,20 +230,24 @@ public class DinsicUtils {
                                 String[] subComponents = component.split("-");
                                 for (int i = 0; i < subComponents.length - 1; i++) {
                                     String subComponent = subComponents[i];
-                                    builder.append(subComponent.substring(0, 1).toUpperCase());
-                                    if (subComponent.length() > 1) {
-                                        builder.append(subComponent.substring(1));
+                                    if (!subComponent.isEmpty()) {
+                                        builder.append(subComponent.substring(0, 1).toUpperCase());
+                                        if (subComponent.length() > 1) {
+                                            builder.append(subComponent.substring(1));
+                                        }
+                                        builder.append("-");
                                     }
-                                    builder.append("-");
                                 }
                                 // Retrieve the last sub-component
                                 component = subComponents[subComponents.length - 1];
                             }
 
-                            // Capitalize the component (or the last sub-component)
-                            builder.append(component.substring(0, 1).toUpperCase());
-                            if (component.length() > 1) {
-                                builder.append(component.substring(1));
+                            if (!component.isEmpty()) {
+                                // Capitalize the component (or the last sub-component)
+                                builder.append(component.substring(0, 1).toUpperCase());
+                                if (component.length() > 1) {
+                                    builder.append(component.substring(1));
+                                }
                             }
                         }
                     }

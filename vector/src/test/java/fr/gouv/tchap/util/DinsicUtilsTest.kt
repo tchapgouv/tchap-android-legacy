@@ -36,6 +36,11 @@ class DinsicUtilsTest {
         assertEquals("Jean Martin De-La-Rampe", DinsicUtils.computeDisplayNameFromUserId("@jean.martin.de-la-rampe-modernisation.gouv.fr:a.tchap.gouv.fr"))
     }
 
+    @Test
+    fun DinsicUtils_computeDisplayNameFromUserId_emptydashes() {
+        assertEquals("Jean Martin De-La-Rampe", DinsicUtils.computeDisplayNameFromUserId("@jean.martin.de--la--rampe-modernisation.gouv.fr:a.tchap.gouv.fr"))
+    }
+
     // It fails for the moment
     @Test
     fun DinsicUtils_computeDisplayNameFromUserId_dash_in_domain() {
