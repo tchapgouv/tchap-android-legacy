@@ -93,9 +93,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingBottom="3dp"
-                    android:text="@plurals/tchap_room_creation_retention"
                     android:textColor="@color/vector_tchap_text_color_dark"
-                    android:textSize="15sp" />
+                    android:textSize="15sp"
+                    tools:text="@plurals/tchap_room_creation_retention"/>
             </LinearLayout>
 
             <Switch
