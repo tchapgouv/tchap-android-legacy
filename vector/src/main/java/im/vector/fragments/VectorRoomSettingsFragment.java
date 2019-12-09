@@ -79,6 +79,7 @@ import java.util.List;
 import fr.gouv.tchap.sdk.session.room.model.RoomAccessRulesKt;
 import fr.gouv.tchap.sdk.session.room.model.RoomRetentionKt;
 import fr.gouv.tchap.util.DinsicUtils;
+import fr.gouv.tchap.util.DinumUtilsKt;
 import fr.gouv.tchap.util.RoomRetentionPeriodPickerDialogFragment;
 import im.vector.activity.SelectPictureActivity;
 import im.vector.Matrix;
@@ -623,8 +624,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
     private void setRetentionPeriod(int period) {
         displayLoadingView();
 
-        // The room will become unrestricted
-        DinsicUtils.setRoomRetention(mSession, mRoom, period, mUpdateCallback);
+        DinumUtilsKt.setRoomRetention(mSession, mRoom, period, mUpdateCallback);
     }
 
     @Override
@@ -930,29 +930,36 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
         }
 
         if (null != mRoomRetentionPreference) {
-            // Get the current room retention
-            mRoomRetentionPreference.setOnPreferenceClickListener(null);
-            mRoomRetentionPreference.setEnabled(true);
+            if (ENABLE_ROOM_RETENTION) {
+                // Get the current room retention
+                mRoomRetentionPreference.setOnPreferenceClickListener(null);
+                mRoomRetentionPreference.setEnabled(true);
 
-            int period = DinsicUtils.getRoomRetention(mRoom);
+                int period = DinumUtilsKt.getRoomRetention(mRoom);
 
-            // Only the room admin is able to change this value
-            if (isAdmin && isConnected && ENABLE_ROOM_RETENTION) {
-                mRoomRetentionPreference.setTitle(getString(R.string.tchap_room_settings_retention_title));
-                mRoomRetentionPreference.setSummary(getResources().getQuantityString(R.plurals.tchap_room_settings_retention_summary,
-                        period, period));
-                mRoomRetentionPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        new RoomRetentionPeriodPickerDialogFragment(getActivity())
-                                .create(period, ((number) -> {setRetentionPeriod(number); return null;}))
-                                .show();
-                        return true;
-                    }
-                });
+                // Only the room admin is able to change this value
+                if (isAdmin && isConnected) {
+                    mRoomRetentionPreference.setTitle(getString(R.string.tchap_room_settings_retention_title));
+                    mRoomRetentionPreference.setSummary(getResources().getQuantityString(R.plurals.tchap_room_settings_retention_summary,
+                            period, period));
+                    mRoomRetentionPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                        @Override
+                        public boolean onPreferenceClick(Preference preference) {
+                            new RoomRetentionPeriodPickerDialogFragment(getActivity())
+                                    .create(period, ((number) -> {setRetentionPeriod(number); return null;}))
+                                    .show();
+                            return true;
+                        }
+                    });
+                } else {
+                    mRoomRetentionPreference.setTitle(getResources().getQuantityString(R.plurals.tchap_room_settings_retention,
+                            period, period));
+                }
             } else {
-                mRoomRetentionPreference.setTitle(getResources().getQuantityString(R.plurals.tchap_room_settings_retention,
-                        period, period));
+                // Remove this option
+                PreferenceScreen preferenceScreen = getPreferenceScreen();
+                preferenceScreen.removePreference(mRoomRetentionPreference);
+                mRoomRetentionPreference = null;
             }
         }
 

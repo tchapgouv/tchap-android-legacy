@@ -69,6 +69,7 @@ import java.util.concurrent.TimeUnit;
 import fr.gouv.tchap.media.MediaScanManager;
 import fr.gouv.tchap.sdk.rest.client.TchapValidityRestClient;
 import fr.gouv.tchap.util.DinsicUtils;
+import fr.gouv.tchap.util.DinumUtilsKt;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.SplashActivity;
 import im.vector.activity.VectorUniversalLinkActivity;
@@ -792,7 +793,7 @@ public class Matrix {
 
             @Override
             public void onStoreReady() {
-                DinsicUtils.clearSessionExpiredContents(session);
+                DinumUtilsKt.clearSessionExpiredContents(session);
             }
         });
 

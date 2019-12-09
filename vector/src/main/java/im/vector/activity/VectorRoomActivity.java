@@ -97,6 +97,7 @@ import java.util.TimerTask;
 import fr.gouv.tchap.activity.TchapDirectRoomDetailsActivity;
 import fr.gouv.tchap.sdk.session.room.model.RoomAccessRulesKt;
 import fr.gouv.tchap.util.DinsicUtils;
+import fr.gouv.tchap.util.DinumUtilsKt;
 import fr.gouv.tchap.util.HexagonMaskView;
 import fr.gouv.tchap.util.LiveSecurityChecks;
 import butterknife.BindView;
@@ -134,6 +135,8 @@ import im.vector.view.VectorOngoingConferenceCallView;
 import im.vector.view.VectorPendingCallView;
 import im.vector.widgets.Widget;
 import im.vector.widgets.WidgetsManager;
+
+import static fr.gouv.tchap.config.TargetConfigurationKt.ENABLE_ROOM_RETENTION;
 
 /**
  * Displays a single room with messages.
@@ -2907,17 +2910,28 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
     }
 
     private void updateRoomAccessInfo() {
-        StringBuilder roomInfoBuilder = new StringBuilder();
-        if (null != mRoom
-                && TextUtils.equals(DinsicUtils.getRoomAccessRule(mRoom), RoomAccessRulesKt.UNRESTRICTED)) {
-            roomInfoBuilder.append(getString(R.string.tchap_room_access_unrestricted));
-            roomInfoBuilder.append(" - ");
-        }
+        // Hide the room info by default
+        mActionBarRoomInfo.setVisibility(View.GONE);
+        if (null != mRoom) {
+            if (ENABLE_ROOM_RETENTION) {
+                StringBuilder roomInfoBuilder = new StringBuilder();
+                if (TextUtils.equals(DinsicUtils.getRoomAccessRule(mRoom), RoomAccessRulesKt.UNRESTRICTED)) {
+                    roomInfoBuilder.append(getString(R.string.tchap_room_access_unrestricted));
+                    roomInfoBuilder.append(" - ");
+                }
 
-        int retentionPeriod = DinsicUtils.getRoomRetention(mRoom);
-        roomInfoBuilder.append(getResources().getQuantityString(R.plurals.tchap_room_retention_info,
-                retentionPeriod, retentionPeriod));
-        mActionBarRoomInfo.setText(roomInfoBuilder.toString());
+                int retentionPeriod = DinumUtilsKt.getRoomRetention(mRoom);
+                roomInfoBuilder.append(getResources().getQuantityString(R.plurals.tchap_room_retention_info,
+                        retentionPeriod, retentionPeriod));
+                mActionBarRoomInfo.setText(roomInfoBuilder.toString());
+                mActionBarRoomInfo.setVisibility(View.VISIBLE);
+            } else {
+                if (TextUtils.equals(DinsicUtils.getRoomAccessRule(mRoom), RoomAccessRulesKt.UNRESTRICTED)) {
+                    mActionBarRoomInfo.setText(getString(R.string.tchap_room_access_unrestricted));
+                    mActionBarRoomInfo.setVisibility(View.VISIBLE);
+                }
+            }
+        }
     }
 
     /**

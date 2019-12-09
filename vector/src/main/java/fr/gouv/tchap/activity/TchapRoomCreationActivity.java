@@ -69,6 +69,7 @@ import butterknife.OnTextChanged;
 import fr.gouv.tchap.sdk.session.room.model.RoomAccessRulesKt;
 import fr.gouv.tchap.sdk.session.room.model.RoomRetentionKt;
 import fr.gouv.tchap.util.DinsicUtils;
+import fr.gouv.tchap.util.DinumUtilsKt;
 import fr.gouv.tchap.util.HexagonMaskView;
 import fr.gouv.tchap.util.RoomRetentionPeriodPickerDialogFragment;
 import com.bumptech.glide.Glide;
@@ -124,7 +125,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
     private MXSession mSession;
     private Uri mThumbnailUri = null;
-    private int mRetentionPeriod = RoomRetentionKt.DEFAULT_RETENTION_VALUE;
+    private int mRetentionPeriod = RoomRetentionKt.DEFAULT_RETENTION_VALUE_IN_DAYS;
     private CreateRoomParams mRoomParams = new CreateRoomParams();
     private List<String> mParticipantsIds = new ArrayList<>();
 
@@ -142,7 +143,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         setTitle(R.string.tchap_room_creation_title);
 
         // Initialize the room messages retention period which is underlined and clickable
-        setRoomRetentionPeriod(RoomRetentionKt.DEFAULT_RETENTION_VALUE);
+        setRoomRetentionPeriod(RoomRetentionKt.DEFAULT_RETENTION_VALUE_IN_DAYS);
         roomMessageRetentionText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -383,7 +384,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         roomRetentionEvent.type = RoomRetentionKt.EVENT_TYPE_STATE_ROOM_RETENTION;
 
         Map<String, Object> contentMap = new HashMap<>();
-        contentMap.put(RoomRetentionKt.STATE_EVENT_CONTENT_MAX_LIFETIME, DinsicUtils.convertDaysToMs(periodInDays));
+        contentMap.put(RoomRetentionKt.STATE_EVENT_CONTENT_MAX_LIFETIME, DinumUtilsKt.convertDaysToMs(periodInDays));
         contentMap.put(RoomRetentionKt.STATE_EVENT_CONTENT_EXPIRE_ON_CLIENTS, true);
         roomRetentionEvent.updateContent(JsonUtils.getGson(false).toJsonTree(contentMap));
         roomRetentionEvent.stateKey = "";

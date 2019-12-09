@@ -64,6 +64,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import fr.gouv.tchap.util.DinsicUtils;
+import fr.gouv.tchap.util.DinumUtilsKt;
 import im.vector.Matrix;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
@@ -380,7 +381,7 @@ public class RoomUtils {
                 String roomId = roomSummary.getRoomId();
                 Room room = session.getDataHandler().getStore().getRoom(roomId);
                 if (room != null) {
-                    long retentionDurationMs = TimeUnit.DAYS.toMillis(DinsicUtils.getRoomRetention(room));
+                    long retentionDurationMs = TimeUnit.DAYS.toMillis(DinumUtilsKt.getRoomRetention(room));
                     long eventLifetime = System.currentTimeMillis() - latestEvent.getOriginServerTs();
                     if (eventLifetime <= retentionDurationMs) {
                         eventDisplay = new EventDisplay(context);

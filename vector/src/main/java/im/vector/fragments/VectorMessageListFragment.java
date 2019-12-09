@@ -80,6 +80,7 @@ import fr.gouv.tchap.media.MediaScanManager;
 import fr.gouv.tchap.model.MediaScan;
 import fr.gouv.tchap.sdk.session.room.model.RoomRetentionKt;
 import fr.gouv.tchap.util.DinsicUtils;
+import fr.gouv.tchap.util.DinumUtilsKt;
 import im.vector.BuildConfig;
 import im.vector.Matrix;
 import im.vector.R;
@@ -211,7 +212,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
             mAdapter.mIsRoomEncrypted = mRoom.isEncrypted();
 
             if (null != mSession) {
-                DinsicUtils.clearExpiredRoomContents(mSession, mRoom);
+                DinumUtilsKt.clearExpiredRoomContents(mSession, mRoom);
             }
         }
 
@@ -398,7 +399,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
             if (RoomRetentionKt.EVENT_TYPE_STATE_ROOM_RETENTION.equals(event.getType())) {
                 // Apply the new retention period on the stored data
                 // Reload the room history when data has been removed from the store
-                if (DinsicUtils.clearExpiredRoomContents(mSession, mRoom)) {
+                if (DinumUtilsKt.clearExpiredRoomContents(mSession, mRoom)) {
                     // clear the room history
                     mAdapter.clear();
                     // init the timeline
