@@ -496,7 +496,7 @@ Vous avez été déconnecté de tous les appareils et ne recevrez plus de notifi
     <string name="login_error_unable_login">Impossible de se connecter</string>
     <string name="login_error_registration_network_error">Impossible de s\'inscrire : erreur réseau</string>
     <string name="login_error_unknown_token">Le jeton d\'accès fourni n\'a pas été reconnu</string>
-    <string name="login_error_limit_exceeded">Trop de requêtes ont été envoyées</string>
+    <string name="login_error_limit_exceeded">Vos trois dernières tentatives de connexion ont échoué. Veuillez réessayer dans 30 minutes</string>
     <string name="login_error_user_in_use">Ce nom d\'utilisateur est déjà utilisé</string>
     <string name="login_error_login_email_not_yet">Vous n\'avez pas encore cliqué sur le lien dans l\'e-mail</string>
 
