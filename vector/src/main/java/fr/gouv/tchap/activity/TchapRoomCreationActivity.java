@@ -22,12 +22,15 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
+import android.text.SpannableString;
 import android.text.TextUtils;
 import com.google.android.material.textfield.TextInputEditText;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
+
+import android.text.style.UnderlineSpan;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -64,8 +67,11 @@ import butterknife.OnClick;
 import butterknife.OnTextChanged;
 
 import fr.gouv.tchap.sdk.session.room.model.RoomAccessRulesKt;
+import fr.gouv.tchap.sdk.session.room.model.RoomRetentionKt;
 import fr.gouv.tchap.util.DinsicUtils;
+import fr.gouv.tchap.util.DinumUtilsKt;
 import fr.gouv.tchap.util.HexagonMaskView;
+import fr.gouv.tchap.util.RoomRetentionPeriodPickerDialogFragment;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 
@@ -77,6 +83,8 @@ import im.vector.activity.SelectPictureActivity;
 import im.vector.activity.VectorRoomActivity;
 import im.vector.activity.VectorRoomInviteMembersActivity;
 import im.vector.util.VectorUtils;
+
+import static fr.gouv.tchap.config.TargetConfigurationKt.ENABLE_ROOM_RETENTION;
 
 public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
@@ -100,20 +108,14 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     @BindView(R.id.et_room_name)
     TextInputEditText etRoomName;
 
-    @BindView(R.id.tv_external_access)
-    TextView externalAccessRoomText;
+    @BindView(R.id.tv_room_msg_retention)
+    TextView roomMessageRetentionText;
 
     @BindView(R.id.switch_external_access_room)
     Switch externalAccessRoomSwitch;
 
     @BindView(R.id.switch_public_private_room)
     Switch publicPrivateRoomSwitch;
-
-    @BindView(R.id.ll_federation_option)
-    View federationOption;
-
-    @BindView(R.id.tv_disable_federation)
-    TextView disableFederationText;
 
     @BindView(R.id.switch_disable_federation)
     Switch disableFederationSwitch;
@@ -123,6 +125,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
     private MXSession mSession;
     private Uri mThumbnailUri = null;
+    private int mRetentionPeriod = RoomRetentionKt.DEFAULT_RETENTION_VALUE_IN_DAYS;
     private CreateRoomParams mRoomParams = new CreateRoomParams();
     private List<String> mParticipantsIds = new ArrayList<>();
 
@@ -138,6 +141,22 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         mSession = Matrix.getInstance(this).getDefaultSession();
 
         setTitle(R.string.tchap_room_creation_title);
+
+        // Initialize the room messages retention period which is underlined and clickable
+        setRoomRetentionPeriod(RoomRetentionKt.DEFAULT_RETENTION_VALUE_IN_DAYS);
+        roomMessageRetentionText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new RoomRetentionPeriodPickerDialogFragment(TchapRoomCreationActivity.this)
+                        .create(mRetentionPeriod, (number) -> {setRoomRetentionPeriod(number); return null;})
+                        .show();
+
+            }
+        });
+
+        if (!ENABLE_ROOM_RETENTION) {
+            roomMessageRetentionText.setVisibility(View.GONE);
+        }
 
         // Initialize default room params as private and restricted
         externalAccessRoomSwitch.setChecked(false);
@@ -155,7 +174,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
         // Prepare disable federation label by adding the hs display name of the current user.
         String userHSDomain = DinsicUtils.getHomeServerDisplayNameFromMXIdentifier(mSession.getMyUserId());
-        disableFederationText.setText(getString(R.string.tchap_room_creation_disable_federation, userHSDomain));
+        disableFederationSwitch.setText(getString(R.string.tchap_room_creation_disable_federation, userHSDomain));
 
         // Set the right border color on avatar
         hexagonMaskView.setBorderSettings(ContextCompat.getColor(this, R.color.restricted_room_avatar_border_color), 3);
@@ -250,7 +269,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
             mRoomParams.preset = CreateRoomParams.PRESET_PUBLIC_CHAT;
             mRoomParams.setHistoryVisibility(RoomState.HISTORY_VISIBILITY_WORLD_READABLE);
             Log.d(LOG_TAG, "## public");
-            federationOption.setVisibility(View.VISIBLE);
+            disableFederationSwitch.setVisibility(View.VISIBLE);
             // Disable room external access option
             updateRoomExternalAccessOption(false);
 
@@ -263,7 +282,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
             Log.d(LOG_TAG, "## private");
             // Remove potential change related to the federation
             disableFederationSwitch.setChecked(false);
-            federationOption.setVisibility(View.GONE);
+            disableFederationSwitch.setVisibility(View.GONE);
             mRoomParams.creation_content = null;
             // Enable the room access option
             updateRoomExternalAccessOption(true);
@@ -345,6 +364,52 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     }
 
     /**
+     * Force the room retention period in the room creation parameters.
+     *
+     * @param periodInDays the retention period in days.
+     */
+    private void setRoomRetentionPeriod(int periodInDays) {
+        // Remove the existing value if any.
+        if (mRoomParams.initialStates != null && !mRoomParams.initialStates.isEmpty()) {
+            final List<Event> newInitialStates = new ArrayList<>();
+            for (Event event : mRoomParams.initialStates) {
+                if (!event.type.equals(RoomRetentionKt.EVENT_TYPE_STATE_ROOM_RETENTION)) {
+                    newInitialStates.add(event);
+                }
+            }
+            mRoomParams.initialStates = newInitialStates;
+        }
+
+        Event roomRetentionEvent = new Event();
+        roomRetentionEvent.type = RoomRetentionKt.EVENT_TYPE_STATE_ROOM_RETENTION;
+
+        Map<String, Object> contentMap = new HashMap<>();
+        contentMap.put(RoomRetentionKt.STATE_EVENT_CONTENT_MAX_LIFETIME, DinumUtilsKt.convertDaysToMs(periodInDays));
+        contentMap.put(RoomRetentionKt.STATE_EVENT_CONTENT_EXPIRE_ON_CLIENTS, true);
+        roomRetentionEvent.updateContent(JsonUtils.getGson(false).toJsonTree(contentMap));
+        roomRetentionEvent.stateKey = "";
+
+        if (null == mRoomParams.initialStates) {
+            mRoomParams.initialStates = Arrays.asList(roomRetentionEvent);
+        } else {
+            mRoomParams.initialStates.add(roomRetentionEvent);
+        }
+
+        // Update room retention text label
+        SpannableString ss = new SpannableString(getResources().getQuantityString(R.plurals.tchap_room_creation_retention,
+                periodInDays, periodInDays));
+        String valueString = String.valueOf(periodInDays);
+        int pos = ss.toString().indexOf(valueString);
+
+        if (pos >= 0) {
+            ss.setSpan(new UnderlineSpan(), pos, ss.length(), 0);
+        }
+
+        roomMessageRetentionText.setText(ss);
+        mRetentionPeriod = periodInDays;
+    }
+
+    /**
      * Force the room access rule in the room creation parameters.
      *
      * @param roomAccessRule the expected room access rule, set null to remove any existing value.
@@ -355,7 +420,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         if (mRoomParams.initialStates != null && !mRoomParams.initialStates.isEmpty()) {
             final List<Event> newInitialStates = new ArrayList<>();
             for (Event event : mRoomParams.initialStates) {
-                if (!event.type.equals(RoomAccessRulesKt.STATE_EVENT_TYPE)) {
+                if (!event.type.equals(RoomAccessRulesKt.EVENT_TYPE_STATE_ROOM_ACCESS_RULES)) {
                     newInitialStates.add(event);
                 }
             }
@@ -364,7 +429,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
         if (!TextUtils.isEmpty(roomAccessRule)) {
             Event roomAccessRulesEvent = new Event();
-            roomAccessRulesEvent.type = RoomAccessRulesKt.STATE_EVENT_TYPE;
+            roomAccessRulesEvent.type = RoomAccessRulesKt.EVENT_TYPE_STATE_ROOM_ACCESS_RULES;
 
             Map<String, String> contentMap = new HashMap<>();
             contentMap.put(RoomAccessRulesKt.STATE_EVENT_CONTENT_KEY_RULE, roomAccessRule);
@@ -382,9 +447,9 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     private void updateRoomExternalAccessOption(boolean enable) {
         externalAccessRoomSwitch.setEnabled(enable);
         if (enable) {
-            externalAccessRoomText.setTextColor(ContextCompat.getColor(this, R.color.vector_tchap_text_color_dark));
+            externalAccessRoomSwitch.setTextColor(ContextCompat.getColor(this, R.color.vector_tchap_text_color_dark));
         } else {
-            externalAccessRoomText.setTextColor(ContextCompat.getColor(this, R.color.vector_tchap_text_color_light_grey));
+            externalAccessRoomSwitch.setTextColor(ContextCompat.getColor(this, R.color.vector_tchap_text_color_light_grey));
             // Remove any pending change
             externalAccessRoomSwitch.setChecked(false);
         }

@@ -77,7 +77,10 @@ import java.util.Comparator;
 import java.util.List;
 
 import fr.gouv.tchap.sdk.session.room.model.RoomAccessRulesKt;
+import fr.gouv.tchap.sdk.session.room.model.RoomRetentionKt;
 import fr.gouv.tchap.util.DinsicUtils;
+import fr.gouv.tchap.util.DinumUtilsKt;
+import fr.gouv.tchap.util.RoomRetentionPeriodPickerDialogFragment;
 import im.vector.activity.SelectPictureActivity;
 import im.vector.Matrix;
 import im.vector.R;
@@ -92,6 +95,8 @@ import im.vector.util.RoomUtils;
 import im.vector.util.SystemUtilsKt;
 import im.vector.util.VectorUtils;
 import fr.gouv.tchap.preference.TchapRoomAvatarPreference;
+
+import static fr.gouv.tchap.config.TargetConfigurationKt.ENABLE_ROOM_RETENTION;
 
 public class VectorRoomSettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
     // internal constants values
@@ -121,6 +126,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
     private static final String PREF_KEY_ROOM_LEAVE = "roomLeave";
     private static final String PREF_KEY_REMOVE_FROM_ROOMS_DIRECTORY = "removeFromRoomsDirectory";
     private static final String PREF_KEY_ROOM_ACCESS_RULE = "roomAccessRule";
+    private static final String PREF_KEY_ROOM_RETENTION = "roomRetention";
     private static final String PREF_KEY_ROOM_INTERNAL_ID = "roomInternalId";
     private static final String PREF_KEY_ADDRESSES = "addresses";
     private static final String PREF_KEY_ADVANCED = "advanced";
@@ -166,6 +172,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
     private EditTextPreference mRoomNameEditTxt;
     private EditTextPreference mRoomTopicEditTxt;
     private Preference mRemoveFromDirectoryPreference;
+    private Preference mRoomRetentionPreference;
     private Preference mRoomAccessRulePreference;
     private CheckBoxPreference mRoomDirectoryVisibilitySwitch;
     private ListPreference mRoomTagListPreference;
@@ -300,11 +307,12 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
                             || Event.EVENT_TYPE_STATE_HISTORY_VISIBILITY.equals(eventType)
                             || Event.EVENT_TYPE_STATE_ROOM_JOIN_RULES.equals(eventType)    // room access rules
                             || Event.EVENT_TYPE_STATE_ROOM_GUEST_ACCESS.equals(eventType)  // room access rules
-                            || RoomAccessRulesKt.STATE_EVENT_TYPE.equals(eventType)) {
+                            || RoomAccessRulesKt.EVENT_TYPE_STATE_ROOM_ACCESS_RULES.equals(eventType)
+                            || RoomRetentionKt.EVENT_TYPE_STATE_ROOM_RETENTION.equals(eventType)) {
                         Log.d(LOG_TAG, "## onLiveEvent() event = " + eventType);
                         updateUi();
 
-                        if (RoomAccessRulesKt.STATE_EVENT_TYPE.equals(eventType)
+                        if (RoomAccessRulesKt.EVENT_TYPE_STATE_ROOM_ACCESS_RULES.equals(eventType)
                                 && getActivity() instanceof VectorRoomDetailsActivity) {
                             // Refresh the avatar border color
                             ((VectorRoomDetailsActivity) getActivity()).refreshAvatar();
@@ -516,6 +524,9 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
             });
         }
 
+        // Display the room retention period
+        mRoomRetentionPreference = findPreference(PREF_KEY_ROOM_RETENTION);
+
         // Handle the room access rules
         mRoomAccessRulePreference = findPreference(PREF_KEY_ROOM_ACCESS_RULE);
 
@@ -608,6 +619,12 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
 
         // The room will become unrestricted
         DinsicUtils.setRoomAccessRule(mSession, mRoom, RoomAccessRulesKt.UNRESTRICTED, mUpdateCallback);
+    }
+
+    private void setRetentionPeriod(int period) {
+        displayLoadingView();
+
+        DinumUtilsKt.setRoomRetention(mSession, mRoom, period, mUpdateCallback);
     }
 
     @Override
@@ -909,6 +926,40 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
             } else {
                 mRoomAccessRulePreference.setTitle(getString(R.string.tchap_room_settings_room_access_title));
                 mRoomAccessRulePreference.setSummary(getString(R.string.tchap_room_settings_room_access_unrestricted));
+            }
+        }
+
+        if (null != mRoomRetentionPreference) {
+            if (ENABLE_ROOM_RETENTION) {
+                // Get the current room retention
+                mRoomRetentionPreference.setOnPreferenceClickListener(null);
+                mRoomRetentionPreference.setEnabled(true);
+
+                int period = DinumUtilsKt.getRoomRetention(mRoom);
+
+                // Only the room admin is able to change this value
+                if (isAdmin && isConnected) {
+                    mRoomRetentionPreference.setTitle(getString(R.string.tchap_room_settings_retention_title));
+                    mRoomRetentionPreference.setSummary(getResources().getQuantityString(R.plurals.tchap_room_settings_retention_summary,
+                            period, period));
+                    mRoomRetentionPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                        @Override
+                        public boolean onPreferenceClick(Preference preference) {
+                            new RoomRetentionPeriodPickerDialogFragment(getActivity())
+                                    .create(period, ((number) -> {setRetentionPeriod(number); return null;}))
+                                    .show();
+                            return true;
+                        }
+                    });
+                } else {
+                    mRoomRetentionPreference.setTitle(getResources().getQuantityString(R.plurals.tchap_room_settings_retention,
+                            period, period));
+                }
+            } else {
+                // Remove this option
+                PreferenceScreen preferenceScreen = getPreferenceScreen();
+                preferenceScreen.removePreference(mRoomRetentionPreference);
+                mRoomRetentionPreference = null;
             }
         }
 

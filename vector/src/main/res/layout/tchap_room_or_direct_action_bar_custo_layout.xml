@@ -45,7 +45,7 @@
             android:layout_below="@+id/room_action_bar_title"/>
 
         <TextView
-            android:id="@+id/room_action_bar_access_info"
+            android:id="@+id/room_action_bar_room_info"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:maxLines="1"
@@ -54,7 +54,6 @@
             android:textSize="10sp"
             android:text="@string/tchap_room_access_unrestricted"
             android:textStyle="italic"
-            android:visibility="gone"
             tools:visibility="visible"
             android:layout_below="@+id/room_action_bar_topic"/>
 
