@@ -1,3 +1,13 @@
+Changes in Tchap 1.0.34 (2019-12-17)
+===================================================
+
+Improvement:
+ * Configure per-room retention period for messages #524
+ * Update wording on limit exceeded error #557
+ 
+Bug Fix:
+ * App crashes during `computeDisplayNameFromUserId` #560
+
 Changes in Tchap 1.0.33 (2019-11-25)
 ===================================================
 
