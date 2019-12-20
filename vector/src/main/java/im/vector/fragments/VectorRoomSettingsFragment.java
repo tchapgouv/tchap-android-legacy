@@ -529,6 +529,12 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
 
         // Handle the room access rules
         mRoomAccessRulePreference = findPreference(PREF_KEY_ROOM_ACCESS_RULE);
+        if (null != mRoomAccessRulePreference && DinumUtilsKt.isSecure()) {
+            // remove this option in Tchap-secure
+            PreferenceScreen preferenceScreen = getPreferenceScreen();
+            preferenceScreen.removePreference(mRoomAccessRulePreference);
+            mRoomAccessRulePreference = null;
+        }
 
         // init the room avatar: session and room
         mRoomPhotoAvatar.setConfiguration(mSession, mRoom);
