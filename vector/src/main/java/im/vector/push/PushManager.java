@@ -1218,10 +1218,10 @@ public final class PushManager {
      * @return the delay between two syncs in ms.
      */
     public int getBackgroundSyncDelay() {
-        // on fdroid version, the default sync delay is about 1 minutes
+        // on fdroid version, the default sync delay is about 2 minutes
         // set a large value because many users don't know it can be defined from the settings page
         if ((null == mRegistrationToken) && (null == getStoredRegistrationToken()) && !getPushSharedPreferences().contains(PREFS_SYNC_DELAY)) {
-            return 60000;
+            return 120000;
         } else {
             int currentValue = 0;
             MXSession session = Matrix.getInstance(mContext).getDefaultSession();
@@ -1240,7 +1240,8 @@ public final class PushManager {
     public void setBackgroundSyncDelay(int syncDelay) {
         // 0 means wait to have a push
         if (null == mRegistrationToken) {
-            syncDelay = Math.max(syncDelay, 1000);
+            // Force a minimum value: 10 sec
+            syncDelay = Math.max(syncDelay, 10000);
         }
 
         getPushSharedPreferences()

@@ -240,12 +240,6 @@
 
         <EditTextPreference
             android:focusable="true"
-            android:key="SETTINGS_SET_SYNC_TIMEOUT_PREFERENCE_KEY"
-            android:numeric="integer"
-            android:title="@string/settings_set_sync_timeout" />
-
-        <EditTextPreference
-            android:focusable="true"
             android:key="SETTINGS_SET_SYNC_DELAY_PREFERENCE_KEY"
             android:numeric="integer"
             android:title="@string/settings_set_sync_delay" />
