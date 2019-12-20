@@ -225,7 +225,6 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
             }
         });
 
-     //   Drawable myDrawable = ContextCompat.getDrawable(VectorApp.getInstance().getResources(), R.drawable.room_background,null);
         Drawable myDrawable = VectorApp.getInstance().getResources().getDrawable(R.drawable.room_background,null);
         v.setBackground(myDrawable);
         return v;
