@@ -404,7 +404,7 @@
             android:layout_above="@id/room_reply_separator"
             android:minHeight="42dp"
             android:paddingBottom="8dp"
-            android:paddingTop="8dp"
+            android:paddingTop="0dp"
             android:visibility="invisible"
             tools:background="@color/vector_fuchsia_color"
             tools:visibility="visible" />
@@ -413,6 +413,8 @@
             android:id="@+id/anchor_fragment_messages"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_centerHorizontal="true"
+            android:background="@color/riot_primary_background_color_black"
             android:layout_above="@id/room_notification_separator" />
 
         <View

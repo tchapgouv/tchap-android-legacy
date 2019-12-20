@@ -5,10 +5,15 @@
     android:layout_height="wrap_content"
     android:layout_above="@id/bottom_separator"
     android:minHeight="42dp"
-    android:paddingTop="8dp"
+    android:paddingTop="0dp"
     android:paddingBottom="8dp"
     tools:background="@color/vector_fuchsia_color"
     tools:parentTag="android.widget.RelativeLayout">
+    <View
+        android:id="@+id/room_reply_separator"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+         android:background="?attr/room_header_divider_color" />
 
     <ImageView
         android:id="@+id/room_notification_icon"

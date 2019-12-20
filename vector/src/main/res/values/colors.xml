@@ -35,6 +35,7 @@
     <color name="tchap_gray_86">#FF868686</color>
     <color name="tchap_navigation_menu_text_color">#9b9b9b</color>
     <color name="tchap_presence_status_color">#60ad0d</color>
+    <color name="tchap_philact_me_color">#374c72</color>
     <color name="tchap_dark_red">#FF7f0d15</color>
 
     <!-- home activity tab bar color -->

@@ -492,12 +492,26 @@ class VectorMessagesAdapterHelper {
      * @param convertView  the base view
      * @param row          the message row
      * @param isMergedView true if the cell is merged
+     * @param isItMe true if the user is the sender
      * @return the avatar layout
      */
-    View setSenderAvatar(View convertView, MessageRow row, boolean isMergedView) {
+    View setSenderAvatar(View convertView, MessageRow row, boolean isMergedView, boolean isItMe) {
         Event event = row.getEvent();
         ImageView avatarView = convertView.findViewById(R.id.messagesAdapter_avatar);
+        View leftPhilactView = convertView.findViewById(R.id.messagesAdapter_left_philact);
+        View rightPhilactView = convertView.findViewById(R.id.messagesAdapter_right_philact);
 
+        View myPhilactView = (isItMe?rightPhilactView:leftPhilactView);
+        if (isItMe){
+            if (rightPhilactView != null)
+                rightPhilactView.setVisibility(View.VISIBLE);
+            if (leftPhilactView != null)
+                leftPhilactView.setVisibility(View.GONE);
+        }
+        else {
+            if (rightPhilactView != null) rightPhilactView.setVisibility(View.GONE);
+            if (leftPhilactView != null) leftPhilactView.setVisibility(View.VISIBLE);
+        }
         if (null != avatarView) {
             final String userId = event.getSender();
 
@@ -519,8 +533,15 @@ class VectorMessagesAdapterHelper {
             });
         }
 
+        if (null != myPhilactView) {
+            if (isMergedView ) {
+                myPhilactView.setVisibility(View.INVISIBLE);
+            } else {
+                myPhilactView.setVisibility(View.VISIBLE);
+            }
+        }
         if (null != avatarView) {
-            if (isMergedView) {
+            if (isMergedView || isItMe) {
                 avatarView.setVisibility(View.INVISIBLE);
             } else {
                 avatarView.setVisibility(View.VISIBLE);

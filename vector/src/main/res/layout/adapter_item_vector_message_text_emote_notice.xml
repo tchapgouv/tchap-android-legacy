@@ -10,14 +10,14 @@
         android:visibility="gone"
         tools:visibility="visible" />
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/messagesAdapter_body_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginRight="0dp"
         android:orientation="horizontal">
 
         <im.vector.view.VectorCircularImageView
@@ -35,15 +35,23 @@
             android:layout_height="match_parent"
             android:layout_marginStart="5dp"
             android:layout_marginLeft="5dp"
+            android:layout_marginTop="18dp"
             android:layout_marginEnd="5dp"
             android:layout_marginRight="5dp"
+            android:layout_toEndOf="@id/messagesAdapter_avatar"
+            android:layout_toRightOf="@id/messagesAdapter_avatar"
             tools:background="?attr/colorAccent" />
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:id="@+id/messageAdapter_heart"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_weight="1"
+            android:layout_marginRight="30dp"
+            android:layout_marginBottom="2dp"
+            android:layout_toEndOf="@id/messagesAdapter_left_philact"
+            android:layout_toRightOf="@id/messagesAdapter_left_philact"
+            android:background="@drawable/round_rectangle"
             android:orientation="vertical"
             android:paddingBottom="5dp">
 
@@ -67,6 +75,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentRight="true"
+                    android:layout_marginRight="5dp"
                     android:orientation="horizontal">
 
                     <include layout="@layout/vector_message_timestamp" />
@@ -85,6 +94,7 @@
                     android:id="@+id/messagesAdapter_text_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="2dp"
                     android:layout_gravity="start">
 
                     <ImageView
@@ -124,7 +134,26 @@
 
         </LinearLayout>
 
-    </LinearLayout>
+
+        <ImageView
+            android:id="@+id/messagesAdapter_left_philact"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginLeft="-25dp"
+            android:layout_marginRight="-5dp"
+            android:layout_toRightOf="@id/messagesAdapter_highlight_message_marker"
+            android:src="@drawable/left_phylact" />
+
+        <ImageView
+            android:id="@+id/messagesAdapter_right_philact"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginLeft="-15dp"
+            android:layout_marginRight="-25dp"
+            android:layout_toRightOf="@id/messageAdapter_heart"
+            android:src="@drawable/right_phylact"
+            android:visibility="visible" />
+    </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/messagesAdapter_urls_preview_list"
