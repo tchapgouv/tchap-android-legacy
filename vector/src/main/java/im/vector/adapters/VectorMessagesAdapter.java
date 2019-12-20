@@ -38,6 +38,7 @@ import android.text.style.BackgroundColorSpan;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -50,6 +51,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -1180,12 +1182,86 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             tsTextView.setVisibility((((position + 1) == getCount()) || mIsSearchMode || mAlwaysShowTimeStamps) ? View.VISIBLE : View.GONE);
         }
 
+        String myId = mSession.getMyUserId();
+        String theId = row.getEvent().getSender();
+        boolean isItMe = myId.equals(theId);
         // Sender avatar
-        View avatarView = mHelper.setSenderAvatar(convertView, row, isMergedView);
+        View avatarView = mHelper.setSenderAvatar(convertView, row, isMergedView, isItMe);
 
         View bodyLayoutView = convertView.findViewById(R.id.messagesAdapter_body_layout);
+        View heartView = convertView.findViewById(R.id.messageAdapter_heart);
+        TextView msgSender = convertView.findViewById(R.id.messagesAdapter_sender);
+        TextView msgTimestamp = convertView.findViewById(R.id.messagesAdapter_timestamp);
+
+        TextView bodyTextView = convertView.findViewById(R.id.messagesAdapter_body);
+        TextView filenameTextView = convertView.findViewById(R.id.messagesAdapter_filename);
+        TextView e2eTextView = convertView.findViewById(R.id.messagesAdapter_re_request_e2e_key);
+        ImageView e2eIconView = convertView.findViewById(R.id.message_adapter_e2e_icon);
+
+
+        if (e2eIconView != null) {
+            if (isItMe)
+                e2eIconView.setImageDrawable(ThemeUtils.INSTANCE.tintDrawableWithColor(e2eIconView.getDrawable(), Color.WHITE));
+            else
+                e2eIconView.setImageDrawable(ThemeUtils.INSTANCE.tintDrawable(getContext(), e2eIconView.getDrawable(),R.attr.colorPrimary));// R.attr.vctr_settings_icon_tint_color));
+        }
+        if (bodyTextView != null) {
+            if (isItMe)
+                bodyTextView.setTextColor(Color.WHITE);
+            else
+                bodyTextView.setTextColor(ThemeUtils.INSTANCE.getColor(mContext, R.attr.colorPrimary));
+        }
+        if (filenameTextView != null) {
+            if (isItMe)
+                filenameTextView.setTextColor(Color.WHITE);
+            else
+                filenameTextView.setTextColor(ThemeUtils.INSTANCE.getColor(mContext, R.attr.colorPrimary));
+        }
+        if (e2eTextView != null) {
+            if (isItMe)
+                e2eTextView.setTextColor(Color.WHITE);
+            else
+                e2eTextView.setTextColor(ThemeUtils.INSTANCE.getColor(mContext, R.attr.colorPrimary));
+        }
+        if (msgSender != null) {
+            if (isItMe)
+                msgSender.setVisibility(View.INVISIBLE);
+            else
+                msgSender.setVisibility(View.VISIBLE);
+        }
+
+        if (msgTimestamp != null) {
+            if (isItMe)
+                msgTimestamp.setTextColor(Color.WHITE);
+            else
+                msgTimestamp.setTextColor(ThemeUtils.INSTANCE.getColor(mContext, R.attr.colorPrimary));
+        }
+
+        if (heartView != null) {
+            int rightInDP = 30;
+            int leftInDP = 0;
+            if (isItMe) {
+                rightInDP = 8;
+                leftInDP = 20;
+                heartView.setBackground(VectorApp.getInstance().getResources().getDrawable(R.drawable.colored_round_rectangle, null));
+                //heartView.setLayoutParams(parameter);
+                //heartView.setRight(0);
+            } else {
+                heartView.setBackground(VectorApp.getInstance().getResources().getDrawable(R.drawable.round_rectangle, null));
+
+            }
+            int rightMargin = (int) TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP, rightInDP, mContext.getResources()
+                            .getDisplayMetrics());
+            int leftMargin = (int) TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP, leftInDP, mContext.getResources()
+                            .getDisplayMetrics());
+            RelativeLayout.LayoutParams parameter = (RelativeLayout.LayoutParams) heartView.getLayoutParams();
+            parameter.setMargins(leftMargin, parameter.topMargin, rightMargin, parameter.bottomMargin); // left, top, right, bottom
+        }
 
         // messages separator
+
         View messageSeparatorView = convertView.findViewById(R.id.messagesAdapter_message_separator);
 
         if (null != messageSeparatorView) {
@@ -2262,12 +2338,16 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
 
             MessageRow row = getItem(position);
             final Event event = row.getEvent();
+            String myId = mSession.getMyUserId();
+            String theId = row.getEvent().getSender();
+            boolean isItMe = myId.equals(theId);
 
             if (mE2eIconByEventId.containsKey(event.eventId)) {
                 if (null != senderMargin) {
                     senderMargin.setVisibility(senderNameView.getVisibility());
                 }
-                e2eIconView.setVisibility(View.VISIBLE);
+                e2eIconView.setVisibility(View.INVISIBLE);
+/*                e2eIconView.setVisibility(View.VISIBLE);
 
                 Object icon = mE2eIconByEventId.get(event.eventId);
 
@@ -2276,10 +2356,13 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                 } else {
                     e2eIconView.setImageResource((int) icon);
                     if ((int) icon == R.drawable.e2e_verified) {
-                        e2eIconView.setImageDrawable(ThemeUtils.INSTANCE.tintDrawable(getContext(), e2eIconView.getDrawable(), R.attr.padlock_icon_tint_color));
+                        if (isItMe)
+                            e2eIconView.setImageDrawable(ThemeUtils.INSTANCE.tintDrawableWithColor(e2eIconView.getDrawable(), Color.WHITE));
+                        else
+                            e2eIconView.setImageDrawable(ThemeUtils.INSTANCE.tintDrawable(getContext(), e2eIconView.getDrawable(),R.attr.colorPrimary));
                     }
                 }
-
+*/
                 int type = getItemViewType(position);
 
                 if ((type == ROW_TYPE_IMAGE) || (type == ROW_TYPE_VIDEO) || (type == ROW_TYPE_STICKER)) {
