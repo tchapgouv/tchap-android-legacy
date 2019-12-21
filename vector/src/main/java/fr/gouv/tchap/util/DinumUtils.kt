@@ -17,6 +17,7 @@
 package fr.gouv.tchap.util
 
 import fr.gouv.tchap.sdk.session.room.model.*
+import im.vector.BuildConfig
 import org.matrix.androidsdk.MXSession
 import org.matrix.androidsdk.core.Log
 import org.matrix.androidsdk.core.callback.ApiCallback
@@ -26,6 +27,14 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 private val LOG_TAG = "DinumUtils"
+
+//=============================================================================================
+// Target
+//=============================================================================================
+
+fun isSecure(): Boolean {
+    return BuildConfig.FLAVOR_target == "protecteed"
+}
 
 //=============================================================================================
 // Room messages retention

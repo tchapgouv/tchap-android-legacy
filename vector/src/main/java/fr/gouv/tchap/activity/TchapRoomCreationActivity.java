@@ -160,6 +160,10 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
         // Initialize default room params as private and restricted
         externalAccessRoomSwitch.setChecked(false);
+        if (DinumUtilsKt.isSecure()) {
+            // There is no external users on Tchap secure, so hide this option
+            externalAccessRoomSwitch.setVisibility(View.GONE);
+        }
         setRoomAccessRule(RoomAccessRulesKt.RESTRICTED);
         publicPrivateRoomSwitch.setChecked(false);
         mRoomParams.visibility = RoomDirectoryVisibility.DIRECTORY_VISIBILITY_PRIVATE;

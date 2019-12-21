@@ -2,8 +2,10 @@ Changes in Tchap 1.0.34 (2019-12-17)
 ===================================================
 
 Improvement:
- * Configure per-room retention period for messages #524
+ * Configure per-room retention period for messages #524 - Enabled only on Pre-prod.
  * Update wording on limit exceeded error #557
+ * Adjust F-Droid parameters #565
+ * Clean the Tchap-secure application #564
  
 Bug Fix:
  * App crashes during `computeDisplayNameFromUserId` #560
