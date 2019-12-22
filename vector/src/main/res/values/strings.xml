@@ -1223,6 +1223,11 @@
     <string name="tchap_action_next">Next</string>
     <string name="tchap_room_creation_avatar">Add\nan avatar</string>
     <string name="tchap_room_creation_name">Name this room</string>
+    <string name="tchap_room_creation_retention">Set the room history retention (in days)</string>
+    <plurals name="tchap_room_creation_retention">
+        <item quantity="one">The room history is limited to %d day</item>
+        <item quantity="other">The room history is limited to %d days</item>
+    </plurals>
     <string name="tchap_room_creation_unrestricted">Allow the externals to join this room</string>
     <string name="tchap_room_creation_public">Make this room public</string>
     <string name="tchap_room_creation_disable_federation">Limit the access to this room to the members of the domain \"%s\"</string>
@@ -1261,6 +1266,10 @@
 
     <!-- tchap room -->
     <string name="tchap_room_access_unrestricted">Room accessible to external users</string>
+    <plurals name="tchap_room_retention_info">
+        <item quantity="one">History limited to %d day</item>
+        <item quantity="other">History limited to %d days</item>
+    </plurals>
 
     <!-- tchap scan media -->
     <string name="tchap_scan_media_unavailable">Scan Unavailable</string>
@@ -1276,6 +1285,15 @@
     <string name="tchap_room_settings_room_access_unrestricted">The externals are allowed to join this room</string>
     <string name="tchap_room_settings_allow_external_users_to_join">Allow the externals to join this room</string>
     <string name="tchap_room_settings_allow_external_users_to_join_prompt_msg"><b>This action is irreversible.</b>\nAre you sure you want to allow the externals to join this room?</string>
+    <string name="tchap_room_settings_retention_title">Room history</string>
+    <plurals name="tchap_room_settings_retention_summary">
+        <item quantity="one">The history is limited to %d day</item>
+        <item quantity="other">The history is limited to %d days</item>
+    </plurals>
+    <plurals name="tchap_room_settings_retention">
+        <item quantity="one">The room history is limited to %d day</item>
+        <item quantity="other">The room history is limited to %d days</item>
+    </plurals>
 
     <!-- tchap account validity -->
     <string name="tchap_expired_account_msg">The validity period of your account has expired. An email has been sent to you in order to renew it. Once you’ve followed the link it contains, click below.</string>

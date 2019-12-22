@@ -230,19 +230,28 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
         // get last message to be displayed
         if (vRoomLastMessage != null) {
             CharSequence lastMsgToDisplay = RoomUtils.getRoomMessageToDisplay(context, session, roomSummary);
-            vRoomLastMessage.setText(lastMsgToDisplay);
+            if (lastMsgToDisplay != null) {
+                vRoomLastMessage.setText(lastMsgToDisplay);
+                vRoomLastMessage.setVisibility(View.VISIBLE);
 
-            if (notificationCount > 0) {
-                vRoomLastMessage.setTypeface(null, Typeface.BOLD);
-                vRoomLastMessage.setTextColor(ContextCompat.getColor(context, R.color.tchap_primary_text_color));
+                if (notificationCount > 0) {
+                    vRoomLastMessage.setTypeface(null, Typeface.BOLD);
+                    vRoomLastMessage.setTextColor(ContextCompat.getColor(context, R.color.tchap_primary_text_color));
+                } else {
+                    vRoomLastMessage.setTypeface(null, Typeface.NORMAL);
+                    vRoomLastMessage.setTextColor(ContextCompat.getColor(context, R.color.tchap_third_text_color));
+                }
+
+                if (null != vSenderDisplayName) {
+                    // Hide the sender display name if the message starts with his name
+                    if (lastMsgToDisplay.toString().startsWith(vSenderDisplayName.getText().toString())) {
+                        vSenderDisplayName.setVisibility(View.GONE);
+                    }
+                }
             } else {
-                vRoomLastMessage.setTypeface(null, Typeface.NORMAL);
-                vRoomLastMessage.setTextColor(ContextCompat.getColor(context, R.color.tchap_third_text_color));
-            }
-
-            if (null != vSenderDisplayName && lastMsgToDisplay != null) {
-                // Hide the sender display name if the message starts with his name
-                if (lastMsgToDisplay.toString().startsWith(vSenderDisplayName.getText().toString())) {
+                vRoomLastMessage.setVisibility(View.GONE);
+                // Hide the sender display name if the message is empty
+                if (null != vSenderDisplayName) {
                     vSenderDisplayName.setVisibility(View.GONE);
                 }
             }
@@ -252,6 +261,7 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
 
         if (vRoomTimestamp != null) {
             vRoomTimestamp.setText(RoomUtils.getRoomTimestamp(context, roomSummary.getLatestReceivedEvent()));
+            vRoomTimestamp.setVisibility(vRoomLastMessage != null ? vRoomLastMessage.getVisibility() : View.VISIBLE);
         }
 
         if (vRoomMoreActionClickArea != null && vRoomMoreActionAnchor != null) {

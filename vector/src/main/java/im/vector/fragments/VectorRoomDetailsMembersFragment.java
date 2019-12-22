@@ -73,6 +73,7 @@ import java.util.TimerTask;
 import butterknife.BindView;
 import fr.gouv.tchap.sdk.session.room.model.RoomAccessRulesKt;
 import fr.gouv.tchap.util.DinsicUtils;
+import fr.gouv.tchap.util.DinumUtilsKt;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.MXCActionBarActivity;
@@ -905,14 +906,26 @@ public class VectorRoomDetailsMembersFragment extends VectorBaseFragment {
                 intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_ROOM_ID, mRoom.getRoomId());
                 //intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_ADD_CONFIRMATION_DIALOG, true);
 
-                if (DinsicUtils.isFederatedRoom(mRoom)) {
-                    if (TextUtils.equals(DinsicUtils.getRoomAccessRule(mRoom), RoomAccessRulesKt.RESTRICTED)) {
-                        intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.ALL_WITHOUT_EXTERNALS);
+                if (DinumUtilsKt.isSecure()) {
+                    // Invite by email is not allowed in Tchap secure -> Consider only Tchap users.
+                    if (DinsicUtils.isFederatedRoom(mRoom)) {
+                        // All the rooms are restricted by default (or direct), there is no external users in Tchap secure
+                        // -> we use TCHAP_USERS_ONLY instead of TCHAP_USERS_ONLY_WITHOUT_EXTERNALS
+                        // This avoids us from checking whether a user is external or not (which is useless on Tchap secure).
+                        intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_USERS_ONLY);
                     } else {
-                        intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.ALL);
+                        intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_USERS_ONLY_WITHOUT_FEDERATION);
                     }
                 } else {
-                    intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.ALL_WITHOUT_FEDERATION);
+                    if (DinsicUtils.isFederatedRoom(mRoom)) {
+                        if (TextUtils.equals(DinsicUtils.getRoomAccessRule(mRoom), RoomAccessRulesKt.RESTRICTED)) {
+                            intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.ALL_WITHOUT_EXTERNALS);
+                        } else {
+                            intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.ALL);
+                        }
+                    } else {
+                        intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.ALL_WITHOUT_FEDERATION);
+                    }
                 }
 
                 getActivity().startActivityForResult(intent, INVITE_USER_REQUEST_CODE);

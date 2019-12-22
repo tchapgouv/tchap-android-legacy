@@ -49,6 +49,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import butterknife.BindView;
+import fr.gouv.tchap.util.DinumUtilsKt;
 import im.vector.R;
 import im.vector.activity.VectorAppCompatActivity;
 import im.vector.activity.VectorRoomInviteMembersActivity;
@@ -147,8 +148,8 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
             startRemoteKnownContactsSearch(true);
         }
 
-        // Hide Invite by email button for external users
-        if (DinsicUtils.isExternalTchapSession(mSession)) {
+        // Hide Invite by email button for Tchap-secure, and for external users on Tchap-agent
+        if (DinumUtilsKt.isSecure() || DinsicUtils.isExternalTchapSession(mSession)) {
             mInviteContactLayout.setVisibility(View.GONE);
         } else {
             mInviteContactLayout.setOnClickListener(new View.OnClickListener() {
