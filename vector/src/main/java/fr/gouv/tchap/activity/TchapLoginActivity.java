@@ -2024,10 +2024,10 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                         mCurrentDialog.dismiss();
                     }
                     mCurrentDialog = new AlertDialog.Builder(TchapLoginActivity.this)
-                            .setTitle(R.string.dialog_title_warning)
+                            .setTitle(R.string.tchap_register_warning_for_external_title)
                             .setCancelable(false)
                             .setMessage(R.string.tchap_register_warning_for_external)
-                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            .setPositiveButton(R.string.tchap_register_warning_for_external_proceed, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     // Check password validity to pursue registration
