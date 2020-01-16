@@ -11,13 +11,11 @@
 
     <string-array name="identity_server_names" translatable="false">
         <item>e.tchap.gouv.fr</item>
-        <item>i.tchap.gouv.fr</item>
     </string-array>
 
     <!-- Default list of federated server names -->
     <string-array name="room_directory_servers" translatable="false">
         <item>a.tchap.gouv.fr</item>
-        <item>i.tchap.gouv.fr</item>
     </string-array>
 
     <!-- Bug report config -->
