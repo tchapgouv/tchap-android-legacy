@@ -111,7 +111,7 @@ private fun clearExpiredRoomContentsFromStore(store: IMXStore, room: Room): Bool
             .orEmpty()
             .firstOrNull { event ->
                 when {
-                    event.stateKey == null                   ->
+                    event.stateKey != null                   ->
                         // Ignore state event
                         false
                     event.getOriginServerTs() < limitEventTs -> {
