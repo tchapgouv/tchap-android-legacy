@@ -1569,7 +1569,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
         AlertDialog.Builder(activity)
                 .setTitle(R.string.dialog_title_confirmation)
                 .setMessage(dialogMessage)
-                .setPositiveButton(R.string.remove) { _, _ ->
+                .setPositiveButton(R.string.delete) { _, _ ->
                     displayLoadingView()
 
                     mSession.myUser.delete3Pid(pid, object : ApiCallback<Void> {
@@ -1714,7 +1714,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                             AlertDialog.Builder(activity)
                                     .setTitle(R.string.dialog_title_confirmation)
                                     .setMessage(R.string.settings_delete_notification_targets_confirmation)
-                                    .setPositiveButton(R.string.remove) { _, _ ->
+                                    .setPositiveButton(R.string.delete) { _, _ ->
                                         displayLoadingView()
                                         pushManager.unregister(mSession, pusher, object : ApiCallback<Void> {
                                             override fun onSuccess(info: Void?) {
