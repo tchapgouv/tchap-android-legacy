@@ -190,7 +190,7 @@ Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="no">NON</string>
     <string name="_continue">Continuer</string>
 
-    <string name="remove">Supprimer</string>
+    <string name="remove">Retirer</string>
     <string name="join">Rejoindre</string>
     <string name="preview">Aperçu</string>
     <string name="reject">Rejeter</string>
@@ -553,7 +553,7 @@ Les appareils ne pourront pas encore déchiffrer l\'historique de messages d\'av
 Les messages chiffrés ne seront pas visibles sur les clients qui n\'ont pas encore implémenté le chiffrement.</string>
 
     <string name="room_participants_leave_prompt_msg">Voulez-vous vraiment quitter cette conversation ?</string>
-    <string name="room_participants_remove_prompt_msg">Voulez-vous vraiment exclure %s de cette conversation ?</string>
+    <string name="room_participants_remove_prompt_msg">Voulez-vous vraiment retirer %s de cette conversation ?</string>
     <string name="room_participants_remove_3pid_invite_prompt_msg">Voulez-vous vraiment retirer cette invitation ?</string>
     <string name="room_participants_idle">Inactif</string>
     <string name="room_participants_action_ignore">Masquer tous les messages de cet utilisateur</string>
