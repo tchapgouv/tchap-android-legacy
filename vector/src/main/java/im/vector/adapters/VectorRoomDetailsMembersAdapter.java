@@ -53,6 +53,7 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import androidx.core.content.ContextCompat;
 import fr.gouv.tchap.sdk.rest.client.TchapUserInfoRestClient;
 import fr.gouv.tchap.sdk.rest.model.UserStatusInfo;
 import fr.gouv.tchap.util.DinsicUtils;
@@ -445,23 +446,33 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
 
                             if ((null == userIdA) && (null == userIdB)) {
                                 return alphaComparator(userADisplayName, userBDisplayName);
-                            } else if ((null != userIdA) && (null == userIdB)) {
-                                return -1;
-                            } else if ((null == userIdA) && (null != userIdB)) {
-                                return +1;
-                            } else {
-                                int powerLevelA = 0;
-                                int powerLevelB = 0;
+                            }
+                            if ((null != userIdA) && (null == userIdB)) {
+                                return (part1.mIsExpired ? +1 : -1);
+                            }
+                            if ((null == userIdA) && (null != userIdB)) {
+                                return (part2.mIsExpired ? -1 : +1);
+                            }
 
-                                if (null != powerLevels) {
-                                    powerLevelA = powerLevels.getUserPowerLevel(userIdA);
-                                    powerLevelB = powerLevels.getUserPowerLevel(userIdB);
+                            if (part1.mIsExpired) {
+                                if (!part2.mIsExpired) {
+                                    return +1;
                                 }
-                                if (powerLevelA == powerLevelB) {
-                                    return alphaComparator(userADisplayName, userBDisplayName);
-                                } else {
-                                    return (powerLevelB - powerLevelA) > 0 ? +1 : -1;
-                                }
+                            } else if (part2.mIsExpired) {
+                                return -1;
+                            }
+
+                            int powerLevelA = 0;
+                            int powerLevelB = 0;
+
+                            if (null != powerLevels) {
+                                powerLevelA = powerLevels.getUserPowerLevel(userIdA);
+                                powerLevelB = powerLevels.getUserPowerLevel(userIdB);
+                            }
+                            if (powerLevelA == powerLevelB) {
+                                return alphaComparator(userADisplayName, userBDisplayName);
+                            } else {
+                                return (powerLevelB - powerLevelA) > 0 ? +1 : -1;
                             }
                         }
                     };
@@ -725,26 +736,17 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
 
         // 2 - display member name
         String memberName = participant.mDisplayName;
-
-        // detect if the displayname is used several times
-        if (!TextUtils.isEmpty(memberName)) {
-            int pos = mDisplayNamesList.indexOf(memberName);
-
-            if (pos >= 0) {
-                if (pos == mDisplayNamesList.lastIndexOf(memberName)) {
-                    pos = -1;
-                }
-            }
-
-            if ((pos >= 0) && !TextUtils.isEmpty(participant.mUserId)) {
-                memberName += " (" + participant.mUserId + ")";
-            }
-        }
-
         viewHolder.mMemberNameTextView.setPadding(0, 22, 0, 0);
         viewHolder.mMemberDomainTextView.setPadding(0, 30, 0, 0);
         viewHolder.mMemberNameTextView.setText(DinsicUtils.getNameFromDisplayName(memberName));
         viewHolder.mMemberDomainTextView.setText(DinsicUtils.getDomainFromDisplayName(memberName));
+        if (participant.mIsExpired) {
+            viewHolder.mMemberNameTextView.setTextColor(ContextCompat.getColor(mContext, R.color.tchap_secondary_text_color));
+            viewHolder.mMemberDomainTextView.setTextColor(ContextCompat.getColor(mContext, R.color.tchap_secondary_text_color));
+        } else {
+            viewHolder.mMemberNameTextView.setTextColor(ContextCompat.getColor(mContext, R.color.tchap_primary_text_color));
+            viewHolder.mMemberDomainTextView.setTextColor(ContextCompat.getColor(mContext, R.color.vector_tchap_primary_color));
+        }
 
         // 2b admin badge
         viewHolder.mMemberAvatarBadgeImageView.setVisibility(View.GONE);
