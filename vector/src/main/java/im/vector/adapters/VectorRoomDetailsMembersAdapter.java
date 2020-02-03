@@ -32,7 +32,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.matrix.androidsdk.MXDataHandler;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.db.MXMediaCache;
@@ -54,6 +53,8 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import fr.gouv.tchap.sdk.rest.client.TchapUserInfoRestClient;
+import fr.gouv.tchap.sdk.rest.model.UserStatusInfo;
 import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
@@ -310,8 +311,6 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
 
         Thread t = new Thread(new Runnable() {
             public void run() {
-                ParticipantAdapterItem participantItem;
-
                 final boolean isSearchEnabled = isSearchModeEnabled();
                 final List<List<ParticipantAdapterItem>> roomMembersListByGroupPosition = new ArrayList<>();
                 final List<String> displayNamesList = new ArrayList<>();
@@ -361,13 +360,17 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
                 // check that members are here
                 if (errorMessage[0] == null) {
                     final PowerLevels powerLevels = mRoom.getState().getPowerLevels();
+                    TchapUserInfoRestClient userInfoRestClient = new TchapUserInfoRestClient(mSession.getHomeServerConfig());
+                    final CountDownLatch getInfoLatch = new CountDownLatch(activeMembers.size());
 
-                    // search loop to extract the following members: current user, invited, administrator and others
+                    // Prepare the list of joined members, and the list of invited members.
+                    // Retrieve the expiration information for each of them.
                     for (RoomMember member : activeMembers) {
-                        participantItem = new ParticipantAdapterItem(member);
+                        final ParticipantAdapterItem participantItem = new ParticipantAdapterItem(member);
 
-                        // if search is enabled, just skipp the member if pattern does not match
+                        // if search is enabled, just skip the member if pattern does not match
                         if (isSearchEnabled && (!participantItem.contains(mSearchPattern))) {
+                            getInfoLatch.countDown();
                             continue;
                         }
 
@@ -382,11 +385,39 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
                         if (!TextUtils.isEmpty(participantItem.mDisplayName)) {
                             displayNamesList.add(participantItem.mDisplayName);
                         }
+
+                        userInfoRestClient.getUserStatusInfo(member.getUserId(), new ApiCallback<UserStatusInfo>() {
+                            @Override
+                            public void onSuccess(UserStatusInfo userStatusInfo) {
+                                participantItem.mIsExpired = userStatusInfo.expired;
+                                getInfoLatch.countDown();
+                            }
+
+                            @Override
+                            public void onNetworkError(Exception e) {
+                                getInfoLatch.countDown();
+                            }
+
+                            @Override
+                            public void onMatrixError(MatrixError e) {
+                                getInfoLatch.countDown();
+                            }
+
+                            @Override
+                            public void onUnexpectedError(Exception e) {
+                                getInfoLatch.countDown();
+                            }
+                        });
+                    }
+
+                    try {
+                        getInfoLatch.await(30, TimeUnit.SECONDS);
+                    } catch (InterruptedException e) {
+                        Log.e(LOG_TAG, "updateRoomMembersDataModel, getInfoLatch interrupted", e);
                     }
 
                     // add 3rd party invite
                     Collection<RoomThirdPartyInvite> thirdPartyInvites = mRoom.getState().thirdPartyInvites();
-
                     for (RoomThirdPartyInvite invite : thirdPartyInvites) {
                         // If the home server has converted the 3pid invite into a room member, do not show it.
                         // If the invite has been revoked (null display name), ignore it too.
@@ -399,8 +430,6 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
                             }
                         }
                     }
-
-                    final MXDataHandler fDataHandler = mSession.getDataHandler();
 
                     // Comparator to order members alphabetically
                     final Comparator<ParticipantAdapterItem> comparator = new Comparator<ParticipantAdapterItem>() {
@@ -437,28 +466,6 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
                         }
                     };
 
-                    // create "members present in the room" list
-                    try {
-                        Collections.sort(joinedMembersList, comparator);
-                    } catch (Exception e) {
-                        Log.e(LOG_TAG, "## updateRoomMembersDataModel failed while sorting " + e.getMessage(), e);
-
-                        if (TextUtils.equals(fPattern, mSearchPattern)) {
-
-                            // most of the sort exception are triggered with
-                            //  java.lang.IllegalArgumentException: Comparison method violates its general contract!
-                            // it is triggered because the presences are updated while sorting.
-                            uiHandler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    updateRoomMembersDataModel(aSearchListener);
-                                }
-                            });
-                        }
-
-                        return;
-                    }
-
                     uiHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -473,6 +480,7 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
 
                                 // first group: members present in the room
                                 if (0 != joinedMembersList.size()) {
+                                    Collections.sort(joinedMembersList, comparator);
                                     roomMembersListByGroupPosition.add(joinedMembersList);
                                     mGroupIndexJoinedMembers = groupIndex;
                                     groupIndex++;

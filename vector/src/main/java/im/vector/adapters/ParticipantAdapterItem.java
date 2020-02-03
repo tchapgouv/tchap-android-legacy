@@ -61,6 +61,9 @@ public class ParticipantAdapterItem implements java.io.Serializable {
     // true when valid email or valid matrix id
     public boolean mIsValid = true;
 
+    // true when the tchap account has expired
+    public boolean mIsExpired = false;
+
     // the data is extracted either from a room member, a contact or a room third party invite
     public RoomMember mRoomMember;
     public Contact mContact;
