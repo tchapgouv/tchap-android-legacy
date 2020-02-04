@@ -36,7 +36,7 @@ class TchapUserInfoRestClient(hsConfig: HomeServerConnectionConfig) : RestClient
      * @param callback the callback
      */
     fun getUserStatusInfo(userId: String, callback: ApiCallback<UserStatusInfo>) {
-        mApi.getUserStatusinfo(userId)
-                .enqueue(RestAdapterCallback<UserStatusInfo>("getUserInfo", null, callback, null))
+        mApi.getUserStatusInfo(userId)
+                .enqueue(RestAdapterCallback<UserStatusInfo>("getUserStatusInfo", null, callback, null))
     }
 }

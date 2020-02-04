@@ -26,5 +26,5 @@ interface TchapUserInfoApi {
      * Get the expiration and deactivation information about a given user.
      */
     @GET("user/{userId}/info")
-    fun getUserStatusinfo(@Path("userId") variant: String): Call<UserStatusInfo>
+    fun getUserStatusInfo(@Path("userId") userId: String): Call<UserStatusInfo>
 }
