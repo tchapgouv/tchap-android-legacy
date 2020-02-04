@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 New Vector Ltd
+ * Copyright 2020 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package fr.gouv.tchap.sdk.rest.api
 
-package fr.gouv.tchap.config
+import fr.gouv.tchap.sdk.rest.model.UserStatusInfo
+import retrofit2.Call
+import retrofit2.http.GET
+import retrofit2.http.Path
 
+interface TchapUserInfoApi {
 
-object TchapConfiguration {
     /**
-     * White list of the package names for which the "Open PlayStore" button will be displayed
-     * in the [TchapVersionCheckActivity]
-     * If you do not want the PlayStore button to be displayed, just set to an emptyList like this:
-     * val packageWhiteList = emptyList<String>()
+     * Get the expiration and deactivation information about a given user.
      */
-//    val packageWhiteList = listOf(
-//            // Agent variant of the application
-//            "fr.gouv.tchap.a"
-//    )
-    val packageWhiteList = emptyList<String>()
+    @GET("user/{userId}/info")
+    fun getUserStatusinfo(@Path("userId") variant: String): Call<UserStatusInfo>
 }

@@ -23,10 +23,9 @@ import org.matrix.androidsdk.core.Log
 import org.matrix.androidsdk.core.callback.ApiCallback
 import org.matrix.androidsdk.data.Room
 import org.matrix.androidsdk.data.store.IMXStore
-import java.util.*
 import java.util.concurrent.TimeUnit
 
-private val LOG_TAG = "DinumUtils"
+private const val LOG_TAG = "DinumUtils"
 
 //=============================================================================================
 // Target
@@ -48,27 +47,25 @@ fun isSecure(): Boolean {
  */
 fun getRoomRetention(room: Room): Int {
     // Select the latest state event if any
-    return room.state.getStateEvents(HashSet(Arrays.asList(EVENT_TYPE_STATE_ROOM_RETENTION)))
-            .apply {
-                sortBy { it.originServerTs }
-            }
+    return room.state.getStateEvents(setOf(EVENT_TYPE_STATE_ROOM_RETENTION))
+            .apply { sortBy { it.originServerTs } }
             .lastOrNull()
-            ?.let {
-                getMaxLifetime(it)
-            }
-            ?.let { lifetime ->
-                Log.d(LOG_TAG, "## getRoomRetention(): the period " + lifetime + "ms is defined")
-                convertMsToDays(lifetime).coerceIn(1..365)
-            }
+            ?.let { getMaxLifetime(it) }
+            ?.also { Log.d(LOG_TAG, "## getRoomRetention(): the period ${it}ms is defined") }
+            ?.let { lifetime -> convertMsToDays(lifetime).coerceIn(1..365) }
             ?: DEFAULT_RETENTION_VALUE_IN_DAYS
 }
 
 fun setRoomRetention(session: MXSession, room: Room, periodInDays: Int, callback: ApiCallback<Void>) {
-    val content = HashMap<String, Any>()
-    content[STATE_EVENT_CONTENT_MAX_LIFETIME] = convertDaysToMs(periodInDays)
-    content[STATE_EVENT_CONTENT_EXPIRE_ON_CLIENTS] = true
-
-    session.roomsApiClient.sendStateEvent(room.roomId, EVENT_TYPE_STATE_ROOM_RETENTION, "", content, callback)
+    session.roomsApiClient.sendStateEvent(
+            room.roomId,
+            EVENT_TYPE_STATE_ROOM_RETENTION,
+            "",
+            mapOf(
+                    STATE_EVENT_CONTENT_MAX_LIFETIME to convertDaysToMs(periodInDays),
+                    STATE_EVENT_CONTENT_EXPIRE_ON_CLIENTS to true
+            )
+            , callback)
 }
 
 /**
@@ -80,13 +77,11 @@ fun clearSessionExpiredContents(session: MXSession) {
     session.dataHandler.store
             .takeIf { it?.isReady?: false }
             ?.let { store ->
-                val doCommit = store.rooms
+                store.rooms
                         .filter { !it.isInvited }
                         .map { room -> clearExpiredRoomContentsFromStore(store, room) }
                         .any { it }
-                if (doCommit) {
-                    store.commit()
-                }
+                        .let { doCommit -> if (doCommit) store.commit() }
             }
 }
 
@@ -98,36 +93,38 @@ fun clearSessionExpiredContents(session: MXSession) {
  * @return true if the store has been updated.
  */
 fun clearExpiredRoomContents(session: MXSession, room: Room): Boolean {
-    var hasStoreChanged = false
-    session.dataHandler.store
+    return session.dataHandler.store
             .takeIf { it?.isReady?: false }
             ?.let { store ->
-                hasStoreChanged = clearExpiredRoomContentsFromStore(store, room)
-                if (hasStoreChanged) {
-                    store.commit()
-                }
+                clearExpiredRoomContentsFromStore(store, room)
+                        .also { hasStoreChanged -> if (hasStoreChanged) store.commit() }
             }
-    return hasStoreChanged
+            ?: false
 }
 
 private fun clearExpiredRoomContentsFromStore(store: IMXStore, room: Room): Boolean {
     var shouldCommitStore = false
-    val retentionDurationMs = TimeUnit.DAYS.toMillis(getRoomRetention(room).toLong())
+    val limitEventTs = System.currentTimeMillis() - convertDaysToMs(getRoomRetention(room))
 
-    val events = store.getRoomMessages(room.roomId)
-    if (null != events) {
-        for (event in events) {
-            if (event.stateKey == null) {
-                val eventLifetime = System.currentTimeMillis() - event.getOriginServerTs()
-                if (eventLifetime > retentionDurationMs) {
-                    store.deleteEvent(event)
-                    shouldCommitStore = true
-                } else {
-                    break
+    // This is a bit more optimized than using a filter, even if the algorithm is not very nice to read
+    store.getRoomMessages(room.roomId)
+            .orEmpty()
+            .firstOrNull { event ->
+                when {
+                    event.stateKey != null                   ->
+                        // Ignore state event
+                        false
+                    event.getOriginServerTs() < limitEventTs -> {
+                        store.deleteEvent(event)
+                        shouldCommitStore = true
+                        // Go on
+                        false
+                    }
+                    else                                     ->
+                        // Break the loop, we've reached the first non-state event in the timeline which is not expired
+                        true
                 }
             }
-        }
-    }
 
     return shouldCommitStore
 }
@@ -142,9 +139,7 @@ private fun clearExpiredRoomContentsFromStore(store: IMXStore, room: Room): Bool
  * @param daysNb number of days.
  * @return the duration in ms.
  */
-fun convertDaysToMs(daysNb: Int): Long {
-    return TimeUnit.DAYS.toMillis(daysNb.toLong())
-}
+fun convertDaysToMs(daysNb: Int) = TimeUnit.DAYS.toMillis(daysNb.toLong())
 
 /**
  * Convert a duration (in ms) to a number of days.
@@ -152,6 +147,4 @@ fun convertDaysToMs(daysNb: Int): Long {
  * @param durationMs
  * @return the number of days.
  */
-fun convertMsToDays(durationMs: Long): Int {
-    return TimeUnit.MILLISECONDS.toDays(durationMs).toInt()
-}
+fun convertMsToDays(durationMs: Long) = TimeUnit.MILLISECONDS.toDays(durationMs).toInt()

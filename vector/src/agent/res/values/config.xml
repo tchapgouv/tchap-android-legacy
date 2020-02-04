@@ -21,6 +21,8 @@
         <item>agent.social.tchap.gouv.fr</item>
         <item>agent.ssi.tchap.gouv.fr</item>
         <item>agent.tchap.gouv.fr</item>
+        <item>agent.collectivites.tchap.gouv.fr</item>
+        <item>agent.externe.tchap.gouv.fr</item>
     </string-array>
 
     <string-array name="identity_server_names" translatable="false" />
@@ -42,6 +44,7 @@
         <item>agent.social.tchap.gouv.fr</item>
         <item>agent.ssi.tchap.gouv.fr</item>
         <item>agent.tchap.gouv.fr</item>
+        <item>agent.collectivites.tchap.gouv.fr</item>
     </string-array>
 
     <!-- Bug report config -->

@@ -188,7 +188,7 @@
     <string name="no">NON</string>
     <string name="_continue">Continuer</string>
 
-    <string name="remove">Supprimer</string>
+    <string name="remove">Retirer</string>
     <string name="join">Rejoindre</string>
     <string name="preview">Aperçu</string>
     <string name="reject">Rejeter</string>
@@ -538,7 +538,7 @@ Vous pouvez vous identifier avec un compte différent ou ajouter cette adresse e
     <string name="room_preview_room_interactions_disabled">Ceci est un aperçu de la conversation. Vous ne pouvez pas interagir.</string>
 
     <string name="room_participants_leave_prompt_msg">Voulez-vous vraiment quitter cette conversation ?</string>
-    <string name="room_participants_remove_prompt_msg">Voulez-vous vraiment exclure %s de cette conversation ?</string>
+    <string name="room_participants_remove_prompt_msg">Voulez-vous vraiment retirer %s de cette conversation ?</string>
     <string name="room_participants_remove_3pid_invite_prompt_msg">Voulez-vous vraiment retirer cette invitation ?</string>
     <string name="room_participants_idle">Inactif</string>
     <string name="room_participants_action_ignore">Masquer tous les messages de cet utilisateur</string>
@@ -902,7 +902,9 @@ Appareils inconnus :</string>
     <string name="tchap_connection_password_help">Votre mot de passe doit contenir au moins 8 caractères, avec au moins un caractère de chaque type : majuscule, minuscule, chiffre, caractère spécial.</string>
     <string name="tchap_connection_password_confirm">Confirmer le mot de passe</string>
     <string name="tchap_connection_forgotten_email">J’ai oublié mon mot de passe</string>
+    <string name="tchap_register_warning_for_external_title">Information concernant votre inscription</string>
     <string name="tchap_register_warning_for_external">Le domaine de votre adresse email n’est pas déclaré dans Tchap. Si vous avez reçu une invitation, vous allez pouvoir créer un compte Tchap « invité », permettant uniquement de participer aux échanges privés auxquels vous êtes convié.</string>
+    <string name="tchap_register_warning_for_external_proceed">Poursuivre</string>
     <string name="tchap_register_wait_for_email_title">Un email vous a été envoyé à :</string>
     <string name="tchap_register_wait_for_email_subtitle">Merci de cliquer sur le lien proposé dans cet email afin de terminer la création de votre compte. Vous pourrez alors vous connecter en allant sur l’écran de connexion.</string>
     <string name="tchap_register_wait_for_email_login_button">Aller à l’écran de connexion</string>
