@@ -55,7 +55,8 @@
         android:ellipsize="end"
         android:gravity="center_horizontal"
         android:textColor="?attr/vctr_default_text_light_color"
-        android:textSize="14sp" />
+        android:textSize="14sp"
+        android:visibility="gone"/>
     <View
         android:id="@+id/header_bottom_separator_2"
         android:layout_below="@+id/member_details_presence"
