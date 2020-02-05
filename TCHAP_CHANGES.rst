@@ -1,3 +1,10 @@
+Changes in Tchap 1.0.36 (2020-02-05)
+===================================================
+
+Improvement:
+ * Order the room members by considering admin(s) first #568
+ * Room members: gray out the expired users #556
+ 
 Changes in Tchap 1.0.35 (2020-01-16)
 ===================================================
 
