@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 New Vector Ltd
+ * Copyright 2020 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,16 @@
  * limitations under the License.
  */
 
-package fr.gouv.tchap.config
+package fr.gouv.tchap.sdk.rest.model
 
-// Configure here the optional features (if any)
-// ex: const val ENABLE_FEATURE1 = true
+import com.google.gson.annotations.SerializedName
 
-const val CONFIGURATION_VARIANT = "agent"
+data class UserStatusInfo(
+        @JvmField
+        @SerializedName("expired")
+        val expired: Boolean? = null,
 
-const val ENABLE_ROOM_RETENTION = false
+        @JvmField
+        @SerializedName("deactivated")
+        val deactivated: Boolean? = null
+)

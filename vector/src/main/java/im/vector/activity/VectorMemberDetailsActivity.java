@@ -135,7 +135,8 @@ public class VectorMemberDetailsActivity extends TchapContactActionBarActivity i
     // UI widgets
     @BindView(R.id.member_detail_avatar)
     ImageView mMemberAvatarImageView;
-    @BindView(R.id.member_details_presence)
+    // Tchap: hide the user presence until the actual information is available
+//    @BindView(R.id.member_details_presence)
     TextView mPresenceTextView;
 
     // listview

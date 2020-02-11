@@ -1,3 +1,29 @@
+Changes in Tchap 1.0.36 (2020-02-05)
+===================================================
+
+Improvement:
+ * Order the room members by considering admin(s) first #568
+ * Room members: gray out the expired users #556
+ 
+Changes in Tchap 1.0.35 (2020-01-16)
+===================================================
+
+Improvement:
+ * Improve the warning dialog displayed before creating an external account
+ * Update the known instances list #567
+
+Changes in Tchap 1.0.34 (2019-12-17)
+===================================================
+
+Improvement:
+ * Configure per-room retention period for messages #524 - Enabled only on Pre-prod.
+ * Update wording on limit exceeded error #557
+ * Adjust F-Droid parameters #565
+ * Clean the Tchap-secure application #564
+ 
+Bug Fix:
+ * App crashes during `computeDisplayNameFromUserId` #560
+
 Changes in Tchap 1.0.33 (2019-11-25)
 ===================================================
 

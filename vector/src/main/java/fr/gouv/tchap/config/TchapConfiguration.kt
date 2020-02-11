@@ -24,8 +24,9 @@ object TchapConfiguration {
      * If you do not want the PlayStore button to be displayed, just set to an emptyList like this:
      * val packageWhiteList = emptyList<String>()
      */
-    val packageWhiteList = listOf(
-            // Agent variant of the application
-            "fr.gouv.tchap.a"
-    )
+//    val packageWhiteList = listOf(
+//            // Agent variant of the application
+//            "fr.gouv.tchap.a"
+//    )
+    val packageWhiteList = emptyList<String>()
 }

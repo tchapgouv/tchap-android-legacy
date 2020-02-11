@@ -248,11 +248,6 @@
             android:numeric="integer"
             android:title="@string/settings_set_sync_delay" />
 
-        <im.vector.preference.VectorEditTextPreference
-            android:key="SETTINGS_SET_SYNC_TIMEOUT_PREFERENCE_KEY"
-            android:numeric="integer"
-            android:title="@string/settings_set_sync_timeout" />
-
         <im.vector.preference.VectorSwitchPreference
             android:defaultValue="true"
             android:key="SETTINGS_START_ON_BOOT_PREFERENCE_KEY"

@@ -61,6 +61,7 @@ import org.matrix.androidsdk.crypto.data.MXUsersDevicesMap;
 import org.matrix.androidsdk.crypto.model.crypto.EncryptedEventContent;
 import org.matrix.androidsdk.crypto.model.crypto.EncryptedFileInfo;
 import org.matrix.androidsdk.data.RoomState;
+import org.matrix.androidsdk.data.timeline.EventTimeline;
 import org.matrix.androidsdk.db.MXMediaCache;
 import org.matrix.androidsdk.fragments.MatrixMessageListFragment;
 import org.matrix.androidsdk.fragments.MatrixMessagesFragment;
@@ -80,6 +81,9 @@ import java.util.Map;
 
 import fr.gouv.tchap.media.MediaScanManager;
 import fr.gouv.tchap.model.MediaScan;
+import fr.gouv.tchap.sdk.session.room.model.RoomRetentionKt;
+import fr.gouv.tchap.util.DinsicUtils;
+import fr.gouv.tchap.util.DinumUtilsKt;
 import im.vector.BuildConfig;
 import im.vector.Matrix;
 import im.vector.R;
@@ -176,6 +180,8 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
     // Dialog displayed after sending the re-request of e2e key
     private AlertDialog mReRequestKeyDialog;
 
+    private VectorMessagesFragment messagesFragment;
+
     public static VectorMessageListFragment newInstance(String matrixId, String roomId, String eventId, String previewMode, int layoutResId) {
         VectorMessageListFragment f = new VectorMessageListFragment();
         Bundle args = getArguments(matrixId, roomId, layoutResId);
@@ -211,6 +217,10 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
 
         if (null != mRoom) {
             mAdapter.mIsRoomEncrypted = mRoom.isEncrypted();
+
+            if (null != mSession) {
+                DinumUtilsKt.clearExpiredRoomContents(mSession, mRoom);
+            }
         }
 
         if (null != mSession) {
@@ -232,7 +242,8 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
 
     @Override
     public MatrixMessagesFragment createMessagesFragmentInstance(String roomId) {
-        return VectorMessagesFragment.newInstance(roomId);
+        messagesFragment = VectorMessagesFragment.newInstance(roomId);
+        return messagesFragment;
     }
 
     @Override
@@ -391,6 +402,30 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
                 Event.EVENT_TYPE_STICKER.equals(type) ||
                 (event.isCallEvent() && (!Event.EVENT_TYPE_CALL_CANDIDATES.equals(type))) ||
                 WidgetsManager.WIDGET_EVENT_TYPE.equals(type);
+    }
+
+    @Override
+    public void onEvent(final Event event, EventTimeline.Direction direction, RoomState roomState) {
+        super.onEvent(event, direction, roomState);
+
+        // Patch: We detect and handle here the retention period change
+        // TODO let the SDK handle this change and prompt the application when a refresh is required
+        if (direction == EventTimeline.Direction.FORWARDS
+                && mEventTimeLine != null
+                && mEventTimeLine.isLiveTimeline()) {
+            if (RoomRetentionKt.EVENT_TYPE_STATE_ROOM_RETENTION.equals(event.getType())) {
+                // Apply the new retention period on the stored data
+                // Reload the room history when data has been removed from the store
+                if (DinumUtilsKt.clearExpiredRoomContents(mSession, mRoom)) {
+                    // clear the room history
+                    mAdapter.clear();
+                    // init the timeline
+                    mEventTimeLine.initHistory();
+                    // fill the screen
+                    messagesFragment.renewHistory();
+                }
+            }
+        }
     }
 
     /**

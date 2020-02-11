@@ -188,7 +188,7 @@
     <string name="no">NON</string>
     <string name="_continue">Continuer</string>
 
-    <string name="remove">Supprimer</string>
+    <string name="remove">Retirer</string>
     <string name="join">Rejoindre</string>
     <string name="preview">Aperçu</string>
     <string name="reject">Rejeter</string>
@@ -489,7 +489,7 @@ Vous avez été déconnecté de tous les appareils et ne recevrez plus de notifi
     <string name="login_error_unable_login">Impossible de se connecter</string>
     <string name="login_error_registration_network_error">Impossible de s’inscrire : erreur réseau</string>
     <string name="login_error_unknown_token">Le jeton d’accès fourni n’a pas été reconnu</string>
-    <string name="login_error_limit_exceeded">Trop de requêtes ont été envoyées</string>
+    <string name="login_error_limit_exceeded">Vos trois dernières tentatives de connexion ont échoué. Veuillez réessayer dans 30 minutes</string>
     <string name="login_error_user_in_use">Ce nom d’utilisateur est déjà utilisé</string>
     <string name="login_error_login_email_not_yet">Vous n’avez pas encore cliqué sur le lien dans l’e-mail</string>
 
@@ -538,7 +538,7 @@ Vous pouvez vous identifier avec un compte différent ou ajouter cette adresse e
     <string name="room_preview_room_interactions_disabled">Ceci est un aperçu de la conversation. Vous ne pouvez pas interagir.</string>
 
     <string name="room_participants_leave_prompt_msg">Voulez-vous vraiment quitter cette conversation ?</string>
-    <string name="room_participants_remove_prompt_msg">Voulez-vous vraiment exclure %s de cette conversation ?</string>
+    <string name="room_participants_remove_prompt_msg">Voulez-vous vraiment retirer %s de cette conversation ?</string>
     <string name="room_participants_remove_3pid_invite_prompt_msg">Voulez-vous vraiment retirer cette invitation ?</string>
     <string name="room_participants_idle">Inactif</string>
     <string name="room_participants_action_ignore">Masquer tous les messages de cet utilisateur</string>
@@ -799,6 +799,11 @@ Appareils inconnus :</string>
     <string name="tchap_action_next">Suivant</string>
     <string name="tchap_room_creation_avatar">Ajouter\nune photo</string>
     <string name="tchap_room_creation_name">Nommer le salon</string>
+    <string name="tchap_room_creation_retention">Définir la durée de conservation de l’historique (en jours) :</string>
+    <plurals name="tchap_room_creation_retention">
+        <item quantity="one">Limiter l’historique du salon à %d jour</item>
+        <item quantity="other">Limiter l’historique du salon à %d jours</item>
+    </plurals>
     <string name="tchap_room_creation_unrestricted">Autoriser l’accès aux externes à ce salon</string>
     <string name="tchap_room_creation_public">Rendre ce salon public</string>
     <string name="tchap_room_creation_disable_federation">Limiter l’accès à ce salon aux membres du domaine \"%s\"</string>
@@ -837,6 +842,10 @@ Appareils inconnus :</string>
 
     <!-- tchap room -->
     <string name="tchap_room_access_unrestricted">Salon accessible aux externes</string>
+    <plurals name="tchap_room_retention_info">
+        <item quantity="one">Historique limité à %d jour</item>
+        <item quantity="other">Historique limité à %d jours</item>
+    </plurals>
 
     <!-- tchap scan media -->
     <string name="tchap_scan_media_unavailable">Analyse Indisponible</string>
@@ -852,6 +861,15 @@ Appareils inconnus :</string>
     <string name="tchap_room_settings_room_access_unrestricted">Les externes sont autorisés à rejoindre ce salon</string>
     <string name="tchap_room_settings_allow_external_users_to_join">Autoriser l’accès aux externes à ce salon</string>
     <string name="tchap_room_settings_allow_external_users_to_join_prompt_msg"><b>Cette action est irréversible.</b>\nVoulez-vous vraiment autoriser les externes à rejoindre ce salon ?</string>
+    <string name="tchap_room_settings_retention_title">Historique du salon</string>
+    <plurals name="tchap_room_settings_retention_summary">
+        <item quantity="one">L’historique est limité à %d jour</item>
+        <item quantity="other">L’historique est limité à %d jours</item>
+    </plurals>
+    <plurals name="tchap_room_settings_retention">
+        <item quantity="one">L’historique du salon est limité à %d jour</item>
+        <item quantity="other">L’historique du salon est limité à %d jours</item>
+    </plurals>
 
     <!-- tchap account validity -->
     <string name="tchap_expired_account_msg">La durée de validité de votre compte a expiré. Un email vous a été envoyé pour la renouveler. Une fois que vous aurez suivi le lien qu’il contient, cliquez ci-dessous.</string>
@@ -884,7 +902,9 @@ Appareils inconnus :</string>
     <string name="tchap_connection_password_help">Votre mot de passe doit contenir au moins 8 caractères, avec au moins un caractère de chaque type : majuscule, minuscule, chiffre, caractère spécial.</string>
     <string name="tchap_connection_password_confirm">Confirmer le mot de passe</string>
     <string name="tchap_connection_forgotten_email">J’ai oublié mon mot de passe</string>
+    <string name="tchap_register_warning_for_external_title">Information concernant votre inscription</string>
     <string name="tchap_register_warning_for_external">Le domaine de votre adresse email n’est pas déclaré dans Tchap. Si vous avez reçu une invitation, vous allez pouvoir créer un compte Tchap « invité », permettant uniquement de participer aux échanges privés auxquels vous êtes convié.</string>
+    <string name="tchap_register_warning_for_external_proceed">Poursuivre</string>
     <string name="tchap_register_wait_for_email_title">Un email vous a été envoyé à :</string>
     <string name="tchap_register_wait_for_email_subtitle">Merci de cliquer sur le lien proposé dans cet email afin de terminer la création de votre compte. Vous pourrez alors vous connecter en allant sur l’écran de connexion.</string>
     <string name="tchap_register_wait_for_email_login_button">Aller à l’écran de connexion</string>

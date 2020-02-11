@@ -216,10 +216,6 @@ class VectorSettingsPreferencesFragment : PreferenceFragmentCompat(), SharedPref
         findPreference(PreferencesManager.SETTINGS_IGNORED_USERS_PREFERENCE_KEY) as PreferenceCategory
     }
     // background sync category
-    private val mSyncRequestTimeoutPreference by lazy {
-        // ? Cause it can be removed
-        findPreference(PreferencesManager.SETTINGS_SET_SYNC_TIMEOUT_PREFERENCE_KEY) as EditTextPreference?
-    }
     private val mSyncRequestDelayPreference by lazy {
         // ? Cause it can be removed
         findPreference(PreferencesManager.SETTINGS_SET_SYNC_DELAY_PREFERENCE_KEY) as EditTextPreference?
@@ -906,19 +902,16 @@ class VectorSettingsPreferencesFragment : PreferenceFragmentCompat(), SharedPref
 
                 if (!pushManager.isBackgroundSyncAllowed) {
                     syncMode = R.string.settings_background_fdroid_sync_mode_disabled
-                    mSyncRequestTimeoutPreference?.isVisible = false
                     mSyncRequestDelayPreference?.isVisible = false
                     mWorkManagerRequestDelayPreference?.isVisible = false
                     startOnBootPref?.isVisible = false
                 } else if (pushManager.idFdroidSyncModeOptimizedForRealTime()) {
                     syncMode = R.string.settings_background_fdroid_sync_mode_real_time
-                    mSyncRequestTimeoutPreference?.isVisible = true
                     mSyncRequestDelayPreference?.isVisible = true
                     mWorkManagerRequestDelayPreference?.isVisible = false
                     startOnBootPref?.isVisible = true
                 } else {
                     syncMode = R.string.settings_background_fdroid_sync_mode_battery
-                    mSyncRequestTimeoutPreference?.isVisible = false
                     mSyncRequestDelayPreference?.isVisible = false
                     mWorkManagerRequestDelayPreference?.isVisible = true
                     startOnBootPref?.isVisible = false
@@ -1678,7 +1671,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragmentCompat(), SharedPref
             AlertDialog.Builder(it)
                     .setTitle(R.string.dialog_title_confirmation)
                     .setMessage(dialogMessage)
-                    .setPositiveButton(R.string.remove) { _, _ ->
+                    .setPositiveButton(R.string.delete) { _, _ ->
                         displayLoadingView()
 
                         mSession.myUser.delete3Pid(pid, object : ApiCallback<Void> {
@@ -1830,7 +1823,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragmentCompat(), SharedPref
                                     AlertDialog.Builder(activity)
                                             .setTitle(R.string.dialog_title_confirmation)
                                             .setMessage(R.string.settings_delete_notification_targets_confirmation)
-                                            .setPositiveButton(R.string.remove)
+                                            .setPositiveButton(R.string.delete)
                                             { _, _ ->
                                                 displayLoadingView()
                                                 pushManager.unregister(mSession, pusher, object : ApiCallback<Void> {
@@ -2360,36 +2353,11 @@ class VectorSettingsPreferencesFragment : PreferenceFragmentCompat(), SharedPref
         activity?.let { activity ->
             val pushManager = Matrix.getInstance(activity).pushManager
 
-            val timeout = pushManager.backgroundSyncTimeOut / 1000
             val delay = pushManager.backgroundSyncDelay / 1000
 
             // update the settings
             PreferenceManager.getDefaultSharedPreferences(activity).edit {
-                putString(PreferencesManager.SETTINGS_SET_SYNC_TIMEOUT_PREFERENCE_KEY, timeout.toString() + "")
                 putString(PreferencesManager.SETTINGS_SET_SYNC_DELAY_PREFERENCE_KEY, delay.toString() + "")
-            }
-
-            mSyncRequestTimeoutPreference?.let {
-                it.summary = secondsToText(timeout)
-                it.text = timeout.toString() + ""
-
-                it.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
-                    var newTimeOut = timeout
-
-                    try {
-                        newTimeOut = Integer.parseInt(newValue as String)
-                    } catch (e: Exception) {
-                        Log.e(LOG_TAG, "## refreshBackgroundSyncPrefs : parseInt failed " + e.message, e)
-                    }
-
-                    if (newTimeOut != timeout) {
-                        pushManager.backgroundSyncTimeOut = newTimeOut * 1000
-
-                        activity.runOnUiThread { refreshBackgroundSyncPrefs() }
-                    }
-
-                    false
-                }
             }
 
             mSyncRequestDelayPreference?.let {
