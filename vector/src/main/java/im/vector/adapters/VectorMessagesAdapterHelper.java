@@ -152,22 +152,22 @@ class VectorMessagesAdapterHelper {
      * @param convertView  the base view
      * @param row          the message row
      * @param isMergedView true if the cell is merged
+     * @param isOutgoingMsg true if the user is the sender
      */
-    public void setSenderValue(View convertView, MessageRow row, boolean isMergedView) {
+    public void setSenderValue(View convertView, MessageRow row, boolean isMergedView, boolean isOutgoingMsg) {
         // manage sender text
         TextView senderTextView = convertView.findViewById(R.id.messagesAdapter_sender);
         View groupFlairView = convertView.findViewById(R.id.messagesAdapter_flair_groups_list);
 
         if (null != senderTextView) {
-            Event event = row.getEvent();
-
             // Hide the group flair by default
             groupFlairView.setVisibility(View.GONE);
             groupFlairView.setTag(null);
 
-            if (isMergedView) {
+            if (isMergedView || isOutgoingMsg) {
                 senderTextView.setVisibility(View.GONE);
             } else {
+                Event event = row.getEvent();
                 String eventType = event.getType();
 
                 // theses events are managed like notice ones
@@ -491,68 +491,62 @@ class VectorMessagesAdapterHelper {
      *
      * @param convertView  the base view
      * @param row          the message row
-     * @param isMergedView true if the cell is merged
-     * @param isItMe true if the user is the sender
+     * @param visibility   the avatar visibility (see view visibility definition)
      * @return the avatar layout
      */
-    View setSenderAvatar(View convertView, MessageRow row, boolean isMergedView, boolean isItMe) {
-        Event event = row.getEvent();
+    View setSenderAvatar(View convertView, MessageRow row, int visibility) {
         ImageView avatarView = convertView.findViewById(R.id.messagesAdapter_avatar);
-        View leftPhilactView = convertView.findViewById(R.id.messagesAdapter_left_philact);
-        View rightPhilactView = convertView.findViewById(R.id.messagesAdapter_right_philact);
-
-        View myPhilactView = (isItMe?rightPhilactView:leftPhilactView);
-        if (isItMe){
-            if (rightPhilactView != null)
-                rightPhilactView.setVisibility(View.VISIBLE);
-            if (leftPhilactView != null)
-                leftPhilactView.setVisibility(View.GONE);
-        }
-        else {
-            if (rightPhilactView != null) rightPhilactView.setVisibility(View.GONE);
-            if (leftPhilactView != null) leftPhilactView.setVisibility(View.VISIBLE);
-        }
         if (null != avatarView) {
-            final String userId = event.getSender();
+            avatarView.setVisibility(visibility);
 
-            avatarView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    return (null != mEventsListener) && mEventsListener.onAvatarLongClick(userId);
-                }
-            });
-
-            // click on the avatar opens the details page
-            avatarView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (null != mEventsListener) {
-                        mEventsListener.onAvatarClick(userId);
-                    }
-                }
-            });
-        }
-
-        if (null != myPhilactView) {
-            if (isMergedView ) {
-                myPhilactView.setVisibility(View.INVISIBLE);
-            } else {
-                myPhilactView.setVisibility(View.VISIBLE);
-            }
-        }
-        if (null != avatarView) {
-            if (isMergedView || isItMe) {
-                avatarView.setVisibility(View.INVISIBLE);
-            } else {
-                avatarView.setVisibility(View.VISIBLE);
+            if (visibility == View.VISIBLE) {
+                Event event = row.getEvent();
+                final String userId = event.getSender();
 
                 avatarView.setTag(null);
+
+                avatarView.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        return (null != mEventsListener) && mEventsListener.onAvatarLongClick(userId);
+                    }
+                });
+
+                // click on the avatar opens the details page
+                avatarView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (null != mEventsListener) {
+                            mEventsListener.onAvatarClick(userId);
+                        }
+                    }
+                });
 
                 loadMemberAvatar(avatarView, row);
             }
         }
 
         return avatarView;
+    }
+
+    /**
+     * Update the phylater view.
+     *
+     * @param convertView  the base view
+     * @param isMergedView true if the cell is merged
+     * @param isOutgoingMsg true if the user is the sender
+     */
+    void updatePhylactView(View convertView, boolean isMergedView, boolean isOutgoingMsg) {
+        View leftPhylactView = convertView.findViewById(R.id.messagesAdapter_left_phylact);
+        View rightPhylactView = convertView.findViewById(R.id.messagesAdapter_right_phylact);
+
+        if (isOutgoingMsg) {
+            if (rightPhylactView != null) rightPhylactView.setVisibility(isMergedView ? View.INVISIBLE : View.VISIBLE);
+            if (leftPhylactView != null) leftPhylactView.setVisibility(View.GONE);
+        } else {
+            if (rightPhylactView != null) rightPhylactView.setVisibility(View.GONE);
+            if (leftPhylactView != null) leftPhylactView.setVisibility(isMergedView ? View.INVISIBLE : View.VISIBLE);
+        }
     }
 
     /**

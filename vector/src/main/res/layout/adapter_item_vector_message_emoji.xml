@@ -15,10 +15,10 @@
         android:id="@+id/messagesAdapter_body_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginEnd="0dp"
-        android:layout_marginRight="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
         android:orientation="horizontal">
 
         <im.vector.view.VectorCircularImageView
@@ -50,8 +50,8 @@
             android:layout_gravity="center_vertical"
             android:layout_marginRight="30dp"
             android:layout_marginBottom="2dp"
-            android:layout_toEndOf="@id/messagesAdapter_left_philact"
-            android:layout_toRightOf="@id/messagesAdapter_left_philact"
+            android:layout_toEndOf="@id/messagesAdapter_left_phylact"
+            android:layout_toRightOf="@id/messagesAdapter_left_phylact"
             android:background="@drawable/round_rectangle"
             android:orientation="vertical"
             android:paddingBottom="5dp">
@@ -89,6 +89,8 @@
                 android:id="@+id/messagesAdapter_body_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="4dp"
                 android:layout_marginEnd="4dp"
                 android:layout_marginRight="4dp">
 
@@ -126,7 +128,7 @@
 
 
         <ImageView
-            android:id="@+id/messagesAdapter_left_philact"
+            android:id="@+id/messagesAdapter_left_phylact"
             android:layout_width="25dp"
             android:layout_height="25dp"
             android:layout_marginLeft="-25dp"
@@ -135,7 +137,7 @@
             android:src="@drawable/left_phylact" />
 
         <ImageView
-            android:id="@+id/messagesAdapter_right_philact"
+            android:id="@+id/messagesAdapter_right_phylact"
             android:layout_width="25dp"
             android:layout_height="25dp"
             android:layout_marginLeft="-15dp"

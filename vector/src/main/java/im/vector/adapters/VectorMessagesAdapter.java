@@ -102,6 +102,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import androidx.core.content.res.ResourcesCompat;
 import fr.gouv.tchap.media.MediaScanManager;
 import fr.gouv.tchap.model.MediaScan;
 import im.vector.R;
@@ -158,6 +159,9 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
 
     // true when the room is encrypted
     public boolean mIsRoomEncrypted;
+
+    // true when the room is a 1:1 discussion
+    public boolean mIsDirectRoom;
 
     // Current sessionId set waiting for an encryption key, after a reRequest from user
     private Set<String> mSessionIdsWaitingForE2eReRequest = new HashSet<>();
@@ -1166,14 +1170,11 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
         // inherited class custom behaviour
         isMergedView = mergeView(event, position, isMergedView);
 
-        // init senders
-        mHelper.setSenderValue(convertView, row, isMergedView);
-
         // message timestamp
         TextView tsTextView = VectorMessagesAdapterHelper.setTimestampValue(convertView, getFormattedTimestamp(event));
 
         if (null != tsTextView) {
-            if (row.getEvent().isUndelivered() || row.getEvent().isUnknownDevice()) {
+            if (event.isUndelivered() || event.isUnknownDevice()) {
                 tsTextView.setTextColor(mNotSentMessageTextColor);
             } else {
                 tsTextView.setTextColor(ThemeUtils.INSTANCE.getColor(mContext, android.R.attr.textColorSecondary));
@@ -1182,15 +1183,14 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             tsTextView.setVisibility((((position + 1) == getCount()) || mIsSearchMode || mAlwaysShowTimeStamps) ? View.VISIBLE : View.GONE);
         }
 
-        String myId = mSession.getMyUserId();
-        String theId = row.getEvent().getSender();
-        boolean isItMe = myId.equals(theId);
-        // Sender avatar
-        View avatarView = mHelper.setSenderAvatar(convertView, row, isMergedView, isItMe);
+        boolean isOutgoingMsg = TextUtils.equals(mSession.getMyUserId(), event.getSender());
+        int avatarVisibility = (mIsDirectRoom || isOutgoingMsg || isMergedView) ? View.GONE : View.VISIBLE;
+        View avatarView = mHelper.setSenderAvatar(convertView, row, avatarVisibility);
+        mHelper.updatePhylactView(convertView, isMergedView, isOutgoingMsg);
+        mHelper.setSenderValue(convertView, row, isMergedView, isOutgoingMsg);
 
         View bodyLayoutView = convertView.findViewById(R.id.messagesAdapter_body_layout);
         View heartView = convertView.findViewById(R.id.messageAdapter_heart);
-        TextView msgSender = convertView.findViewById(R.id.messagesAdapter_sender);
         TextView msgTimestamp = convertView.findViewById(R.id.messagesAdapter_timestamp);
 
         TextView bodyTextView = convertView.findViewById(R.id.messagesAdapter_body);
@@ -1200,38 +1200,32 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
 
 
         if (e2eIconView != null) {
-            if (isItMe)
+            if (isOutgoingMsg)
                 e2eIconView.setImageDrawable(ThemeUtils.INSTANCE.tintDrawableWithColor(e2eIconView.getDrawable(), Color.WHITE));
             else
                 e2eIconView.setImageDrawable(ThemeUtils.INSTANCE.tintDrawable(getContext(), e2eIconView.getDrawable(),R.attr.colorPrimary));// R.attr.vctr_settings_icon_tint_color));
         }
         if (bodyTextView != null) {
-            if (isItMe)
+            if (isOutgoingMsg)
                 bodyTextView.setTextColor(Color.WHITE);
             else
                 bodyTextView.setTextColor(ThemeUtils.INSTANCE.getColor(mContext, R.attr.colorPrimary));
         }
         if (filenameTextView != null) {
-            if (isItMe)
+            if (isOutgoingMsg)
                 filenameTextView.setTextColor(Color.WHITE);
             else
                 filenameTextView.setTextColor(ThemeUtils.INSTANCE.getColor(mContext, R.attr.colorPrimary));
         }
         if (e2eTextView != null) {
-            if (isItMe)
+            if (isOutgoingMsg)
                 e2eTextView.setTextColor(Color.WHITE);
             else
                 e2eTextView.setTextColor(ThemeUtils.INSTANCE.getColor(mContext, R.attr.colorPrimary));
         }
-        if (msgSender != null) {
-            if (isItMe)
-                msgSender.setVisibility(View.INVISIBLE);
-            else
-                msgSender.setVisibility(View.VISIBLE);
-        }
 
         if (msgTimestamp != null) {
-            if (isItMe)
+            if (isOutgoingMsg)
                 msgTimestamp.setTextColor(Color.WHITE);
             else
                 msgTimestamp.setTextColor(ThemeUtils.INSTANCE.getColor(mContext, R.attr.colorPrimary));
@@ -1240,14 +1234,19 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
         if (heartView != null) {
             int rightInDP = 30;
             int leftInDP = 0;
-            if (isItMe) {
+            if (isOutgoingMsg) {
                 rightInDP = 8;
-                leftInDP = 20;
-                heartView.setBackground(VectorApp.getInstance().getResources().getDrawable(R.drawable.colored_round_rectangle, null));
+                leftInDP = 20 + 40;
+                heartView.setBackground(ResourcesCompat.getDrawable(VectorApp.getInstance().getResources(), R.drawable.colored_round_rectangle, null));
                 //heartView.setLayoutParams(parameter);
                 //heartView.setRight(0);
             } else {
-                heartView.setBackground(VectorApp.getInstance().getResources().getDrawable(R.drawable.round_rectangle, null));
+                heartView.setBackground(ResourcesCompat.getDrawable(VectorApp.getInstance().getResources(), R.drawable.round_rectangle, null));
+                if (mIsDirectRoom) {
+                    rightInDP += 40; //avatarView.getLayoutParams().width;
+                } else if (isMergedView) {
+                    leftInDP += 40;
+                }
 
             }
             int rightMargin = (int) TypedValue.applyDimension(
@@ -2338,9 +2337,9 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
 
             MessageRow row = getItem(position);
             final Event event = row.getEvent();
-            String myId = mSession.getMyUserId();
+            /*String myId = mSession.getMyUserId();
             String theId = row.getEvent().getSender();
-            boolean isItMe = myId.equals(theId);
+            boolean isItMe = myId.equals(theId);*/
 
             if (mE2eIconByEventId.containsKey(event.eventId)) {
                 if (null != senderMargin) {

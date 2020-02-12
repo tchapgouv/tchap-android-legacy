@@ -40,6 +40,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.FileProvider;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.FragmentManager;
 
 import com.google.gson.Gson;
@@ -217,6 +218,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
 
         if (null != mRoom) {
             mAdapter.mIsRoomEncrypted = mRoom.isEncrypted();
+            mAdapter.mIsDirectRoom = mRoom.isDirect();
 
             if (null != mSession) {
                 DinumUtilsKt.clearExpiredRoomContents(mSession, mRoom);
@@ -235,7 +237,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
             }
         });
 
-        Drawable myDrawable = VectorApp.getInstance().getResources().getDrawable(R.drawable.room_background,null);
+        Drawable myDrawable = ResourcesCompat.getDrawable(VectorApp.getInstance().getResources(), R.drawable.room_background, null);
         v.setBackground(myDrawable);
         return v;
     }
