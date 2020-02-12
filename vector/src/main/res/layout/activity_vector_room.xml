@@ -196,7 +196,7 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_below="@+id/jump_to_first_unread_label"
-            android:background="?attr/vctr_room_activity_divider_color" />
+            android:background="?attr/room_header_divider_color" />
 
     </RelativeLayout>
 
@@ -338,7 +338,7 @@
             android:layout_above="@id/room_bottom_layout"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:background="?attr/vctr_room_activity_divider_color" />
+            android:background="?attr/room_header_divider_color" />
 
         <RelativeLayout
             android:id="@+id/room_reply_area"
@@ -422,7 +422,7 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_above="@id/room_notifications_area"
-            android:background="?attr/vctr_room_activity_divider_color" />
+            android:background="?attr/room_header_divider_color" />
 
         <TextView
             android:id="@+id/room_cannot_post_textview"
