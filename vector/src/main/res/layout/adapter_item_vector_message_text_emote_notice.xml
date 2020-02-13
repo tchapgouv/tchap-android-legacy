@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -28,19 +29,6 @@
             android:contentDescription="@string/avatar"
             android:scaleType="centerCrop"
             tools:src="@tools:sample/avatars" />
-
-        <View
-            android:id="@+id/messagesAdapter_highlight_message_marker"
-            android:layout_width="6dp"
-            android:layout_height="match_parent"
-            android:layout_marginStart="5dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginTop="18dp"
-            android:layout_marginEnd="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_toEndOf="@id/messagesAdapter_avatar"
-            android:layout_toRightOf="@id/messagesAdapter_avatar"
-            tools:background="?attr/colorAccent" />
 
         <LinearLayout
             android:id="@+id/messageAdapter_heart"
@@ -75,6 +63,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentRight="true"
+                    android:layout_marginEnd="5dp"
                     android:layout_marginRight="5dp"
                     android:orientation="horizontal">
 
@@ -87,71 +76,85 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:layout_marginBottom="4dp"
                 android:layout_marginEnd="4dp"
-                android:layout_marginRight="4dp">
+                android:layout_marginRight="4dp"
+                android:layout_marginBottom="4dp">
 
                 <!-- the body is here -->
-                <RelativeLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/messagesAdapter_text_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="2dp"
-                    android:layout_gravity="start">
+                    android:layout_gravity="start"
+                    android:layout_marginBottom="2dp">
 
-                    <ImageView
-                        android:id="@+id/message_adapter_e2e_icon"
-                        android:layout_width="14dp"
-                        android:layout_height="14dp"
-                        android:src="@drawable/e2e_verified" />
+                    <View
+                        android:id="@+id/messagesAdapter_highlight_message_marker"
+                        android:layout_width="6dp"
+                        android:layout_height="0dp"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginTop="0dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:background="?attr/colorAccent" />
 
                     <TextView
                         android:id="@+id/messagesAdapter_body"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="start"
-                        android:layout_marginStart="4dp"
-                        android:layout_marginLeft="4dp"
-                        android:layout_toEndOf="@id/message_adapter_e2e_icon"
-                        android:layout_toRightOf="@id/message_adapter_e2e_icon"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginEnd="5dp"
+                        android:layout_marginRight="5dp"
                         android:textIsSelectable="false"
                         android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/messagesAdapter_highlight_message_marker"
+                        app:layout_constraintTop_toTopOf="parent"
                         tools:text="A body www.example.org" />
 
                     <TextView
                         android:id="@+id/messagesAdapter_re_request_e2e_key"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_below="@+id/messagesAdapter_body"
-                        android:layout_alignStart="@+id/messagesAdapter_body"
-                        android:layout_alignLeft="@+id/messagesAdapter_body"
                         android:layout_gravity="start"
                         android:text="@string/e2e_re_request_encryption_key"
                         android:textIsSelectable="false"
-                        android:textSize="14sp" />
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="@+id/messagesAdapter_body"
+                        app:layout_constraintTop_toBottomOf="@+id/messagesAdapter_body" />
 
-                </RelativeLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
             </FrameLayout>
 
         </LinearLayout>
 
-
         <ImageView
             android:id="@+id/messagesAdapter_left_phylact"
             android:layout_width="25dp"
             android:layout_height="25dp"
-            android:layout_marginLeft="-25dp"
+            android:layout_marginStart="-9dp"
+            android:layout_marginLeft="-9dp"
+            android:layout_marginEnd="-5dp"
             android:layout_marginRight="-5dp"
-            android:layout_toRightOf="@id/messagesAdapter_highlight_message_marker"
+            android:layout_toEndOf="@id/messagesAdapter_avatar"
+            android:layout_toRightOf="@id/messagesAdapter_avatar"
             android:src="@drawable/left_phylact" />
 
         <ImageView
             android:id="@+id/messagesAdapter_right_phylact"
             android:layout_width="25dp"
             android:layout_height="25dp"
+            android:layout_marginStart="-15dp"
             android:layout_marginLeft="-15dp"
+            android:layout_marginEnd="-25dp"
             android:layout_marginRight="-25dp"
+            android:layout_toEndOf="@id/messageAdapter_heart"
             android:layout_toRightOf="@id/messageAdapter_heart"
             android:src="@drawable/right_phylact"
             android:visibility="visible" />
