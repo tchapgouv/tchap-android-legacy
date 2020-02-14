@@ -23,7 +23,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -194,6 +193,10 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
     private final int mSendingMessageTextColor;
     private final int mEncryptingMessageTextColor;
     private final int mHighlightMessageTextColor;
+    private final int mIncomingMessageTextColor;
+    private final int mOutgoingMessageTextColor;
+    private final int mIncomingMessageMarkdownBgColor;
+    private final int mOutgoingMessageMarkdownBgColor;
     protected BackgroundColorSpan mBackgroundColorSpan;
 
     private final int mMaxImageWidth;
@@ -232,9 +235,6 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
 
     // Key is member id.
     private final Map<String, RoomMember> mLiveRoomMembers = new HashMap<>();
-
-    // the color depends in the theme
-    private final Drawable mPadlockDrawable;
 
     private VectorImageGetter mImageGetter;
 
@@ -364,6 +364,10 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
         mSendingMessageTextColor = getSendingMessageTextColor();
         mEncryptingMessageTextColor = getEncryptingMessageTextColor();
         mHighlightMessageTextColor = getHighlightMessageTextColor();
+        mIncomingMessageTextColor = ContextCompat.getColor(mContext, R.color.primary_color_light);
+        mOutgoingMessageTextColor = Color.WHITE;
+        mIncomingMessageMarkdownBgColor = ContextCompat.getColor(mContext, R.color.tchap_incoming_msg_markdown_block_background_color);
+        mOutgoingMessageMarkdownBgColor = ContextCompat.getColor(mContext, R.color.tchap_outgoing_msg_markdown_block_background_color);
         mBackgroundColorSpan = new BackgroundColorSpan(getSearchHighlightMessageTextColor());
 
         Point size = new Point(0, 0);
@@ -392,9 +396,6 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
 
         mAlwaysShowTimeStamps = PreferencesManager.alwaysShowTimeStamps(VectorApp.getInstance());
         mShowReadReceipts = PreferencesManager.showReadReceipts(VectorApp.getInstance());
-
-        mPadlockDrawable = ThemeUtils.INSTANCE.tintDrawable(mContext,
-                ContextCompat.getDrawable(mContext, R.drawable.e2e_unencrypted), R.attr.vctr_settings_icon_tint_color);
     }
 
     /*
@@ -1162,69 +1163,43 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             }
         }
 
-        // inherited class custom behaviour
         isMergedView = mergeView(event, position, isMergedView);
+        boolean isOutgoingMsg = TextUtils.equals(mSession.getMyUserId(), event.getSender());
+        int avatarVisibility = (mIsDirectRoom || isOutgoingMsg || isMergedView) ? View.GONE : View.VISIBLE;
+        mHelper.setSenderAvatar(convertView, row, avatarVisibility);
+        mHelper.updatePhylactView(convertView, isMergedView, isOutgoingMsg);
+        mHelper.setSenderValue(convertView, row, isMergedView, isOutgoingMsg);
 
         // message timestamp
         TextView tsTextView = VectorMessagesAdapterHelper.setTimestampValue(convertView, getFormattedTimestamp(event));
-
         if (null != tsTextView) {
             if (event.isUndelivered() || event.isUnknownDevice()) {
                 tsTextView.setTextColor(mNotSentMessageTextColor);
             } else {
-                tsTextView.setTextColor(ThemeUtils.INSTANCE.getColor(mContext, android.R.attr.textColorSecondary));
+                tsTextView.setTextColor(isOutgoingMsg ? mOutgoingMessageTextColor : mIncomingMessageTextColor);
             }
 
             tsTextView.setVisibility((((position + 1) == getCount()) || mIsSearchMode || mAlwaysShowTimeStamps) ? View.VISIBLE : View.GONE);
         }
 
-        boolean isOutgoingMsg = TextUtils.equals(mSession.getMyUserId(), event.getSender());
-        int avatarVisibility = (mIsDirectRoom || isOutgoingMsg || isMergedView) ? View.GONE : View.VISIBLE;
-        View avatarView = mHelper.setSenderAvatar(convertView, row, avatarVisibility);
-        mHelper.updatePhylactView(convertView, isMergedView, isOutgoingMsg);
-        mHelper.setSenderValue(convertView, row, isMergedView, isOutgoingMsg);
-
-        View bodyLayoutView = convertView.findViewById(R.id.messagesAdapter_body_layout);
-        View heartView = convertView.findViewById(R.id.messageAdapter_heart);
-        TextView msgTimestamp = convertView.findViewById(R.id.messagesAdapter_timestamp);
-
-        TextView bodyTextView = convertView.findViewById(R.id.messagesAdapter_body);
         TextView filenameTextView = convertView.findViewById(R.id.messagesAdapter_filename);
-        TextView e2eTextView = convertView.findViewById(R.id.messagesAdapter_re_request_e2e_key);
-
-        if (bodyTextView != null) {
-            if (isOutgoingMsg)
-                bodyTextView.setTextColor(Color.WHITE);
-            else
-                bodyTextView.setTextColor(ThemeUtils.INSTANCE.getColor(mContext, R.attr.colorPrimary));
-        }
         if (filenameTextView != null) {
-            if (isOutgoingMsg)
-                filenameTextView.setTextColor(Color.WHITE);
-            else
-                filenameTextView.setTextColor(ThemeUtils.INSTANCE.getColor(mContext, R.attr.colorPrimary));
+            filenameTextView.setTextColor(isOutgoingMsg ? mOutgoingMessageTextColor : mIncomingMessageTextColor);
         }
+
+        TextView e2eTextView = convertView.findViewById(R.id.messagesAdapter_re_request_e2e_key);
         if (e2eTextView != null) {
-            if (isOutgoingMsg)
-                e2eTextView.setTextColor(Color.WHITE);
-            else
-                e2eTextView.setTextColor(ThemeUtils.INSTANCE.getColor(mContext, R.attr.colorPrimary));
+            e2eTextView.setTextColor(isOutgoingMsg ? mOutgoingMessageTextColor : mIncomingMessageTextColor);
         }
 
-        if (msgTimestamp != null) {
-            if (isOutgoingMsg)
-                msgTimestamp.setTextColor(Color.WHITE);
-            else
-                msgTimestamp.setTextColor(ThemeUtils.INSTANCE.getColor(mContext, R.attr.colorPrimary));
-        }
-
+        View heartView = convertView.findViewById(R.id.messageAdapter_heart);
         if (heartView != null) {
             int rightInDP = 30;
             int leftInDP = 0;
             if (isOutgoingMsg) {
+                heartView.setBackground(ResourcesCompat.getDrawable(VectorApp.getInstance().getResources(), R.drawable.colored_round_rectangle, null));
                 rightInDP = 8;
                 leftInDP = 20 + 40;
-                heartView.setBackground(ResourcesCompat.getDrawable(VectorApp.getInstance().getResources(), R.drawable.colored_round_rectangle, null));
             } else {
                 heartView.setBackground(ResourcesCompat.getDrawable(VectorApp.getInstance().getResources(), R.drawable.round_rectangle, null));
                 if (mIsDirectRoom) {
@@ -1270,6 +1245,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
 
         // download / upload progress layout
         if ((ROW_TYPE_IMAGE == msgType) || (ROW_TYPE_FILE == msgType) || (ROW_TYPE_VIDEO == msgType) || (ROW_TYPE_STICKER == msgType)) {
+            View bodyLayoutView = convertView.findViewById(R.id.messagesAdapter_body_layout);
             VectorMessagesAdapterHelper.setMediaProgressLayout(convertView, bodyLayoutView);
         }
     }
@@ -1292,13 +1268,13 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             MessageRow row = getItem(position);
             Event event = row.getEvent();
             Message message = JsonUtils.toMessage(event.getContent());
-
+            boolean isOutgoingMsg = TextUtils.equals(mSession.getMyUserId(), event.getSender());
             boolean shouldHighlighted = (null != mVectorMessagesAdapterEventsListener) && mVectorMessagesAdapterEventsListener.shouldHighlightEvent(event);
 
             final List<TextView> textViews;
 
             if (ROW_TYPE_CODE == viewType) {
-                textViews = populateRowTypeCode(message, convertView, shouldHighlighted);
+                textViews = populateRowTypeCode(message, convertView, shouldHighlighted, isOutgoingMsg);
             } else {
                 final TextView bodyTextView = convertView.findViewById(R.id.messagesAdapter_body);
 
@@ -1334,7 +1310,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             } else if (row.getEvent().isUndelivered() || row.getEvent().isUnknownDevice()) {
                 textColor = mNotSentMessageTextColor;
             } else {
-                textColor = shouldHighlighted ? mHighlightMessageTextColor : mDefaultMessageTextColor;
+                textColor = shouldHighlighted ? mHighlightMessageTextColor : isOutgoingMsg ? mOutgoingMessageTextColor : mIncomingMessageTextColor;
             }
 
             for (final TextView tv : textViews) {
@@ -1362,7 +1338,8 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
      */
     private List<TextView> populateRowTypeCode(final Message message,
                                                final View convertView,
-                                               final boolean shouldHighlighted) {
+                                               final boolean shouldHighlighted,
+                                               final boolean isOutgoingMsg) {
         final List<TextView> textViews = new ArrayList<>();
         final LinearLayout container = convertView.findViewById(R.id.messages_container);
 
@@ -1386,18 +1363,18 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                         .replace(" ", "&nbsp;")
                         .trim();
 
-                final CharSequence htmlReady = mHelper.convertToHtml(minusTags);
+                final CharSequence htmlReady = mHelper.convertToHtml(minusTags, isOutgoingMsg ? mOutgoingMessageMarkdownBgColor : mIncomingMessageMarkdownBgColor);
                 final View blockView = mLayoutInflater.inflate(R.layout.adapter_item_vector_message_code_block, null);
                 final TextView tv = blockView.findViewById(R.id.messagesAdapter_body);
                 tv.setText(htmlReady);
 
-                mHelper.highlightFencedCode(tv);
+                mHelper.highlightFencedCode(tv, isOutgoingMsg ? mOutgoingMessageMarkdownBgColor : mIncomingMessageMarkdownBgColor);
                 mHelper.applyLinkMovementMethod(tv);
 
                 container.addView(blockView);
                 textViews.add(tv);
 
-                ((View) tv.getParent()).setBackgroundColor(ThemeUtils.INSTANCE.getColor(mContext, R.attr.vctr_markdown_block_background_color));
+                ((View) tv.getParent()).setBackgroundColor(isOutgoingMsg ? mOutgoingMessageMarkdownBgColor : mIncomingMessageMarkdownBgColor);
             } else {
                 // Not a fenced block
                 final TextView tv = (TextView) mLayoutInflater.inflate(R.layout.adapter_item_vector_message_code_text, null);
@@ -1408,7 +1385,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                         block2 = sanitized;
                     }
                 }
-                final CharSequence sequence = mHelper.convertToHtml(block2);
+                final CharSequence sequence = mHelper.convertToHtml(block2, isOutgoingMsg ? mOutgoingMessageMarkdownBgColor : mIncomingMessageMarkdownBgColor);
                 final CharSequence strBuilder = mHelper.highlightPattern(new SpannableString(sequence),
                         mPattern,
                         mBackgroundColorSpan,
@@ -1576,6 +1553,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
         try {
             MessageRow row = getItem(position);
             Event event = row.getEvent();
+            boolean isOutgoingMsg = TextUtils.equals(mSession.getMyUserId(), event.getSender());
 
             TextView emoteTextView = convertView.findViewById(R.id.messagesAdapter_body);
 
@@ -1593,7 +1571,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                 String htmlString = mHelper.getSanitisedHtml(message.formatted_body);
 
                 if (null != htmlString) {
-                    CharSequence sequence = mHelper.convertToHtml(htmlString);
+                    CharSequence sequence = mHelper.convertToHtml(htmlString, isOutgoingMsg ? mOutgoingMessageMarkdownBgColor : mIncomingMessageMarkdownBgColor);
 
                     body = TextUtils.concat("* ", row.getSenderDisplayName(), " ", sequence);
                 }
@@ -1614,7 +1592,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             } else if (row.getEvent().isUndelivered() || row.getEvent().isUnknownDevice()) {
                 textColor = mNotSentMessageTextColor;
             } else {
-                textColor = mDefaultMessageTextColor;
+                textColor = isOutgoingMsg ? mOutgoingMessageTextColor : mIncomingMessageTextColor;;
             }
 
             emoteTextView.setTextColor(textColor);

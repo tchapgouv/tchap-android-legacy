@@ -3,7 +3,7 @@
 <item>
     <rotate android:fromDegrees="45" android:toDegrees="45" android:pivotX="100%" android:pivotY="-40%" >
         <shape android:shape="rectangle" >
-            <solid android:color="@color/tchap_philact_me_color" />
+            <solid android:color="@color/tchap_outgoing_msg_phylact_background_color" />
         </shape>
     </rotate>
 </item>

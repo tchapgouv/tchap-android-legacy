@@ -18,6 +18,7 @@
 package im.vector.adapters;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -912,13 +913,13 @@ class VectorMessagesAdapterHelper {
      *
      * @param textView the text view
      */
-    void highlightFencedCode(final TextView textView) {
+    void highlightFencedCode(final TextView textView, int markdownBlockBgColor) {
         // sanity check
         if (null == textView) {
             return;
         }
 
-        textView.setBackgroundColor(ThemeUtils.INSTANCE.getColor(mContext, R.attr.vctr_markdown_block_background_color));
+        textView.setBackgroundColor(markdownBlockBgColor);
     }
 
     /**
@@ -973,10 +974,10 @@ class VectorMessagesAdapterHelper {
     }
 
 
-    CharSequence convertToHtml(String htmlFormattedText) {
+    CharSequence convertToHtml(String htmlFormattedText, int markdownBlockBgColor) {
         final HtmlTagHandler htmlTagHandler = new HtmlTagHandler();
         htmlTagHandler.mContext = mContext;
-        htmlTagHandler.setCodeBlockBackgroundColor(ThemeUtils.INSTANCE.getColor(mContext, R.attr.vctr_markdown_block_background_color));
+        htmlTagHandler.setCodeBlockBackgroundColor(markdownBlockBgColor);
 
         CharSequence sequence;
 
