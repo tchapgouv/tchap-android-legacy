@@ -403,10 +403,10 @@
             android:layout_height="wrap_content"
             android:layout_above="@id/room_reply_separator"
             android:minHeight="42dp"
-            android:paddingBottom="8dp"
+            android:paddingBottom="0dp"
             android:paddingTop="0dp"
             android:visibility="invisible"
-            tools:background="@color/vector_fuchsia_color"
+            tools:background="@color/vector_dark_grey_color"
             tools:visibility="visible" />
 
         <FrameLayout

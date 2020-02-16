@@ -169,7 +169,6 @@ class NotificationAreaView @JvmOverloads constructor(
     private fun cleanUp() {
         messageView.setOnClickListener(null)
         imageView.setOnClickListener(null)
-        setBackgroundColor(Color.TRANSPARENT)
         messageView.text = null
         imageView.setImageResource(0)
     }
@@ -193,20 +192,15 @@ class NotificationAreaView @JvmOverloads constructor(
         visibility = View.VISIBLE
         val resourceLimitErrorFormatter = ResourceLimitErrorFormatter(context)
         val formatterMode: ResourceLimitErrorFormatter.Mode
-        val backgroundColor: Int
         if (state.isSoft) {
-            backgroundColor = R.color.soft_resource_limit_exceeded
             formatterMode = ResourceLimitErrorFormatter.Mode.Soft
         } else {
-            backgroundColor = R.color.hard_resource_limit_exceeded
             formatterMode = ResourceLimitErrorFormatter.Mode.Hard
         }
         val message = resourceLimitErrorFormatter.format(state.matrixError, formatterMode, clickable = true)
-        messageView.setTextColor(Color.WHITE)
+        messageView.setTextColor(ThemeUtils.getColor(context, R.attr.vctr_room_notification_text_color))
         messageView.text = message
         messageView.movementMethod = LinkMovementMethod.getInstance()
-        messageView.setLinkTextColor(Color.WHITE)
-        setBackgroundColor(ContextCompat.getColor(context, backgroundColor))
     }
 
     private fun renderConnectionError() {

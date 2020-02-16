@@ -1,36 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_above="@id/bottom_separator"
-    android:minHeight="42dp"
-    android:paddingTop="0dp"
-    android:paddingBottom="8dp"
-    tools:background="@color/vector_fuchsia_color"
-    tools:parentTag="android.widget.RelativeLayout">
+    android:layout_above="@id/bottom_separator">
 
-    <ImageView
-        android:id="@+id/room_notification_icon"
-        android:layout_width="34dp"
-        android:layout_height="34dp"
-        android:layout_centerVertical="true"
-        android:layout_marginStart="20dp"
-        android:layout_marginLeft="20dp"
-        android:padding="5dp"
-        tools:src="@drawable/vector_typing" />
-
-    <TextView
-        android:id="@+id/room_notification_message"
-        android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/messagesAdapter_text_layout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_marginStart="68dp"
-        android:layout_marginLeft="68dp"
-        android:layout_marginEnd="13dp"
-        android:layout_marginRight="13dp"
-        android:accessibilityLiveRegion="polite"
-        android:textColor="?attr/vctr_room_notification_text_color"
-        tools:text="a text here" />
+        android:minHeight="42dp"
+        android:layout_gravity="start">
+
+        <ImageView
+            android:id="@+id/room_notification_bg"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/room_background"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/room_notification_icon"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginLeft="20dp"
+            android:padding="5dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:src="@drawable/vector_typing" />
+
+        <TextView
+            android:id="@+id/room_notification_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:layout_marginLeft="14dp"
+            android:layout_marginEnd="13dp"
+            android:layout_marginRight="13dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@id/room_notification_icon"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:accessibilityLiveRegion="polite"
+            android:textColor="?attr/vctr_room_notification_text_color"
+            tools:text="a text here" />
+        
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </merge>
