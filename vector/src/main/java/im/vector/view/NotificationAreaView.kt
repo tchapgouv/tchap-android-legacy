@@ -45,7 +45,7 @@ import org.matrix.androidsdk.core.MXPatterns
 import org.matrix.androidsdk.core.model.MatrixError
 import org.matrix.androidsdk.rest.model.RoomTombstoneContent
 import org.matrix.androidsdk.core.Log
-import org.matrix.androidsdk.core.PermalinkUtils
+import fr.gouv.tchap.util.createPermalink
 
 private const val LOG_TAG = "NotificationAreaView"
 
@@ -143,7 +143,7 @@ class NotificationAreaView @JvmOverloads constructor(
         visibility = View.VISIBLE
         imageView.setImageResource(R.drawable.error)
         val roomTombstoneContent = state.tombstoneContent
-        val roomLink = PermalinkUtils.createPermalink(roomTombstoneContent.replacementRoom)
+        val roomLink = createPermalink(context.getString(R.string.permalink_prefix),roomTombstoneContent.replacementRoom)
         val urlSpan = MatrixURLSpan(roomLink, MXPatterns.PATTERN_CONTAIN_APP_LINK_PERMALINK_ROOM_ID, delegate?.providesMessagesActionListener())
         val textColorInt = ThemeUtils.getColor(context, R.attr.vctr_message_text_color)
         val message = Spanny(resources.getString(R.string.room_tombstone_versioned_description),

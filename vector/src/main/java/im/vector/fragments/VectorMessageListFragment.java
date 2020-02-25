@@ -79,7 +79,7 @@ import java.util.Map;
 import fr.gouv.tchap.media.MediaScanManager;
 import fr.gouv.tchap.model.MediaScan;
 import fr.gouv.tchap.sdk.session.room.model.RoomRetentionKt;
-import fr.gouv.tchap.util.DinsicUtils;
+import fr.gouv.tchap.util.DinumPermalinkUtilsKt;
 import fr.gouv.tchap.util.DinumUtilsKt;
 import im.vector.BuildConfig;
 import im.vector.Matrix;
@@ -801,9 +801,9 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
                     startActivity(sendIntent);
                 }
             }
-        } /*else if (action == R.id.ic_action_vector_permalink) {
-            SystemUtilsKt.copyToClipboard(getActivity(), PermalinkUtils.createPermalink(event));
-        } */else if (action == R.id.ic_action_vector_report) {
+        } else if (action == R.id.ic_action_vector_permalink) {
+            SystemUtilsKt.copyToClipboard(getActivity(), DinumPermalinkUtilsKt.createPermalink(getContext().getString(R.string.permalink_prefix), event.roomId, event.eventId));
+        } else if (action == R.id.ic_action_vector_report) {
             onMessageReport(event);
         } else if ((action == R.id.ic_action_view_source) || (action == R.id.ic_action_view_decrypted_source)) {
             getActivity().runOnUiThread(new Runnable() {
@@ -1312,7 +1312,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
     public void onURLClick(Uri uri) {
         try {
             if (null != uri) {
-                Map<String, String> universalParams = VectorUniversalLinkReceiver.parseUniversalLink(uri);
+                Map<String, String> universalParams = VectorUniversalLinkReceiver.parseUniversalLink(getContext(), uri);
 
                 if (null != universalParams) {
                     // open the member sheet from the current activity
@@ -1354,37 +1354,37 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
 
     @Override
     public void onRoomAliasClick(String roomAlias) {
-        // Tchap disable permalink for the moment
-        /*try {
-            onURLClick(Uri.parse(PermalinkUtils.createPermalink(roomAlias)));
+        try {
+            String prefix = getContext().getString(R.string.permalink_prefix);
+            onURLClick(Uri.parse(DinumPermalinkUtilsKt.createPermalink(prefix, roomAlias)));
         } catch (Exception e) {
             Log.e(LOG_TAG, "onRoomAliasClick failed " + e.getLocalizedMessage(), e);
-        }*/
+        }
     }
 
     @Override
     public void onRoomIdClick(String roomId) {
-        // Tchap disable permalink for the moment
-        /*try {
-            onURLClick(Uri.parse(PermalinkUtils.createPermalink(roomId)));
+        try {
+            String prefix = getContext().getString(R.string.permalink_prefix);
+            onURLClick(Uri.parse(DinumPermalinkUtilsKt.createPermalink(prefix, roomId)));
         } catch (Exception e) {
             Log.e(LOG_TAG, "onRoomIdClick failed " + e.getLocalizedMessage(), e);
-        }*/
+        }
     }
 
     @Override
     public void onEventIdClick(String eventId) {
-        // Tchap disable permalink for the moment
-        /*try {
-            onURLClick(Uri.parse(PermalinkUtils.createPermalink(mRoom.getRoomId(), eventId)));
+        try {
+            String prefix = getContext().getString(R.string.permalink_prefix);
+            onURLClick(Uri.parse(DinumPermalinkUtilsKt.createPermalink(prefix, mRoom.getRoomId(), eventId)));
         } catch (Exception e) {
             Log.e(LOG_TAG, "onEventIdClick failed " + e.getLocalizedMessage(), e);
-        }*/
+        }
     }
 
     @Override
     public void onGroupIdClick(String groupId) {
-        // Tchap disable permalink for the moment
+        // Tchap disable permalink for the moment for group
         /*try {
             onURLClick(Uri.parse(PermalinkUtils.createPermalink(groupId)));
         } catch (Exception e) {

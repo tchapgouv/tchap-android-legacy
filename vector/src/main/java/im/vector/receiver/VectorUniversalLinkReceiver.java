@@ -42,6 +42,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import im.vector.Matrix;
+import im.vector.R;
 import im.vector.VectorApp;
 import im.vector.activity.CommonActivityUtils;
 import fr.gouv.tchap.activity.TchapLoginActivity;
@@ -67,9 +68,6 @@ public class VectorUniversalLinkReceiver extends BroadcastReceiver {
 
     // sender activities
     public static final String HOME_SENDER_ID = VectorHomeActivity.class.getSimpleName();
-
-    // supported host list
-    private static final List<String> sSupportedVectorHosts = Arrays.asList("www.tchap.gouv.fr", "www.beta.tchap.gouv.fr");
 
     // supported paths list
     private static final List<String> sSupportedVectorLinkPaths = Arrays.asList("/");
@@ -138,7 +136,7 @@ public class VectorUniversalLinkReceiver extends BroadcastReceiver {
                         + " path=" + intentUri.getPath() + " queryParams=" + intentUri.getQuery());
                 //intentUri.getEncodedSchemeSpecificPart() = //vector.im/beta/  intentUri.getSchemeSpecificPart() = //vector.im/beta/
 
-                Map<String, String> params = parseUniversalLink(intentUri);
+                Map<String, String> params = parseUniversalLink(aContext, intentUri);
 
                 if (null != params) {
 
@@ -378,18 +376,19 @@ public class VectorUniversalLinkReceiver extends BroadcastReceiver {
      * @param uri the uri to parse
      * @return the universal link items, null if the universal link is invalid
      */
-    public static Map<String, String> parseUniversalLink(Uri uri) {
-        return PermalinkUtils.parseUniversalLink(uri, sSupportedVectorHosts, sSupportedVectorLinkPaths);
+    public static Map<String, String> parseUniversalLink(Context context, Uri uri) {
+        List<String> supportedHosts = Arrays.asList(context.getResources().getStringArray(R.array.permalink_supported_hosts));
+        return PermalinkUtils.parseUniversalLink(uri, supportedHosts, sSupportedVectorLinkPaths);
     }
 
     /**
      * Stop the spinner on the home activity
      *
-     * @param aContext the context.
+     * @param context the context.
      */
-    private void stopHomeActivitySpinner(Context aContext) {
+    private void stopHomeActivitySpinner(Context context) {
         Intent myBroadcastIntent = new Intent(VectorHomeActivity.BROADCAST_ACTION_STOP_WAITING_VIEW);
-        LocalBroadcastManager.getInstance(aContext).sendBroadcast(myBroadcastIntent);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(myBroadcastIntent);
     }
 }
 

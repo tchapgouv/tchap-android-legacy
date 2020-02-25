@@ -426,7 +426,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
                 intent.removeExtra(VectorUniversalLinkReceiver.EXTRA_UNIVERSAL_LINK_URI);
 
                 // detect the room could be opened without waiting the next sync
-                Map<String, String> params = VectorUniversalLinkReceiver.parseUniversalLink(uri);
+                Map<String, String> params = VectorUniversalLinkReceiver.parseUniversalLink(this, uri);
 
                 if ((null != params) && params.containsKey(PermalinkUtils.ULINK_ROOM_ID_OR_ALIAS_KEY)) {
                     Log.d(LOG_TAG, "Has a valid universal link");

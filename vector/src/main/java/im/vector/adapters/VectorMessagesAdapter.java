@@ -79,7 +79,6 @@ import org.matrix.androidsdk.rest.model.message.StickerMessage;
 import org.matrix.androidsdk.core.EventDisplay;
 import org.matrix.androidsdk.core.JsonUtils;
 import org.matrix.androidsdk.core.Log;
-import org.matrix.androidsdk.core.PermalinkUtils;
 import org.matrix.androidsdk.view.HtmlTagHandler;
 
 import java.lang.reflect.Field;
@@ -99,6 +98,7 @@ import java.util.Set;
 
 import fr.gouv.tchap.media.MediaScanManager;
 import fr.gouv.tchap.model.MediaScan;
+import fr.gouv.tchap.util.DinumPermalinkUtilsKt;
 import im.vector.R;
 import im.vector.VectorApp;
 import im.vector.extensions.MatrixSdkExtensionsKt;
@@ -1746,7 +1746,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
         // In this case, predecessor cannot be null
         final RoomCreateContent.Predecessor predecessor = row.getRoomCreateContentPredecessor();
 
-        final String roomLink = PermalinkUtils.createPermalink(predecessor.roomId);
+        final String roomLink = DinumPermalinkUtilsKt.createPermalink(getContext().getString(R.string.permalink_prefix), predecessor.roomId);
         final ClickableSpan urlSpan = new MatrixURLSpan(roomLink, MXPatterns.PATTERN_CONTAIN_APP_LINK_PERMALINK_ROOM_ID, mVectorMessagesAdapterEventsListener);
         final int textColorInt = ContextCompat.getColor(mContext, R.color.riot_primary_text_color_light);
         final CharSequence text = new Spanny(mContext.getString(R.string.room_tombstone_continuation_description),
@@ -2669,7 +2669,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
 
         menu.findItem(R.id.ic_action_view_source).setVisible(true);
         menu.findItem(R.id.ic_action_view_decrypted_source).setVisible(event.isEncrypted() && (null != event.getClearEvent()));
-        menu.findItem(R.id.ic_action_vector_permalink).setVisible(false);// Tchap disable permalink
+        menu.findItem(R.id.ic_action_vector_permalink).setVisible(true);
 
         if (!TextUtils.isEmpty(textMsg) && !isUncheckedOrUntrustedMediaEvent) {
             menu.findItem(R.id.ic_action_vector_copy).setVisible(true);

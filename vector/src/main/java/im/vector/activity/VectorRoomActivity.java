@@ -2879,11 +2879,6 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
             if (TextUtils.isEmpty(titleToApply)) {
                 titleToApply = mDefaultRoomName;
             }
-
-            // in context mode, add search to the title.
-            if (!TextUtils.isEmpty(mEventId) && !mIsUnreadPreviewMode) {
-                titleToApply = getText(R.string.search) + " : " + titleToApply;
-            }
         } else if (null != sRoomPreviewData) {
             //try to put real name
             if (sRoomPreviewData.getRoomState() != null
