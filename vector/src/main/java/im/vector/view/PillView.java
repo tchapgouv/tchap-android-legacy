@@ -38,6 +38,9 @@ import org.matrix.androidsdk.core.model.MatrixError;
 import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.core.Log;
 
+import java.util.Arrays;
+import java.util.List;
+
 import fr.gouv.tchap.util.DinsicUtils;
 import fr.gouv.tchap.util.DinumPermalinkUtilsKt;
 import im.vector.R;
@@ -97,7 +100,7 @@ public class PillView extends LinearLayout {
      * @param url the url
      * @return true if a pill can be made.
      */
-    public static boolean isPillable(@NonNull String[] supportedHosts, String url) {
+    public static boolean isPillable(@NonNull List<String> supportedHosts, String url) {
         return (null != url)
                 && (DinumPermalinkUtilsKt.getRoomAliasFromPermalink(supportedHosts, url) != null
                 || DinumPermalinkUtilsKt.getUserIdFromPermalink(supportedHosts, url) != null);
@@ -134,7 +137,7 @@ public class PillView extends LinearLayout {
         a.recycle();
         mTextView.setTextColor(ContextCompat.getColor(getContext(), attributeResourceId));
 
-        String[] supportedHosts = getContext().getResources().getStringArray(R.array.permalink_supported_hosts);
+        List<String> supportedHosts = Arrays.asList(getContext().getResources().getStringArray(R.array.permalink_supported_hosts));
 
         // Check whether the url is related to a user
         final String linkedUserId = DinumPermalinkUtilsKt.getUserIdFromPermalink(supportedHosts, url);

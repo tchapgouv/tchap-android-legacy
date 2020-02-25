@@ -794,7 +794,7 @@ class VectorMessagesAdapterHelper {
 
         if (start >= 0 && end >= 0) {
             int flags = strBuilder.getSpanFlags(span);
-            String[] supportedHosts = mContext.getResources().getStringArray(R.array.permalink_supported_hosts);
+            List<String> supportedHosts = Arrays.asList(mContext.getResources().getStringArray(R.array.permalink_supported_hosts));
 
             if (PillView.isPillable(supportedHosts, span.getURL())) {
                 // This URL link can be replaced by a Pill:

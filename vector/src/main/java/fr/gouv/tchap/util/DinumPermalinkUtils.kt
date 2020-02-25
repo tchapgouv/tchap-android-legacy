@@ -60,8 +60,9 @@ private fun escape(id: String): String {
  * @param url
  * @return the room alias (if any), null if none
  */
-fun getRoomAliasFromPermalink(supportedHosts: Array<String>, url: String): String? {
-    return Uri.parse(url).takeIf { supportedHosts.contains(it.host)
+fun getRoomAliasFromPermalink(supportedHosts: List<String>, url: String): String? {
+    return Uri.parse(url)
+            .takeIf { supportedHosts.contains(it.host)
             && PERMALINK_SUPPORTED_PATHS.contains(it.path) }
             ?.encodedFragment
             ?.split("/", limit = 3)
@@ -82,8 +83,9 @@ fun getRoomAliasFromPermalink(supportedHosts: Array<String>, url: String): Strin
  * @param url
  * @return the user id (if any), null if none
  */
-fun getUserIdFromPermalink(supportedHosts: Array<String>, url: String): String? {
-    return Uri.parse(url).takeIf { supportedHosts.contains(it.host)
+fun getUserIdFromPermalink(supportedHosts: List<String>, url: String): String? {
+    return Uri.parse(url)
+            .takeIf { supportedHosts.contains(it.host)
             && PERMALINK_SUPPORTED_PATHS.contains(it.path) }
             ?.encodedFragment
             ?.split("/", limit = 3)
