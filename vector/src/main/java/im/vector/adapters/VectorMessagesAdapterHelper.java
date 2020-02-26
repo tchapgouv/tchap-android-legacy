@@ -791,12 +791,13 @@ class VectorMessagesAdapterHelper {
     private void makeLinkClickable(SpannableStringBuilder strBuilder, final URLSpan span, final boolean isHighlighted) {
         int start = strBuilder.getSpanStart(span);
         int end = strBuilder.getSpanEnd(span);
+        String url = span.getURL();
 
-        if (start >= 0 && end >= 0) {
+        if (start >= 0 && end >= 0 && url != null) {
             int flags = strBuilder.getSpanFlags(span);
             List<String> supportedHosts = Arrays.asList(mContext.getResources().getStringArray(R.array.permalink_supported_hosts));
 
-            if (PillView.isPillable(supportedHosts, span.getURL())) {
+            if (PillView.isPillable(supportedHosts, url)) {
                 // This URL link can be replaced by a Pill:
                 // Build the Drawable spannable thanks to a PillView
                 // And replace the URLSpan by a clickable ImageSpan

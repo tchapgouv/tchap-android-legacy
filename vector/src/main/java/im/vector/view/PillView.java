@@ -31,6 +31,7 @@ import android.widget.TextView;
 
 import org.matrix.androidsdk.core.MXPatterns;
 import org.matrix.androidsdk.MXSession;
+import org.matrix.androidsdk.core.PermalinkUtils;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomPreviewData;
 import org.matrix.androidsdk.core.callback.ApiCallback;
@@ -100,10 +101,18 @@ public class PillView extends LinearLayout {
      * @param url the url
      * @return true if a pill can be made.
      */
-    public static boolean isPillable(@NonNull List<String> supportedHosts, String url) {
-        return (null != url)
-                && (DinumPermalinkUtilsKt.getRoomAliasFromPermalink(supportedHosts, url) != null
-                || DinumPermalinkUtilsKt.getUserIdFromPermalink(supportedHosts, url) != null);
+    public static boolean isPillable(@NonNull List<String> supportedHosts, @NonNull String url) {
+        boolean isPillable;
+
+        String linkedId = PermalinkUtils.getLinkedId(url);
+        if (linkedId != null) {
+            isPillable = (MXPatterns.isUserId(linkedId) || MXPatterns.isRoomAlias(linkedId));
+        } else {
+            isPillable = (DinumPermalinkUtilsKt.getUserIdFromPermalink(supportedHosts, url) != null
+                    || DinumPermalinkUtilsKt.getRoomAliasFromPermalink(supportedHosts, url) != null);
+        }
+
+        return isPillable;
     }
 
     /**
@@ -137,10 +146,27 @@ public class PillView extends LinearLayout {
         a.recycle();
         mTextView.setTextColor(ContextCompat.getColor(getContext(), attributeResourceId));
 
-        List<String> supportedHosts = Arrays.asList(getContext().getResources().getStringArray(R.array.permalink_supported_hosts));
+        String linkedUserId = null;
+        String linkedRoomAlias = null;
 
-        // Check whether the url is related to a user
-        final String linkedUserId = DinumPermalinkUtilsKt.getUserIdFromPermalink(supportedHosts, url);
+        // Check whether the url is a "matrix.to" url
+        final String linkedId = PermalinkUtils.getLinkedId(url);
+        if (linkedId != null) {
+            if (MXPatterns.isUserId(linkedId)) {
+                linkedUserId = linkedId;
+            } else if (MXPatterns.isRoomAlias(linkedId)) {
+                linkedRoomAlias = linkedId;
+            }
+        } else {
+            // Check whether the url is related to a user
+            List<String> supportedHosts = Arrays.asList(getContext().getResources().getStringArray(R.array.permalink_supported_hosts));
+            linkedUserId = DinumPermalinkUtilsKt.getUserIdFromPermalink(supportedHosts, url);
+            if (linkedUserId == null) {
+                // Check whether the url is related to a room alias
+                linkedRoomAlias = DinumPermalinkUtilsKt.getRoomAliasFromPermalink(supportedHosts, url);
+            }
+        }
+
         if (linkedUserId != null) {
             User user = session.getDataHandler().getUser(linkedUserId);
 
@@ -151,76 +177,74 @@ public class PillView extends LinearLayout {
             }
 
             VectorUtils.loadUserAvatar(VectorApp.getInstance(), session, mAvatarView, user);
-        } else {
-            final String linkedRoomAlias = DinumPermalinkUtilsKt.getRoomAliasFromPermalink(supportedHosts, url);
-            if (linkedRoomAlias != null) {
-                session.getDataHandler().roomIdByAlias(linkedRoomAlias, new ApiCallback<String>() {
-                    @Override
-                    public void onSuccess(String roomId) {
-                        if (null != mOnUpdateListener) {
-                            // Check whether the room is available
-                            Room room = session.getDataHandler().getRoom(roomId, false);
-                            if (null != room) {
-                                VectorUtils.loadRoomAvatar(VectorApp.getInstance(), session, mAvatarView, room);
-                            } else {
-                                // Here the room is not joined by the user yet.
-                                // Display the default avatar based on the room alias.
-                                final Bitmap bitmap = VectorUtils.getAvatar(VectorApp.getInstance(),
-                                        VectorUtils.getAvatarColor(roomId),
-                                        linkedRoomAlias,
-                                        true);
-                                mAvatarView.setImageBitmap(bitmap);
+        } else if (linkedRoomAlias != null) {
+            final String finalLinkedRoomAlias = linkedRoomAlias;
+            session.getDataHandler().roomIdByAlias(finalLinkedRoomAlias, new ApiCallback<String>() {
+                @Override
+                public void onSuccess(String roomId) {
+                    if (null != mOnUpdateListener) {
+                        // Check whether the room is available
+                        Room room = session.getDataHandler().getRoom(roomId, false);
+                        if (null != room) {
+                            VectorUtils.loadRoomAvatar(VectorApp.getInstance(), session, mAvatarView, room);
+                        } else {
+                            // Here the room is not joined by the user yet.
+                            // Display the default avatar based on the room alias.
+                            final Bitmap bitmap = VectorUtils.getAvatar(VectorApp.getInstance(),
+                                    VectorUtils.getAvatarColor(roomId),
+                                    finalLinkedRoomAlias,
+                                    true);
+                            mAvatarView.setImageBitmap(bitmap);
 
-                                // Fetch the preview data to display the room avatar if any.
-                                final RoomPreviewData roomPreviewData = new RoomPreviewData(session,
-                                        roomId,
-                                        null,
-                                        linkedRoomAlias,
-                                        null);
+                            // Fetch the preview data to display the room avatar if any.
+                            final RoomPreviewData roomPreviewData = new RoomPreviewData(session,
+                                    roomId,
+                                    null,
+                                    finalLinkedRoomAlias,
+                                    null);
 
-                                roomPreviewData.fetchPreviewData(new ApiCallback<Void>() {
-                                    @Override
-                                    public void onSuccess(Void info) {
-                                        if (null != mOnUpdateListener) {
-                                            VectorUtils.loadRoomAvatar(VectorApp.getInstance(), session, mAvatarView, roomPreviewData);
-                                        }
+                            roomPreviewData.fetchPreviewData(new ApiCallback<Void>() {
+                                @Override
+                                public void onSuccess(Void info) {
+                                    if (null != mOnUpdateListener) {
+                                        VectorUtils.loadRoomAvatar(VectorApp.getInstance(), session, mAvatarView, roomPreviewData);
                                     }
+                                }
 
-                                    @Override
-                                    public void onNetworkError(Exception e) {
-                                        Log.e(LOG_TAG, "## initData() : fetchPreviewData failed " + e.getMessage(), e);
-                                    }
+                                @Override
+                                public void onNetworkError(Exception e) {
+                                    Log.e(LOG_TAG, "## initData() : fetchPreviewData failed " + e.getMessage(), e);
+                                }
 
-                                    @Override
-                                    public void onMatrixError(MatrixError e) {
-                                        Log.e(LOG_TAG, "## initData() : fetchPreviewData failed " + e.getMessage());
-                                    }
+                                @Override
+                                public void onMatrixError(MatrixError e) {
+                                    Log.e(LOG_TAG, "## initData() : fetchPreviewData failed " + e.getMessage());
+                                }
 
-                                    @Override
-                                    public void onUnexpectedError(Exception e) {
-                                        Log.e(LOG_TAG, "## initData() : fetchPreviewData failed " + e.getMessage(), e);
-                                    }
-                                });
-                            }
+                                @Override
+                                public void onUnexpectedError(Exception e) {
+                                    Log.e(LOG_TAG, "## initData() : fetchPreviewData failed " + e.getMessage(), e);
+                                }
+                            });
                         }
                     }
+                }
 
-                    @Override
-                    public void onNetworkError(Exception e) {
-                        Log.e(LOG_TAG, "## initData() : roomIdByAlias failed " + e.getMessage(), e);
-                    }
+                @Override
+                public void onNetworkError(Exception e) {
+                    Log.e(LOG_TAG, "## initData() : roomIdByAlias failed " + e.getMessage(), e);
+                }
 
-                    @Override
-                    public void onMatrixError(MatrixError e) {
-                        Log.e(LOG_TAG, "## initData() : roomIdByAlias failed " + e.getMessage());
-                    }
+                @Override
+                public void onMatrixError(MatrixError e) {
+                    Log.e(LOG_TAG, "## initData() : roomIdByAlias failed " + e.getMessage());
+                }
 
-                    @Override
-                    public void onUnexpectedError(Exception e) {
-                        Log.e(LOG_TAG, "## initData() : roomIdByAlias failed " + e.getMessage(), e);
-                    }
-                });
-            }
+                @Override
+                public void onUnexpectedError(Exception e) {
+                    Log.e(LOG_TAG, "## initData() : roomIdByAlias failed " + e.getMessage(), e);
+                }
+            });
         }
     }
 
