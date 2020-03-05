@@ -196,7 +196,7 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_below="@+id/jump_to_first_unread_label"
-            android:background="?attr/vctr_room_activity_divider_color" />
+            android:background="?attr/room_header_divider_color" />
 
     </RelativeLayout>
 
@@ -338,7 +338,7 @@
             android:layout_above="@id/room_bottom_layout"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:background="?attr/vctr_room_activity_divider_color" />
+            android:background="?attr/room_header_divider_color" />
 
         <RelativeLayout
             android:id="@+id/room_reply_area"
@@ -403,16 +403,18 @@
             android:layout_height="wrap_content"
             android:layout_above="@id/room_reply_separator"
             android:minHeight="42dp"
-            android:paddingBottom="8dp"
-            android:paddingTop="8dp"
+            android:paddingBottom="0dp"
+            android:paddingTop="0dp"
             android:visibility="invisible"
-            tools:background="@color/vector_fuchsia_color"
+            tools:background="@color/vector_dark_grey_color"
             tools:visibility="visible" />
 
         <FrameLayout
             android:id="@+id/anchor_fragment_messages"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_centerHorizontal="true"
+            android:background="@color/riot_primary_background_color_black"
             android:layout_above="@id/room_notification_separator" />
 
         <View
@@ -420,7 +422,7 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_above="@id/room_notifications_area"
-            android:background="?attr/vctr_room_activity_divider_color" />
+            android:background="?attr/room_header_divider_color" />
 
         <TextView
             android:id="@+id/room_cannot_post_textview"

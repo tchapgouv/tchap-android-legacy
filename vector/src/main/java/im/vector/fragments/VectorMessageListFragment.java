@@ -22,6 +22,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -39,6 +40,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.FileProvider;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.FragmentManager;
 
 import com.google.gson.Gson;
@@ -81,11 +83,11 @@ import java.util.Map;
 import fr.gouv.tchap.media.MediaScanManager;
 import fr.gouv.tchap.model.MediaScan;
 import fr.gouv.tchap.sdk.session.room.model.RoomRetentionKt;
-import fr.gouv.tchap.util.DinsicUtils;
 import fr.gouv.tchap.util.DinumUtilsKt;
 import im.vector.BuildConfig;
 import im.vector.Matrix;
 import im.vector.R;
+import im.vector.VectorApp;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.MXCActionBarActivity;
 import im.vector.activity.VectorAppCompatActivity;
@@ -215,6 +217,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
 
         if (null != mRoom) {
             mAdapter.mIsRoomEncrypted = mRoom.isEncrypted();
+            mAdapter.mIsDirectRoom = mRoom.isDirect();
 
             if (null != mSession) {
                 DinumUtilsKt.clearExpiredRoomContents(mSession, mRoom);
@@ -233,8 +236,8 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
             }
         });
 
-        v.setBackgroundColor(ThemeUtils.INSTANCE.getColor(getActivity(), android.R.attr.colorBackground));
-
+        Drawable myDrawable = ResourcesCompat.getDrawable(VectorApp.getInstance().getResources(), R.drawable.room_background, null);
+        v.setBackground(myDrawable);
         return v;
     }
 

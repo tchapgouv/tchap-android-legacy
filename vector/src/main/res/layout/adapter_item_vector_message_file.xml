@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -10,14 +11,14 @@
         android:visibility="gone"
         tools:visibility="visible" />
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/messagesAdapter_body_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
         android:orientation="horizontal">
 
         <im.vector.view.VectorCircularImageView
@@ -29,21 +30,16 @@
             android:scaleType="centerCrop"
             tools:src="@tools:sample/avatars" />
 
-        <View
-            android:id="@+id/messagesAdapter_highlight_message_marker"
-            android:layout_width="6dp"
-            android:layout_height="match_parent"
-            android:layout_marginStart="5dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginEnd="5dp"
-            android:layout_marginRight="5dp"
-            tools:background="?attr/colorAccent" />
-
         <LinearLayout
-            android:layout_width="0dp"
+            android:id="@+id/messageAdapter_heart"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_weight="1"
+            android:layout_marginRight="30dp"
+            android:layout_marginBottom="2dp"
+            android:layout_toEndOf="@id/messagesAdapter_left_phylact"
+            android:layout_toRightOf="@id/messagesAdapter_left_phylact"
+            android:background="@drawable/round_rectangle"
             android:orientation="vertical"
             android:paddingBottom="5dp">
 
@@ -67,6 +63,8 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentRight="true"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginEnd="5dp"
                     android:orientation="horizontal">
 
                     <include layout="@layout/vector_message_timestamp" />
@@ -82,27 +80,36 @@
                     android:id="@+id/messagesAdapter_body_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="4dp"
                     android:layout_marginEnd="4dp"
                     android:layout_marginRight="4dp">
 
-                    <RelativeLayout
+                    <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/messagesAdapter_file_layout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
-                        <ImageView
-                            android:id="@+id/message_adapter_e2e_icon"
-                            android:layout_width="14dp"
-                            android:layout_height="14dp"
-                            android:src="@drawable/e2e_verified" />
+                        <View
+                            android:id="@+id/messagesAdapter_highlight_message_marker"
+                            android:layout_width="5dp"
+                            android:layout_height="0dp"
+                            android:layout_marginStart="6dp"
+                            android:layout_marginLeft="6dp"
+                            android:layout_marginTop="0dp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            tools:background="?attr/colorAccent" />
 
                         <LinearLayout
-                            android:layout_width="match_parent"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="4dp"
                             android:layout_marginLeft="4dp"
-                            android:layout_toEndOf="@id/message_adapter_e2e_icon"
-                            android:layout_toRightOf="@id/message_adapter_e2e_icon"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toEndOf="@+id/messagesAdapter_highlight_message_marker"
+                            app:layout_constraintTop_toTopOf="parent"
                             android:orientation="horizontal">
 
                             <!-- the media type -->
@@ -121,6 +128,7 @@
                                 android:layout_height="@dimen/chat_avatar_size"
                                 android:layout_marginStart="4dp"
                                 android:layout_marginLeft="4dp"
+                                android:layout_marginBottom="2dp"
                                 android:layout_weight="1"
                                 android:autoLink="none"
                                 android:gravity="center_vertical"
@@ -133,9 +141,12 @@
                             android:id="@+id/upload_event_spinner"
                             android:layout_width="@dimen/chat_avatar_size"
                             android:layout_height="@dimen/chat_avatar_size"
-                            android:layout_centerInParent="true" />
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent" />
 
-                    </RelativeLayout>
+                    </androidx.constraintlayout.widget.ConstraintLayout>
 
                 </FrameLayout>
 
@@ -163,7 +174,31 @@
 
         </LinearLayout>
 
-    </LinearLayout>
+        <ImageView
+            android:id="@+id/messagesAdapter_left_phylact"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginStart="-9dp"
+            android:layout_marginLeft="-9dp"
+            android:layout_marginEnd="-5dp"
+            android:layout_marginRight="-5dp"
+            android:layout_toEndOf="@id/messagesAdapter_avatar"
+            android:layout_toRightOf="@id/messagesAdapter_avatar"
+            android:src="@drawable/left_phylact" />
+
+        <ImageView
+            android:id="@+id/messagesAdapter_right_phylact"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginStart="-15dp"
+            android:layout_marginLeft="-15dp"
+            android:layout_marginEnd="-25dp"
+            android:layout_marginRight="-25dp"
+            android:layout_toEndOf="@id/messageAdapter_heart"
+            android:layout_toRightOf="@id/messageAdapter_heart"
+            android:src="@drawable/right_phylact"
+            android:visibility="visible" />
+</RelativeLayout>
 
     <include
         android:id="@+id/messagesAdapter_avatars_list"

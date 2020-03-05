@@ -23,7 +23,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -38,6 +37,7 @@ import android.text.style.BackgroundColorSpan;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -50,6 +50,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -100,6 +101,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import androidx.core.content.res.ResourcesCompat;
 import fr.gouv.tchap.media.MediaScanManager;
 import fr.gouv.tchap.model.MediaScan;
 import im.vector.R;
@@ -147,15 +149,14 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
     // it avoids computing them several times
     private final Map<String, String> mEventFormattedTsMap = new HashMap<>();
 
-    // define the e2e icon to use for a dedicated eventId
-    // can be a drawable or
-    private Map<String, Object> mE2eIconByEventId = new HashMap<>();
-
     // device info by device id
     private Map<String, MXDeviceInfo> mE2eDeviceByEventId = new HashMap<>();
 
     // true when the room is encrypted
     public boolean mIsRoomEncrypted;
+
+    // true when the room is a 1:1 discussion
+    public boolean mIsDirectRoom;
 
     // Current sessionId set waiting for an encryption key, after a reRequest from user
     private Set<String> mSessionIdsWaitingForE2eReRequest = new HashSet<>();
@@ -192,6 +193,10 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
     private final int mSendingMessageTextColor;
     private final int mEncryptingMessageTextColor;
     private final int mHighlightMessageTextColor;
+    private final int mIncomingMessageTextColor;
+    private final int mOutgoingMessageTextColor;
+    private final int mIncomingMessageMarkdownBgColor;
+    private final int mOutgoingMessageMarkdownBgColor;
     protected BackgroundColorSpan mBackgroundColorSpan;
 
     private final int mMaxImageWidth;
@@ -230,9 +235,6 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
 
     // Key is member id.
     private final Map<String, RoomMember> mLiveRoomMembers = new HashMap<>();
-
-    // the color depends in the theme
-    private final Drawable mPadlockDrawable;
 
     private VectorImageGetter mImageGetter;
 
@@ -362,6 +364,10 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
         mSendingMessageTextColor = getSendingMessageTextColor();
         mEncryptingMessageTextColor = getEncryptingMessageTextColor();
         mHighlightMessageTextColor = getHighlightMessageTextColor();
+        mIncomingMessageTextColor = ContextCompat.getColor(mContext, R.color.primary_color_light);
+        mOutgoingMessageTextColor = Color.WHITE;
+        mIncomingMessageMarkdownBgColor = ContextCompat.getColor(mContext, R.color.tchap_incoming_msg_markdown_block_background_color);
+        mOutgoingMessageMarkdownBgColor = ContextCompat.getColor(mContext, R.color.tchap_outgoing_msg_markdown_block_background_color);
         mBackgroundColorSpan = new BackgroundColorSpan(getSearchHighlightMessageTextColor());
 
         Point size = new Point(0, 0);
@@ -390,9 +396,6 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
 
         mAlwaysShowTimeStamps = PreferencesManager.alwaysShowTimeStamps(VectorApp.getInstance());
         mShowReadReceipts = PreferencesManager.showReadReceipts(VectorApp.getInstance());
-
-        mPadlockDrawable = ThemeUtils.INSTANCE.tintDrawable(mContext,
-                ContextCompat.getDrawable(mContext, R.drawable.e2e_unencrypted), R.attr.vctr_settings_icon_tint_color);
     }
 
     /*
@@ -820,7 +823,6 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
         if (null != inflatedView) {
             inflatedView.setBackgroundColor(Color.TRANSPARENT);
             inflatedView.setTag(viewType);
-            displayE2eIcon(inflatedView, position);
             displayE2eReRequest(inflatedView, position);
         }
 
@@ -865,7 +867,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
         // build event -> date list
         refreshRefreshDateList();
 
-        manageCryptoEvents();
+        //manageDeviceInfoOfCryptoEvents();
 
         //  do not refresh the room when the application is in background
         // on large rooms, it drains a lot of battery
@@ -1161,31 +1163,64 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             }
         }
 
-        // inherited class custom behaviour
         isMergedView = mergeView(event, position, isMergedView);
-
-        // init senders
-        mHelper.setSenderValue(convertView, row, isMergedView);
+        boolean isOutgoingMsg = TextUtils.equals(mSession.getMyUserId(), event.getSender());
+        int avatarVisibility = (mIsDirectRoom || isOutgoingMsg || isMergedView) ? View.GONE : View.VISIBLE;
+        mHelper.setSenderAvatar(convertView, row, avatarVisibility);
+        mHelper.updatePhylactView(convertView, isMergedView, isOutgoingMsg);
+        mHelper.setSenderValue(convertView, row, isMergedView, isOutgoingMsg);
 
         // message timestamp
         TextView tsTextView = VectorMessagesAdapterHelper.setTimestampValue(convertView, getFormattedTimestamp(event));
-
         if (null != tsTextView) {
-            if (row.getEvent().isUndelivered() || row.getEvent().isUnknownDevice()) {
+            if (event.isUndelivered() || event.isUnknownDevice()) {
                 tsTextView.setTextColor(mNotSentMessageTextColor);
             } else {
-                tsTextView.setTextColor(ThemeUtils.INSTANCE.getColor(mContext, android.R.attr.textColorSecondary));
+                tsTextView.setTextColor(isOutgoingMsg ? mOutgoingMessageTextColor : mIncomingMessageTextColor);
             }
 
             tsTextView.setVisibility((((position + 1) == getCount()) || mIsSearchMode || mAlwaysShowTimeStamps) ? View.VISIBLE : View.GONE);
         }
 
-        // Sender avatar
-        View avatarView = mHelper.setSenderAvatar(convertView, row, isMergedView);
+        TextView filenameTextView = convertView.findViewById(R.id.messagesAdapter_filename);
+        if (filenameTextView != null) {
+            filenameTextView.setTextColor(isOutgoingMsg ? mOutgoingMessageTextColor : mIncomingMessageTextColor);
+        }
 
-        View bodyLayoutView = convertView.findViewById(R.id.messagesAdapter_body_layout);
+        TextView e2eTextView = convertView.findViewById(R.id.messagesAdapter_re_request_e2e_key);
+        if (e2eTextView != null) {
+            e2eTextView.setTextColor(isOutgoingMsg ? mOutgoingMessageTextColor : mIncomingMessageTextColor);
+        }
+
+        View heartView = convertView.findViewById(R.id.messageAdapter_heart);
+        if (heartView != null) {
+            int rightInDP = 30;
+            int leftInDP = 0;
+            if (isOutgoingMsg) {
+                heartView.setBackground(ResourcesCompat.getDrawable(VectorApp.getInstance().getResources(), R.drawable.colored_round_rectangle, null));
+                rightInDP = 8;
+                leftInDP = 20 + 40;
+            } else {
+                heartView.setBackground(ResourcesCompat.getDrawable(VectorApp.getInstance().getResources(), R.drawable.round_rectangle, null));
+                if (mIsDirectRoom) {
+                    rightInDP += 40; //avatarView.getLayoutParams().width;
+                } else if (isMergedView) {
+                    leftInDP += 40;
+                }
+
+            }
+            int rightMargin = (int) TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP, rightInDP, mContext.getResources()
+                            .getDisplayMetrics());
+            int leftMargin = (int) TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP, leftInDP, mContext.getResources()
+                            .getDisplayMetrics());
+            RelativeLayout.LayoutParams parameter = (RelativeLayout.LayoutParams) heartView.getLayoutParams();
+            parameter.setMargins(leftMargin, parameter.topMargin, rightMargin, parameter.bottomMargin); // left, top, right, bottom
+        }
 
         // messages separator
+
         View messageSeparatorView = convertView.findViewById(R.id.messagesAdapter_message_separator);
 
         if (null != messageSeparatorView) {
@@ -1206,10 +1241,11 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
         manageSelectionMode(convertView, event, msgType);
 
         // read marker
-        setReadMarker(convertView, row, isMergedView, avatarView, bodyLayoutView);
+        setReadMarker(convertView, row, isOutgoingMsg);
 
         // download / upload progress layout
         if ((ROW_TYPE_IMAGE == msgType) || (ROW_TYPE_FILE == msgType) || (ROW_TYPE_VIDEO == msgType) || (ROW_TYPE_STICKER == msgType)) {
+            View bodyLayoutView = convertView.findViewById(R.id.messagesAdapter_body_layout);
             VectorMessagesAdapterHelper.setMediaProgressLayout(convertView, bodyLayoutView);
         }
     }
@@ -1232,13 +1268,13 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             MessageRow row = getItem(position);
             Event event = row.getEvent();
             Message message = JsonUtils.toMessage(event.getContent());
-
+            boolean isOutgoingMsg = TextUtils.equals(mSession.getMyUserId(), event.getSender());
             boolean shouldHighlighted = (null != mVectorMessagesAdapterEventsListener) && mVectorMessagesAdapterEventsListener.shouldHighlightEvent(event);
 
             final List<TextView> textViews;
 
             if (ROW_TYPE_CODE == viewType) {
-                textViews = populateRowTypeCode(message, convertView, shouldHighlighted);
+                textViews = populateRowTypeCode(message, convertView, shouldHighlighted, isOutgoingMsg);
             } else {
                 final TextView bodyTextView = convertView.findViewById(R.id.messagesAdapter_body);
 
@@ -1274,7 +1310,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             } else if (row.getEvent().isUndelivered() || row.getEvent().isUnknownDevice()) {
                 textColor = mNotSentMessageTextColor;
             } else {
-                textColor = shouldHighlighted ? mHighlightMessageTextColor : mDefaultMessageTextColor;
+                textColor = shouldHighlighted ? mHighlightMessageTextColor : isOutgoingMsg ? mOutgoingMessageTextColor : mIncomingMessageTextColor;
             }
 
             for (final TextView tv : textViews) {
@@ -1302,7 +1338,8 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
      */
     private List<TextView> populateRowTypeCode(final Message message,
                                                final View convertView,
-                                               final boolean shouldHighlighted) {
+                                               final boolean shouldHighlighted,
+                                               final boolean isOutgoingMsg) {
         final List<TextView> textViews = new ArrayList<>();
         final LinearLayout container = convertView.findViewById(R.id.messages_container);
 
@@ -1326,18 +1363,18 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                         .replace(" ", "&nbsp;")
                         .trim();
 
-                final CharSequence htmlReady = mHelper.convertToHtml(minusTags);
+                final CharSequence htmlReady = mHelper.convertToHtml(minusTags, isOutgoingMsg ? mOutgoingMessageMarkdownBgColor : mIncomingMessageMarkdownBgColor);
                 final View blockView = mLayoutInflater.inflate(R.layout.adapter_item_vector_message_code_block, null);
                 final TextView tv = blockView.findViewById(R.id.messagesAdapter_body);
                 tv.setText(htmlReady);
 
-                mHelper.highlightFencedCode(tv);
+                mHelper.highlightFencedCode(tv, isOutgoingMsg ? mOutgoingMessageMarkdownBgColor : mIncomingMessageMarkdownBgColor);
                 mHelper.applyLinkMovementMethod(tv);
 
                 container.addView(blockView);
                 textViews.add(tv);
 
-                ((View) tv.getParent()).setBackgroundColor(ThemeUtils.INSTANCE.getColor(mContext, R.attr.vctr_markdown_block_background_color));
+                ((View) tv.getParent()).setBackgroundColor(isOutgoingMsg ? mOutgoingMessageMarkdownBgColor : mIncomingMessageMarkdownBgColor);
             } else {
                 // Not a fenced block
                 final TextView tv = (TextView) mLayoutInflater.inflate(R.layout.adapter_item_vector_message_code_text, null);
@@ -1348,7 +1385,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                         block2 = sanitized;
                     }
                 }
-                final CharSequence sequence = mHelper.convertToHtml(block2);
+                final CharSequence sequence = mHelper.convertToHtml(block2, isOutgoingMsg ? mOutgoingMessageMarkdownBgColor : mIncomingMessageMarkdownBgColor);
                 final CharSequence strBuilder = mHelper.highlightPattern(new SpannableString(sequence),
                         mPattern,
                         mBackgroundColorSpan,
@@ -1516,6 +1553,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
         try {
             MessageRow row = getItem(position);
             Event event = row.getEvent();
+            boolean isOutgoingMsg = TextUtils.equals(mSession.getMyUserId(), event.getSender());
 
             TextView emoteTextView = convertView.findViewById(R.id.messagesAdapter_body);
 
@@ -1533,7 +1571,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                 String htmlString = mHelper.getSanitisedHtml(message.formatted_body);
 
                 if (null != htmlString) {
-                    CharSequence sequence = mHelper.convertToHtml(htmlString);
+                    CharSequence sequence = mHelper.convertToHtml(htmlString, isOutgoingMsg ? mOutgoingMessageMarkdownBgColor : mIncomingMessageMarkdownBgColor);
 
                     body = TextUtils.concat("* ", row.getSenderDisplayName(), " ", sequence);
                 }
@@ -1554,7 +1592,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             } else if (row.getEvent().isUndelivered() || row.getEvent().isUnknownDevice()) {
                 textColor = mNotSentMessageTextColor;
             } else {
-                textColor = mDefaultMessageTextColor;
+                textColor = isOutgoingMsg ? mOutgoingMessageTextColor : mIncomingMessageTextColor;;
             }
 
             emoteTextView.setTextColor(textColor);
@@ -2247,70 +2285,6 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
      * *********************************************************************************************
      */
 
-    /**
-     * Display the e2e icon
-     *
-     * @param inflatedView the base view
-     * @param position     the item position
-     */
-    private void displayE2eIcon(View inflatedView, int position) {
-        ImageView e2eIconView = inflatedView.findViewById(R.id.message_adapter_e2e_icon);
-
-        if (null != e2eIconView) {
-            View senderMargin = inflatedView.findViewById(R.id.e2e_sender_margin);
-            View senderNameView = inflatedView.findViewById(R.id.messagesAdapter_sender);
-
-            MessageRow row = getItem(position);
-            final Event event = row.getEvent();
-
-            if (mE2eIconByEventId.containsKey(event.eventId)) {
-                if (null != senderMargin) {
-                    senderMargin.setVisibility(senderNameView.getVisibility());
-                }
-                e2eIconView.setVisibility(View.VISIBLE);
-
-                Object icon = mE2eIconByEventId.get(event.eventId);
-
-                if (icon instanceof Drawable) {
-                    e2eIconView.setImageDrawable((Drawable) icon);
-                } else {
-                    e2eIconView.setImageResource((int) icon);
-                    if ((int) icon == R.drawable.e2e_verified) {
-                        e2eIconView.setImageDrawable(ThemeUtils.INSTANCE.tintDrawable(getContext(), e2eIconView.getDrawable(), R.attr.padlock_icon_tint_color));
-                    }
-                }
-
-                int type = getItemViewType(position);
-
-                if ((type == ROW_TYPE_IMAGE) || (type == ROW_TYPE_VIDEO) || (type == ROW_TYPE_STICKER)) {
-                    View bodyLayoutView = inflatedView.findViewById(R.id.messagesAdapter_body_layout);
-                    ViewGroup.MarginLayoutParams bodyLayout = (ViewGroup.MarginLayoutParams) bodyLayoutView.getLayoutParams();
-                    ViewGroup.MarginLayoutParams e2eIconViewLayout = (ViewGroup.MarginLayoutParams) e2eIconView.getLayoutParams();
-
-                    e2eIconViewLayout.setMargins(bodyLayout.leftMargin, e2eIconViewLayout.topMargin,
-                            e2eIconViewLayout.rightMargin, e2eIconViewLayout.bottomMargin);
-                    bodyLayout.setMargins(4, bodyLayout.topMargin, bodyLayout.rightMargin, bodyLayout.bottomMargin);
-                    e2eIconView.setLayoutParams(e2eIconViewLayout);
-                    bodyLayoutView.setLayoutParams(bodyLayout);
-                }
-
-                e2eIconView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (null != mVectorMessagesAdapterEventsListener) {
-                            mVectorMessagesAdapterEventsListener.onE2eIconClick(event, mE2eDeviceByEventId.get(event.eventId));
-                        }
-                    }
-                });
-            } else {
-                e2eIconView.setVisibility(View.GONE);
-                if (null != senderMargin) {
-                    senderMargin.setVisibility(View.GONE);
-                }
-            }
-        }
-    }
-
     private void displayE2eReRequest(View inflatedView, int position) {
         TextView reRequestE2EKeyTextView = inflatedView.findViewById(R.id.messagesAdapter_re_request_e2e_key);
 
@@ -2367,10 +2341,9 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
     }
 
     /**
-     * Found the dedicated icon to display for each event id
+     * Retrieve device information for each encrypted event
      */
-    private void manageCryptoEvents() {
-        Map<String, Object> e2eIconByEventId = new HashMap<>();
+    private void manageDeviceInfoOfCryptoEvents() {
         Map<String, MXDeviceInfo> e2eDeviceInfoByEventId = new HashMap<>();
 
         if (mIsRoomEncrypted && mSession.isCryptoEnabled()) {
@@ -2379,55 +2352,20 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                 MessageRow row = getItem(index);
                 Event event = row.getEvent();
 
-                // oneself event
-                if (event.mSentState != Event.SentState.SENT) {
-                    e2eIconByEventId.put(event.eventId, R.drawable.e2e_verified);
-                }
-                // not encrypted event
-                else if (!event.isEncrypted()) {
-                    e2eIconByEventId.put(event.eventId, mPadlockDrawable);
-                }
-                // in error cases, do not display
-                else if (null != event.getCryptoError()) {
-                    e2eIconByEventId.put(event.eventId, R.drawable.e2e_blocked);
-                } else {
+                if (event.mSentState == Event.SentState.SENT
+                        && event.isEncrypted()
+                        && event.getCryptoError() == null) {
                     EncryptedEventContent encryptedEventContent = JsonUtils.toEncryptedEventContent(event.getWireContent().getAsJsonObject());
-
-                    if (TextUtils.equals(mSession.getCredentials().deviceId, encryptedEventContent.device_id)
-                            && TextUtils.equals(mSession.getMyUserId(), event.getSender())) {
-                        e2eIconByEventId.put(event.eventId, R.drawable.e2e_verified);
-                        MXDeviceInfo deviceInfo = mSession.getCrypto()
-                                .deviceWithIdentityKey(encryptedEventContent.sender_key, encryptedEventContent.algorithm);
-
-                        if (null != deviceInfo) {
-                            e2eDeviceInfoByEventId.put(event.eventId, deviceInfo);
-                        }
-
-                    } else {
-                        MXDeviceInfo deviceInfo = mSession.getCrypto()
-                                .deviceWithIdentityKey(encryptedEventContent.sender_key, encryptedEventContent.algorithm);
-
-                        if (null != deviceInfo) {
-                            e2eDeviceInfoByEventId.put(event.eventId, deviceInfo);
-                            if (deviceInfo.isVerified()) {
-                                e2eIconByEventId.put(event.eventId, R.drawable.e2e_verified);
-                            } else if (deviceInfo.isBlocked()) {
-                                e2eIconByEventId.put(event.eventId, R.drawable.e2e_blocked);
-                            } else {
-                                //don't alert the user
-                                e2eIconByEventId.put(event.eventId, R.drawable.e2e_verified);
-                            }
-                        } else {
-                            //don't alert the user
-                            e2eIconByEventId.put(event.eventId, R.drawable.e2e_verified);
-                        }
+                    MXDeviceInfo deviceInfo = mSession.getCrypto()
+                            .deviceWithIdentityKey(encryptedEventContent.sender_key, encryptedEventContent.algorithm);
+                    if (null != deviceInfo) {
+                        e2eDeviceInfoByEventId.put(event.eventId, deviceInfo);
                     }
                 }
             }
         }
 
         mE2eDeviceByEventId = e2eDeviceInfoByEventId;
-        mE2eIconByEventId = e2eIconByEventId;
     }
 
     /*
@@ -2586,11 +2524,9 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
      *
      * @param convertView      the main view
      * @param row              the message row
-     * @param isMergedView     true if the message is merged
-     * @param avatarLayoutView the avatar layout
-     * @param bodyLayoutView   the body layout
+     * @param isOutgoingMsg    true if the message has been sent by the user
      */
-    private void setReadMarker(View convertView, MessageRow row, boolean isMergedView, View avatarLayoutView, View bodyLayoutView) {
+    private void setReadMarker(View convertView, MessageRow row, boolean isOutgoingMsg) {
         Event event = row.getEvent();
 
         // search message mode
@@ -2598,10 +2534,6 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
         View readMarkerView = convertView.findViewById(R.id.message_read_marker);
 
         if (null != highlightMakerView) {
-            // align marker view with the message
-            ViewGroup.MarginLayoutParams highlightMakerLayout = (ViewGroup.MarginLayoutParams) highlightMakerView.getLayoutParams();
-            highlightMakerLayout.setMargins(5, highlightMakerLayout.topMargin, 5, highlightMakerLayout.bottomMargin);
-
             if (TextUtils.equals(mHighlightedEventId, event.eventId)) {
                 if (mIsUnreadViewMode) {
                     highlightMakerView.setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent));
@@ -2609,25 +2541,14 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                         // Show the read marker
                         animateReadMarkerView(event, readMarkerView);
                     }
+                } else if (isOutgoingMsg) {
+                    highlightMakerView.setBackgroundColor(Color.WHITE);
                 } else {
-                    ViewGroup.LayoutParams avatarLayout = avatarLayoutView.getLayoutParams();
-                    ViewGroup.MarginLayoutParams bodyLayout = (ViewGroup.MarginLayoutParams) bodyLayoutView.getLayoutParams();
-
-                    if (isMergedView) {
-                        highlightMakerLayout.setMargins(avatarLayout.width + 5, highlightMakerLayout.topMargin, 5, highlightMakerLayout.bottomMargin);
-                    } else {
-                        highlightMakerLayout.setMargins(5, highlightMakerLayout.topMargin, 5, highlightMakerLayout.bottomMargin);
-                    }
-
-                    // move left the body
-                    bodyLayout.setMargins(4, bodyLayout.topMargin, 4, bodyLayout.bottomMargin);
                     highlightMakerView.setBackgroundColor(ThemeUtils.INSTANCE.getColor(mContext, R.attr.colorAccent));
                 }
             } else {
                 highlightMakerView.setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent));
             }
-
-            highlightMakerView.setLayoutParams(highlightMakerLayout);
         }
     }
 
@@ -2745,7 +2666,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
         }
 
         // e2e
-        menu.findItem(R.id.ic_action_device_verification).setVisible(mE2eIconByEventId.containsKey(event.eventId));
+        menu.findItem(R.id.ic_action_device_verification).setVisible(mE2eDeviceByEventId.containsKey(event.eventId));
 
         // display the menu
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
