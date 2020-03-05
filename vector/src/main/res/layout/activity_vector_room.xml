@@ -329,6 +329,21 @@
 
             </LinearLayout>
 
+            <TextView
+                android:id="@+id/room_cannot_post_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginEnd="16dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginStart="16dp"
+                android:text="@string/room_do_not_have_permission_to_post"
+                android:textColor="?android:textColorTertiary"
+                android:textSize="14sp"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
         </FrameLayout>
 
         <View
@@ -414,8 +429,16 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_centerHorizontal="true"
-            android:background="@color/riot_primary_background_color_black"
-            android:layout_above="@id/room_notification_separator" />
+            android:layout_above="@id/room_notification_separator" >
+
+            <ImageView
+                android:id="@+id/fragment_messages_bg"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/room_background" />
+
+        </FrameLayout>
 
         <View
             android:id="@+id/room_notification_separator"
@@ -423,21 +446,6 @@
             android:layout_height="1dp"
             android:layout_above="@id/room_notifications_area"
             android:background="?attr/room_header_divider_color" />
-
-        <TextView
-            android:id="@+id/room_cannot_post_textview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginEnd="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginStart="16dp"
-            android:text="@string/room_do_not_have_permission_to_post"
-            android:textColor="?android:textColorTertiary"
-            android:textSize="14sp"
-            android:visibility="gone"
-            tools:visibility="visible" />
 
         <ProgressBar
             android:id="@+id/loading_room_paginate_back_progress"
