@@ -814,7 +814,7 @@ public class DinsicUtils {
             signUrl = roomEmailInvitation.signUrl;
         }
 
-        room.joinWithThirdPartySigned(roomPreviewData.getRoomIdOrAlias(), signUrl, callback);
+        room.joinWithThirdPartySigned(session, roomPreviewData.getRoomIdOrAlias(), signUrl, callback);
     }
 
     /**
