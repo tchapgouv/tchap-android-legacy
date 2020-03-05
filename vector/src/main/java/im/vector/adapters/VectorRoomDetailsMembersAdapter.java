@@ -361,8 +361,8 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
                 // check that members are here
                 if (errorMessage[0] == null) {
                     final PowerLevels powerLevels = mRoom.getState().getPowerLevels();
-                    TchapUserInfoRestClient userInfoRestClient = new TchapUserInfoRestClient(mSession.getHomeServerConfig());
-                    final CountDownLatch getInfoLatch = new CountDownLatch(activeMembers.size());
+//                    TchapUserInfoRestClient userInfoRestClient = new TchapUserInfoRestClient(mSession.getHomeServerConfig());
+//                    final CountDownLatch getInfoLatch = new CountDownLatch(activeMembers.size());
 
                     // Prepare the list of joined members, and the list of invited members.
                     // Retrieve the expiration information for each of them.
@@ -371,7 +371,7 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
 
                         // if search is enabled, just skip the member if pattern does not match
                         if (isSearchEnabled && (!participantItem.contains(mSearchPattern))) {
-                            getInfoLatch.countDown();
+//                            getInfoLatch.countDown();
                             continue;
                         }
 
@@ -387,35 +387,35 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
                             displayNamesList.add(participantItem.mDisplayName);
                         }
 
-                        userInfoRestClient.getUserStatusInfo(member.getUserId(), new ApiCallback<UserStatusInfo>() {
-                            @Override
-                            public void onSuccess(UserStatusInfo userStatusInfo) {
-                                participantItem.mIsExpired = userStatusInfo.expired;
-                                getInfoLatch.countDown();
-                            }
-
-                            @Override
-                            public void onNetworkError(Exception e) {
-                                getInfoLatch.countDown();
-                            }
-
-                            @Override
-                            public void onMatrixError(MatrixError e) {
-                                getInfoLatch.countDown();
-                            }
-
-                            @Override
-                            public void onUnexpectedError(Exception e) {
-                                getInfoLatch.countDown();
-                            }
-                        });
+//                        userInfoRestClient.getUserStatusInfo(member.getUserId(), new ApiCallback<UserStatusInfo>() {
+//                            @Override
+//                            public void onSuccess(UserStatusInfo userStatusInfo) {
+//                                participantItem.mIsExpired = userStatusInfo.expired;
+//                                getInfoLatch.countDown();
+//                            }
+//
+//                            @Override
+//                            public void onNetworkError(Exception e) {
+//                                getInfoLatch.countDown();
+//                            }
+//
+//                            @Override
+//                            public void onMatrixError(MatrixError e) {
+//                                getInfoLatch.countDown();
+//                            }
+//
+//                            @Override
+//                            public void onUnexpectedError(Exception e) {
+//                                getInfoLatch.countDown();
+//                            }
+//                        });
                     }
 
-                    try {
-                        getInfoLatch.await(30, TimeUnit.SECONDS);
-                    } catch (InterruptedException e) {
-                        Log.e(LOG_TAG, "updateRoomMembersDataModel, getInfoLatch interrupted", e);
-                    }
+//                    try {
+//                        getInfoLatch.await(30, TimeUnit.SECONDS);
+//                    } catch (InterruptedException e) {
+//                        Log.e(LOG_TAG, "updateRoomMembersDataModel, getInfoLatch interrupted", e);
+//                    }
 
                     // add 3rd party invite
                     Collection<RoomThirdPartyInvite> thirdPartyInvites = mRoom.getState().thirdPartyInvites();
