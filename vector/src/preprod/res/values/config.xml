@@ -6,7 +6,7 @@
 
     <!-- Identity server names -->
     <string-array name="preferred_identity_server_names" translatable="false">
-        <item>a.tchap.gouv.fr</item>
+        <item>i.tchap.gouv.fr</item>
     </string-array>
 
     <string-array name="identity_server_names" translatable="false">
@@ -15,11 +15,11 @@
 
     <!-- Default list of federated server names -->
     <string-array name="room_directory_servers" translatable="false">
-        <item>a.tchap.gouv.fr</item>
+        <item>i.tchap.gouv.fr</item>
     </string-array>
 
     <!-- Bug report config -->
-    <string name="bug_report_default_host" translatable="false">a.tchap.gouv.fr</string>
+    <string name="bug_report_default_host" translatable="false">i.tchap.gouv.fr</string>
 
     <!-- Universal link config -->
     <string name="universal_link_supported_host" translatable="false">www.beta.tchap.gouv.fr</string>
