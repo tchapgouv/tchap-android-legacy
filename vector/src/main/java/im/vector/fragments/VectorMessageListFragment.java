@@ -153,11 +153,11 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
         void hideMainLoadingWheel();
 
         /**
-         * User has selected/unselected an event
+         * Reply to the provided event
          *
-         * @param currentSelectedEvent the current selected event, or null if no event is selected
+         * @param event the current selected event
          */
-        void onSelectedEventChange(@Nullable Event currentSelectedEvent);
+        void replyTo(Event event);
     }
 
     private static final String TAG_FRAGMENT_RECEIPTS_DIALOG = "TAG_FRAGMENT_RECEIPTS_DIALOG";
@@ -693,7 +693,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
                 @Override
                 public void run() {
                     new AlertDialog.Builder(getActivity())
-                            .setMessage(getString(R.string.redact) + " ?")
+                            .setMessage(getString(R.string.redact_prompt))
                             .setCancelable(false)
                             .setPositiveButton(R.string.ok,
                                     new DialogInterface.OnClickListener() {
@@ -720,6 +720,15 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
                 @Override
                 public void run() {
                     SystemUtilsKt.copyToClipboard(getActivity(), textMsg);
+                }
+            });
+        } else if (action == R.id.ic_action_vector_reply) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (mListener != null) {
+                        mListener.replyTo(event);
+                    }
                 }
             });
         } else if ((action == R.id.ic_action_vector_cancel_upload) || (action == R.id.ic_action_vector_cancel_download)) {
@@ -867,13 +876,6 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
         // Auto dismiss this dialog when the keys are received
         if (mReRequestKeyDialog != null) {
             mReRequestKeyDialog.dismiss();
-        }
-    }
-
-    @Override
-    public void onSelectedEventChange(@Nullable Event currentSelectedEvent) {
-        if (mListener != null && isAdded()) {
-            mListener.onSelectedEventChange(currentSelectedEvent);
         }
     }
 
