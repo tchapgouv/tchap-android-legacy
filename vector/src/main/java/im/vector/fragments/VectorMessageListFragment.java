@@ -229,13 +229,6 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
             mAdapter.setImageGetter(mVectorImageGetter);
         }
 
-        mMessageListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                onRowClick(position);
-            }
-        });
-
         Drawable myDrawable = ResourcesCompat.getDrawable(VectorApp.getInstance().getResources(), R.drawable.room_background, null);
         v.setBackground(myDrawable);
         return v;
@@ -1233,15 +1226,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
 
     @Override
     public void onRowClick(int position) {
-        try {
-            MessageRow row = mAdapter.getItem(position);
-            Event event = row.getEvent();
-
-            // toggle selection mode
-            mAdapter.onEventTap(event);
-        } catch (Exception e) {
-            Log.e(LOG_TAG, "## onRowClick() failed " + e.getMessage(), e);
-        }
+        // Nothing to do
     }
 
     @Override
@@ -1251,9 +1236,9 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
             MessageRow row = mAdapter.getItem(position);
             Event event = row.getEvent();
 
+            // Cancel the selection mode (if any).
             if (mAdapter.isInSelectionMode()) {
-                // cancel the selection mode.
-                mAdapter.onEventTap(null);
+                mAdapter.cancelSelectionMode();
                 return;
             }
 
@@ -1282,9 +1267,6 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
                 if (null != fileMessage.getUrl()) {
                     onMediaAction(ACTION_VECTOR_OPEN, fileMessage.getUrl(), fileMessage.getMimeType(), fileMessage.body, fileMessage.file);
                 }
-            } else {
-                // toggle selection mode
-                mAdapter.onEventTap(event);
             }
         } catch (Exception e) {
             Log.e(LOG_TAG, "## onContentClick() failed " + e.getMessage(), e);

@@ -78,9 +78,9 @@ public class VectorSearchRoomsFilesListFragment extends VectorSearchMessagesList
                 MessageRow row = mAdapter.getItem(position);
                 Event event = row.getEvent();
 
+                // Cancel the selection mode (if any).
                 if (mAdapter.isInSelectionMode()) {
-                    // cancel the selection mode.
-                    mAdapter.onEventTap(null);
+                    mAdapter.cancelSelectionMode();
                     return;
                 }
 
