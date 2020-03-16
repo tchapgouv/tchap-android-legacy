@@ -865,8 +865,8 @@ public class RoomUtils {
             // retrieve the tag from the room info
             RoomAccountData accountData = room.getAccountData();
 
-            if ((null != accountData) && accountData.hasTags()) {
-                oldTag = accountData.getKeys().iterator().next();
+            if ((null != accountData) && accountData.hasRoomTags()) {
+                oldTag = accountData.getRoomTagsKeys().iterator().next();
             }
 
             Double tagOrder = aTagOrder;

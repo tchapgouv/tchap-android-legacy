@@ -31,7 +31,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.core.Log;
-import org.matrix.androidsdk.core.MXPatterns;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomSummary;
 import org.matrix.androidsdk.data.RoomTag;
@@ -291,7 +290,7 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
 
         if (null != room && null != vRoomPinFavorite) {
             // Check first whether the room is pinned
-            final Set<String> tagsRoom = room.getAccountData().getKeys();
+            final Set<String> tagsRoom = room.getAccountData().getRoomTagsKeys();
             final boolean isPinnedRoom = tagsRoom != null && tagsRoom.contains(RoomTag.ROOM_TAG_FAVOURITE);
 
             if (isPinnedRoom) {
