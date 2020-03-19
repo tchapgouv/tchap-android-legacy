@@ -62,6 +62,7 @@
     <string name="copy">Copy</string>
     <string name="resend">Resend</string>
     <string name="redact">Remove</string>
+    <string name="redact_prompt">Are you sure you want to remove this message?</string>
     <string name="quote">Quote</string>
     <string name="download">Download</string>
     <string name="share">Share</string>

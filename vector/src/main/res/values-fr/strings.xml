@@ -85,6 +85,7 @@
     <string name="no_public_room_placeholder">Aucun salon public disponible</string>
     <string name="title_activity_room">Conversation</string>
     <string name="redact">Effacer</string>
+    <string name="redact_prompt">Voulez-vous vraiment effacer ce message ?</string>
     <string name="send_anyway">Envoyer quand même</string>
     <string name="send_bug_report_include_logs">Envoyer les journaux</string>
     <string name="send_bug_report_include_crash_logs">Envoyer les journaux d’erreur</string>

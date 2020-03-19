@@ -153,11 +153,11 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
         void hideMainLoadingWheel();
 
         /**
-         * User has selected/unselected an event
+         * Reply to the provided event
          *
-         * @param currentSelectedEvent the current selected event, or null if no event is selected
+         * @param event the current selected event
          */
-        void onSelectedEventChange(@Nullable Event currentSelectedEvent);
+        void replyTo(Event event);
     }
 
     private static final String TAG_FRAGMENT_RECEIPTS_DIALOG = "TAG_FRAGMENT_RECEIPTS_DIALOG";
@@ -228,13 +228,6 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
             mVectorImageGetter = new VectorImageGetter(mSession);
             mAdapter.setImageGetter(mVectorImageGetter);
         }
-
-        mMessageListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                onRowClick(position);
-            }
-        });
 
         Drawable myDrawable = ResourcesCompat.getDrawable(VectorApp.getInstance().getResources(), R.drawable.room_background, null);
         v.setBackground(myDrawable);
@@ -700,7 +693,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
                 @Override
                 public void run() {
                     new AlertDialog.Builder(getActivity())
-                            .setMessage(getString(R.string.redact) + " ?")
+                            .setMessage(getString(R.string.redact_prompt))
                             .setCancelable(false)
                             .setPositiveButton(R.string.ok,
                                     new DialogInterface.OnClickListener() {
@@ -727,6 +720,15 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
                 @Override
                 public void run() {
                     SystemUtilsKt.copyToClipboard(getActivity(), textMsg);
+                }
+            });
+        } else if (action == R.id.ic_action_vector_reply) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (mListener != null) {
+                        mListener.replyTo(event);
+                    }
                 }
             });
         } else if ((action == R.id.ic_action_vector_cancel_upload) || (action == R.id.ic_action_vector_cancel_download)) {
@@ -874,13 +876,6 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
         // Auto dismiss this dialog when the keys are received
         if (mReRequestKeyDialog != null) {
             mReRequestKeyDialog.dismiss();
-        }
-    }
-
-    @Override
-    public void onSelectedEventChange(@Nullable Event currentSelectedEvent) {
-        if (mListener != null && isAdded()) {
-            mListener.onSelectedEventChange(currentSelectedEvent);
         }
     }
 
@@ -1233,15 +1228,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
 
     @Override
     public void onRowClick(int position) {
-        try {
-            MessageRow row = mAdapter.getItem(position);
-            Event event = row.getEvent();
-
-            // toggle selection mode
-            mAdapter.onEventTap(event);
-        } catch (Exception e) {
-            Log.e(LOG_TAG, "## onRowClick() failed " + e.getMessage(), e);
-        }
+        // Nothing to do
     }
 
     @Override
@@ -1251,9 +1238,9 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
             MessageRow row = mAdapter.getItem(position);
             Event event = row.getEvent();
 
+            // Cancel the selection mode (if any).
             if (mAdapter.isInSelectionMode()) {
-                // cancel the selection mode.
-                mAdapter.onEventTap(null);
+                mAdapter.cancelSelectionMode();
                 return;
             }
 
@@ -1282,9 +1269,6 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
                 if (null != fileMessage.getUrl()) {
                     onMediaAction(ACTION_VECTOR_OPEN, fileMessage.getUrl(), fileMessage.getMimeType(), fileMessage.body, fileMessage.file);
                 }
-            } else {
-                // toggle selection mode
-                mAdapter.onEventTap(event);
             }
         } catch (Exception e) {
             Log.e(LOG_TAG, "## onContentClick() failed " + e.getMessage(), e);

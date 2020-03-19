@@ -280,6 +280,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
     private String mLatestTypingMessage;
     private Boolean mIsScrolledToTheBottom;
     private Event mLatestDisplayedEvent; // the event at the bottom of the list
+    private Event mReplyToEvent; // the potential event selected to reply to
 
     private ReadMarkerManager mReadMarkerManager;
 
@@ -685,8 +686,8 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
         closeReply.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // cancel the selection mode.
-                mVectorMessageListFragment.onContentClick(0);
+                // cancel the reply mode.
+                setEditTextHint(null);
             }
         });
 
@@ -1173,7 +1174,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
             // listen for room name or topic changes
             mRoom.addEventListener(mRoomEventListener);
 
-            setEditTextHint(mVectorMessageListFragment.getCurrentSelectedEvent());
+            setEditTextHint(mReplyToEvent);
 
             mSyncInProgressView.setVisibility(VectorApp.isSessionSyncing(mSession) ? View.VISIBLE : View.GONE);
         } else {
@@ -1276,17 +1277,19 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
     }
 
     /**
-     * Update the edit text hint. It depends on the encryption and on the currently selected event
+     * Update the edit text hint. It depends on the encryption and on the potential event to reply.
      *
-     * @param selectedEvent the currently selected event or null if no event is selected
+     * @param replyToEvent the event to reply or null if no event has been selected
      */
-    private void setEditTextHint(@Nullable Event selectedEvent) {
+    private void setEditTextHint(@Nullable Event replyToEvent) {
         if (mRoom == null) {
             return;
         }
 
-        if (mRoom.canReplyTo(selectedEvent)) {
+        if (mRoom.canReplyTo(replyToEvent)) {
             // User can reply to this event
+            mReplyToEvent = replyToEvent;
+
             mEditText.setHint((mRoom.isEncrypted() && mSession.isCryptoEnabled()) ?
                     R.string.room_message_placeholder_reply_to_encrypted : R.string.room_message_placeholder_reply_to_not_encrypted);
             mRoomReplyArea.setVisibility(View.VISIBLE);
@@ -1297,20 +1300,21 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
 
             String selectedEventSender = "";
             RoomState state = mRoom.getState();
-            if (state != null && selectedEvent.getSender() != null)
-                selectedEventSender = state.getMemberName(selectedEvent.getSender());
+            if (state != null && replyToEvent.getSender() != null)
+                selectedEventSender = state.getMemberName(replyToEvent.getSender());
             mReplySenderName.setText(selectedEventSender);
 
-            Event myEvent = selectedEvent;
+            Event myEvent = replyToEvent;
             String selectedEventBody = "";
-            if (selectedEvent.isEncrypted())
-                myEvent = selectedEvent.getClearEvent();
+            if (replyToEvent.isEncrypted())
+                myEvent = replyToEvent.getClearEvent();
             Message message = JsonUtils.toMessage(myEvent.getContent());
             if (message != null)
                 selectedEventBody = message.body;
             mReplyMessage.setText(selectedEventBody);
-
         } else {
+            mReplyToEvent = null;
+
             // default hint
             mEditText.setHint((mRoom.isEncrypted() && mSession.isCryptoEnabled()) ?
                     R.string.room_message_placeholder_encrypted : R.string.room_message_placeholder_not_encrypted);
@@ -1860,11 +1864,11 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
         if (!TextUtils.isEmpty(body)) {
             if (!handleSlashCommand
                     || !SlashCommandsParser.manageSplashCommand(this, mSession, mRoom, body, formattedBody, format)) {
-                Event currentSelectedEvent = mVectorMessageListFragment.getCurrentSelectedEvent();
-
                 cancelSelectionMode();
 
-                mVectorMessageListFragment.sendTextMessage(body, formattedBody, currentSelectedEvent, format);
+                mVectorMessageListFragment.sendTextMessage(body, formattedBody, mReplyToEvent, format);
+                // leave the reply mode (if any).
+                setEditTextHint(null);
             }
         }
     }
@@ -2632,9 +2636,9 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
     }
 
     @Override
-    public void onSelectedEventChange(@Nullable Event currentSelectedEvent) {
+    public void replyTo(Event event) {
         // Update hint
-        setEditTextHint(currentSelectedEvent);
+        setEditTextHint(event);
     }
 
     //================================================================================

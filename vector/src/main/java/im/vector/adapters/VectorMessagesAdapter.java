@@ -908,27 +908,6 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
     }
 
     /**
-     * Toggle the selection mode.
-     *
-     * @param event the tapped event.
-     */
-    public void onEventTap(Event event) {
-        // the tap to select is only enabled when the adapter is not in search mode.
-        if (!mIsSearchMode) {
-            if (null == mSelectedEvent) {
-                mSelectedEvent = event;
-            } else {
-                mSelectedEvent = null;
-            }
-            notifyDataSetChanged();
-
-            if (mVectorMessagesAdapterEventsListener != null) {
-                mVectorMessagesAdapterEventsListener.onSelectedEventChange(mSelectedEvent);
-            }
-        }
-    }
-
-    /**
      * Display a bar to the left of the message
      *
      * @param eventId the event id
@@ -939,16 +918,25 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
     }
 
     /**
+     * Turn on the selection mode.
+     *
+     * @param event the selected event.
+     */
+    public void selectEvent(Event event) {
+        // the selection is only supported when the adapter is not in search mode.
+        if (!mIsSearchMode) {
+            mSelectedEvent = event;
+            notifyDataSetChanged();
+        }
+    }
+
+    /**
      * Cancel the message selection mode
      */
     public void cancelSelectionMode() {
         if (null != mSelectedEvent) {
             mSelectedEvent = null;
             notifyDataSetChanged();
-
-            if (mVectorMessagesAdapterEventsListener != null) {
-                mVectorMessagesAdapterEventsListener.onSelectedEventChange(mSelectedEvent);
-            }
         }
     }
 
@@ -1121,26 +1109,6 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
      */
     private void manageSubView(final int position, View convertView, View subView, int msgType) {
         MessageRow row = getItem(position);
-
-        convertView.setClickable(true);
-
-        // click on the message row select it
-        convertView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != mVectorMessagesAdapterEventsListener) {
-                    mVectorMessagesAdapterEventsListener.onRowClick(position);
-                }
-            }
-        });
-
-        // long click on the message row display the message options menu
-        convertView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                return (null != mVectorMessagesAdapterEventsListener) && mVectorMessagesAdapterEventsListener.onRowLongClick(position);
-            }
-        });
 
         Event event = row.getEvent();
 
@@ -2143,9 +2111,6 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
         boolean isInSelectionMode = (null != mSelectedEvent);
         boolean isSelected = isInSelectionMode && TextUtils.equals(eventId, mSelectedEvent.eventId);
 
-        // display the action icon when selected
-        contentView.findViewById(R.id.messagesAdapter_action_image).setVisibility(isSelected ? View.VISIBLE : View.GONE);
-
         float alpha = (!isInSelectionMode || isSelected) ? 1.0f : 0.2f;
 
         // the message body is dimmed when not selected
@@ -2168,33 +2133,6 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             if (null != stickerMessage && isInSelectionMode && isSelected) {
                 mHelper.showStickerDescription(contentView, stickerMessage);
             }
-        }
-
-        if (!(event instanceof EventGroup)) {
-            contentView.findViewById(R.id.message_timestamp_layout).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mSelectedEvent != null && TextUtils.equals(eventId, mSelectedEvent.eventId)) {
-                        onMessageClick(event, getEventText(contentView, event, msgType), contentView.findViewById(R.id.messagesAdapter_action_anchor));
-                    } else {
-                        onEventTap(event);
-                    }
-                }
-            });
-
-            contentView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    if (!mIsSearchMode) {
-                        onMessageClick(event, getEventText(contentView, event, msgType), contentView.findViewById(R.id.messagesAdapter_action_anchor));
-
-                        onEventTap(event);
-                        return true;
-                    }
-
-                    return false;
-                }
-            });
         }
     }
 
@@ -2269,6 +2207,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
 
                     if (!mIsSearchMode) {
                         onMessageClick(event, getEventText(contentView, event, msgType), convertView.findViewById(R.id.messagesAdapter_action_anchor));
+                        selectEvent(event);
 
                         return true;
                     }
@@ -2559,7 +2498,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
      */
 
     /**
-     * The user taps on the action icon.
+     * Display the message actions menu.
      *
      * @param event      the selected event.
      * @param textMsg    the event text
@@ -2600,13 +2539,13 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
         // Check whether the event contains an unchecked or untrusted url.
         boolean isUncheckedOrUntrustedMediaEvent = (null == mMediaScanManager || mMediaScanManager.isUncheckedOrUntrustedMediaEvent(event));
 
-        menu.findItem(R.id.ic_action_view_source).setVisible(true);
-        menu.findItem(R.id.ic_action_view_decrypted_source).setVisible(event.isEncrypted() && (null != event.getClearEvent()));
+        //menu.findItem(R.id.ic_action_view_source).setVisible(true);
+        //menu.findItem(R.id.ic_action_view_decrypted_source).setVisible(event.isEncrypted() && (null != event.getClearEvent()));
         menu.findItem(R.id.ic_action_vector_permalink).setVisible(false);// Tchap disable permalink
 
         if (!TextUtils.isEmpty(textMsg) && !isUncheckedOrUntrustedMediaEvent) {
             menu.findItem(R.id.ic_action_vector_copy).setVisible(true);
-            menu.findItem(R.id.ic_action_vector_quote).setVisible(true);
+            //menu.findItem(R.id.ic_action_vector_quote).setVisible(true);
         }
 
         if (event.isUploadingMedia(mMediaCache)) {
@@ -2649,6 +2588,9 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             if (Event.EVENT_TYPE_MESSAGE.equals(event.getType()) && !isUncheckedOrUntrustedMediaEvent) {
                 Message message = JsonUtils.toMessage(event.getContentAsJsonObject());
 
+                // reply to
+                menu.findItem(R.id.ic_action_vector_reply).setVisible(true);
+
                 // share / forward the message
                 menu.findItem(R.id.ic_action_vector_share).setVisible(!mIsRoomEncrypted);
                 menu.findItem(R.id.ic_action_vector_forward).setVisible(true);
@@ -2677,10 +2619,15 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                     mVectorMessagesAdapterEventsListener.onEventAction(event, textMsg, item.getItemId());
                 }
 
+                return true;
+            }
+        });
+
+        popup.setOnDismissListener(new PopupMenu.OnDismissListener() {
+            @Override
+            public void onDismiss(PopupMenu menu) {
                 // disable the selection
                 cancelSelectionMode();
-
-                return true;
             }
         });
 
