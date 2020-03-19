@@ -1139,6 +1139,14 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
         mHelper.updatePhylactView(convertView, isMergedView, isOutgoingMsg);
         mHelper.setSenderValue(convertView, row, isMergedView, isOutgoingMsg);
 
+        // favourite message?
+        boolean isFavourite = false;
+        Room room = mSession.getDataHandler().getRoom(event.roomId);
+        if (room != null) {
+            isFavourite = room.getAccountData().favouriteEventInfo(event.eventId) != null;
+        }
+        convertView.findViewById(R.id.messagesAdapter_favourite_icon).setVisibility(isFavourite ? View.VISIBLE : View.GONE);
+
         // message timestamp
         TextView tsTextView = VectorMessagesAdapterHelper.setTimestampValue(convertView, getFormattedTimestamp(event));
         if (null != tsTextView) {
@@ -1148,7 +1156,9 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                 tsTextView.setTextColor(isOutgoingMsg ? mOutgoingMessageTextColor : mIncomingMessageTextColor);
             }
 
-            tsTextView.setVisibility((((position + 1) == getCount()) || mIsSearchMode || mAlwaysShowTimeStamps) ? View.VISIBLE : View.GONE);
+            tsTextView.setVisibility(mIsSearchMode
+                    || mAlwaysShowTimeStamps
+                    || !isMergedView ? View.VISIBLE : View.GONE);
         }
 
         TextView filenameTextView = convertView.findViewById(R.id.messagesAdapter_filename);
@@ -2565,7 +2575,9 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             }
         } else if (event.mSentState == Event.SentState.SENT) {
             Room room = mSession.getDataHandler().getRoom(event.roomId);
-            if (room != null) {
+
+            // Prepare favourite option (this option is not allowed on a state event)
+            if (room != null && event.stateKey == null) {
                 RoomAccountData accountData = room.getAccountData();
                 MenuItem favItem = menu.findItem(R.id.ic_action_vector_favourite);
                 if (accountData.favouriteEventInfo(event.eventId) != null) {
