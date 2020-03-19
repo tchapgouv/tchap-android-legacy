@@ -21,6 +21,12 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/ic_action_vector_favourite"
+        android:icon="@drawable/ic_material_star_border_black"
+        android:title="@string/favourite"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/ic_action_vector_copy"
         android:icon="@drawable/ic_material_copy"
         android:title="@string/copy"

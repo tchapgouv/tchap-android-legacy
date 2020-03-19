@@ -70,6 +70,7 @@ import org.matrix.androidsdk.crypto.MXCryptoError;
 import org.matrix.androidsdk.crypto.data.MXDeviceInfo;
 import org.matrix.androidsdk.crypto.model.crypto.EncryptedEventContent;
 import org.matrix.androidsdk.data.Room;
+import org.matrix.androidsdk.data.RoomAccountData;
 import org.matrix.androidsdk.db.MXMediaCache;
 import org.matrix.androidsdk.interfaces.HtmlToolbox;
 import org.matrix.androidsdk.rest.model.Event;
@@ -2563,6 +2564,17 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                 menu.findItem(R.id.ic_action_vector_redact_message).setVisible(true);
             }
         } else if (event.mSentState == Event.SentState.SENT) {
+            Room room = mSession.getDataHandler().getRoom(event.roomId);
+            if (room != null) {
+                RoomAccountData accountData = room.getAccountData();
+                MenuItem favItem = menu.findItem(R.id.ic_action_vector_favourite);
+                if (accountData.favouriteEventInfo(event.eventId) != null) {
+                    favItem.setIcon(R.drawable.ic_material_star_black);
+                } else {
+                    favItem.setIcon(R.drawable.ic_material_star_border_black);
+                }
+                favItem.setVisible(true);
+            }
 
             // test if the event can be redacted
             // Tchap : redaction is disable for state events
@@ -2574,8 +2586,6 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                     canBeRedacted = true;
                 } else {
                     // need the minimum power level to redact an event
-                    Room room = mSession.getDataHandler().getRoom(event.roomId);
-
                     if ((null != room) && (null != room.getState().getPowerLevels())) {
                         PowerLevels powerLevels = room.getState().getPowerLevels();
                         canBeRedacted = powerLevels.getUserPowerLevel(mSession.getMyUserId()) >= powerLevels.redact;

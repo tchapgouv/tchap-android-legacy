@@ -68,6 +68,7 @@ import org.matrix.androidsdk.fragments.MatrixMessageListFragment;
 import org.matrix.androidsdk.fragments.MatrixMessagesFragment;
 import org.matrix.androidsdk.listeners.MXMediaDownloadListener;
 import org.matrix.androidsdk.rest.model.Event;
+import org.matrix.androidsdk.rest.model.TaggedEventsContent;
 import org.matrix.androidsdk.rest.model.message.FileMessage;
 import org.matrix.androidsdk.rest.model.message.ImageMessage;
 import org.matrix.androidsdk.rest.model.message.Message;
@@ -713,6 +714,25 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
                                     })
                             .setNegativeButton(R.string.cancel, null)
                             .show();
+                }
+            });
+        } else if (action == R.id.ic_action_vector_favourite) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (mRoom.getAccountData().favouriteEventInfo(event.eventId) == null) {
+                        mRoom.tagEvent(event, TaggedEventsContent.TAG_FAVOURITE, null, new SimpleApiCallback<Void>() {
+                            @Override
+                            public void onSuccess(Void info) {
+                            }
+                        });
+                    } else {
+                        mRoom.untagEvent(event, TaggedEventsContent.TAG_FAVOURITE, new SimpleApiCallback<Void>() {
+                            @Override
+                            public void onSuccess(Void info) {
+                            }
+                        });
+                    }
                 }
             });
         } else if (action == R.id.ic_action_vector_copy) {
