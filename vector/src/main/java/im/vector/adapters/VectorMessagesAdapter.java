@@ -38,6 +38,7 @@ import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.util.TypedValue;
+import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -2217,7 +2218,11 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                     Event event = row.getEvent();
 
                     if (!mIsSearchMode) {
-                        onMessageClick(event, getEventText(contentView, event, msgType), convertView.findViewById(R.id.messagesAdapter_action_anchor));
+                        View anchorView = convertView.findViewById(R.id.messageAdapter_heart);
+                        if (anchorView == null) {
+                            anchorView = convertView.findViewById(R.id.messagesAdapter_action_anchor);
+                        }
+                        onMessageClick(event, getEventText(contentView, event, msgType), anchorView);
                         selectEvent(event);
 
                         return true;
@@ -2517,8 +2522,9 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
      */
     @SuppressLint("NewApi")
     private void onMessageClick(final Event event, final String textMsg, final View anchorView) {
+        Context popmenuContext = new ContextThemeWrapper(mContext, R.style.Vector_PopupMenu);
         final PopupMenu popup = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) ?
-                new PopupMenu(mContext, anchorView, Gravity.END) : new PopupMenu(mContext, anchorView);
+                new PopupMenu(popmenuContext, anchorView, Gravity.END) : new PopupMenu(popmenuContext, anchorView);
 
         popup.getMenuInflater().inflate(R.menu.vector_room_message_settings, popup.getMenu());
 
