@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <FrameLayout
+        android:id="@+id/favourite_msg_action_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            style="@style/VectorToolbarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            app:contentInsetEnd="70dp"
+            app:contentInsetStart="0dp">
+
+            <include layout="@layout/tchap_favourite_messages_action_bar" />
+
+        </androidx.appcompat.widget.Toolbar>
+
+    </FrameLayout>
+
+    <View
+        android:id="@+id/header_bottom_separator"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_below="@+id/favourite_msg_action_bar"
+        android:background="?attr/room_header_divider_color" />
+
+    <FrameLayout
+        android:id="@+id/anchor_fragment_messages"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/header_bottom_separator"
+        android:layout_centerHorizontal="true">
+
+        <ImageView
+            android:id="@+id/fragment_messages_bg"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:background="@color/tchap_light_background"/>
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/waiting_view"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="?vctr_waiting_background_color"
+        android:clickable="true"
+        android:focusable="true"
+        android:layout_alignBottom="@id/anchor_fragment_messages"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <ProgressBar
+            android:id="@+id/waiting_progress"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center"
+            android:indeterminate="true" />
+
+    </FrameLayout>
+
+</RelativeLayout>

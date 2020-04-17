@@ -133,14 +133,14 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
     private Event mSelectedEvent;
 
     // events listeners
-    IMessagesAdapterActionsListener mVectorMessagesAdapterEventsListener = null;
+    protected IMessagesAdapterActionsListener mVectorMessagesAdapterEventsListener = null;
 
     // current date : used to compute the day header
-    private Date mReferenceDate = new Date();
+    protected Date mReferenceDate = new Date();
 
     // day date of each message
     // the hours, minutes and seconds are removed
-    private List<Date> mMessagesDateList = new ArrayList<>();
+    protected List<Date> mMessagesDateList = new ArrayList<>();
 
     // when the adapter is used in search mode
     // the searched message should be highlighted
@@ -179,7 +179,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
     static final int ROW_TYPE_MEDIA_SCAN = 13;
     static final int NUM_ROW_TYPES = 14;
 
-    final Context mContext;
+    protected final Context mContext;
     private final Map<Integer, Integer> mRowTypeToLayoutId = new HashMap<>();
     final LayoutInflater mLayoutInflater;
 
@@ -208,7 +208,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
     private final MXMediaCache mMediaCache;
 
     // session
-    final MXSession mSession;
+    protected final MXSession mSession;
 
     private boolean mIsSearchMode = false;
     private boolean mIsPreviewMode = false;
@@ -322,7 +322,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
      * @param mediaScanResLayoutId  the unchecked or untrusted attachments layout
      * @param mediaCache           the medias cache.
      */
-    VectorMessagesAdapter(MXSession session,
+    public VectorMessagesAdapter(MXSession session,
                           Context context,
                           int textResLayoutId,
                           int imageResLayoutId,
@@ -480,7 +480,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
      * @param row the message row to test
      * @return true if the row can be merged
      */
-    boolean supportMessageRowMerge(MessageRow row) {
+    protected boolean supportMessageRowMerge(MessageRow row) {
         return EventGroup.isSupported(row);
     }
 
@@ -1141,12 +1141,15 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
         mHelper.setSenderValue(convertView, row, isMergedView, isOutgoingMsg);
 
         // favourite message?
-        boolean isFavourite = false;
-        Room room = mSession.getDataHandler().getRoom(event.roomId);
-        if (room != null) {
-            isFavourite = room.getAccountData().favouriteEventInfo(event.eventId) != null;
+        View favouriteIcon = convertView.findViewById(R.id.messagesAdapter_favourite_icon);
+        if (favouriteIcon != null) {
+            boolean isFavourite = false;
+            Room room = mSession.getDataHandler().getRoom(event.roomId);
+            if (room != null) {
+                isFavourite = room.getAccountData().favouriteEventInfo(event.eventId) != null;
+            }
+            favouriteIcon.setVisibility(isFavourite ? View.VISIBLE : View.GONE);
         }
-        convertView.findViewById(R.id.messagesAdapter_favourite_icon).setVisibility(isFavourite ? View.VISIBLE : View.GONE);
 
         // message timestamp
         TextView tsTextView = VectorMessagesAdapterHelper.setTimestampValue(convertView, getFormattedTimestamp(event));
@@ -1200,9 +1203,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
         }
 
         // messages separator
-
         View messageSeparatorView = convertView.findViewById(R.id.messagesAdapter_message_separator);
-
         if (null != messageSeparatorView) {
             messageSeparatorView.setVisibility((willBeMerged || ((position + 1) == getCount())) ? View.GONE : View.VISIBLE);
         }
@@ -2060,7 +2061,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
      * @param nbrDays the number of days between the reference days
      * @return the date text
      */
-    private String dateDiff(Date date, long nbrDays) {
+    protected String dateDiff(Date date, long nbrDays) {
         if (nbrDays == 0) {
             return mContext.getString(R.string.today);
         } else if (nbrDays == 1) {
@@ -2069,7 +2070,8 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             return (new SimpleDateFormat("EEEE", mLocale)).format(date);
         } else {
             int flags = DateUtils.FORMAT_SHOW_DATE |
-                    DateUtils.FORMAT_SHOW_YEAR |
+                    // Tchap: hide the year because the max retention period is one year
+                    //DateUtils.FORMAT_SHOW_YEAR |
                     DateUtils.FORMAT_ABBREV_ALL |
                     DateUtils.FORMAT_SHOW_WEEKDAY;
 
@@ -2085,7 +2087,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
      * @param position the event position
      * @return the header
      */
-    String headerMessage(int position) {
+    protected String headerMessage(int position) {
         Date prevMessageDate = null;
         Date messageDate = null;
 
@@ -2127,7 +2129,11 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
 
         // the message body is dimmed when not selected
         contentView.findViewById(R.id.messagesAdapter_body_view).setAlpha(alpha);
-        contentView.findViewById(R.id.messagesAdapter_avatars_list).setAlpha(alpha);
+
+        View readReceiptView = contentView.findViewById(R.id.messagesAdapter_avatars_list);
+        if (null != readReceiptView) {
+            readReceiptView.setAlpha(alpha);
+        }
 
         View urlsPreviewView = contentView.findViewById(R.id.messagesAdapter_urls_preview_list);
         if (null != urlsPreviewView) {
@@ -2156,7 +2162,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
      * @param shouldBeMerged true if the event should be merged
      * @return true to merge the event
      */
-    boolean mergeView(Event event, int position, boolean shouldBeMerged) {
+    protected boolean mergeView(Event event, int position, boolean shouldBeMerged) {
         if (shouldBeMerged) {
             shouldBeMerged = null == headerMessage(position);
         }

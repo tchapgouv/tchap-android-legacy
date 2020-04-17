@@ -41,6 +41,7 @@
     <color name="tchap_outgoing_msg_markdown_block_background_color">#FF4D4D4D</color>
     <color name="tchap_unsent_msg_color">#FFF56679</color>
     <color name="tchap_dark_red">#FF7f0d15</color>
+    <color name="tchap_light_background">#FFecf0f7</color>
 
     <!-- home activity tab bar color -->
     <color name="tab_favourites">#BD79CC</color>
