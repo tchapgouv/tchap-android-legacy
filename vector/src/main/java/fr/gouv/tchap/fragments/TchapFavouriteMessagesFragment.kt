@@ -111,7 +111,7 @@ class TchapFavouriteMessagesFragment : VectorMessageListFragment() {
         favouriteEvents.apply { sortBy { it.eventInfo.originServerTs } }
 
         session.dataHandler.store
-                .takeIf { it?.isReady?: false }
+                ?.takeIf { it.isReady }
                 ?.let { store ->
                     for (favourite in favouriteEvents) {
                         store.getEvent(favourite.eventId, favourite.roomId)
