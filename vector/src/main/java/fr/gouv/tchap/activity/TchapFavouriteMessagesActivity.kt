@@ -102,12 +102,6 @@ class TchapFavouriteMessagesActivity : VectorAppCompatActivity(), VectorMessageL
         }
     }
 
-    override fun onDestroy() {
-        favouriteMessagesFragment.onDestroy()
-
-        super.onDestroy()
-    }
-
     /**
      * Add a MXEventListener to the session listeners.
      */
