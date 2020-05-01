@@ -98,7 +98,7 @@ class TchapFavouriteMessagesFragment : VectorMessageListFragment() {
             room.accountData
                     ?.let { roomAccountData ->
                         roomAccountData.favouriteEventIds
-                                .takeIf { it?.isNotEmpty() ?: false }
+                                ?.takeIf { it.isNotEmpty() }
                                 ?.map { eventId ->
                                     roomAccountData.favouriteEventInfo(eventId)
                                             ?.let { eventInfo ->
