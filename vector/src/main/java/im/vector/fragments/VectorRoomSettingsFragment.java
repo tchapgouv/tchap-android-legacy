@@ -558,9 +558,11 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
     private void removeFromRoomsDirectory() {
         displayLoadingView();
 
-        // The room will become private
-        // The encryption is then enabled by default
+        // Several changes are required:
         // The new members can access only on invite
+        // The encryption has to be enabled by default
+        // The room will become private
+        // The history visibility value is replaced with invited
 
         // Update first the joinrule to INVITE
         mRoom.updateJoinRules(RoomState.JOIN_RULE_INVITE, new ApiCallback<Void>() {
@@ -573,8 +575,8 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
 
                         @Override
                         public void onSuccess(Void info) {
-                            // Remove the room from the room directory
-                            mRoom.updateDirectoryVisibility(RoomDirectoryVisibility.DIRECTORY_VISIBILITY_PRIVATE, mUpdateCallback);
+                            // Remove the room from the room directory (and update history visibility)
+                            updateDirectoryVisibilityAndRoomHistoryVisibility();
                         }
 
                         @Override
@@ -593,8 +595,8 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
                         }
                     });
                 } else {
-                    // Remove the room from the room directory
-                    mRoom.updateDirectoryVisibility(RoomDirectoryVisibility.DIRECTORY_VISIBILITY_PRIVATE, mUpdateCallback);
+                    // Remove the room from the room directory (and update history visibility)
+                    updateDirectoryVisibilityAndRoomHistoryVisibility();
                 }
             }
 
@@ -611,6 +613,19 @@ public class VectorRoomSettingsFragment extends PreferenceFragment implements Sh
             @Override
             public void onUnexpectedError(Exception e) {
                 onRemoveFromDirectoryError(e.getLocalizedMessage());
+            }
+        });
+    }
+
+    private void updateDirectoryVisibilityAndRoomHistoryVisibility() {
+        // Remove the room from the room directory
+        mRoom.updateDirectoryVisibility(RoomDirectoryVisibility.DIRECTORY_VISIBILITY_PRIVATE, mUpdateCallback);
+
+        // Update the history visibility value (by ignoring a potential error)
+        mRoom.updateHistoryVisibility(RoomState.HISTORY_VISIBILITY_INVITED, new SimpleApiCallback<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                // Do nothing
             }
         });
     }
