@@ -485,7 +485,7 @@ Vous pouvez ajouter votre adresse e-mail à votre profil dans les paramètres.</
     <string name="auth_reset_password_message">Pour réinitialiser votre mot de passe, saisissez l\'adresse e-mail associée à votre compte :</string>
     <string name="auth_reset_password_missing_email">L\'adresse e-mail liée à votre compte doit être saisie.</string>
     <string name="auth_reset_password_missing_password">Un nouveau mot de passe doit être saisi.</string>
-    <string name="auth_reset_password_email_validation_message">Un e-mail a été envoyé à %s. Une fois que vous aurez suivi le lien qu\'il contient, cliquez ci-dessous.</string>
+    <string name="auth_reset_password_email_validation_message">Si un compte Tchap existe, un e-mail a été envoyé à l’adresse : %s. Une fois que vous aurez suivi le lien qu’il contient, cliquez ci-dessous.</string>
     <string name="auth_reset_password_error_unauthorized">Impossible de vérifier l\'adresse e-mail : assurez-vous d\'avoir cliqué sur le lien dans l\'e-mail</string>
     <string name="auth_reset_password_success_message">Votre mot de passe a été réinitialisé.
 
@@ -930,7 +930,7 @@ Appareils inconnus :</string>
     <string name="tchap_register_warning_for_external_title">Information concernant votre inscription</string>
     <string name="tchap_register_warning_for_external">Le domaine de votre adresse email n’est pas déclaré dans Tchap. Si vous avez reçu une invitation, vous allez pouvoir créer un compte Tchap « invité », permettant uniquement de participer aux échanges privés auxquels vous êtes convié.</string>
     <string name="tchap_register_warning_for_external_proceed">Poursuivre</string>
-    <string name="tchap_register_wait_for_email_title">Un email vous a été envoyé à :</string>
+    <string name="tchap_register_wait_for_email_title">Un email vous a été envoyé à l’adresse suivante, sauf si un compte Tchap lui a déjà été associé :</string>
     <string name="tchap_register_wait_for_email_subtitle">Merci de cliquer sur le lien proposé dans cet email afin de terminer la création de votre compte. Vous pourrez alors vous connecter en allant sur l’écran de connexion.</string>
     <string name="tchap_register_wait_for_email_login_button">Aller à l’écran de connexion</string>
     <string name="tchap_register_wait_for_email_no_email">Je n’ai pas reçu l’email!</string>
