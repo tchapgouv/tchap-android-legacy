@@ -1330,7 +1330,7 @@
     <string name="tchap_register_warning_for_external_title">Information about your registration</string>
     <string name="tchap_register_warning_for_external">Your email domain is not registered on Tchap. If you have received an invite, you will be able to create a Tchap account, which will allow you to join only the private discussions in which you are invited.</string>
     <string name="tchap_register_warning_for_external_proceed">Proceed</string>
-    <string name="tchap_register_wait_for_email_title">An e-mail has been sent</string>
+    <string name="tchap_register_wait_for_email_title">An e-mail has been sent, except if an account already exists:</string>
     <string name="tchap_register_wait_for_email_subtitle">Please open it and click in the link it contains to create your account</string>
     <string name="tchap_register_wait_for_email_login_button">Go to login screen</string>
     <string name="tchap_register_wait_for_email_no_email">I have not received any e-mail!</string>

@@ -19,7 +19,7 @@
         android:gravity="center_horizontal"
         android:text="@string/tchap_register_wait_for_email_title"
         android:textColor="@color/tchap_text_color_light"
-        android:textSize="23.8sp"
+        android:textSize="20sp"
         android:textStyle="normal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
