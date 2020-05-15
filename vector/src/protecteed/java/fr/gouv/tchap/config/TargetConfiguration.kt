@@ -22,3 +22,5 @@ package fr.gouv.tchap.config
 const val CONFIGURATION_VARIANT = "secure"
 
 const val ENABLE_ROOM_RETENTION = false
+
+const val SUPPORT_KEYS_BACKUP = false
