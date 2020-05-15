@@ -1428,6 +1428,8 @@ Attention : ce fichier pourrait être supprimé si l’application est désinsta
     <string name="abort">Annuler</string>
 
     <string name="action_sign_out_confirmation_simple">Voulez-vous vraiment vous déconnecter ?</string>
+    <string name="action_sign_out_confirmation">Pour des raisons de sécurité, la déconnexion supprimera toutes les clés de chiffrement de bout en bout, rendant l’historique des conversations chiffrées inaccessible lorsque vous vous reconnecterez.
+Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="settings_data_save_mode_summary">Le mode d’économie de données utilise un filtre spécifique qui ignore les notifications de présence et de saisie.</string>
 
     <string name="encryption_message_recovery">Récupération des messages chiffrés</string>
