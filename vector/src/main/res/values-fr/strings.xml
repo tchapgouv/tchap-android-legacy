@@ -1550,7 +1550,7 @@ Si vous n’avez pas configuré de nouvelle méthode de récupération, un attaq
     <string name="sas_verify_waiting_for_partner">Merci d’accepter la demande sur l’appareil à vérifier…</string>
     <string name="sas_verify_start_button_title">Commencer la vérification</string>
     <string name="sas_incoming_request_title">Demande de vérification entrante</string>
-    <string name="sas_incoming_request_description">Vérifiez cet appareil pour le marquer comme fiable. Faire confiance aux appareils de vos partenaires vous permet d’être plus serein en utilisant les messages chiffrés de bout en bout.</string>
+    <string name="sas_incoming_request_description">L’un de vos appareils souhaite vérifier votre appareil actuel. En effectuant cette vérification, un lien de confiance s’établira entre vos deux appareils afin de faciliter le partage de clés de chiffrement.</string>
     <string name="sas_incoming_request_description_2">La vérification de cet appareil le marquera comme fiable, et marquera aussi votre appareil comme fiable auprès de votre partenaire.</string>
 
     <string name="sas_emoji_description">Vérifiez l’appareil en confirmant que les émojis suivants apparaissent également sur son écran</string>
