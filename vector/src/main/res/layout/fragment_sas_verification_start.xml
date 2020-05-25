@@ -24,7 +24,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
-            android:text="@string/sas_waiting_for_partner"
+            android:text="@string/sas_verify_waiting_for_partner"
             android:textColor="?android:attr/textColorSecondary" />
 
         <LinearLayout

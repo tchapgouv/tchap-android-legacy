@@ -1547,17 +1547,18 @@ Si vous n’avez pas configuré de nouvelle méthode de récupération, un attaq
 
     <string name="sas_verify_title">Vérifier en comparant une liste d’émojis</string>
     <string name="sas_security_advise">Pour une sécurité maximale, nous vous recommandons de faire cela en personne ou d’utiliser d’autres moyens de communication sécurisés.</string>
+    <string name="sas_verify_waiting_for_partner">Merci d’accepter la demande sur l’appareil à vérifier…</string>
     <string name="sas_verify_start_button_title">Commencer la vérification</string>
     <string name="sas_incoming_request_title">Demande de vérification entrante</string>
     <string name="sas_incoming_request_description">Vérifiez cet appareil pour le marquer comme fiable. Faire confiance aux appareils de vos partenaires vous permet d’être plus serein en utilisant les messages chiffrés de bout en bout.</string>
     <string name="sas_incoming_request_description_2">La vérification de cet appareil le marquera comme fiable, et marquera aussi votre appareil comme fiable auprès de votre partenaire.</string>
 
-    <string name="sas_emoji_description">Vérifiez cet appareil en confirmant que les émojis suivant apparaissent sur l’écran de votre partenaire</string>
-    <string name="sas_decimal_description">Vérifiez cet appareil en confirmant que les chiffres suivants apparaissent sur l’écran de votre partenaire</string>
+    <string name="sas_emoji_description">Vérifiez l’appareil en confirmant que les émojis suivants apparaissent également sur son écran</string>
+    <string name="sas_decimal_description">Vérifiez l’appareil en confirmant que les chiffres suivants apparaissent également sur son écran</string>
 
     <string name="sas_incoming_verification_request_dialog">Vous avez reçu une demande de vérification entrante.</string>
     <string name="sas_view_request_action">Voir la demande</string>
-    <string name="sas_waiting_for_partner">Merci d’accepter la demande sur l’appareil à vérifier…</string>
+    <string name="sas_waiting_for_partner">Attente de la confirmation de l’autre appareil…</string>
 
     <string name="sas_verified">Vérifié !</string>
     <string name="sas_verified_successful">Vous avez bien vérifié cet appareil.</string>
@@ -1569,7 +1570,7 @@ Si vous n’avez pas configuré de nouvelle méthode de récupération, un attaq
 
     <string name="sas_verification_request_notification_channel_title">Vérification de clé</string>
     <string name="sas_cancelled_dialog_title">Demande annulée</string>
-    <string name="sas_cancelled_by_other">Votre interlocuteur a annulé la vérification.
+    <string name="sas_cancelled_by_other">La vérification a été annulée sur l’autre appareil.
 \n%s</string>
     <string name="sas_cancelled_by_me">La vérification est annulée.
 \nMotif : %s</string>
