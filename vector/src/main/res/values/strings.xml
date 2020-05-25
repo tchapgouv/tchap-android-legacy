@@ -1582,6 +1582,7 @@
 
     <string name="sas_verify_title">Verify by comparing a short text string.</string>
     <string name="sas_security_advise">For maximum security, we recommend you do this in person or use another trusted means of communication.</string>
+    <string name="sas_verify_waiting_for_partner">Waiting for partner to accept…</string>
     <string name="sas_verify_start_button_title">Begin Verifying</string>
     <string name="sas_incoming_request_title">Incoming Verification Request</string>
     <string name="sas_incoming_request_description">Verify this device to mark it as trusted. Trusting devices of partners gives you extra peace of mind when using end-to-end encrypted messages."</string>
