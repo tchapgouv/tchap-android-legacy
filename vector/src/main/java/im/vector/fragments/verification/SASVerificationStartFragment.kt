@@ -49,8 +49,8 @@ class SASVerificationStartFragment : VectorBaseFragment() {
     @BindView(R.id.rootLayout)
     lateinit var rootLayout: ViewGroup
 
-    @BindView(R.id.sas_start_button)
-    lateinit var startButton: Button
+//    @BindView(R.id.sas_start_button)
+//    lateinit var startButton: Button
 
     @BindView(R.id.sas_start_button_loading)
     lateinit var startButtonLoading: ProgressBar
@@ -58,6 +58,8 @@ class SASVerificationStartFragment : VectorBaseFragment() {
     @BindView(R.id.sas_verifying_keys)
     lateinit var loadingText: TextView
 
+    @BindView(R.id.sas_legacy_verification)
+    lateinit var legacyVerificationButton: Button
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -73,7 +75,8 @@ class SASVerificationStartFragment : VectorBaseFragment() {
                     //display loading
                     TransitionManager.beginDelayedTransition(this.rootLayout)
                     this.loadingText.isVisible = true
-                    this.startButton.isInvisible = true
+                    this.legacyVerificationButton.isVisible = true
+//                    this.startButton.isInvisible = true
                     this.startButtonLoading.isVisible = true
                     this.startButtonLoading.animate()
 
@@ -88,18 +91,22 @@ class SASVerificationStartFragment : VectorBaseFragment() {
                 else -> {
                     TransitionManager.beginDelayedTransition(this.rootLayout)
                     this.loadingText.isVisible = false
-                    this.startButton.isVisible = true
+                    this.legacyVerificationButton.isVisible = false
+//                    this.startButton.isVisible = true
                     this.startButtonLoading.isVisible = false
                 }
             }
         })
 
+        // Tchap: start directly the verification based on emojis
+        viewModel.beginSasKeyVerification()
+
     }
 
-    @OnClick(R.id.sas_start_button)
-    fun doStart() {
-        viewModel.beginSasKeyVerification()
-    }
+//    @OnClick(R.id.sas_start_button)
+//    fun doStart() {
+//        viewModel.beginSasKeyVerification()
+//    }
 
     @OnClick(R.id.sas_legacy_verification)
     fun doLegacy() {
