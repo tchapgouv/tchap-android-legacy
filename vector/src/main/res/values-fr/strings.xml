@@ -1562,7 +1562,7 @@ Si vous n’avez pas configuré de nouvelle méthode de récupération, un attaq
 
     <string name="sas_verified">Vérifié !</string>
     <string name="sas_verified_successful">Vous avez bien vérifié cet appareil.</string>
-    <string name="sas_verified_successful_description">Les messages sécurisés avec cet utilisateur sont chiffrés de bout en bout et ne peuvent être lus par des tiers.</string>
+    <string name="sas_verified_successful_description">Le partage des clés va s’effectuer progressivement. Les messages se déchiffreront au fur à mesure. Cela peut prendre quelques minutes.</string>
     <string name="sas_got_it">Compris</string>
 
     <string name="sas_verifying_keys">Il est possible que la demande ne s’affiche pas sur cet appareil, car certaines versions de l’application ne prennent pas en charge la vérification interactive. Nous vous invitions alors à utiliser la vérification traditionnelle.</string>
