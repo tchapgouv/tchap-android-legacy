@@ -1881,6 +1881,8 @@
     <string name="notice_room_third_party_invite">%1$s sent an invitation to %2$s to join the room</string>
     <string name="notice_room_third_party_revoked_invite">%1$s revoked the invitation for %2$s to join the room</string>
     <string name="room_error_join_failed_empty_room">It is not currently possible to re-join an empty room.</string>
+    <string name="notice_crypto_unable_to_decrypt">** Unable to decrypt: %s **</string>
+    <string name="notice_crypto_error_unkwown_inbound_session_id">The sender\'s device has not sent us the keys for this message.</string>
 
     <string name="tab_rooms_title">ROOMS</string>
     <string name="tab_contacts_title">CONTACTS</string>

@@ -1039,9 +1039,9 @@ La visibilité des messages dans Matrix est identique à celle des e-mails. Si n
     <string name="download">Télécharger</string>
     <string name="speak">Parler</string>
     <string name="clear">Effacer</string>
-    <string name="e2e_re_request_encryption_key"><u>Redemander les clés de chiffrement</u> à vos autres appareils.</string>
+    <string name="e2e_re_request_encryption_key">Demande envoyée. <u>Renvoyer</u></string>
 
-    <string name="e2e_re_request_encryption_key_sent">Demande de clé envoyée.</string>
+    <string name="e2e_re_request_encryption_key_sent">Demande en cours…</string>
 
     <string name="e2e_re_request_encryption_key_dialog_title">Demande envoyée</string>
 
@@ -1900,6 +1900,9 @@ Si vous n’avez pas configuré de nouvelle méthode de récupération, un attaq
     <string name="notice_room_third_party_invite">%1$s a envoyé une invitation à %2$s pour rejoindre la conversation</string>
     <string name="notice_room_third_party_revoked_invite">%1$s a retiré l’invitation de %2$s pour rejoindre la conversation</string>
     <string name="room_error_join_failed_empty_room">Il est impossible pour le moment de revenir dans une conversation vide.</string>
+
+    <string name="notice_crypto_unable_to_decrypt">** Echec de déchiffrement : %s **</string>
+    <string name="notice_crypto_error_unkwown_inbound_session_id">Veuillez ouvrir Tchap sur vos autres appareils afin d’autoriser le partage de clés.</string>
 
     <string name="tab_rooms_title">CONVERSATIONS</string>
     <string name="tab_contacts_title">CONTACTS</string>
