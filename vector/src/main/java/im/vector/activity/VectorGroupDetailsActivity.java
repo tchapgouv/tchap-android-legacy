@@ -20,25 +20,26 @@ package im.vector.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import com.google.android.material.tabs.TabLayout;
-
-import androidx.fragment.app.Fragment;
-import androidx.viewpager.widget.ViewPager;
-import androidx.appcompat.app.ActionBar;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ProgressBar;
 
+import androidx.appcompat.app.ActionBar;
+import androidx.fragment.app.Fragment;
+import androidx.viewpager.widget.ViewPager;
+
+import com.google.android.material.tabs.TabLayout;
+
 import org.jetbrains.annotations.NotNull;
-import org.matrix.androidsdk.core.MXPatterns;
 import org.matrix.androidsdk.MXSession;
-import org.matrix.androidsdk.groups.GroupsManager;
-import org.matrix.androidsdk.listeners.MXEventListener;
+import org.matrix.androidsdk.core.Log;
+import org.matrix.androidsdk.core.MXPatterns;
 import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.core.model.MatrixError;
+import org.matrix.androidsdk.groups.GroupsManager;
+import org.matrix.androidsdk.listeners.MXEventListener;
 import org.matrix.androidsdk.rest.model.group.Group;
-import org.matrix.androidsdk.core.Log;
 
 import java.util.List;
 
@@ -47,7 +48,7 @@ import im.vector.R;
 import im.vector.adapters.GroupDetailsFragmentPagerAdapter;
 import im.vector.ui.themes.ActivityOtherThemes;
 import im.vector.ui.themes.ThemeUtils;
-import im.vector.view.RiotViewPager;
+import im.vector.view.VectorViewPager;
 
 /**
  *
@@ -67,7 +68,7 @@ public class VectorGroupDetailsActivity extends MXCActionBarActivity {
     // UI views
     private ProgressBar mGroupSyncInProgress;
 
-    private RiotViewPager mPager;
+    private VectorViewPager mPager;
     private GroupDetailsFragmentPagerAdapter mPagerAdapter;
 
     private MXEventListener mGroupEventsListener = new MXEventListener() {
@@ -149,6 +150,8 @@ public class VectorGroupDetailsActivity extends MXCActionBarActivity {
 
     @Override
     public void initUiAndData() {
+        configureToolbar();
+
         if (CommonActivityUtils.shouldRestartApp(this)) {
             Log.e(LOG_TAG, "Restart the application.");
             CommonActivityUtils.restartApp(this);

@@ -24,26 +24,28 @@ import android.graphics.Bitmap
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import androidx.appcompat.app.AlertDialog
 import android.text.TextUtils
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.*
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isInvisible
-import org.jetbrains.anko.toast
+import androidx.core.view.isVisible
 import butterknife.BindView
 import butterknife.OnClick
 import im.vector.Matrix
 import im.vector.R
-import im.vector.ui.themes.ActivityOtherThemes
 import im.vector.widgets.Widget
+import im.vector.widgets.WidgetManagerProvider
 import im.vector.widgets.WidgetsManager
+import org.jetbrains.anko.toast
 import org.matrix.androidsdk.MXSession
-import org.matrix.androidsdk.data.Room
+import org.matrix.androidsdk.core.Log
 import org.matrix.androidsdk.core.callback.ApiCallback
 import org.matrix.androidsdk.core.model.MatrixError
-import org.matrix.androidsdk.core.Log
+import org.matrix.androidsdk.data.Room
+import javax.net.ssl.HttpsURLConnection
 
 /*
  * This class displays a widget
@@ -68,6 +70,11 @@ class WidgetActivity : VectorAppCompatActivity() {
     @BindView(R.id.widget_title)
     lateinit var mWidgetTypeTextView: TextView
 
+    private var mIsRefreshingToken = false
+    private var mTokenAlreadyRefreshed = false
+    private var mHistoryAlreadyCleared = false
+
+    private lateinit var widgetsManager: WidgetsManager
     /**
      * Widget events listener
      */
@@ -83,8 +90,6 @@ class WidgetActivity : VectorAppCompatActivity() {
      * LIFE CYCLE
      * ========================================================================================== */
 
-    override fun getOtherThemes() = ActivityOtherThemes.NoActionBar
-
     override fun getLayoutRes() = R.layout.activity_widget
 
     @SuppressLint("NewApi")
@@ -95,6 +100,12 @@ class WidgetActivity : VectorAppCompatActivity() {
 
         if (null == mWidget || null == mWidget!!.url) {
             Log.e(LOG_TAG, "## onCreate() : invalid widget")
+            finish()
+            return
+        }
+
+        widgetsManager = WidgetManagerProvider.getWidgetManager(this) ?: run {
+            Log.e(LOG_TAG, "## onCreate() : No widget manager ")
             finish()
             return
         }
@@ -135,7 +146,7 @@ class WidgetActivity : VectorAppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        WidgetsManager.addListener(mWidgetListener)
+        widgetsManager.addListener(mWidgetListener)
 
         mWidgetWebView.let {
             it.resumeTimers()
@@ -153,7 +164,7 @@ class WidgetActivity : VectorAppCompatActivity() {
             it.onPause()
         }
 
-        WidgetsManager.removeListener(mWidgetListener)
+        widgetsManager.removeListener(mWidgetListener)
     }
 
     /* ==========================================================================================
@@ -166,7 +177,7 @@ class WidgetActivity : VectorAppCompatActivity() {
                 .setMessage(R.string.widget_delete_message_confirmation)
                 .setPositiveButton(R.string.delete) { _, _ ->
                     showWaitingView()
-                    WidgetsManager.getSharedInstance().closeWidget(mSession, mRoom, mWidget!!.widgetId, object : ApiCallback<Void> {
+                    widgetsManager.closeWidget(mSession, mRoom, mWidget!!.widgetId, object : ApiCallback<Void> {
                         override fun onSuccess(info: Void?) {
                             hideWaitingView()
                             finish()
@@ -211,7 +222,7 @@ class WidgetActivity : VectorAppCompatActivity() {
      * Refresh the status bar
      */
     private fun refreshStatusBar() {
-        val canCloseWidget = null == WidgetsManager.getSharedInstance().checkWidgetPermission(mSession, mRoom)
+        val canCloseWidget = null == widgetsManager.checkWidgetPermission(mSession, mRoom)
 
         // close widget button
         mCloseWidgetIcon.isInvisible = !canCloseWidget
@@ -269,8 +280,45 @@ class WidgetActivity : VectorAppCompatActivity() {
                     showWaitingView()
                 }
 
+                override fun onReceivedHttpError(view: WebView?, request: WebResourceRequest?, errorResponse: WebResourceResponse?) {
+                    // In case of 403, try to refresh the scalar token
+                    if (errorResponse?.statusCode == HttpsURLConnection.HTTP_FORBIDDEN
+                            && !mTokenAlreadyRefreshed
+                            && widgetsManager.isScalarUrl(this@WidgetActivity, mWidget!!.url)) {
+                        mTokenAlreadyRefreshed = true
+                        mIsRefreshingToken = true
+
+                        // Hide the webview because it's displaying an error message we try to fix by refreshing the token
+                        mWidgetWebView.isVisible = false
+
+                        widgetsManager.clearScalarToken(this@WidgetActivity, mSession)
+                        loadUrl()
+                    }
+                }
+
                 override fun onPageFinished(view: WebView?, url: String?) {
+                    // Check that the Activity is still alive
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 && isDestroyed) {
+                        return
+                    }
+
+                    if (mIsRefreshingToken) {
+                        // We are waiting for a scalar token refresh
+                        return
+                    }
+
                     hideWaitingView()
+
+                    // Ensure the webview is visible, it may have been hidden during token refresh
+                    mWidgetWebView.isVisible = true
+
+                    if (mTokenAlreadyRefreshed && !mHistoryAlreadyCleared) {
+                        // Also clear WebView history, for the scenario when the scalar token was invalid, to avoid loading again the url with the invalid token
+                        // It has to be done when page has finished to be loaded
+                        mHistoryAlreadyCleared = true
+                        mWidgetWebView.clearHistory()
+                    }
+
                 }
             }
 
@@ -283,8 +331,10 @@ class WidgetActivity : VectorAppCompatActivity() {
 
     private fun loadUrl() {
         showWaitingView()
-        WidgetsManager.getFormattedWidgetUrl(this, mWidget!!, object : ApiCallback<String> {
+        widgetsManager.getFormattedWidgetUrl(this, mWidget!!, object : ApiCallback<String> {
             override fun onSuccess(url: String) {
+                mIsRefreshingToken = false
+
                 hideWaitingView()
                 mWidgetWebView.loadUrl(url)
             }

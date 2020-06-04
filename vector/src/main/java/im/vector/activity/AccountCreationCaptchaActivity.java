@@ -22,7 +22,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.http.SslError;
 import android.os.Build;
-import androidx.appcompat.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -32,6 +31,8 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
 
 import com.google.gson.reflect.TypeToken;
 
@@ -44,6 +45,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import im.vector.R;
+import im.vector.ui.themes.ThemeUtils;
 
 /**
  * AccountCreationCaptchaActivity displays a webview to check captchas.
@@ -94,6 +96,8 @@ public class AccountCreationCaptchaActivity extends VectorAppCompatActivity {
 
     @Override
     public void initUiAndData() {
+        configureToolbar();
+
         final WebView webView = findViewById(R.id.account_creation_webview);
         webView.getSettings().setJavaScriptEnabled(true);
 
@@ -168,7 +172,7 @@ public class AccountCreationCaptchaActivity extends VectorAppCompatActivity {
 
             // common error message
             private void onError(String errorMessage) {
-                Log.e(LOG_TAG, "## onError() : errorMessage");
+                Log.e(LOG_TAG, "## onError() : " + errorMessage);
                 Toast.makeText(AccountCreationCaptchaActivity.this, errorMessage, Toast.LENGTH_LONG).show();
 
                 // on error case, close this activity
@@ -184,6 +188,11 @@ public class AccountCreationCaptchaActivity extends VectorAppCompatActivity {
             @SuppressLint("NewApi")
             public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse errorResponse) {
                 super.onReceivedHttpError(view, request, errorResponse);
+
+                if (request.getUrl().toString().endsWith("favicon.ico")) {
+                    // Ignore this error
+                    return;
+                }
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     onError(errorResponse.getReasonPhrase());
@@ -234,6 +243,10 @@ public class AccountCreationCaptchaActivity extends VectorAppCompatActivity {
                 return true;
             }
         });
+
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN) {
+            toolbar.setBackgroundColor(ThemeUtils.INSTANCE.getColor(this, R.attr.colorAccent));
+        }
     }
 
     @Override
@@ -245,17 +258,5 @@ public class AccountCreationCaptchaActivity extends VectorAppCompatActivity {
             return true;
         }
         return super.onKeyDown(keyCode, event);
-    }
-
-    @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-        CommonActivityUtils.onLowMemory(this);
-    }
-
-    @Override
-    public void onTrimMemory(int level) {
-        super.onTrimMemory(level);
-        CommonActivityUtils.onTrimMemory(this, level);
     }
 }

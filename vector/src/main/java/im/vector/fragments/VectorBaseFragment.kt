@@ -21,6 +21,8 @@ import android.os.Bundle
 import androidx.annotation.CallSuper
 import androidx.fragment.app.Fragment
 import android.view.View
+import android.view.*
+import androidx.annotation.LayoutRes
 import butterknife.ButterKnife
 import butterknife.Unbinder
 import im.vector.activity.VectorAppCompatActivity
@@ -30,7 +32,7 @@ import org.matrix.androidsdk.core.Log
 /**
  * Parent class for all Fragment in Vector application
  */
-open class VectorBaseFragment : Fragment() {
+abstract class VectorBaseFragment : Fragment() {
 
     // Butterknife unbinder
     private var mUnBinder: Unbinder? = null
@@ -40,6 +42,22 @@ open class VectorBaseFragment : Fragment() {
     /* ==========================================================================================
      * Life cycle
      * ========================================================================================== */
+
+    @CallSuper
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        if (getMenuRes() != -1) {
+            setHasOptionsMenu(true)
+        }
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        return inflater.inflate(getLayoutResId(), container, false)
+    }
+
+    @LayoutRes
+    abstract fun getLayoutResId(): Int
 
     @CallSuper
     override fun onResume() {
@@ -71,5 +89,19 @@ open class VectorBaseFragment : Fragment() {
         super.onDetach()
 
         vectorActivity = null
+    }
+
+    /* ==========================================================================================
+     * MENU MANAGEMENT
+     * ========================================================================================== */
+
+    open fun getMenuRes() = -1
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        val menuRes = getMenuRes()
+
+        if (menuRes != -1) {
+            inflater.inflate(menuRes, menu)
+        }
     }
 }

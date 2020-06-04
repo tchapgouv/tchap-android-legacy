@@ -22,13 +22,13 @@
 
         <View
             android:id="@+id/messagesAdapter_highlight_message_marker"
-            android:layout_width="6dp"
+            android:layout_width="5dp"
             android:layout_height="match_parent"
-            android:layout_marginStart="5dp"
-            android:layout_marginLeft="5dp"
+            android:layout_marginStart="6dp"
+            android:layout_marginLeft="6dp"
             android:layout_marginEnd="5dp"
             android:layout_marginRight="5dp"
-            tools:background="@color/vector_green_color" />
+            tools:background="?attr/colorAccent" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -47,7 +47,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentRight="true"
-                    android:textColor="@color/vector_green_color"
+                    android:textColor="?attr/colorAccent"
                     tools:text="@string/merged_events_expand" />
 
                 <include
@@ -62,12 +62,13 @@
                 android:id="@+id/messagesAdapter_merge_separator"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/vector_green_color" />
+                android:background="?attr/colorAccent" />
 
             <TextView
                 android:id="@+id/messagesAdapter_merge_summary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textColor="?android:textColorSecondary"
                 android:textIsSelectable="false"
                 android:textSize="14sp"
                 tools:text="3 membership changes" />

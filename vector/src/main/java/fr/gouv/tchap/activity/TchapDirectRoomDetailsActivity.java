@@ -22,9 +22,7 @@ import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.fragment.app.FragmentManager;
-import androidx.appcompat.app.ActionBar;
 import android.view.MenuItem;
-import android.view.View;
 
 import org.matrix.androidsdk.fragments.MatrixMessageListFragment;
 import org.matrix.androidsdk.listeners.MXEventListener;
@@ -52,14 +50,9 @@ public class TchapDirectRoomDetailsActivity extends TchapContactActionBarActivit
 
     private VectorSearchRoomFilesListFragment mSearchFilesFragment;
 
-
-    // UI items
-    private View mLoadOldestContentView;
-
     private String mRoomId;
     private String mMatrixId;
 
-    private androidx.appcompat.widget.Toolbar mToolbar;
     private FragmentManager mFragmentManager;
 
     private final MXEventListener mEventListener = new MXEventListener() {
@@ -122,13 +115,8 @@ public class TchapDirectRoomDetailsActivity extends TchapContactActionBarActivit
 
         // UI widgets binding & init fields
         setWaitingView(findViewById(R.id.settings_loading_layout));
-        mLoadOldestContentView = findViewById(R.id.search_load_oldest_progress);
 
-
-        // use a toolbar instead of the actionbar
-
-        mToolbar = findViewById(R.id.room_toolbar);
-        setSupportActionBar(mToolbar);
+        configureToolbar();
 
         mFragmentManager = getSupportFragmentManager();
         if (null != getSupportActionBar()) {
@@ -234,16 +222,6 @@ public class TchapDirectRoomDetailsActivity extends TchapContactActionBarActivit
     }
 
     /**
-     * Update the tag of the tab with its the UI values
-     *
-     * @param aTabToUpdate the tab to be updated
-     */
-    private void saveUiTabContext(ActionBar.Tab aTabToUpdate) {
-        Bundle tabTag = (Bundle) aTabToUpdate.getTag();
-        aTabToUpdate.setTag(tabTag);
-    }
-
-    /**
      * Reset the UI to its init state:
      * - "waiting while searching" screen disabled
      * - background image visible
@@ -252,10 +230,6 @@ public class TchapDirectRoomDetailsActivity extends TchapContactActionBarActivit
     private void resetUi() {
         // stop "wait while searching" screen
         hideWaitingView();
-
-        if (null != mLoadOldestContentView) {
-            mLoadOldestContentView.setVisibility(View.GONE);
-        }
     }
 
     /**

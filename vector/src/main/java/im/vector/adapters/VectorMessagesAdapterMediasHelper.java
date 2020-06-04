@@ -35,14 +35,16 @@ import com.bumptech.glide.request.RequestOptions;
 import com.google.gson.JsonElement;
 
 import org.matrix.androidsdk.MXSession;
+import org.matrix.androidsdk.core.JsonUtils;
+import org.matrix.androidsdk.core.Log;
+import org.matrix.androidsdk.core.model.MatrixError;
+import org.matrix.androidsdk.crypto.model.crypto.EncryptedFileInfo;
 import org.matrix.androidsdk.db.MXMediaCache;
 import org.matrix.androidsdk.listeners.IMXMediaDownloadListener;
 import org.matrix.androidsdk.listeners.IMXMediaUploadListener;
 import org.matrix.androidsdk.listeners.MXMediaDownloadListener;
 import org.matrix.androidsdk.listeners.MXMediaUploadListener;
 import org.matrix.androidsdk.rest.model.Event;
-import org.matrix.androidsdk.core.model.MatrixError;
-import org.matrix.androidsdk.crypto.model.crypto.EncryptedFileInfo;
 import org.matrix.androidsdk.rest.model.message.FileMessage;
 import org.matrix.androidsdk.rest.model.message.ImageInfo;
 import org.matrix.androidsdk.rest.model.message.ImageMessage;
@@ -50,8 +52,6 @@ import org.matrix.androidsdk.rest.model.message.Message;
 import org.matrix.androidsdk.rest.model.message.StickerMessage;
 import org.matrix.androidsdk.rest.model.message.VideoInfo;
 import org.matrix.androidsdk.rest.model.message.VideoMessage;
-import org.matrix.androidsdk.core.JsonUtils;
-import org.matrix.androidsdk.core.Log;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -465,7 +465,7 @@ class VectorMessagesAdapterMediasHelper {
             if (message instanceof VideoMessage) {
                 uploadingUrl = ((VideoMessage) message).getUrl();
                 isUploadingContent = ((VideoMessage) message).isLocalContent();
-            } else if (message instanceof ImageMessage){
+            } else if (message instanceof ImageMessage) {
                 uploadingUrl = ((ImageMessage) message).getUrl();
                 isUploadingContent = ((ImageMessage) message).isLocalContent();
             }

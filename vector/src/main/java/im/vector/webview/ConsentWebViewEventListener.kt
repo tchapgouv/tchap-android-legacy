@@ -19,11 +19,10 @@ package im.vector.webview
 import im.vector.Matrix
 import im.vector.activity.VectorAppCompatActivity
 import im.vector.util.weak
+import org.matrix.androidsdk.core.Log
 import org.matrix.androidsdk.core.callback.ApiCallback
 import org.matrix.androidsdk.core.callback.SimpleApiCallback
 import org.matrix.androidsdk.core.model.MatrixError
-import org.matrix.androidsdk.rest.model.RoomMember
-import org.matrix.androidsdk.core.Log
 
 private const val SUCCESS_URL_SUFFIX = "/_matrix/consent"
 private const val RIOT_BOT_ID = "@riot-bot:matrix.org"
@@ -51,10 +50,10 @@ class ConsentWebViewEventListener(activity: VectorAppCompatActivity, private val
     private fun createRiotBotRoomIfNeeded() {
         safeActivity?.let {
             val session = Matrix.getInstance(it).defaultSession
-            val joinedRooms = session.dataHandler.store.rooms.filter {
+            val joinedRooms = session.dataHandler.store?.rooms?.filter {
                 it.isJoined
             }
-            if (joinedRooms.isEmpty()) {
+            if (joinedRooms?.isEmpty() == true) {
                 it.showWaitingView()
                 // Ensure we can create a Room with riot-bot. Error can be a MatrixError: "Federation denied with matrix.org.", or any other error.
                 session.profileApiClient

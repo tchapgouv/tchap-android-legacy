@@ -30,7 +30,6 @@ import im.vector.Matrix
 import im.vector.R
 import im.vector.activity.CommonActivityUtils
 import im.vector.activity.VectorAppCompatActivity
-import im.vector.ui.themes.ActivityOtherThemes
 import org.matrix.androidsdk.MXSession
 import org.matrix.androidsdk.core.callback.SimpleApiCallback
 
@@ -58,8 +57,6 @@ class TchapUnsupportedAndroidVersionActivity : VectorAppCompatActivity() {
     /* ==========================================================================================
      * Life cycle
      * ========================================================================================== */
-
-    override fun getOtherThemes() = ActivityOtherThemes.NoActionBar
 
     override fun getLayoutRes() = R.layout.activity_unsupported_android_version
 

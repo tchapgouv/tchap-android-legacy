@@ -1,31 +1,406 @@
-Changes in Riot 0.8.20 (2018-XX-XX)
+Changes in Riot 0.9.9 (2019-XX-XX)
+===================================================
+
+MatrixSdk 🚀:
+ - Upgrade to version 0.X.Y.
+
+Features ✨:
+ -
+
+Improvementss 🙌:
+ -
+
+Other changes:
+ -
+
+Bugfix 🐛:
+ - Crash / potential NPE after logout (#3367)
+
+Translations 🗣:
+ -
+
+Build 🧱:
+ -
+
+
+Changes in Riot 0.9.8 (2019-10-09)
+===================================================
+
+MatrixSdk 🚀:
+ - Upgrade to version 0.9.30.
+
+Bugfix 🐛:
+ - App crashes for some users (#3348, #3349)
+
+
+Changes in Riot 0.9.7 (2019-10-07)
 ===================================================
 
 MatrixSdk:
- - Upgrade to version 0.X.Y.
+ - Upgrade MatrixSdk to version 0.9.29.
+ - Changelog: https://github.com/matrix-org/matrix-android-sdk/releases/tag/v0.9.29
 
 Features:
- -
+ - Privacy: Use the hashed v2 lookup API for 3PIDs (#3257)
+ - Privacy: Prompt to accept identity server policies before inviting them to a room (#3227)
+ - Privacy: Make clear that device names are publicly readable (#3265)
+ - Privacy: Email help text on registration should be updated without binding (#3278)
+ - Privacy: Use wellknown to discover the IS of a HS (#3283)
+ - Privacy: Remove the bind true flag from 3PID adds in settings (#3254)
+ - Privacy: Remove the ability to set an IS at login/registration (#3264)
+ - Privacy: Allow password reset when no IS (#3261)
+ - Privacy: Allow email registration when no IS (#3260)
+ - Privacy: Separate Add and Bind for 3PID (#3300)
+
+Improvements:
+ - Notification [Fdroid] Add a new mode for notification (#3122)
+
+Other changes:
+ - Widgets: Whitelist [MSC1961](https://github.com/matrix-org/matrix-doc/pull/1961) widget urls
+ - Privacy: Remove the bind true flag from 3PID calls on registration (#3252)
+
+Bugfix:
+ - Fix reset password broken UI (#3125)
+ - Execute 1 request instead of 2 for 3Pid lookup (#3344)
+
+Changes in Riot 0.9.6 (2019-09-13)
+===================================================
+
+Other changes:
+ - Get around Google limitation of SSO through WebView by modifying the WebView user agent
+
+Changes in Riot 0.9.5 (2019-09-10)
+===================================================
+
+Features:
+ - Auto configure homeserver and identity server URLs of LoginActivity with a magic link (#3294)
+
+Improvements:
+ - Handle correctly the error 404 when entering a homeserver URL on the login screen
+
+Bugfix:
+ - Restore correctly the login form when coming back from SSO login form.
+
+Translations:
+ - Riot is fully translated into Korean thanks to paijai.
+
+Changes in Riot 0.9.4 (2019-08-28)
+===================================================
+
+MatrixSdk:
+ - Upgrade MatrixSdk to version 0.9.27.
+ - Changelog: https://github.com/matrix-org/matrix-android-sdk/releases/tag/v0.9.27
+
+Security:
+ - Prompt to renew the token after a security fix on Matrix SDK
+
+Features:
+ - Make Widget/Integration manager optional (#3224)
+ - Handle terms and condition approval for IntegrationManager (#3225)
+
+Bugfix:
+ - Widgets: Whitelist https://scalar-staging.vector.im/api (#3234)
+ - SAS: fix crash when destroying activity (#3240)
+
+Build:
+ - Split APK: generate one APK per arch, to reduce APK size
+ - Get Jitsi library dependency from a Maven repository we host, to get a LIBRE_BUILD
+
+Changes in Riot 0.9.3 (2019-07-24)
+===================================================
+
+MatrixSdk:
+ - Upgrade MatrixSdk to version 0.9.26.
+ - Changelog: https://github.com/matrix-org/matrix-android-sdk/releases/tag/v0.9.26
+
+Bugfix:
+ - Crash on older android due to okhttp bumping requirements to Android 5+
+
+Build:
+ - Include native libraries for 64 bits processors.
+
+
+Changes in Riot 0.9.2 (2019-07-18)
+===================================================
+
+MatrixSdk:
+ - Upgrade MatrixSdk to version 0.9.24.
+ - Changelog: https://github.com/matrix-org/matrix-android-sdk/releases/tag/v0.9.24
+
+Improvements:
+ - Room upgrade: Use the `server_name` parameter when joining the new room (#3204)
+
+Other changes:
+ - Piwik SDK has been replaced by Matomo SDK (#3163)
+
+Bugfix:
+ - Fix / Illegal States exceptions when starting event stream service X
+ - Fix / Keys Backup can be setup twice #9510
+ - Fix / Infinite logout screen when token invalidated
+ - Fix / Export keys not possible when no network (airplane)
+ - Fix / crash in logout success
+ - Fix / Crash when session store is null in event stream #3158
+
+Build:
+ - Upgrade gradle version from 4.10.1 to 5.4.1
+ - Ensure MatrixSDK library is downloaded from the jitpack repository
+
+Changes in Riot 0.9.1 (2019-05-03)
+===================================================
+
+MatrixSdk:
+ - Upgrade MatrixSdk to version 0.9.23.
+ - Changelog: https://github.com/matrix-org/matrix-android-sdk/releases/tag/v0.9.23
+
+Features:
+ - E2E: SAS Verification
+
+Improvements:
+ - Use heads-up alert UX for key-share and key-verification requests
+
+Other changes:
+ - Olm lib is now only a dependency of Matrix Sdk
+ - Matrix SDK library is now built and hosted by Jitpack (https://jitpack.io/#matrix-org/matrix-android-sdk/) (matrix-org/matrix-android-sdk#241)
+
+Bugfix:
+ - Fix mistake in Arabic translation (#3129)
+
+Changes in Riot 0.9.00 (2019-04-23)
+===================================================
+
+/!\ This version is the first version published with app id "im.vector.app".
+
+Changes in Riot 0.8.99 (2019-04-23)
+===================================================
+
+/!\ This version is the last version published with app id "im.vector.alpha". It contains a screen which introduce the new application "im.vector.app"
+/!\ This release contains security related bugfixes, users should upgrade asap
+
+MatrixSdk:
+ - Upgrade MatrixSdk to version 0.9.22.
+ - Changelog: https://github.com/matrix-org/matrix-android-sdk/releases/tag/v0.9.22
+
+Other changes:
+ - Remove Amplitude tracker and Calendars permissions added by Jitsi lib (jitsi/jitsi-meet#4068, jitsi/jitsi-meet#4080)
+ - Exclude code of Firebase analytics (#2481)
+
+Bugfix:
+ - Fix / Illegal States exceptions when starting event stream service X
+ - Security Fix / Remove obsolete and buggy ContentProvider which could allow a malicious local app to compromise account data. Many thanks to Julien Thomas (twitter.com/@julien_thomas) from Protektoid Project (https://protektoid.com) for identifying this and responsibly disclosing it!
+
+Build:
+ - Exclude Firebase analytics code (#2481)
+
+
+Changes in Riot 0.8.29 (2019-04-04)
+===================================================
+
+MatrixSdk:
+ - Upgrade MatrixSdk to version 0.9.20.
+ - Changelog: https://github.com/matrix-org/matrix-android-sdk/releases/tag/v0.9.20
+
+Improvements:
+ - Fix crash on Jitsi conference by upgrading the lib to version 1.21.0 (#2412)
+ - Finally upgrade Jitsi lib to version 2.0.0 (https://github.com/jitsi/jitsi-meet/releases/tag/android-sdk-2.0.0)
+
+Changes in Riot 0.8.28 (2019-04-01)
+===================================================
+
+Bugfix:
+ - Ensure EventStreamServiceX call startForeground(), even if there is no session, and do not simulate push in this case
+
+Changes in Riot 0.8.27 (2019-04-01)
+===================================================
+
+Improvements:
+ - Deprecate EventStreamService, replaced by EventStreamServiceX and CallService (#2782, #3065)
+
+Other changes:
+ - Scalar URL: Use prod urls in Riot mobile apps (#3077)
+
+Changes in Riot 0.8.26 (2019-03-25)
+===================================================
+
+MatrixSdk:
+ - Upgrade MatrixSdk to version 0.9.19.
+ - Changelog: https://github.com/matrix-org/matrix-android-sdk/releases/tag/v0.9.19
+
+Features:
+ - Notification rework: inline reply/mark as read actions, one notification per room (#3068 and others)
+
+Other changes:
+ - Disable usage of library ShortcutBadger on device running API 26+
+
+Bugfix:
+ - Fix expand and collapse color (#3035)
+ - Fix LED not flashing on noisy messages
+
+Changes in Riot 0.8.25 (2019-03-13)
+===================================================
+
+Improvements:
+ - Add option to choose default media source (#2763)
+ - Add option to choose default photo compression (#2763)
+ - Add option to disable camera shutter sound
+ - Auto-refresh scalar token when a 403 error is detected (#3051)
+ - Open each links with the browser in a new Tab (#381)
+
+Translations:
+ - New partial translations in Bengali-India
+
+Changes in Riot 0.8.24 (2019-03-07)
+===================================================
+
+MatrixSdk:
+ - Upgrade MatrixSdk to version 0.9.18.
+ - Changelog: https://github.com/matrix-org/matrix-android-sdk/releases/tag/v0.9.18
+
+Features:
+ - Implement server config discovery - .well-known support (#2982)
+ - Implement login with SSO (#3025)
+
+Improvements:
+ - Improve UX when restoring e2e keys (#2999)
+ - Add option to send messages with enter button (#1070)
+ - MediaViewer: display image in high quality and improve max zoom for big file (#2967)
+ - Hide e2e keys management section in settings if crypto is disabled
+ - Display message with formatted_body but with empty body (#2989)
+ - Get full Credentials data from Fallback login (#3006)
+
+Other changes:
+ - Change color of links (#2987)
+ - Change color of HomeSection badge (#2987)
+
+Bugfix:
+ - Fix crash in settings when cryptography is disabled (#2991)
+ - Fix Claims of display names being linkified (#2975)
+ - Fix Riot breaks links if message contains numbers (#2891)
+ - Fix geo: URIs are treated as phone numbers (#2464)
+ - Fix Some text in messages are converted to maps link and should not (#2350)
+ - Fix Numbers are too much linkified (#1140)
+ - Fix Highlight geo: URIs (#1329)
+ - Fix Odd linkification bug with trailing slash (#865)
+ - Fix issue on joining conference call wording in some languages (#2112)
+
+Changes in Riot 0.8.23 (2019-02-21)
+===================================================
+
+MatrixSdk:
+ - Upgrade MatrixSdk to version 0.9.17.
+
+Features:
+ - key backup: Trust on Decrypt (#2921)
+ - key backup: new recover method detected (#2926)
+
+Improvements:
+ - keys backup: Setup screen UX improvement
+ - keys backup: Sign Out flow improvement
+ - Improved button styles (states, ripple effect)
+ - Show direct chat section in user details only for other users, not self
+ - Sender name colors in rooms
+
+Other changes:
+ - Remove beta e2e warning (#2946)
+
+Bugfix:
+ - Fix warning "Attribute value must be constant" in VectorHomeActivity
+ - Fix key backup banner doesn't go away after you have restored from backup. (#2943)
+ - Fix issue with registration on some HomeServer (#2985)
+
+Changes in Riot 0.8.22-beta (2019-02-01)
+===================================================
+
+MatrixSdk:
+ - Upgrade MatrixSdk to version 0.9.16.
+
+Features:
+ - keys backup: Implement setup screen (#2883)
+ - keys backup: Display a warning on new sign out screen (#2885)
+ - keys backup: recover screen (#2887)
+ - keys backup: Add a dedicated section to settings (#2884)
+ - keys backup: Add a banner on Home to setup or recover backup (#2884)
+
+Improvements:
+ - Make Change Password Settings More User friendly (#2898)
+ - Support Split-screen mode (#1832)
+ - Enable auto focus when taking picture with the camera (#2831)
+ - Better wording in notification for video call (#1421)
+ - Improve widget banner (#2129)
+ - Icon for Oreo (#2169)
+ - Notification reliability and Messaging Style, with inlined reply (#2823, #1016).
+ - Notification settings re-organization, added bing rule troubleshoot
+ - Kotlin Code Improvement in VectorSettingsPreferencesFragment.kt
+ - Remove redundant !! , Replace it with null safe operators in VectorSettingsPreferencesFragment.kt
+ - `Redact` has been renamed to `Remove` to match riot/web (#2871)
+ - Remove long click download action in MediaViewer (#2882)
+
+Other changes:
+ - Update of Light and Dark themes (#2710)
+ - Restore the crash report dialog after a crash
+ - New application icon! (#2905)
+
+Bugfix:
+ - Fix No Visual Difference is setting if disabled (#2929)
+ - Fix crash when taking picture for user avatar on old device (#2818)
+ - Fix crash when adding background to image (#2828)
+ - LED notifications are not working (#2512)
+ - FCM Troubleshoot screen crash in some cases (#2846)
+ - Fix login button issue (#1568)
+ - Fix issue with registration when an email is provided (#2852)
+ - Fix issues with Tombstone events (#2866 && #2867)
+ - Fix crash on BugReportActivity if previous Activity is destroyed (#2876)
+ - Key share request does not go away when user select "verify" (#2781)
+ - Fix crash when entering the settings due to missing push rules (#2893)
+
+Changes in Riot 0.8.21 (2019-01-02)
+===================================================
+
+MatrixSdk:
+ - Upgrade MatrixSdk to version 0.9.15.
+
+Improvements:
+ - Show userId below display name in member detail screen (#2756)
+ - Clicking on a user and a room avatar opens a new screen with animation to view the avatar in full screen, with zoom capabilities (#2455)
+ - Added Troubleshoot Notification settings page
+ - Add badge to indicate number of group invitations on the Home Screen (#1923)
+
+Other changes:
+ - Update README.md and CONTRIBUTING.md (#2795)
+
+Bugfix:
+ - Correct issue during signup when a 3PID error would let the signup flow spin forever
+ - Defensive code for notifications issues + check play services as per FCM recommendation (#2266)
+ - No notification on f-droid when device enters sleep mode (#2789)
+ - Added ShortcutBadger missing permissions for some devices
+ - Fix many little UI/UX issues (#2769)
+ - Fix crash opening the setting screen (#2793)
+ - Allow popup on IntegrationManagerActivity's WebView because it's require to add Slack integration (#2768)
+ - Fix crash on Android ViewPager (#2786)
+ - Fix avatar icon characters being a little bit offset to right.
+ - Fix Stopping Loading View after Upload of User Avatar (#2801)
+ - Fix no display of image without `info` (#2666)
+ - Fix permission request failure. It was actually not necessary to request overlay permission (#2680)
+
+Changes in Riot 0.8.20 (2018-12-13)
+===================================================
+
+MatrixSdk:
+ - Upgrade to version 0.9.14.
 
 Improvements:
  - Remove double negations from settings and update descriptions (#2723)
  - Handle missing or bad parameter in slash command
  - Support specifying kick and ban message (#2164)
  - Add image transparency and fix issues with gifs in the media viewer (#2731)
-
-Other changes:
- -
+ - Upgrade olm-sdk.aar from version 2.3.0 to version 3.0.0
+ - Migration to the Preference v7 support
+ - Make User Agreement part of the registration flow (#2442)
+ - Fix several color issue on Status theme and prepare rework some styles.
 
 Bugfix:
  - Use same "Call Anyway" string from iOS (#2695)
  - Improve `/markdown` command (#2673)
  - Display thumbnail for encrypted files without a remote thumbnail (#2734)
-
-Translations:
- -
-
-Build:
- -
 
 Changes in Riot 0.8.19 (2018-11-06)
 ===================================================
@@ -38,6 +413,7 @@ Features:
  - Add RTL support (#2376, #2271)
 
 Improvements:
+ - improve UI for VectorMediaPickerActivity and InviteMembersActivity (#2610)
  - Ability to crop profile picture before setting (#2598)
  - Add a setting of the room's info area visibility.
 
@@ -1102,4 +1478,34 @@ Changes in Vector 0.2.0 (2016-04-14)
 
  * First official release.
 
+
+=======================================================
++        TEMPLATE WHEN PREPARING A NEW RELEASE        +
+=======================================================
+
+
+Changes in Riot 0.9.XX (2019-XX-XX)
+===================================================
+
+MatrixSdk 🚀:
+ - Upgrade MatrixSdk to version 0.X.Y.
+ - Changelog: https://github.com/matrix-org/matrix-android-sdk/releases/tag/v0.X.Y
+
+Features ✨:
+ -
+
+Improvements 🙌:
+ -
+
+Other changes:
+ -
+
+Bug fixes 🐛:
+ -
+
+Translations 🗣:
+ -
+
+Build 🧱:
+ -
 

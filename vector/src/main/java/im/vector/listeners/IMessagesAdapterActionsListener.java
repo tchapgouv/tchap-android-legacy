@@ -181,9 +181,10 @@ public interface IMessagesAdapterActionsListener {
     void onEventDecrypted();
 
     /**
-     * Called when selected event change
+     * Called when the tombstone link is clicked
      *
-     * @param currentSelectedEvent the current selected event, or null if no event is selected
+     * @param roomId
+     * @param senderId
      */
-    void onSelectedEventChange(@Nullable Event currentSelectedEvent);
+    void onTombstoneLinkClicked(String roomId, String senderId);
 }

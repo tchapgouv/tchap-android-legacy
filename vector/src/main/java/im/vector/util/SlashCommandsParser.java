@@ -2,6 +2,7 @@
  * Copyright 2016 OpenMarket Ltd
  * Copyright DINSIC 2018
  * Copyright 2018 New Vector Ltd
+ * Copyright 2019 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,18 +19,20 @@
 
 package im.vector.util;
 
-import androidx.annotation.StringRes;
-import androidx.appcompat.app.AlertDialog;
 import android.text.TextUtils;
 import android.widget.Toast;
 
+import androidx.annotation.StringRes;
+import androidx.appcompat.app.AlertDialog;
+
 import org.matrix.androidsdk.MXSession;
-import org.matrix.androidsdk.data.Room;
-import org.matrix.androidsdk.data.RoomState;
+import org.matrix.androidsdk.core.Log;
 import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.core.callback.SimpleApiCallback;
 import org.matrix.androidsdk.core.model.MatrixError;
-import org.matrix.androidsdk.core.Log;
+import org.matrix.androidsdk.data.Room;
+import org.matrix.androidsdk.data.RoomState;
+import org.matrix.androidsdk.features.identityserver.IdentityServerNotConfiguredException;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -40,6 +43,7 @@ import im.vector.R;
 import im.vector.VectorApp;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.VectorRoomActivity;
+import im.vector.widgets.WidgetManagerProvider;
 import im.vector.widgets.WidgetsManager;
 
 public class SlashCommandsParser {
@@ -155,6 +159,15 @@ public class SlashCommandsParser {
                         activity.getConsentNotGivenHelper().displayDialog(e);
                     }
                 }
+
+                @Override
+                public void onUnexpectedError(Exception e) {
+                    if (e instanceof IdentityServerNotConfiguredException) {
+                        Toast.makeText(activity, activity.getString(R.string.invite_no_identity_server_error), Toast.LENGTH_LONG).show();
+                    } else {
+                        super.onUnexpectedError(e);
+                    }
+                }
             };
 
             String[] messageParts = null;
@@ -268,7 +281,7 @@ public class SlashCommandsParser {
 
                     if (messageParts.length >= 2) {
                         isIRCCmdValid = true;
-                        room.invite(messageParts[1], callback);
+                        room.invite(session, messageParts[1], callback);
                     }
                 }
             } else if (TextUtils.equals(firstPart, SlashCommand.KICK_USER.getCommand())) {
@@ -278,7 +291,7 @@ public class SlashCommandsParser {
                     isIRCCmdValid = true;
 
                     String user = messageParts[1];
-                    String reason = textMessage.substring(SlashCommand.BAN_USER.getCommand().length()
+                    String reason = textMessage.substring(SlashCommand.KICK_USER.getCommand().length()
                             + 1
                             + user.length()).trim();
 
@@ -346,9 +359,12 @@ public class SlashCommandsParser {
                 isIRCCmd = true;
                 isIRCCmdValid = true;
 
-                WidgetsManager.clearScalarToken(activity, session);
+                WidgetsManager wm = WidgetManagerProvider.INSTANCE.getWidgetManager(activity);
+                if (wm != null) {
+                    wm.clearScalarToken(activity, session);
+                    Toast.makeText(activity, "Scalar token cleared", Toast.LENGTH_SHORT).show();
+                }
 
-                Toast.makeText(activity, "Scalar token cleared", Toast.LENGTH_SHORT).show();
             }
 
             if (!isIRCCmd) {

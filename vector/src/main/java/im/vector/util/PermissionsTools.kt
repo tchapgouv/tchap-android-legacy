@@ -21,12 +21,12 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import androidx.core.app.ActivityCompat
-import androidx.fragment.app.Fragment
-import androidx.core.content.ContextCompat
-import androidx.appcompat.app.AlertDialog
 import android.text.TextUtils
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import im.vector.R
 import im.vector.contacts.ContactsManager
 import org.matrix.androidsdk.core.Log
@@ -67,7 +67,6 @@ const val PERMISSION_REQUEST_CODE_AUDIO_CALL = 571
 const val PERMISSION_REQUEST_CODE_VIDEO_CALL = 572
 const val PERMISSION_REQUEST_CODE_EXPORT_KEYS = 573
 const val PERMISSION_REQUEST_CODE_CHANGE_AVATAR = 574
-const val PERMISSION_REQUEST_OTHER = 600
 
 /**
  * Log the used permissions statuses.

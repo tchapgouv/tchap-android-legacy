@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
     <string name="resources_language">sq</string>
-    <string name="resources_country_code">AL</string>
+    <string name="resources_country_code">SQ</string>
 
     <string name="light_theme">Temë e Çelët</string>
     <string name="dark_theme">Temë e Errët</string>
@@ -17,7 +17,7 @@
     <string name="title_activity_member_details">Hollësi Anëtari</string>
     <string name="title_activity_bug_report">Njoftim të metash</string>
     <string name="title_activity_group_details">Hollësi bashkësie</string>
-    <string name="dialog_title_third_party_licences">Licenca Nga Palë të Treta</string>
+    <string name="dialog_title_third_party_licences">Licenca nga palë të treta</string>
 
     <string name="loading">Po ngarkohet…</string>
 
@@ -42,8 +42,6 @@
     <string name="rename">Riemërtojeni</string>
     <string name="report_content">Raportoni lëndë</string>
     <string name="active_call">Thirrje aktive</string>
-    <string name="ongoing_conference_call_voice">zë</string>
-    <string name="ongoing_conference_call_video">video</string>
     <string name="cannot_start_call">S’fillohet dot thirrja, ju lutemi, riprovoni më vonë</string>
     <string name="missing_permissions_title_to_start_conf_call">S’fillohet dot thirrja</string>
     <string name="device_information">Të dhëna pajisjeje</string>
@@ -74,15 +72,15 @@
     <string name="bottom_action_rooms">Dhoma</string>
     <string name="bottom_action_groups">Bashkësi</string>
 
-    <string name="home_filter_placeholder_home">Kërkoni për dhoma</string>
-    <string name="home_filter_placeholder_favorites">Kërkoni për të parapëlqyer</string>
-    <string name="home_filter_placeholder_people">Kërkoni për persona</string>
-    <string name="home_filter_placeholder_rooms">Kërkoni për dhoma</string>
-    <string name="home_filter_placeholder_groups">Kërkoni për bashkësi</string>
+    <string name="home_filter_placeholder_home">Filtroni emra dhomash</string>
+    <string name="home_filter_placeholder_favorites">Filtroni të parapëlqyer</string>
+    <string name="home_filter_placeholder_people">Filtroni persona</string>
+    <string name="home_filter_placeholder_rooms">Filtroni emra dhomash</string>
+    <string name="home_filter_placeholder_groups">Filtroni emra bashkësish</string>
 
     <string name="invitations_header">Ftesa</string>
     <string name="low_priority_header">Me përparësi të ulët</string>
-    <string name="system_alerts_header">Sinjalizime sistemi</string>
+    <string name="system_alerts_header">Sinjalizime Sistemi</string>
 
     <string name="direct_chats_header">Biseda</string>
     <string name="local_address_book_header">Libër adresash vendor</string>
@@ -112,7 +110,7 @@
 
     <string name="join_room">Hyni Në Dhomë</string>
     <string name="username">Emër përdoruesi</string>
-    <string name="create_account">Regjistrohuni</string>
+    <string name="create_account">Krijoni Llogari</string>
     <string name="hs_url">URL shërbyesi Home</string>
     <string name="identity_url">URL shërbyesi identitetesh</string>
     <string name="search">Kërko</string>
@@ -131,7 +129,7 @@
     <string name="option_take_video">Bëni një video</string>
 
     <string name="auth_login">Hyni</string>
-    <string name="auth_register">Regjistrohuni</string>
+    <string name="auth_register">Krijoje Llogarinë</string>
     <string name="auth_submit">Parashtroje</string>
     <string name="auth_skip">Anashkaloje</string>
     <string name="auth_send_reset_email">Dërgo Email Ricaktimi</string>
@@ -140,7 +138,6 @@
     <string name="auth_password_placeholder">Fjalëkalim</string>
     <string name="auth_new_password_placeholder">Fjalëkalim i ri</string>
     <string name="auth_user_name_placeholder">Emër përdoruesi</string>
-    <string name="auth_add_phone_message">Shtoni te llogaria juaj një numër telefoni, që përdoruesit të mund t’ju zbulojnë.</string>
     <string name="auth_email_placeholder">Adresë email</string>
     <string name="auth_opt_email_placeholder">Adresë email (në daçi)</string>
     <string name="auth_phone_number_placeholder">Numër telefoni</string>
@@ -158,7 +155,7 @@
     <string name="auth_missing_phone">Mungon numër telefoni</string>
     <string name="auth_missing_email_or_phone">Mungon adresa email ose numër telefoni</string>
     <string name="auth_invalid_token">Token i pavlefshëm</string>
-    <string name="auth_password_dont_match">Fjalëkalimet s’përputhen</string>
+    <string name="auth_password_dont_match">Fjalëkalimet nuk përputhen</string>
     <string name="auth_forgot_password">Harruat fjalëkalimin?</string>
     <string name="auth_use_server_options">Përdor mundësi vetjake shërbyesi (e përparuar)</string>
     <string name="auth_email_validation_message">Ju lutemi, që të vazhdojë regjistrimi, kontrolloni email-in tuaj</string>
@@ -176,7 +173,7 @@
     <string name="login_error_unable_login">S’arrihet të hyhet</string>
     <string name="login_error_registration_network_error">S’arrihet të regjistrohet: Gabim rrjeti</string>
     <string name="login_error_unable_register">S’arrihet të regjistrohet</string>
-    <string name="login_error_invalid_home_server">Jepni një URL të vlefshme</string>
+    <string name="login_error_invalid_home_server">Ju lutemi, jepni një URL të vlefshme</string>
     <string name="login_mobile_device">Celular</string>
 
     <string name="login_error_forbidden">Emër përdoruesi/fjalëkalim i pavlefshëm</string>
@@ -191,7 +188,7 @@
 
     <string name="groups_list">Listë Grupesh</string>
 
-    <string name="compression_options">"Dërgoje si "</string>
+    <string name="compression_options">Dërgoje si</string>
     <string name="compression_opt_list_original">Origjinale</string>
     <string name="compression_opt_list_large">E madhe</string>
     <string name="compression_opt_list_medium">Mesatare</string>
@@ -214,7 +211,7 @@
     <string name="incoming_call">Thirrje Ardhëse</string>
     <string name="incoming_video_call">Thirrje Video Ardhëse</string>
     <string name="incoming_voice_call">Thirrje Audio Ardhëse</string>
-    <string name="call_in_progress">Thirrje Në Kryerje e Sipër</string>
+    <string name="call_in_progress">Thirrje Në Kryerje e Sipër…</string>
 
     <string name="call_error_camera_init_failed">S’gatitet dot kamera</string>
     <string name="call_error_answered_elsewhere">thirrje e përgjigjur gjetkë</string>
@@ -240,7 +237,6 @@
     <string name="room_creation_title">Fjalosje e Re</string>
     <string name="room_creation_add_member">Shtoni anëtar</string>
     <string name="room_title_one_member">1 anëtar</string>
-    <string name="room_e2e_alert_title">Sinjalizim!</string>
     <plurals name="format_time_s">
         <item quantity="one">1s</item>
         <item quantity="other">%ds</item>
@@ -302,7 +298,7 @@
 
     <string name="people_search_invite_by_id"><u>Ftoni sipas ID-je</u></string>
     <string name="people_search_local_contacts">KONTAKTE VENDORE (%d)</string>
-    <string name="people_search_user_directory">DREJTORI PËRDORUESI (%s)</string>
+    <string name="people_search_user_directory">DREJTORI PËRDORUESISH (%s)</string>
     <string name="people_search_filter_text">Vetëm përdorues të Matrix-it</string>
 
     <string name="people_search_invite_by_id_dialog_title">Ftoni përdorues sipas ID-je</string>
@@ -317,7 +313,7 @@
     <string name="room_message_placeholder_reply_to_not_encrypted">Dërgoni një përgjigje (të pafshehtëzuar)…</string>
     <string name="room_offline_notification">Humbi lidhja me shërbyesin.</string>
     <string name="room_prompt_resend">Ridërgoji krejt</string>
-    <string name="room_prompt_cancel">anuloji krejt</string>
+    <string name="room_prompt_cancel">Anuloji krejt</string>
     <string name="room_resend_unsent_messages">Ridërgo mesazhet e padërguara</string>
     <string name="room_delete_unsent_messages">Fshi mesazhet e padërguar</string>
     <string name="room_message_file_not_found">S’u gjet kartelë</string>
@@ -393,7 +389,6 @@
     <string name="settings_add_phone_number">Shtoni numër telefoni</string>
     <string name="settings_app_info_link_title">Të dhëna aplikacioni</string>
     <string name="settings_notification_privacy_normal">Normale</string>
-    <string name="settings_notification_privacy_power_saving">Mundësi Kursimi Energjie</string>
     <string name="settings_notification_privacy_reduced">Me privatësi të zvogëluar</string>
     <string name="settings_notification_privacy_message_content_not_shown">• Njoftimet <b>s’do të shfaqin lëndë mesazhi</b></string>
 
@@ -413,7 +408,7 @@
     <string name="settings_background_sync">Njëkohësim në prapaskenë</string>
     <string name="settings_enable_background_sync">Aktivizo njëkohësim në prapaskenë</string>
     <string name="settings_set_sync_timeout">Mbarim kohe për kërkesë njëkohësimi</string>
-    <string name="settings_set_sync_delay">Vonesë mes çdo kërkese</string>
+    <string name="settings_set_sync_delay">Vonesë mes çdo Njëkohësimi</string>
     <string name="settings_second">sekondë</string>
     <string name="settings_seconds">sekonda</string>
 
@@ -464,10 +459,10 @@
 
     <string name="settings_data_save_mode">Mënyrë ruajtjeje të dhënash</string>
 
-    <string name="devices_details_dialog_title">Hollësi pajisjeje</string>
+    <string name="devices_details_dialog_title">Të dhëna pajisjeje</string>
     <string name="devices_details_id_title">ID</string>
-    <string name="devices_details_name_title">Emër</string>
-    <string name="devices_details_device_name">Emër Pajisjeje</string>
+    <string name="devices_details_name_title">Emër Publik</string>
+    <string name="devices_details_device_name">Përditësoni Emër Publik</string>
     <string name="devices_details_last_seen_title">Parë së fundi më</string>
     <string name="devices_details_last_seen_format">%1$s @ %2$s</string>
     <string name="devices_delete_dialog_title">Mirëfilltësim</string>
@@ -489,9 +484,9 @@
 
     <string name="settings_password">Fjalëkalim</string>
     <string name="settings_change_password">Ndryshoni fjalëkalimin</string>
-    <string name="settings_old_password">Fjalëkalim i vjetër</string>
+    <string name="settings_old_password">Fjalëkalimi i tanishëm</string>
     <string name="settings_new_password">Fjalëkalim i ri</string>
-    <string name="settings_confirm_password">Ripohoni fjalëkalimin</string>
+    <string name="settings_confirm_password">Ripohoni fjalëkalimin e ri</string>
     <string name="settings_fail_to_update_password">S’u arrit të përditësohet fjalëkalimi</string>
     <string name="settings_password_updated">Fjalëkalimi juaj u përditësua</string>
     <string name="settings_delete_notification_targets_confirmation">Jeni i sigurt se doni të hiqet ky objektiv njoftimesh?</string>
@@ -509,7 +504,7 @@
     <string name="settings_phone_number_verification_error_empty_code">Jepni kod aktivizimi</string>
     <string name="settings_phone_number_code">Kod</string>
 
-    <string name="settings_without_flair">S’jeni anëtar i ndonjë grupi.</string>
+    <string name="settings_without_flair">S’jeni anëtar i ndonjë bashkësie.</string>
 
     <string name="media_saving_period_3_days">3 ditë</string>
     <string name="media_saving_period_1_week">1 javë</string>
@@ -546,7 +541,7 @@
     <string name="room_settings_labs_end_to_end_is_active">Fshehtëzimi Skaj-më-Skaj është aktiv</string>
     <string name="room_settings_never_send_to_unverified_devices_title">Fshehtëzoje vetëm për pajisje të verifikuara</string>
     <string name="room_settings_addresses_no_local_addresses">Kjo dhomë s’ka adresa vendore</string>
-    <string name="room_settings_addresses_add_new_address">Adresë e re (p.sh. #foo:matrix.org)</string>
+    <string name="room_settings_addresses_add_new_address">Adresë e re (p.sh., #foo:matrix.org)</string>
 
     <string name="room_settings_invalid_group_format_dialog_title">ID bashkësie e pavlefshme</string>
     <string name="room_settings_invalid_group_format_dialog_body">\'%s\' s’është ID i vlefshëm për një bashkësi</string>
@@ -564,7 +559,6 @@
 
     <string name="room_settings_addresses_e2e_enabled">Fshehtëzimi në këtë dhomë është i aktivizuar.</string>
     <string name="room_settings_addresses_e2e_disabled">Fshehtëzimi në këtë dhomë është i çaktivizuar.</string>
-    <string name="room_settings_addresses_e2e_prompt_title">Kujdes!</string>
     <string name="directory_title">Drejtori</string>
     <string name="settings_theme">Temë</string>
 
@@ -578,9 +572,9 @@
     <string name="encryption_information_decryption_error">Gabim shfshehtëzimi</string>
 
     <string name="encryption_information_sender_device_information">Të dhëna pajisjeje dërguesi</string>
-    <string name="encryption_information_device_name">Emër pajisjeje</string>
-    <string name="encryption_information_name">Emër</string>
-    <string name="encryption_information_device_id">ID Pajisjeje</string>
+    <string name="encryption_information_device_name">Emër publik</string>
+    <string name="encryption_information_name">Emër publik</string>
+    <string name="encryption_information_device_id">ID</string>
     <string name="encryption_information_device_key">Kyç pajisjeje</string>
     <string name="encryption_information_verification">Verifikim</string>
     <string name="encryption_information_ed25519_fingerprint">Shenja gishtash Ed25519</string>
@@ -589,14 +583,14 @@
     <string name="encryption_export_room_keys">Eksporto kyçe dhome</string>
     <string name="encryption_export_room_keys_summary">Eksportojini kyçet te një kartelë vendore</string>
     <string name="encryption_export_export">Eksporto</string>
-    <string name="encryption_export_create_passphrase">Krijoni frazëkalim</string>
-    <string name="encryption_export_confirm_passphrase">Ripohoni frazëkalimin</string>
-    <string name="encryption_export_passphrase_dont_match">Frazëkalimet duhet të përputhen</string>
+    <string name="passphrase_create_passphrase">Krijoni frazëkalim</string>
+    <string name="passphrase_confirm_passphrase">Ripohoni frazëkalimin</string>
+    <string name="passphrase_passphrase_does_not_match">Frazëkalimet duhet të përputhen</string>
     <string name="encryption_import_e2e_room_keys">Importo kyçe dhome E2E</string>
     <string name="encryption_import_room_keys">Importo kyçe dhome</string>
     <string name="encryption_import_room_keys_summary">Importo kyçe nga një kartelë vendore</string>
     <string name="encryption_import_import">Importo</string>
-    <string name="encryption_import_enter_passphrase">Jepni frazëkalimin</string>
+    <string name="passphrase_enter_passphrase">Jepni frazëkalimin</string>
     <string name="encryption_never_send_to_unverified_devices_title">Fshehtëzoje vetëm për pajisje të verifikuara</string>
     <string name="encryption_information_not_verified">JO i verifikuar</string>
     <string name="encryption_information_verified">I verifikuar</string>
@@ -633,7 +627,7 @@
     <string name="event_formatter_widget_added">%1$s u shtua nga %2$s</string>
     <string name="event_formatter_widget_removed">%1$s u hoq nga %2$s</string>
     <string name="settings_labs_create_conference_with_jitsi">Krijoni thirrje konferencë me Jitsi-n</string>
-    <string name="widget_delete_message_confirmation">Jeni i sigurt se doni të fshihet widget-i?</string>
+    <string name="widget_delete_message_confirmation">Jeni i sigurt se doni të fshihet widget-i nga kjo dhomë?</string>
     <string name="widget_integration_unable_to_create">S’arrihet të krijohet widget-i.</string>
     <string name="widget_integration_failed_to_send_request">S’u arrit të dërgohej kërkesë.</string>
     <string name="widget_integration_positive_power_level">Shkalla e pushtetit duhet të jetë një numër i plotë pozitiv.</string>
@@ -665,7 +659,7 @@
     <string name="markdown_has_been_disabled">Markdown është çaktivizuar.</string>
 
     <string name="notification_off">Off</string>
-    <string name="notification_noisy">I zhurmshëm</string>
+    <string name="notification_noisy">Të zhurmshëm</string>
 
     <string name="encrypted_message">Mesazh i fshehtëzuar</string>
 
@@ -735,32 +729,28 @@
     <string name="x_plus">%d+</string>
 
     <string name="notification_listening_for_events">Po përgjohet për akte</string>
-    <string name="ongoing_conference_call">Thirrje konference që po zhvillohet. Merrni pjesë me zë ose video.</string>
+    <string name="ongoing_conference_call">Thirrje konference që po zhvillohet.
+\nMerrni pjesë me %1$s ose %2$s</string>
+    <string name="ongoing_conference_call_voice">Zë</string>
+    <string name="ongoing_conference_call_video">Video</string>
     <string name="missing_permissions_to_start_conf_call">Ju duhen leje për ftesa, që të nisni një konferencë në këtë dhomë</string>
     <string name="bottom_action_favourites">Të parapëlqyer</string>
-    <string name="no_contact_access_placeholder">S’e lejuat Riot-i të hyjë në kontaktet tuaja vendore</string>
+    <string name="no_contact_access_placeholder">S’e lejuat Riot-in të hyjë në kontaktet tuaja vendore</string>
     <string name="send_bug_report_description">Ju lutemi, përshkruajeni të metën. Ç’po bënit? Ç’prisnit të ndodhte? Ç’ndodhi në fakt?</string>
-    <string name="send_bug_report_alert_message">Duket se po përplasni telefonin nga inati. Do të donit të parashtroni një njoftim të mete?</string>
-    <string name="send_bug_report_app_crashed">Herën e fundit aplikacioni u vithis. Do të donit të parashtroni një raport vithisje?</string>
+    <string name="send_bug_report_alert_message">Duket se po përplasni telefonin nga inati. Do të donit të hapej skena për njoftim të metash?</string>
+    <string name="send_bug_report_app_crashed">Herën e fundit aplikacioni u vithis. Do të donit të hapej skena e raportimit të vithisjeve?</string>
     <string name="send_bug_report_failed">Dështoi dërgimi i njoftimit të të metës (%s)</string>
     <string name="login">Hyni</string>
     <string name="logout">Dilni</string>
     <string name="option_send_voice">Dërgoni mesazh zanor</string>
 
-    <string name="auth_add_email_message">Shtoni te llogaria juaj një adresë email, për t’u dhënë mundësinë përdoruesve t’ju zbulojnë dhe që t’ju lejojë të ricaktoni fjalëkalimin.</string>
-    <string name="auth_add_email_phone_message">Shtoni te llogaria juaj një adresë email dhe/ose një numër telefoni, për t’u dhënë mundësinë përdoruesve t’ju zbulojnë.
-
-Adresa email do t’ju lejojë edhe të ricaktoni fjalëkalimin tuaj.</string>
-    <string name="auth_add_email_and_phone_message">Shtoni te llogaria juaj një adresë email dhe një numër telefoni, për t’u dhënë mundësinë përdoruesve t’ju zbulojnë.
-
-Adresa email do t’ju lejojë edhe të ricaktoni fjalëkalimin tuaj.</string>
     <string name="auth_threepid_warning_message">Regjistrimi me email dhe me numër telefoni njëherazi nuk mbulohet ende, deri sa të ketë API. Do të merret parasysh vetëm numri i telefonit.
-
-Email-in tuaj mund ta shtoni te profili juaj, te rregullimet.</string>
+\n
+\nEmail-in tuaj mund ta shtoni te profili juaj, te rregullimet.</string>
     <string name="auth_reset_password_error_unauthorized">Verifikimi i adresës email dështoi: sigurohuni se keni klikuar lidhjen te email-i</string>
     <string name="auth_reset_password_success_message">Fjalëkalimi juaj u ri caktua.
-
-Është bërë dalja juaj nga llogaria në krejt pajisjet dhe s’do të merrni më njoftime push. Për riaktivizim të njoftimeve, ribëni hyrjen në çdo pajisje.</string>
+\n
+\nËshtë bërë dalja juaj nga llogaria në krejt pajisjet dhe s’do të merrni më njoftime push. Për riaktivizim të njoftimeve, ribëni hyrjen në çdo pajisje.</string>
 
     <string name="e2e_re_request_encryption_key_dialog_content">Ju lutemi, niseni Riot-in në një tjetër pajisje që mundet të shfshehtëzojë mesazhin, që kështu të mund të dërgojë kyçet te kjo pajisje.</string>
 
@@ -768,24 +758,15 @@ Email-in tuaj mund ta shtoni te profili juaj, te rregullimet.</string>
     <string name="media_picker_cannot_record_video">S’regjistrohet dot video</string>
 
     <string name="room_preview_unlinked_email_warning">Kjo ftesë i qe dërguar %s, që s’është i përshoqëruar me këtë llogari.
-Mund të doni të hyni me një llogari tjetër, ose ta shtoni këtë email te kjo llogari.</string>
+\nMund të doni të hyni me një llogari tjetër, ose ta shtoni këtë email te kjo llogari.</string>
     <string name="room_preview_try_join_an_unknown_room">Po përpiqeni të hyni në %s. Do të donit të bëheni pjesë, që të mundni të merrni pjesë te diskutimi?</string>
     <string name="room_preview_room_interactions_disabled">Kjo është një paraparje e kësaj dhome. Ndërveprimet në dhomë janë çaktivizuar.</string>
-
-    <string name="room_e2e_alert_message">Fshehtëzimi skaj-më-skaj është në fazën beta dhe mund të mos jetë i qëndrueshëm.
-
-S’duhet t’i zini ende besë për sigurim të dhënash.
-
-Pajisjet s’do të jenë ende në gjendje të shfshehtëzojnë historik nga periudha përpara se të merrnin pjesë te dhomë.
-
-Mesazhet e fshehtëzuar s’do të jenë të dukshëm në klientë që nuk sendërtojnë ende fshehtëzimin.</string>
 
     <string name="room_many_users_are_typing">%1$s &amp; %2$s &amp; të tjerë po shtypin…</string>
     <string name="room_unsent_messages_notification">Mesazhet s’u dërguan. %1$s ose %2$s tani?</string>
     <string name="malformed_id">ID e keqformuar. Duhet të jetë një adresë email ose ID Matrix, si \'@localpart:domain\'</string>
     <string name="room_settings_de_prioritize">Hiqi përparësinë</string>
     <string name="settings_notification_privacy">Privatësi njoftimesh</string>
-    <string name="settings_notification_privacy_low_detail">Njoftime me pak hollësi</string>
     <string name="settings_olm_version">version olm</string>
     <string name="settings_pin_missed_notifications">Fikso dhomat me njoftime të humbura</string>
 
@@ -797,25 +778,17 @@ Mesazhet e fshehtëzuar s’do të jenë të dukshëm në klientë që nuk send�
 
     <string name="room_settings_add_new_group">ID bashkësie të re (p.sh., +foo:matrix.org)</string>
     <string name="room_settings_addresses_e2e_encryption_warning">Aktivizo fshehtëzim 
-(kujdes: s’mund të çaktivizohet më!)</string>
-    <string name="room_settings_addresses_e2e_prompt_message">Fshehtëzimi skaj-më-skaj është në fazën beta dhe mund të mos jetë i qëndrueshëm.
-
-S’duhet t’i zini ende besë për sigurim të dhënash.
-
-Pajisjet s’do të jenë ende në gjendje të shfshehtëzojnë historik nga periudha përpara se të merrnin pjesë te dhomë.
-
-Pasi të jetë aktivizuar fshehtëzimi për një dhomë, s’mund të çaktivizohet më (hëpërhë).
-
-Mesazhet e fshehtëzuar s’do të jenë të dukshëm në klientë që nuk sendërtojnë ende fshehtëzimin.</string>
+\n(kujdes: s’mund të çaktivizohet më!)</string>
 
     <string name="e2e_enabling_on_app_update">Riot tani mbulon fshehtëzim skaj-më-skaj, por lypset të ribëni hyrjen që ta aktivizoni.
-
-Mund ta bëni tani ose më vonë, që prej rregullimeve të aplikacionit.</string>
+\n
+\nMund ta bëni tani ose më vonë, që prej rregullimeve të aplikacionit.</string>
 
     <string name="unknown_devices_alert_message">Kjo dhomë përmban pajisje të panjohura që s’janë verifikuar.
-Kjo do të thotë se nuk ka garanci se pajisjet u përkasin përdoruesve që pretendojnë se u përkasin.
-Përpara se të vazhdoni, këshillojmë që të kaloni në proces verifikimi çdo pajisje, por mund të ridërgoni mesazhin pa verifikuar gjë, nëse parapëlqeni kështu.
-Pajisje të panjohura:</string>
+\nKjo do të thotë se nuk ka garanci se pajisjet u përkasin përdoruesve që pretendojnë se u përkasin.
+\nPërpara se të vazhdoni, këshillojmë që të kaloni në proces verifikimi çdo pajisje, por mund të ridërgoni mesazhin pa verifikuar gjë, nëse parapëlqeni kështu.
+\n
+\nPajisje të panjohura:</string>
 
     <string name="directory_server_type_homeserver">Shtypni një shërbyes home që të paraqiten dhoma publike prej tij</string>
     <string name="widget_no_power_to_manage">Ju duhen leje për të administruar widget-e në këtë dhomë</string>
@@ -836,14 +809,12 @@ Pajisje të panjohura:</string>
     <string name="settings_lazy_loading_title"><em>Lazy-load</em> anëtarët e dhomave</string>
     <string name="error_lazy_loading_not_supported_by_home_server">Shërbyesi juaj nuk e mbulon ende <em>lazy loading</em> e anëtarëve të dhomës. Provoni më vonë.</string>
 
-    <string name="notification_sync_in_progress">Njëkohësim</string>
-    <string name="redact">Redaktojeni</string>
+    <string name="notification_sync_in_progress">Po njëkohësohet…</string>
+    <string name="redact">Hiqe</string>
     <string name="missing_permissions_warning">Për shkak lejesh që mungojnë, mund të mungojnë disa veçori…</string>
     <string name="missing_permissions_error">Ky veprim s’është i mundur, për shkak lejesh që mungojnë.</string>
     <string name="room_no_conference_call_in_encrypted_rooms">Thirrjet konferencë nuk mbulohen në dhoma të fshehtëzuara</string>
     <string name="or">ose</string>
-    <string name="action_sign_out_confirmation">Për arsye sigurie, dalja nga llogaria do të sjellë fshirjen e çfarëdo kyçesh fshehtëzimi skaj-më-skaj, duke e bërë të palexueshëm historikun e dikurshëm të fjalosjes së fshehtëzuar, nëse rihyni.
-Përzgjidhni eksportimin që të bëni një kopjeruajtje të tyre përpara se të dilni.</string>
     <plurals name="public_room_nb_users">
         <item quantity="one">1 përdorues</item>
         <item quantity="other">%d përdorues</item>
@@ -851,8 +822,8 @@ Përzgjidhni eksportimin që të bëni një kopjeruajtje të tyre përpara se t�
 
     <string name="send_bug_report_description_in_english">Në qoftë e mundur, ju lutemi, përshkrimin shkruajeni në anglisht.</string>
     <string name="no_sticker_application_dialog_content">Hëpërhë, s’keni të aktivizuar ndonjë pako ngjitësash.
-
-Të shtohen ca tani?</string>
+\n
+\nTë shtohen ca tani\?</string>
 
     <string name="error_no_external_application_found">Na ndjeni, s’u gjet aplikacion i jashtëm për të plotësuar këtë veprim.</string>
 
@@ -871,29 +842,25 @@ Të shtohen ca tani?</string>
     <string name="call_connecting">Po bëhet lidhja e thirrjes…</string>
     <string name="call_error_user_not_responding">Ana e largët dështoi të përgjigjet.</string>
     <string name="permissions_rationale_msg_storage">Për të dërguar dhe ruajtur bashkëngjitje, Riot-i lyp leje të përdorë mediatekën tuaj.
-
-
-
-Ju lutemi, lejoni përdorimin, që nga flluska pasuese, që të jetë në gjendje të dërgojë kartela që nga telefoni juaj.</string>
+\n
+\nJu lutemi, lejoni përdorimin, që nga flluska pasuese, që të jetë në gjendje të dërgojë kartela që nga telefoni juaj.</string>
     <string name="permissions_rationale_msg_camera">Për të bërë foto dhe thirrje video, Riot-i lyp leje të përdorë kamerën tuaj.</string>
-    <string name="permissions_rationale_msg_camera_explanation">
-
-Ju lutemi, lejoni përdorimin, që nga flluska pasuese, që të jetë në gjendje të bëjë thirrjen.</string>
+    <string name="permissions_rationale_msg_camera_explanation">"
+\n
+\nJu lutemi, lejoni përdorimin, që nga flluska pasuese, që të jetë në gjendje të bëjë thirrjen."</string>
     <string name="permissions_rationale_msg_record_audio">Për të kryer thirrje audio, Riot-i lyp leje të përdorë mikrofonin tuaj.</string>
-    <string name="permissions_rationale_msg_record_audio_explanation">
-
-Ju lutemi, lejoni përdorimin, që nga flluska pasuese, që të jetë në gjendje të bëjë thirrjen.</string>
+    <string name="permissions_rationale_msg_record_audio_explanation">"
+\n
+\nJu lutemi, lejoni përdorimin, që nga flluska pasuese, që të jetë në gjendje të bëjë thirrjen."</string>
     <string name="permissions_rationale_msg_camera_and_audio">Për të kryer thirrje video, Riot-i lyp leje të përdorë kamerën dhe mikrofonin tuaj.
+\n
+\nJu lutemi, lejoni përdorimin, që nga flluskat pasuese, që të jetë në gjendje të bëjë thirrjen.</string>
+    <string name="permissions_rationale_msg_contacts">Për të gjetur përdorues të tjerë Matrix, bazuar në email-et apo numrat e tyre të telefonit, Riot-i mund të kërkojë në librin tuaj të adresave. Nëse jeni dakord të lejohet hyrja në librin tuaj të adresave për këtë qëllim, ju lutemi, lejojeni hyrjen gjatë flluskës pasuese.</string>
+    <string name="permissions_msg_contacts_warning_other_androids">Për të gjetur përdorues të tjerë Matrix, bazuar në email-et apo numrat e tyre të telefonit, Riot-i mund të kërkojë në librin tuaj të adresave. 
+\n 
+\nJeni dakord të lejohet hyrja në librin tuaj të adresave për këtë qëllim\?</string>
 
-Ju lutemi, lejoni përdorimin, që nga flluskat pasuese, që të jetë në gjendje të bëjë thirrjen.</string>
-    <string name="permissions_rationale_msg_contacts">Për të gjetur përdorues të tjerë Matrix, bazuar në email-et apo numrat e tyre të telefonit, Riot-i lyp leje të përdorë kontaktet e librit tuaj të adresave.
-
-Ju lutemi, lejoni përdorimin, që nga flluska pasuese, që të zbulohen te libri i adresave përdorues të kapshëm që nga Riot.</string>
-    <string name="permissions_msg_contacts_warning_other_androids">Për të gjetur përdorues të tjerë Matrix, bazuar në email-et apo numrat e tyre të telefonit, Riot-i lyp leje të përdorë kontakte nga libri juaj i adresave.
-
-Të lejohet Riot-i të hyjë në kontaktet tuaja?</string>
-
-    <string name="permissions_action_not_performed_missing_permissions">Na ndjeni… Veprimi nuk u krye, për shkak lejesh që mungojnë</string>
+    <string name="permissions_action_not_performed_missing_permissions">Na ndjeni. Veprimi nuk u krye, për shkak lejesh që mungojnë</string>
 
     <string name="no">JO</string>
     <string name="open_chat_header">Hap kryet</string>
@@ -905,11 +872,11 @@ Të lejohet Riot-i të hyjë në kontaktet tuaja?</string>
         <item quantity="one">1 anëtar</item>
         <item quantity="other">%d anëtarë</item>
     </plurals>
-    <string name="room_participants_action_unignore_prompt">Të shfaqen krejt mesazhet nga ky përdorues?
-
-Kini parasysh që ky veprim do të sjellë rinisjen e aplikacionit dhe mund të hajë ca kohë.</string>
+    <string name="room_participants_action_unignore_prompt">Të shfaqen krejt mesazhet nga ky përdorues\?
+\n
+\nKini parasysh që ky veprim do të sjellë rinisjen e aplikacionit dhe mund të hajë ca kohë.</string>
     <string name="room_participants_power_level_prompt">S’do të jeni në gjendje ta zhbëni këtë ndryshim, ngaqë po e promovoni përdoruesin të ketë të njëjtën shkallë pushteti si ju vetë.
-Jeni i sigurt?</string>
+\nJeni i sigurt\?</string>
 
     <string name="people_search_invite_by_id_dialog_description">Ju lutemi, jepni një ose më shumë adresa email ose ID Matrix</string>
     <string name="room_unknown_devices_messages_notification">Mesazhet s’u dërguan, për shkak të pranisë së pajisjeve të panjohura. %1$s ose %2$s tani?</string>
@@ -918,9 +885,9 @@ Jeni i sigurt?</string>
         <item quantity="other">%d mesazhe të rinj</item>
     </plurals>
 
-    <string name="room_event_action_report_prompt_ignore_user">Doni të fshihen krejt mesazhet nga ky përdorues?
-
-Kini parasysh që ky veprim do të sjellë rinisjen e aplikacionit dhe mund të hajë ca kohë.</string>
+    <string name="room_event_action_report_prompt_ignore_user">Doni të fshihen krejt mesazhet nga ky përdorues\?
+\n
+\nKini parasysh që ky veprim do të sjellë rinisjen e aplikacionit dhe mund të hajë ca kohë.</string>
     <plurals name="directory_search_rooms">
         <item quantity="one">1 dhomë</item>
         <item quantity="other">%d dhoma</item>
@@ -930,7 +897,7 @@ Kini parasysh që ky veprim do të sjellë rinisjen e aplikacionit dhe mund të 
         <item quantity="other">U gjetën %1$s dhoma për %2$s</item>
     </plurals>
     <string name="devices_delete_dialog_text">Ky veprim lyp mirëfilltësim shtesë.
-Që të vazhdohet, ju lutemi, jepni fjalëkalimin tuaj.</string>
+\nQë të vazhdohet, ju lutemi, jepni fjalëkalimin tuaj.</string>
     <string name="account_email_validation_message">Ju lutemi, kontrolloni email-in tuaj dhe klikoni mbi lidhjen që përmban. Pasi të jetë bërë kjo, klikoni që të vazhdohet.</string>
     <string name="account_email_validation_error">S’arrihet të verifikohet adresë email. Ju lutemi, kontrolloni email-in tuaj dhe klikoni mbi lidhjen që përmban. Pasi të jetë bërë kjo, klikoni që të vazhdohet.</string>
     <string name="room_settings_labs_warning_message">Këto janë veçori eksperimentale që mund të ngecin në rrugë të papritura. Përdorini me kujdes.</string>
@@ -941,8 +908,8 @@ Që të vazhdohet, ju lutemi, jepni fjalëkalimin tuaj.</string>
 
     <string name="encryption_export_notice">Ju lutemi, krijoni një frazëkalim për fshehtëzimin e kyçeve të eksportuar. Që të jeni në gjendje t’i importoni kyçet, do t’ju duhet të jepni të njëjtin frazëkalim.</string>
     <string name="encryption_export_saved_as">Kyçet E2E të dhomës u ruajtën te \'%s\'.
-
-Kujdes: kjo kartelë mund të fshihet, nëse çinstalohet aplikacioni.</string>
+\n
+\nKujdes: kjo kartelë mund të fshihet, nëse çinstalohet aplikacioni.</string>
 
     <string name="encryption_never_send_to_unverified_devices_summary">Mos dërgo kurrë mesazhe të fshehtëzuar, nga kjo pajisje te pajisje të paverifikuara.</string>
 
@@ -967,34 +934,31 @@ Kujdes: kjo kartelë mund të fshihet, nëse çinstalohet aplikacioni.</string>
     <string name="command_description_invite_user">Fton te dhoma e tanishme përdoruesin me ID-në e dhënë</string>
     <string name="command_description_clear_scalar_token">Për ndreqje administrimi Aplikacionesh Matrix</string>
 
-    <string name="notification_on">On</string>
     <string name="group_no_long_description">Përgjegjësi i bashkësisë nuk ka dhënë një përshkrim të gjatë për këtë bashkësi.</string>
 
     <string name="deactivate_account_content">Kjo do ta bëjë llogarinë tuaj përgjithmonë të papërdorshme. S’do të jeni në gjendje të hyni në llogarinë tuaj, dhe askush s’do të jetë në gjendje të riregjistrojë të njëjtën ID përdoruesi. Kjo do të shkaktojë daljen e llogarisë tuaj nga krejt dhomat ku merr pjesë, dhe do të heqë hollësitë e llogarisë tuaj nga shërbyesi juaj i identiteteve. <b>Ky veprim është i paprapakthyeshëm</b>.
-
-Çaktivizimi i llogarisë tuaj <b>nuk shkakton, si parazgjedhje, harrimin nga ne të mesazheve që keni dërguar</b>. Nëse do të donit të harrojmë mesazhet tuaja, ju lutemi, i vini shenjë kutizës më poshtëplease tick the box below.
-
-Dukshmëria e mesazheve në Matrix është e ngjashme me atë në email. Harrimi i mesazheve nga ana jonë do të thotë që mesazhet që keni dërguar nuk do të ndahen me çfarëdo përdoruesi të ri apo të paregjistruar, por përdoruesit e regjistruar, që kanë tashmë hyrje në këto mesazhe, do të kenë prapëseprapë hyrje te kopja e tyre.</string>
-    <string name="deactivate_account_delete_checkbox">Të lutem, harro krejt mesazhet që kamë dërguar, kur të çaktivizohet llogaria ime (Kujdes: kjo do të bëjë që përdorues të ardhshëm të shohin një pamje jo të plotë të bisedave)</string>
+\n
+\nÇaktivizimi i llogarisë tuaj <b>nuk shkakton, si parazgjedhje, harrimin nga ne të mesazheve që keni dërguar</b>. Nëse do të donit të harrojmë mesazhet tuaja, ju lutemi, i vini shenjë kutizës më poshtë.
+\n
+\nDukshmëria e mesazheve në Matrix është e ngjashme me atë në email. Harrimi i mesazheve nga ana jonë do të thotë që mesazhet që keni dërguar nuk do të ndahen me çfarëdo përdoruesi të ri apo të paregjistruar, por përdoruesit e regjistruar, që kanë tashmë hyrje në këto mesazhe, do të kenë prapëseprapë hyrje te kopja e tyre.</string>
+    <string name="deactivate_account_delete_checkbox">Të lutem, harro krejt mesazhet që kam dërguar, kur të çaktivizohet llogaria ime (Kujdes: kjo do të bëjë që përdorues të ardhshëm të shohin një pamje jo të plotë të bisedave)</string>
     <string name="resource_limit_soft_default">Ky shërbyes home ka tejkaluar një nga kufijtë mbi burimet, ndaj <b>disa përdorues s’do të jenë në gjendje të bëjnë hyrjen</b>.</string>
     <string name="resource_limit_soft_mau"> Ky shërbyes home ka tejkaluar kufirin Përdorues Aktivë Mujorë, ndaj <b>disa përdorues s’do të jenë në gjendje të bëjnë hyrjen</b>.</string>
     <string name="send_bug_report_logs_description">Që të mund të diagnostikohen probleme, regjistra prej këtij klienti do të dërgohen tok me këtë njoftim të metash. Ky njoftim të metash, përfshi regjistrat dhe foton e ekranit, nuk do të jenë të dukshëm publikisht. Nëse do të parapëlqenit të dërgohej vetëm teksti më sipër, ju lutemi, hiqjani shenjën kutizës:</string>
-    <string name="e2e_need_log_in_again">Që të prodhohen kyçe fshehtëzimi skaj-më-skaj për këtë pajisje, lypset të ribëni hyrjen dhe të parashtroni kyçin publik te shërbyesi juaj homë.
-Kjo duhet vetëm një herë.
-Na ndjeni për belanë.</string>
+    <string name="e2e_need_log_in_again">Që të prodhohen kyçe fshehtëzimi skaj-më-skaj për këtë pajisje, lypset të ribëni hyrjen dhe të parashtroni kyçin publik te shërbyesi juaj Home.
+\njo duhet vetëm një herë.
+\nNa ndjeni për belanë.</string>
 
     <string name="ssl_cert_not_trust">Kjo mund të ishte shenjë se dikush po përgjon me dashakeqësi trafikun tuaj, ose se telefoni juaj nuk i beson dëshmisë së furnizuar nga shërbyesi i largët.</string>
     <string name="ssl_cert_new_account_expl">Nëse përgjegjësi i shërbyesit ka thënë se kjo është e pritshme, sigurohuni që shenjat e gishtave më poshtë përputhen me shenjat e gishtave të furnizuara prej tyre.</string>
     <string name="ssl_unexpected_existing_expl">Dëshmia ka ndryshuar nga ajo që qe besuar nga telefoni juaj. Kjo është SHUMË E PAZAKONTË. Këshillohet që TË MOS E PRANONI këtë dëshmi të re.</string>
     <string name="ssl_expected_existing_expl">Dëshmia ka ndryshuar nga një e besueshme dikur në një që nuk besohet. Shërbyesi mund të ketë rinovuar dëshminë e tij. Lidhuni me përgjegjësin e shërbyesit për shenjat e pritshme të gishtave.</string>
-    <string name="ssl_only_accept">Pranojeni dëshminë vetëm nëse përgjegjësi i i shërbyesit ka publikuar shenja gishtash që përputhen me ato më sipër.</string>
+    <string name="ssl_only_accept">Pranojeni dëshminë vetëm nëse përgjegjësi i shërbyesit ka publikuar shenja gishtash që përputhen me ato më sipër.</string>
 
     <string name="settings_app_info_link_summary">Shfaq te rregullimet e sistemit të dhëna të aplikacionit.</string>
 
-    <string name="settings_notification_privacy_warning">Riot.im xhiron në prapaskenë për ta mbajtur private lëndën e mesazheve të njoftimeve tuaja. Për të ulur harxhimin e baterisë, mund të ndryshoni këtë mundësi.</string>
     <string name="settings_notification_privacy_need_permission">Aplikacioni lyp leje për xhirim në prapaskenë</string>
-    <string name="settings_notification_privacy_no_permission">Aplikacionet <b>nuk</b> lypin leje për të xhiruar në prapaskenë</string>
-    <string name="settings_notification_privacy_fcm">• Njoftimet dërgohen përmes Google Cloud Messaging</string>
+    <string name="settings_notification_privacy_fcm">• Njoftimet dërgohen përmes Firebase Cloud Messaging</string>
     <string name="settings_notification_privacy_metadata">• Njoftimet përmbajnë vetëm tejtëdhëna</string>
     <string name="settings_notification_privacy_secure_message_content">• Lënda e mesazhit të njoftimit <b>gjendet e siguruar drejt e nga shërbyesi home Matrix</b></string>
     <string name="settings_notification_privacy_nosecure_message_content">• Njoftimet përmbajnën <b>tejtëdhëna dhe të dhëna mesazhi</b></string>
@@ -1006,9 +970,9 @@ Na ndjeni për belanë.</string>
     <string name="startup_notification_privacy_message">Riot-i mund të xhirojë në prapaskenë që të administrojë njoftimet tuaja në rrugë të sigurt dhe privatisht. Kjo mund të ndikojë në harxhimin e baterisë.</string>
     <string name="settings_opt_in_of_analytics_summary">Riot-i grumbullon të dhëna analitike anonime që të na lejojë ta përmirësojmë aplikacionin.</string>
     <string name="settings_opt_in_of_analytics_prompt">Ju lutemi, aktivizoni analizat që të na ndihmoni të përmirësojmë Riot-in.</string>
-    <string name="settings_unignore_user">Të shfaqen krejt mesazhet prej %s?
-
-Kini parasysh që ky veprim do të sjellë rinisjen e aplikacionit dhe mund të hajë ca kohë.</string>
+    <string name="settings_unignore_user">Të shfaqen krejt mesazhet prej %s\?
+\n
+\nKini parasysh që ky veprim do të sjellë rinisjen e aplikacionit dhe mund të hajë ca kohë.</string>
 
     <string name="settings_phone_number_verification_error">Gabim gjatë vleftësimit të numrit tuaj të telefonit</string>
     <string name="settings_labs_native_camera_summary">Nis kamerën e sistemit, në vend se skenën e kamerës vetjake.</string>
@@ -1028,4 +992,630 @@ Kini parasysh që ky veprim do të sjellë rinisjen e aplikacionit dhe mund të 
     </plurals>
     <string name="receipt_avatar">Avatar dëftese</string>
     <string name="notice_avatar">Avatar njoftimi</string>
+    <string name="title_activity_historical">Të dikurshme</string>
+    <string name="title_activity_choose_sticker">Dërgoni një ngjitës</string>
+
+    <string name="action_historical">Të dikurshme</string>
+    <string name="option_send_sticker">Dërgoni një ngjitës</string>
+    <string name="go_on_with">vazhdoni me…</string>
+    <string name="settings_call_category">Thirrje</string>
+    <string name="settings_call_ringtone_use_riot_ringtone">Për thirrje ardhëse përdor zilen parazgjedhje të Riot-it</string>
+    <string name="settings_call_ringtone_title">Zile thirrjesh ardhëse</string>
+    <string name="settings_call_ringtone_dialog_title">Përzgjidhni zile për thirrjet:</string>
+
+    <string name="room_settings_no_flair">Kjo dhomë nuk shfaq simbole për ndonjë bashkësi</string>
+    <string name="encryption_information_claimed_ed25519_fingerprint_key">U pretendua për kyç Ed25519 shenjash gishtash</string>
+    <string name="historical_placeholder">Kërkoni për të dikurshme</string>
+
+    <string name="settings_flair">Simbole</string>
+    <string name="accept">Pranoje</string>
+
+    <string name="auth_accept_policies">Ju lutemi, merrni në shqyrtim dhe pranoni rregullat e këtij shërbyesi Home:</string>
+
+    <string name="encryption_import_room_keys_success">%1$d/%2$d kyç(e) u importuan me sukses.</string>
+
+    <string name="settings_notification_troubleshoot">Diagnostikoni Njoftime</string>
+    <string name="settings_troubleshoot_diagnostic">Diagnostikime</string>
+    <string name="settings_troubleshoot_diagnostic_run_button_title">Xhironi Teste</string>
+    <string name="settings_troubleshoot_diagnostic_running_status">Po xhirohet… (%1$d of %2$d)</string>
+    <string name="settings_troubleshoot_diagnostic_success_status">Diagnostikimi bazë del në rregull. Nëse ende nuk merrni njoftime, ju lutemi, parashtroni një njoftim të mete, që të na ndihmoni të hetojmë.</string>
+    <string name="settings_troubleshoot_diagnostic_failure_status_with_quickfix">Një ose më tepër teste dështuan, provoni ndreqjen(t) e sugjeruara.</string>
+    <string name="settings_troubleshoot_diagnostic_failure_status_no_quickfix">Një ose më tepër teste dështuan, ju lutemi, parashtroni një njoftim të mete që të na ndihmoni ta hetojmë.</string>
+
+    <string name="settings_troubleshoot_test_system_settings_title">Rregullime Sistemi.</string>
+    <string name="settings_troubleshoot_test_system_settings_success">Njoftimet janë të aktivizuara te rregullimet e sistemit.</string>
+    <string name="settings_troubleshoot_test_system_settings_failed">Njoftimet janë të çaktivizuara te rregullimet e sistemit.
+\nJu lutemi, kontrolloni rregullimet e sistemit.</string>
+    <string name="open_settings">Hap Rregullimet</string>
+
+    <string name="settings_troubleshoot_test_account_settings_title">Rregullime Llogarie.</string>
+    <string name="settings_troubleshoot_test_account_settings_success">Njoftimet janë të aktivizuara për llogarinë tuaj.</string>
+    <string name="settings_troubleshoot_test_account_settings_failed">Njoftimet janë të çaktivizuara për llogarinë tuaj.
+\nJu lutemi, kontrolloni rregullime llogarie.</string>
+    <string name="settings_troubleshoot_test_account_settings_quickfix">Aktivizoje</string>
+
+    <string name="settings_troubleshoot_test_device_settings_title">Rregullime Pajisjeje.</string>
+    <string name="settings_troubleshoot_test_device_settings_success">Njoftimet janë të aktivizuara për këtë pajisje.</string>
+    <string name="settings_troubleshoot_test_device_settings_failed">Nuk lejohen njoftime për këtë pajisje.
+\nJu lutemi, kontrolloni rregullimet e Riot-it.</string>
+    <string name="settings_troubleshoot_test_device_settings_quickfix">Aktivizoje</string>
+
+    <string name="settings_troubleshoot_test_play_services_title">Kontroll pë Play Services</string>
+    <string name="settings_troubleshoot_test_play_services_success">APK-ja për Google Play Services është e pranishme dhe e përditësuar.</string>
+    <string name="settings_troubleshoot_test_play_services_failed">Riot-i përdor Google Play Services për të dorëzuar mesazhe push, por s’duket të jetë formësuar saktë:
+\n%1$s</string>
+    <string name="settings_troubleshoot_test_play_services_quickfix">Ndreqni Play Services</string>
+
+    <string name="settings_troubleshoot_test_fcm_title">Token Firebase</string>
+    <string name="settings_troubleshoot_test_fcm_success">U mor me sukses token FCM:
+\n%1$s</string>
+    <string name="settings_troubleshoot_test_fcm_failed">S’u arrit të merreh token FCM:
+\n%1$s</string>
+
+    <string name="settings_troubleshoot_test_token_registration_title">Regjistrim Token-i</string>
+    <string name="settings_troubleshoot_test_token_registration_success">Token-i FCM u regjistrua me sukses te Shërbyes Home.</string>
+    <string name="settings_troubleshoot_test_token_registration_failed">S’u arrit të regjistrohej token FCM te Shërbyes Home:
+\n%1$s</string>
+
+    <string name="settings_troubleshoot_test_foreground_service_started_title">Shërbim Njoftimesh</string>
+    <string name="settings_troubleshoot_test_foreground_service_startedt_success">Shërbimi i Njoftimeve po xhiron.</string>
+    <string name="settings_troubleshoot_test_foreground_service_started_failed">Shërbimi i Njoftimeve s’po xhiron.
+\nProvoni të rinisni aplikacionin.</string>
+    <string name="settings_troubleshoot_test_foreground_service_started_quickfix">Nise Shërbimin</string>
+
+    <string name="settings_troubleshoot_test_service_restart_title">Vetërinisje Shërbimi Njoftimesh</string>
+    <string name="settings_troubleshoot_test_service_restart_success">Shërbimi u asgjësua dhe u rinis automatikisht.</string>
+    <string name="settings_troubleshoot_test_service_restart_failed">S’u arrit të rinisej shërbimi</string>
+
+    <string name="settings_troubleshoot_test_service_boot_title">Nise gjatë nisjes së sistemit</string>
+    <string name="settings_troubleshoot_test_service_boot_success">Shërbimi do të niset kur të riniset pajisja.</string>
+    <string name="settings_troubleshoot_test_service_boot_failed">Shërbimi s’do të niset kur të riniset pajisja, s’do të merrni njoftime derisa Riot-i të jetë hapur një herë.</string>
+    <string name="settings_troubleshoot_test_service_boot_quickfix">Aktivizo Nisje gjatë nisjes së sistemit</string>
+
+    <string name="settings_troubleshoot_test_bg_restricted_title">Kontrollo kufizime prapaskene</string>
+    <string name="settings_troubleshoot_test_bg_restricted_success">Kufizimet për në prapaskenë janë të çaktivizuar për Riot-in. Ky test duhet të xhirojë duke përdorur të dhëna rrjeti celular (jo WIFI).
+\n%1$s</string>
+    <string name="settings_troubleshoot_test_bg_restricted_failed">Kufizimet për në prapaskenë janë të aktivizuara për Riot-in.
+\nPuna që aplikacioni rreket të bëjë do të kufizohet në mënyrë agresive, teksa gjendet në prapaskenë, dhe kjo mund të prekë njoftimet.
+\n%1$s</string>
+    <string name="settings_troubleshoot_test_bg_restricted_quickfix">Çaktivizoji kufizimet</string>
+
+    <string name="settings_troubleshoot_test_battery_title">Optimizim Baterie</string>
+    <string name="settings_troubleshoot_test_battery_success">Riot-i nuk preket nga Optimizime Baterie.</string>
+    <string name="settings_troubleshoot_test_battery_failed">Nëse një përdorues e lë një pajisje jo në prizë dhe të palëvizshme për një periudhë, me ekranin të fikur, pajisja kalon nën mënyrën Dremitje. Kjo u parandalon aplikimeve të hyjnë në rrjet dhe shtyn për më vonë punët e tyre, njëkohësimet dhe alarmet standarde.</string>
+    <string name="settings_troubleshoot_test_battery_quickfix">Shpërfille Optimizimin</string>
+
+    <string name="startup_notification_fdroid_battery_optim_title">Lidhje Në Prapaskenë</string>
+    <string name="startup_notification_fdroid_battery_optim_message">Për t’ju dhënë njoftime të qëndrueshme, Riot-i lyp të mbajë në prapaskenë një lidhje me pak ndikim.
+\nNë skenën pasuese do t’ju kërkohet të lejoni Riot-in të xhirojë në prapaskenë, ju lutemi, pranojeni.</string>
+    <string name="startup_notification_fdroid_battery_optim_button_grant">Akordojini leje</string>
+
+    <string name="account_email_error">Ndodhi një gabim teksa verifikohej adresa juaj email.</string>
+
+    <string name="account_phone_number_error">Ndodhi një gabim teksa verifikohej numri juaj i telefonit.</string>
+    <string name="account_additional_info">Të dhëna shtesë: %s</string>
+
+    <string name="no_valid_google_play_services_apk">S’u gjet APK për Google Play Services. Njoftimet mund të mos punojnë saktë.</string>
+
+    <string name="video_call_in_progress">Thirrje Video Në Kryerje e Sipër…</string>
+
+    <string name="title_activity_keys_backup_setup">Kopjeruajtje Kyçesh</string>
+    <string name="title_activity_keys_backup_restore">Përdor Kopjeruajtje Kyçesh</string>
+    <string name="keys_backup_is_not_finished_please_wait">Kopjeruajtja e kyçeve s’ka përfunduar, ju lutemi, pritni…</string>
+
+    <string name="skip">Anashkaloje</string>
+    <string name="done">U bë</string>
+
+    <string name="settings_notification_advanced">Rregullime të Mëtejshme Për Njoftimet</string>
+    <string name="settings_notification_advanced_summary">Caktoni rëndësi njoftimesh sipas aktesh, formësoni tinguj, dritëza led, dridhje</string>
+    <string name="settings_notification_by_event">Rëndësi njoftimi sipas aktesh</string>
+
+    <string name="settings_troubleshoot_test_bing_settings_title">Rregullime Vetjake.</string>
+    <string name="settings_troubleshoot_test_bing_settings_success_with_warn">Kini parasysh që disa lloje mesazhesh janë caktuar të jenë të heshtur (do të prodhohet një njoftim pa tingull).</string>
+    <string name="settings_troubleshoot_test_bing_settings_failed">Disa njoftime janë të çaktivizuara te rregullimet tuaja vetjake.</string>
+    <string name="settings_troubleshoot_test_bing_settings_failed_to_load_rules">S’u arrit të ngarkohen rregulla vetjakë, ju lutemi, riprovoni.</string>
+    <string name="settings_troubleshoot_test_bing_settings_quickfix">Kontrolloni Rregullimet</string>
+
+    <string name="settings_troubleshoot_test_fcm_failed_too_many_registration">[%1$s]
+\nKy gabim është jashtë kontrollit të Riot-it dhe, sipas Google-it, ky gabim është shenjë se pajisja ka shumë aplikacione të regjistruar me FCM. Gabimi ndodh vetëm në raste kur ka një numër të skajshëm aplikacionesh, ndaj nuk duhet të prekë përdoruesin mesatar.</string>
+    <string name="settings_troubleshoot_test_fcm_failed_service_not_available">[%1$s]
+\nKy gabim është jashtë kontrollit të Riot-it. Mund të ndodhë për disa arsye. Ndoshta do të funksionojë, nëse riprovoni më vonë, mund të kontrolloni edhe nëse për Google Play Service s’ka kufizime lidhur me përdorimin e të dhënave, te rregullimet e sistemit, ose se ora e pajisjes suaj është e saktë, ose mund të ndodhë në ROM të përshtatur.</string>
+    <string name="settings_troubleshoot_test_fcm_failed_account_missing">[%1$s]
+\nKy gabim është jashtë kontrollit të Riot-it. S’ka llogari Google te telefoni. Ju lutemi, hapni përgjegjësin e llogarive dhe shtoni një llogari Google.</string>
+    <string name="settings_troubleshoot_test_fcm_failed_account_missing_quick_fix">Shtoni Llogari</string>
+
+    <string name="settings_noisy_notifications_preferences">Formësoni Njoftime të Zhurmshme</string>
+    <string name="settings_call_notifications_preferences">Formësoni Njoftime Thirrjesh</string>
+    <string name="settings_silent_notifications_preferences">Formësoni Njoftime të Heshtura</string>
+    <string name="settings_system_preferences_summary">Zgjidhni ngjyrë LED-i, dridhje, tingull…</string>
+
+
+    <string name="settings_cryptography_manage_keys">Administrim Kyçesh Kriptografie</string>
+    <string name="encryption_settings_manage_message_recovery_summary">Administroni Kopjeruajtje Kyçesh</string>
+
+    <string name="notification_silent">Të heshtur</string>
+    <string name="passphrase_empty_error_message">Ju lutemi, jepni një frazëkalim</string>
+    <string name="passphrase_passphrase_too_weak">Frazëkalimi është shumë i dobët</string>
+
+    <string name="keys_backup_passphrase_not_empty_error_message">Ju lutemi, fshini frazëkalimin, nëse doni që Riot-i të prodhojë një kyç rikthimesh.</string>
+    <string name="keys_backup_no_session_error">S’ka sesione Matrix të gatshëm</string>
+
+    <string name="keys_backup_setup_step1_title">Mos humbni kurrë mesazhe të fshehtëzuar</string>
+    <string name="keys_backup_setup_step1_description">Mesazhet në dhoma të fshehtëzuara sigurohen me fshehtëzim skaj-më-skaj. Vetëm ju dhe marrësi(t) keni kyçet për leximin e këtyre mesazheve.
+\n
+\nBëni një kopjeruajtje të sigurt të kyçeve tuaj, për të shmangur humbjen e tyre.</string>
+    <string name="keys_backup_setup_step2_button_title">Caktoni Frazëkalim</string>
+    <string name="keys_backup_setup_step3_button_title">U bë</string>
+    <string name="keys_backup_setup_step3_copy_button_title">Ruani Kyç Rikthimesh</string>
+    <string name="keys_backup_setup_step3_save_button_title">Ruaje si Skedë</string>
+    <string name="recovery_key_export_saved_as_warning">Kyçi i rikthimeve u ruajt te \'%s\'.
+\n
+\nKujdes: kjo kartelë mund të fshihet, nëse çinstalohet aplikacioni.</string>
+
+    <string name="keys_backup_setup_step3_please_make_copy">Ju lutemi, bëni një kopje</string>
+    <string name="keys_backup_setup_step3_share_intent_chooser_title">Jepjani kyçin e rikthimeve…</string>
+    <string name="keys_backup_setup_step3_generating_key_status">Po prodhohet Kyç Rikthimesh duke përdorur frazëkalim, ky proces mund të hajë disa sekonda.</string>
+    <string name="recovery_key">Kyç Rikthimesh</string>
+    <string name="unexpected_error">Gabim i papritur</string>
+    <string name="keys_backup_setup_backup_started_title">Nisi Kopjeruajtja</string>
+    <string name="keys_backup_setup_backup_started_message">Te shërbyesi juaj Home, tani po krijohet në prapaskenë kopjeruajtje e kyçeve tuaj të fshehtëzimit. Kopjeruajtja fillestare mund të dojë disa minuta.</string>
+
+
+    <string name="keys_backup_setup_skip_title">Jeni i sigurt?</string>
+    <string name="keys_backup_setup_skip_msg">Nëse dilni nga llogaria, ose nëse humbni pajisjen tuaj, mund të humbni hyrjen në mesazhet tuaj.</string>
+
+    <string name="keys_backup_restore_is_getting_backup_version">Po sillet version kopjeruajtjeje…</string>
+    <string name="keys_backup_restore_with_passphrase">Që të shkyçni historikun e mesazheve tuaj të sigurt, përdorni frazëkalimin tuaj të rikthimeve</string>
+    <string name="keys_backup_restore_use_recovery_key">përdorni kyçin tuaj të rikthimeve</string>
+    <string name="keys_backup_restore_with_passphrase_helper_with_link">S’dihet frazëkalimi juaj i rikthimeve, mundeni të %s.</string>
+
+    <string name="keys_backup_restore_with_recovery_key">Përdorni Kyçin tuaj të Rikthimeve për të shkyçur historikun tuaj të mesazheve të sigurt</string>
+    <string name="keys_backup_restore_key_enter_hint">Jepni Kyç Rikthimesh</string>
+
+    <string name="keys_backup_restore_setup_recovery_key">Rikthim Mesazhesh</string>
+
+    <string name="keys_backup_restore_with_key_helper">Humbët kyçin tuaj të rikthimeve? Te rregullimet mund të caktoni një të ri.</string>
+    <string name="keys_backup_passphrase_error_decrypt">S’u shfshehtëzua dot kopjeruajtja me këtë frazëkalim: ju lutemi, verifikoni që dhatë frazëkalimin e duhur të rikthimeve.</string>
+    <string name="network_error_please_check_and_retry">Gabim lidhjeje: ju lutemi, kontrolloni lidhjen tuaj dhe riprovoni.</string>
+
+    <string name="keys_backup_restoring_waiting_message">Po rikthehet kopjeruajtja:</string>
+    <string name="keys_backup_unlock_button">Shkyçeni Historikun</string>
+    <string name="keys_backup_recovery_code_empty_error_message">Ju lutemi, jepni një kyç rikthimesh</string>
+    <string name="keys_backup_recovery_code_error_decrypt">S’u shfshehtëzua dot kopjeruajtja me këtë kyç: ju lutemi, verifikoni që dhatë kyçin e duhur të rikthimeve.</string>
+
+    <string name="keys_backup_restore_success_title">Kopjeruajtja u Rikthye %s !</string>
+    <string name="keys_backup_restore_success_description">U rikthyen %1$d kyçe sesioni, dhe u shtuan %2$d kyç(e) të rinj që nuk njiheshin nga kjo pajisje</string>
+    <plurals name="keys_backup_restore_success_description_part1">
+        <item quantity="one">U rikthye një kopjeruajtje me %d kyç.</item>
+        <item quantity="other">U rikthye një kopjeruajtje me %d kyçe.</item>
+    </plurals>
+    <plurals name="keys_backup_restore_success_description_part2">
+        <item quantity="one">Te kjo pajisje u shtua %d kyç i ri.</item>
+        <item quantity="other">Te kjo pajisje u shtuan %d kyçe të rinj.</item>
+    </plurals>
+
+    <string name="keys_backup_get_version_error">S’u arrit të merrej versioni më i ri i kyçeve të rikthimit (%s).</string>
+    <string name="keys_backup_no_keysbackup_sdk_error">S’është aktivizuar kriptografia për sesionin</string>
+
+
+    <string name="keys_backup_settings_restore_backup_button">Riktheje</string>
+    <string name="keys_backup_settings_delete_backup_button">Fshije</string>
+
+    <string name="keys_backup_settings_status_ok">Kopjeruajtja e Kyçeve për këtë pajisje është rregulluar si duhet.</string>
+    <string name="keys_backup_settings_status_ko">Kopjeruajtja e Kyçeve për këtë pajisje s’është aktive.</string>
+    <string name="keys_backup_settings_status_not_setup">Kyçet tuaj nuk po kopjeruhen nga kjo pajisje.</string>
+
+
+    <string name="keys_backup_settings_signature_from_unknown_device">Kopjeruajtja ka një nënshkrim nga një pajisje e panjohur, me ID %s.</string>
+    <string name="keys_backup_settings_valid_signature_from_this_device">Kopjeruajtja ka një nënshkrim të vlefshëm prej kësaj pajisjeje.</string>
+    <string name="keys_backup_settings_valid_signature_from_verified_device">Kopjeruajtja ka një nënshkrim të vlefshëm prej pajisjes së verifikuar %s.</string>
+    <string name="keys_backup_settings_valid_signature_from_unverified_device">Kopjeruajtja ka një nënshkrim të vlefshëm prej pajisjes së paverifikuar %s</string>
+    <string name="keys_backup_settings_invalid_signature_from_verified_device">Kopjeruajtja ka një nënshkrim të pavlefshëm prej pajisjes së verifikuar %s</string>
+    <string name="keys_backup_settings_invalid_signature_from_unverified_device">Kopjeruajtja ka një nënshkrim të pavlefshëm prej pajisjes së paverifikuar %s</string>
+    <string name="keys_backup_get_trust_error">S’u arrit të merreshin të dhëna besimi për kopjeruajtjen (%s).</string>
+
+    <string name="keys_backup_settings_deleting_backup">Po fshihet kopjeruajtje…</string>
+    <string name="keys_backup_settings_delete_backup_error">S’arrihet të fshihet kopjeruajtje (%s)</string>
+
+    <string name="keys_backup_settings_delete_confirm_title">Fshije Kopjeruajtjen</string>
+    <string name="keys_backup_settings_delete_confirm_message">Të fshihen nga shërbyesi kyçet tuaj të kopjeruajtur të fshehtëzimit? S’do të jeni më në gjendje të përdorni kyçin tuaj të rikthimeve për lexim historiku mesazhesh të fshehtëzuar.</string>
+
+    <string name="sign_out_bottom_sheet_warning_no_backup">Nëse dilni tani nga llogaria, do të humbni mesazhet tuaj të fshehtëzuar</string>
+    <string name="sign_out_bottom_sheet_warning_backing_up">Kopjeruajtja e kyçeve po kryhet. Nëse dilni tani nga llogaria, do të humbni hyrjen te mesazhet tuaj të fshehtëzuar.</string>
+    <string name="sign_out_bottom_sheet_warning_backup_not_active">Për të shmangur humbje të hyrjes në mesazhet tuaj të fshehtëzuar, Kopjeruajtja e Sigurt e Kyçeve duhet të jetë aktive në krejt pajisjet tuaja.</string>
+    <string name="sign_out_bottom_sheet_dont_want_secure_messages">Nuk i dua mesazhet e mia të fshehtëzuar</string>
+    <string name="sign_out_bottom_sheet_backing_up_keys">Po kopjeruhen kyçet…</string>
+    <string name="keys_backup_activate">Përdor Kopjeruajtje Kyçesh</string>
+    <string name="are_you_sure">A jeni i sigurt?</string>
+    <string name="backup">Kopjeruaji</string>
+    <string name="sign_out_bottom_sheet_will_lose_secure_messages">Do të humbni hyrjen te mesazhet tuaj të fshehtëzuar, veç në bëfshi kopjeruajtje të kyçeve tuaj, përpara se të dilni nga llogaria.</string>
+
+    <string name="stay">Rri</string>
+    <string name="abort">Ndërprite</string>
+
+    <string name="action_sign_out_confirmation_simple">Jeni i sigurt se doni të dilni?</string>
+    <string name="settings_data_save_mode_summary">Mënyra e ruajtjes së të dhënave aplikon një filtër specifik, që kështu përditësimet rreth pranish dhe njoftime mbi shtypje në tastierë lihen jashtë.</string>
+
+    <string name="encryption_message_recovery">Rikthim Mesazhesh të Fshehtëzuar</string>
+    <string name="error_empty_field_enter_user_name">Ju lutemi, jepni emër përdoruesi.</string>
+    <string name="keys_backup_setup">Fillo të përdorësh Kopjeruajtje Kyçesh</string>
+    <string name="keys_backup_setup_step1_advanced">(Të mëtejshme)</string>
+    <string name="keys_backup_setup_step1_manual_export">Eksporto dorazi kyçet</string>
+
+    <string name="keys_backup_setup_step2_text_title">Sigurojeni kopjeruajtjen tuaj me një Frazëkalim.</string>
+    <string name="keys_backup_setup_step2_text_description">Do të depozitojmë një kopje të fshehtëzuar të kyçeve tuaj në shërbyesin tonë. Mbrojeni kopjeruajtjen tuaj me një frazëkalim, për ta mbajtur të parrezikuar.
+\n
+\nPër maksimumin e sigurisë, ky duhet të jetë i ndryshëm nga fjalëkalimi juaj për llogarinë.</string>
+    <string name="keys_backup_setup_creating_backup">Po Krijohet Kopjeruajtje</string>
+    <string name="keys_backup_setup_step1_recovery_key_alternative">Ose, sigurojeni kopjeruajtjen tuaj me një Kyç Rikthimesh, duke e ruajtur këtë diku të parrezikuar.</string>
+    <string name="keys_backup_setup_step2_skip_button_title">(Të mëtejshme) Rregullojeni me një Kyç Rikthimesh</string>
+    <string name="keys_backup_setup_step3_success_title">Sukses!</string>
+    <string name="keys_backup_setup_step3_text_line1">Kyçet tuaj po kopjeruhen.</string>
+    <string name="keys_backup_setup_step3_text_line2">Kyçi juaj i rikthimeve është një lloj rrjeti sigurie - mund ta përdorni për të rifituar hyrje te mesazhet tuaj të fshehtëzuar, nëse harroni frazëkalimin tuaj.
+\nMbajeni kyçin tuaj të rikthimeve diku shumë të sigurt, bie fjala, nën një përgjegjës fjalëkalimesh (ose në një kasafortë)</string>
+    <string name="keys_backup_setup_step3_text_line2_no_passphrase">Mbajeni kyçin tuaj të rikthimeve diku në një vend shumë të sigurt, bie fjala, nën një përgjegjës fjalëkalimesh (ose në një kasafortë)</string>
+    <string name="keys_backup_setup_step3_button_title_no_passphrase">Bëra një kopje</string>
+    <string name="keys_backup_setup_step3_share_recovery_file">Ndajeni me të tjerë</string>
+    <string name="keys_backup_banner_setup_line1">Mos humbni kurrë mesazhe të fshehtëzuar</string>
+    <string name="keys_backup_banner_setup_line2">Filloni të përdorni Kopjeruajtje Kyçesh</string>
+
+    <string name="keys_backup_banner_recover_line1">Mos humbni kurrë mesazhe të fshehtëzuar</string>
+    <string name="keys_backup_banner_recover_line2">Përdor Kopjeruajtje Kyçesh</string>
+
+    <string name="keys_backup_banner_update_line1">Kyçe të rinj mesazhesh të fshehtëzuar</string>
+    <string name="keys_backup_banner_update_line2">Administroni Kopjeruajtje Kyçesh</string>
+
+    <string name="keys_backup_banner_in_progress">Po kopjeruhen kyçet…</string>
+
+    <string name="keys_backup_info_keys_all_backup_up">U kopjeruajtën krejt kyçet</string>
+    <plurals name="keys_backup_info_keys_backing_up">
+        <item quantity="one">Po kopjeruhet %d kyç…</item>
+        <item quantity="other">Po kopjeruhen %d kyçe…</item>
+    </plurals>
+
+    <string name="keys_backup_info_title_version">Version</string>
+    <string name="keys_backup_info_title_algorithm">Algoritëm</string>
+    <string name="keys_backup_info_title_signature">Nënshkrim</string>
+
+    <string name="ignore">Shpërfille</string>
+
+    <string name="auth_login_sso">Hyni me një hyrje njëshe</string>
+    <string name="login_error_unknown_host">Kjo URL s’kapet dot, ju lutemi, kontrollojeni</string>
+    <string name="login_error_ssl_handshake">Pajisja juaj përdor një protokoll TLS sigurie të vjetruar, pre sulmesh, për hir të sigurisë tuaj, s’do të jeni në gjendje të lidheni</string>
+    <string name="settings_send_message_with_enter">Me Enter dërgo mesazhin</string>
+    <string name="settings_send_message_with_enter_summary">Shtypja e butonit Enter në tastierë do të sjellë dërgimin e mesazhit, në vend se shtimin e një ndërprerje rreshti</string>
+
+    <string name="settings_change_password_submit">Përditësoje Fjalëkalimin</string>
+    <string name="settings_fail_to_update_password_invalid_current_password">Fjalëkalimi s’është i vlefshëm</string>
+    <string name="passwords_do_not_match">Fjalëkalimet s’përputhen</string>
+
+    <string name="keys_backup_restoring_computing_key_waiting_message">Po përllogariten kyçe rikthimesh…</string>
+    <string name="keys_backup_restoring_downloading_backup_waiting_message">Po shkarkohen kyçe…</string>
+    <string name="keys_backup_restoring_importing_keys_waiting_message">Po importohen kyçe…</string>
+    <string name="keys_backup_settings_untrusted_backup">Që të përdorni Kopjeruajtje Kyçesh në këtë pajisje, rikthejeni tani përmes frazëkalimit tuaj ose kyçit të rikthimeve.</string>
+    <string name="new_recovery_method_popup_title">Kopjeruajtje e Re Kyçesh</string>
+    <string name="new_recovery_method_popup_description">U pikas një kopjeruajtje e re kyçesh mesazhesh të sigurt.
+\n
+\nNëse metodën e re të rikthimeve nuk e caktuat ju, dikush mund të jetë duke u rrekur të hyjë në llogarinë tuaj. Ndryshoni menjëherë fjalëkalimin e llogarisë tuaj dhe caktoni një metodë të re rikthimesh, te Rregullimet.</string>
+    <string name="new_recovery_method_popup_was_me">Unë qeshë</string>
+    <string name="autodiscover_invalid_response">Përgjigje e pavlefshme zbulimi shërbyesi Home</string>
+    <string name="autodiscover_well_known_autofill_dialog_title">Mundësi Vetëplotësimi Shërbyesi</string>
+    <string name="autodiscover_well_known_autofill_dialog_message">Riot-i pikasi një formësim shërbyesi të përshtatur për përkatësinë tuaj userId \"%1$s\":
+\n%2$s</string>
+    <string name="autodiscover_well_known_autofill_confirm">Përdor Formësim</string>
+
+    <string name="notification_sync_init">Po gatitet shërbimi</string>
+    <string name="settings_media">Media</string>
+    <string name="settings_default_compression">Ngjeshje parazgjedhje</string>
+    <string name="compression_opt_list_choose">Zgjidhni</string>
+    <string name="settings_default_media_source">Burim parazgjedhje media</string>
+    <string name="media_source_choose">Zgjidhni</string>
+    <string name="settings_play_shutter_sound">Luaj tingull shkrepjeje</string>
+
+    <string name="action_mark_room_read">Vëri shenjë si të lexuar</string>
+    <string name="settings_notification_privacy_no_background_sync">Aplikacioni <b>nuk</b> ka nevojë të lidhet në prapaskenë me shërbyesin Home, kjo do të ulte harxhimin e baterisë</string>
+    <plurals name="notification_compat_summary_line_for_room">
+        <item quantity="one">%1$s: 1 mesazh</item>
+        <item quantity="other">%1$s: %2$d mesazhe</item>
+    </plurals>
+    <plurals name="notification_compat_summary_title">
+        <item quantity="one">%d njoftim</item>
+        <item quantity="other">%d njoftime</item>
+    </plurals>
+
+    <string name="notification_unknown_new_event">Veprimtari e Re</string>
+    <string name="notification_unknown_room_name">Dhomë</string>
+    <string name="notification_new_messages">Mesazhe të Rinj</string>
+    <string name="notification_new_invitation">Ftesë e Re</string>
+    <string name="notification_sender_me">Unë</string>
+    <string name="notification_inline_reply_failed">** S’u arrit të dërgohej - ju lutemi, hapni dhomë</string>
+
+    <string name="error_jitsi_not_supported_on_old_device">Na ndjeni, thirrjet konferencë me Jitsi-n nuk mbulohen në pajisje të vjetra (pajisje me Android OS nën 5.0)</string>
+
+    <string name="title_activity_verify_device">Verifikoni pajisje</string>
+
+    <string name="encryption_information_unknown_ip">ip e panjohur</string>
+    <string name="you_added_a_new_device_with_info">Një pajisje e re po kërkon kyçe fshehtëzimi.
+\nEmër pajisje: %1$s
+\nParë së fundi më: %2$s
+\nNëse s’keni bërë hyrje në një tjetër pajisje, shpërfilleni këtë kërkesë.</string>
+    <string name="your_unverified_device_requesting_with_info">Një pajisje e paverifikuar po kërkon kyçe fshehtëzimi.
+\nEmër pajisjeje: %1$s
+\nParë së fundi: %2$s
+\nNëse s’keni bërë hyrje që nga një pajisje tjetër, shpërfilleni këtë kërkesë.</string>
+
+    <string name="start_verification_short_label">Verifikoje</string>
+    <string name="share_without_verifying_short_label">Ndaje</string>
+    <string name="key_share_request">Kërkesat Për Ndarje Kyçesh</string>
+    <string name="ignore_request_short_label">Shpërfille</string>
+
+    <string name="sas_verify_title">Verifikoje duke krahasuar një varg të shkurtër teksti.</string>
+    <string name="sas_security_advise">Për siguri maksimale, këshillojmë ta bëni këtë në prani të vetë personit, ose të përdorni një tjetër kanal të besuar komunikimesh.</string>
+    <string name="sas_verify_start_button_title">Po Verifikohet</string>
+    <string name="sas_incoming_request_title">Kërkesë Verifikimi e Ardhur</string>
+    <string name="sas_incoming_request_description">Që t’i vihet shenjë si e besuar, verifikojeni këtë pajisje. Besimi i pajisjeve të partnerëve ju jep ca qetësi më tepër kur përdoren mesazhe të fshehtëzuar skaj-më-skaj.</string>
+    <string name="sas_incoming_request_description_2">Verifikimi i kësaj pajisje do ta shënojë atë të besuar, dhe tuajën si të besuar te partneri.</string>
+
+    <string name="sas_emoji_description">Verifikojeni këtë pajisje duke ripohuar shfaqjen e emoji-t vijues në skenën e partnerit</string>
+    <string name="sas_decimal_description">Verifikojeni këtë pajisje duke ripohuar se numri vijues shfaqet në ekranin e partnerit</string>
+
+    <string name="sas_incoming_verification_request_dialog">Morët një kërkesë verifikimi të ardhur.</string>
+    <string name="sas_view_request_action">Shihni kërkesën</string>
+    <string name="sas_waiting_for_partner">Po pritet ripohimi nga partneri…</string>
+
+    <string name="sas_verified">U verifikua!</string>
+    <string name="sas_verified_successful">E verifikuat me sukses këtë pajisje.</string>
+    <string name="sas_verified_successful_description">Mesazhet e sigurt me këtë përdorues fshehtëzohen skaj-më-skaj dhe janë të palexueshëm nga palë të treta.</string>
+    <string name="sas_got_it">E mora vesh</string>
+
+    <string name="sas_verifying_keys">S’duket gjë\? Jo të tërë klientët mbulojnë verifikim ndërveprues ende. Përdorni verifikimin në stil të vjetër.</string>
+    <string name="sas_legacy_verification_button_title">Përdor verifikim të dikurshëm.</string>
+
+    <string name="sas_verification_request_notification_channel_title">Verifikim Kyçi</string>
+    <string name="sas_cancelled_dialog_title">Kërkesa u Anulua</string>
+    <string name="sas_cancelled_by_other">Pala tjetër e anuloi verifikimin.
+\n%s</string>
+    <string name="sas_cancelled_by_me">Verifikimi u anulua.
+\nArsye: %s</string>
+
+    <string name="sas_verification_request_notification_channel">Verifikim Ndërveprues Pajisjesh</string>
+    <string name="sas_incoming_request_notif_title">Kërkesë Verifikimi</string>
+    <string name="sas_incoming_request_notif_content">%s dëshiron të verifikojë pajisjen tuaj</string>
+
+    <string name="sas_error_m_user">Përdoruesi e anuloi verifikimin</string>
+    <string name="sas_error_m_timeout">Procesit të verifikimit i mbaroi koha</string>
+    <string name="sas_error_m_unknown_transaction">Pajisja s’di gjë rreth këtij transaksioni</string>
+    <string name="sas_error_m_unknown_method">Pajisja s’bie dot dakord për metodë marrëveshjeje kyçesh, hash, MAC, ose SAS</string>
+    <string name="sas_error_m_mismatched_sas">SAS s’u përputhën</string>
+    <string name="sas_error_m_unexpected_message">Pajisja mori përgjigje të papritur</string>
+    <string name="sas_error_m_invalid_message">U mor një mesazh i pavlefshëm</string>
+    <string name="sas_error_m_key_mismatch">Mospërputhje kyçesh</string>
+    <string name="sas_error_m_user_error">Mospërputhje përdoruesish</string>
+    <string name="sas_error_unknown">Gabim i Panjohur</string>
+
+    <string name="keys_backup_setup_override_backup_prompt_tile">Ka tashmë një kopjeruajtje te Shërbyesi juaj Home</string>
+    <string name="keys_backup_setup_override_backup_prompt_description">Duket sikur keni tashmë kopjeruajtje kyçesh nga një pajisje tjetër. Doni të zëvendësohet me atë që po krijoni\?</string>
+    <string name="keys_backup_setup_override_replace">Zëvendësoje</string>
+    <string name="keys_backup_setup_override_stop">Ndale</string>
+
+    <string name="keys_backup_settings_checking_backup_state">Po kontrollohet gjendje kopjeruajtje</string>
+    <string name="invalid_or_expired_credentials">Jeni nxjerrë nga llogari për shkak kredencialesh të pavlefshme ose të skaduara.</string>
+
+    <string name="edit">Përpunoni</string>
+    <string name="reply">Përgjigjuni</string>
+
+    <string name="global_retry">Riprovo</string>
+    <string name="room_list_empty">Që të filloni të përdorni aplikacionin, merrni pjesë në një dhomë.</string>
+    <string name="send_you_invite">Ju dërgoi një ftesë</string>
+    <string name="invited_by">Ftuar nga %s</string>
+
+    <string name="room_list_catchup_empty_title">S’keni më!</string>
+    <string name="room_list_catchup_empty_body">S’keni më mesazhe të palexuar</string>
+    <string name="room_list_catchup_welcome_title">Mirë se vini në vatër!</string>
+    <string name="room_list_catchup_welcome_body">Mbaroni punë me mesazhet e palexuara</string>
+    <string name="room_list_people_empty_title">Biseda</string>
+    <string name="room_list_people_empty_body">Biseda përmes mesazhesh të drejtpërdrejta do të shfaqet këtu</string>
+    <string name="room_list_rooms_empty_title">Dhoma</string>
+    <string name="room_list_rooms_empty_body">Dhomat tuaja do të shfaqen këtu</string>
+
+    <string name="title_activity_emoji_reaction_picker">Reagime</string>
+    <string name="reactions_agree">Pajtohem</string>
+    <string name="reactions_like">E pëlqej</string>
+    <string name="message_add_reaction">Shtoni Reagim</string>
+    <string name="message_view_reaction">Shihni Reagime</string>
+    <string name="reactions">Reagime</string>
+
+    <string name="event_redacted_by_user_reason">Veprimtari e fshirë nga përdorues</string>
+    <string name="event_redacted_by_admin_reason">Veprimtari e moderuar nga përgjegjës dhome</string>
+    <string name="last_edited_info_message">Përpunuar së fundi nga %1$s më %2$s</string>
+
+
+    <string name="malformed_message">Veprimtari e keqformuar, s’mund të shfaqet</string>
+    <string name="create_new_room">Krijoni Dhomë të Re</string>
+    <string name="error_no_network">S’ka rrjet. Ju lutemi, kontrolloni lidhjen tuaj në Internet.</string>
+    <string name="action_change">Ndryshoje</string>
+    <string name="change_room_directory_network">Ndryshoni rrjetin</string>
+    <string name="please_wait">Ju lutemi, pritni…</string>
+    <string name="group_all_communities">Krejt Bashkësitë</string>
+
+    <string name="room_preview_no_preview">Kjo dhomë s’mund të parashihet</string>
+    <string name="room_preview_world_readable_room_not_supported_yet">Paraparja e dhomave të lexueshme nga bota nuk mbulohet ende në RiotX</string>
+
+    <string name="fab_menu_create_room">Dhoma</string>
+    <string name="fab_menu_create_chat">Mesazhe të Drejtpërdrejtë</string>
+
+    <string name="create_room_title">Dhomë e Re</string>
+    <string name="create_room_action_create">KRIJOJE</string>
+    <string name="create_room_name_hint">Emër dhome</string>
+    <string name="create_room_public_title">Publike</string>
+    <string name="create_room_public_description">Kushdo do të jetë në gjendje të marrë pjesë në këtë dhomë</string>
+    <string name="create_room_directory_title">Drejtori Dhomash</string>
+    <string name="create_room_directory_description">Bëje publike këtë dhomë te drejtoria e dhomave</string>
+
+    <string name="keys_backup_unable_to_get_trust_info">Ndodhi një gabim gjatë marrjes së të dhënave të besueshmërisë</string>
+    <string name="keys_backup_unable_to_get_keys_backup_data">Ndodhi një gabim teksa merreshin të dhëna kopjeruajtjeje kyçesh</string>
+
+    <string name="alpha_disclaimer_title">Mirë se vini në beta!</string>
+    <string name="alpha_disclaimer_content_line_1">Teksa RiotX është në fillimet e zhvillimit, disa veçori mund të mos jenë gati dhe mund të hasni të meta.</string>
+    <string name="alpha_disclaimer_content_line_2_gplay">Lista e veçorive më të reja gjendet te %1$s, dhe nëse gjeni të meta, ju lutemi, parashtroni një njoftim te menuja majtas sipër te Home, dhe do t’i ndreqim sa më shpejt të mundemi.</string>
+    <string name="alpha_disclaimer_content_line_2_gplay_colored_part">Përshkrim në Play Store</string>
+    <string name="alpha_disclaimer_content_line_2_fdroid">Nëse gjeni të meta, ju lutemi, parashtroni një njoftim te menuja majtas sipër te Home, dhe do t’i ndreqim sa më shpejt të mundemi.</string>
+
+    <string name="import_e2e_keys_from_file">Importo kyçe e2e prej kartelës \"%1$s\".</string>
+
+    <string name="settings_sdk_version">Versioni Matrix SDK</string>
+    <string name="settings_other_third_party_notices">Shënime të tjera palësh të treta</string>
+    <string name="navigate_to_room_when_already_in_the_room">Po e shihni tashmë këtë dhomë!</string>
+
+    <string name="quick_reactions">Reagime të Shpejta</string>
+
+    <string name="settings_general_title">Të përgjithshme</string>
+    <string name="settings_preferences">Parapëlqime</string>
+    <string name="settings_security_and_privacy">Siguri &amp; Privatësi</string>
+    <string name="settings_expert">Ekspert</string>
+    <string name="settings_push_rules">Rregulla për Push</string>
+    <string name="settings_push_rules_no_rules">S’ka të përcaktuara rregulla për push</string>
+    <string name="settings_push_gateway_no_pushers">Pa kanale push të regjistruar</string>
+
+    <string name="push_gateway_item_url">Url:</string>
+    <string name="push_gateway_item_format">Format:</string>
+
+    <string name="preference_voice_and_video">Zë &amp; Video</string>
+    <string name="preference_root_help_about">Ndihmë &amp; Mbi</string>
+
+
+    <string name="send_suggestion">Bëni një sugjerim</string>
+    <string name="send_suggestion_content">Ju lutemi, shkruajeni sugjerimin tuaj më poshtë.</string>
+    <string name="send_suggestion_report_placeholder">Përshkruani këtu sugjerimin tuaj</string>
+    <string name="send_suggestion_sent">Faleminderit, sugjerimi u dërgua me sukses</string>
+    <string name="send_suggestion_failed">S’u arrit të dërgohej sugjerimi (%s)</string>
+
+    <string name="settings_labs_show_hidden_events_in_timeline">Shfaq te rrjedha kohore akte të fshehura</string>
+
+    <string name="settings_integration_manager">Përgjegjës Integrimesh</string>
+
+    <string name="integration_manager_not_configured">Pa përgjegjës Integrimesh të formësuar.</string>
+    <string name="push_gateway_item_app_id">app_id:</string>
+    <string name="push_gateway_item_push_key">push_key:</string>
+    <string name="push_gateway_item_app_display_name">app_display_name:</string>
+    <string name="push_gateway_item_device_name">device_name:</string>
+    <string name="bottom_action_people_x">Mesazhe të Drejtpërdrejtë</string>
+
+    <string name="send_file_step_idle">Po pritet…</string>
+    <string name="send_file_step_encrypting_thumbnail">Po fshehtëzohet miniatura…</string>
+    <string name="send_file_step_sending_thumbnail">Po dërgohet miniaturë (%1$s / %2$s)</string>
+    <string name="send_file_step_encrypting_file">Po fshehtëzohet kartelë…</string>
+    <string name="send_file_step_sending_file">Po dërgohet kartelë (%1$s / %2$s)</string>
+
+    <string name="downloading_file">Po shkarkohet kartelë %1$s…</string>
+    <string name="downloaded_file">Kartela %1$s u shkarkua!</string>
+
+    <string name="edited_suffix">(u përpunua)</string>
+
+    <string name="riotx_no_registration_notice">%1$s që të krijohet një llogari.</string>
+    <string name="riotx_no_registration_notice_colored_part">Përdor aplikacionin e dikurshëm</string>
+
+
+    <string name="message_edits">Përpunime Mesazhi</string>
+    <string name="no_message_edits_found">S’u gjetën përpunime</string>
+
+    <string name="room_filtering_filter_hint">Filtroni biseda…</string>
+    <string name="room_filtering_footer_title">S’gjeni dot ç’po kërkoni\?</string>
+    <string name="room_filtering_footer_create_new_room">Krijoni dhomë të re</string>
+    <string name="room_filtering_footer_create_new_direct_message">Dërgoni një mesazh të drejtpërdrejtë</string>
+    <string name="room_filtering_footer_open_room_directory">Shihni drejtori dhomash</string>
+
+    <string name="room_directory_search_hint">Emër ose ID (#example:matrix.org)</string>
+
+    <string name="link_copied_to_clipboard">Lidhja u kopjua në të papastër</string>
+
+    <string name="add_by_matrix_id">Shtoni sipas ID-je matrix</string>
+    <string name="creating_direct_room">Po krijohet dhomë…</string>
+    <string name="direct_room_no_known_users">S’u gjetën përfundime, përdorni “Shtoni sipas ID-je matrix” që të kërkohet në shërbyes.</string>
+    <string name="direct_room_start_search">Filloni të shtypni që të merrni përfundime</string>
+    <string name="direct_room_filter_hint">Filtrojini sipas emrash përdoruesish ose ID-sh…</string>
+
+    <string name="joining_room">Po hyhet në dhomë…</string>
+
+    <string name="message_view_edit_history">Shihni Historik Përpunimesh</string>
+
+    <string name="review">Shqyrtojeni</string>
+    <string name="decline">Hidhe poshtw</string>
+
+    <string name="widget_integration_review_terms">Që të vazhdohet, lypset të pranoni Kushtet e këtij shërbimi.</string>
+
+    <string name="terms_of_service">Kushte Shërbimi</string>
+    <string name="review_terms">Shqyrtoni Kushtet</string>
+    <string name="terms_description_for_identity_server">Jini i zbulueshëm nga të tjerët</string>
+    <string name="terms_description_for_integration_manager">Përdorni robotë, ura, widget-e dhe paketa ngjitësish</string>
+
+    <string name="read_at">Lexoni te</string>
+
+    <string name="none">Asnjë</string>
+    <string name="revoke">Shfuqizoje</string>
+    <string name="disconnect">Shkëputu</string>
+    <string name="people_no_identity_server">S’ka shërbyes identitetesh të formësuar.</string>
+
+    <string name="call_failed_no_ice_title">Thirrja dështoi për shkak shërbyesi të keqformësuar</string>
+    <string name="call_failed_no_ice_description">Që thirrjet të funksionojnë në mënyrë të qëndrueshme, ju lutemi, kërkojini përgjegjësit të shërbyesit tuaj Home (%1$s) të formësojë një shërbyes TURN.
+\n
+\nNdryshe, mund të provoni të përdorni shërbyesin publik te %2$s, por kjo s’do të jetë edhe aq e qëndrueshme, dhe adresa juaj IP do të jetë e ditur për atë shërbyes. Këtë mund ta administroni edhe që nga Rregullimet.</string>
+    <string name="call_failed_no_ice_use_alt">Provoni të përdorni %s</string>
+    <string name="call_failed_dont_ask_again">Mos më pyet sërish</string>
+
+    <string name="auth_add_email_message_2">Caktoni një email për rimarrje llogarie, dhe më vonë të jetë i zbulueshëm (opsionale) nga persona që ju njohin.</string>
+    <string name="auth_add_phone_message_2">Caktoni një telefon, dhe më vonë të jetë i zbulueshëm (opsionale) nga persona që ju njohin.</string>
+    <string name="auth_add_email_phone_message_2">Caktoni një email për rimarrje llogarie. Përdoni email ose telefon që të jeni i zbulueshëm (opsionale) nga persona që ju njohin.</string>
+    <string name="auth_add_email_and_phone_message_2">Caktoni një email për rimarrje llogarie. Përdorni email ose telefon që të jeni i zbulueshëm (opsionale) nga persona që ju njohin.</string>
+    <string name="login_error_homeserver_not_found">S’kapet dot shërbyes Home te kjo URL, ju lutemi, kontrollojeni</string>
+    <string name="settings_call_ringtone_use_default_stun_sum">Do të përdoret %s si ndihmë kur shërbyesi juaj Home nuk ofron të tillë (gjatë thirrjes, adresa juaj IP do të ndahet me të tjerë)</string>
+    <string name="invite_no_identity_server_error">Që të kryhet ky veprim, shtoni një shërbyes identitetesh, që nga rregullimet tuaja.</string>
+    <string name="settings_background_fdroid_sync_mode">Mënyrë Njëkohësimi Në Prapaskenë (Eksperimentale)</string>
+    <string name="settings_background_fdroid_sync_mode_battery">E optimizuar për baterinë</string>
+    <string name="settings_background_fdroid_sync_mode_battery_description">Riot-i do të bëjë njëkohësim në prapaskenë, në një mënyrë që kursen burimet e kufizuara të pajisjes (baterinë).
+\nNë varësi të gjendjes së burimeve tuaja, njëkohësimi mund të shtyhet për më vonë nga sistemi operativ.</string>
+    <string name="settings_background_fdroid_sync_mode_real_time">I optimizuar për kohë të njëmendtë</string>
+    <string name="settings_background_fdroid_sync_mode_real_time_description">Riot0-i do të bëjë njëkohësim në prapaskenë periodikisht në një kohë të caktuar (e formësueshme).
+\nKjo do të ketë ndikim mbi përdorimin e baterisë dhe të transmetimit, do të shfaqet një njoftim i pandërprerë që pohon se Riot-i po përgjon për akte.</string>
+    <string name="settings_background_fdroid_sync_mode_disabled">Pa njëkohësim në prapraskenë</string>
+    <string name="settings_background_fdroid_sync_mode_disabled_description">S’do të njoftoheni për mesazhe ardhës, kur aplikacioni gjendet në prapaskenë.</string>
+    <string name="settings_background_sync_update_error">S’u arrit të përditësohen rregullime.</string>
+
+
+    <string name="settings_set_workmanager_delay">Interval i Parapëlqyer Njëkohësimesh</string>
+    <string name="settings_set_workmanager_delay_summary">%s
+\nNjëkohësimi mund të shtyhet për më vonë, në varësi të burimeve (baterisë) ose gjendjes së pajisjes (dremitje).</string>
+    <string name="settings_discovery_manage">Administroni rregullimet tuaja për zbulime.</string>
+    <string name="encryption_information_device_name_with_warning">Emër publik (i dukshëm për persona me të cilët komunikoni)</string>
+    <string name="device_name_warning">Emri publik i një pajisjeje është i dukshëm për persona me të cilët komunikoni</string>
+    <string name="identity_server_not_defined">S’po përdorni ndonjë Shërbyes Identitetesh</string>
+    <string name="identity_server_not_defined_for_password_reset">S’ka shërbyes identitetesh të formësuar, kjo është e domosdoshme për ricaktimin e fjalëkalimit tuaj.</string>
+
+    <string name="error_user_already_logged_in">Duket se po rrekeni të lidheni me një tjetër shërbyes Home. Doni të bëhet dalja\?</string>
+
+    <string name="labs_swipe_to_reply_in_timeline">Që të përgjigjeni te rrjedha kohore, aktivizoni fërkimin</string>
+
+    <string name="identity_server">Shërbyes identitetesh</string>
+    <string name="disconnect_identity_server">Shkëpute shërbyesin e identiteteve</string>
+    <string name="add_identity_server">Formësoni shërbyes identitetesh</string>
+    <string name="change_identity_server">Ndryshoni shërbyes identitetesh</string>
+    <string name="settings_discovery_identity_server_info">Po përdorni %1$s për të zbuluar dhe për të qenë i zbulueshëm nga kontakte ekzistues që njihni.</string>
+    <string name="settings_discovery_identity_server_info_none">S’po përdorni ndonjë shërbyes identitetesh. Që të zbuloni dhe të jini i zbulueshëm nga kontakte ekzistuese që njihni, formësoni një të tillë më poshtë.</string>
+    <string name="settings_discovery_emails_title">Adresa email të zbulueshme</string>
+    <string name="settings_discovery_no_mails">Mundësitë rreth zbulimesh do të shfaqen sapo të keni shtuar një email.</string>
+    <string name="settings_discovery_no_msisdn">Mundësi zbulimesh do të shfaqen sapo të keni shtuar një numër telefoni.</string>
+    <string name="settings_discovery_disconnect_identity_server_info">Shkëputja prej shërbyesit tuaj të identiteteve do të thotë se s’do të jeni i zbulueshëm prej përdoruesish të tjerë dhe s’do të jeni në gjendje të ftoni të tjerë me email ose telefon.</string>
+    <string name="settings_discovery_msisdn_title">Numra telefoni të zbulueshëm</string>
+    <string name="settings_discovery_confirm_mail">Ju dërguam një email ripohimi te %s, hapeni dhe klikoni mbi lidhjen e ripohimit</string>
+    <string name="settings_discovery_mail_pending">Pezull</string>
+
+    <string name="settings_discovery_enter_identity_server">Jepni një shërbyes të ri identitetesh</string>
+    <string name="settings_discovery_bad_identity_server">S’u lidh dot te shërbyes identitetesh</string>
+    <string name="settings_discovery_please_enter_server">Ju lutemi, jepni URL-në e shërbyesit të identiteteve</string>
+    <string name="settings_discovery_no_terms_title">Shërbyesi i identiteteve s’ka kushte shërbimi</string>
+    <string name="settings_discovery_no_terms">Shërbyesi i identiteteve që keni zgjedhur nuk ka ndonjë kusht shërbimi. Vazhdoni vetëm nëse i zini besë të zotit të shërbimit</string>
+    <string name="settings_text_message_sent">Te %s u dërgua një mesazh tekst. Ju lutemi, jepni kodin e verifikimit që përmban ai.</string>
+
+    <string name="settings_discovery_disconnect_with_bound_pid">Hëpërhë, ndani me të tjerë adresa email ose numra telefoni te shërbyesi i identiteteve %1$s. Do të duhet të rilidheni me %2$s që të ndalni ndarjen e tyre.</string>
+    <string name="settings_agree_to_terms">Që të lejoni veten të jetë e zbulueshme nga adresë email apo numër telefoni, pajtohuni me Kushtet e Shërbimit të shërbyesit të identiteteve (%s).</string>
 </resources>

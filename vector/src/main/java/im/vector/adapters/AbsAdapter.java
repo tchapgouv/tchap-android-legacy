@@ -18,14 +18,8 @@
 package im.vector.adapters;
 
 import android.content.Context;
-import androidx.annotation.IdRes;
 import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
-
-import org.matrix.androidsdk.rest.model.group.Group;
-import org.matrix.androidsdk.core.Log;
-
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,8 +27,13 @@ import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.TextView;
 
+import androidx.annotation.IdRes;
+import androidx.recyclerview.widget.RecyclerView;
+
 import org.matrix.androidsdk.MXSession;
+import org.matrix.androidsdk.core.Log;
 import org.matrix.androidsdk.data.Room;
+import org.matrix.androidsdk.rest.model.group.Group;
 
 import java.util.ArrayList;
 import java.util.List;

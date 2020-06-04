@@ -4,16 +4,23 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        style="@style/VectorToolbarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
     <RelativeLayout
         android:id="@+id/captcha_logo_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/toolbar"
         android:layout_marginTop="30dp"
         android:layout_marginBottom="27dp">
 
         <ImageView
             android:id="@+id/login_large_logo"
-            android:layout_width="100dp"
+            android:layout_width="wrap_content"
             android:layout_height="100dp"
             android:layout_centerHorizontal="true"
             android:src="@drawable/logo_transparent">

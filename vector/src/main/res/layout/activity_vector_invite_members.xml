@@ -7,31 +7,28 @@
     android:focusableInTouchMode="true">
 
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/search_view_external"
+        android:id="@+id/toolbar"
         style="@style/VectorToolbarStyle"
         android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:layout_margin="10dp"
-        android:background="@drawable/tchap_search_bar_style">
+        android:layout_height="wrap_content" />
 
-        <!-- The search view is added in the toolbar not in the menu
-             to ensure that the overflow icon menu is not hidden.-->
-        <androidx.appcompat.widget.SearchView
-            android:id="@+id/external_search_view"
-            android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:layout_marginBottom="12dp"
-            android:layout_marginLeft="7dp"
-            android:layout_marginRight="10dp"
-            android:clickable="true"
-            android:textAlignment="center" />
-    </androidx.appcompat.widget.Toolbar>
+    <!-- The search view is added in the toolbar not in the menu
+     to ensure that the overflow icon menu is not hidden.-->
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/external_search_view"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_below="@+id/toolbar"
+        android:layout_margin="10dp"
+        android:background="@drawable/tchap_search_bar_style"
+        android:clickable="true"
+        android:textAlignment="center" />
 
     <RelativeLayout
         android:id="@+id/ly_invite_contacts_by_email"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_below="@+id/search_view_external"
+        android:layout_below="@+id/external_search_view"
         android:layout_marginLeft="24dp"
         android:clickable="true"
         android:visibility="gone"

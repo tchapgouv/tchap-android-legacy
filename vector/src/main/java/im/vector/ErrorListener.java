@@ -1,12 +1,12 @@
-/* 
+/*
  * Copyright 2014 OpenMarket Ltd
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,11 +17,10 @@ package im.vector;
 
 import android.app.Activity;
 
-import org.matrix.androidsdk.core.Log;
-
 import android.widget.Toast;
 
 import org.matrix.androidsdk.MXSession;
+import org.matrix.androidsdk.core.Log;
 import org.matrix.androidsdk.core.callback.ApiFailureCallback;
 import org.matrix.androidsdk.core.model.MatrixError;
 import org.matrix.androidsdk.ssl.CertUtil;
@@ -56,8 +55,7 @@ public class ErrorListener implements ApiFailureCallback {
             UnrecognizedCertificateException unrecCertEx = CertUtil.getCertificateException(e);
             if (unrecCertEx == null) {
                 handleNetworkError(e);
-            }
-            else {
+            } else {
                 handleCertError(unrecCertEx, e);
             }
 
@@ -70,7 +68,7 @@ public class ErrorListener implements ApiFailureCallback {
 
         // The access token was not recognized: log out
         if (MatrixError.UNKNOWN_TOKEN.equals(e.errcode)) {
-            CommonActivityUtils.logout(mActivity);
+            CommonActivityUtils.recoverInvalidatedToken();
         }
     }
 
@@ -81,9 +79,9 @@ public class ErrorListener implements ApiFailureCallback {
 
     private void handleNetworkError(Exception e) {
         mActivity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-            Toast.makeText(mActivity, mActivity.getString(R.string.network_error), Toast.LENGTH_SHORT).show();
+            @Override
+            public void run() {
+                Toast.makeText(mActivity, mActivity.getString(R.string.network_error), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -95,23 +93,23 @@ public class ErrorListener implements ApiFailureCallback {
         mActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-            UnrecognizedCertHandler.show(mSession.getHomeServerConfig(), fingerprint, true, new UnrecognizedCertHandler.Callback() {
-                @Override
-                public void onAccept() {
-                    LoginStorage loginStorage = Matrix.getInstance(mActivity.getApplicationContext()).getLoginStorage();
-                    loginStorage.replaceCredentials(mSession.getHomeServerConfig());
-                }
+                UnrecognizedCertHandler.show(mSession.getHomeServerConfig(), fingerprint, true, new UnrecognizedCertHandler.Callback() {
+                    @Override
+                    public void onAccept() {
+                        LoginStorage loginStorage = Matrix.getInstance(mActivity.getApplicationContext()).getLoginStorage();
+                        loginStorage.replaceCredentials(mSession.getHomeServerConfig());
+                    }
 
-                @Override
-                public void onIgnore() {
-                    handleNetworkError(e);
-                }
+                    @Override
+                    public void onIgnore() {
+                        handleNetworkError(e);
+                    }
 
-                @Override
-                public void onReject() {
-                    CommonActivityUtils.logout(mActivity, Arrays.asList(mSession), true, null);
-                }
-            });
+                    @Override
+                    public void onReject() {
+                        CommonActivityUtils.logout(mActivity, Arrays.asList(mSession), true, null);
+                    }
+                });
             }
         });
     }

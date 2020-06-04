@@ -24,18 +24,19 @@ import android.content.pm.PackageInfo;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import org.matrix.androidsdk.MXSession;
-import org.matrix.androidsdk.data.Pusher;
-import org.matrix.androidsdk.core.listeners.IMXNetworkEventListener;
+import org.matrix.androidsdk.core.Log;
 import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.core.callback.SimpleApiCallback;
+import org.matrix.androidsdk.core.listeners.IMXNetworkEventListener;
 import org.matrix.androidsdk.core.model.MatrixError;
+import org.matrix.androidsdk.data.Pusher;
 import org.matrix.androidsdk.rest.model.PushersResponse;
-import org.matrix.androidsdk.core.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,10 +45,9 @@ import java.util.TimerTask;
 
 import im.vector.BuildConfig;
 import im.vector.Matrix;
-import im.vector.activity.CommonActivityUtils;
 import im.vector.push.fcm.FcmHelper;
+import im.vector.services.EventStreamServiceX;
 import im.vector.util.PreferencesManager;
-import im.vector.util.SystemUtilsKt;
 
 /**
  * Helper class to store the FCM registration ID in {@link SharedPreferences}
@@ -165,6 +165,28 @@ public final class PushManager {
         mRegistrationToken = getStoredRegistrationToken();
     }
 
+    public void deepCheckRegistration(Context context) {
+        if (isFcmRegistered()) {
+            //Issue #2266 It might be possible that the FCMHelper saved token is different
+            //than the push manager saved token, and that the pushManager is not aware.
+            //And as per current code the pushMgr saved token is sent at each startup (resume?)
+            //So anyway, might be a good thing to check that it is synced?
+            //Very defensive code but, ya know :/
+            String fcmToken = FcmHelper.getFcmToken(context);
+            String pushMgrSavedToken = getCurrentRegistrationToken();
+
+            boolean savedTokenAreDifferent = pushMgrSavedToken == null ? fcmToken != null : !pushMgrSavedToken.equals(fcmToken);
+            if (savedTokenAreDifferent) {
+                Log.e(LOG_TAG, "SAVED NOTIFICATION TOKEN NOT IN SYNC");
+                resetFCMRegistration(fcmToken);
+            } else {
+                forceSessionsRegistration(null);
+            }
+        } else {
+            checkRegistrations();
+        }
+    }
+
     /**
      * Check if the FCM registration has been broken with a new token ID.
      * The FCM could have cleared it (onTokenRefresh).
@@ -224,7 +246,7 @@ public final class PushManager {
                 register(null);
 
                 Log.i(LOG_TAG, "checkRegistrations : reregistered");
-                CommonActivityUtils.onPushUpdate(mContext);
+                EventStreamServiceX.Companion.onPushUpdate(mContext);
             } else {
                 Log.i(LOG_TAG, "checkRegistrations : onPusherRegistrationFailed");
             }
@@ -320,11 +342,17 @@ public final class PushManager {
                 @Override
                 public void onMatrixError(MatrixError e) {
                     Log.i(LOG_TAG, "resetFCMRegistration : un-registration failed.");
+                    //we can assume that it may have succeeded anyway
+                    setAndStoreRegistrationState(RegistrationState.FCM_REGISTERED);
+                    resetFCMRegistration(newToken);
                 }
 
                 @Override
                 public void onUnexpectedError(Exception e) {
                     Log.i(LOG_TAG, "resetFCMRegistration : un-registration failed.");
+                    //we can assume that it may have succeeded anyway
+                    setAndStoreRegistrationState(RegistrationState.FCM_REGISTERED);
+                    resetFCMRegistration(newToken);
                 }
             });
         } else {
@@ -701,7 +729,7 @@ public final class PushManager {
                 // remove them
                 unregister(null);
             } else {
-                CommonActivityUtils.onPushUpdate(mContext);
+                EventStreamServiceX.Companion.onPushUpdate(mContext);
             }
 
             return;
@@ -793,7 +821,7 @@ public final class PushManager {
             if (useFcm() && areDeviceNotificationsAllowed() && Matrix.hasValidSessions()) {
                 register(null);
             } else {
-                CommonActivityUtils.onPushUpdate(mContext);
+                EventStreamServiceX.Companion.onPushUpdate(mContext);
             }
 
             dispatchUnregisterSuccess();
@@ -996,19 +1024,21 @@ public final class PushManager {
     /**
      * Notification privacy policies as displayed to the end user.
      * In the code, this enumeration is currently implemented with combinations of booleans.
+     *
+     * TODO to be removed
      */
     public enum NotificationPrivacy {
         /**
          * Reduced privacy: message metadata and content are sent through the push service.
          * Notifications for messages in e2e rooms are displayed with low detail.
          */
-        REDUCED,
+        //REDUCED,
 
         /**
          * Notifications are displayed with low detail (X messages in RoomY).
          * Only message metadata is sent through the push service.
          */
-        LOW_DETAIL,
+        // LOW_DETAIL,
 
         /**
          * Normal: full detailed notifications by keeping user privacy.
@@ -1044,26 +1074,10 @@ public final class PushManager {
     }
 
     /**
-     * @return the current notification privacy setting as displayed to the end user.
-     */
-    public NotificationPrivacy getNotificationPrivacy() {
-        NotificationPrivacy notificationPrivacy = NotificationPrivacy.LOW_DETAIL;
-
-        boolean isContentSendingAllowed = isContentSendingAllowed();
-        boolean isBackgroundSyncAllowed = isBackgroundSyncAllowed();
-
-        if (isContentSendingAllowed && !isBackgroundSyncAllowed) {
-            notificationPrivacy = NotificationPrivacy.REDUCED;
-        } else if (!isContentSendingAllowed && isBackgroundSyncAllowed) {
-            notificationPrivacy = NotificationPrivacy.NORMAL;
-        }
-
-        return notificationPrivacy;
-    }
-
-    /**
      * Update the notification privacy setting.
      * Translate the setting displayed to end user into internal booleans.
+     *
+     * Note: only one Notification Privacy mode is supported in Tchap: the NORMAL mode.
      *
      * @param notificationPrivacy the new notification privacy.
      * @param callback            the callback
@@ -1071,22 +1085,30 @@ public final class PushManager {
     public void setNotificationPrivacy(NotificationPrivacy notificationPrivacy,
                                        @Nullable ApiCallback<Void> callback) {
 
-        switch (notificationPrivacy) {
-            case REDUCED:
-                // Tchap: prevent the user from returning in REDUCED mode (This should not happen
-                // according to the updated UI). Fallback to LOW_DETAIL by default.
-//                setContentSendingAllowed(true);
-//                setBackgroundSyncAllowed(false);
+        // TODO Replace this method - There is no Privacy mode now
+
+//        switch (notificationPrivacy) {
+//            case REDUCED:
+//                // Tchap: prevent the user from returning in REDUCED mode (This should not happen
+//                // according to the updated UI). Fallback to NORMAL by default.
+////                setContentSendingAllowed(true);
+////                setBackgroundSyncAllowed(false);
+////                break;
+//            case LOW_DETAIL:
+//                // Tchap: prevent the user from returning in LOW_DETAIL mode (This should not happen
+//                //                // according to the updated UI). Fallback to NORMAL by default.
+////                setContentSendingAllowed(false);
+////                setBackgroundSyncAllowed(false);
+////                break;
+//            case NORMAL:
+//                setContentSendingAllowed(false);
+//                setBackgroundSyncAllowed(true);
 //                break;
-            case LOW_DETAIL:
-                setContentSendingAllowed(false);
-                setBackgroundSyncAllowed(false);
-                break;
-            case NORMAL:
-                setContentSendingAllowed(false);
-                setBackgroundSyncAllowed(true);
-                break;
-        }
+//        }
+
+        // Only one Notification Privacy mode is supported in Tchap: the NORMAL mode.
+        setContentSendingAllowed(false);
+        setBackgroundSyncAllowed(true);
 
         forceSessionsRegistration(callback);
     }
@@ -1111,7 +1133,7 @@ public final class PushManager {
 
         if (!useFcm()) {
             // when FCM is disabled, enable / disable the "Listen for events" notifications
-            CommonActivityUtils.onPushUpdate(mContext);
+            EventStreamServiceX.Companion.onPushUpdate(mContext);
         }
     }
 
@@ -1136,18 +1158,13 @@ public final class PushManager {
 
     /**
      * Tell if the application can run in background.
-     * It depends on the app settings and the `IgnoringBatteryOptimizations` permission.
+     * It depends on the app settings and the `IgnoringBatteryOptimizations` permission in FCM mode.
+     * In FCM mode return true if token is registered and IgnoringBatteryOptimizations is on
+     * In fdroid mode returns true if user pref for background sync is on (will use foreground notification to keep alive, no need for battery optimisation).
      *
      * @return true if the background sync is allowed
      */
     public boolean isBackgroundSyncAllowed() {
-        // If using FCM, first check if the application has the "run in background" permission.
-        // No permission, no background sync
-        if (hasRegistrationToken()
-                && !SystemUtilsKt.isIgnoringBatteryOptimizations(mContext)) {
-            return false;
-        }
-
         // then, this depends on the user setting
         return getPushSharedPreferences().getBoolean(PREFS_ALLOW_BACKGROUND_SYNC, true);
     }
@@ -1166,8 +1183,35 @@ public final class PushManager {
                 .apply();
 
         // when FCM is disabled, enable / disable the "Listen for events" notifications
-        CommonActivityUtils.onPushUpdate(mContext);
+        EventStreamServiceX.Companion.onPushUpdate(mContext);
     }
+
+
+    public void setFdroidSyncModeOptimizedForBattery() {
+        PreferencesManager.setFdroidSyncBackgroundMode(this.mContext, PreferencesManager.FDROID_BACKGROUND_SYNC_MODE_FOR_BATTERY);
+        setBackgroundSyncAllowed(true);
+    }
+
+    public void setFdroidSyncModeOptimizedForRealTime() {
+        PreferencesManager.setFdroidSyncBackgroundMode(this.mContext, PreferencesManager.FDROID_BACKGROUND_SYNC_MODE_FOR_REALTIME);
+        setBackgroundSyncAllowed(true);
+    }
+
+    public void setFdroidSyncModeDisabled() {
+        PreferencesManager.setFdroidSyncBackgroundMode(this.mContext, PreferencesManager.FDROID_BACKGROUND_SYNC_MODE_DISABLED);
+        setBackgroundSyncAllowed(false);
+    }
+
+    public boolean idFdroidSyncModeOptimizedForBattery() {
+        return isBackgroundSyncAllowed()
+                && (PreferencesManager.FDROID_BACKGROUND_SYNC_MODE_FOR_BATTERY.equals(PreferencesManager.getFdroidSyncBackgroundMode(mContext)));
+    }
+
+    public boolean idFdroidSyncModeOptimizedForRealTime() {
+        return isBackgroundSyncAllowed()
+                && (PreferencesManager.FDROID_BACKGROUND_SYNC_MODE_FOR_REALTIME.equals(PreferencesManager.getFdroidSyncBackgroundMode(mContext)));
+    }
+
 
     /**
      * Tell if the application can be restarted in background

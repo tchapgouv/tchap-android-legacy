@@ -20,10 +20,10 @@ package im.vector.activity;
 
 import android.app.SearchManager;
 import android.content.Context;
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import android.text.Editable;
@@ -40,16 +40,18 @@ import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.listeners.MXEventListener;
 import org.matrix.androidsdk.core.callback.ApiCallback;
+import androidx.annotation.NonNull;
+
+import org.matrix.androidsdk.core.Log;
+import org.matrix.androidsdk.features.terms.TermsManager;
 import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.core.model.MatrixError;
 import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.rest.model.pid.RoomThirdPartyInvite;
 import org.matrix.androidsdk.rest.model.pid.ThreePid;
-import org.matrix.androidsdk.core.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,6 +68,7 @@ import fr.gouv.tchap.sdk.rest.model.Platform;
 import butterknife.BindView;
 import im.vector.Matrix;
 import im.vector.R;
+import im.vector.activity.util.RequestCodesKt;
 import im.vector.adapters.ParticipantAdapterItem;
 import im.vector.adapters.VectorParticipantsAdapter;
 import im.vector.contacts.Contact;
@@ -209,6 +212,18 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
                 }
             });
         }
+
+        @Override
+        public void onIdentityServerTermsNotSigned(String token) {
+            startActivityForResult(ReviewTermsActivity.Companion.intent(VectorRoomInviteMembersActivity.this,
+                    TermsManager.ServiceType.IdentityService, mSession.getIdentityServerManager().getIdentityServerUrl() /* cannot be null */, token),
+                    RequestCodesKt.TERMS_REQUEST_CODE);
+        }
+
+        @Override
+        public void onNoIdentityServerDefined() {
+
+        }
     };
 
     // refresh the presence asap
@@ -260,6 +275,8 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
     @Override
     public void initUiAndData() {
         super.initUiAndData();
+
+        configureToolbar();
 
         if (CommonActivityUtils.shouldRestartApp(this)) {
             Log.e(LOG_TAG, "Restart the application.");
@@ -549,6 +566,15 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         super.onPause();
         mSession.getDataHandler().removeListener(mEventsListener);
         ContactsManager.getInstance().removeListener(mContactsListener);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == RequestCodesKt.TERMS_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            // Launch again the request
+            ContactsManager.getInstance().refreshLocalContactsSnapshot();
+            onPatternUpdate(false);
+        }
     }
 
     @Override

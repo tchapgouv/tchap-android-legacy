@@ -22,23 +22,22 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import com.google.android.material.tabs.TabLayout;
-
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 
 import android.text.TextUtils;
-import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+
+import com.google.android.material.tabs.TabLayout;
+
+import org.matrix.androidsdk.core.Log;
 import org.matrix.androidsdk.fragments.MatrixMessageListFragment;
 import org.matrix.androidsdk.listeners.MXEventListener;
-import org.matrix.androidsdk.core.Log;
 
 import java.util.List;
 
@@ -75,7 +74,6 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
     private static final String TAG_FRAGMENT_PEOPLE_ROOM_DETAILS = "im.vector.activity.TAG_FRAGMENT_PEOPLE_ROOM_DETAILS";
     private static final String TAG_FRAGMENT_FILES_DETAILS = "im.vector.activity.TAG_FRAGMENT_FILES_DETAILS";
     private static final String TAG_FRAGMENT_SETTINGS_ROOM_DETAIL = "im.vector.activity.TAG_FRAGMENT_SETTINGS_ROOM_DETAIL";
-    private static final String KEY_FRAGMENT_TAG = "KEY_FRAGMENT_TAG";
 
     // a tab can be selected at launch (with EXTRA_SELECTED_TAB_ID)
     // so the tab index must be fixed.
@@ -84,7 +82,6 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
     public static final int SETTINGS_TAB_INDEX = 2;
 
     private int mCurrentTabIndex = -1;
-    private Toolbar mToolbar;
     private ActionBar mActionBar;
 
     @BindView(R.id.tab_layout)
@@ -102,9 +99,6 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
     // activity life cycle management:
     // - Bundle keys
     private static final String KEY_STATE_CURRENT_TAB_INDEX = "CURRENT_SELECTED_TAB";
-
-    // UI items
-    private View mLoadOldestContentView;
 
     private String mRoomId;
     private String mMatrixId;
@@ -137,6 +131,8 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
 
     @Override
     public void initUiAndData() {
+        configureToolbar();
+
         if (CommonActivityUtils.shouldRestartApp(this)) {
             Log.e(LOG_TAG, "Restart the application.");
             CommonActivityUtils.restartApp(this);
@@ -174,12 +170,8 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
 
         // UI widgets binding & init fields
         setWaitingView(findViewById(R.id.settings_loading_layout));
-        mLoadOldestContentView = findViewById(R.id.search_load_oldest_progress);
 
-        // tab creation and restore tabs UI context
-        // use a toolbar instead of the actionbar
-        mToolbar = findViewById(R.id.room_toolbar);
-        setSupportActionBar(mToolbar);
+        configureToolbar();
 
         if (null != getSupportActionBar()) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -267,6 +259,9 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        // Transmit to Fragment
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
         if (0 == permissions.length) {
             Log.d(LOG_TAG, "## onRequestPermissionsResult(): cancelled " + requestCode);
         } else if (requestCode == PermissionsToolsKt.PERMISSION_REQUEST_CODE) {
@@ -330,16 +325,7 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
             // start the file search if the selected tab is the file one
             startFileSearch();
         }
-    }
 
-    /**
-     * Update the tag of the tab with its the UI values
-     *
-     * @param aTabToUpdate the tab to be updated
-     */
-    private void saveUiTabContext(ActionBar.Tab aTabToUpdate) {
-        Bundle tabTag = (Bundle) aTabToUpdate.getTag();
-        aTabToUpdate.setTag(tabTag);
     }
 
     /**
@@ -351,10 +337,6 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
     private void resetUi() {
         // stop "wait while searching" screen
         hideWaitingView();
-
-        if (null != mLoadOldestContentView) {
-            mLoadOldestContentView.setVisibility(View.GONE);
-        }
     }
 
     /**
@@ -366,7 +348,6 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
         TabLayout.Tab myTab = mTabNavigationView.getTabAt(myPosition);
 
             //Bundle tabHolder = (Bundle) tab.getTag();
-        //String fragmentTag = getFragmentManager().beginTransaction().replace(R.id.tabHolder.getString(KEY_FRAGMENT_TAG, "");
         Log.d(LOG_TAG, "## onTabSelected()");
 
         resetUi();
@@ -460,13 +441,13 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
             public void run() {
                 if (null == mRoomSettingsFragment) {
                     mRoomSettingsFragment = VectorRoomSettingsFragment.newInstance(mMatrixId, mRoomId);
-                    getFragmentManager()
+                    getSupportFragmentManager()
                             .beginTransaction()
                             .replace(R.id.room_details_fragment_container, mRoomSettingsFragment, TAG_FRAGMENT_SETTINGS_ROOM_DETAIL)
                             .commit();
                     Log.d(LOG_TAG, "## onTabSelectSettingsFragment() settings frag replace");
                 } else {
-                    getFragmentManager()
+                    getSupportFragmentManager()
                             .beginTransaction()
                             .attach(mRoomSettingsFragment)
                             .commit();
@@ -485,7 +466,7 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
             @Override
             public void run() {
                 if (null != mRoomSettingsFragment)
-                    getFragmentManager().beginTransaction().detach(mRoomSettingsFragment).commit();
+                    getSupportFragmentManager().beginTransaction().detach(mRoomSettingsFragment).commit();
             }
         });
     }

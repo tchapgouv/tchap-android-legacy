@@ -17,16 +17,17 @@
 package im.vector.features.hhs
 
 import org.matrix.androidsdk.MXDataHandler
+import org.matrix.androidsdk.core.JsonUtils
+import org.matrix.androidsdk.core.Log
+import org.matrix.androidsdk.core.callback.SimpleApiCallback
+import org.matrix.androidsdk.core.model.MatrixError
 import org.matrix.androidsdk.data.Room
 import org.matrix.androidsdk.data.RoomState
 import org.matrix.androidsdk.data.RoomTag
 import org.matrix.androidsdk.listeners.MXEventListener
-import org.matrix.androidsdk.core.callback.SimpleApiCallback
+
 import org.matrix.androidsdk.rest.model.Event
-import org.matrix.androidsdk.core.model.MatrixError
 import org.matrix.androidsdk.rest.model.ServerNoticeUsageLimitContent
-import org.matrix.androidsdk.core.JsonUtils
-import org.matrix.androidsdk.core.Log
 
 // We need to fetch each pinned message individually (if we don't already have it)
 // so each pinned message may trigger a request. Limit the number per room for sanity.
@@ -90,10 +91,10 @@ class ResourceLimitEventListener(private val dataHandler: MXDataHandler, private
      */
     private fun loadServerNoticeRooms(): List<Room> {
         Log.v("ResourceLimitEventListener", "Load server notice rooms")
-        return dataHandler.store.rooms.filter {
+        return dataHandler.store?.rooms?.filter {
             val tags = it.accountData?.keys ?: emptySet()
             tags.contains(RoomTag.ROOM_TAG_SERVER_NOTICE)
-        }
+        } ?: emptyList()
     }
 
     private fun processPinnedEvents(room: Room) {

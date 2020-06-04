@@ -21,8 +21,8 @@ import fr.gouv.tchap.sdk.rest.api.TchapConfigApi
 import fr.gouv.tchap.sdk.rest.model.TchapClientConfig
 import org.matrix.androidsdk.HomeServerConnectionConfig
 import org.matrix.androidsdk.RestClient
-import org.matrix.androidsdk.core.JsonUtils
 import org.matrix.androidsdk.core.callback.ApiCallback
+import org.matrix.androidsdk.core.json.GsonProvider
 import org.matrix.androidsdk.rest.callback.RestAdapterCallback
 
 
@@ -31,7 +31,7 @@ class TchapConfigRestClient : RestClient<TchapConfigApi>(HomeServerConnectionCon
         .build(),
         TchapConfigApi::class.java,
         "",
-        JsonUtils.getKotlinGson(),
+        GsonProvider.provideKotlinGson(),
         false) {
 
     /**

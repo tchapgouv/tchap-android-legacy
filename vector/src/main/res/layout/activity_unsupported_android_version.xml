@@ -53,7 +53,7 @@
                 android:layout_marginTop="20dp"
                 android:layout_marginEnd="15dp"
                 android:layout_marginRight="20dp"
-                android:background="@color/vector_green_color"
+                android:background="?attr/colorAccent"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
                 android:text="@string/action_sign_out"
@@ -68,7 +68,7 @@
                 android:layout_marginEnd="15dp"
                 android:layout_marginRight="20dp"
                 android:layout_marginBottom="20dp"
-                android:background="@color/vector_green_color"
+                android:background="?attr/colorAccent"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
                 android:text="@string/tchap_unsupported_android_version_export_keys"
@@ -86,7 +86,7 @@
         android:clickable="true"
         android:focusable="true"
         android:visibility="gone"
-        tools:visibility="visible">
+        tools:visibility="gone">
 
         <ProgressBar
             android:id="@+id/waiting_progress"

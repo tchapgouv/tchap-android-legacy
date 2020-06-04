@@ -23,14 +23,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.matrix.androidsdk.MXSession;
+import org.matrix.androidsdk.core.Log;
 import org.matrix.androidsdk.core.callback.SimpleApiCallback;
 import org.matrix.androidsdk.rest.model.User;
-import org.matrix.androidsdk.core.Log;
 
 import java.util.ArrayList;
 import java.util.List;

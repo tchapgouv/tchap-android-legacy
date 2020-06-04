@@ -1,5 +1,6 @@
 /*
  * Copyright 2018 New Vector Ltd
+ * Copyright 2019 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,16 +24,9 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Typeface
-import android.media.RingtoneManager
-import android.net.Uri
 import android.os.AsyncTask
 import android.os.Build
 import android.os.Bundle
-import android.os.Parcelable
-import android.preference.*
-import com.google.android.material.textfield.TextInputEditText
-import androidx.core.content.ContextCompat
-import androidx.appcompat.app.AlertDialog
 import android.text.Editable
 import android.text.TextUtils
 import android.text.TextWatcher
@@ -42,13 +36,19 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import androidx.annotation.StringRes
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.edit
 import org.jetbrains.anko.toast
 import org.jetbrains.anko.longToast
+import androidx.core.view.isVisible
+import androidx.preference.*
 import com.bumptech.glide.Glide
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import com.google.i18n.phonenumbers.NumberParseException
 import com.google.i18n.phonenumbers.PhoneNumberUtil
-import fr.gouv.tchap.activity.TchapLoginActivity
+import fr.gouv.tchap.config.SUPPORT_KEYS_BACKUP
 import fr.gouv.tchap.media.MediaScanManager
 import fr.gouv.tchap.util.DinsicUtils
 import im.vector.Matrix
@@ -56,41 +56,50 @@ import im.vector.R
 import im.vector.VectorApp
 import im.vector.activity.*
 import im.vector.contacts.ContactsManager
+import im.vector.dialogs.BackgroundSyncModeChooserDialog
+import im.vector.dialogs.ExportKeysDialog
 import im.vector.extensions.getFingerprintHumanReadable
-import im.vector.preference.*
+import im.vector.extensions.showPassword
+import im.vector.extensions.withArgs
+import im.vector.fragments.signout.SignOutViewModel
+import im.vector.preference.ProgressBarPreference
+import im.vector.preference.UserAvatarPreference
+import im.vector.preference.VectorPreference
 import im.vector.settings.FontScale
 import im.vector.settings.VectorLocale
-import im.vector.ui.themes.ThemeUtils
+import im.vector.ui.util.SimpleTextWatcher
 import im.vector.util.*
 import org.matrix.androidsdk.MXSession
+import org.matrix.androidsdk.core.BingRulesManager
+import org.matrix.androidsdk.core.Log
+import org.matrix.androidsdk.core.ResourceUtils
+import org.matrix.androidsdk.core.callback.ApiCallback
+import org.matrix.androidsdk.core.callback.SimpleApiCallback
+import org.matrix.androidsdk.core.listeners.IMXNetworkEventListener
+import org.matrix.androidsdk.core.model.MatrixError
 import org.matrix.androidsdk.crypto.data.ImportRoomKeysResult
 import org.matrix.androidsdk.crypto.data.MXDeviceInfo
+import org.matrix.androidsdk.crypto.keysbackup.KeysBackupStateManager
+import org.matrix.androidsdk.crypto.model.rest.DeviceInfo
+import org.matrix.androidsdk.crypto.model.rest.DevicesListResponse
 import org.matrix.androidsdk.data.MyUser
 import org.matrix.androidsdk.data.Pusher
 import org.matrix.androidsdk.data.RoomMediaMessage
 import org.matrix.androidsdk.db.MXMediaCache
-import org.matrix.androidsdk.core.listeners.IMXNetworkEventListener
 import org.matrix.androidsdk.listeners.MXEventListener
 import org.matrix.androidsdk.listeners.MXMediaUploadListener
-import org.matrix.androidsdk.core.callback.ApiCallback
-import org.matrix.androidsdk.core.callback.SimpleApiCallback
-import org.matrix.androidsdk.core.model.MatrixError
 import org.matrix.androidsdk.rest.model.bingrules.BingRule
 import org.matrix.androidsdk.rest.model.pid.ThirdPartyIdentifier
 import org.matrix.androidsdk.rest.model.pid.ThreePid
-import org.matrix.androidsdk.crypto.model.rest.DeviceInfo
-import org.matrix.androidsdk.crypto.model.rest.DevicesListResponse
-import org.matrix.androidsdk.core.BingRulesManager
-import org.matrix.androidsdk.core.Log
-import org.matrix.androidsdk.core.ResourceUtils
+import org.matrix.androidsdk.rest.model.sync.AccountDataElement
 import org.matrix.androidsdk.rest.model.sync.DeviceInfoUtil
+import java.lang.ref.WeakReference
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.HashMap
 
-// TODO Extend PreferenceFragmentCompat() from support-v7
-class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreferences.OnSharedPreferenceChangeListener {
+class VectorSettingsPreferencesFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
 
     // members
     private lateinit var mSession: MXSession
@@ -113,10 +122,17 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
             refreshDisplay()
         }
 
-        override fun onAccountDataUpdated() {
+        override fun onAccountDataUpdated(accountDataElement: AccountDataElement) {
+//            if (accountDataElement.type == AccountDataElement.ACCOUNT_DATA_TYPE_IDENTITY_SERVER) {
+//                (findPreference(PreferencesManager.SETTINGS_IDENTITY_SERVER_PREFERENCE_KEY) as EditTextPreference).let {
+//                    updateIdentityServerPref()
+//                }
+//            }
             refreshUsersDirectoryVisibility()
         }
     }
+
+    private var mLoadingView: View? = null
 
     private var mDisplayedEmails = ArrayList<String>()
     private var mDisplayedPhoneNumber = ArrayList<String>()
@@ -124,6 +140,8 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
     private var mMyDeviceInfo: DeviceInfo? = null
 
     private var mDisplayedPushers = ArrayList<Pusher>()
+
+    private var interactionListener: VectorSettingsFragmentInteractionListener? = null
 
     // devices: device IDs and device names
     private var mDevicesNameList: List<DeviceInfo> = ArrayList()
@@ -154,8 +172,9 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
     private val mContactSettingsCategory by lazy {
         findPreference(PreferencesManager.SETTINGS_CONTACT_PREFERENCE_KEYS) as PreferenceCategory
     }
+
     private val mContactPhonebookCountryPreference by lazy {
-        findPreference(PreferencesManager.SETTINGS_CONTACTS_PHONEBOOK_COUNTRY_PREFERENCE_KEY) as VectorCustomActionEditTextPreference
+        findPreference(PreferencesManager.SETTINGS_CONTACTS_PHONEBOOK_COUNTRY_PREFERENCE_KEY)
     }
 
 //    // Group Flairs
@@ -168,11 +187,18 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
         findPreference(PreferencesManager.SETTINGS_CRYPTOGRAPHY_PREFERENCE_KEY) as PreferenceCategory
     }
     private val mCryptographyCategoryDivider by lazy {
-        findPreference(PreferencesManager.SETTINGS_CRYPTOGRAPHY_DIVIDER_PREFERENCE_KEY) as PreferenceCategory
+        findPreference(PreferencesManager.SETTINGS_CRYPTOGRAPHY_DIVIDER_PREFERENCE_KEY)
+    }
+    // cryptography manage
+    private val mCryptographyManageCategory by lazy {
+        findPreference(PreferencesManager.SETTINGS_CRYPTOGRAPHY_MANAGE_PREFERENCE_KEY) as PreferenceCategory
+    }
+    private val mCryptographyManageCategoryDivider by lazy {
+        findPreference(PreferencesManager.SETTINGS_CRYPTOGRAPHY_MANAGE_DIVIDER_PREFERENCE_KEY)
     }
     // displayed pushers
     private val mPushersSettingsDivider by lazy {
-        findPreference(PreferencesManager.SETTINGS_NOTIFICATIONS_TARGET_DIVIDER_PREFERENCE_KEY) as PreferenceCategory
+        findPreference(PreferencesManager.SETTINGS_NOTIFICATIONS_TARGET_DIVIDER_PREFERENCE_KEY)
     }
     private val mPushersSettingsCategory by lazy {
         findPreference(PreferencesManager.SETTINGS_NOTIFICATIONS_TARGETS_PREFERENCE_KEY) as PreferenceCategory
@@ -181,11 +207,11 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
         findPreference(PreferencesManager.SETTINGS_DEVICES_LIST_PREFERENCE_KEY) as PreferenceCategory
     }
     private val mDevicesListSettingsCategoryDivider by lazy {
-        findPreference(PreferencesManager.SETTINGS_DEVICES_DIVIDER_PREFERENCE_KEY) as PreferenceCategory
+        findPreference(PreferencesManager.SETTINGS_DEVICES_DIVIDER_PREFERENCE_KEY)
     }
     // displayed the ignored users list
     private val mIgnoredUserSettingsCategoryDivider by lazy {
-        findPreference(PreferencesManager.SETTINGS_IGNORE_USERS_DIVIDER_PREFERENCE_KEY) as PreferenceCategory
+        findPreference(PreferencesManager.SETTINGS_IGNORE_USERS_DIVIDER_PREFERENCE_KEY)
     }
     private val mIgnoredUserSettingsCategory by lazy {
         findPreference(PreferencesManager.SETTINGS_IGNORED_USERS_PREFERENCE_KEY) as PreferenceCategory
@@ -195,7 +221,14 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
         // ? Cause it can be removed
         findPreference(PreferencesManager.SETTINGS_SET_SYNC_DELAY_PREFERENCE_KEY) as EditTextPreference?
     }
-    //    private val mLabsCategory by lazy {
+
+    private val mWorkManagerRequestDelayPreference by lazy {
+        // ? Cause it can be removed
+        findPreference(PreferencesManager.SETTINGS_WORK_MANAGER_DELAY_PREFERENCE_KEY) as EditTextPreference?
+    }
+
+
+//    private val mLabsCategory by lazy {
 //        findPreference(PreferencesManager.SETTINGS_LABS_PREFERENCE_KEY) as PreferenceCategory
 //    }
     private val backgroundSyncCategory by lazy {
@@ -204,14 +237,18 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
     private val backgroundSyncDivider by lazy {
         findPreference(PreferencesManager.SETTINGS_BACKGROUND_SYNC_DIVIDER_PREFERENCE_KEY)
     }
-    private val backgroundSyncPreference by lazy {
-        findPreference(PreferencesManager.SETTINGS_ENABLE_BACKGROUND_SYNC_PREFERENCE_KEY) as CheckBoxPreference
-    }
-    private val mRingtonePreference by lazy {
-        findPreference(PreferencesManager.SETTINGS_NOTIFICATION_RINGTONE_SELECTION_PREFERENCE_KEY)
+//    private val backgroundSyncPreference by lazy {
+//        findPreference(PreferencesManager.SETTINGS_ENABLE_BACKGROUND_SYNC_PREFERENCE_KEY) as SwitchPreference
+//    }
+
+    private val backgroundSyncModePreference by lazy {
+        findPreference(PreferencesManager.SETTINGS_FDROID_BACKGROUND_SYNC_MODE)
     }
 //    private val mUseRiotCallRingtonePreference by lazy {
-//        findPreference(PreferencesManager.SETTINGS_CALL_RINGTONE_USE_RIOT_PREFERENCE_KEY) as CheckBoxPreference
+//        findPreference(PreferencesManager.SETTINGS_CALL_RINGTONE_USE_RIOT_PREFERENCE_KEY) as SwitchPreference
+//    }
+//    private val mUseDefaultStunPreference by lazy {
+//        findPreference(PreferencesManager.SETTINGS_CALL_USE_DEFAULT_STUN_PREFERENCE_KEY) as SwitchPreference
 //    }
 //    private val mCallRingtonePreference by lazy {
 //        findPreference(PreferencesManager.SETTINGS_CALL_RINGTONE_URI_PREFERENCE_KEY)
@@ -219,61 +256,52 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
     private val notificationsSettingsCategory by lazy {
         findPreference(PreferencesManager.SETTINGS_NOTIFICATIONS_KEY) as PreferenceCategory
     }
-    private val mNotificationPrivacyPreference by lazy {
-        findPreference(PreferencesManager.SETTINGS_NOTIFICATION_PRIVACY_PREFERENCE_KEY)
-    }
-    //    private val selectedLanguagePreference by lazy {
-//        findPreference(PreferencesManager.SETTINGS_INTERFACE_LANGUAGE_PREFERENCE_KEY) as VectorCustomActionEditTextPreference
+//    private val selectedLanguagePreference by lazy {
+//        findPreference(PreferencesManager.SETTINGS_INTERFACE_LANGUAGE_PREFERENCE_KEY)
 //    }
     private val textSizePreference by lazy {
-        findPreference(PreferencesManager.SETTINGS_INTERFACE_TEXT_SIZE_KEY) as VectorCustomActionEditTextPreference
+        findPreference(PreferencesManager.SETTINGS_INTERFACE_TEXT_SIZE_KEY)
     }
     private val cryptoInfoDeviceNamePreference by lazy {
-        findPreference(PreferencesManager.SETTINGS_ENCRYPTION_INFORMATION_DEVICE_NAME_PREFERENCE_KEY) as VectorCustomActionEditTextPreference
+        findPreference(PreferencesManager.SETTINGS_ENCRYPTION_INFORMATION_DEVICE_NAME_PREFERENCE_KEY) as VectorPreference
     }
     private val cryptoInfoDeviceIdPreference by lazy {
-        findPreference(PreferencesManager.SETTINGS_ENCRYPTION_INFORMATION_DEVICE_ID_PREFERENCE_KEY) as VectorCustomActionEditTextPreference
-    }
-
-    private val exportPref by lazy {
-        findPreference(PreferencesManager.SETTINGS_ENCRYPTION_EXPORT_E2E_ROOM_KEYS_PREFERENCE_KEY) as VectorCustomActionEditTextPreference
-    }
-
-    private val importPref by lazy {
-        findPreference(PreferencesManager.SETTINGS_ENCRYPTION_IMPORT_E2E_ROOM_KEYS_PREFERENCE_KEY) as VectorCustomActionEditTextPreference
+        findPreference(PreferencesManager.SETTINGS_ENCRYPTION_INFORMATION_DEVICE_ID_PREFERENCE_KEY)
     }
 
     private val cryptoInfoTextPreference by lazy {
-        findPreference(PreferencesManager.SETTINGS_ENCRYPTION_INFORMATION_DEVICE_KEY_PREFERENCE_KEY) as VectorCustomActionEditTextPreference
+        findPreference(PreferencesManager.SETTINGS_ENCRYPTION_INFORMATION_DEVICE_KEY_PREFERENCE_KEY)
     }
+
 //    // encrypt to unverified devices
 //    private val sendToUnverifiedDevicesPref by lazy {
-//        findPreference(PreferencesManager.SETTINGS_ENCRYPTION_NEVER_SENT_TO_PREFERENCE_KEY) as CheckBoxPreference
+//        findPreference(PreferencesManager.SETTINGS_ENCRYPTION_NEVER_SENT_TO_PREFERENCE_KEY) as SwitchPreference
 //    }
 
     private val hideFromUsersDirectoryPreference by lazy {
-        findPreference(PreferencesManager.SETTINGS_HIDE_FROM_USERS_DIRECTORY_KEY) as CheckBoxPreference
+        findPreference(PreferencesManager.SETTINGS_HIDE_FROM_USERS_DIRECTORY_KEY) as SwitchPreference
     }
 
     private val showJoinLeaveMessagesPreference by lazy {
-        findPreference(PreferencesManager.SETTINGS_SHOW_JOIN_LEAVE_MESSAGES_KEY) as CheckBoxPreference
+        findPreference(PreferencesManager.SETTINGS_SHOW_JOIN_LEAVE_MESSAGES_KEY) as SwitchPreference
     }
+//    private val identityServerPreference by lazy {
+//        findPreference(PreferencesManager.SETTINGS_IDENTITY_SERVER_PREFERENCE_KEY) as VectorPreference
+//    }
 
     /* ==========================================================================================
      * Life cycle
      * ========================================================================================== */
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        val appContext = activity.applicationContext
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        val appContext = activity?.applicationContext
 
         // retrieve the arguments
-        val sessionArg = Matrix.getInstance(appContext).getSession(arguments.getString(ARG_MATRIX_ID))
+        val sessionArg = Matrix.getInstance(appContext).getSession(arguments?.getString(ARG_MATRIX_ID))
 
         // sanity checks
         if (null == sessionArg || !sessionArg.isAlive) {
-            activity.finish()
+            activity?.finish()
             return
         }
 
@@ -285,7 +313,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
         // Avatar
         mUserAvatarPreference.let {
             it.setSession(mSession)
-            it.onPreferenceClickListener = Preference.OnPreferenceClickListener { _ ->
+            it.onPreferenceClickListener = Preference.OnPreferenceClickListener {
                 onUpdateAvatarClick()
                 false
             }
@@ -301,10 +329,6 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
             onPasswordUpdateClick()
             false
         }
-
-        // User Email and phone
-        // Add phone and add email buttons first
-//        addButtons()
 
         refreshEmailsList()
         refreshPhoneNumbersList()
@@ -395,32 +419,11 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 
         // push rules
 
-        // Notification privacy
-        mNotificationPrivacyPreference.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-            startActivity(NotificationPrivacyActivity.getIntent(activity))
-            true
-        }
-        refreshNotificationPrivacy()
-
-        // Ringtone
-        mRingtonePreference.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-            val intent = Intent(RingtoneManager.ACTION_RINGTONE_PICKER)
-            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_NOTIFICATION)
-
-            if (null != PreferencesManager.getNotificationRingTone(activity)) {
-                intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, PreferencesManager.getNotificationRingTone(activity))
-            }
-
-            startActivityForResult(intent, REQUEST_NOTIFICATION_RINGTONE)
-            false
-        }
-        refreshNotificationRingTone()
-
-        for (resourceText in mPushesRuleByResourceId.keys) {
-            val preference = findPreference(resourceText)
+        for (preferenceKey in mPrefKeyToBingRuleId.keys) {
+            val preference = findPreference(preferenceKey)
 
             if (null != preference) {
-                if (preference is CheckBoxPreference) {
+                if (preference is SwitchPreference) {
                     preference.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValueAsVoid ->
                         // on some old android APIs,
                         // the callback is called even if there is no user interaction
@@ -428,89 +431,11 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                         onPushRuleClick(preference.key, newValueAsVoid as Boolean)
                         true
                     }
-                } else if (preference is BingRulePreference) {
-                    preference.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-                        AlertDialog.Builder(activity)
-                                .setSingleChoiceItems(preference.bingRuleStatuses,
-                                        preference.ruleStatusIndex
-                                ) { d, index ->
-                                    val rule = preference.createRule(index)
-                                    d.cancel()
-
-                                    if (null != rule) {
-                                        displayLoadingView()
-                                        mSession.dataHandler
-                                                .bingRulesManager
-                                                .updateRule(preference.rule,
-                                                        rule,
-                                                        object : BingRulesManager.onBingRuleUpdateListener {
-                                                            private fun onDone() {
-                                                                refreshDisplay()
-                                                                hideLoadingView()
-                                                            }
-
-                                                            override fun onBingRuleUpdateSuccess() {
-                                                                onDone()
-                                                            }
-
-                                                            override fun onBingRuleUpdateFailure(errorMessage: String) {
-                                                                activity?.toast(errorMessage)
-
-                                                                onDone()
-                                                            }
-                                                        })
-                                    }
-                                }
-                                .show()
-                        true
-                    }
                 }
             }
         }
 
-        // background sync tuning settings
-        // these settings are useless and hidden if the app is registered to the FCM push service
-        val pushManager = Matrix.getInstance(appContext)!!.pushManager
-        if (pushManager.useFcm() && pushManager.hasRegistrationToken()) {
-            // Hide the section
-            preferenceScreen.removePreference(backgroundSyncDivider)
-            preferenceScreen.removePreference(backgroundSyncCategory)
-        } else {
-            backgroundSyncPreference.let {
-                it.isChecked = pushManager.isBackgroundSyncAllowed
-
-                it.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, aNewValue ->
-                    val newValue = aNewValue as Boolean
-
-                    if (newValue != pushManager.isBackgroundSyncAllowed) {
-                        pushManager.isBackgroundSyncAllowed = newValue
-                    }
-
-                    displayLoadingView()
-
-                    Matrix.getInstance(activity)!!.pushManager
-                            .forceSessionsRegistration(object : ApiCallback<Void> {
-                                override fun onSuccess(info: Void?) {
-                                    hideLoadingView()
-                                }
-
-                                override fun onMatrixError(e: MatrixError?) {
-                                    hideLoadingView()
-                                }
-
-                                override fun onNetworkError(e: java.lang.Exception?) {
-                                    hideLoadingView()
-                                }
-
-                                override fun onUnexpectedError(e: java.lang.Exception?) {
-                                    hideLoadingView()
-                                }
-                            })
-
-                    true
-                }
-            }
-        }
+        refreshBackgroundSyncSection(appContext)
 
         // Push target
         refreshPushersList()
@@ -519,7 +444,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
         refreshIgnoredUsersList()
 
         // Lab
-//        val useCryptoPref = findPreference(PreferencesManager.SETTINGS_ROOM_SETTINGS_LABS_END_TO_END_PREFERENCE_KEY) as CheckBoxPreference
+//        val useCryptoPref = findPreference(PreferencesManager.SETTINGS_ROOM_SETTINGS_LABS_END_TO_END_PREFERENCE_KEY) as SwitchPreference
 //        val cryptoIsEnabledPref = findPreference(PreferencesManager.SETTINGS_ROOM_SETTINGS_LABS_END_TO_END_IS_ACTIVE_PREFERENCE_KEY)
 //
 //        if (mSession.isCryptoEnabled) {
@@ -658,8 +583,10 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
         // Device list
         refreshDevicesList()
 
-        // Advanced settings
+        //Refresh Key Management section
+        refreshKeysManagementSection()
 
+        // Advanced settings
 //        // user account
 //        findPreference(PreferencesManager.SETTINGS_LOGGED_IN_PREFERENCE_KEY)
 //                .summary = mSession.myUserId
@@ -669,13 +596,14 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 //                .summary = mSession.homeServerConfig.homeserverUri.toString()
 //
 //        // identity server
-//        findPreference(PreferencesManager.SETTINGS_IDENTITY_SERVER_PREFERENCE_KEY)
-//                .summary = mSession.homeServerConfig.identityServerUri.toString()
-
+//        updateIdentityServerPref()
+//
+//        findPreference(PreferencesManager.SETTINGS_INTEGRATION_MANAGER_UI_URL)
+//                .summary = PreferencesManager.getIntegrationManagerUiUrl(context)
 
         // Analytics
 //        // Analytics tracking management
-//        (findPreference(PreferencesManager.SETTINGS_USE_ANALYTICS_KEY) as CheckBoxPreference).let {
+//        (findPreference(PreferencesManager.SETTINGS_USE_ANALYTICS_KEY) as SwitchPreference).let {
 //            // On if the analytics tracking is activated
 //            it.isChecked = PreferencesManager.useAnalytics(appContext)
 //
@@ -684,9 +612,9 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 //                true
 //            }
 //        }
-//
+
         // Rageshake Management
-        (findPreference(PreferencesManager.SETTINGS_USE_RAGE_SHAKE_KEY) as CheckBoxPreference).let {
+        (findPreference(PreferencesManager.SETTINGS_USE_RAGE_SHAKE_KEY) as SwitchPreference).let {
             it.isChecked = PreferencesManager.useRageshake(appContext)
 
             it.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
@@ -694,6 +622,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                 true
             }
         }
+
 //
 //        // preference to start the App info screen, to facilitate App permissions access
 //        findPreference(APP_INFO_LINK_PREFERENCE_KEY)
@@ -711,7 +640,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 //        }
 //
 //        // application version
-//        (findPreference(PreferencesManager.SETTINGS_VERSION_PREFERENCE_KEY) as VectorCustomActionEditTextPreference).let {
+//        (findPreference(PreferencesManager.SETTINGS_VERSION_PREFERENCE_KEY)).let {
 //            it.summary = VectorUtils.getApplicationVersion(appContext)
 //
 //            it.setOnPreferenceLongClickListener { _ ->
@@ -757,16 +686,19 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
         findPreference(PreferencesManager.SETTINGS_MEDIA_SAVING_PERIOD_KEY).let {
             it.summary = PreferencesManager.getSelectedMediasSavingPeriodString(activity)
 
-            it.onPreferenceClickListener = Preference.OnPreferenceClickListener { _ ->
-                AlertDialog.Builder(activity)
-                        .setSingleChoiceItems(R.array.media_saving_choice,
-                                PreferencesManager.getSelectedMediasSavingPeriod(activity)) { d, n ->
-                            PreferencesManager.setSelectedMediasSavingPeriod(activity, n)
-                            d.cancel()
+            it.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+                context?.let { context: Context ->
+                    AlertDialog.Builder(context)
+                            .setSingleChoiceItems(R.array.media_saving_choice,
+                                    PreferencesManager.getSelectedMediasSavingPeriod(activity)) { d, n ->
+                                PreferencesManager.setSelectedMediasSavingPeriod(activity, n)
+                                d.cancel()
 
-                            it.summary = PreferencesManager.getSelectedMediasSavingPeriodString(activity)
-                        }
-                        .show()
+                                it.summary = PreferencesManager.getSelectedMediasSavingPeriodString(activity)
+                            }
+                            .show()
+                }
+
                 false
             }
         }
@@ -781,26 +713,24 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                 }
             })
 
-            it.onPreferenceClickListener = Preference.OnPreferenceClickListener { _ ->
+            it.onPreferenceClickListener = Preference.OnPreferenceClickListener {
                 displayLoadingView()
 
-                val task = object : AsyncTask<Void?, Void?, Void?>() {
-                    override fun doInBackground(vararg params: Void?): Void? {
-                        mSession.mediaCache.clear()
-                        Glide.get(activity).clearDiskCache()
-                        return null
-                    }
+                val task = ClearMediaCacheAsyncTask(
+                        backgroundTask = {
+                            mSession.mediaCache.clear()
+                            activity?.let { it -> Glide.get(it).clearDiskCache() }
+                        },
+                        onCompleteTask = {
+                            hideLoadingView()
 
-                    override fun onPostExecute(result: Void?) {
-                        hideLoadingView()
-
-                        MXMediaCache.getCachesSize(activity, object : SimpleApiCallback<Long>() {
-                            override fun onSuccess(size: Long) {
-                                it.summary = android.text.format.Formatter.formatFileSize(activity, size)
-                            }
-                        })
-                    }
-                }
+                            MXMediaCache.getCachesSize(activity, object : SimpleApiCallback<Long>() {
+                                override fun onSuccess(size: Long) {
+                                    it.summary = android.text.format.Formatter.formatFileSize(activity, size)
+                                }
+                            })
+                        }
+                )
 
                 try {
                     task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
@@ -821,14 +751,31 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
         }
 
 //        // Incoming call sounds
-//        mUseRiotCallRingtonePreference.onPreferenceClickListener = Preference.OnPreferenceClickListener { _ ->
-//            setUseRiotDefaultRingtone(activity, mUseRiotCallRingtonePreference.isChecked)
+//        mUseRiotCallRingtonePreference.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+//            activity?.let { setUseRiotDefaultRingtone(it, mUseRiotCallRingtonePreference.isChecked) }
 //            false
 //        }
 //
+//        mUseDefaultStunPreference.let {
+//            activity?.let { activity ->
+//                it.isChecked = PreferencesManager.useDefaultTurnServer(activity)
+//                val stun = getString(R.string.default_stun_server)
+//                it.summary = getString(R.string.settings_call_ringtone_use_default_stun_sum, stun)
+//                it.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+//                    if (mUseDefaultStunPreference.isChecked) {
+//                        MXCallsManager.defaultStunServerUri = stun
+//                    } else {
+//                        MXCallsManager.defaultStunServerUri = null
+//                    }
+//                    PreferencesManager.setUseDefaultTurnServer(activity,mUseDefaultStunPreference.isChecked)
+//                    false
+//                }
+//            }
+//        }
+//
 //        mCallRingtonePreference.let {
-//            it.summary = getCallRingtoneName(activity)
-//            it.onPreferenceClickListener = Preference.OnPreferenceClickListener { _ ->
+//            activity?.let { activity -> it.summary = getCallRingtoneName(activity) }
+//            it.onPreferenceClickListener = Preference.OnPreferenceClickListener {
 //                displayRingtonePicker()
 //                false
 //            }
@@ -844,9 +791,9 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                 }
             })
 
-            it.onPreferenceClickListener = Preference.OnPreferenceClickListener { _ ->
+            it.onPreferenceClickListener = Preference.OnPreferenceClickListener {
                 displayLoadingView()
-                Matrix.getInstance(appContext).reloadSessions(appContext)
+                Matrix.getInstance(appContext).reloadSessions(appContext, true)
                 false
             }
         }
@@ -855,8 +802,8 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 
         // deactivate account
         findPreference(PreferencesManager.SETTINGS_DEACTIVATE_ACCOUNT_KEY)
-                .onPreferenceClickListener = Preference.OnPreferenceClickListener { _ ->
-            startActivity(DeactivateAccountActivity.getIntent(activity))
+                .onPreferenceClickListener = Preference.OnPreferenceClickListener {
+            activity?.let { startActivity(DeactivateAccountActivity.getIntent(it)) }
 
             false
         }
@@ -871,18 +818,20 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                     val hidden = hideFromUsersDirectoryPreference.isChecked
                     // The external users must be prompted before showing them to the users directory
                     if (!hidden && DinsicUtils.isExternalTchapSession(mSession)) {
-                        AlertDialog.Builder(activity)
-                                .setMessage(R.string.settings_show_external_user_in_users_directory_prompt)
-                                .setPositiveButton(R.string.accept) { _, _ ->
-                                    hideUserFromUsersDirectory(false)
-                                }
-                                .setNegativeButton(R.string.cancel) { _, _ ->
-                                    hideFromUsersDirectoryPreference.isChecked = true
-                                }
-                                .setOnCancelListener { _ ->
-                                    hideFromUsersDirectoryPreference.isChecked = true
-                                }
-                                .show()
+                        activity?.let { activity ->
+                            AlertDialog.Builder(activity)
+                                    .setMessage(R.string.settings_show_external_user_in_users_directory_prompt)
+                                    .setPositiveButton(R.string.accept) { _, _ ->
+                                        hideUserFromUsersDirectory(false)
+                                    }
+                                    .setNegativeButton(R.string.cancel) { _, _ ->
+                                        hideFromUsersDirectoryPreference.isChecked = true
+                                    }
+                                    .setOnCancelListener { _ ->
+                                        hideFromUsersDirectoryPreference.isChecked = true
+                                    }
+                                    .show()
+                        }
                     } else {
                         hideUserFromUsersDirectory(hidden)
                     }
@@ -902,30 +851,165 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                 // We have to reload the sessions in this case to prevent the sdk from failing to handle
                 // existing summaries (see `manageBackEvents` in `MXEventTimeline` class).
                 if (!showJoinLeaveMessagesPreference.isChecked) {
-                    AlertDialog.Builder(activity)
-                            .setMessage(R.string.settings_hide_join_leave_messages_prompt)
-                            .setPositiveButton(R.string.yes) { _, _ ->
-                                Matrix.getInstance(appContext).reloadSessions(appContext)
-                            }
-                            .setNegativeButton(R.string.no) { _, _ ->
-                                showJoinLeaveMessagesPreference.isChecked = true
-                            }
-                            .setOnCancelListener { _ ->
-                                showJoinLeaveMessagesPreference.isChecked = true
-                            }
-                            .show()
+                    activity?.let { activity ->
+                        AlertDialog.Builder(activity)
+                                .setMessage(R.string.settings_hide_join_leave_messages_prompt)
+                                .setPositiveButton(R.string.yes) { _, _ ->
+                                    Matrix.getInstance(appContext).reloadSessions(appContext, true)
+                                }
+                                .setNegativeButton(R.string.no) { _, _ ->
+                                    showJoinLeaveMessagesPreference.isChecked = true
+                                }
+                                .setOnCancelListener { _ ->
+                                    showJoinLeaveMessagesPreference.isChecked = true
+                                }
+                                .show()
+                    }
                 }
                 true
             }
         }
     }
 
+    private fun refreshBackgroundSyncSection(appContext: Context?) {
+        // background sync tuning settings
+        // these settings are useless and hidden if the app is registered to the FCM push service
+        val pushManager = Matrix.getInstance(appContext).pushManager
+        if (pushManager.useFcm() && pushManager.hasRegistrationToken()) {
+            // Hide the section
+            preferenceScreen.removePreference(backgroundSyncDivider)
+            preferenceScreen.removePreference(backgroundSyncCategory)
+        } else {
+            //This is for fdroid preferences
+
+            mWorkManagerRequestDelayPreference?.summary = context?.getString(R.string.settings_set_workmanager_delay_summary,
+                    secondsToText(PreferencesManager.getWorkManagerSyncIntervalMillis(appContext) / 1000))
+
+            mWorkManagerRequestDelayPreference?.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
+
+                try {
+                    var newDelay = Integer.parseInt(newValue?.toString() ?: "")
+                    PreferencesManager.setWorkManagerSyncIntervalMillis(context, newDelay * 1000)
+                    activity?.runOnUiThread { refreshBackgroundSyncSection(activity) }
+                } catch (e: Exception) {
+                    Log.e(LOG_TAG, "## refreshBackgroundSyncPrefs : parseInt failed " + e.message, e)
+                }
+                false
+            }
+
+            backgroundSyncModePreference.let {
+                var syncMode: Int = 0
+                var startOnBootPref = findPreference(PreferencesManager.SETTINGS_START_ON_BOOT_PREFERENCE_KEY)
+
+                if (!pushManager.isBackgroundSyncAllowed) {
+                    syncMode = R.string.settings_background_fdroid_sync_mode_disabled
+                    mSyncRequestDelayPreference?.isVisible = false
+                    mWorkManagerRequestDelayPreference?.isVisible = false
+                    startOnBootPref?.isVisible = false
+                } else if (pushManager.idFdroidSyncModeOptimizedForRealTime()) {
+                    syncMode = R.string.settings_background_fdroid_sync_mode_real_time
+                    mSyncRequestDelayPreference?.isVisible = true
+                    mWorkManagerRequestDelayPreference?.isVisible = false
+                    startOnBootPref?.isVisible = true
+                } else {
+                    syncMode = R.string.settings_background_fdroid_sync_mode_battery
+                    mSyncRequestDelayPreference?.isVisible = false
+                    mWorkManagerRequestDelayPreference?.isVisible = true
+                    startOnBootPref?.isVisible = false
+                }
+                it.summary = context?.getString(syncMode)
+
+                it.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+                    val initialMode = PreferencesManager.getFdroidSyncBackgroundMode(context)
+                    val dialogFragment = BackgroundSyncModeChooserDialog.newInstance(
+                            initialMode,
+                            object : BackgroundSyncModeChooserDialog.InteractionListener {
+                                override fun onOptionSelected(mode: String) {
+                                    //option has change, need to act
+                                    val revertMode = PreferencesManager.getFdroidSyncBackgroundMode(context)
+                                    when (mode) {
+                                        PreferencesManager.FDROID_BACKGROUND_SYNC_MODE_FOR_REALTIME -> {
+                                            // Important, Battery optim white listing is needed in this mode;
+                                            // Even if using foreground service with foreground notif, it stops to work
+                                            // in doze mode for certain devices :/
+
+                                            if ( !isIgnoringBatteryOptimizations(requireContext())) {
+                                                requestDisablingBatteryOptimization(requireActivity(),
+                                                        this@VectorSettingsPreferencesFragment,
+                                                        REQUEST_BATTERY_OPTIMIZATION)
+
+                                            }
+
+                                            pushManager.setFdroidSyncModeOptimizedForRealTime();
+                                        }
+                                        PreferencesManager.FDROID_BACKGROUND_SYNC_MODE_FOR_BATTERY -> {
+
+                                            pushManager.setFdroidSyncModeOptimizedForBattery();
+                                        }
+                                        PreferencesManager.FDROID_BACKGROUND_SYNC_MODE_DISABLED -> {
+                                            pushManager.setFdroidSyncModeDisabled()
+                                        }
+                                    }
+                                    refreshBackgroundSyncSection(context)
+
+//                                    displayLoadingView()
+//
+//                                    pushManager.forceSessionsRegistration(object : ApiCallback<Void> {
+//                                        override fun onSuccess(info: Void?) {
+//                                            hideLoadingView()
+//                                        }
+//
+//                                        override fun onMatrixError(e: MatrixError?) {
+//                                            revertPreviousState()
+//                                        }
+//
+//                                        override fun onNetworkError(e: java.lang.Exception?) {
+//                                            revertPreviousState()
+//                                        }
+//
+//                                        override fun onUnexpectedError(e: java.lang.Exception?) {
+//                                            revertPreviousState()
+//                                        }
+//
+//                                        private fun revertPreviousState() {
+//                                            Toast.makeText(context, R.string.settings_background_sync_update_error, Toast.LENGTH_LONG).show()
+//                                            when (revertMode) {
+//                                                PreferencesManager.FDROID_BACKGROUND_SYNC_MODE_FOR_REALTIME -> {
+//                                                    pushManager.setFdroidSyncModeOptimizedForRealTime();
+//                                                }
+//                                                PreferencesManager.FDROID_BACKGROUND_SYNC_MODE_FOR_BATTERY -> {
+//                                                    pushManager.setFdroidSyncModeOptimizedForBattery();
+//                                                }
+//                                                PreferencesManager.FDROID_BACKGROUND_SYNC_MODE_DISABLED -> {
+//                                                    pushManager.setFdroidSyncModeDisabled()
+//                                                }
+//
+//                                            }
+//                                            hideLoadingView()
+//                                        }
+//                                    })
+                                }
+                            }
+                    )
+                    activity?.supportFragmentManager?.let {
+                        dialogFragment.show(it, "syncDialog")
+                    }
+                    true
+                }
+            }
+        }
+    }
+
+//    private fun updateIdentityServerPref() {
+//        identityServerPreference.summary = mSession.identityServerManager?.identityServerUrl
+//                ?: getString(R.string.identity_server_not_defined)
+//    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = super.onCreateView(inflater, container, savedInstanceState)
 
-        if (null != view) {
-            val listView = view.findViewById<View>(android.R.id.list)
-
+        view?.apply {
+            val listView = findViewById<View>(android.R.id.list)
             listView?.setPadding(0, 0, 0, 0)
         }
 
@@ -940,89 +1024,113 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
         }
     }
 
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
+        if (context is VectorSettingsFragmentInteractionListener) {
+            interactionListener = context
+        }
+    }
+
+    override fun onDetach() {
+        interactionListener = null
+        super.onDetach()
+    }
+
     override fun onResume() {
         super.onResume()
 
+        // find the view from parent activity
+        mLoadingView = activity?.findViewById(R.id.vector_settings_spinner_views)
+
         if (mSession.isAlive) {
-            val context = activity.applicationContext
+            val context = activity?.applicationContext
 
             mSession.dataHandler.addListener(mEventsListener)
 
-            Matrix.getInstance(context)!!.addNetworkEventListener(mNetworkListener)
+            Matrix.getInstance(context)?.addNetworkEventListener(mNetworkListener)
 
             mSession.myUser.refreshThirdPartyIdentifiers(object : SimpleApiCallback<Void>() {
                 override fun onSuccess(info: Void?) {
                     // ensure that the activity still exists
-                    if (null != activity) {
-                        // and the result is called in the right thread
-                        activity.runOnUiThread {
-                            refreshEmailsList()
-                            refreshPhoneNumbersList()
-                        }
+                    // and the result is called in the right thread
+                    activity?.runOnUiThread {
+                        refreshEmailsList()
+                        refreshPhoneNumbersList()
                     }
                 }
             })
 
-            Matrix.getInstance(context)!!
-                    .pushManager
-                    .refreshPushersList(Matrix.getInstance(context)!!.sessions, object : SimpleApiCallback<Void>(activity) {
-                        override fun onSuccess(info: Void?) {
-                            refreshPushersList()
-                        }
-                    })
+            Matrix.getInstance(context)?.pushManager?.refreshPushersList(Matrix.getInstance(context)?.sessions, object : SimpleApiCallback<Void>(activity) {
+                override fun onSuccess(info: Void?) {
+                    refreshPushersList()
+                }
+            })
 
             PreferenceManager.getDefaultSharedPreferences(context).registerOnSharedPreferenceChangeListener(this)
 
             // refresh anything else
             refreshPreferences()
-            refreshNotificationPrivacy()
             refreshDisplay()
             refreshBackgroundSyncPrefs()
+            refreshEmailsList()
+            refreshPhoneNumbersList()
+        }
+
+        interactionListener?.requestedKeyToHighlight()?.let { key ->
+            interactionListener?.requestHighlightPreferenceKeyOnResume(null)
+            val preference = findPreference(key)
+            (preference as? VectorPreference)?.isHighlighted = true
         }
     }
 
     override fun onPause() {
         super.onPause()
 
-        val context = activity.applicationContext
+        val context = activity?.applicationContext
 
         if (mSession.isAlive) {
             mSession.dataHandler.removeListener(mEventsListener)
-            Matrix.getInstance(context)!!.removeNetworkEventListener(mNetworkListener)
+            Matrix.getInstance(context)?.removeNetworkEventListener(mNetworkListener)
         }
 
         PreferenceManager.getDefaultSharedPreferences(context).unregisterOnSharedPreferenceChangeListener(this)
+    }
+
+    // TODO Test
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        if (allGranted(grantResults)) {
+            if (requestCode == PERMISSION_REQUEST_CODE_EXPORT_KEYS) {
+                exportKeys()
+            }
+        }
     }
 
     //==============================================================================================================
     // Display methods
     //==============================================================================================================
 
-    private fun getLoadingView(): View? {
-        // search the loading view from the upper view
-        var parent = view
-        var loadingView: View? = null
-
-        while (parent != null && loadingView == null) {
-            loadingView = parent.findViewById(R.id.vector_settings_spinner_views)
-            parent = parent.parent as View
-        }
-        return loadingView
-    }
-
     /**
      * Display the loading view.
      */
     private fun displayLoadingView() {
-        var loadingView = getLoadingView()
-        loadingView?.visibility = View.VISIBLE
+        // search the loading view from the upper view
+        if (null == mLoadingView) {
+            var parent = view
+
+            while (parent != null && mLoadingView == null) {
+                mLoadingView = parent.findViewById(R.id.vector_settings_spinner_views)
+                parent = parent.parent as View
+            }
+        } else {
+            mLoadingView?.visibility = View.VISIBLE
+        }
     }
 
     /**
      * Hide the loading view.
      */
     private fun hideLoadingView() {
-        hideLoadingView(false)
+        mLoadingView?.visibility = View.GONE
     }
 
     /**
@@ -1031,8 +1139,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
      * @param refresh true to refresh the display
      */
     private fun hideLoadingView(refresh: Boolean) {
-        var loadingView = getLoadingView()
-        loadingView?.visibility = View.GONE
+        mLoadingView?.visibility = View.GONE
 
         if (refresh) {
             refreshDisplay()
@@ -1043,8 +1150,9 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
      * Refresh the preferences.
      */
     private fun refreshDisplay() {
-        val isConnected = Matrix.getInstance(activity)!!.isConnected
-        val appContext = activity.applicationContext
+        // If Matrix instance is null, then connection can't be there
+        val isConnected = Matrix.getInstance(activity)?.isConnected ?: false
+        val appContext = activity?.applicationContext
 
         val preferenceManager = preferenceManager
 
@@ -1063,76 +1171,33 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 
         val rules = mSession.dataHandler.pushRules()
 
-        val pushManager = Matrix.getInstance(appContext)!!.pushManager
+        val pushManager = Matrix.getInstance(appContext)?.pushManager
 
-        for (resourceText in mPushesRuleByResourceId.keys) {
-            val preference = preferenceManager.findPreference(resourceText)
+        for (preferenceKey in mPrefKeyToBingRuleId.keys) {
+            val preference = preferenceManager.findPreference(preferenceKey)
 
             if (null != preference) {
-                if (preference is BingRulePreference) {
-                    preference.isEnabled = null != rules && isConnected && pushManager.areDeviceNotificationsAllowed()
-                    mSession.dataHandler.pushRules()?.let {
-                        preference.setBingRule(it.findDefaultRule(mPushesRuleByResourceId[resourceText]))
-                    }
-                } else if (preference is CheckBoxPreference) {
-                    if (resourceText == PreferencesManager.SETTINGS_ENABLE_THIS_DEVICE_PREFERENCE_KEY) {
-                        preference.isChecked = pushManager.areDeviceNotificationsAllowed()
-                    } else if (resourceText == PreferencesManager.SETTINGS_TURN_SCREEN_ON_PREFERENCE_KEY) {
-                        preference.isChecked = pushManager.isScreenTurnedOn
-                        preference.isEnabled = pushManager.areDeviceNotificationsAllowed()
-                    } else {
-                        preference.isEnabled = null != rules && isConnected
-                        preference.isChecked = preferences.getBoolean(resourceText, false)
+
+                if (preference is SwitchPreference) {
+                    when (preferenceKey) {
+                        PreferencesManager.SETTINGS_ENABLE_THIS_DEVICE_PREFERENCE_KEY ->
+                            preference.isChecked = pushManager?.areDeviceNotificationsAllowed()
+                                    ?: true
+
+                        PreferencesManager.SETTINGS_TURN_SCREEN_ON_PREFERENCE_KEY     -> {
+                            preference.isChecked = pushManager?.isScreenTurnedOn ?: false
+                            preference.isEnabled = pushManager?.areDeviceNotificationsAllowed()
+                                    ?: true
+                        }
+                        else                                                          -> {
+                            preference.isEnabled = null != rules && isConnected
+                            preference.isChecked = preferences.getBoolean(preferenceKey, false)
+                        }
                     }
                 }
             }
         }
-
-        // If notifications are disabled for the current user account or for the current user device
-        // The others notifications settings have to be disable too
-        val areNotificationAllowed = rules?.findDefaultRule(BingRule.RULE_ID_DISABLE_ALL)?.isEnabled == true
-
-        mRingtonePreference.isEnabled = !areNotificationAllowed && pushManager.areDeviceNotificationsAllowed()
-
-        mNotificationPrivacyPreference.isEnabled = !areNotificationAllowed && pushManager.areDeviceNotificationsAllowed() && pushManager.useFcm()
     }
-
-//    private fun addButtons() {
-//        // display the "add email" entry
-//        mUserSettingsCategory.addPreference(
-//                EditTextPreference(activity).apply {
-//                    setTitle(R.string.settings_add_email_address)
-//                    setDialogTitle(R.string.settings_add_email_address)
-//                    key = ADD_EMAIL_PREFERENCE_KEY
-//                    icon = ThemeUtils.tintDrawable(activity,
-//                            ContextCompat.getDrawable(activity, R.drawable.ic_add_black)!!, R.attr.vctr_settings_icon_tint_color)
-//                    order = 100
-//                    editText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
-//
-//                    onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
-//                        addEmail((newValue as String).trim())
-//                        false
-//                    }
-//                }
-//        )
-//
-//        // display the "add phone number" entry
-//        mUserSettingsCategory.addPreference(
-//                Preference(activity).apply {
-//                    setTitle(R.string.settings_add_phone_number)
-//                    key = ADD_PHONE_NUMBER_PREFERENCE_KEY
-//                    icon = ThemeUtils.tintDrawable(activity,
-//                            ContextCompat.getDrawable(activity, R.drawable.ic_add_black)!!, R.attr.vctr_settings_icon_tint_color)
-//                    order = 200
-//
-//                    onPreferenceClickListener = Preference.OnPreferenceClickListener {
-//                        val intent = PhoneNumberAdditionActivity.getIntent(activity, mSession.credentials.userId)
-//                        startActivityForResult(intent, REQUEST_NEW_PHONE_NUMBER)
-//                        true
-//                    }
-//                }
-//        )
-//    }
 
     //==============================================================================================================
     // Update items  methods
@@ -1142,85 +1207,184 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
      * Update the password.
      */
     private fun onPasswordUpdateClick() {
-        AlertDialog.Builder(activity)
-                .setTitle(R.string.dialog_title_warning)
-                .setMessage(R.string.settings_change_pwd_caution)
-                .setPositiveButton(R.string.settings_change_password) { _, _ -> doShowPasswordChangeDialog() }
-                .setNegativeButton(R.string.encryption_export_room_keys) { _, _ -> exportKeys() }
-                .setNeutralButton(R.string.cancel, null)
-                .show()
+        if (SUPPORT_KEYS_BACKUP) {
+            // Use the SignOutViewModel, it observe the keys backup state and this is what we need here
+            if (SignOutViewModel.doYouNeedToBeDisplayed(mSession)) {
+                activity?.let { activity ->
+                    AlertDialog.Builder(activity)
+                            .setTitle(R.string.dialog_title_warning)
+                            .setMessage(R.string.settings_change_pwd_caution)
+                            .setPositiveButton(R.string.settings_change_password) { _, _ -> doShowPasswordChangeDialog() }
+                            .setNegativeButton(R.string.settings_change_pwd_key_backup) { _, _ -> manageKeyBackupBeforePwdUpdate() }
+                            .setNeutralButton(R.string.cancel, null)
+                            .show()
+                }
+            } else {
+                doShowPasswordChangeDialog()
+            }
+        } else {
+            activity?.let { activity ->
+                AlertDialog.Builder(activity)
+                        .setTitle(R.string.dialog_title_warning)
+                        .setMessage(R.string.settings_change_pwd_caution)
+                        .setPositiveButton(R.string.settings_change_password) { _, _ -> doShowPasswordChangeDialog() }
+                        .setNegativeButton(R.string.encryption_export_room_keys) { _, _ -> exportKeys() }
+                        .setNeutralButton(R.string.cancel, null)
+                        .show()
+            }
+        }
     }
 
     private fun doShowPasswordChangeDialog() {
-        activity.runOnUiThread {
-            val view = activity.layoutInflater.inflate(R.layout.dialog_change_password, null)
+        activity?.let { activity ->
+            val view: ViewGroup = activity.layoutInflater.inflate(R.layout.dialog_change_password, null) as ViewGroup
 
-            val oldPasswordText = view.findViewById<EditText>(R.id.change_password_old_pwd_text)
-            val newPasswordText = view.findViewById<EditText>(R.id.change_password_new_pwd_text)
-            val confirmNewPasswordText = view.findViewById<EditText>(R.id.change_password_confirm_new_pwd_text)
+            val showPassword: ImageView = view.findViewById(R.id.change_password_show_passwords)
+            val oldPasswordTil: TextInputLayout = view.findViewById(R.id.change_password_old_pwd_til)
+            val oldPasswordText: TextInputEditText = view.findViewById(R.id.change_password_old_pwd_text)
+            val newPasswordText: TextInputEditText = view.findViewById(R.id.change_password_new_pwd_text)
+            val confirmNewPasswordTil: TextInputLayout = view.findViewById(R.id.change_password_confirm_new_pwd_til)
+            val confirmNewPasswordText: TextInputEditText = view.findViewById(R.id.change_password_confirm_new_pwd_text)
+            val changePasswordLoader: View = view.findViewById(R.id.change_password_loader)
+
+            var passwordShown = false
+
+            showPassword.setOnClickListener(object : View.OnClickListener {
+                override fun onClick(v: View?) {
+                    passwordShown = !passwordShown
+
+                    oldPasswordText.showPassword(passwordShown)
+                    newPasswordText.showPassword(passwordShown)
+                    confirmNewPasswordText.showPassword(passwordShown)
+
+                    showPassword.setImageResource(if (passwordShown) R.drawable.ic_eye_closed_black else R.drawable.ic_eye_black)
+                }
+            })
 
             val dialog = AlertDialog.Builder(activity)
-                    .setTitle(R.string.settings_change_password)
-                    .setMessage(R.string.tchap_change_password_help)
                     .setView(view)
-                    .setPositiveButton(R.string.save) { _, _ ->
-                        if (null != activity) {
-                            val imm = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                            imm.hideSoftInputFromWindow(view.applicationWindowToken, 0)
-                        }
+                    .setPositiveButton(R.string.settings_change_password_submit, null)
+                    .setNegativeButton(R.string.cancel, null)
+                    .setOnDismissListener {
+                        val imm = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                        imm.hideSoftInputFromWindow(view.applicationWindowToken, 0)
+                    }
+                    .create()
 
-                        val oldPwd = oldPasswordText.text.toString().trim()
-                        val newPwd = newPasswordText.text.toString().trim()
+            dialog.setOnShowListener {
+                val updateButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                updateButton.isEnabled = false
 
-                        if (newPwd.length < TchapLoginActivity.MIN_PASSWORD_LENGTH) {
-                            activity?.toast(R.string.auth_invalid_password)
-                            return@setPositiveButton
-                        }
+                fun updateUi() {
+                    val oldPwd = oldPasswordText.text.toString().trim()
+                    val newPwd = newPasswordText.text.toString().trim()
+                    val newConfirmPwd = confirmNewPasswordText.text.toString().trim()
 
-                        displayLoadingView()
+                    updateButton.isEnabled = oldPwd.isNotEmpty() && newPwd.isNotEmpty() && TextUtils.equals(newPwd, newConfirmPwd)
 
-                        mSession.updatePassword(oldPwd, newPwd, object : ApiCallback<Void> {
-                            private fun onDone(textId: Int) {
-                                // check the activity still exists
-                                if (null != activity) {
-                                    // and the code is called in the right thread
-                                    activity.runOnUiThread {
-                                        hideLoadingView()
+                    if (newPwd.isNotEmpty() && newConfirmPwd.isNotEmpty() && !TextUtils.equals(newPwd, newConfirmPwd)) {
+                        confirmNewPasswordTil.error = getString(R.string.passwords_do_not_match)
+                    }
+                }
 
-                                        var titleId = textId
-                                        var messageId: Int? = null
+                oldPasswordText.addTextChangedListener(object : SimpleTextWatcher() {
+                    override fun afterTextChanged(s: Editable) {
+                        oldPasswordTil.error = null
+                        updateUi()
+                    }
+                })
 
-                                        if (textId == R.string.settings_password_updated) {
-                                            titleId = R.string.settings_change_pwd_success_title
-                                            messageId = R.string.settings_change_pwd_success_msg
-                                        } else if (textId == R.string.tchap_password_weak_pwd_error
-                                                || textId == R.string.tchap_password_pwd_in_dict_error) {
-                                            titleId = R.string.settings_fail_to_update_password
-                                            messageId = textId
-                                        }
+                newPasswordText.addTextChangedListener(object : SimpleTextWatcher() {
+                    override fun afterTextChanged(s: Editable) {
+                        confirmNewPasswordTil.error = null
+                        updateUi()
+                    }
+                })
 
-                                        messageId?.let {
-                                            AlertDialog.Builder(activity)
-                                                    .setTitle(titleId)
-                                                    .setMessage(messageId)
-                                                    .setPositiveButton(R.string.ok, null)
-                                                    .show()
-                                        } ?: run {
-                                            activity?.longToast(textId)
-                                        }
-                                    }
+                confirmNewPasswordText.addTextChangedListener(object : SimpleTextWatcher() {
+                    override fun afterTextChanged(s: Editable) {
+                        confirmNewPasswordTil.error = null
+                        updateUi()
+                    }
+                })
+
+                fun showPasswordLoadingView(toShow: Boolean) {
+                    if (toShow) {
+                        showPassword.isEnabled = false
+                        oldPasswordText.isEnabled = false
+                        newPasswordText.isEnabled = false
+                        confirmNewPasswordText.isEnabled = false
+                        changePasswordLoader.isVisible = true
+                        updateButton.isEnabled = false
+                    } else {
+                        showPassword.isEnabled = true
+                        oldPasswordText.isEnabled = true
+                        newPasswordText.isEnabled = true
+                        confirmNewPasswordText.isEnabled = true
+                        changePasswordLoader.isVisible = false
+                        updateButton.isEnabled = true
+                    }
+                }
+
+                updateButton.setOnClickListener {
+                    if (passwordShown) {
+                        // Hide passwords during processing
+                        showPassword.performClick()
+                    }
+
+                    val imm = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    imm.hideSoftInputFromWindow(view.applicationWindowToken, 0)
+
+                    val oldPwd = oldPasswordText.text.toString().trim()
+                    val newPwd = newPasswordText.text.toString().trim()
+
+                    showPasswordLoadingView(true)
+
+                    mSession.updatePassword(oldPwd, newPwd, object : ApiCallback<Void> {
+                        private fun onDone(@StringRes textResId: Int) {
+                            showPasswordLoadingView(false)
+
+                            if (textResId == R.string.settings_fail_to_update_password_invalid_current_password) {
+                                oldPasswordTil.error = getString(textResId)
+                            } else {
+                                dialog.dismiss()
+
+                                var titleId = textResId
+                                var messageId: Int? = null
+
+                                if (textResId == R.string.settings_password_updated) {
+                                    titleId = R.string.settings_change_pwd_success_title
+                                    messageId = R.string.settings_change_pwd_success_msg
+                                } else if (textResId == R.string.tchap_password_weak_pwd_error
+                                        || textResId == R.string.tchap_password_pwd_in_dict_error) {
+                                    titleId = R.string.settings_fail_to_update_password
+                                    messageId = textResId
+                                }
+
+                                messageId?.let {
+                                    AlertDialog.Builder(activity)
+                                            .setTitle(titleId)
+                                            .setMessage(messageId)
+                                            .setPositiveButton(R.string.ok, null)
+                                            .show()
+                                } ?: run {
+                                    activity.longToast(textResId)
                                 }
                             }
+                        }
 
-                            override fun onSuccess(info: Void?) {
-                                onDone(R.string.settings_password_updated)
-                            }
+                        override fun onSuccess(info: Void?) {
+                            onDone(R.string.settings_password_updated)
+                        }
 
-                            override fun onNetworkError(e: Exception) {
-                                onDone(R.string.settings_fail_to_update_password)
-                            }
+                        override fun onNetworkError(e: Exception) {
+                            onDone(R.string.settings_fail_to_update_password)
+                        }
 
-                            override fun onMatrixError(e: MatrixError) {
+                        override fun onMatrixError(e: MatrixError) {
+                            if (e.error == "Invalid password") {
+                                onDone(R.string.settings_fail_to_update_password_invalid_current_password)
+                            } else {
                                 if (TextUtils.equals(MatrixError.PASSWORD_TOO_SHORT, e.errcode)
                                         || TextUtils.equals(MatrixError.PASSWORD_NO_DIGIT, e.errcode)
                                         || TextUtils.equals(MatrixError.PASSWORD_NO_UPPERCASE, e.errcode)
@@ -1234,154 +1398,135 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                                     onDone(R.string.settings_fail_to_update_password)
                                 }
                             }
-
-                            override fun onUnexpectedError(e: Exception) {
-                                onDone(R.string.settings_fail_to_update_password)
-                            }
-                        })
-                    }
-                    .setNegativeButton(R.string.cancel) { _, _ ->
-                        if (null != activity) {
-                            val imm = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                            imm.hideSoftInputFromWindow(view.applicationWindowToken, 0)
                         }
-                    }
-                    .setOnCancelListener {
-                        if (null != activity) {
-                            val imm = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                            imm.hideSoftInputFromWindow(view.applicationWindowToken, 0)
+
+                        override fun onUnexpectedError(e: Exception) {
+                            onDone(R.string.settings_fail_to_update_password)
                         }
-                    }
-                    .show()
-
-            val saveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-            saveButton.isEnabled = false
-
-            confirmNewPasswordText.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-
-                override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                    val oldPwd = oldPasswordText.text.toString().trim()
-                    val newPwd = newPasswordText.text.toString().trim()
-                    val newConfirmPwd = confirmNewPasswordText.text.toString().trim()
-
-                    saveButton.isEnabled = oldPwd.length > 0 && newPwd.length > 0 && TextUtils.equals(newPwd, newConfirmPwd)
+                    })
                 }
-
-                override fun afterTextChanged(s: Editable) {}
-            })
+            }
+            dialog.show()
         }
     }
 
     /**
      * Update a push rule.
      */
-    private fun onPushRuleClick(fResourceText: String, newValue: Boolean) {
-        val pushManager = Matrix.getInstance(activity)!!.pushManager
 
-        Log.d(LOG_TAG, "onPushRuleClick $fResourceText : set to $newValue")
+    private fun onPushRuleClick(preferenceKey: String, newValue: Boolean) {
 
-        if (fResourceText == PreferencesManager.SETTINGS_TURN_SCREEN_ON_PREFERENCE_KEY) {
-            if (pushManager.isScreenTurnedOn != newValue) {
-                pushManager.isScreenTurnedOn = newValue
-            }
-            return
-        }
+        val matrixInstance = Matrix.getInstance(context)
+        val pushManager = matrixInstance.pushManager
 
-        if (fResourceText == PreferencesManager.SETTINGS_ENABLE_THIS_DEVICE_PREFERENCE_KEY) {
-            val isConnected = Matrix.getInstance(activity)!!.isConnected
-            val isAllowed = pushManager.areDeviceNotificationsAllowed()
+        Log.d(LOG_TAG, "onPushRuleClick $preferenceKey : set to $newValue")
 
-            // avoid useless update
-            if (isAllowed == newValue) {
-                return
+        when (preferenceKey) {
+
+            PreferencesManager.SETTINGS_TURN_SCREEN_ON_PREFERENCE_KEY     -> {
+                if (pushManager.isScreenTurnedOn != newValue) {
+                    pushManager.isScreenTurnedOn = newValue
+                }
             }
 
-            pushManager.setDeviceNotificationsAllowed(!isAllowed)
+            PreferencesManager.SETTINGS_ENABLE_THIS_DEVICE_PREFERENCE_KEY -> {
+                val isConnected = matrixInstance.isConnected
+                val isAllowed = pushManager.areDeviceNotificationsAllowed()
 
-            // when using FCM
-            // need to register on servers
-            if (isConnected && pushManager.useFcm() && (pushManager.isServerRegistered || pushManager.isServerUnRegistered)) {
-                val listener = object : ApiCallback<Void> {
+                // avoid useless update
+                if (isAllowed == newValue) {
+                    return
+                }
 
-                    private fun onDone() {
-                        if (null != activity) {
-                            activity.runOnUiThread {
+                pushManager.setDeviceNotificationsAllowed(!isAllowed)
+
+                // when using FCM
+                // need to register on servers
+                if (isConnected && pushManager.useFcm() && (pushManager.isServerRegistered || pushManager.isServerUnRegistered)) {
+                    val listener = object : ApiCallback<Void> {
+
+                        private fun onDone() {
+                            activity?.runOnUiThread {
                                 hideLoadingView(true)
                                 refreshPushersList()
                             }
                         }
+
+                        override fun onSuccess(info: Void?) {
+                            onDone()
+                        }
+
+                        override fun onMatrixError(e: MatrixError?) {
+                            // Set again the previous state
+                            pushManager.setDeviceNotificationsAllowed(isAllowed)
+                            onDone()
+                        }
+
+                        override fun onNetworkError(e: java.lang.Exception?) {
+                            // Set again the previous state
+                            pushManager.setDeviceNotificationsAllowed(isAllowed)
+                            onDone()
+                        }
+
+                        override fun onUnexpectedError(e: java.lang.Exception?) {
+                            // Set again the previous state
+                            pushManager.setDeviceNotificationsAllowed(isAllowed)
+                            onDone()
+                        }
                     }
 
-                    override fun onSuccess(info: Void?) {
-                        onDone()
+                    displayLoadingView()
+                    if (pushManager.isServerRegistered) {
+                        pushManager.unregister(listener)
+                    } else {
+                        pushManager.register(listener)
                     }
-
-                    override fun onMatrixError(e: MatrixError?) {
-                        // Set again the previous state
-                        pushManager.setDeviceNotificationsAllowed(isAllowed)
-                        onDone()
-                    }
-
-                    override fun onNetworkError(e: java.lang.Exception?) {
-                        // Set again the previous state
-                        pushManager.setDeviceNotificationsAllowed(isAllowed)
-                        onDone()
-                    }
-
-                    override fun onUnexpectedError(e: java.lang.Exception?) {
-                        // Set again the previous state
-                        pushManager.setDeviceNotificationsAllowed(isAllowed)
-                        onDone()
-                    }
-                }
-
-                displayLoadingView()
-                if (pushManager.isServerRegistered) {
-                    pushManager.unregister(listener)
-                } else {
-                    pushManager.register(listener)
                 }
             }
 
-            return
-        }
+            // check if there is an update
 
-        val ruleId = mPushesRuleByResourceId[fResourceText]
-        val rule = mSession.dataHandler.pushRules()?.findDefaultRule(ruleId)
+            // on some old android APIs,
+            // the callback is called even if there is no user interaction
+            // so the value will be checked to ensure there is really no update.
+            else                                                          -> {
 
-        // check if there is an update
-        var curValue = null != rule && rule.isEnabled
+                val ruleId = mPrefKeyToBingRuleId[preferenceKey]
+                val rule = mSession.dataHandler.pushRules()?.findDefaultRule(ruleId)
 
-        if (TextUtils.equals(ruleId, BingRule.RULE_ID_DISABLE_ALL) || TextUtils.equals(ruleId, BingRule.RULE_ID_SUPPRESS_BOTS_NOTIFICATIONS)) {
-            curValue = !curValue
-        }
+                // check if there is an update
+                var curValue = null != rule && rule.isEnabled
 
-        // on some old android APIs,
-        // the callback is called even if there is no user interaction
-        // so the value will be checked to ensure there is really no update.
-        if (newValue == curValue) {
-            return
-        }
-
-        if (null != rule) {
-            displayLoadingView()
-            mSession.dataHandler.bingRulesManager.updateEnableRuleStatus(rule, !rule.isEnabled, object : BingRulesManager.onBingRuleUpdateListener {
-                private fun onDone() {
-                    refreshDisplay()
-                    hideLoadingView()
+                if (TextUtils.equals(ruleId, BingRule.RULE_ID_DISABLE_ALL) || TextUtils.equals(ruleId, BingRule.RULE_ID_SUPPRESS_BOTS_NOTIFICATIONS)) {
+                    curValue = !curValue
                 }
 
-                override fun onBingRuleUpdateSuccess() {
-                    onDone()
+                // on some old android APIs,
+                // the callback is called even if there is no user interaction
+                // so the value will be checked to ensure there is really no update.
+                if (newValue == curValue) {
+                    return
                 }
 
-                override fun onBingRuleUpdateFailure(errorMessage: String) {
-                    activity?.toast(errorMessage)
+                if (null != rule) {
+                    displayLoadingView()
+                    mSession.dataHandler.bingRulesManager.updateEnableRuleStatus(rule, !rule.isEnabled, object : BingRulesManager.onBingRuleUpdateListener {
+                        private fun onDone() {
+                            refreshDisplay()
+                            hideLoadingView()
+                        }
 
-                    onDone()
+                        override fun onBingRuleUpdateSuccess() {
+                            onDone()
+                        }
+
+                        override fun onBingRuleUpdateFailure(errorMessage: String) {
+                            activity?.toast(errorMessage)
+                            onDone()
+                        }
+                    })
                 }
-            })
+            }
         }
     }
 
@@ -1400,32 +1545,11 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
      * Update the avatar.
      */
     private fun onUpdateAvatarClick() {
-        activity.runOnUiThread {
-            val intent = Intent(activity, SelectPictureActivity::class.java)
-            startActivityForResult(intent, VectorUtils.TAKE_IMAGE)
-        }
-    }
-
-    /**
-     * Refresh the notification ring tone
-     */
-    private fun refreshNotificationRingTone() {
-        mRingtonePreference.summary = PreferencesManager.getNotificationRingToneName(activity)
-    }
-
-    /**
-     * Refresh the notification privacy setting
-     */
-    private fun refreshNotificationPrivacy() {
-        val pushManager = Matrix.getInstance(activity)!!.pushManager
-
-        // this setting apply only with FCM for the moment
-        if (pushManager.useFcm()) {
-            val notificationPrivacyString = NotificationPrivacyActivity.getNotificationPrivacyString(activity.applicationContext,
-                    pushManager.notificationPrivacy)
-            mNotificationPrivacyPreference.summary = notificationPrivacyString
-        } else {
-            notificationsSettingsCategory.removePreference(mNotificationPrivacyPreference)
+        activity?.let { activity ->
+            activity.runOnUiThread {
+                val intent = Intent(activity, SelectPictureActivity::class.java)
+                startActivityForResult(intent, VectorUtils.TAKE_IMAGE)
+            }
         }
     }
 
@@ -1434,32 +1558,24 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {
-                REQUEST_NOTIFICATION_RINGTONE -> {
-                    PreferencesManager.setNotificationRingTone(activity,
-                            data?.getParcelableExtra<Parcelable>(RingtoneManager.EXTRA_RINGTONE_PICKED_URI) as Uri?)
-
-                    // test if the selected ring tone can be played
-                    if (null == PreferencesManager.getNotificationRingToneName(activity)) {
-                        PreferencesManager.setNotificationRingTone(activity, PreferencesManager.getNotificationRingTone(activity))
-                    }
-
-                    refreshNotificationRingTone()
-                }
-//                REQUEST_CALL_RINGTONE -> {
+//                REQUEST_CALL_RINGTONE         -> {
 //                    val callRingtoneUri: Uri? = data?.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI)
-//                    if (callRingtoneUri != null) {
-//                        setCallRingtoneUri(activity, callRingtoneUri)
-//                        mCallRingtonePreference.summary = getCallRingtoneName(activity)
+//                    val thisActivity = activity
+//                    if (callRingtoneUri != null && thisActivity != null) {
+//                        setCallRingtoneUri(thisActivity, callRingtoneUri)
+//                        mCallRingtonePreference.summary = getCallRingtoneName(thisActivity)
 //                    }
 //                }
                 REQUEST_E2E_FILE_REQUEST_CODE -> importKeys(data)
-                REQUEST_NEW_PHONE_NUMBER -> refreshPhoneNumbersList()
-                REQUEST_PHONEBOOK_COUNTRY -> onPhonebookCountryUpdate(data)
-                REQUEST_LOCALE -> {
-                    startActivity(activity.intent)
-                    activity.finish()
+                REQUEST_NEW_PHONE_NUMBER      -> refreshPhoneNumbersList()
+                REQUEST_PHONEBOOK_COUNTRY     -> onPhonebookCountryUpdate(data)
+                REQUEST_LOCALE                -> {
+                    activity?.let {
+                        startActivity(it.intent)
+                        it.finish()
+                    }
                 }
-                VectorUtils.TAKE_IMAGE -> {
+                VectorUtils.TAKE_IMAGE        -> {
                     val thumbnailUri = VectorUtils.getThumbnailUriFromIntent(activity, data, mSession.mediaCache)
 
                     if (null != thumbnailUri) {
@@ -1471,11 +1587,11 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                             mSession.mediaCache.uploadContent(resource.mContentStream, null, resource.mMimeType, null, object : MXMediaUploadListener() {
 
                                 override fun onUploadError(uploadId: String?, serverResponseCode: Int, serverErrorMessage: String?) {
-                                    activity.runOnUiThread { onCommonDone(serverResponseCode.toString() + " : " + serverErrorMessage) }
+                                    activity?.runOnUiThread { onCommonDone(serverResponseCode.toString() + " : " + serverErrorMessage) }
                                 }
 
                                 override fun onUploadComplete(uploadId: String?, contentUri: String?) {
-                                    activity.runOnUiThread {
+                                    activity?.runOnUiThread {
                                         mSession.myUser.updateAvatarUrl(contentUri, object : ApiCallback<Void> {
                                             override fun onSuccess(info: Void?) {
                                                 onCommonDone(null)
@@ -1488,11 +1604,9 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 
                                             override fun onMatrixError(e: MatrixError) {
                                                 if (MatrixError.M_CONSENT_NOT_GIVEN == e.errcode) {
-                                                    if (null != activity) {
-                                                        activity.runOnUiThread {
-                                                            hideLoadingView()
-                                                            (activity as VectorAppCompatActivity).consentNotGivenHelper.displayDialog(e)
-                                                        }
+                                                    activity?.runOnUiThread {
+                                                        hideLoadingView()
+                                                        (activity as VectorAppCompatActivity).consentNotGivenHelper.displayDialog(e)
                                                     }
                                                 } else {
                                                     onCommonDone(e.localizedMessage)
@@ -1522,11 +1636,11 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
             putString(PreferencesManager.SETTINGS_VERSION_PREFERENCE_KEY, VectorUtils.getApplicationVersion(activity))
 
             mSession.dataHandler.pushRules()?.let {
-                for (resourceText in mPushesRuleByResourceId.keys) {
-                    val preference = findPreference(resourceText)
+                for (preferenceKey in mPrefKeyToBingRuleId.keys) {
+                    val preference = findPreference(preferenceKey)
 
-                    if (null != preference && preference is CheckBoxPreference) {
-                        val ruleId = mPushesRuleByResourceId[resourceText]
+                    if (null != preference && preference is SwitchPreference) {
+                        val ruleId = mPrefKeyToBingRuleId[preferenceKey]
 
                         val rule = it.findDefaultRule(ruleId)
                         var isEnabled = null != rule && rule.isEnabled
@@ -1534,7 +1648,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                         if (TextUtils.equals(ruleId, BingRule.RULE_ID_DISABLE_ALL) || TextUtils.equals(ruleId, BingRule.RULE_ID_SUPPRESS_BOTS_NOTIFICATIONS)) {
                             isEnabled = !isEnabled
                         } else if (isEnabled) {
-                            val actions = rule!!.actions
+                            val actions = rule?.actions
 
                             // no action -> noting will be done
                             if (null == actions || actions.isEmpty()) {
@@ -1549,7 +1663,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                             }
                         }// check if the rule is only defined by don't notify
 
-                        putBoolean(resourceText, isEnabled)
+                        putBoolean(preferenceKey, isEnabled)
                     }
                 }
             }
@@ -1563,39 +1677,41 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
      * @param preferenceSummary the displayed 3pid
      */
     private fun displayDelete3PIDConfirmationDialog(pid: ThirdPartyIdentifier, preferenceSummary: CharSequence) {
-        val mediumFriendlyName = ThreePid.getMediumFriendlyName(pid.medium, activity).toLowerCase(VectorLocale.applicationLocale)
+        val mediumFriendlyName = ThreePid.getMediumFriendlyName(pid.medium, requireContext()).toLowerCase(VectorLocale.applicationLocale)
         val dialogMessage = getString(R.string.settings_delete_threepid_confirmation, mediumFriendlyName, preferenceSummary)
 
-        AlertDialog.Builder(activity)
-                .setTitle(R.string.dialog_title_confirmation)
-                .setMessage(dialogMessage)
-                .setPositiveButton(R.string.delete) { _, _ ->
-                    displayLoadingView()
+        activity?.let {
+            AlertDialog.Builder(it)
+                    .setTitle(R.string.dialog_title_confirmation)
+                    .setMessage(dialogMessage)
+                    .setPositiveButton(R.string.delete) { _, _ ->
+                        displayLoadingView()
 
-                    mSession.myUser.delete3Pid(pid, object : ApiCallback<Void> {
-                        override fun onSuccess(info: Void?) {
-                            when (pid.medium) {
-                                ThreePid.MEDIUM_EMAIL -> refreshEmailsList()
-                                ThreePid.MEDIUM_MSISDN -> refreshPhoneNumbersList()
+                        mSession.myUser.delete3Pid(pid, object : ApiCallback<Void> {
+                            override fun onSuccess(info: Void?) {
+                                when (pid.medium) {
+                                    ThreePid.MEDIUM_EMAIL  -> refreshEmailsList()
+                                    ThreePid.MEDIUM_MSISDN -> refreshPhoneNumbersList()
+                                }
+                                onCommonDone(null)
                             }
-                            onCommonDone(null)
-                        }
 
-                        override fun onNetworkError(e: Exception) {
-                            onCommonDone(e.localizedMessage)
-                        }
+                            override fun onNetworkError(e: Exception) {
+                                onCommonDone(e.localizedMessage)
+                            }
 
-                        override fun onMatrixError(e: MatrixError) {
-                            onCommonDone(e.localizedMessage)
-                        }
+                            override fun onMatrixError(e: MatrixError) {
+                                onCommonDone(e.localizedMessage)
+                            }
 
-                        override fun onUnexpectedError(e: Exception) {
-                            onCommonDone(e.localizedMessage)
-                        }
-                    })
-                }
-                .setNegativeButton(R.string.cancel, null)
-                .show()
+                            override fun onUnexpectedError(e: Exception) {
+                                onCommonDone(e.localizedMessage)
+                            }
+                        })
+                    }
+                    .setNegativeButton(R.string.cancel, null)
+                    .show()
+        }
     }
 
     //==============================================================================================================
@@ -1621,41 +1737,43 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
             preferenceScreen.addPreference(mIgnoredUserSettingsCategory)
 
             for (userId in ignoredUsersList) {
-                val preference = VectorCustomActionEditTextPreference(activity)
+                val preference = Preference(activity)
 
                 val displayName = DinsicUtils.computeDisplayNameFromUserId(userId)
                 preference.title = displayName
                 preference.key = IGNORED_USER_KEY_BASE + userId
 
                 preference.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-                    AlertDialog.Builder(activity)
-                            .setMessage(getString(R.string.settings_unignore_user, displayName))
-                            .setPositiveButton(R.string.yes) { _, _ ->
-                                displayLoadingView()
+                    activity?.let {
+                        AlertDialog.Builder(it)
+                                .setMessage(getString(R.string.settings_unignore_user, userId))
+                                .setPositiveButton(R.string.yes) { _, _ ->
+                                    displayLoadingView()
 
-                                val idsList = ArrayList<String>()
-                                idsList.add(userId)
+                                    val idsList = ArrayList<String>()
+                                    idsList.add(userId)
 
-                                mSession.unIgnoreUsers(idsList, object : ApiCallback<Void> {
-                                    override fun onSuccess(info: Void?) {
-                                        onCommonDone(null)
-                                    }
+                                    mSession.unIgnoreUsers(idsList, object : ApiCallback<Void> {
+                                        override fun onSuccess(info: Void?) {
+                                            onCommonDone(null)
+                                        }
 
-                                    override fun onNetworkError(e: Exception) {
-                                        onCommonDone(e.localizedMessage)
-                                    }
+                                        override fun onNetworkError(e: Exception) {
+                                            onCommonDone(e.localizedMessage)
+                                        }
 
-                                    override fun onMatrixError(e: MatrixError) {
-                                        onCommonDone(e.localizedMessage)
-                                    }
+                                        override fun onMatrixError(e: MatrixError) {
+                                            onCommonDone(e.localizedMessage)
+                                        }
 
-                                    override fun onUnexpectedError(e: Exception) {
-                                        onCommonDone(e.localizedMessage)
-                                    }
-                                })
-                            }
-                            .setNegativeButton(R.string.no, null)
-                            .show()
+                                        override fun onUnexpectedError(e: Exception) {
+                                            onCommonDone(e.localizedMessage)
+                                        }
+                                    })
+                                }
+                                .setNegativeButton(R.string.no, null)
+                                .show()
+                    }
 
                     false
                 }
@@ -1673,71 +1791,78 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
      * Refresh the pushers list
      */
     private fun refreshPushersList() {
-        val pushManager = Matrix.getInstance(activity)!!.pushManager
-        val pushersList = ArrayList(pushManager.mPushersList)
+        activity?.let { activity ->
+            val pushManager = Matrix.getInstance(activity).pushManager
+            val pushersList = ArrayList(pushManager.mPushersList)
 
-        if (pushersList.isEmpty()) {
-            preferenceScreen.removePreference(mPushersSettingsCategory)
-            preferenceScreen.removePreference(mPushersSettingsDivider)
-            return
-        }
+            if (pushersList.isEmpty()) {
+                preferenceScreen.removePreference(mPushersSettingsCategory)
+                preferenceScreen.removePreference(mPushersSettingsDivider)
+                return
+            }
 
-        // check first if there is an update
-        var isNewList = true
-        if (pushersList.size == mDisplayedPushers.size) {
-            isNewList = !mDisplayedPushers.containsAll(pushersList)
-        }
+            // check first if there is an update
+            var isNewList = true
+            if (pushersList.size == mDisplayedPushers.size) {
+                isNewList = !mDisplayedPushers.containsAll(pushersList)
+            }
 
-        if (isNewList) {
-            // remove the displayed one
-            mPushersSettingsCategory.removeAll()
+            if (isNewList) {
+                // remove the displayed one
+                mPushersSettingsCategory.removeAll()
 
-            // add new emails list
-            mDisplayedPushers = pushersList
+                // add new emails list
+                mDisplayedPushers = pushersList
 
-            var index = 0
+                var index = 0
 
-            for (pusher in mDisplayedPushers) {
-                if (null != pusher.lang) {
-                    val isThisDeviceTarget = TextUtils.equals(pushManager.currentRegistrationToken, pusher.pushkey)
+                for (pusher in mDisplayedPushers) {
+                    if (null != pusher.lang) {
+                        val isThisDeviceTarget = TextUtils.equals(pushManager.currentRegistrationToken, pusher.pushkey)
 
-                    val preference = VectorCustomActionEditTextPreference(activity, if (isThisDeviceTarget) Typeface.BOLD else Typeface.NORMAL)
-                    preference.title = pusher.deviceDisplayName
-                    //don't show the app display name preference.summary = pusher.appDisplayName
-                    preference.key = PUSHER_PREFERENCE_KEY_BASE + index
-                    index++
-                    mPushersSettingsCategory.addPreference(preference)
+                        val preference = VectorPreference(activity).apply {
+                            mTypeface = if (isThisDeviceTarget) Typeface.BOLD else Typeface.NORMAL
+                        }
+                        preference.title = pusher.deviceDisplayName
+                        preference.summary = pusher.appDisplayName
+                        preference.key = PUSHER_PREFERENCE_KEY_BASE + index
+                        index++
+                        mPushersSettingsCategory.addPreference(preference)
 
-                    // the user cannot remove the self device target
-                    if (!isThisDeviceTarget) {
-                        preference.setOnPreferenceLongClickListener {
-                            AlertDialog.Builder(activity)
-                                    .setTitle(R.string.dialog_title_confirmation)
-                                    .setMessage(R.string.settings_delete_notification_targets_confirmation)
-                                    .setPositiveButton(R.string.delete) { _, _ ->
-                                        displayLoadingView()
-                                        pushManager.unregister(mSession, pusher, object : ApiCallback<Void> {
-                                            override fun onSuccess(info: Void?) {
-                                                refreshPushersList()
-                                                onCommonDone(null)
+                        // the user cannot remove the self device target
+                        if (!isThisDeviceTarget) {
+                            preference.onPreferenceLongClickListener = object : VectorPreference.OnPreferenceLongClickListener {
+                                override fun onPreferenceLongClick(preference: Preference): Boolean {
+                                    AlertDialog.Builder(activity)
+                                            .setTitle(R.string.dialog_title_confirmation)
+                                            .setMessage(R.string.settings_delete_notification_targets_confirmation)
+                                            .setPositiveButton(R.string.delete)
+                                            { _, _ ->
+                                                displayLoadingView()
+                                                pushManager.unregister(mSession, pusher, object : ApiCallback<Void> {
+                                                    override fun onSuccess(info: Void?) {
+                                                        refreshPushersList()
+                                                        onCommonDone(null)
+                                                    }
+
+                                                    override fun onNetworkError(e: Exception) {
+                                                        onCommonDone(e.localizedMessage)
+                                                    }
+
+                                                    override fun onMatrixError(e: MatrixError) {
+                                                        onCommonDone(e.localizedMessage)
+                                                    }
+
+                                                    override fun onUnexpectedError(e: Exception) {
+                                                        onCommonDone(e.localizedMessage)
+                                                    }
+                                                })
                                             }
-
-                                            override fun onNetworkError(e: Exception) {
-                                                onCommonDone(e.localizedMessage)
-                                            }
-
-                                            override fun onMatrixError(e: MatrixError) {
-                                                onCommonDone(e.localizedMessage)
-                                            }
-
-                                            override fun onUnexpectedError(e: Exception) {
-                                                onCommonDone(e.localizedMessage)
-                                            }
-                                        })
-                                    }
-                                    .setNegativeButton(R.string.cancel, null)
-                                    .show()
-                            true
+                                            .setNegativeButton(R.string.cancel, null)
+                                            .show()
+                                    return true
+                                }
+                            }
                         }
                     }
                 }
@@ -1753,6 +1878,62 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
      * Refresh the emails list
      */
     private fun refreshEmailsList() {
+
+        updateMailSection()
+
+//        val isURL = mSession.identityServerManager.identityServerUrl
+//        if (isURL != null) {
+//            updateMailSection()
+//        } else {
+//
+//            //If there is no identity server configured, we can just remove this section
+//            //as the user won't be able to add/remove 3pids
+//            //Though there is a special case when HS (checked via capabilities) can manage msisdn/mails by
+//            //themselves without an identity server.
+//
+//            mSession.doesServerSeparatesAddAndBind(object : ApiCallback<Boolean> {
+//                override fun onSuccess(separatesAddAndBind: Boolean) {
+//                    if (separatesAddAndBind) {
+//                        updateMailSection()
+//                    } else {
+//                        //hide
+//                        run {
+//                            var index = 0
+//                            while (true) {
+//                                val preference = mUserSettingsCategory.findPreference(EMAIL_PREFERENCE_KEY_BASE + index)
+//
+//                                if (null != preference) {
+//                                    mUserSettingsCategory.removePreference(preference)
+//                                } else {
+//                                    break
+//                                }
+//                                index++
+//                            }
+//                        }
+//                        mUserSettingsCategory.findPreference(ADD_EMAIL_PREFERENCE_KEY)?.let {
+//                            it.isVisible = false
+//                        }
+//                    }
+//                }
+//
+//                override fun onUnexpectedError(e: Exception) {
+//                    Log.e(LOG_TAG, "Failed to get version", e)
+//                }
+//
+//                override fun onNetworkError(e: Exception) {
+//                    Log.e(LOG_TAG, "Failed to get version", e)
+//                }
+//
+//                override fun onMatrixError(e: MatrixError) {
+//                    Log.e(LOG_TAG, "Failed to get version ${e.message}")
+//                }
+//
+//            })
+//        }
+
+    }
+
+    private fun updateMailSection() {
         val currentEmail3PID = ArrayList(mSession.myUser.getlinkedEmails())
 
         val newEmailsList = ArrayList<String>()
@@ -1789,39 +1970,38 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                 Log.e(LOG_TAG, "## there are more than one email in the account ");
             }
 
-            var index = 0
 //            val addEmailBtn = mUserSettingsCategory.findPreference(ADD_EMAIL_PREFERENCE_KEY)
 //                    ?: return
 //
-//            // reported by GA
-//
 //            var order = addEmailBtn.order
 
-            for (email3PID in currentEmail3PID) {
-                val preference = VectorCustomActionEditTextPreference(activity)
+            for ((index, email3PID) in currentEmail3PID.withIndex()) {
+                val preference = VectorPreference(activity!!)
 
                 preference.title = getString(R.string.settings_email_address)
                 preference.summary = email3PID.address
                 preference.key = EMAIL_PREFERENCE_KEY_BASE + index
 //                preference.order = order
 //
-//                preference.onPreferenceClickListener = Preference.OnPreferenceClickListener { _ ->
-//                    displayDelete3PIDConfirmationDialog(email3PID, preference.summary)
+//                preference.onPreferenceClickListener = Preference.OnPreferenceClickListener { pref ->
+//                    displayDelete3PIDConfirmationDialog(email3PID, pref.summary)
 //                    true
 //                }
 //
-//                preference.setOnPreferenceLongClickListener {
-//                    copyToClipboard(activity, email3PID.address)
-//                    true
+//                preference.onPreferenceLongClickListener = object : VectorPreference.OnPreferenceLongClickListener {
+//                    override fun onPreferenceLongClick(preference: Preference): Boolean {
+//                        activity?.let { copyToClipboard(it, email3PID.address) }
+//                        return true
+//                    }
 //                }
 
                 mUserSettingsCategory.addPreference(preference)
 
-                index++
 //                order++
             }
 
 //            addEmailBtn.order = order
+//            addEmailBtn.isVisible = true
         }
     }
 
@@ -1832,13 +2012,11 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
      * @param errorMessage the error message
      */
     private fun onCommonDone(errorMessage: String?) {
-        if (null != activity) {
-            activity.runOnUiThread {
-                if (!TextUtils.isEmpty(errorMessage)) {
-                    VectorApp.getInstance().toast(errorMessage!!)
-                }
-                hideLoadingView()
+        activity?.runOnUiThread {
+            if (!TextUtils.isEmpty(errorMessage) && errorMessage != null) {
+                VectorApp.getInstance().toast(errorMessage)
             }
+            hideLoadingView()
         }
     }
 
@@ -1847,9 +2025,10 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 //     *
 //     * @param email the email to add.
 //     */
-//    private fun addEmail(email: String?) {
+//    private fun addEmail(email: String) {
 //        // check first if the email syntax is valid
-//        if (TextUtils.isEmpty(email) || !android.util.Patterns.EMAIL_ADDRESS.matcher(email!!).matches()) {
+//        // if email is null , then also its invalid email
+//        if (TextUtils.isEmpty(email) || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
 //            activity?.toast(R.string.auth_invalid_email)
 //            return
 //        }
@@ -1860,33 +2039,32 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 //            return
 //        }
 //
-//        val pid = ThreePid(email, ThreePid.MEDIUM_EMAIL)
+//        val pid = ThreePid.fromEmail(email)
 //
 //        displayLoadingView()
 //
-//        mSession.myUser.requestEmailValidationToken(pid, object : ApiCallback<Void> {
-//            override fun onSuccess(info: Void?) {
-//                if (null != activity) {
-//                    activity.runOnUiThread { showEmailValidationDialog(pid) }
-//                }
-//            }
+//        mSession.identityServerManager.startAddSessionForEmail(pid, null,
+//                object : ApiCallback<ThreePid> {
+//                    override fun onSuccess(info: ThreePid) {
+//                        activity?.runOnUiThread { showEmailValidationDialog(pid) }
+//                    }
 //
-//            override fun onNetworkError(e: Exception) {
-//                onCommonDone(e.localizedMessage)
-//            }
+//                    override fun onNetworkError(e: Exception) {
+//                        onCommonDone(e.localizedMessage)
+//                    }
 //
-//            override fun onMatrixError(e: MatrixError) {
-//                if (TextUtils.equals(MatrixError.THREEPID_IN_USE, e.errcode)) {
-//                    onCommonDone(getString(R.string.account_email_already_used_error))
-//                } else {
-//                    onCommonDone(e.localizedMessage)
-//                }
-//            }
+//                    override fun onMatrixError(e: MatrixError) {
+//                        if (TextUtils.equals(MatrixError.THREEPID_IN_USE, e.errcode)) {
+//                            onCommonDone(getString(R.string.account_email_already_used_error))
+//                        } else {
+//                            onCommonDone(e.localizedMessage)
+//                        }
+//                    }
 //
-//            override fun onUnexpectedError(e: Exception) {
-//                onCommonDone(e.localizedMessage)
-//            }
-//        })
+//                    override fun onUnexpectedError(e: Exception) {
+//                        onCommonDone(e.localizedMessage)
+//                    }
+//                })
 //    }
 //
 //    /**
@@ -1895,56 +2073,112 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 //     * @param pid the used pid.
 //     */
 //    private fun showEmailValidationDialog(pid: ThreePid) {
-//        AlertDialog.Builder(activity)
-//                .setTitle(R.string.account_email_validation_title)
-//                .setMessage(R.string.account_email_validation_message)
-//                .setPositiveButton(R.string._continue) { _, _ ->
-//                    mSession.myUser.add3Pid(pid, true, object : ApiCallback<Void> {
-//                        override fun onSuccess(info: Void?) {
-//                            if (null != activity) {
-//                                activity.runOnUiThread {
+//        activity?.let {
+//            AlertDialog.Builder(it)
+//                    .setTitle(R.string.account_email_validation_title)
+//                    .setMessage(R.string.account_email_validation_message)
+//                    .setPositiveButton(R.string._continue) { _, _ ->
+//                        mSession.identityServerManager.finalizeAddSessionForEmail(pid, object : ApiCallback<Void?> {
+//                            override fun onSuccess(info: Void?) {
+//                                it.runOnUiThread {
 //                                    hideLoadingView()
-//                                    refreshEmailsList()
+//                                    mSession.myUser.refreshThirdPartyIdentifiers(object : SimpleApiCallback<Void?>(){
+//                                        override fun onSuccess(info: Void?) {
+//                                            refreshEmailsList()
+//                                        }
+//                                    })
 //                                }
 //                            }
-//                        }
 //
-//                        override fun onNetworkError(e: Exception) {
-//                            onCommonDone(e.localizedMessage)
-//                        }
-//
-//                        override fun onMatrixError(e: MatrixError) {
-//                            if (TextUtils.equals(e.errcode, MatrixError.THREEPID_AUTH_FAILED)) {
-//                                if (null != activity) {
-//                                    activity.runOnUiThread {
-//                                        hideLoadingView()
-//                                        activity?.toast(R.string.account_email_validation_error)
-//                                    }
-//                                }
-//                            } else {
+//                            override fun onNetworkError(e: Exception) {
 //                                onCommonDone(e.localizedMessage)
 //                            }
-//                        }
 //
-//                        override fun onUnexpectedError(e: Exception) {
-//                            onCommonDone(e.localizedMessage)
-//                        }
-//                    })
-//                }
-//                .setNegativeButton(R.string.cancel) { _, _ ->
-//                    hideLoadingView()
-//                }
-//                .show()
+//                            override fun onMatrixError(e: MatrixError) {
+//                                if (TextUtils.equals(e.errcode, MatrixError.THREEPID_AUTH_FAILED)) {
+//                                    it.runOnUiThread {
+//                                        hideLoadingView()
+//                                        it.toast(R.string.account_email_validation_error)
+//                                    }
+//                                } else {
+//                                    onCommonDone(e.localizedMessage)
+//                                }
+//                            }
+//
+//                            override fun onUnexpectedError(e: Exception) {
+//                                onCommonDone(e.localizedMessage)
+//                            }
+//                        })
+//
+//                    }
+//                    .setNegativeButton(R.string.cancel) { _, _ ->
+//                        hideLoadingView()
+//                    }
+//                    .show()
+//        }
 //    }
 
     //==============================================================================================================
     // Phone number management
     //==============================================================================================================
 
+
     /**
      * Refresh phone number list
      */
     private fun refreshPhoneNumbersList() {
+
+        updatePhoneNumbersList()
+
+//        val isURL = mSession.identityServerManager.identityServerUrl
+//        if (isURL != null) {
+//            updatePhoneNumbersList()
+//        } else {
+//            //If there is no identity server configured, we can just remove this section
+//            //as the user won't be able to add/remove 3pids
+//            //Though there is a special case when HS (checked via capabilities) can manage msisdn/mails by
+//            //themselves without an identity server.
+//            mSession.doesServerRequireIdentityServerParam(object : ApiCallback<Boolean> {
+//                override fun onSuccess(requiresIdentityServer: Boolean) {
+//                    if (requiresIdentityServer) {
+//                        run {
+//                            var index = 0
+//                            while (true) {
+//                                val preference = mUserSettingsCategory.findPreference(PHONE_NUMBER_PREFERENCE_KEY_BASE + index)
+//
+//                                if (null != preference) {
+//                                    mUserSettingsCategory.removePreference(preference)
+//                                } else {
+//                                    break
+//                                }
+//                                index++
+//                            }
+//                        }
+//                        mUserSettingsCategory.findPreference(ADD_PHONE_NUMBER_PREFERENCE_KEY)?.let {
+//                            it.isVisible = false
+//                        }
+//                    } else {
+//                        updatePhoneNumbersList()
+//                    }
+//                }
+//
+//                override fun onUnexpectedError(e: Exception) {
+//                    Log.e(LOG_TAG, "Failed to get version", e)
+//                }
+//
+//                override fun onNetworkError(e: Exception) {
+//                    Log.e(LOG_TAG, "Failed to get version", e)
+//                }
+//
+//                override fun onMatrixError(e: MatrixError) {
+//                    Log.e(LOG_TAG, "Failed to get version ${e.message}")
+//                }
+//
+//            })
+//        }
+    }
+
+    private fun updatePhoneNumbersList() {
         val currentPhoneNumber3PID = ArrayList(mSession.myUser.getlinkedPhoneNumbers())
 
         val phoneNumberList = ArrayList<String>()
@@ -1977,13 +2211,13 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
             // add new phone number list
             mDisplayedPhoneNumber = phoneNumberList
 
-            var index = 0
 //            val addPhoneBtn = mUserSettingsCategory.findPreference(ADD_PHONE_NUMBER_PREFERENCE_KEY)
 //                    ?: return
+//
 //            var order = addPhoneBtn.order
 
-            for (phoneNumber3PID in currentPhoneNumber3PID) {
-                val preference = VectorCustomActionEditTextPreference(activity)
+            for ((index, phoneNumber3PID) in currentPhoneNumber3PID.withIndex()) {
+                val preference = VectorPreference(activity!!)
 
                 preference.title = getString(R.string.settings_phone_number)
                 var phoneNumberFormatted = phoneNumber3PID.address
@@ -1999,22 +2233,24 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                 preference.key = PHONE_NUMBER_PREFERENCE_KEY_BASE + index
 //                preference.order = order
 //
-//                preference.onPreferenceClickListener = Preference.OnPreferenceClickListener { _ ->
+//                preference.onPreferenceClickListener = Preference.OnPreferenceClickListener {
 //                    displayDelete3PIDConfirmationDialog(phoneNumber3PID, preference.summary)
 //                    true
 //                }
 //
-//                preference.setOnPreferenceLongClickListener {
-//                    copyToClipboard(activity, phoneNumber3PID.address)
-//                    true
+//                preference.onPreferenceLongClickListener = object : VectorPreference.OnPreferenceLongClickListener {
+//                    override fun onPreferenceLongClick(preference: Preference): Boolean {
+//                        activity?.let { copyToClipboard(it, phoneNumber3PID.address) }
+//                        return true
+//                    }
 //                }
 //
-                index++
 //                order++
                 mUserSettingsCategory.addPreference(preference)
             }
 
 //            addPhoneBtn.order = order
+//            addPhoneBtn.isVisible = true
         }
 
     }
@@ -2067,7 +2303,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
         textSizePreference.summary = FontScale.getFontScaleDescription()
 
         textSizePreference.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-            displayTextSizeSelection(activity)
+            activity?.let { displayTextSizeSelection(it) }
             true
         }
     }
@@ -2127,53 +2363,53 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
      * Refresh the background sync preference
      */
     private fun refreshBackgroundSyncPrefs() {
-        // sanity check
-        if (null == activity) {
-            return
-        }
+        activity?.let { activity ->
+            val pushManager = Matrix.getInstance(activity).pushManager
 
-        val pushManager = Matrix.getInstance(activity)!!.pushManager
+            val delay = pushManager.backgroundSyncDelay / 1000
 
-        val delay = pushManager.backgroundSyncDelay / 1000
+            // update the settings
+            PreferenceManager.getDefaultSharedPreferences(activity).edit {
+                putString(PreferencesManager.SETTINGS_SET_SYNC_DELAY_PREFERENCE_KEY, delay.toString() + "")
+            }
 
-        // update the settings
-        PreferenceManager.getDefaultSharedPreferences(activity).edit {
-            putString(PreferencesManager.SETTINGS_SET_SYNC_DELAY_PREFERENCE_KEY, delay.toString() + "")
-        }
+            mSyncRequestDelayPreference?.let {
+                it.summary = secondsToText(delay)
+                it.text = delay.toString() + ""
 
-        mSyncRequestDelayPreference?.let {
-            it.summary = secondsToText(delay)
-            it.text = delay.toString() + ""
+                it.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
+                    var newDelay = delay
 
-            it.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
-                var newDelay = delay
+                    try {
+                        newDelay = Integer.parseInt(newValue as String)
+                    } catch (e: Exception) {
+                        Log.e(LOG_TAG, "## refreshBackgroundSyncPrefs : parseInt failed " + e.message, e)
+                    }
 
-                try {
-                    newDelay = Integer.parseInt(newValue as String)
-                } catch (e: Exception) {
-                    Log.e(LOG_TAG, "## refreshBackgroundSyncPrefs : parseInt failed " + e.message, e)
+                    if (newDelay != delay) {
+                        pushManager.backgroundSyncDelay = newDelay * 1000
+
+                        activity.runOnUiThread { refreshBackgroundSyncPrefs() }
+                    }
+
+                    false
                 }
-
-                if (newDelay != delay) {
-                    pushManager.backgroundSyncDelay = newDelay * 1000
-
-                    activity.runOnUiThread { refreshBackgroundSyncPrefs() }
-                }
-
-                false
             }
         }
     }
-
 
     //==============================================================================================================
     // Cryptography
     //==============================================================================================================
 
     private fun removeCryptographyPreference() {
-        if (null != preferenceScreen) {
-            preferenceScreen.removePreference(mCryptographyCategory)
-            preferenceScreen.removePreference(mCryptographyCategoryDivider)
+        preferenceScreen.let {
+            it.removePreference(mCryptographyCategory)
+            it.removePreference(mCryptographyCategoryDivider)
+
+            // Also remove keys management section
+            it.removePreference(mCryptographyManageCategory)
+            it.removePreference(mCryptographyManageCategoryDivider)
         }
     }
 
@@ -2195,9 +2431,11 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                 true
             }
 
-            cryptoInfoDeviceNamePreference.setOnPreferenceLongClickListener {
-                copyToClipboard(activity, aMyDeviceInfo.display_name)
-                true
+            cryptoInfoDeviceNamePreference.onPreferenceLongClickListener = object : VectorPreference.OnPreferenceLongClickListener {
+                override fun onPreferenceLongClick(preference: Preference): Boolean {
+                    activity?.let { copyToClipboard(it, aMyDeviceInfo.display_name) }
+                    return true
+                }
             }
         }
 
@@ -2205,20 +2443,11 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
         if (!TextUtils.isEmpty(deviceId)) {
             cryptoInfoDeviceIdPreference.summary = deviceId
 
-            cryptoInfoDeviceIdPreference.setOnPreferenceLongClickListener {
-                copyToClipboard(activity, deviceId)
+            cryptoInfoDeviceIdPreference.setOnPreferenceClickListener {
+                activity?.let { copyToClipboard(it, deviceId) }
                 true
             }
 
-            exportPref.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-                exportKeys()
-                true
-            }
-
-            importPref.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-                importKeys()
-                true
-            }
         }
 
         // crypto section: device key (fingerprint)
@@ -2228,8 +2457,8 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                     if (null != deviceInfo && !TextUtils.isEmpty(deviceInfo.fingerprint()) && null != activity) {
                         cryptoInfoTextPreference.summary = deviceInfo.getFingerprintHumanReadable()
 
-                        cryptoInfoTextPreference.setOnPreferenceLongClickListener {
-                            copyToClipboard(activity, deviceInfo.fingerprint())
+                        cryptoInfoTextPreference.setOnPreferenceClickListener {
+                            activity?.let { copyToClipboard(it, deviceInfo.fingerprint()) }
                             true
                         }
                     }
@@ -2239,18 +2468,18 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 
 //        sendToUnverifiedDevicesPref.isChecked = false
 //
-//        mSession.crypto.getGlobalBlacklistUnverifiedDevices(object : SimpleApiCallback<Boolean>() {
+//        mSession.crypto?.getGlobalBlacklistUnverifiedDevices(object : SimpleApiCallback<Boolean>() {
 //            override fun onSuccess(status: Boolean) {
 //                sendToUnverifiedDevicesPref.isChecked = status
 //            }
 //        })
 //
 //        sendToUnverifiedDevicesPref.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-//            mSession.crypto.getGlobalBlacklistUnverifiedDevices(object : SimpleApiCallback<Boolean>() {
+//            mSession.crypto?.getGlobalBlacklistUnverifiedDevices(object : SimpleApiCallback<Boolean>() {
 //                override fun onSuccess(status: Boolean) {
 //                    if (sendToUnverifiedDevicesPref.isChecked != status) {
 //                        mSession.crypto
-//                                .setGlobalBlacklistUnverifiedDevices(sendToUnverifiedDevicesPref.isChecked, object : SimpleApiCallback<Void>() {
+//                                ?.setGlobalBlacklistUnverifiedDevices(sendToUnverifiedDevicesPref.isChecked, object : SimpleApiCallback<Void>() {
 //                                    override fun onSuccess(info: Void?) {
 //
 //                                    }
@@ -2263,14 +2492,46 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 //        }
     }
 
+    private fun refreshKeysManagementSection() {
+        //If crypto is not enabled parent section will be removed
+        //TODO notice that this will not work when no network
+        findPreference(PreferencesManager.SETTINGS_SECURE_MESSAGE_RECOVERY_PREFERENCE_KEY)?.let {
+            if (SUPPORT_KEYS_BACKUP) {
+                it.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+                    context?.let {
+                        startActivity(KeysBackupManageActivity.intent(it, mSession.myUserId))
+                    }
+                    false
+                }
+            } else {
+                mCryptographyManageCategory.removePreference(it)
+            }
+        }
+
+        findPreference(PreferencesManager.SETTINGS_ENCRYPTION_EXPORT_E2E_ROOM_KEYS_PREFERENCE_KEY)?.let {
+            it.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+                exportKeys()
+                true
+            }
+        }
+
+        findPreference(PreferencesManager.SETTINGS_ENCRYPTION_IMPORT_E2E_ROOM_KEYS_PREFERENCE_KEY)?.let {
+            it.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+                importKeys()
+                true
+            }
+        }
+
+    }
+
     //==============================================================================================================
     // devices list
     //==============================================================================================================
 
     private fun removeDevicesPreference() {
-        if (null != preferenceScreen) {
-            preferenceScreen.removePreference(mDevicesListSettingsCategory)
-            preferenceScreen.removePreference(mDevicesListSettingsCategoryDivider)
+        preferenceScreen.let {
+            it.removePreference(mDevicesListSettingsCategory)
+            it.removePreference(mDevicesListSettingsCategoryDivider)
         }
     }
 
@@ -2283,8 +2544,10 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
         if (mSession.isCryptoEnabled && !TextUtils.isEmpty(mSession.credentials.deviceId)) {
             // display a spinner while loading the devices list
             if (0 == mDevicesListSettingsCategory.preferenceCount) {
-                val preference = ProgressBarPreference(activity)
-                mDevicesListSettingsCategory.addPreference(preference)
+                activity?.let {
+                    val preference = ProgressBarPreference(it)
+                    mDevicesListSettingsCategory.addPreference(preference)
+                }
             }
 
             mSession.getDevicesList(object : ApiCallback<DevicesListResponse> {
@@ -2325,7 +2588,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
      * @param aDeviceInfoList the list of the devices
      */
     private fun buildDevicesSettings(aDeviceInfoList: List<DeviceInfo>) {
-        var preference: VectorCustomActionEditTextPreference
+        var preference: VectorPreference
         var typeFaceHighlight: Int
         var isNewList = true
         val myDeviceId = mSession.credentials.deviceId
@@ -2354,7 +2617,9 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                 }
 
                 // add the edit text preference
-                preference = VectorCustomActionEditTextPreference(activity, typeFaceHighlight)
+                preference = VectorPreference(activity!!).apply {
+                    mTypeface = typeFaceHighlight
+                }
 
                 if (null == deviceInfo.device_id && null == deviceInfo.display_name) {
                     continue
@@ -2391,14 +2656,15 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
      *
      * @param aDeviceInfo the device information
      */
-    private fun displayDeviceDetailsDialog(aDeviceInfo: DeviceInfo?) {
-        val builder = AlertDialog.Builder(activity)
-        val inflater = activity.layoutInflater
-        val layout = inflater.inflate(R.layout.dialog_device_details, null)
+    private fun displayDeviceDetailsDialog(aDeviceInfo: DeviceInfo) {
 
-        if (null != aDeviceInfo) {
-            //device ID
+        activity?.let {
+
+            val builder = AlertDialog.Builder(it)
+            val inflater = it.layoutInflater
+            val layout = inflater.inflate(R.layout.dialog_device_details, null)
             var textView = layout.findViewById<TextView>(R.id.device_id)
+
             textView.text = aDeviceInfo.device_id
 
             // device name
@@ -2410,15 +2676,10 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
             textView = layout.findViewById(R.id.device_last_seen)
             if (!TextUtils.isEmpty(aDeviceInfo.last_seen_ip)) {
                 val lastSeenIp = aDeviceInfo.last_seen_ip
-                var lastSeenTime = LABEL_UNAVAILABLE_DATA
-
-                if (null != activity) {
-                    val dateFormatTime = SimpleDateFormat("HH:mm:ss")
-                    val time = dateFormatTime.format(Date(aDeviceInfo.last_seen_ts))
-
-                    val dateFormat = DateFormat.getDateInstance(DateFormat.SHORT, Locale.getDefault())
-                    lastSeenTime = dateFormat.format(Date(aDeviceInfo.last_seen_ts)) + ", " + time
-                }
+                val dateFormatTime = SimpleDateFormat("HH:mm:ss")
+                val time = dateFormatTime.format(Date(aDeviceInfo.last_seen_ts))
+                val dateFormat = DateFormat.getDateInstance(DateFormat.SHORT, Locale.getDefault())
+                val lastSeenTime = dateFormat.format(Date(aDeviceInfo.last_seen_ts)) + ", " + time
                 val lastSeenInfo = getString(R.string.devices_details_last_seen_format, lastSeenIp, lastSeenTime)
                 textView.text = lastSeenInfo
             } else {
@@ -2447,8 +2708,6 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                         false
                     })
                     .show()
-        } else {
-            Log.e(LOG_TAG, "## displayDeviceDetailsDialog(): sanity check failure")
         }
     }
 
@@ -2458,59 +2717,65 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
      * @param aDeviceInfoToRename device info
      */
     private fun displayDeviceRenameDialog(aDeviceInfoToRename: DeviceInfo) {
-        val inflater = activity.layoutInflater
-        val layout = inflater.inflate(R.layout.dialog_base_edit_text, null)
+        activity?.let {
+            val inflater = it.layoutInflater
+            val layout = inflater.inflate(R.layout.dialog_base_edit_text, null)
 
-        val input = layout.findViewById<EditText>(R.id.edit_text)
-        input.setText(aDeviceInfoToRename.display_name)
+            layout.findViewById<TextView>(R.id.edit_text_content).let { tv ->
+                tv.visibility = View.VISIBLE
+                tv.setText(R.string.device_name_warning)
+            }
+            val input = layout.findViewById<EditText>(R.id.edit_text)
+            input.setText(aDeviceInfoToRename.display_name)
 
-        AlertDialog.Builder(activity)
-                .setTitle(R.string.devices_details_device_name)
-                .setView(layout)
-                .setPositiveButton(R.string.ok) { _, _ ->
-                    displayLoadingView()
+            AlertDialog.Builder(it)
+                    .setTitle(R.string.devices_details_device_name)
+                    .setView(layout)
+                    .setPositiveButton(R.string.ok) { _, _ ->
+                        displayLoadingView()
 
-                    val newName = input.text.toString()
+                        val newName = input.text.toString()
 
-                    mSession.setDeviceName(aDeviceInfoToRename.device_id, newName, object : ApiCallback<Void> {
-                        override fun onSuccess(info: Void?) {
-                            hideLoadingView()
+                        mSession.setDeviceName(aDeviceInfoToRename.device_id, newName, object : ApiCallback<Void> {
+                            override fun onSuccess(info: Void?) {
+                                hideLoadingView()
 
-                            // search which preference is updated
-                            val count = mDevicesListSettingsCategory.preferenceCount
+                                // search which preference is updated
+                                val count = mDevicesListSettingsCategory.preferenceCount
 
-                            for (i in 0 until count) {
-                                val pref = mDevicesListSettingsCategory.getPreference(i) as VectorCustomActionEditTextPreference
+                                for (i in 0 until count) {
+                                    val pref = mDevicesListSettingsCategory.getPreference(i)
 
-                                if (TextUtils.equals(aDeviceInfoToRename.device_id, pref.title)) {
-                                    pref.summary = newName
+                                    if (TextUtils.equals(aDeviceInfoToRename.device_id, pref.title)) {
+                                        pref.summary = newName
+                                    }
                                 }
+
+                                // detect if the updated device is the current account one
+                                if (TextUtils.equals(cryptoInfoDeviceIdPreference.summary, aDeviceInfoToRename.device_id)) {
+                                    cryptoInfoDeviceNamePreference.summary = newName
+                                }
+
+                                // Also change the display name in aDeviceInfoToRename, in case of multiple renaming
+                                aDeviceInfoToRename.display_name = newName
                             }
 
-                            // detect if the updated device is the current account one
-                            if (TextUtils.equals(cryptoInfoDeviceIdPreference.summary, aDeviceInfoToRename.device_id)) {
-                                cryptoInfoDeviceNamePreference.summary = newName
+                            override fun onNetworkError(e: Exception) {
+                                onCommonDone(e.localizedMessage)
                             }
 
-                            // Also change the display name in aDeviceInfoToRename, in case of multiple renaming
-                            aDeviceInfoToRename.display_name = newName
-                        }
+                            override fun onMatrixError(e: MatrixError) {
+                                onCommonDone(e.localizedMessage)
+                            }
 
-                        override fun onNetworkError(e: Exception) {
-                            onCommonDone(e.localizedMessage)
-                        }
-
-                        override fun onMatrixError(e: MatrixError) {
-                            onCommonDone(e.localizedMessage)
-                        }
-
-                        override fun onUnexpectedError(e: Exception) {
-                            onCommonDone(e.localizedMessage)
-                        }
-                    })
-                }
-                .setNegativeButton(R.string.cancel, null)
-                .show()
+                            override fun onUnexpectedError(e: Exception) {
+                                onCommonDone(e.localizedMessage)
+                            }
+                        })
+                    }
+                    .setNegativeButton(R.string.cancel, null)
+                    .show()
+        }
     }
 
     /**
@@ -2551,39 +2816,41 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
      *
      * @param aDeviceInfoToDelete device info
      */
-    private fun displayDeviceDeletionDialog(aDeviceInfoToDelete: DeviceInfo?) {
-        if (null != aDeviceInfoToDelete && null != aDeviceInfoToDelete.device_id) {
+    private fun displayDeviceDeletionDialog(aDeviceInfoToDelete: DeviceInfo) {
+        if (aDeviceInfoToDelete.device_id != null) {
             if (!TextUtils.isEmpty(mAccountPassword)) {
                 deleteDevice(aDeviceInfoToDelete.device_id)
             } else {
-                val inflater = activity.layoutInflater
-                val layout = inflater.inflate(R.layout.dialog_device_delete, null)
-                val passwordEditText = layout.findViewById<EditText>(R.id.delete_password)
+                activity?.let {
+                    val inflater = it.layoutInflater
+                    val layout = inflater.inflate(R.layout.dialog_device_delete, null)
+                    val passwordEditText = layout.findViewById<EditText>(R.id.delete_password)
 
-                AlertDialog.Builder(activity)
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .setTitle(R.string.devices_delete_dialog_title)
-                        .setView(layout)
-                        .setPositiveButton(R.string.devices_delete_submit_button_label, DialogInterface.OnClickListener { _, _ ->
-                            if (TextUtils.isEmpty(passwordEditText.toString())) {
-                                activity.applicationContext.toast(R.string.error_empty_field_your_password)
-                                return@OnClickListener
-                            }
-                            mAccountPassword = passwordEditText.text.toString()
-                            deleteDevice(aDeviceInfoToDelete.device_id)
-                        })
-                        .setNegativeButton(R.string.cancel) { _, _ ->
-                            hideLoadingView()
-                        }
-                        .setOnKeyListener(DialogInterface.OnKeyListener { dialog, keyCode, event ->
-                            if (event.action == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
-                                dialog.cancel()
+                    AlertDialog.Builder(it)
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .setTitle(R.string.devices_delete_dialog_title)
+                            .setView(layout)
+                            .setPositiveButton(R.string.devices_delete_submit_button_label, DialogInterface.OnClickListener { _, _ ->
+                                if (TextUtils.isEmpty(passwordEditText.toString())) {
+                                    it.toast(R.string.error_empty_field_your_password)
+                                    return@OnClickListener
+                                }
+                                mAccountPassword = passwordEditText.text.toString()
+                                deleteDevice(aDeviceInfoToDelete.device_id)
+                            })
+                            .setNegativeButton(R.string.cancel) { _, _ ->
                                 hideLoadingView()
-                                return@OnKeyListener true
                             }
-                            false
-                        })
-                        .show()
+                            .setOnKeyListener(DialogInterface.OnKeyListener { dialog, keyCode, event ->
+                                if (event.action == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
+                                    dialog.cancel()
+                                    hideLoadingView()
+                                    return@OnKeyListener true
+                                }
+                                false
+                            })
+                            .show()
+                }
             }
         } else {
             Log.e(LOG_TAG, "## displayDeviceDeletionDialog(): sanity check failure")
@@ -2591,80 +2858,60 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
     }
 
     /**
+     * Manage the key backup before updating the password:
+     * - set up a new backup if none (by showing manual export option)
+     * - manage the pending one if any
+     */
+    private fun manageKeyBackupBeforePwdUpdate() {
+        activity?.let { activity ->
+            // Check the current keys backup state
+            if (mSession.crypto?.keysBackup?.state == KeysBackupStateManager.KeysBackupState.Disabled) {
+                startActivity(KeysBackupSetupActivity.intent(activity, mSession.myUserId, true))
+            } else {
+                startActivity(KeysBackupManageActivity.intent(activity, mSession.myUserId))
+            }
+        }
+    }
+
+    /**
      * Manage the e2e keys export.
      */
-    fun exportKeys() {
+    private fun exportKeys() {
         // We need WRITE_EXTERNAL permission
-        if (checkPermissions(PERMISSIONS_FOR_WRITING_FILES, activity, PERMISSION_REQUEST_CODE_EXPORT_KEYS)) {
-            val dialogLayout = activity.layoutInflater.inflate(R.layout.dialog_export_e2e_keys, null)
-            val builder = AlertDialog.Builder(activity)
-                    .setTitle(R.string.encryption_export_room_keys)
-                    .setView(dialogLayout)
+        if (checkPermissions(PERMISSIONS_FOR_WRITING_FILES, this, PERMISSION_REQUEST_CODE_EXPORT_KEYS)) {
+            activity?.let { activity ->
+                ExportKeysDialog().show(activity, object : ExportKeysDialog.ExportKeyDialogListener {
+                    override fun onPassphrase(passphrase: String) {
+                        displayLoadingView()
 
-            val passPhrase1EditText = dialogLayout.findViewById<TextInputEditText>(R.id.dialog_e2e_keys_passphrase_edit_text)
-            val passPhrase2EditText = dialogLayout.findViewById<TextInputEditText>(R.id.dialog_e2e_keys_confirm_passphrase_edit_text)
-            val exportButton = dialogLayout.findViewById<Button>(R.id.dialog_e2e_keys_export_button)
-            val textWatcher = object : TextWatcher {
-                override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
+                        CommonActivityUtils.exportKeys(mSession, passphrase, object : SimpleApiCallback<String>(activity) {
+                            override fun onSuccess(filename: String) {
+                                hideLoadingView()
 
-                }
+                                AlertDialog.Builder(activity)
+                                        .setMessage(getString(R.string.encryption_export_saved_as, filename))
+                                        .setCancelable(false)
+                                        .setPositiveButton(R.string.ok, null)
+                                        .show()
+                            }
 
-                override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+                            override fun onNetworkError(e: Exception) {
+                                super.onNetworkError(e)
+                                hideLoadingView()
+                            }
 
-                }
+                            override fun onMatrixError(e: MatrixError) {
+                                super.onMatrixError(e)
+                                hideLoadingView()
+                            }
 
-                override fun afterTextChanged(s: Editable) {
-                    when {
-                        TextUtils.isEmpty(passPhrase1EditText.text) -> {
-                            exportButton.isEnabled = false
-                            passPhrase2EditText.error = null
-                        }
-                        TextUtils.equals(passPhrase1EditText.text, passPhrase2EditText.text) -> {
-                            exportButton.isEnabled = true
-                            passPhrase2EditText.error = null
-                        }
-                        else -> {
-                            exportButton.isEnabled = false
-                            passPhrase2EditText.error = getString(R.string.encryption_export_passphrase_dont_match)
-                        }
-                    }
-                }
-            }
-
-            passPhrase1EditText.addTextChangedListener(textWatcher)
-            passPhrase2EditText.addTextChangedListener(textWatcher)
-
-            exportButton.isEnabled = false
-
-            val exportDialog = builder.show()
-
-            exportButton.setOnClickListener {
-                displayLoadingView()
-
-                CommonActivityUtils.exportKeys(mSession, passPhrase1EditText.text.toString(), object : ApiCallback<String> {
-                    override fun onSuccess(filename: String) {
-                        hideLoadingView()
-
-                        AlertDialog.Builder(activity)
-                                .setMessage(getString(R.string.encryption_export_saved_as, filename))
-                                .setPositiveButton(R.string.ok, null)
-                                .show()
-                    }
-
-                    override fun onNetworkError(e: Exception) {
-                        hideLoadingView()
-                    }
-
-                    override fun onMatrixError(e: MatrixError) {
-                        hideLoadingView()
-                    }
-
-                    override fun onUnexpectedError(e: Exception) {
-                        hideLoadingView()
+                            override fun onUnexpectedError(e: Exception) {
+                                super.onUnexpectedError(e)
+                                hideLoadingView()
+                            }
+                        })
                     }
                 })
-
-                exportDialog.dismiss()
             }
         }
     }
@@ -2674,7 +2921,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
      */
     @SuppressLint("NewApi")
     private fun importKeys() {
-        openFileSelection(activity, this, false, REQUEST_E2E_FILE_REQUEST_CODE)
+        activity?.let { openFileSelection(it, this, false, REQUEST_E2E_FILE_REQUEST_CODE) }
     }
 
     /**
@@ -2689,11 +2936,12 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
         }
 
         val sharedDataItems = ArrayList(RoomMediaMessage.listRoomMediaMessages(intent))
+        val thisActivity = activity
 
-        if (sharedDataItems.size > 0) {
+        if (sharedDataItems.isNotEmpty() && thisActivity != null) {
             val sharedDataItem = sharedDataItems[0]
-            val dialogLayout = activity.layoutInflater.inflate(R.layout.dialog_import_e2e_keys, null)
-            val builder = AlertDialog.Builder(activity)
+            val dialogLayout = thisActivity.layoutInflater.inflate(R.layout.dialog_import_e2e_keys, null)
+            val builder = AlertDialog.Builder(thisActivity)
                     .setTitle(R.string.encryption_import_room_keys)
                     .setView(dialogLayout)
 
@@ -2714,10 +2962,8 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                 }
             })
 
-            importButton.isEnabled = false
-
             val importDialog = builder.show()
-            val appContext = activity.applicationContext
+            val appContext = thisActivity.applicationContext
 
             importButton.setOnClickListener(View.OnClickListener {
                 val password = passPhraseEditText.text.toString()
@@ -2743,26 +2989,42 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 
                 displayLoadingView()
 
-                mSession.crypto?.importRoomKeys(data, password, null, object : ApiCallback<ImportRoomKeysResult> {
-                    override fun onSuccess(info: ImportRoomKeysResult?) {
-                        hideLoadingView()
-                    }
+                mSession.crypto?.importRoomKeys(data,
+                        password,
+                        null,
+                        object : ApiCallback<ImportRoomKeysResult> {
+                            override fun onSuccess(info: ImportRoomKeysResult?) {
+                                if (!isAdded) {
+                                    return
+                                }
 
-                    override fun onNetworkError(e: Exception) {
-                        appContext.toast(e.localizedMessage)
-                        hideLoadingView()
-                    }
+                                hideLoadingView()
 
-                    override fun onMatrixError(e: MatrixError) {
-                        appContext.toast(e.localizedMessage)
-                        hideLoadingView()
-                    }
+                                info?.let {
+                                    AlertDialog.Builder(thisActivity)
+                                            .setMessage(getString(R.string.encryption_import_room_keys_success,
+                                                    it.successfullyNumberOfImportedKeys,
+                                                    it.totalNumberOfKeys))
+                                            .setPositiveButton(R.string.ok) { dialog, _ -> dialog.dismiss() }
+                                            .show()
+                                }
+                            }
 
-                    override fun onUnexpectedError(e: Exception) {
-                        appContext.toast(e.localizedMessage)
-                        hideLoadingView()
-                    }
-                })
+                            override fun onNetworkError(e: Exception) {
+                                appContext.toast(e.localizedMessage)
+                                hideLoadingView()
+                            }
+
+                            override fun onMatrixError(e: MatrixError) {
+                                appContext.toast(e.localizedMessage)
+                                hideLoadingView()
+                            }
+
+                            override fun onUnexpectedError(e: Exception) {
+                                appContext.toast(e.localizedMessage)
+                                hideLoadingView()
+                            }
+                        })
 
                 importDialog.dismiss()
             })
@@ -2791,7 +3053,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
 //                mGroupsFlairCategory.removeAll()
 //
 //                if (publicisedGroups.isEmpty()) {
-//                    val vectorGroupPreference = VectorCustomActionEditTextPreference(activity)
+//                    val vectorGroupPreference = Preference(activity)
 //                    vectorGroupPreference.title = resources.getString(R.string.settings_without_flair)
 //                    mGroupsFlairCategory.addPreference(vectorGroupPreference)
 //                } else {
@@ -2945,9 +3207,26 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
                 })
     }
 
+    private class ClearMediaCacheAsyncTask internal constructor(
+            backgroundTask: () -> Unit,
+            onCompleteTask: () -> Unit
+    ) : AsyncTask<Unit, Unit, Unit>() {
+
+        private val backgroundTaskReference = WeakReference(backgroundTask)
+        private val onCompleteTaskReference = WeakReference(onCompleteTask)
+        override fun doInBackground(vararg params: Unit?) {
+            backgroundTaskReference.get()?.invoke()
+        }
+
+        override fun onPostExecute(result: Unit?) {
+            super.onPostExecute(result)
+            onCompleteTaskReference.get()?.invoke()
+        }
+    }
+
     /* ==========================================================================================
      * Companion
-     * ========================================================================================== */
+     * ========================================================================================= */
 
     companion object {
         private val LOG_TAG = VectorSettingsPreferencesFragment::class.java.simpleName
@@ -2961,7 +3240,7 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
         private const val DEVICES_PREFERENCE_KEY_BASE = "DEVICES_PREFERENCE_KEY_BASE"
         private const val IGNORED_USER_KEY_BASE = "IGNORED_USER_KEY_BASE"
         //private const val ADD_EMAIL_PREFERENCE_KEY = "ADD_EMAIL_PREFERENCE_KEY"
-        private const val ADD_PHONE_NUMBER_PREFERENCE_KEY = "ADD_PHONE_NUMBER_PREFERENCE_KEY"
+        //private const val ADD_PHONE_NUMBER_PREFERENCE_KEY = "ADD_PHONE_NUMBER_PREFERENCE_KEY"
         private const val APP_INFO_LINK_PREFERENCE_KEY = "APP_INFO_LINK_PREFERENCE_KEY"
 
         private const val DUMMY_RULE = "DUMMY_RULE"
@@ -2971,27 +3250,21 @@ class VectorSettingsPreferencesFragment : PreferenceFragment(), SharedPreference
         private const val REQUEST_NEW_PHONE_NUMBER = 456
         private const val REQUEST_PHONEBOOK_COUNTRY = 789
         private const val REQUEST_LOCALE = 777
-        private const val REQUEST_NOTIFICATION_RINGTONE = 888
         //private const val REQUEST_CALL_RINGTONE = 999
+        private const val REQUEST_BATTERY_OPTIMIZATION = 500
 
-        // rule Id <-> preference name
-        private var mPushesRuleByResourceId = mapOf(
+        // preference name <-> rule Id
+        private var mPrefKeyToBingRuleId = mapOf(
                 PreferencesManager.SETTINGS_ENABLE_ALL_NOTIF_PREFERENCE_KEY to BingRule.RULE_ID_DISABLE_ALL,
                 PreferencesManager.SETTINGS_ENABLE_THIS_DEVICE_PREFERENCE_KEY to DUMMY_RULE,
-                PreferencesManager.SETTINGS_TURN_SCREEN_ON_PREFERENCE_KEY to DUMMY_RULE,
-                PreferencesManager.SETTINGS_CONTAINING_MY_DISPLAY_NAME_PREFERENCE_KEY to BingRule.RULE_ID_CONTAIN_DISPLAY_NAME,
-                PreferencesManager.SETTINGS_CONTAINING_MY_USER_NAME_PREFERENCE_KEY to BingRule.RULE_ID_CONTAIN_USER_NAME,
-                PreferencesManager.SETTINGS_MESSAGES_IN_ONE_TO_ONE_PREFERENCE_KEY to BingRule.RULE_ID_ONE_TO_ONE_ROOM,
-                PreferencesManager.SETTINGS_MESSAGES_IN_GROUP_CHAT_PREFERENCE_KEY to BingRule.RULE_ID_ALL_OTHER_MESSAGES_ROOMS,
-                PreferencesManager.SETTINGS_INVITED_TO_ROOM_PREFERENCE_KEY to BingRule.RULE_ID_INVITE_ME,
-                PreferencesManager.SETTINGS_CALL_INVITATIONS_PREFERENCE_KEY to BingRule.RULE_ID_CALL,
-                PreferencesManager.SETTINGS_MESSAGES_SENT_BY_BOT_PREFERENCE_KEY to BingRule.RULE_ID_SUPPRESS_BOTS_NOTIFICATIONS
+                PreferencesManager.SETTINGS_TURN_SCREEN_ON_PREFERENCE_KEY to DUMMY_RULE
         )
 
         // static constructor
         fun newInstance(matrixId: String) = VectorSettingsPreferencesFragment()
-                .apply {
-                    arguments = Bundle().apply { putString(ARG_MATRIX_ID, matrixId) }
+                .withArgs {
+                    putString(ARG_MATRIX_ID, matrixId)
                 }
     }
+
 }

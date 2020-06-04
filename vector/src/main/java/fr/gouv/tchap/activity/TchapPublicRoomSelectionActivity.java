@@ -64,9 +64,6 @@ public class TchapPublicRoomSelectionActivity extends VectorAppCompatActivity im
 
     private MXSession mSession;
 
-    @BindView(R.id.drawer_layout_public_room)
-    DrawerLayout mDrawerLayout;
-
     @BindView(R.id.search_view)
     SearchView mSearchView;
 
@@ -112,6 +109,7 @@ public class TchapPublicRoomSelectionActivity extends VectorAppCompatActivity im
             mFragmentManager.beginTransaction().add(R.id.fragment_container, TchapPublicRoomsFragment.newInstance(), TAG_FRAGMENT_ROOMS).commit();
         }
 
+        configureToolbar();
         this.setTitle(R.string.room_join_public_room_alt_title);
 
         setWaitingView(waitingView);
@@ -137,11 +135,6 @@ public class TchapPublicRoomSelectionActivity extends VectorAppCompatActivity im
 
     @Override
     public void onBackPressed() {
-        if (mDrawerLayout.isDrawerVisible(GravityCompat.START)) {
-            mDrawerLayout.closeDrawer(GravityCompat.START);
-            return;
-        }
-
         if (!TextUtils.isEmpty(mSearchView.getQuery().toString())) {
             mSearchView.setQuery("", true);
             return;
