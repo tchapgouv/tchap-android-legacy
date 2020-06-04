@@ -1,25 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- this section has no title in purpose -->
     <fr.gouv.tchap.preference.TchapRoomAvatarPreference
         android:key="roomPhotoAvatar"
         android:title="@string/room_settings_room_photo" />
 
-    <EditTextPreference
+    <im.vector.preference.VectorEditTextPreference
         android:focusable="true"
         android:key="roomNameEditText"
         android:title="@string/room_settings_room_name" />
 
-    <EditTextPreference
+    <im.vector.preference.VectorEditTextPreference
         android:focusable="true"
         android:key="roomTopicEditText"
         android:title="@string/room_settings_topic" />
 
+<!--    <im.vector.preference.VectorListPreference-->
+<!--        android:dialogTitle="@string/room_settings_tag_pref_dialog_title"-->
+<!--        android:entries="@array/tag_entries"-->
+<!--        android:entryValues="@array/tag_values"-->
+<!--        android:key="roomTagList"-->
+<!--        android:summary="%s"-->
+<!--        android:title="@string/room_settings_room_tag" />-->
+
     <!-- the notification rule selection -->
-    <ListPreference
+    <im.vector.preference.VectorListPreference
         android:entries="@array/notification_entries"
         android:entryValues="@array/notification_values"
         android:key="roomNotificationPreference"
@@ -27,26 +33,26 @@
         android:title="@string/room_settings_room_notifications_title" />
 
     <!-- the current room retention period -->
-    <im.vector.preference.VectorCustomActionEditTextPreference
+    <im.vector.preference.VectorPreference
         android:key="roomRetention"
         android:title="@plurals/tchap_room_settings_retention"/>
 
-    <im.vector.preference.VectorCustomActionEditTextPreference
+    <im.vector.preference.VectorPreference
         android:key="roomLeave"
         android:title="@string/leave" />
 
     <!-- a public room may become private -->
-    <im.vector.preference.VectorCustomActionEditTextPreference
+    <im.vector.preference.VectorPreference
         android:key="removeFromRoomsDirectory"
         android:title="@string/tchap_room_settings_remove_from_directory" />
 
     <!-- the current room access rule (a restricted room may become unrestrictive) -->
-    <im.vector.preference.VectorCustomActionEditTextPreference
+    <im.vector.preference.VectorPreference
         android:key="roomAccessRule"
         android:title="@string/tchap_room_settings_room_access_title"
         android:summary="@string/tchap_room_settings_room_access_restricted"/>
 
-    <!--im.vector.preference.VectorDividerCategory /-->
+    <!-- im.vector.preference.VectorPreferenceDivider /-->
 
     <!-- no addresses section in tchap at this step of the product
     <im.vector.preference.VectorPreferenceCategory
@@ -56,26 +62,26 @@
     </im.vector.preference.VectorPreferenceCategory>
     -->
 
-    <!--im.vector.preference.VectorDividerCategory android:key="flair_divider" />
+    <!--im.vector.preference.VectorPreferenceDivider android:key="flair_divider" />
 
     <im.vector.preference.VectorPreferenceCategory
         android:key="flair"
         android:title="@string/settings_flair" /-->
 
-    <im.vector.preference.VectorDividerCategory android:key="banned_divider" />
+    <im.vector.preference.VectorPreferenceDivider android:key="banned_divider" />
 
     <im.vector.preference.VectorPreferenceCategory
         android:key="banned"
         android:title="@string/room_settings_banned_users_title" />
 
-    <!--im.vector.preference.VectorDividerCategory /-->
+    <!-- im.vector.preference.VectorPreferenceDivider /-->
 
     <!-- no addresses section in tchap at this step of the product
     <im.vector.preference.VectorPreferenceCategory
         android:key="advanced"
         android:title="@string/room_settings_category_advanced_title">
 
-        <im.vector.preference.VectorCustomActionEditTextPreference
+        <im.vector.preference.VectorPreference
             android:key="roomInternalId"
             android:title="@string/room_settings_room_internal_id" />
 
@@ -87,4 +93,4 @@
     </im.vector.preference.VectorPreferenceCategory>
     -->
 
-</PreferenceScreen>
+</androidx.preference.PreferenceScreen>

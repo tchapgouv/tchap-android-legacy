@@ -17,7 +17,6 @@
 package im.vector.util
 
 import android.app.Activity
-import android.app.Fragment
 import android.content.ActivityNotFoundException
 import android.content.ContentValues
 import android.content.Context
@@ -27,6 +26,7 @@ import android.os.Build
 import android.provider.Browser
 import android.provider.MediaStore
 import androidx.core.content.FileProvider
+import androidx.fragment.app.Fragment
 import im.vector.BuildConfig
 import im.vector.R
 import org.jetbrains.anko.toast
@@ -53,6 +53,7 @@ fun openUrlInExternalBrowser(context: Context, uri: Uri?) {
     uri?.let {
         val browserIntent = Intent(Intent.ACTION_VIEW, it).apply {
             putExtra(Browser.EXTRA_APPLICATION_ID, context.packageName)
+            putExtra(Browser.EXTRA_CREATE_NEW_TAB, true)
         }
 
         try {

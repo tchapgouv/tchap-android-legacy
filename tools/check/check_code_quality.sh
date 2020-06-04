@@ -28,7 +28,7 @@ numberOfFiles3=`ls -1U ./vector/src/main/res/drawable-xhdpi | wc -l | sed  "s/ /
 numberOfFiles4=`ls -1U ./vector/src/main/res/drawable-xxhdpi | wc -l | sed  "s/ //g"`
 numberOfFiles5=`ls -1U ./vector/src/main/res/drawable-xxxhdpi | wc -l | sed  "s/ //g"`
 
-if [ ${numberOfFiles1} -eq ${numberOfFiles5} ] && [ ${numberOfFiles2} -eq ${numberOfFiles5} ] && [ ${numberOfFiles3} -eq ${numberOfFiles5} ] && [ ${numberOfFiles4} -eq ${numberOfFiles5} ]; then
+if [[ ${numberOfFiles1} -eq ${numberOfFiles5} ]] && [[ ${numberOfFiles2} -eq ${numberOfFiles5} ]] && [[ ${numberOfFiles3} -eq ${numberOfFiles5} ]] && [[ ${numberOfFiles4} -eq ${numberOfFiles5} ]]; then
    resultNbOfDrawable=0
    echo "OK"
 else
@@ -46,7 +46,7 @@ echo
 
 searchForbiddenStringsScript=./tmp/search_forbidden_strings.pl
 
-if [ -f ${searchForbiddenStringsScript} ]; then
+if [[ -f ${searchForbiddenStringsScript} ]]; then
   echo "${searchForbiddenStringsScript} already there"
 else
   mkdir tmp
@@ -54,7 +54,7 @@ else
   wget https://raw.githubusercontent.com/matrix-org/matrix-dev-tools/develop/bin/search_forbidden_strings.pl -O ${searchForbiddenStringsScript}
 fi
 
-if [ -x ${searchForbiddenStringsScript} ]; then
+if [[ -x ${searchForbiddenStringsScript} ]]; then
   echo "${searchForbiddenStringsScript} is already executable"
 else
   echo "Make the script executable"
@@ -65,9 +65,14 @@ echo
 echo "Search for forbidden patterns in code..."
 
 ${searchForbiddenStringsScript} ./tools/check/forbidden_strings_in_code.txt \
+    ./vector/src/androidTest/java \
     ./vector/src/app/java \
     ./vector/src/appfdroid/java \
-    ./vector/src/main/java
+    ./vector/src/debug/java \
+    ./vector/src/main/java \
+    ./vector/src/matrixorg/java \
+    ./vector/src/release/java \
+    ./vector/src/test/java
 
 resultForbiddenStringInCode=$?
 
@@ -92,7 +97,7 @@ resultForbiddenStringInResource=$?
 
 checkLongFilesScript=./tmp/check_long_files.pl
 
-if [ -f ${checkLongFilesScript} ]; then
+if [[ -f ${checkLongFilesScript} ]]; then
   echo "${checkLongFilesScript} already there"
 else
   mkdir tmp
@@ -100,7 +105,7 @@ else
   wget https://raw.githubusercontent.com/matrix-org/matrix-dev-tools/develop/bin/check_long_files.pl -O ${checkLongFilesScript}
 fi
 
-if [ -x ${checkLongFilesScript} ]; then
+if [[ -x ${checkLongFilesScript} ]]; then
   echo "${checkLongFilesScript} is already executable"
 else
   echo "Make the script executable"
@@ -112,9 +117,14 @@ echo "Search for long files..."
 
 # TODO Decrease this limit in a near future...
 ${checkLongFilesScript} 4100 \
+    ./vector/src/androidTest/java \
     ./vector/src/app/java \
     ./vector/src/appfdroid/java \
+    ./vector/src/debug/java \
     ./vector/src/main/java \
+    ./vector/src/matrixorg/java \
+    ./vector/src/release/java \
+    ./vector/src/test/java \
     ./vector/src/main/res/layout \
     ./vector/src/main/res/menu \
     ./vector/src/main/res/values \
@@ -134,7 +144,7 @@ ls -1U ./vector/src/main/res/drawable/*.png
 resultTmp=$?
 
 # Inverse the result, cause no file found is an error for ls but this is what we want!
-if [ ${resultTmp} -eq 0 ]; then
+if [[ ${resultTmp} -eq 0 ]]; then
    echo "ERROR, png files detected in /drawable"
    resultPngInDrawable=1
 else
@@ -144,9 +154,9 @@ fi
 
 echo
 
-if [ ${resultNbOfDrawable} -eq 0 ] && [ ${resultForbiddenStringInCode} -eq 0 ] && [ ${resultForbiddenStringInResource} -eq 0 ] && [ ${resultLongFiles} -eq 0 ] && [ ${resultPngInDrawable} -eq 0 ]; then
+if [[ ${resultNbOfDrawable} -eq 0 ]] && [[ ${resultForbiddenStringInCode} -eq 0 ]] && [[ ${resultForbiddenStringInResource} -eq 0 ]] && [[ ${resultLongFiles} -eq 0 ]] && [[ ${resultPngInDrawable} -eq 0 ]]; then
    echo "MAIN OK"
 else
-   echo "MAIN ERROR"
+   echo "❌ MAIN ERROR"
    exit 1
 fi

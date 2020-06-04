@@ -27,10 +27,10 @@ import android.text.TextUtils;
 import android.view.MotionEvent;
 import android.view.View;
 
-import org.matrix.androidsdk.data.timeline.EventTimeline;
-import org.matrix.androidsdk.data.RoomState;
-import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.core.Log;
+import org.matrix.androidsdk.data.RoomState;
+import org.matrix.androidsdk.data.timeline.EventTimeline;
+import org.matrix.androidsdk.rest.model.Event;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -86,18 +86,6 @@ public class VectorSearchMessagesListFragment extends VectorMessageListFragment 
             }
             mSearchingPattern = null;
         }
-    }
-
-    /**
-     * Called when a fragment is first attached to its activity.
-     * {@link #onCreate(Bundle)} will be called after this.
-     *
-     * @param aHostActivity parent activity
-     */
-    @Override
-    public void onAttach(Activity aHostActivity) {
-        super.onAttach(aHostActivity);
-        mProgressView = getActivity().findViewById(R.id.search_load_oldest_progress);
     }
 
     /**

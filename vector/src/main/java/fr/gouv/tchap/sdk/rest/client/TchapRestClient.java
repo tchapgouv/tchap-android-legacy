@@ -31,7 +31,7 @@ public class TchapRestClient extends RestClient<TchapApi> {
      * {@inheritDoc}
      */
     public TchapRestClient(HomeServerConnectionConfig hsConfig) {
-        super(hsConfig, TchapApi.class, URI_API_PREFIX_IDENTITY, JsonUtils.getGson(false), true);
+        super(hsConfig, TchapApi.class, URI_IDENTITY_PATH, JsonUtils.getGson(false), true);
     }
 
     /**

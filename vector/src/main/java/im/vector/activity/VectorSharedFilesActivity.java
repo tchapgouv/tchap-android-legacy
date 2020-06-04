@@ -21,8 +21,8 @@ import android.content.Intent;
 
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.core.FileContentUtils;
-import org.matrix.androidsdk.data.RoomMediaMessage;
 import org.matrix.androidsdk.core.Log;
+import org.matrix.androidsdk.data.RoomMediaMessage;
 
 import java.io.File;
 import java.util.ArrayList;

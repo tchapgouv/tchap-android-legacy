@@ -24,6 +24,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.text.SpannableString;
 import android.text.TextUtils;
+
 import com.google.android.material.textfield.TextInputEditText;
 
 import androidx.annotation.Nullable;
@@ -71,6 +72,7 @@ import fr.gouv.tchap.sdk.session.room.model.RoomRetentionKt;
 import fr.gouv.tchap.util.DinsicUtils;
 import fr.gouv.tchap.util.DinumUtilsKt;
 import fr.gouv.tchap.util.HexagonMaskView;
+
 import fr.gouv.tchap.util.RoomRetentionPeriodPickerDialogFragment;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -140,6 +142,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
         mSession = Matrix.getInstance(this).getDefaultSession();
 
+        configureToolbar();
         setTitle(R.string.tchap_room_creation_title);
 
         // Initialize the room messages retention period which is underlined and clickable
@@ -203,7 +206,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                     mRoomParams.roomAliasName = mRoomParams.name.trim().replace(" ", "");
 
                     if (mRoomParams.roomAliasName.contains(":")) {
-                        mRoomParams.roomAliasName = mRoomParams.roomAliasName.replace(":","");
+                        mRoomParams.roomAliasName = mRoomParams.roomAliasName.replace(":", "");
                     }
 
                     if (mRoomParams.roomAliasName.isEmpty()) {
@@ -253,7 +256,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
             if (!mParticipantsIds.isEmpty()) {
                 // Remove the potential selected external users
-                for (int index = 0; index < mParticipantsIds.size();) {
+                for (int index = 0; index < mParticipantsIds.size(); ) {
                     String selectedUserId = mParticipantsIds.get(index);
                     if (DinsicUtils.isExternalTchapUser(selectedUserId)) {
                         mParticipantsIds.remove(selectedUserId);
@@ -305,7 +308,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                 // Remove the potential selected users who don't belong to the user HS
                 String currentUserHS = DinsicUtils.getHomeServerNameFromMXIdentifier(mSession.getMyUserId());
 
-                for (int index = 0; index < mParticipantsIds.size();) {
+                for (int index = 0; index < mParticipantsIds.size(); ) {
                     String selectedUserId = mParticipantsIds.get(index);
                     if (!DinsicUtils.getHomeServerNameFromMXIdentifier(selectedUserId).equals(currentUserHS)) {
                         mParticipantsIds.remove(selectedUserId);
@@ -417,7 +420,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
      * Force the room access rule in the room creation parameters.
      *
      * @param roomAccessRule the expected room access rule, set null to remove any existing value.
-     *                          see {@link RoomAccessRulesKt}
+     *                       see {@link RoomAccessRulesKt}
      */
     private void setRoomAccessRule(@Nullable String roomAccessRule) {
         // Remove the existing value if any.
@@ -560,8 +563,8 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     /**
      * Upload the avatar on the server.
      *
-     * @param roomId          the room id.
-     * @param thumbnailUri    the uri of the avatar image.
+     * @param roomId       the room id.
+     * @param thumbnailUri the uri of the avatar image.
      */
     private void uploadRoomAvatar(final String roomId, final Uri thumbnailUri) {
         showWaitingView();
@@ -600,8 +603,8 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     /**
      * Update the room avatar.
      *
-     * @param roomId        the room id.
-     * @param contentUri    the uri of the avatar image.
+     * @param roomId     the room id.
+     * @param contentUri the uri of the avatar image.
      */
     private void updateRoomAvatar(final String roomId, final String contentUri) {
         showWaitingView();
@@ -653,7 +656,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     /**
      * Open the room that has just been created.
      *
-     * @param roomId    the room id.
+     * @param roomId the room id.
      */
     private void openRoom(final String roomId) {
         Log.d(LOG_TAG, "## openRoom(): start VectorHomeActivity..");
@@ -693,7 +696,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     /**
      * Open the screen to select the members to invite in the room.
      *
-     * @param requestCode    the request id.
+     * @param requestCode the request id.
      */
     private void inviteMembers(int requestCode) {
         Intent intent = new Intent(TchapRoomCreationActivity.this, VectorRoomInviteMembersActivity.class);

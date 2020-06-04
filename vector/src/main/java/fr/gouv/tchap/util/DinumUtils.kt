@@ -75,7 +75,7 @@ fun setRoomRetention(session: MXSession, room: Room, periodInDays: Int, callback
  */
 fun clearSessionExpiredContents(session: MXSession) {
     session.dataHandler.store
-            .takeIf { it.isReady }
+            .takeIf { it?.isReady?: false }
             ?.let { store ->
                 store.rooms
                         .filter { !it.isInvited }
@@ -94,7 +94,7 @@ fun clearSessionExpiredContents(session: MXSession) {
  */
 fun clearExpiredRoomContents(session: MXSession, room: Room): Boolean {
     return session.dataHandler.store
-            .takeIf { it.isReady }
+            .takeIf { it?.isReady?: false }
             ?.let { store ->
                 clearExpiredRoomContentsFromStore(store, room)
                         .also { hasStoreChanged -> if (hasStoreChanged) store.commit() }

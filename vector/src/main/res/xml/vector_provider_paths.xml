@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths>
-    <external-path name="external_files" path="."/>
+    <external-path
+        name="external_files"
+        path="." />
     <files-path
         name="shared"
-        path="ext_share"/>
+        path="ext_share" />
 </paths>

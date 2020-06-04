@@ -51,6 +51,7 @@ public class KnownContactsAdapterSection extends AdapterSection<ParticipantAdapt
         mCustomHeaderExtra = extraHeader;
     }
 
+    // FIXME i18n
     @Override
     protected void updateTitle() {
         String newTitle;

@@ -4,7 +4,8 @@
     android:id="@+id/lock_main_layout"
     android:layout_width="200dp"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="8dp">
 
     <TextView
         android:id="@+id/lock_screen_room_name"
@@ -17,7 +18,7 @@
         android:paddingRight="5dp"
         android:paddingBottom="5dp"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="?attr/vctr_riot_primary_text_color"
+        android:textColor="?android:textColorPrimary"
         android:textStyle="bold"
         tools:text="Room name" />
 
@@ -25,7 +26,7 @@
         android:id="@+id/lock_screen_separator"
         android:layout_width="match_parent"
         android:layout_height="2dp"
-        android:background="@color/vector_green_color" />
+        android:background="?attr/colorAccent" />
 
     <TextView
         android:id="@+id/lock_screen_sender"
@@ -37,7 +38,6 @@
         android:paddingEnd="5dp"
         android:paddingRight="5dp"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="?attr/vctr_riot_primary_text_color"
         android:textStyle="bold"
         tools:text="SENDER :" />
 
@@ -69,16 +69,18 @@
             android:layout_gravity="start"
             android:layout_weight="1"
             android:hint="@string/lock_screen_hint"
+            android:imeOptions="actionSend"
             android:inputType="textCapSentences"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
-        <ImageButton
+        <ImageView
             android:id="@+id/lock_screen_sendbutton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/ic_material_send_green"
             android:rotationY="@integer/rtl_mirror_flip"
-            android:textColor="@android:color/black" />
+            android:src="@drawable/ic_material_send_green"
+            android:textColor="@android:color/black"
+            android:tint="?attr/colorAccent" />
     </LinearLayout>
 
 </LinearLayout>

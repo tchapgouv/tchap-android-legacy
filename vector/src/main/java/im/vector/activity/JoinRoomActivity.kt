@@ -21,12 +21,12 @@ import android.content.Intent
 import android.text.TextUtils
 import im.vector.Matrix
 import im.vector.R
-import im.vector.notifications.NotificationUtils
+import im.vector.VectorApp
 import org.matrix.androidsdk.MXSession
-import org.matrix.androidsdk.data.Room
+import org.matrix.androidsdk.core.Log
 import org.matrix.androidsdk.core.callback.ApiCallback
 import org.matrix.androidsdk.core.model.MatrixError
-import org.matrix.androidsdk.core.Log
+import org.matrix.androidsdk.data.Room
 
 /**
  * JoinRoomActivity is a dummy activity to join / reject a room invitation
@@ -40,9 +40,6 @@ class JoinRoomActivity : VectorAppCompatActivity() {
         val matrixId = intent.getStringExtra(EXTRA_MATRIX_ID)
         val join = intent.getBooleanExtra(EXTRA_JOIN, false)
         val reject = intent.getBooleanExtra(EXTRA_REJECT, false)
-
-        // Cancel the notification
-        NotificationUtils.cancelNotificationMessage(this)
 
         if (TextUtils.isEmpty(roomId) || TextUtils.isEmpty(matrixId)) {
             Log.e(LOG_TAG, "## onCreate() : invalid parameters")
@@ -73,6 +70,9 @@ class JoinRoomActivity : VectorAppCompatActivity() {
                 override fun onSuccess(v: Void?) {
                     Log.d(LOG_TAG, "## onCreate() : join succeeds")
 
+                    // Cancel the notification
+                    VectorApp.getInstance().notificationDrawerManager.clearMemberShipNotificationForRoom(roomId)
+
                     // TODO It should be great to open the just join room, but this callback is not called fast, because
                     // TODO Room waits for initial sync and it can be quite long.
                     /*
@@ -101,6 +101,8 @@ class JoinRoomActivity : VectorAppCompatActivity() {
             room.leave(object : ApiCallback<Void> {
                 override fun onSuccess(info: Void?) {
                     Log.d(LOG_TAG, "## onCreate() : reject succeeds")
+                    // Cancel the notification
+                    VectorApp.getInstance().notificationDrawerManager.clearMemberShipNotificationForRoom(roomId)
                 }
 
                 override fun onNetworkError(e: Exception) {

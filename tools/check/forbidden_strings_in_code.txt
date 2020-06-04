@@ -53,9 +53,6 @@ protected Integer
 ### Use the interface declaration. Example: use type "Map" instead of type "HashMap" to declare variable or parameter
 (private|public|protected|    ) (static )?(final )?(HashMap|HashSet|ArrayList)<
 
-### Prefer comparison the ascending way, when checking for value in range. Use <=
->= .* &&===13
-
 ### Use int instead of short
 Short\.parseShort
 \(short\)
@@ -136,8 +133,8 @@ getActivity\(\)\.getString\(
 ### In Kotlin, Void has to be null safe, i.e. use 'Void?' instead of 'Void'
 \: Void\)
 
-### Home menu click is managed in parent Activity, with one exception
-android\.R\.id\.home===2
+### Home menu click is managed in parent Activity, with two exceptions
+android\.R\.id\.home===3
 
 ### Kotlin conversion tools introduce this, but is can be replace by trim()
 trim \{ it \<\= \' \' \}

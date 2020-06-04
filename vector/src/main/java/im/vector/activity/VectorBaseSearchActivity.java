@@ -23,9 +23,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.speech.RecognizerIntent;
-import androidx.annotation.CallSuper;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AlertDialog;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -36,6 +33,10 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import androidx.annotation.CallSuper;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 
 import org.jetbrains.annotations.NotNull;
 import org.matrix.androidsdk.core.Log;
@@ -74,6 +75,8 @@ public abstract class VectorBaseSearchActivity extends MXCActionBarActivity {
     @Override
     @CallSuper
     public void initUiAndData() {
+        configureToolbar();
+
         mActionBar = getSupportActionBar();
         View actionBarView = customizeActionBar();
 

@@ -31,8 +31,10 @@
         android:paddingEnd="6dp"
         android:paddingRight="6dp"
         android:paddingBottom="3dp"
+        android:textColor="@android:color/white"
         android:textSize="12sp"
         android:textStyle="bold"
+        tools:background="?vctr_notice_secondary"
         tools:text="12" />
 
     <androidx.recyclerview.widget.RecyclerView
@@ -49,7 +51,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/section_header"
         android:padding="16dp"
-        android:textColor="?attr/vctr_default_text_light_color"
+        android:textColor="?android:textColorSecondary"
         android:textSize="14sp"
         tools:text="No items" />
 </merge>

@@ -16,25 +16,30 @@
 package im.vector.view
 
 import android.content.Context
-import android.preference.PreferenceManager
-import android.text.Html
+import android.text.Spannable
+import android.text.SpannableString
 import android.text.TextUtils
 import android.text.method.LinkMovementMethod
+import android.text.style.ClickableSpan
 import android.util.AttributeSet
 import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.edit
+import androidx.preference.PreferenceManager
+import androidx.transition.TransitionManager
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
 import im.vector.R
 import im.vector.VectorApp
+import im.vector.ui.animation.VectorTransitionSet
 import im.vector.util.openUrlInExternalBrowser
 import org.matrix.androidsdk.MXSession
-import org.matrix.androidsdk.rest.model.URLPreview
 import org.matrix.androidsdk.core.Log
+import org.matrix.androidsdk.rest.model.URLPreview
 import java.util.*
 
 /**
@@ -87,11 +92,26 @@ class UrlPreviewView @JvmOverloads constructor(
 
             mTitleTextView.let {
                 if (null != preview.requestedURL && null != preview.title) {
-                    it.text = Html.fromHtml("<a href=\"" + preview.requestedURL + "\">" + preview.title + "</a>")
+                    it.text = SpannableString(preview.title)
+                            .apply {
+                                setSpan(object : ClickableSpan() {
+                                    override fun onClick(widget: View?) {
+                                        openUrlInExternalBrowser(context, preview.requestedURL)
+                                    }
+                                }, 0, preview.title.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                            }
                 } else if (null != preview.title) {
+                    // No link in this case
                     it.text = preview.title
                 } else {
-                    it.text = preview.requestedURL
+                    it.text = SpannableString(preview.requestedURL)
+                            .apply {
+                                setSpan(object : ClickableSpan() {
+                                    override fun onClick(widget: View?) {
+                                        openUrlInExternalBrowser(context, preview.requestedURL)
+                                    }
+                                }, 0, preview.requestedURL.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                            }
                 }
 
                 it.movementMethod = LinkMovementMethod.getInstance()
@@ -109,10 +129,8 @@ class UrlPreviewView @JvmOverloads constructor(
             mUID = uid
 
             if (preview.requestedURL != null) {
-                if (preview.requestedURL != null) {
-                    mDescriptionTextView.setOnClickListener { openUrlInExternalBrowser(context, preview.requestedURL) }
-                    mImageView.setOnClickListener { openUrlInExternalBrowser(context, preview.requestedURL) }
-                }
+                mDescriptionTextView.setOnClickListener { openUrlInExternalBrowser(context, preview.requestedURL) }
+                mImageView.setOnClickListener { openUrlInExternalBrowser(context, preview.requestedURL) }
             } else {
                 mDescriptionTextView.isClickable = false
                 mImageView.isClickable = false
@@ -126,8 +144,15 @@ class UrlPreviewView @JvmOverloads constructor(
 
     @OnClick(R.id.url_preview_hide_image_view)
     internal fun closeUrlPreview() {
+        // Parent is a LinearLayout
+        val parent = parent as ViewGroup
+        TransitionManager.beginDelayedTransition(parent, VectorTransitionSet().apply {
+            appearWithAlpha(this@UrlPreviewView)
+        })
+
         mIsDismissed = true
-        visibility = View.GONE
+
+        parent.removeView(this)
 
         sDismissedUrlsPreviews.add(mUID)
 

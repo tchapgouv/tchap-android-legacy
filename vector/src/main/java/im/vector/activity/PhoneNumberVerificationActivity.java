@@ -19,9 +19,6 @@ package im.vector.activity;
 
 import android.content.Context;
 import android.content.Intent;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
-import androidx.appcompat.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -31,16 +28,18 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.jetbrains.annotations.NotNull;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+
 import org.matrix.androidsdk.MXSession;
+import org.matrix.androidsdk.core.Log;
 import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.core.model.MatrixError;
+import org.matrix.androidsdk.rest.model.SuccessResult;
 import org.matrix.androidsdk.rest.model.pid.ThreePid;
-import org.matrix.androidsdk.core.Log;
 
 import im.vector.Matrix;
 import im.vector.R;
-import im.vector.ui.themes.ActivityOtherThemes;
 
 public class PhoneNumberVerificationActivity extends VectorAppCompatActivity implements TextView.OnEditorActionListener, TextWatcher {
 
@@ -78,12 +77,6 @@ public class PhoneNumberVerificationActivity extends VectorAppCompatActivity imp
      * *********************************************************************************************
      */
 
-    @NotNull
-    @Override
-    public ActivityOtherThemes getOtherThemes() {
-        return ActivityOtherThemes.NoActionBar.INSTANCE;
-    }
-
     @Override
     public int getLayoutRes() {
         return R.layout.activity_phone_number_verification;
@@ -96,12 +89,7 @@ public class PhoneNumberVerificationActivity extends VectorAppCompatActivity imp
 
     @Override
     public void initUiAndData() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (null != getSupportActionBar()) {
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
+        configureToolbar();
 
         mPhoneNumberCode = findViewById(R.id.phone_number_code_value);
         mPhoneNumberCodeLayout = findViewById(R.id.phone_number_code);
@@ -115,7 +103,7 @@ public class PhoneNumberVerificationActivity extends VectorAppCompatActivity imp
             return;
         }
 
-        mThreePid = (ThreePid) intent.getSerializableExtra(EXTRA_PID);
+        mThreePid = intent.getParcelableExtra(EXTRA_PID);
 
         mPhoneNumberCode.addTextChangedListener(this);
         mPhoneNumberCode.setOnEditorActionListener(this);
@@ -160,14 +148,11 @@ public class PhoneNumberVerificationActivity extends VectorAppCompatActivity imp
                 mPhoneNumberCodeLayout.setError(getString(R.string.settings_phone_number_verification_error_empty_code));
             } else {
                 showWaitingView();
-                mSession.getThirdPidRestClient().submitValidationToken(mThreePid.medium,
-                        mPhoneNumberCode.getText().toString(),
-                        mThreePid.clientSecret,
-                        mThreePid.sid,
-                        new ApiCallback<Boolean>() {
+                mSession.getIdentityServerManager().submitValidationToken(mThreePid, mPhoneNumberCode.getText().toString(),
+                        new ApiCallback<SuccessResult>() {
                             @Override
-                            public void onSuccess(Boolean isSuccess) {
-                                if (isSuccess) {
+                            public void onSuccess(SuccessResult result) {
+                                if (result.success) {
                                     // the validation of mail ownership succeed, just resume the registration flow
                                     // next step: just register
                                     Log.e(LOG_TAG, "## submitPhoneNumberValidationToken(): onSuccess() - registerAfterEmailValidations() started");
@@ -199,29 +184,32 @@ public class PhoneNumberVerificationActivity extends VectorAppCompatActivity imp
     }
 
     private void registerAfterPhoneNumberValidation(final ThreePid pid) {
-        mSession.getMyUser().add3Pid(pid, true, new ApiCallback<Void>() {
-            @Override
-            public void onSuccess(Void info) {
-                Intent intent = new Intent();
-                setResult(RESULT_OK, intent);
-                finish();
-            }
-
-            @Override
-            public void onNetworkError(Exception e) {
-                onSubmitCodeError(e.getLocalizedMessage());
-            }
-
-            @Override
-            public void onMatrixError(MatrixError e) {
-                onSubmitCodeError(e.getLocalizedMessage());
-            }
-
-            @Override
-            public void onUnexpectedError(Exception e) {
-                onSubmitCodeError(e.getLocalizedMessage());
-            }
-        });
+        // The method `finalizeAddSessionForEmail` has been removed, and it is not defined in the current sdk
+        // The corresponding code change has not been merged on riot-android yet (when we achieved the rebase)
+        // Comment this code until the update is available
+//        mSession.getIdentityServerManager().finalizeAddSessionForEmail(pid, new ApiCallback<Void>() {
+//            @Override
+//            public void onSuccess(Void info) {
+//                Intent intent = new Intent();
+//                setResult(RESULT_OK, intent);
+//                finish();
+//            }
+//
+//            @Override
+//            public void onNetworkError(Exception e) {
+//                onSubmitCodeError(e.getLocalizedMessage());
+//            }
+//
+//            @Override
+//            public void onMatrixError(MatrixError e) {
+//                onSubmitCodeError(e.getLocalizedMessage());
+//            }
+//
+//            @Override
+//            public void onUnexpectedError(Exception e) {
+//                onSubmitCodeError(e.getLocalizedMessage());
+//            }
+//        });
     }
 
     private void onSubmitCodeError(final String errorMessage) {

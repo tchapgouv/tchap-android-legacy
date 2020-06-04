@@ -9,20 +9,22 @@
     android:paddingEnd="10dp"
     android:paddingRight="10dp">
 
-    <include
-        android:id="@+id/contact_avatar_layout"
-        layout="@layout/adapter_item_circular_avatar_contact_view"
+    <im.vector.view.VectorCircularImageView
+        android:id="@+id/adapter_item_contact_avatar"
         android:layout_width="@dimen/chat_avatar_size"
         android:layout_height="@dimen/chat_avatar_size"
-        android:layout_centerVertical="true" />
+        android:layout_centerVertical="true"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        tools:src="@tools:sample/avatars" />
 
     <ImageView
         android:id="@+id/contact_status"
         android:layout_width="10dp"
         android:layout_height="10dp"
-        android:layout_alignEnd="@+id/contact_avatar_layout"
-        android:layout_alignRight="@+id/contact_avatar_layout"
-        android:layout_alignBottom="@+id/contact_avatar_layout"
+        android:layout_alignEnd="@+id/adapter_item_contact_avatar"
+        android:layout_alignRight="@+id/adapter_item_contact_avatar"
+        android:layout_alignBottom="@+id/adapter_item_contact_avatar"
         android:src="@drawable/tchap_presence_status_icon_style"
         android:layout_marginStart="-10dp"
         android:layout_marginLeft="-10dp"
@@ -37,7 +39,8 @@
         android:layout_marginLeft="16dp"
         android:layout_marginEnd="5dp"
         android:layout_marginRight="5dp"
-        android:layout_toRightOf="@+id/contact_avatar_layout">
+        android:layout_toEndOf="@+id/adapter_item_contact_avatar"
+        android:layout_toRightOf="@+id/adapter_item_contact_avatar">
 
         <TextView
             android:id="@+id/contact_name"
@@ -47,7 +50,7 @@
             android:ellipsize="end"
             android:gravity="center_vertical"
             android:maxLines="1"
-            android:textColor="?attr/vctr_riot_primary_text_color"
+            android:textColor="?android:textColorTertiary"
             android:textSize="16sp"
             android:textStyle="bold"
             tools:text="A member name" />

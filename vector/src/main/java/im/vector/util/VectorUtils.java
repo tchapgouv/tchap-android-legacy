@@ -34,9 +34,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
-import androidx.annotation.Nullable;
-import androidx.collection.LruCache;
-import androidx.appcompat.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewParent;
@@ -47,25 +44,29 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.collection.LruCache;
+import androidx.core.content.ContextCompat;
+
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.call.MXCallsManager;
-import org.matrix.androidsdk.data.Room;
-import org.matrix.androidsdk.data.RoomPreviewData;
-import org.matrix.androidsdk.db.MXMediaCache;
-import org.matrix.androidsdk.core.callback.ApiCallback;
-import org.matrix.androidsdk.core.callback.SimpleApiCallback;
-import org.matrix.androidsdk.core.model.MatrixError;
-import org.matrix.androidsdk.rest.model.group.Group;
-import org.matrix.androidsdk.rest.model.publicroom.PublicRoom;
-import org.matrix.androidsdk.rest.model.RoomMember;
-import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.core.ImageUtils;
 import org.matrix.androidsdk.core.Log;
 import org.matrix.androidsdk.core.ResourceUtils;
+import org.matrix.androidsdk.core.callback.ApiCallback;
+import org.matrix.androidsdk.core.callback.SimpleApiCallback;
+import org.matrix.androidsdk.core.model.MatrixError;
+import org.matrix.androidsdk.data.Room;
+import org.matrix.androidsdk.data.RoomPreviewData;
+import org.matrix.androidsdk.db.MXMediaCache;
+import org.matrix.androidsdk.rest.model.RoomMember;
+import org.matrix.androidsdk.rest.model.User;
+import org.matrix.androidsdk.rest.model.group.Group;
+import org.matrix.androidsdk.rest.model.publicroom.PublicRoom;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -150,7 +151,14 @@ public class VectorUtils {
     // avatars cache
     static final private LruCache<String, Bitmap> mAvatarImageByKeyDict = new LruCache<>(20 * 1024 * 1024);
     // the avatars background color
-    static final private List<Integer> mColorList = new ArrayList<>(Arrays.asList(0xff8b8999, 0xff8b8999, 0xff8b8999));
+    static final private List<Integer> mColorList = new ArrayList<>();
+
+    public static void initAvatarColors(Context context) {
+        mColorList.clear();
+        mColorList.add(ContextCompat.getColor(context, R.color.avatar_color_1));
+        mColorList.add(ContextCompat.getColor(context, R.color.avatar_color_2));
+        mColorList.add(ContextCompat.getColor(context, R.color.avatar_color_3));
+    }
 
     /**
      * Provides the avatar background color from a text.
@@ -197,7 +205,7 @@ public class VectorUtils {
      * @return the generated bitmap
      */
     private static Bitmap createAvatar(int backgroundColor, String text, int pixelsSide) {
-        android.graphics.Bitmap.Config bitmapConfig = android.graphics.Bitmap.Config.ARGB_8888;
+        Bitmap.Config bitmapConfig = Bitmap.Config.ARGB_8888;
 
         Bitmap bitmap = Bitmap.createBitmap(pixelsSide, pixelsSide, bitmapConfig);
         Canvas canvas = new Canvas(bitmap);
@@ -208,6 +216,7 @@ public class VectorUtils {
         Paint textPaint = new Paint();
         textPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
         textPaint.setColor(Color.WHITE);
+        textPaint.setTextAlign(Paint.Align.CENTER);
         // the text size is proportional to the avatar size.
         // by default, the avatar size is 42dp, the text size is 28 dp (not sp because it has to be fixed).
         textPaint.setTextSize(pixelsSide * 2 / 3);
@@ -218,8 +227,8 @@ public class VectorUtils {
 
         // draw the text in center
         canvas.drawText(text,
-                (canvas.getWidth() - textBounds.width() - textBounds.left) / 2,
-                (canvas.getHeight() + textBounds.height() - textBounds.bottom) / 2,
+                canvas.getWidth() / 2,
+                (canvas.getHeight() - textBounds.top) / 2,
                 textPaint);
 
         // Return the avatar

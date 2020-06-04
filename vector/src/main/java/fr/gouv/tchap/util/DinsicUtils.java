@@ -51,11 +51,14 @@ import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.core.callback.SimpleApiCallback;
 import org.matrix.androidsdk.core.model.MatrixError;
+import org.matrix.androidsdk.features.identityserver.IdentityServerNotConfiguredException;
 import org.matrix.androidsdk.rest.model.CreateRoomParams;
 import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.rest.model.RoomCreateContent;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.User;
+import org.matrix.androidsdk.rest.model.pid.Invite3Pid;
+import org.matrix.androidsdk.rest.model.pid.RoomThirdPartyInvite;
 import org.matrix.androidsdk.rest.model.pid.ThreePid;
 import org.matrix.androidsdk.core.Log;
 
@@ -82,6 +85,7 @@ import im.vector.adapters.ParticipantAdapterItem;
 import im.vector.contacts.Contact;
 import im.vector.contacts.ContactsManager;
 import im.vector.util.RoomUtils;
+import kotlin.Pair;
 
 public class DinsicUtils {
     private static final String LOG_TAG = "DinsicUtils";
@@ -759,22 +763,32 @@ public class DinsicUtils {
         boolean retCode = false;
 
         if (!TextUtils.isEmpty(participantUserId)) {
-            retCode = true;
+
             CreateRoomParams params = new CreateRoomParams();
-
             params.setDirectMessage();
-            params.addParticipantIds(session.getHomeServerConfig(), Arrays.asList(participantUserId));
 
-            // Add the right room access rule
-            Event roomAccessRulesEvent = new Event();
-            roomAccessRulesEvent.type = RoomAccessRulesKt.EVENT_TYPE_STATE_ROOM_ACCESS_RULES;
-            Map<String, String> contentMap = new HashMap<>();
-            contentMap.put(RoomAccessRulesKt.STATE_EVENT_CONTENT_KEY_RULE, RoomAccessRulesKt.DIRECT);
-            roomAccessRulesEvent.updateContent(JsonUtils.getGson(false).toJsonTree(contentMap));
-            roomAccessRulesEvent.stateKey = "";
-            params.initialStates = Arrays.asList(roomAccessRulesEvent);
+            try {
+                Pair<List<Invite3Pid>, List<String>> listPair = session.
+                        getIdentityServerManager().
+                        getInvite3pid(session.getHomeServerConfig().getCredentials().userId, Arrays.asList(participantUserId));
 
-            session.createRoom(params, createRoomCallBack);
+                params.invite3pids = listPair.getFirst();
+                params.invitedUserIds = listPair.getSecond();
+
+                // Add the right room access rule
+                Event roomAccessRulesEvent = new Event();
+                roomAccessRulesEvent.type = RoomAccessRulesKt.EVENT_TYPE_STATE_ROOM_ACCESS_RULES;
+                Map<String, String> contentMap = new HashMap<>();
+                contentMap.put(RoomAccessRulesKt.STATE_EVENT_CONTENT_KEY_RULE, RoomAccessRulesKt.DIRECT);
+                roomAccessRulesEvent.updateContent(JsonUtils.getGson(false).toJsonTree(contentMap));
+                roomAccessRulesEvent.stateKey = "";
+                params.initialStates = Arrays.asList(roomAccessRulesEvent);
+
+                session.createRoom(params, createRoomCallBack);
+                retCode = true;
+            } catch (IdentityServerNotConfiguredException e) {
+                Log.e(LOG_TAG, "## createDirectChat(): failed, you are not using any Identity Server");
+            }
         }
 
         return retCode;
@@ -800,7 +814,7 @@ public class DinsicUtils {
             signUrl = roomEmailInvitation.signUrl;
         }
 
-        room.joinWithThirdPartySigned(roomPreviewData.getRoomIdOrAlias(), signUrl, callback);
+        room.joinWithThirdPartySigned(session, roomPreviewData.getRoomIdOrAlias(), signUrl, callback);
     }
 
     /**

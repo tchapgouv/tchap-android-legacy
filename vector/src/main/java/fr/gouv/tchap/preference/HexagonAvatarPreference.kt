@@ -1,0 +1,69 @@
+/*
+ * Copyright 2019 New Vector Ltd
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package fr.gouv.tchap.preference
+
+import android.content.Context
+import androidx.preference.EditTextPreference
+
+import android.util.AttributeSet
+import android.widget.ProgressBar
+
+import org.matrix.androidsdk.MXSession
+
+import androidx.preference.PreferenceViewHolder
+import fr.gouv.tchap.util.HexagonMaskView
+import im.vector.R
+import im.vector.util.VectorUtils
+
+open class HexagonAvatarPreference : EditTextPreference {
+
+    internal var mAvatarView: HexagonMaskView? = null
+    internal var mSession: MXSession? = null
+    private var mLoadingProgressBar: ProgressBar? = null
+
+    constructor(context: Context) : super(context) {}
+
+    constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {}
+
+    constructor(context: Context, attrs: AttributeSet, defStyle: Int) : super(context, attrs, defStyle) {}
+
+    init {
+        widgetLayoutResource = R.layout.tchap_settings_hexagon_avatar
+        isIconSpaceReserved = false
+    }
+
+    override fun onBindViewHolder(holder: PreferenceViewHolder) {
+        super.onBindViewHolder(holder)
+
+        mAvatarView = holder.itemView.findViewById(R.id.avatar_img)
+        mLoadingProgressBar = holder.itemView.findViewById(R.id.avatar_update_progress_bar)
+        refreshAvatar()
+    }
+
+    open fun refreshAvatar() {
+        if (null != mAvatarView && null != mSession) {
+            val myUser = mSession!!.myUser
+            VectorUtils.loadUserAvatar(context, mSession, mAvatarView, myUser.avatarUrl, myUser.user_id, myUser.displayname)
+        }
+    }
+
+    fun setSession(session: MXSession) {
+        mSession = session
+        refreshAvatar()
+    }
+}
+

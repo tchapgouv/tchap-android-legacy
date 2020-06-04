@@ -10,7 +10,7 @@
         android:id="@+id/room_details_head">
 
         <androidx.appcompat.widget.Toolbar
-            android:id="@+id/room_toolbar"
+            android:id="@+id/toolbar"
             style="@style/TchapRoomToolbarStyle"
             android:layout_width="match_parent"
             android:layout_height="72dp"
@@ -27,7 +27,7 @@
         android:id="@+id/tab_layout"
         android:layout_width="match_parent"
         android:layout_height="45dp"
-        android:layout_below="@+id/room_toolbar"
+        android:layout_below="@+id/toolbar"
 
         app:tabGravity="fill"
         app:tabIndicatorColor="@color/tchap_text_color_light"
@@ -86,22 +86,12 @@
                 android:visibility="visible" />
         </FrameLayout>
 
-        <ProgressBar
-            android:id="@+id/search_load_oldest_progress"
-            android:layout_below="@+id/settings_loading_layout"
-            android:layout_height="40dp"
-            android:layout_width="match_parent"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"
-            android:visibility="gone"
-            android:indeterminate="true" />
-
         <!-- tab fragments container -->
         <FrameLayout
             android:id="@+id/room_details_fragment_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/search_load_oldest_progress"/>
+            android:layout_below="@+id/settings_loading_layout"/>
 
     </RelativeLayout>
 

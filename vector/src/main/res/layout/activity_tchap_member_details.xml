@@ -7,7 +7,7 @@
     android:id="@+id/member_details_activity_main_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/vctr_riot_primary_background_color"
+    android:background="?android:attr/colorBackground"
     android:orientation="vertical">
     <FrameLayout
         android:id="@+id/room_action_bar"
@@ -15,7 +15,7 @@
         android:layout_height="wrap_content">
 
         <androidx.appcompat.widget.Toolbar
-            android:id="@+id/room_toolbar"
+            android:id="@+id/toolbar"
             style="@style/TchapRoomToolbarStyle"
             android:layout_width="match_parent"
             android:layout_height="72dp"
@@ -36,7 +36,7 @@
         android:background="?attr/room_header_divider_color" />
 
     <im.vector.view.VectorCircularImageView
-        android:id="@+id/big_avatar_img"
+        android:id="@+id/member_detail_avatar"
         android:layout_width="@dimen/big_avatar_size"
         android:layout_height="@dimen/big_avatar_size"
         android:layout_below="@+id/header_bottom_separator"
@@ -49,12 +49,12 @@
         android:id="@+id/member_details_presence"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/big_avatar_img"
+        android:layout_below="@id/member_detail_avatar"
         android:layout_marginBottom="16dp"
         android:maxLines="1"
         android:ellipsize="end"
         android:gravity="center_horizontal"
-        android:textColor="?attr/vctr_default_text_light_color"
+        android:textColor="?android:attr/textColorSecondary"
         android:textSize="14sp"
         android:visibility="gone"/>
     <View
@@ -146,7 +146,7 @@
         layout="@layout/adapter_item_vector_recent_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/member_details_action_bar"
+        android:layout_below="@+id/header_bottom_separator_2"
         android:visibility="gone" />
 
     <!-- devices list view: displayed when ExpandableListView is hidden -->
@@ -168,27 +168,5 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone" />
-
-    <!-- display the avatar in fullscreen -->
-    <RelativeLayout
-        android:id="@+id/member_details_fullscreen_avatar_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@android:color/black"
-        android:visibility="gone">
-
-        <ProgressBar
-            android:id="@+id/progress_bar_view"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_centerInParent="true" />
-
-        <ImageView
-            android:id="@+id/member_details_fullscreen_avatar_image_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:adjustViewBounds="true"
-            android:scaleType="fitCenter" />
-    </RelativeLayout>
 
 </RelativeLayout>

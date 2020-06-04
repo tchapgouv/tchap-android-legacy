@@ -72,8 +72,8 @@ public class TchapRoomsFragment extends AbsHomeFragment implements AbsHomeFragme
      */
 
     @Override
-    public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_rooms, container, false);
+    public int getLayoutResId() {
+        return R.layout.fragment_rooms;
     }
 
     @Override
@@ -82,6 +82,9 @@ public class TchapRoomsFragment extends AbsHomeFragment implements AbsHomeFragme
 
         mPrimaryColor = ContextCompat.getColor(getActivity(), R.color.tab_rooms);
         mSecondaryColor = ContextCompat.getColor(getActivity(), R.color.tab_rooms_secondary);
+
+        mFabColor = ContextCompat.getColor(getActivity(), R.color.tab_rooms);
+        mFabPressedColor = ContextCompat.getColor(getActivity(), R.color.tab_rooms_secondary);
 
         initViews();
 

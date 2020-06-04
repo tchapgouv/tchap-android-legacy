@@ -20,23 +20,23 @@ package im.vector.adapters;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.GradientDrawable;
-import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.matrix.androidsdk.core.MXPatterns;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.RecyclerView;
+
 import org.matrix.androidsdk.MXSession;
+import org.matrix.androidsdk.core.Log;
+import org.matrix.androidsdk.core.MXPatterns;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomSummary;
 import org.matrix.androidsdk.data.RoomTag;
 import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.core.BingRulesManager;
-import org.matrix.androidsdk.core.Log;
 import java.util.Set;
 
 import butterknife.BindView;
@@ -48,6 +48,7 @@ import im.vector.R;
 import im.vector.ui.themes.ThemeUtils;
 import im.vector.util.RoomUtils;
 import im.vector.util.VectorUtils;
+import im.vector.util.ViewUtilKt;
 
 public class RoomViewHolder extends RecyclerView.ViewHolder {
     private static final String LOG_TAG = RoomViewHolder.class.getSimpleName();
@@ -78,10 +79,6 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.sender_name)
     @Nullable
     TextView vSenderDisplayName;
-
-    @BindView(R.id.room_name_server)
-    @Nullable
-    TextView vRoomNameServer;
 
     @BindView(R.id.room_message)
     @Nullable
@@ -158,11 +155,6 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
         int highlightCount;
         int notificationCount;
 
-        // Setup colors
-        int defaultColor = ThemeUtils.INSTANCE.getColor(context, R.attr.vctr_default_icon_tint_color);
-        int fuchsiaColor = ContextCompat.getColor(context, R.color.vector_fuchsia_color);
-        int silverColor = ContextCompat.getColor(context, R.color.vector_silver_color);
-
         highlightCount = roomSummary.getHighlightCount();
         notificationCount = roomSummary.getNotificationCount();
 
@@ -172,12 +164,13 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
         }
 
         int bingUnreadColor;
+
         if (isInvitation || (0 != highlightCount)) {
-            bingUnreadColor = fuchsiaColor;
+            bingUnreadColor = ContextCompat.getColor(context, R.color.vector_fuchsia_color);
         } else if (0 != notificationCount) {
-            bingUnreadColor = defaultColor;
+            bingUnreadColor = ThemeUtils.INSTANCE.getColor(context, R.attr.vctr_notice_secondary);
         } else if (0 != unreadMsgCount) {
-            bingUnreadColor = silverColor;
+            bingUnreadColor = ThemeUtils.INSTANCE.getColor(context, R.attr.vctr_unread_room_indent_color);
         } else {
             bingUnreadColor = Color.TRANSPARENT;
         }
@@ -185,11 +178,7 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
         if (isInvitation || notificationCount > 0) {
             vRoomUnreadCount.setText(isInvitation ? "!" : RoomUtils.formatUnreadMessagesCounter(notificationCount));
             vRoomUnreadCount.setTypeface(null, Typeface.BOLD);
-            GradientDrawable shape = new GradientDrawable();
-            shape.setShape(GradientDrawable.RECTANGLE);
-            shape.setCornerRadius(100);
-            shape.setColor(bingUnreadColor);
-            vRoomUnreadCount.setBackground(shape);
+            ViewUtilKt.setRoundBackground(vRoomUnreadCount, bingUnreadColor);
             vRoomUnreadCount.setVisibility(View.VISIBLE);
         } else {
             vRoomUnreadCount.setVisibility(View.GONE);
@@ -236,27 +225,7 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
             VectorUtils.loadRoomAvatar(context, session, vRoomAvatar, room);
         }
 
-        if (vRoomNameServer != null) {
-            // This view holder is for the home page, we have up to two lines to display the name
-            if (MXPatterns.isRoomAlias(roomName)) {
-                // Room alias, split to display the server name on second line
-                final String[] roomAliasSplitted = roomName.split(":");
-                final String firstLine = roomAliasSplitted[0] + ":";
-                final String secondLine = roomAliasSplitted[1];
-                vRoomName.setLines(1);
-                vRoomName.setText(firstLine);
-                vRoomNameServer.setText(secondLine);
-                vRoomNameServer.setVisibility(View.VISIBLE);
-                vRoomNameServer.setTypeface(null, (0 != unreadMsgCount) ? Typeface.BOLD : Typeface.NORMAL);
-            } else {
-                // Allow the name to take two lines
-                vRoomName.setLines(2);
-                vRoomNameServer.setVisibility(View.GONE);
-                vRoomName.setText(roomName);
-            }
-        } else {
-            vRoomName.setText(roomName);
-        }
+        vRoomName.setText(roomName);
 
         // get last message to be displayed
         if (vRoomLastMessage != null) {

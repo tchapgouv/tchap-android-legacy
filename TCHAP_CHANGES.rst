@@ -1,3 +1,21 @@
+Changes in Tchap 1.0.38 (2020-06-04)
+===================================================
+
+Improvements:
+ * Update matrix-sdk.aar libs - Revision: 5fc3aa71a7f4adeeb38c3c5915819cb6c5bd42e9 [5fc3aa71a]
+ * Room history: apply the design with bubbles #572
+ * Rebase onto vector-im/riot-android (PR #589):
+    - Get all changes from Riot 0.8.21 to Riot 0.9.8
+    - Fix Crash / potential NPE after logout (#3367)
+ * Disable key backup in the rebase version of the code #583
+ * Enable the device verification based on emojis string
+ * Updage gradle version
+ * Update the messages displayed during the request of a token by email #577
+
+Bug Fixes:
+ * [Device verification] Only half of the key sharing requests are handled after verification #587
+ * Change history_visibility when a room is removed from the rooms directory #558
+
 Changes in Tchap 1.0.37 (2020-03-05)
 ===================================================
 

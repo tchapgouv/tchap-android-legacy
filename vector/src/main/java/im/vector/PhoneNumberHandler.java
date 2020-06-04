@@ -18,13 +18,14 @@ package im.vector;
 
 import android.app.Activity;
 import android.content.Intent;
-import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
+
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
@@ -66,8 +67,10 @@ public class PhoneNumberHandler implements TextWatcher, View.OnFocusChangeListen
      * *********************************************************************************************
      */
 
-    public PhoneNumberHandler(@NonNull final Activity activity, @NonNull final EditText phoneNumberInput,
-                              @NonNull final EditText countryCodeInput, @DisplayMode final int displayMode,
+    public PhoneNumberHandler(@NonNull final Activity activity,
+                              @NonNull final EditText phoneNumberInput,
+                              @NonNull final EditText countryCodeInput,
+                              @DisplayMode final int displayMode,
                               final int requestCode) {
         mPhoneNumberInput = phoneNumberInput;
         mCountryCodeInput = countryCodeInput;

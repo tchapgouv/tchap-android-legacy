@@ -1,12 +1,12 @@
-/* 
+/*
  * Copyright 2015 OpenMarket Ltd
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,17 +15,24 @@
  */
 package im.vector.widgets;
 
-import java.util.Map;
+import org.matrix.androidsdk.rest.model.openid.RequestOpenIdTokenResponse;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.Query;
 
 interface WidgetsApi {
     /**
      * register to the server
-     * @param body the body content
+     *
+     * @param requestOpenIdTokenResponse the body content (Ref: https://github.com/matrix-org/matrix-doc/pull/1961)
      */
     @POST("register")
-    Call<Map<String, String>> register(@Body Map<Object, Object> body);
+    Call<RegisterResponse> register(@Body RequestOpenIdTokenResponse requestOpenIdTokenResponse, @Query("v") String version);
+
+    @GET("account")
+    Call<Void> validateToken(@Query("scalar_token") String scalarToken, @Query("v") String version);
+
 }

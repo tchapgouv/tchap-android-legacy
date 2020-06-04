@@ -24,7 +24,6 @@ import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Handler;
 import android.os.Looper;
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,17 +33,19 @@ import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.matrix.androidsdk.core.MXPatterns;
+import androidx.preference.PreferenceManager;
+
 import org.matrix.androidsdk.MXSession;
-import org.matrix.androidsdk.data.Room;
-import org.matrix.androidsdk.data.store.IMXStore;
+import org.matrix.androidsdk.core.Log;
+import org.matrix.androidsdk.core.MXPatterns;
 import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.core.callback.SimpleApiCallback;
 import org.matrix.androidsdk.core.model.MatrixError;
+import org.matrix.androidsdk.data.Room;
+import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.rest.model.search.SearchUsersResponse;
-import org.matrix.androidsdk.core.Log;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -1030,12 +1031,9 @@ public class VectorParticipantsAdapter extends BaseExpandableListAdapter {
         }
 
         if (groupPosition != mKnownContactsSectionPosition || mParticipantsListsList.get(groupPosition).size() > 0) {
-            if (isExpanded) {
-                imageView.setImageResource(R.drawable.ic_material_expand_less_black);
-            } else {
-                imageView.setImageResource(R.drawable.ic_material_expand_more_black);
-            }
 
+            int expandLogoRes = isExpanded ? R.drawable.ic_material_expand_more_black : R.drawable.ic_material_expand_less_black;
+            imageView.setImageResource(expandLogoRes);
             boolean groupShouldBeExpanded = isGroupExpanded(groupPosition);
 
             if (parent instanceof ExpandableListView) {
