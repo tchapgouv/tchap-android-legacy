@@ -48,6 +48,7 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.i18n.phonenumbers.NumberParseException
 import com.google.i18n.phonenumbers.PhoneNumberUtil
+import fr.gouv.tchap.config.SUPPORT_KEYS_BACKUP
 import fr.gouv.tchap.media.MediaScanManager
 import fr.gouv.tchap.util.DinsicUtils
 import im.vector.Matrix
@@ -1206,19 +1207,31 @@ class VectorSettingsPreferencesFragment : PreferenceFragmentCompat(), SharedPref
      * Update the password.
      */
     private fun onPasswordUpdateClick() {
-        // Use the SignOutViewModel, it observe the keys backup state and this is what we need here
-        if (SignOutViewModel.doYouNeedToBeDisplayed(mSession)) {
+        if (SUPPORT_KEYS_BACKUP) {
+            // Use the SignOutViewModel, it observe the keys backup state and this is what we need here
+            if (SignOutViewModel.doYouNeedToBeDisplayed(mSession)) {
+                activity?.let { activity ->
+                    AlertDialog.Builder(activity)
+                            .setTitle(R.string.dialog_title_warning)
+                            .setMessage(R.string.settings_change_pwd_caution)
+                            .setPositiveButton(R.string.settings_change_password) { _, _ -> doShowPasswordChangeDialog() }
+                            .setNegativeButton(R.string.settings_change_pwd_key_backup) { _, _ -> manageKeyBackupBeforePwdUpdate() }
+                            .setNeutralButton(R.string.cancel, null)
+                            .show()
+                }
+            } else {
+                doShowPasswordChangeDialog()
+            }
+        } else {
             activity?.let { activity ->
                 AlertDialog.Builder(activity)
                         .setTitle(R.string.dialog_title_warning)
                         .setMessage(R.string.settings_change_pwd_caution)
                         .setPositiveButton(R.string.settings_change_password) { _, _ -> doShowPasswordChangeDialog() }
-                        .setNegativeButton(R.string.settings_change_pwd_key_backup) { _, _ -> manageKeyBackupBeforePwdUpdate() }
+                        .setNegativeButton(R.string.encryption_export_room_keys) { _, _ -> exportKeys() }
                         .setNeutralButton(R.string.cancel, null)
                         .show()
             }
-        } else {
-            doShowPasswordChangeDialog()
         }
     }
 
@@ -2483,11 +2496,15 @@ class VectorSettingsPreferencesFragment : PreferenceFragmentCompat(), SharedPref
         //If crypto is not enabled parent section will be removed
         //TODO notice that this will not work when no network
         findPreference(PreferencesManager.SETTINGS_SECURE_MESSAGE_RECOVERY_PREFERENCE_KEY)?.let {
-            it.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-                context?.let {
-                    startActivity(KeysBackupManageActivity.intent(it, mSession.myUserId))
+            if (SUPPORT_KEYS_BACKUP) {
+                it.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+                    context?.let {
+                        startActivity(KeysBackupManageActivity.intent(it, mSession.myUserId))
+                    }
+                    false
                 }
-                false
+            } else {
+                mCryptographyManageCategory.removePreference(it)
             }
         }
 

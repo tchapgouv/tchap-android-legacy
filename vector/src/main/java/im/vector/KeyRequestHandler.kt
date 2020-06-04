@@ -211,9 +211,10 @@ class KeyRequestHandler(val session: MXSession) : VerificationManager.Verificati
                 false
         )
 
-        alert.addButton(context.getString(R.string.share_without_verifying_short_label), Runnable {
-            shareAllSessions(mappingKey)
-        })
+        // Tchap remove "share without verifying" option
+//        alert.addButton(context.getString(R.string.share_without_verifying_short_label), Runnable {
+//            shareAllSessions(mappingKey)
+//        })
 
         alert.addButton(context.getString(R.string.ignore_request_short_label), Runnable {
             denyAllRequests(mappingKey)

@@ -33,6 +33,7 @@
             android:text="@string/sas_security_advise"
             android:textColor="?android:attr/textColorSecondary"
             android:textSize="15sp"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/sas_emoji_description" />

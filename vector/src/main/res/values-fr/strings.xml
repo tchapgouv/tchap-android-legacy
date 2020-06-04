@@ -478,7 +478,7 @@ Vous pouvez ajouter votre adresse e-mail à votre profil dans les paramètres.</
     <string name="auth_reset_password_message">Pour réinitialiser votre mot de passe, saisissez l’adresse e-mail associée à votre compte :</string>
     <string name="auth_reset_password_missing_email">L’adresse e-mail liée à votre compte doit être saisie.</string>
     <string name="auth_reset_password_missing_password">Un nouveau mot de passe doit être saisi.</string>
-    <string name="auth_reset_password_email_validation_message">Un e-mail a été envoyé à %s. Une fois que vous aurez suivi le lien qu’il contient, cliquez ci-dessous.</string>
+    <string name="auth_reset_password_email_validation_message">Si un compte Tchap existe, un e-mail a été envoyé à l’adresse : %s. Une fois que vous aurez suivi le lien qu’il contient, cliquez ci-dessous.</string>
     <string name="auth_reset_password_error_unauthorized">Impossible de vérifier l’adresse e-mail : assurez-vous d’avoir cliqué sur le lien dans l’e-mail</string>
     <string name="auth_reset_password_success_message">Votre mot de passe a été réinitialisé.
 
@@ -635,8 +635,8 @@ Veuillez noter que cette action redémarrera l’application et pourra prendre u
     <string name="encryption_import_room_keys_summary">Importer les clés à partir d’un fichier local</string>
     <string name="encryption_never_send_to_unverified_devices_summary">Ne jamais envoyer de messages chiffrés aux appareils non vérifiés depuis cet appareil.</string>
 
-    <string name="encryption_information_verify_device_warning">Pour vérifier que cet appareil est de confiance, contactez son propriétaire en utilisant un autre moyen (par exemple en personne ou par téléphone) et demandez-lui si la clé qu’il voit dans ses paramètres utilisateur pour cet appareil correspond à la clé ci-dessous :</string>
-    <string name="encryption_information_verify_device_warning2">Si elle correspond, appuyez sur le bouton Vérifier ci-dessous. Si ce n’est pas le cas, quelqu’un d’autre intercepte cet appareil et vous devriez probablement le bloquer. À l’avenir, ce processus de vérification sera plus évolué.</string>
+    <string name="encryption_information_verify_device_warning">Pour valider que vous pouvez faire confiance à cet appareil, merci de vérifier que la clé que vous voyez dans les Paramètres Utilisateur de cet appareil correspond à la clé ci-dessous :</string>
+    <string name="encryption_information_verify_device_warning2">Si les clés correspondent, cliquer sur le bouton Vérifier ci-dessous.</string>
     <string name="encryption_information_verify_key_match">Je confirme que les clés correspondent</string>
 
     <string name="e2e_enabling_on_app_update">Tchap prend désormais en charge le chiffrement de bout en bout, mais vous devez vous reconnecter pour l’activer.
@@ -907,7 +907,7 @@ Appareils inconnus :</string>
     <string name="tchap_register_warning_for_external_title">Information concernant votre inscription</string>
     <string name="tchap_register_warning_for_external">Le domaine de votre adresse email n’est pas déclaré dans Tchap. Si vous avez reçu une invitation, vous allez pouvoir créer un compte Tchap « invité », permettant uniquement de participer aux échanges privés auxquels vous êtes convié.</string>
     <string name="tchap_register_warning_for_external_proceed">Poursuivre</string>
-    <string name="tchap_register_wait_for_email_title">Un email vous a été envoyé à :</string>
+    <string name="tchap_register_wait_for_email_title">Un email vous a été envoyé à l’adresse suivante, sauf si un compte Tchap lui a déjà été associé :</string>
     <string name="tchap_register_wait_for_email_subtitle">Merci de cliquer sur le lien proposé dans cet email afin de terminer la création de votre compte. Vous pourrez alors vous connecter en allant sur l’écran de connexion.</string>
     <string name="tchap_register_wait_for_email_login_button">Aller à l’écran de connexion</string>
     <string name="tchap_register_wait_for_email_no_email">Je n’ai pas reçu l’email!</string>
@@ -1040,9 +1040,9 @@ La visibilité des messages dans Matrix est identique à celle des e-mails. Si n
     <string name="download">Télécharger</string>
     <string name="speak">Parler</string>
     <string name="clear">Effacer</string>
-    <string name="e2e_re_request_encryption_key"><u>Redemander les clés de chiffrement</u> à vos autres appareils.</string>
+    <string name="e2e_re_request_encryption_key">Demande envoyée. <u>Renvoyer</u></string>
 
-    <string name="e2e_re_request_encryption_key_sent">Demande de clé envoyée.</string>
+    <string name="e2e_re_request_encryption_key_sent">Demande en cours…</string>
 
     <string name="e2e_re_request_encryption_key_dialog_title">Demande envoyée</string>
 
@@ -1429,6 +1429,8 @@ Attention : ce fichier pourrait être supprimé si l’application est désinsta
     <string name="abort">Annuler</string>
 
     <string name="action_sign_out_confirmation_simple">Voulez-vous vraiment vous déconnecter ?</string>
+    <string name="action_sign_out_confirmation">Pour des raisons de sécurité, la déconnexion supprimera toutes les clés de chiffrement de bout en bout, rendant l’historique des conversations chiffrées inaccessible lorsque vous vous reconnecterez.
+Cliquez sur exporter pour les sauvegarder avant de vous déconnecter.</string>
     <string name="settings_data_save_mode_summary">Le mode d’économie de données utilise un filtre spécifique qui ignore les notifications de présence et de saisie.</string>
 
     <string name="encryption_message_recovery">Récupération des messages chiffrés</string>
@@ -1544,31 +1546,32 @@ Si vous n’avez pas configuré de nouvelle méthode de récupération, un attaq
     <string name="key_share_request">Demande de partage de clé</string>
     <string name="ignore_request_short_label">Ignorer</string>
 
-    <string name="sas_verify_title">Vérifier en comparant une courte chaîne de caractères.</string>
+    <string name="sas_verify_title">Vérifier en comparant une liste d’émojis</string>
     <string name="sas_security_advise">Pour une sécurité maximale, nous vous recommandons de faire cela en personne ou d’utiliser d’autres moyens de communication sécurisés.</string>
+    <string name="sas_verify_waiting_for_partner">Merci d’accepter la demande sur l’appareil à vérifier…</string>
     <string name="sas_verify_start_button_title">Commencer la vérification</string>
     <string name="sas_incoming_request_title">Demande de vérification entrante</string>
-    <string name="sas_incoming_request_description">Vérifiez cet appareil pour le marquer comme fiable. Faire confiance aux appareils de vos partenaires vous permet d’être plus serein en utilisant les messages chiffrés de bout en bout.</string>
+    <string name="sas_incoming_request_description">L’un de vos appareils souhaite vérifier votre appareil actuel. En effectuant cette vérification, un lien de confiance s’établira entre vos deux appareils afin de faciliter le partage de clés de chiffrement.</string>
     <string name="sas_incoming_request_description_2">La vérification de cet appareil le marquera comme fiable, et marquera aussi votre appareil comme fiable auprès de votre partenaire.</string>
 
-    <string name="sas_emoji_description">Vérifiez cet appareil en confirmant que les émojis suivant apparaissent sur l’écran de votre partenaire</string>
-    <string name="sas_decimal_description">Vérifiez cet appareil en confirmant que les chiffres suivants apparaissent sur l’écran de votre partenaire</string>
+    <string name="sas_emoji_description">Vérifiez l’appareil en confirmant que les émojis suivants apparaissent également sur son écran</string>
+    <string name="sas_decimal_description">Vérifiez l’appareil en confirmant que les chiffres suivants apparaissent également sur son écran</string>
 
     <string name="sas_incoming_verification_request_dialog">Vous avez reçu une demande de vérification entrante.</string>
     <string name="sas_view_request_action">Voir la demande</string>
-    <string name="sas_waiting_for_partner">Attente de la confirmation du partenaire…</string>
+    <string name="sas_waiting_for_partner">Attente de la confirmation de l’autre appareil…</string>
 
     <string name="sas_verified">Vérifié !</string>
     <string name="sas_verified_successful">Vous avez bien vérifié cet appareil.</string>
-    <string name="sas_verified_successful_description">Les messages sécurisés avec cet utilisateur sont chiffrés de bout en bout et ne peuvent être lus par des tiers.</string>
+    <string name="sas_verified_successful_description">Le partage des clés va s’effectuer progressivement. Les messages se déchiffreront au fur à mesure. Cela peut prendre quelques minutes.</string>
     <string name="sas_got_it">Compris</string>
 
-    <string name="sas_verifying_keys">Rien n’apparaît \? Tous les clients ne prennent pas encore en charge la vérification interactive. Utilisez la vérification traditionnelle.</string>
+    <string name="sas_verifying_keys">Il est possible que la demande ne s’affiche pas sur cet appareil, car certaines versions de l’application ne prennent pas en charge la vérification interactive. Nous vous invitions alors à utiliser la vérification traditionnelle.</string>
     <string name="sas_legacy_verification_button_title">Utiliser la vérification traditionnelle.</string>
 
     <string name="sas_verification_request_notification_channel_title">Vérification de clé</string>
     <string name="sas_cancelled_dialog_title">Demande annulée</string>
-    <string name="sas_cancelled_by_other">Votre interlocuteur a annulé la vérification.
+    <string name="sas_cancelled_by_other">La vérification a été annulée sur l’autre appareil.
 \n%s</string>
     <string name="sas_cancelled_by_me">La vérification est annulée.
 \nMotif : %s</string>
@@ -1905,6 +1908,9 @@ Si vous n’avez pas configuré de nouvelle méthode de récupération, un attaq
     <string name="notice_room_third_party_invite">%1$s a envoyé une invitation à %2$s pour rejoindre la conversation</string>
     <string name="notice_room_third_party_revoked_invite">%1$s a retiré l’invitation de %2$s pour rejoindre la conversation</string>
     <string name="room_error_join_failed_empty_room">Il est impossible pour le moment de revenir dans une conversation vide.</string>
+
+    <string name="notice_crypto_unable_to_decrypt">** Echec de déchiffrement : %s **</string>
+    <string name="notice_crypto_error_unkwown_inbound_session_id">Veuillez ouvrir Tchap sur vos autres appareils afin d’autoriser le partage de clés.</string>
 
     <string name="tab_rooms_title">CONVERSATIONS</string>
     <string name="tab_contacts_title">CONTACTS</string>

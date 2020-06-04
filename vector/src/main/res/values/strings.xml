@@ -111,6 +111,7 @@
     <string name="actions">Actions</string>
     <string name="action_sign_out">Sign out</string>
     <string name="action_sign_out_confirmation_simple">Are you sure you want to sign out?</string>
+    <string name="action_sign_out_confirmation">For security, logging out will delete any end-to-end encryption keys making previous encrypted chat history unreadable if you log back in.\nSelect export to backup them before signing out.</string>
     <string name="action_voice_call">Voice Call</string>
     <string name="action_video_call">Video Call</string>
     <string name="action_global_search">Global search</string>
@@ -1331,7 +1332,7 @@
     <string name="tchap_register_warning_for_external_title">Information about your registration</string>
     <string name="tchap_register_warning_for_external">Your email domain is not registered on Tchap. If you have received an invite, you will be able to create a Tchap account, which will allow you to join only the private discussions in which you are invited.</string>
     <string name="tchap_register_warning_for_external_proceed">Proceed</string>
-    <string name="tchap_register_wait_for_email_title">An e-mail has been sent</string>
+    <string name="tchap_register_wait_for_email_title">An e-mail has been sent, except if an account already exists:</string>
     <string name="tchap_register_wait_for_email_subtitle">Please open it and click in the link it contains to create your account</string>
     <string name="tchap_register_wait_for_email_login_button">Go to login screen</string>
     <string name="tchap_register_wait_for_email_no_email">I have not received any e-mail!</string>
@@ -1582,6 +1583,7 @@
 
     <string name="sas_verify_title">Verify by comparing a short text string.</string>
     <string name="sas_security_advise">For maximum security, we recommend you do this in person or use another trusted means of communication.</string>
+    <string name="sas_verify_waiting_for_partner">Waiting for partner to accept…</string>
     <string name="sas_verify_start_button_title">Begin Verifying</string>
     <string name="sas_incoming_request_title">Incoming Verification Request</string>
     <string name="sas_incoming_request_description">Verify this device to mark it as trusted. Trusting devices of partners gives you extra peace of mind when using end-to-end encrypted messages."</string>
@@ -1887,6 +1889,8 @@
     <string name="notice_room_third_party_invite">%1$s sent an invitation to %2$s to join the room</string>
     <string name="notice_room_third_party_revoked_invite">%1$s revoked the invitation for %2$s to join the room</string>
     <string name="room_error_join_failed_empty_room">It is not currently possible to re-join an empty room.</string>
+    <string name="notice_crypto_unable_to_decrypt">** Unable to decrypt: %s **</string>
+    <string name="notice_crypto_error_unkwown_inbound_session_id">The sender\'s device has not sent us the keys for this message.</string>
 
     <string name="tab_rooms_title">ROOMS</string>
     <string name="tab_contacts_title">CONTACTS</string>

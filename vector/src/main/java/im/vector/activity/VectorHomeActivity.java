@@ -37,8 +37,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.text.Editable;
 import android.text.SpannableString;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -47,6 +49,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewPropertyAnimator;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -75,6 +78,7 @@ import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.textfield.TextInputEditText;
 
 import org.jetbrains.annotations.NotNull;
 import org.matrix.androidsdk.MXDataHandler;
@@ -147,6 +151,8 @@ import im.vector.util.VectorUtils;
 import im.vector.view.KeysBackupBanner;
 import im.vector.view.UnreadCounterBadgeView;
 import im.vector.view.VectorPendingCallView;
+
+import static fr.gouv.tchap.config.TargetConfigurationKt.SUPPORT_KEYS_BACKUP;
 
 /**
  * Displays the main screen of the app, with rooms the user has joined and the ability to create
@@ -368,43 +374,47 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
             }
         }
 
-        // Use the SignOutViewModel, it observe the keys backup state and this is what we need here
-        SignOutViewModel model = ViewModelProviders.of(this).get(SignOutViewModel.class);
+        if (SUPPORT_KEYS_BACKUP) {
+            // Use the SignOutViewModel, it observe the keys backup state and this is what we need here
+            SignOutViewModel model = ViewModelProviders.of(this).get(SignOutViewModel.class);
 
-        model.init(mSession);
+            model.init(mSession);
 
-        model.getKeysBackupState().observe(this, keysBackupState -> {
-            if (keysBackupState == null) {
-                mKeysBackupBanner.render(KeysBackupBanner.State.Hidden.INSTANCE, false);
-            } else {
-                switch (keysBackupState) {
-                    case Disabled:
-                        mKeysBackupBanner.render(new KeysBackupBanner.State.Setup(model.getNumberOfKeysToBackup()), false);
-                        break;
-                    case NotTrusted:
-                    case WrongBackUpVersion:
-                        // In this case, getCurrentBackupVersion() should not return ""
-                        mKeysBackupBanner.render(new KeysBackupBanner.State.Recover(model.getCurrentBackupVersion()), false);
-                        break;
-                    case WillBackUp:
-                    case BackingUp:
-                        mKeysBackupBanner.render(KeysBackupBanner.State.BackingUp.INSTANCE, false);
-                        break;
-                    case ReadyToBackUp:
-                        if (model.canRestoreKeys()) {
-                            mKeysBackupBanner.render(new KeysBackupBanner.State.Update(model.getCurrentBackupVersion()), false);
-                        } else {
+            model.getKeysBackupState().observe(this, keysBackupState -> {
+                if (keysBackupState == null) {
+                    mKeysBackupBanner.render(KeysBackupBanner.State.Hidden.INSTANCE, false);
+                } else {
+                    switch (keysBackupState) {
+                        case Disabled:
+                            mKeysBackupBanner.render(new KeysBackupBanner.State.Setup(model.getNumberOfKeysToBackup()), false);
+                            break;
+                        case NotTrusted:
+                        case WrongBackUpVersion:
+                            // In this case, getCurrentBackupVersion() should not return ""
+                            mKeysBackupBanner.render(new KeysBackupBanner.State.Recover(model.getCurrentBackupVersion()), false);
+                            break;
+                        case WillBackUp:
+                        case BackingUp:
+                            mKeysBackupBanner.render(KeysBackupBanner.State.BackingUp.INSTANCE, false);
+                            break;
+                        case ReadyToBackUp:
+                            if (model.canRestoreKeys()) {
+                                mKeysBackupBanner.render(new KeysBackupBanner.State.Update(model.getCurrentBackupVersion()), false);
+                            } else {
+                                mKeysBackupBanner.render(KeysBackupBanner.State.Hidden.INSTANCE, false);
+                            }
+                            break;
+                        default:
                             mKeysBackupBanner.render(KeysBackupBanner.State.Hidden.INSTANCE, false);
-                        }
-                        break;
-                    default:
-                        mKeysBackupBanner.render(KeysBackupBanner.State.Hidden.INSTANCE, false);
-                        break;
+                            break;
+                    }
                 }
-            }
-        });
+            });
 
-        mKeysBackupBanner.setDelegate(this);
+            mKeysBackupBanner.setDelegate(this);
+        } else {
+            mKeysBackupBanner.render(KeysBackupBanner.State.Hidden.INSTANCE, false);
+        }
 
         // Remove Analytics tracking until Tchap defines its own instance
         // Check whether the user has agreed to the use of analytics tracking
@@ -709,8 +719,10 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
         setSelectedTabStyle();
         updateSelectedFragment(mTopNavigationView.getTabAt(mTopNavigationView.getSelectedTabPosition()), false);
 
-        //Force remote backup state update to update the banner if needed
-        ViewModelProviders.of(this).get(SignOutViewModel.class).refreshRemoteStateIfNeeded();
+        if (SUPPORT_KEYS_BACKUP) {
+            //Force remote backup state update to update the banner if needed
+            ViewModelProviders.of(this).get(SignOutViewModel.class).refreshRemoteStateIfNeeded();
+        }
     }
 
     /**
@@ -1750,7 +1762,12 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
                         break;
 
                     case R.id.sliding_menu_sign_out: {
-                        signOut(true);
+                        if (SUPPORT_KEYS_BACKUP) {
+                            signOut(true);
+                        } else {
+                            signOutWithoutKeyBackup();
+                        }
+
                         break;
                     }
                 }
@@ -1811,6 +1828,101 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
 
             CommonActivityUtils.logout(VectorHomeActivity.this);
         }
+    }
+
+    private void signOutWithoutKeyBackup () {
+        new AlertDialog.Builder(VectorHomeActivity.this)
+                .setMessage(R.string.action_sign_out_confirmation)
+                .setCancelable(false)
+                .setPositiveButton(R.string.action_sign_out,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                showWaitingView();
+                                CommonActivityUtils.logout(VectorHomeActivity.this);
+                            }
+                        })
+                .setNeutralButton(R.string.encryption_export_export, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                exportKeysAndSignOut();
+                            }
+                        });
+                    }
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+    /**
+     * Manage the e2e keys export, when the keys backup is not supported.
+     */
+    private void exportKeysAndSignOut() {
+        View dialogLayout = getLayoutInflater().inflate(R.layout.dialog_export_e2e_keys, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setTitle(R.string.encryption_export_room_keys)
+                .setView(dialogLayout);
+
+        final TextInputEditText passPhrase1EditText = dialogLayout.findViewById(R.id.dialog_e2e_keys_passphrase_edit_text);
+        final TextInputEditText passPhrase2EditText = dialogLayout.findViewById(R.id.dialog_e2e_keys_confirm_passphrase_edit_text);
+        final Button exportButton = dialogLayout.findViewById(R.id.dialog_e2e_keys_export_button);
+        final TextWatcher textWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                exportButton.setEnabled(!TextUtils.isEmpty(passPhrase1EditText.getText())
+                        && TextUtils.equals(passPhrase1EditText.getText(), passPhrase2EditText.getText()));
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        };
+
+        passPhrase1EditText.addTextChangedListener(textWatcher);
+        passPhrase2EditText.addTextChangedListener(textWatcher);
+
+        exportButton.setEnabled(false);
+
+        final AlertDialog exportDialog = builder.show();
+
+        exportButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showWaitingView();
+
+                CommonActivityUtils.exportKeys(mSession, passPhrase1EditText.getText().toString(), new SimpleApiCallback<String>(VectorHomeActivity.this) {
+
+                    @Override
+                    public void onSuccess(final String filename) {
+                        hideWaitingView();
+
+                        new AlertDialog.Builder(VectorHomeActivity.this)
+                                .setMessage(getString(R.string.encryption_export_saved_as, filename))
+                                .setCancelable(false)
+                                .setPositiveButton(R.string.action_sign_out, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        showWaitingView();
+                                        CommonActivityUtils.logout(VectorHomeActivity.this);
+                                    }
+                                })
+                                .setNegativeButton(R.string.cancel, null)
+                                .show();
+                    }
+                });
+
+                exportDialog.dismiss();
+            }
+        });
     }
 
     private void refreshSlidingMenu() {

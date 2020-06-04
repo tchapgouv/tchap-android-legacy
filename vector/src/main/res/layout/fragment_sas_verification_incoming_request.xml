@@ -57,6 +57,7 @@
             android:layout_height="wrap_content"
             android:textAlignment="center"
             android:textSize="13sp"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/sas_incoming_request_user_display_name"
@@ -94,6 +95,7 @@
             android:text="@string/sas_incoming_request_description_2"
             android:textAlignment="center"
             android:textSize="15sp"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/sas_incoming_request_description" />
