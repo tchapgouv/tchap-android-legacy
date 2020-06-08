@@ -1,3 +1,10 @@
+
+Changes in Tchap 1.0.39 (2020-06-08)
+===================================================
+
+Improvement:
+ * Device verification: update wordings and remove IP address displayed in the incoming demand.
+
 Changes in Tchap 1.0.38 (2020-06-04)
 ===================================================
 
