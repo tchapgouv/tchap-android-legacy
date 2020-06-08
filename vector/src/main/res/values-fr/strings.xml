@@ -1555,10 +1555,11 @@ Si vous n’avez pas configuré de nouvelle méthode de récupération, un attaq
 
     <string name="sas_emoji_description">Vérifiez l’appareil en confirmant que les émojis suivants apparaissent également sur son écran</string>
     <string name="sas_decimal_description">Vérifiez l’appareil en confirmant que les chiffres suivants apparaissent également sur son écran</string>
+    <string name="sas_confirm">Confirmer</string>
 
     <string name="sas_incoming_verification_request_dialog">Vous avez reçu une demande de vérification entrante.</string>
     <string name="sas_view_request_action">Voir la demande</string>
-    <string name="sas_waiting_for_partner">Attente de la confirmation de l’autre appareil…</string>
+    <string name="sas_waiting_for_partner">Veuillez confirmer également les emojis sur l’autre appareil…</string>
 
     <string name="sas_verified">Vérifié !</string>
     <string name="sas_verified_successful">Vous avez bien vérifié cet appareil.</string>
@@ -1901,7 +1902,7 @@ Si vous n’avez pas configuré de nouvelle méthode de récupération, un attaq
     <string name="notice_room_third_party_revoked_invite">%1$s a retiré l’invitation de %2$s pour rejoindre la conversation</string>
     <string name="room_error_join_failed_empty_room">Il est impossible pour le moment de revenir dans une conversation vide.</string>
 
-    <string name="notice_crypto_unable_to_decrypt">** Echec de déchiffrement : %s **</string>
+    <string name="notice_crypto_unable_to_decrypt">**\u00A0Echec de déchiffrement : %s\u00A0**</string>
     <string name="notice_crypto_error_unkwown_inbound_session_id">Veuillez ouvrir Tchap sur vos autres appareils afin d’autoriser le partage de clés.</string>
 
     <string name="tab_rooms_title">CONVERSATIONS</string>

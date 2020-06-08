@@ -1590,6 +1590,7 @@
 
     <string name="sas_emoji_description">Verify this device by confirming the following emoji appear on the screen of the partner"</string>
     <string name="sas_decimal_description">Verify this device by confirming the following numbers appear on the screen of the partner"</string>
+    <string name="sas_confirm">Confirm</string>
 
     <string name="sas_incoming_verification_request_dialog">You received an incoming verification request.</string>
     <string name="sas_view_request_action">View request</string>
