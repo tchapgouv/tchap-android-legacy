@@ -102,7 +102,7 @@
             style="@style/VectorButtonStyle"
             android:layout_margin="@dimen/layout_vertical_margin"
             android:minWidth="160dp"
-            android:text="@string/_continue"
+            android:text="@string/sas_confirm"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/sas_emoji_grid" />
