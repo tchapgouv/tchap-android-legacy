@@ -1,13 +1,14 @@
-/* 
+/*
  * Copyright 2016 OpenMarket Ltd
  * Copyright 2018 New Vector Ltd
+ * Copyright 2019 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,24 +21,25 @@ package im.vector.view;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.RelativeLayout;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import org.matrix.androidsdk.MXSession;
-import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.core.Log;
+import org.matrix.androidsdk.data.Room;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import im.vector.R;
 import im.vector.widgets.Widget;
+import im.vector.widgets.WidgetManagerProvider;
 import im.vector.widgets.WidgetsManager;
 
 /**
  * This class displays the active widgets
  */
-public class ActiveWidgetsBanner extends RelativeLayout {
+public class ActiveWidgetsBanner extends FrameLayout {
     private static final String LOG_TAG = ActiveWidgetsBanner.class.getSimpleName();
 
     public interface onUpdateListener {
@@ -114,7 +116,7 @@ public class ActiveWidgetsBanner extends RelativeLayout {
         View.inflate(getContext(), R.layout.active_widget_banner, this);
         mWidgetTypeTextView = findViewById(R.id.widget_type_text_view);
 
-        mCloseWidgetIcon = findViewById(R.id.close_widget_icon_container);
+        mCloseWidgetIcon = findViewById(R.id.close_widget_icon);
         mCloseWidgetIcon.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -166,8 +168,12 @@ public class ActiveWidgetsBanner extends RelativeLayout {
      * Refresh the view visibility
      */
     private void refresh() {
+        WidgetsManager wm = WidgetManagerProvider.INSTANCE.getWidgetManager(getContext());
+        if (wm == null) {
+            return;
+        }
         if ((null != mRoom) && (null != mSession)) {
-            List<Widget> activeWidgets = WidgetsManager.getSharedInstance().getActiveWebviewWidgets(mSession, mRoom);
+            List<Widget> activeWidgets = wm.getActiveWebviewWidgets(mSession, mRoom);
             Widget firstWidget = null;
 
             if ((activeWidgets.size() != mActiveWidgets.size()) || !mActiveWidgets.containsAll(activeWidgets)) {
@@ -193,7 +199,7 @@ public class ActiveWidgetsBanner extends RelativeLayout {
             setVisibility((mActiveWidgets.size() > 0) ? View.VISIBLE : View.GONE);
 
             // show the close widget button if the user is allowed to do it
-            mCloseWidgetIcon.setVisibility(((null != firstWidget) && (null == WidgetsManager.getSharedInstance().checkWidgetPermission(mSession, mRoom))) ?
+            mCloseWidgetIcon.setVisibility(((null != firstWidget) && (null == wm.checkWidgetPermission(mSession, mRoom))) ?
                     View.VISIBLE : View.GONE);
         }
     }
@@ -203,13 +209,19 @@ public class ActiveWidgetsBanner extends RelativeLayout {
      */
     public void onActivityResume() {
         refresh();
-        WidgetsManager.getSharedInstance().addListener(mWidgetListener);
+        WidgetsManager wm = WidgetManagerProvider.INSTANCE.getWidgetManager(getContext());
+        if (wm != null) {
+            wm.addListener(mWidgetListener);
+        }
     }
 
     /**
      * The parent activity is suspended
      */
     public void onActivityPause() {
-        WidgetsManager.getSharedInstance().removeListener(mWidgetListener);
+        WidgetsManager wm = WidgetManagerProvider.INSTANCE.getWidgetManager(getContext());
+        if (wm != null) {
+            wm.removeListener(mWidgetListener);
+        }
     }
 }

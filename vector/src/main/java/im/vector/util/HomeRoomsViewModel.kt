@@ -16,9 +16,9 @@
 package im.vector.util
 
 import org.matrix.androidsdk.MXSession
+import org.matrix.androidsdk.core.Log
 import org.matrix.androidsdk.data.Room
 import org.matrix.androidsdk.data.RoomTag
-import org.matrix.androidsdk.core.Log
 
 /**
  * This class is responsible for filtering and ranking rooms whenever there is a need to update in the context of the HomeScreens
@@ -102,8 +102,7 @@ class HomeRoomsViewModel(private val session: MXSession) {
     //region private methods
 
     private fun getJoinedRooms(): List<Room> {
-        return session.dataHandler.store.rooms
-                .filter {
+        return session.dataHandler.store?.rooms?.filter {
                     val isJoined = it.isJoined
                     val tombstoneContent = it.state.roomTombstoneContent
                     val redirectRoom = if (tombstoneContent?.replacementRoom != null) {
@@ -114,7 +113,7 @@ class HomeRoomsViewModel(private val session: MXSession) {
                     val isVersioned = redirectRoom?.isJoined
                             ?: false
                     isJoined && !isVersioned && !it.isConferenceUserRoom
-                }
+                } .orEmpty()
     }
 
     //endregion

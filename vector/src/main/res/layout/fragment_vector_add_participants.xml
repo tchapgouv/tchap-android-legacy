@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/vctr_riot_primary_background_color">
+    android:background="?android:attr/colorBackground">
 
     <RelativeLayout
         android:id="@+id/ly_invite_contacts_to_room"
@@ -80,10 +80,11 @@
             android:imeOptions="actionSearch"
             android:inputType="text"
             android:maxLines="1"
-            android:textColor="?attr/vctr_default_text_dark_color"
+            android:textColor="?android:attr/textColorPrimary"
             android:textColorHint="?attr/vctr_default_text_hint_color"
             android:textCursorDrawable="@drawable/searches_cursor_background"
             android:textSize="16sp" />
+
     </RelativeLayout>
 
     <ExpandableListView
@@ -91,7 +92,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/search_layout"
-        android:background="?attr/vctr_riot_primary_background_color"
+        android:background="?android:attr/colorBackground"
         android:divider="?attr/vctr_list_divider_color"
         android:dividerHeight="1px" />
 

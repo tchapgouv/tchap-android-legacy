@@ -29,9 +29,9 @@ import android.widget.TextView;
 import org.matrix.androidsdk.call.IMXCall;
 import org.matrix.androidsdk.call.IMXCallListener;
 import org.matrix.androidsdk.call.MXCallListener;
-import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.core.model.MatrixError;
+import org.matrix.androidsdk.data.Room;
 
 import im.vector.R;
 import im.vector.util.CallUtilities;
@@ -118,6 +118,10 @@ public class VectorPendingCallView extends RelativeLayout {
      */
     private void initView() {
         View.inflate(getContext(), R.layout.vector_pending_call_view, this);
+
+        if (isInEditMode()) {
+            return;
+        }
 
         // retrieve the UI items
         mMainView = findViewById(R.id.main_view);

@@ -17,10 +17,8 @@
 package im.vector.view
 
 import android.content.Context
-import android.graphics.Color
 import android.graphics.Typeface
 import android.preference.PreferenceManager
-import androidx.core.content.ContextCompat
 import android.text.SpannableString
 import android.text.TextPaint
 import android.text.TextUtils
@@ -30,22 +28,25 @@ import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
 import android.util.AttributeSet
 import android.view.View
+import android.view.ViewGroup
+import android.widget.AbsListView
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
+import androidx.core.content.ContextCompat
+import androidx.transition.TransitionManager
 import butterknife.BindView
 import butterknife.ButterKnife
 import com.binaryfork.spanny.Spanny
 import im.vector.R
 import im.vector.features.hhs.ResourceLimitErrorFormatter
 import im.vector.listeners.IMessagesAdapterActionsListener
+import im.vector.ui.animation.VectorTransitionSet
 import im.vector.ui.themes.ThemeUtils
 import im.vector.util.MatrixURLSpan
-import org.matrix.androidsdk.core.MXPatterns
+import org.matrix.androidsdk.core.Log
 import org.matrix.androidsdk.core.model.MatrixError
 import org.matrix.androidsdk.rest.model.RoomTombstoneContent
-import org.matrix.androidsdk.core.Log
-import fr.gouv.tchap.util.createPermalink
 
 private const val LOG_TAG = "NotificationAreaView"
 
@@ -66,6 +67,20 @@ class NotificationAreaView @JvmOverloads constructor(
 
     var delegate: Delegate? = null
     private var state: State = State.Initial
+
+    var scrollState = AbsListView.OnScrollListener.SCROLL_STATE_IDLE
+        set(value) {
+            field = value
+
+            val pendingV = pendingVisibility
+
+            if (pendingV != null) {
+                pendingVisibility = null
+                visibility = pendingV
+            }
+        }
+
+    private var pendingVisibility: Int? = null
 
     /**
      * Visibility when the info area is empty.
@@ -124,6 +139,25 @@ class NotificationAreaView @JvmOverloads constructor(
         }
     }
 
+    override fun setVisibility(visibility: Int) {
+        if (scrollState != AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
+            // Wait for scroll state to be idle
+            pendingVisibility = visibility
+            return
+        }
+
+        if (visibility != getVisibility()) {
+            // Schedule animation
+            val parent = parent as ViewGroup
+            TransitionManager.beginDelayedTransition(parent, VectorTransitionSet().apply {
+                appearFromBottom(this@NotificationAreaView)
+                appearWithAlpha(this@NotificationAreaView)
+            })
+        }
+
+        super.setVisibility(visibility)
+    }
+
     // PRIVATE METHODS *****************************************************************************************************************************************
 
     private fun setupView() {
@@ -134,7 +168,6 @@ class NotificationAreaView @JvmOverloads constructor(
     private fun cleanUp() {
         messageView.setOnClickListener(null)
         imageView.setOnClickListener(null)
-        setBackgroundColor(Color.TRANSPARENT)
         messageView.text = null
         imageView.setImageResource(0)
     }
@@ -143,8 +176,7 @@ class NotificationAreaView @JvmOverloads constructor(
         visibility = View.VISIBLE
         imageView.setImageResource(R.drawable.error)
         val roomTombstoneContent = state.tombstoneContent
-        val roomLink = createPermalink(context.getString(R.string.permalink_prefix),roomTombstoneContent.replacementRoom)
-        val urlSpan = MatrixURLSpan(roomLink, MXPatterns.PATTERN_CONTAIN_APP_LINK_PERMALINK_ROOM_ID, delegate?.providesMessagesActionListener())
+        val urlSpan = MatrixURLSpan(roomTombstoneContent.replacementRoom, state.tombstoneEventSenderId, delegate?.providesMessagesActionListener())
         val textColorInt = ThemeUtils.getColor(context, R.attr.vctr_message_text_color)
         val message = Spanny(resources.getString(R.string.room_tombstone_versioned_description),
                 StyleSpan(Typeface.BOLD),
@@ -159,20 +191,15 @@ class NotificationAreaView @JvmOverloads constructor(
         visibility = View.VISIBLE
         val resourceLimitErrorFormatter = ResourceLimitErrorFormatter(context)
         val formatterMode: ResourceLimitErrorFormatter.Mode
-        val backgroundColor: Int
         if (state.isSoft) {
-            backgroundColor = R.color.soft_resource_limit_exceeded
             formatterMode = ResourceLimitErrorFormatter.Mode.Soft
         } else {
-            backgroundColor = R.color.hard_resource_limit_exceeded
             formatterMode = ResourceLimitErrorFormatter.Mode.Hard
         }
         val message = resourceLimitErrorFormatter.format(state.matrixError, formatterMode, clickable = true)
-        messageView.setTextColor(Color.WHITE)
+        messageView.setTextColor(ThemeUtils.getColor(context, R.attr.vctr_room_notification_text_color))
         messageView.text = message
         messageView.movementMethod = LinkMovementMethod.getInstance()
-        messageView.setLinkTextColor(Color.WHITE)
-        setBackgroundColor(ContextCompat.getColor(context, backgroundColor))
     }
 
     private fun renderConnectionError() {
@@ -302,7 +329,7 @@ class NotificationAreaView @JvmOverloads constructor(
         object ConnectionError : State()
 
         // The room is dead
-        data class Tombstone(val tombstoneContent: RoomTombstoneContent) : State()
+        data class Tombstone(val tombstoneContent: RoomTombstoneContent, val tombstoneEventSenderId: String) : State()
 
         // Somebody is typing
         data class Typing(val message: String) : State()

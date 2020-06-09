@@ -1,13 +1,13 @@
-/* 
+/*
  * Copyright 2016 OpenMarket Ltd
  * Copyright 2018 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,12 +24,15 @@ import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
-import androidx.annotation.Nullable;
-import androidx.core.graphics.drawable.RoundedBitmapDrawable;
-import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
-import androidx.collection.LruCache;
 import android.util.AttributeSet;
 import android.util.Pair;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatImageView;
+import androidx.collection.LruCache;
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.RoundedBitmapDrawable;
+import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 
 import org.matrix.androidsdk.core.Log;
 
@@ -39,12 +42,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import im.vector.R;
 import im.vector.util.BitmapUtilKt;
 
 /**
  * Display a circular image.
  */
-public class VectorCircularImageView extends androidx.appcompat.widget.AppCompatImageView {
+public class VectorCircularImageView extends AppCompatImageView {
     private static final String LOG_TAG = VectorCircularImageView.class.getSimpleName();
 
     public VectorCircularImageView(Context context) {
@@ -145,11 +149,15 @@ public class VectorCircularImageView extends androidx.appcompat.widget.AppCompat
                 public void run() {
                     Bitmap squareBitmap = BitmapUtilKt.createSquareBitmap(bm);
 
+                    // Add a background color to the Bitmap, to ensure avatar with transparency will be visible in all themes
+                    Bitmap squareBitmapWithBg
+                            = BitmapUtilKt.addBackgroundColor(squareBitmap, ContextCompat.getColor(getContext(), R.color.riot_primary_background_color_light));
+
                     try {
                         // create a rounded bitmap
-                        final RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(getResources(), squareBitmap);
+                        final RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(getResources(), squareBitmapWithBg);
                         drawable.setAntiAlias(true);
-                        drawable.setCornerRadius(height / 2.0f);
+                        drawable.setCircular(true);
 
                         mUIHandler.post(new Runnable() {
                             @Override

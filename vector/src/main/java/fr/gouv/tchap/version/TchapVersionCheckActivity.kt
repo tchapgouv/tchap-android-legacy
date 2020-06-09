@@ -31,8 +31,6 @@ import org.matrix.androidsdk.core.callback.SuccessCallback
 class TchapVersionCheckActivity : VectorAppCompatActivity(), SuccessCallback<VersionCheckResult> {
     override fun getLayoutRes() = R.layout.activity_check_version
 
-    override fun getOtherThemes() = ActivityOtherThemes.NoActionBar
-
     override fun onResume() {
         super.onResume()
         VersionChecker.checkVersion(this, this)

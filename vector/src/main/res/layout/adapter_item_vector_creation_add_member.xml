@@ -3,7 +3,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="74dp"
-    android:background="?attr/vctr_riot_primary_background_color">
+    android:background="?android:attr/colorBackground">
 
     <ImageView
         android:id="@+id/filtered_list_avatar"
@@ -19,18 +19,17 @@
         android:id="@+id/room_creation_add_member_texview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
-        android:layout_toStartOf="@id/filtered_list_actions_list"
-        android:layout_toLeftOf="@id/filtered_list_actions_list"
         android:layout_toEndOf="@id/filtered_list_avatar"
         android:layout_toRightOf="@id/filtered_list_avatar"
         android:singleLine="true"
         android:text="@string/room_creation_add_member"
-        android:textColor="?attr/vctr_default_text_dark_color"
         android:textSize="16sp"
         android:textStyle="bold" />
 

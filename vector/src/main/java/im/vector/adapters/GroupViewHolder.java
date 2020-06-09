@@ -19,27 +19,28 @@ package im.vector.adapters;
 
 import android.content.Context;
 import android.graphics.Typeface;
-import android.graphics.drawable.GradientDrawable;
-import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.RecyclerView;
+
 import org.matrix.androidsdk.MXSession;
-import org.matrix.androidsdk.rest.model.group.Group;
 import org.matrix.androidsdk.core.Log;
+import org.matrix.androidsdk.rest.model.group.Group;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import im.vector.R;
 import im.vector.util.VectorUtils;
+import im.vector.util.ViewUtilKt;
 
 public class GroupViewHolder extends RecyclerView.ViewHolder {
     private static final String LOG_TAG = GroupViewHolder.class.getSimpleName();
 
-    @BindView(R.id.room_avatar)
+    @BindView(R.id.group_avatar)
     ImageView vGroupAvatar;
 
     @BindView(R.id.group_name)
@@ -88,11 +89,7 @@ public class GroupViewHolder extends RecyclerView.ViewHolder {
         if (isInvitation) {
             vGroupMembersCount.setText("!");
             vGroupMembersCount.setTypeface(null, Typeface.BOLD);
-            GradientDrawable shape = new GradientDrawable();
-            shape.setShape(GradientDrawable.RECTANGLE);
-            shape.setCornerRadius(100);
-            shape.setColor(ContextCompat.getColor(context, R.color.vector_fuchsia_color));
-            vGroupMembersCount.setBackground(shape);
+            ViewUtilKt.setRoundBackground(vGroupMembersCount, ContextCompat.getColor(context, R.color.vector_fuchsia_color));
             vGroupMembersCount.setVisibility(View.VISIBLE);
         } else {
             vGroupMembersCount.setVisibility(View.GONE);

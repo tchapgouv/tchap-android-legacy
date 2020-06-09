@@ -1,95 +1,52 @@
-<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/drawer_layout_public_room"
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/public_rooms_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFFFF"
-    android:fitsSystemWindows="true">
+    android:focusableInTouchMode="true">
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        style="@style/VectorToolbarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <!-- The search view is added below the toolbar not in the menu
+             to ensure that the overflow icon menu is not hidden.-->
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/search_view"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_below="@+id/toolbar"
+        android:layout_margin="10dp"
+        android:background="@drawable/tchap_search_bar_style"
+        android:clickable="true" />
+
+    <!-- The main content view -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:descendantFocusability="beforeDescendants"
-        android:focusableInTouchMode="true">
+        android:layout_below="@+id/search_view">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/home_toolbar"
-            style="@style/VectorToolbarStyle"
-            android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:layout_margin="10dp"
-            android:background="@drawable/tchap_search_bar_style">
-
-            <!-- The search view is added in the toolbar not in the menu
-                 to ensure that the overflow icon menu is not hidden.-->
-            <androidx.appcompat.widget.SearchView
-                android:id="@+id/search_view"
-                android:layout_width="match_parent"
-                android:layout_height="30dp"
-                android:layout_marginBottom="12dp"
-                android:layout_marginLeft="7dp"
-                android:layout_marginRight="10dp"
-                android:clickable="true" />
-        </androidx.appcompat.widget.Toolbar>
-
-        <ProgressBar
-            android:id="@+id/home_recents_sync_in_progress"
-            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/home_toolbar"
-            android:background="@color/vector_green_color"
-            android:indeterminate="true"
-            android:visibility="gone" />
-
-        <im.vector.view.VectorPendingCallView
-            android:id="@+id/listView_pending_callview"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/home_recents_sync_in_progress"
-            android:visibility="gone" />
-
-        <!-- The main content view -->
-        <RelativeLayout
+        <FrameLayout
+            android:id="@+id/fragment_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/home_toolbar"
-            tools:context="org.matrix.vector.activity.VectorHomeActivity">
+            android:background="?android:attr/colorBackground" />
 
-            <FrameLayout
-                android:id="@+id/fragment_container"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="?attr/vctr_riot_primary_background_color" />
+        <FrameLayout
+            android:id="@+id/listView_spinner_views"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="?attr/vctr_waiting_background_color"
+            android:visibility="gone">
 
-            <FrameLayout
-                android:id="@+id/listView_spinner_views"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="?attr/vctr_waiting_background_color"
-                android:visibility="gone">
-
-                <ProgressBar
-                    android:id="@+id/listView_spinner"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_gravity="center"
-                    android:visibility="visible" />
-            </FrameLayout>
-        </RelativeLayout>
+            <ProgressBar
+                android:id="@+id/listView_spinner"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:visibility="visible" />
+        </FrameLayout>
     </RelativeLayout>
-
-    <com.google.android.material.navigation.NavigationView
-        android:id="@+id/navigation_view"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:background="?attr/vctr_riot_primary_background_color"
-        android:fitsSystemWindows="true"
-        app:headerLayout="@layout/vector_home_menu_header"
-        app:itemIconTint="?attr/vctr_home_navigation_icon_color"
-        app:menu="@menu/vector_home_sliding_menu"
-        app:theme="@style/NavigationViewStyle" />
-
-</androidx.drawerlayout.widget.DrawerLayout>
+</RelativeLayout>

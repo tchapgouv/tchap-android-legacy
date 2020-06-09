@@ -33,12 +33,6 @@ sealed class ActivityOtherThemes(@StyleRes val dark: Int,
             R.style.AppTheme_Status
     )
 
-    object NoActionBar : ActivityOtherThemes(
-            R.style.AppTheme_NoActionBar_Dark,
-            R.style.AppTheme_NoActionBar_Black,
-            R.style.AppTheme_NoActionBar_Status
-    )
-
     object NoActionBarFullscreen : ActivityOtherThemes(
             R.style.AppTheme_NoActionBar_FullScreen_Dark,
             R.style.AppTheme_NoActionBar_FullScreen_Black,
@@ -79,17 +73,5 @@ sealed class ActivityOtherThemes(@StyleRes val dark: Int,
             R.style.CallActivityTheme_Dark,
             R.style.CallActivityTheme_Black,
             R.style.CallActivityTheme_Status
-    )
-
-    object Login : ActivityOtherThemes(
-            R.style.LoginAppTheme_Dark,
-            R.style.LoginAppTheme_Black,
-            R.style.LoginAppTheme_Status
-    )
-
-    object Directory : ActivityOtherThemes(
-            R.style.DirectoryPickerTheme_Dark,
-            R.style.DirectoryPickerTheme_Black,
-            R.style.DirectoryPickerTheme_Status
     )
 }

@@ -3,21 +3,21 @@ package im.vector.activity;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.net.Uri;
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.VideoView;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 
-import org.jetbrains.annotations.NotNull;
-import org.matrix.androidsdk.data.RoomMediaMessage;
 import org.matrix.androidsdk.core.Log;
+import org.matrix.androidsdk.data.RoomMediaMessage;
 
 import java.util.List;
 
@@ -25,7 +25,6 @@ import butterknife.BindView;
 import butterknife.OnClick;
 import im.vector.R;
 import im.vector.adapters.MediaPreviewAdapter;
-import im.vector.ui.themes.ActivityOtherThemes;
 
 /**
  * Previews media selected to be send.
@@ -58,12 +57,6 @@ public class MediaPreviewerActivity extends MXCActionBarActivity implements Medi
     @Override
     public int getLayoutRes() {
         return R.layout.activity_media_previewer;
-    }
-
-    @NotNull
-    @Override
-    public ActivityOtherThemes getOtherThemes() {
-        return ActivityOtherThemes.NoActionBar.INSTANCE;
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -156,7 +149,7 @@ public class MediaPreviewerActivity extends MXCActionBarActivity implements Medi
     }
 
     private void setupRecyclerView(@NonNull final List<RoomMediaMessage> sharedDataItems) {
-        final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false);
         mPreviewerRecyclerView.setLayoutManager(linearLayoutManager);
         final MediaPreviewAdapter mediaPreviewAdapter = new MediaPreviewAdapter(sharedDataItems, this);
         mPreviewerRecyclerView.setAdapter(mediaPreviewAdapter);

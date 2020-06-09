@@ -4,25 +4,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?attr/vctr_riot_primary_background_color">
+    android:background="?android:attr/colorBackground">
 
     <TextView
         android:id="@+id/device_name"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
-        tools:text="device name.." />
+        tools:text="device name" />
 
     <TextView
         android:id="@+id/device_id"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/device_name"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="0dp"
-        tools:text="device id.." />
+        tools:text="device id" />
 
     <ImageView
         android:id="@+id/device_e2e_icon"
@@ -58,7 +58,7 @@
             android:layout_width="0dp"
             android:layout_height="25dp"
             android:layout_weight="45"
-            android:background="@color/vector_green_color"
+            android:background="?attr/colorAccent"
             android:text="@string/encryption_information_verify"
             android:textColor="@android:color/white" />
 
@@ -73,7 +73,7 @@
             android:layout_width="0dp"
             android:layout_height="25dp"
             android:layout_weight="45"
-            android:background="@color/vector_green_color"
+            android:background="?attr/colorAccent"
             android:text="@string/encryption_information_block"
             android:textColor="@android:color/white" />
     </LinearLayout>
@@ -81,8 +81,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentBottom="true"
+        android:layout_below="@+id/container_buttons"
         android:background="?attr/vctr_list_divider_color" />
+
 </RelativeLayout>

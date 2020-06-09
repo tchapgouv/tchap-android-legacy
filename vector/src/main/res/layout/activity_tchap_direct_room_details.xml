@@ -11,7 +11,7 @@
         android:layout_height="wrap_content">
 
         <androidx.appcompat.widget.Toolbar
-            android:id="@+id/room_toolbar"
+            android:id="@+id/toolbar"
             style="@style/TchapRoomToolbarStyle"
             android:layout_width="match_parent"
             android:layout_height="72dp"
@@ -87,14 +87,6 @@
                 android:layout_gravity="center"
                 android:visibility="visible"/>
         </FrameLayout>
-
-        <ProgressBar
-            android:id="@+id/search_load_oldest_progress"
-            android:layout_height="40dp"
-            android:layout_width="match_parent"
-            android:layout_alignParentLeft="true"
-            android:visibility="gone"
-            android:indeterminate="true" />
     </RelativeLayout>
 
 </RelativeLayout>

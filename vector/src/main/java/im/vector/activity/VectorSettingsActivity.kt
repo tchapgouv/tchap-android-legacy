@@ -18,28 +18,36 @@ package im.vector.activity
 
 import android.content.Context
 import android.content.Intent
+import androidx.preference.Preference
+import androidx.preference.PreferenceFragmentCompat
 import im.vector.Matrix
 import im.vector.R
+import im.vector.fragments.VectorSettingsAdvancedNotificationPreferenceFragment
+import im.vector.fragments.VectorSettingsFragmentInteractionListener
+import im.vector.fragments.VectorSettingsNotificationsTroubleshootFragment
 import im.vector.fragments.VectorSettingsPreferencesFragment
-import im.vector.util.PERMISSION_REQUEST_CODE_EXPORT_KEYS
-import im.vector.util.allGranted
+import im.vector.fragments.discovery.VectorSettingsDiscoveryFragment
+import im.vector.util.PreferencesManager
 
 /**
  * Displays the client settings.
  */
-class VectorSettingsActivity : MXCActionBarActivity() {
+class VectorSettingsActivity : MXCActionBarActivity(),
+        PreferenceFragmentCompat.OnPreferenceStartFragmentCallback,
+        androidx.fragment.app.FragmentManager.OnBackStackChangedListener,
+        VectorSettingsFragmentInteractionListener {
 
     private lateinit var vectorSettingsPreferencesFragment: VectorSettingsPreferencesFragment
 
-    override fun getLayoutRes(): Int {
-        return R.layout.activity_vector_settings
-    }
+    override fun getLayoutRes() = R.layout.activity_vector_settings
 
-    override fun getTitleRes(): Int {
-        return R.string.title_activity_settings
-    }
+    override fun getTitleRes() = R.string.title_activity_settings
+
+    private var keyToHighlight: String? = null
 
     override fun initUiAndData() {
+        configureToolbar()
+
         var session = getSession(intent)
 
         if (null == session) {
@@ -54,23 +62,73 @@ class VectorSettingsActivity : MXCActionBarActivity() {
         if (isFirstCreation()) {
             vectorSettingsPreferencesFragment = VectorSettingsPreferencesFragment.newInstance(session.myUserId)
             // display the fragment
-            fragmentManager.beginTransaction()
+            supportFragmentManager.beginTransaction()
                     .replace(R.id.vector_settings_page, vectorSettingsPreferencesFragment, FRAGMENT_TAG)
                     .commit()
         } else {
-            vectorSettingsPreferencesFragment = fragmentManager.findFragmentByTag(FRAGMENT_TAG) as VectorSettingsPreferencesFragment
+            vectorSettingsPreferencesFragment = supportFragmentManager.findFragmentByTag(FRAGMENT_TAG) as VectorSettingsPreferencesFragment
+        }
+
+
+        supportFragmentManager.addOnBackStackChangedListener(this)
+
+    }
+
+    override fun onDestroy() {
+        supportFragmentManager.removeOnBackStackChangedListener(this)
+        super.onDestroy()
+    }
+
+    override fun onBackStackChanged() {
+        if (0 == supportFragmentManager.backStackEntryCount) {
+            supportActionBar?.title = getString(getTitleRes())
         }
     }
 
-    /**
-     * Keep this code here, because PreferenceFragment does not extend v4 Fragment
-     */
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        if (allGranted(grantResults)) {
-            if (requestCode == PERMISSION_REQUEST_CODE_EXPORT_KEYS) {
-                vectorSettingsPreferencesFragment.exportKeys()
-            }
+    override fun onPreferenceStartFragment(caller: PreferenceFragmentCompat, pref: Preference): Boolean {
+
+        var session = getSession(intent)
+
+        if (null == session) {
+            session = Matrix.getInstance(this).defaultSession
         }
+
+        if (session == null) {
+            return false
+        }
+
+        val oFragment = when (pref.key) {
+            PreferencesManager.SETTINGS_NOTIFICATION_TROUBLESHOOT_PREFERENCE_KEY ->
+                VectorSettingsNotificationsTroubleshootFragment.newInstance(session.myUserId)
+            PreferencesManager.SETTINGS_NOTIFICATION_ADVANCED_PREFERENCE_KEY     ->
+                VectorSettingsAdvancedNotificationPreferenceFragment.newInstance(session.myUserId)
+//            PreferencesManager.SETTINGS_DISCOVERY_PREFERENCE_KEY,
+//            PreferencesManager.SETTINGS_IDENTITY_SERVER_PREFERENCE_KEY           ->
+//                VectorSettingsDiscoveryFragment.newInstance(session.myUserId)
+            else                                                                 -> null
+        }
+
+        if (oFragment != null) {
+            oFragment.setTargetFragment(caller, 0)
+            // Replace the existing Fragment with the new Fragment
+            supportFragmentManager.beginTransaction()
+                    .setCustomAnimations(R.anim.anim_slide_in_bottom, R.anim.anim_slide_out_bottom,
+                            R.anim.anim_slide_in_bottom, R.anim.anim_slide_out_bottom)
+                    .replace(R.id.vector_settings_page, oFragment, pref?.title.toString())
+                    .addToBackStack(null)
+                    .commit()
+            return true
+        }
+        return false
+    }
+
+
+    override fun requestHighlightPreferenceKeyOnResume(key: String?) {
+        keyToHighlight = key
+    }
+
+    override fun requestedKeyToHighlight(): String? {
+        return keyToHighlight
     }
 
     companion object {

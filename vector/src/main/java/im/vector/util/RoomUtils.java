@@ -28,8 +28,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Icon;
 import android.os.Build;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.ContextThemeWrapper;
 import android.view.Gravity;
@@ -37,20 +35,24 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.PopupMenu;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.core.model.MatrixError;
+import org.matrix.androidsdk.core.BingRulesManager;
+import org.matrix.androidsdk.core.EventDisplay;
+import org.matrix.androidsdk.core.Log;
+import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomAccountData;
 import org.matrix.androidsdk.data.RoomState;
 import org.matrix.androidsdk.data.RoomSummary;
-import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.rest.model.PowerLevels;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.User;
-import org.matrix.androidsdk.core.BingRulesManager;
-import org.matrix.androidsdk.core.EventDisplay;
-import org.matrix.androidsdk.core.Log;
+
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -369,7 +371,8 @@ public class RoomUtils {
      * @param roomSummary the roomSummary.
      * @return the text to display.
      */
-    public static CharSequence getRoomMessageToDisplay(final Context context, final MXSession session,
+    public static CharSequence getRoomMessageToDisplay(final Context context,
+                                                       final MXSession session,
                                                        final RoomSummary roomSummary) {
         CharSequence messageToDisplay = null;
         EventDisplay eventDisplay;
@@ -427,7 +430,8 @@ public class RoomUtils {
      * @param userId   user ID
      * @return the user display name
      */
-    private static String getMemberDisplayNameFromUserId(final Context context, final String matrixId,
+    private static String getMemberDisplayNameFromUserId(final Context context,
+                                                         final String matrixId,
                                                          final String userId) {
         String displayNameRetValue;
         MXSession session;
@@ -452,8 +456,12 @@ public class RoomUtils {
     /**
      * See {@link #displayPopupMenu(Context, MXSession, Room, View, View, boolean, boolean, MoreActionListener, HistoricalRoomActionListener)}
      */
-    public static void displayPopupMenu(final Context context, final MXSession session, final Room room,
-                                        final View actionView, final boolean isFavorite, final boolean isLowPrior,
+    public static void displayPopupMenu(final Context context,
+                                        final MXSession session,
+                                        final Room room,
+                                        final View actionView,
+                                        final boolean isFavorite,
+                                        final boolean isLowPrior,
                                         @NonNull final MoreActionListener listener) {
         if (listener != null) {
             displayPopupMenu(context, session, room, actionView, null, isFavorite, isLowPrior, listener, null);
@@ -475,8 +483,11 @@ public class RoomUtils {
     /**
      * See {@link #displayPopupMenu(Context, MXSession, Room, View, View, boolean, boolean, MoreActionListener, HistoricalRoomActionListener)}
      */
-    public static void displayHistoricalRoomMenu(final Context context, final MXSession session, final Room room,
-                                                 final View actionView, @NonNull final HistoricalRoomActionListener listener) {
+    public static void displayHistoricalRoomMenu(final Context context,
+                                                 final MXSession session,
+                                                 final Room room,
+                                                 final View actionView,
+                                                 @NonNull final HistoricalRoomActionListener listener) {
         if (listener != null) {
             displayPopupMenu(context, session, room, actionView, null, false, false, null, listener);
         }
@@ -494,9 +505,15 @@ public class RoomUtils {
      * @param moreActionListener
      */
     @SuppressLint("NewApi")
-    private static void displayPopupMenu(final Context context, final MXSession session, final Room room,
-                                         final View actionView, final View notificationMuteView, final boolean isFavorite, final boolean isLowPrior,
-                                         final MoreActionListener moreActionListener, final HistoricalRoomActionListener historicalRoomActionListener) {
+    private static void displayPopupMenu(final Context context,
+                                         final MXSession session,
+                                         final Room room,
+                                         final View actionView,
+                                         final View notificationMuteView,
+                                         final boolean isFavorite,
+                                         final boolean isLowPrior,
+                                         final MoreActionListener moreActionListener,
+                                         final HistoricalRoomActionListener historicalRoomActionListener) {
         // sanity check
         if (null == room) {
             return;
@@ -553,29 +570,29 @@ public class RoomUtils {
 
             if (!isFavorite) {
                 item = popup.getMenu().findItem(R.id.ic_action_select_pin);
-                item.setIcon(null);
+                item.setIcon(R.drawable.ic_material_transparent);
             }
 
             BingRulesManager.RoomNotificationState state = session.getDataHandler().getBingRulesManager().getRoomNotificationState(room.getRoomId());
 
             if (BingRulesManager.RoomNotificationState.ALL_MESSAGES_NOISY != state) {
                 item = popup.getMenu().findItem(R.id.ic_action_notifications_noisy);
-                item.setIcon(null);
+                item.setIcon(R.drawable.ic_material_transparent);
             }
 
             if (BingRulesManager.RoomNotificationState.ALL_MESSAGES != state) {
                 item = popup.getMenu().findItem(R.id.ic_action_notifications_all_message);
-                item.setIcon(null);
+                item.setIcon(R.drawable.ic_material_transparent);
             }
 
             if (BingRulesManager.RoomNotificationState.MENTIONS_ONLY != state) {
                 item = popup.getMenu().findItem(R.id.ic_action_notifications_mention_only);
-                item.setIcon(null);
+                item.setIcon(R.drawable.ic_material_transparent);
             }
 
             if (BingRulesManager.RoomNotificationState.MUTE != state) {
                 item = popup.getMenu().findItem(R.id.ic_action_notifications_mute);
-                item.setIcon(null);
+                item.setIcon(R.drawable.ic_material_transparent);
             }
 
             // TODO LazyLoading, current user may be null

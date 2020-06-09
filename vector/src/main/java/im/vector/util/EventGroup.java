@@ -20,10 +20,12 @@ package im.vector.util;
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.google.gson.JsonElement;
+
 import org.matrix.androidsdk.adapters.MessageRow;
 import org.matrix.androidsdk.call.MXCallsManager;
-import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.core.Log;
+import org.matrix.androidsdk.rest.model.Event;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -65,6 +67,13 @@ public class EventGroup extends Event {
         mRowsMap = new HashMap<>();
         mRows = new ArrayList<>();
         mHiddenEventIds = hiddenGroupIds;
+    }
+
+    @Override
+    public JsonElement getContent() {
+        Log.w(LOG_TAG, "getContent() called on an EventGroup, result will be null");
+
+        return super.getContent();
     }
 
     /**

@@ -23,11 +23,13 @@ import android.text.TextUtils;
 
 import org.matrix.androidsdk.core.Log;
 
-import im.vector.activity.CommonActivityUtils;
+import im.vector.services.EventStreamServiceX;
 import im.vector.util.PreferencesManager;
 
 public class VectorBootReceiver extends BroadcastReceiver {
     private static final String LOG_TAG = VectorBootReceiver.class.getSimpleName();
+
+    public static final String PERMANENT_LISTENT = "PERMANENT_LISTENT";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -37,10 +39,12 @@ public class VectorBootReceiver extends BroadcastReceiver {
                 || TextUtils.equals(intent.getAction(), "android.intent.action.ACTION_BOOT_COMPLETED")) {
             if (PreferencesManager.autoStartOnBoot(context)) {
                 Log.d(LOG_TAG, "## onReceive() : starts the application");
-                CommonActivityUtils.startEventStreamService(context);
+                EventStreamServiceX.Companion.onBootComplete(context);
             } else {
                 Log.d(LOG_TAG, "## onReceive() : the autostart is disabled");
             }
+        } else if (TextUtils.equals(intent.getAction(), PERMANENT_LISTENT)) {
+            EventStreamServiceX.Companion.onForcePermanentEventListening(context);
         }
     }
 }

@@ -18,8 +18,6 @@ package im.vector.fragments
 
 import android.app.Dialog
 import android.os.Bundle
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
@@ -29,9 +27,9 @@ import im.vector.R
 import im.vector.adapters.VectorReadReceiptsAdapter
 import im.vector.extensions.withArgs
 import im.vector.fragments.base.VectorBaseDialogFragment
+import org.matrix.androidsdk.core.Log
 import org.matrix.androidsdk.core.callback.SimpleApiCallback
 import org.matrix.androidsdk.rest.model.RoomMember
-import org.matrix.androidsdk.core.Log
 import java.util.*
 
 /**

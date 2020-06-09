@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?attr/vctr_riot_primary_background_color"
+    android:background="?android:attr/colorBackground"
     android:orientation="vertical">
 
     <RelativeLayout
@@ -25,22 +25,26 @@
             android:background="@android:color/darker_gray" />
 
         <!-- Avatar -->
-        <include
-            android:id="@+id/room_avatar_layout"
-            layout="@layout/adapter_item_circular_avatar_room_view"
+        <im.vector.view.VectorCircularImageView
+            android:id="@+id/adapter_item_recent_room_avatar"
             android:layout_width="@dimen/chat_avatar_size"
             android:layout_height="@dimen/chat_avatar_size"
+            android:layout_centerInParent="true"
             android:layout_centerVertical="true"
             android:layout_toEndOf="@id/bing_indicator_unread_message"
-            android:layout_toRightOf="@id/bing_indicator_unread_message" />
+            android:layout_toRightOf="@id/bing_indicator_unread_message"
+            android:adjustViewBounds="true"
+            android:scaleType="centerCrop"
+            tools:src="@tools:sample/avatars" />
 
+        <!-- Note: cannot tint with colorAccent here... -->
         <ImageView
             android:id="@+id/room_avatar_direct_chat_icon"
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:layout_alignStart="@+id/room_avatar_layout"
-            android:layout_alignLeft="@+id/room_avatar_layout"
-            android:layout_alignTop="@+id/room_avatar_layout"
+            android:layout_alignStart="@+id/adapter_item_recent_room_avatar"
+            android:layout_alignLeft="@+id/adapter_item_recent_room_avatar"
+            android:layout_alignTop="@+id/adapter_item_recent_room_avatar"
             android:layout_marginStart="30dp"
             android:layout_marginLeft="30dp"
             android:src="@drawable/icon_person"
@@ -52,12 +56,15 @@
             android:id="@+id/room_avatar_encrypted_icon"
             android:layout_width="15dp"
             android:layout_height="15dp"
-            android:layout_alignBottom="@+id/room_avatar_layout"
-            android:layout_toRightOf="@+id/room_avatar_layout"
+            android:layout_alignStart="@+id/adapter_item_recent_room_avatar"
+            android:layout_alignLeft="@+id/adapter_item_recent_room_avatar"
+            android:layout_alignBottom="@+id/adapter_item_recent_room_avatar"
+            android:layout_marginStart="35dp"
             android:layout_marginLeft="35dp"
             android:src="@drawable/e2e_verified"
             android:tint="?attr/padlock_icon_tint_color"
-            android:visibility="gone" />
+            android:visibility="gone"
+            tools:visibility="visible" />
 
         <RelativeLayout
             android:id="@+id/roomSummaryAdapter_show_more_layout"
@@ -67,12 +74,14 @@
             android:layout_alignParentRight="true"
             android:layout_marginEnd="20dp"
             android:layout_marginRight="20dp"
-            android:visibility="gone">
+            android:visibility="gone"
+            tools:visibility="visible">
 
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_centerVertical="true"
+                android:rotationY="@integer/rtl_mirror_flip"
                 android:src="@drawable/ic_material_chevron_right_black" />
         </RelativeLayout>
 
@@ -86,8 +95,8 @@
             android:layout_marginRight="15dp"
             android:layout_toStartOf="@id/roomSummaryAdapter_show_more_layout"
             android:layout_toLeftOf="@id/roomSummaryAdapter_show_more_layout"
-            android:layout_toEndOf="@id/room_avatar_layout"
-            android:layout_toRightOf="@id/room_avatar_layout"
+            android:layout_toEndOf="@id/adapter_item_recent_room_avatar"
+            android:layout_toRightOf="@id/adapter_item_recent_room_avatar"
             android:orientation="vertical">
 
             <RelativeLayout
@@ -108,7 +117,6 @@
                     android:layout_toLeftOf="@+id/roomSummaryAdapter_unread_count"
                     android:fontFamily="sans-serif-regular"
                     android:singleLine="true"
-                    android:textColor="?attr/vctr_riot_primary_text_color"
                     android:textSize="16sp"
                     tools:text="Room Name" />
 
@@ -145,7 +153,7 @@
                     android:layout_toStartOf="@+id/roomSummaryAdapter_action_image"
                     android:layout_toLeftOf="@+id/roomSummaryAdapter_action_image"
                     android:fontFamily="sans-serif-light"
-                    android:textColor="?attr/vctr_default_text_light_color"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:textSize="12sp"
                     tools:text="Jan 1 00:00" />
 
@@ -226,7 +234,7 @@
                     android:layout_toLeftOf="@+id/roomSummaryAdapter_word_readable"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:textColor="?attr/vctr_default_text_light_color"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:textSize="14sp"
                     tools:text="last room message" />
 
@@ -265,7 +273,7 @@
                 android:layout_width="0dp"
                 android:layout_height="36dp"
                 android:layout_weight="0.26"
-                android:background="@color/vector_green_color"
+                android:background="?attr/colorAccent"
                 android:fontFamily="sans-serif-medium"
                 android:text="@string/join"
                 android:textColor="@android:color/white"
@@ -283,7 +291,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="0.26"
-                android:background="@color/vector_green_color"
+                android:background="?attr/colorAccent"
                 android:fontFamily="sans-serif-medium"
                 android:text="@string/reject"
                 android:textColor="@android:color/white"

@@ -23,8 +23,9 @@ import im.vector.R
 import im.vector.activity.VectorWebViewActivity
 import im.vector.activity.interfaces.Restorable
 import im.vector.webview.WebViewMode
-import org.matrix.androidsdk.core.model.MatrixError
+
 import org.matrix.androidsdk.core.Log
+import org.matrix.androidsdk.core.model.MatrixError
 
 private const val LOG_TAG = "ConsentNotGivenHelper"
 
@@ -62,7 +63,7 @@ class ConsentNotGivenHelper private constructor(private val activity: Activity,
      * ========================================================================================== */
 
     private fun openWebViewActivity(consentUri: String) {
-        val intent = VectorWebViewActivity.getIntent(activity, consentUri, R.string.settings_app_term_conditions, WebViewMode.CONSENT)
+        val intent = VectorWebViewActivity.getIntent(activity, consentUri, activity.getString(R.string.settings_app_term_conditions), WebViewMode.CONSENT)
         activity.startActivity(intent)
     }
 }

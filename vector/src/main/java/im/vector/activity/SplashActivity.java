@@ -19,20 +19,14 @@ package im.vector.activity;
 
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
-
-import org.jetbrains.annotations.NotNull;
 import org.matrix.androidsdk.MXSession;
-import org.matrix.androidsdk.listeners.IMXEventListener;
-import org.matrix.androidsdk.listeners.MXEventListener;
+import org.matrix.androidsdk.core.Log;
 import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.core.model.MatrixError;
-import org.matrix.androidsdk.core.Log;
+import org.matrix.androidsdk.listeners.IMXEventListener;
+import org.matrix.androidsdk.listeners.MXEventListener;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,7 +34,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import butterknife.BindView;
 import im.vector.ErrorListener;
 import im.vector.Matrix;
 import im.vector.R;
@@ -48,8 +41,7 @@ import im.vector.VectorApp;
 import im.vector.analytics.TrackingEvent;
 import im.vector.push.PushManager;
 import im.vector.receiver.VectorUniversalLinkReceiver;
-import im.vector.services.EventStreamService;
-import im.vector.ui.themes.ActivityOtherThemes;
+import im.vector.services.EventStreamServiceX;
 import im.vector.util.PreferencesManager;
 
 /**
@@ -136,12 +128,6 @@ public class SplashActivity extends MXCActionBarActivity {
         }
     }
 
-    @NotNull
-    @Override
-    public ActivityOtherThemes getOtherThemes() {
-        return ActivityOtherThemes.NoActionBar.INSTANCE;
-    }
-
     @Override
     public int getLayoutRes() {
         return R.layout.vector_activity_splash;
@@ -213,7 +199,7 @@ public class SplashActivity extends MXCActionBarActivity {
                             PreferencesManager.setUseLazyLoading(SplashActivity.this, true);
 
                             // Reload the sessions
-                            Matrix.getInstance(SplashActivity.this).reloadSessions(SplashActivity.this);
+                            Matrix.getInstance(SplashActivity.this).reloadSessions(SplashActivity.this, true);
                         } else {
                             // Maybe in the future this home server will support it
                             startEventStreamService(sessions);
@@ -300,24 +286,11 @@ public class SplashActivity extends MXCActionBarActivity {
             Matrix.getInstance(this).mHasBeenDisconnected = false;
         }
 
-        if (EventStreamService.getInstance() == null) {
-            // Start the event stream service
-            Intent intent = new Intent(this, EventStreamService.class);
-            intent.putExtra(EventStreamService.EXTRA_MATRIX_IDS, matrixIds.toArray(new String[matrixIds.size()]));
-            intent.putExtra(EventStreamService.EXTRA_STREAM_ACTION, EventStreamService.StreamAction.START.ordinal());
-            startService(intent);
-        } else {
-            EventStreamService.getInstance().startAccounts(matrixIds);
-        }
+        EventStreamServiceX.Companion.onApplicationStarted(this);
 
         // trigger the push registration if required
         PushManager pushManager = Matrix.getInstance(getApplicationContext()).getPushManager();
-
-        if (!pushManager.isFcmRegistered()) {
-            pushManager.checkRegistrations();
-        } else {
-            pushManager.forceSessionsRegistration(null);
-        }
+        pushManager.deepCheckRegistration(this);
 
         boolean noUpdate;
 

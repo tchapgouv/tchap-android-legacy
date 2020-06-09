@@ -52,6 +52,7 @@ import org.matrix.androidsdk.core.callback.SimpleApiCallback;
 import org.matrix.androidsdk.core.callback.SuccessCallback;
 import org.matrix.androidsdk.rest.client.ProfileRestClient;
 import org.matrix.androidsdk.core.model.MatrixError;
+import org.matrix.androidsdk.rest.model.login.LocalizedFlowDataLoginTerms;
 import org.matrix.androidsdk.rest.model.login.RegistrationFlowResponse;
 import org.matrix.androidsdk.rest.model.login.ThreePidCredentials;
 import org.matrix.androidsdk.rest.model.pid.ThreePid;
@@ -87,12 +88,12 @@ import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.MXCActionBarActivity;
 import im.vector.activity.SplashActivity;
 import im.vector.activity.VectorUniversalLinkActivity;
+import im.vector.activity.policies.AccountCreationTermsActivity;
 import im.vector.activity.util.RequestCodesKt;
-import im.vector.gcm.GCMHelper;
 import im.vector.features.hhs.ResourceLimitDialogHelper;
 import im.vector.push.fcm.FcmHelper;
 import im.vector.receiver.VectorUniversalLinkReceiver;
-import im.vector.services.EventStreamService;
+import im.vector.ui.badge.BadgeProxy;
 
 /**
  * Displays the login screen.
@@ -101,6 +102,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     private static final String LOG_TAG = TchapLoginActivity.class.getSimpleName();
 
     public static final int MIN_PASSWORD_LENGTH = 8;
+    public static final String EXTRA_RESTART_FROM_INVALID_CREDENTIALS = "EXTRA_RESTART_FROM_INVALID_CREDENTIALS";
 
     // activity modes
     // either the user logs in
@@ -202,6 +204,9 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     @BindView(R.id.fragment_tchap_first_forget_password_new_password_confirm)
     EditText mForgotPassword2TextView;
 
+    // Registration Manager
+    private RegistrationManager mRegistrationManager;
+
     // used to display a UI mask on the screen
     private RelativeLayout mLoginMaskView;
 
@@ -273,7 +278,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             mCurrentDialog = null;
         }
 
-        RegistrationManager.getInstance().resetSingleton();
         super.onDestroy();
         Log.i(LOG_TAG, "## onDestroy(): IN");
         // ignore any server response when the acitity is destroyed
@@ -348,18 +352,8 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
 
         // already registered
         if (hasCredentials()) {
-            if ((null != intent) && (intent.getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) == 0) {
-                Log.d(LOG_TAG, "## onCreate(): goToSplash because the credentials are already provided.");
-                goToSplash();
-            } else {
-                // detect if the application has already been started
-                if (null == EventStreamService.getInstance()) {
-                    Log.d(LOG_TAG, "## onCreate(): goToSplash with credentials but there is no event stream service.");
-                    goToSplash();
-                } else {
-                    Log.d(LOG_TAG, "## onCreate(): close the login screen because it is a temporary task");
-                }
-            }
+            Log.d(LOG_TAG, "## onCreate(): goToSplash because the credentials are already provided.");
+            goToSplash();
 
             finish();
             return;
@@ -424,9 +418,11 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         });
 
         if (isFirstCreation()) {
+            mRegistrationManager = new RegistrationManager(null);
             mResourceLimitDialogHelper = new ResourceLimitDialogHelper(this, null);
         } else {
             final Bundle savedInstanceState = getSavedInstanceState();
+            mRegistrationManager = new RegistrationManager(savedInstanceState);
             mResourceLimitDialogHelper = new ResourceLimitDialogHelper(this, savedInstanceState);
             restoreSavedData(savedInstanceState);
         }
@@ -435,7 +431,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         refreshDisplay();
 
         // reset the badge counter
-        CommonActivityUtils.updateBadgeCount(this, 0);
+        BadgeProxy.INSTANCE.updateBadgeCount(this, 0);
 
         // Check whether the application has been resumed from an universal link
         Bundle receivedBundle = (null != intent) ? getIntent().getExtras() : null;
@@ -572,9 +568,11 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     protected void onResume() {
         super.onResume();
 
-        // Ensure we have the last version of GooglePlay services (not for F-Droid version then),
-        // or TLS 1.2 could not work, especially on Android < 5.0
-        GCMHelper.checkLastVersion(this);
+        if (isFirstCreation() && getIntent().getBooleanExtra(EXTRA_RESTART_FROM_INVALID_CREDENTIALS, false)) {
+            Toast.makeText(this, getString(R.string.invalid_or_expired_credentials), Toast.LENGTH_LONG).show();
+        }
+
+        refreshDisplay();
     }
 
     /**
@@ -739,7 +737,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                     if (isValid) {
                         // Pursue the forget pwd process
                         ProfileRestClient pRest = new ProfileRestClient(hsConfig);
-                        pRest.forgetPassword(email, new ApiCallback<ThreePid>() {
+                        pRest.forgetPassword(hsConfig.getIdentityServerUri(), email, new ApiCallback<ThreePid>() {
                             @Override
                             public void onSuccess(ThreePid thirdPid) {
                                 if (mMode == MODE_FORGOT_PASSWORD) {
@@ -752,9 +750,9 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                                     refreshDisplay();
 
                                     mForgotPid = new ThreePidCredentials();
-                                    mForgotPid.clientSecret = thirdPid.clientSecret;
+                                    mForgotPid.clientSecret = thirdPid.getClientSecret();
                                     mForgotPid.idServer = hsConfig.getIdentityServerUri().getHost();
-                                    mForgotPid.sid = thirdPid.sid;
+                                    mForgotPid.sid = thirdPid.getSid();
                                 }
                             }
 
@@ -1068,7 +1066,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         final HomeServerConnectionConfig homeServerConfig
                 = mServerConfig
                 = HomeServerConnectionConfigFactoryKt.createHomeServerConnectionConfig(aHomeServer, aIdentityServer);
-        RegistrationManager.getInstance().setHsConfig(homeServerConfig);
+        mRegistrationManager.setHsConfig(homeServerConfig);
         Log.d(LOG_TAG, "## submitEmailToken(): IN");
 
         if (mMode == MODE_ACCOUNT_CREATION) {
@@ -1104,7 +1102,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                             Log.d(TchapLoginActivity.LOG_TAG, "## submitEmailToken(): onSuccess() - registerAfterEmailValidations() started");
                             mMode = MODE_ACCOUNT_CREATION;
                             enableLoadingScreen(true);
-                            RegistrationManager.getInstance().registerAfterEmailValidation(TchapLoginActivity.this, aClientSecret, aSid, aIdentityServer, aSessionId, TchapLoginActivity.this);
+                            mRegistrationManager.registerAfterEmailValidation(TchapLoginActivity.this, aClientSecret, aSid, aIdentityServer, aSessionId, TchapLoginActivity.this);
                         }
                     } else {
                         Log.d(TchapLoginActivity.LOG_TAG, "## submitEmailToken(): onSuccess() - failed (success=false)");
@@ -1241,7 +1239,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
                                 }
 
                                 if (null != registrationFlowResponse) {
-                                    RegistrationManager.getInstance().setSupportedRegistrationFlows(registrationFlowResponse);
+                                    mRegistrationManager.setSupportedRegistrationFlows(registrationFlowResponse);
                                     onRegistrationFlow(registrationFlowResponse);
                                     callback.onSuccess(null);
                                 } else {
@@ -1716,7 +1714,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             if (resultCode == RESULT_OK) {
                 Log.d(LOG_TAG, "## onActivityResult(): CAPTCHA_CREATION_ACTIVITY_REQUEST_CODE => RESULT_OK");
                 String captchaResponse = data.getStringExtra("response");
-                RegistrationManager.getInstance().setCaptchaResponse(captchaResponse);
+                mRegistrationManager.setCaptchaResponse(captchaResponse);
                 createAccount();
             } else {
                 Log.d(LOG_TAG, "## onActivityResult(): CAPTCHA_CREATION_ACTIVITY_REQUEST_CODE => RESULT_KO");
@@ -1744,7 +1742,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         }
         enableLoadingScreen(true);
         hideMainLayoutAndToast("");
-        RegistrationManager.getInstance().attemptRegistration(this, this);
+        mRegistrationManager.attemptRegistration(this, this);
     }
 
     /*
@@ -1800,8 +1798,16 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     }
 
     @Override
-    public void onWaitingCaptcha() {
-        final String publicKey = RegistrationManager.getInstance().getCaptchaPublicKey();
+    public void onIdentityServerMissing() {
+        Log.d(LOG_TAG, "## onIdentityServerMissing()");
+        enableLoadingScreen(false);
+        showMainLayout();
+        refreshDisplay();
+        Toast.makeText(this, R.string.identity_server_not_defined, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onWaitingCaptcha(String publicKey) {
         if (!TextUtils.isEmpty(publicKey)) {
             Log.d(LOG_TAG, "## onWaitingCaptcha");
             Intent intent = new Intent(TchapLoginActivity.this, AccountCreationCaptchaActivity.class);
@@ -1811,6 +1817,18 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         } else {
             Log.d(LOG_TAG, "## onWaitingCaptcha(): captcha flow cannot be done");
             Toast.makeText(this, getString(R.string.login_error_unable_register), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onWaitingTerms(List<LocalizedFlowDataLoginTerms> localizedFlowDataLoginTerms) {
+        if (!localizedFlowDataLoginTerms.isEmpty()) {
+            Log.d(LOG_TAG, "## onWaitingTerms");
+            Intent intent = AccountCreationTermsActivity.Companion.getIntent(this, localizedFlowDataLoginTerms);
+            startActivityForResult(intent, RequestCodesKt.TERMS_CREATION_ACTIVITY_REQUEST_CODE);
+        } else {
+            Log.d(LOG_TAG, "## onWaitingTerms(): terms flow cannot be done");
+            Toast.makeText(this, R.string.login_error_unable_register, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -2071,17 +2089,17 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         checkPasswordValidity(password, hsConfig, isValid -> {
             if (isValid) {
                 // Pursue the registration`
-                RegistrationManager.getInstance().setHsConfig(hsConfig);
+                mRegistrationManager.setHsConfig(hsConfig);
                 // The username is forced by the Tchap server, we don't send it anymore.
-                RegistrationManager.getInstance().setAccountData(null, password);
+                mRegistrationManager.setAccountData(null, password);
 
-                RegistrationManager.getInstance().clearThreePid();
-                RegistrationManager.getInstance().addEmailThreePid(new ThreePid(mCurrentEmail, ThreePid.MEDIUM_EMAIL));
+                mRegistrationManager.clearThreePid();
+                mRegistrationManager.addEmailThreePid(ThreePid.Companion.fromEmail(mCurrentEmail));
 
                 checkRegistrationFlows(new SimpleApiCallback<Void>() {
                     @Override
                     public void onSuccess(Void info) {
-                        RegistrationManager.getInstance().attemptRegistration(TchapLoginActivity.this, TchapLoginActivity.this);
+                        mRegistrationManager.attemptRegistration(TchapLoginActivity.this, TchapLoginActivity.this);
                     }
                 });
             } else {

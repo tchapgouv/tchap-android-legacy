@@ -1,13 +1,13 @@
-/* 
+/*
  * Copyright 2014 OpenMarket Ltd
  * Copyright 2018 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,24 +21,21 @@ import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
-import org.matrix.androidsdk.core.MXPatterns;
+import androidx.core.content.ContextCompat;
 import org.matrix.androidsdk.MXSession;
+import org.matrix.androidsdk.core.Log;
+import org.matrix.androidsdk.core.MXPatterns;
 import org.matrix.androidsdk.core.PermalinkUtils;
-import org.matrix.androidsdk.data.Room;
-import org.matrix.androidsdk.data.RoomPreviewData;
 import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.core.model.MatrixError;
+import org.matrix.androidsdk.data.Room;
+import org.matrix.androidsdk.data.RoomPreviewData;
 import org.matrix.androidsdk.rest.model.User;
-import org.matrix.androidsdk.core.Log;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -263,7 +260,7 @@ public class PillView extends LinearLayout {
     /**
      * Return a snapshot of the view
      *
-     * @param forceUpdate tell whether the cached data must be ignored or not.  
+     * @param forceUpdate tell whether the cached data must be ignored or not.
      * @return a snapshot of the view
      */
     public Drawable getDrawable(boolean forceUpdate) {

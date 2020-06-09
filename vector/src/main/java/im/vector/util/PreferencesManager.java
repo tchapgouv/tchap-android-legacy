@@ -2,6 +2,7 @@
  * Copyright 2016 OpenMarket Ltd
  * Copyright 2017 Vector Creations Ltd
  * Copyright 2018 New Vector Ltd
+ * Copyright 2019 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,14 +23,15 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.preference.PreferenceManager;
 import android.provider.MediaStore;
-import androidx.annotation.Nullable;
 import android.text.TextUtils;
 
+import androidx.annotation.Nullable;
+import androidx.preference.PreferenceManager;
 import org.matrix.androidsdk.core.Log;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -56,7 +58,9 @@ public class PreferencesManager {
     public static final String SETTINGS_IDENTITY_SERVER_PREFERENCE_KEY = "SETTINGS_IDENTITY_SERVER_PREFERENCE_KEY";
     public static final String SETTINGS_APP_TERM_CONDITIONS_PREFERENCE_KEY = "SETTINGS_APP_TERM_CONDITIONS_PREFERENCE_KEY";
     public static final String SETTINGS_PRIVACY_POLICY_PREFERENCE_KEY = "SETTINGS_PRIVACY_POLICY_PREFERENCE_KEY";
-    public static final String SETTINGS_NOTIFICATION_PRIVACY_PREFERENCE_KEY = "SETTINGS_NOTIFICATION_PRIVACY_PREFERENCE_KEY";
+    public static final String SETTINGS_NOTIFICATION_TROUBLESHOOT_PREFERENCE_KEY = "SETTINGS_NOTIFICATION_TROUBLESHOOT_PREFERENCE_KEY";
+    public static final String SETTINGS_NOTIFICATION_ADVANCED_PREFERENCE_KEY = "SETTINGS_NOTIFICATION_ADVANCED_PREFERENCE_KEY";
+    public static final String SETTINGS_DISCOVERY_PREFERENCE_KEY = "SETTINGS_DISCOVERY_PREFERENCE_KEY";
     public static final String SETTINGS_THIRD_PARTY_NOTICES_PREFERENCE_KEY = "SETTINGS_THIRD_PARTY_NOTICES_PREFERENCE_KEY";
     public static final String SETTINGS_COPYRIGHT_PREFERENCE_KEY = "SETTINGS_COPYRIGHT_PREFERENCE_KEY";
     public static final String SETTINGS_CLEAR_CACHE_PREFERENCE_KEY = "SETTINGS_CLEAR_CACHE_PREFERENCE_KEY";
@@ -72,6 +76,8 @@ public class PreferencesManager {
     public static final String SETTINGS_LABS_PREFERENCE_KEY = "SETTINGS_LABS_PREFERENCE_KEY";
     public static final String SETTINGS_CRYPTOGRAPHY_PREFERENCE_KEY = "SETTINGS_CRYPTOGRAPHY_PREFERENCE_KEY";
     public static final String SETTINGS_CRYPTOGRAPHY_DIVIDER_PREFERENCE_KEY = "SETTINGS_CRYPTOGRAPHY_DIVIDER_PREFERENCE_KEY";
+    public static final String SETTINGS_CRYPTOGRAPHY_MANAGE_PREFERENCE_KEY = "SETTINGS_CRYPTOGRAPHY_MANAGE_PREFERENCE_KEY";
+    public static final String SETTINGS_CRYPTOGRAPHY_MANAGE_DIVIDER_PREFERENCE_KEY = "SETTINGS_CRYPTOGRAPHY_MANAGE_DIVIDER_PREFERENCE_KEY";
     public static final String SETTINGS_DEVICES_LIST_PREFERENCE_KEY = "SETTINGS_DEVICES_LIST_PREFERENCE_KEY";
     public static final String SETTINGS_DEVICES_DIVIDER_PREFERENCE_KEY = "SETTINGS_DEVICES_DIVIDER_PREFERENCE_KEY";
     public static final String SETTINGS_ROOM_SETTINGS_LABS_END_TO_END_PREFERENCE_KEY = "SETTINGS_ROOM_SETTINGS_LABS_END_TO_END_PREFERENCE_KEY";
@@ -83,6 +89,8 @@ public class PreferencesManager {
     public static final String SETTINGS_ENCRYPTION_IMPORT_E2E_ROOM_KEYS_PREFERENCE_KEY = "SETTINGS_ENCRYPTION_IMPORT_E2E_ROOM_KEYS_PREFERENCE_KEY";
     public static final String SETTINGS_ENCRYPTION_NEVER_SENT_TO_PREFERENCE_KEY = "SETTINGS_ENCRYPTION_NEVER_SENT_TO_PREFERENCE_KEY";
     public static final String SETTINGS_ENCRYPTION_INFORMATION_DEVICE_KEY_PREFERENCE_KEY = "SETTINGS_ENCRYPTION_INFORMATION_DEVICE_KEY_PREFERENCE_KEY";
+
+    public static final String SETTINGS_SECURE_MESSAGE_RECOVERY_PREFERENCE_KEY = "SETTINGS_SECURE_MESSAGE_RECOVERY_PREFERENCE_KEY";
 
     // user
     public static final String SETTINGS_DISPLAY_NAME_PREFERENCE_KEY = "SETTINGS_DISPLAY_NAME_PREFERENCE_KEY";
@@ -103,7 +111,7 @@ public class PreferencesManager {
     public static final String SETTINGS_SHOW_JOIN_LEAVE_MESSAGES_KEY = "SETTINGS_SHOW_JOIN_LEAVE_MESSAGES_KEY";
     private static final String SETTINGS_SHOW_AVATAR_DISPLAY_NAME_CHANGES_MESSAGES_KEY = "SETTINGS_SHOW_AVATAR_DISPLAY_NAME_CHANGES_MESSAGES_KEY";
     private static final String SETTINGS_VIBRATE_ON_MENTION_KEY = "SETTINGS_VIBRATE_ON_MENTION_KEY";
-    private static final String SETTINGS_PREVIEW_MEDIA_BEFORE_SENDING_KEY = "SETTINGS_PREVIEW_MEDIA_BEFORE_SENDING_KEY";
+    private static final String SETTINGS_SEND_MESSAGE_WITH_ENTER = "SETTINGS_SEND_MESSAGE_WITH_ENTER";
 
     // home
     private static final String SETTINGS_PIN_UNREAD_MESSAGES_PREFERENCE_KEY = "SETTINGS_PIN_UNREAD_MESSAGES_PREFERENCE_KEY";
@@ -117,6 +125,9 @@ public class PreferencesManager {
     public static final String SETTINGS_ENABLE_ALL_NOTIF_PREFERENCE_KEY = "SETTINGS_ENABLE_ALL_NOTIF_PREFERENCE_KEY";
     public static final String SETTINGS_ENABLE_THIS_DEVICE_PREFERENCE_KEY = "SETTINGS_ENABLE_THIS_DEVICE_PREFERENCE_KEY";
     public static final String SETTINGS_TURN_SCREEN_ON_PREFERENCE_KEY = "SETTINGS_TURN_SCREEN_ON_PREFERENCE_KEY";
+    public static final String SETTINGS_SYSTEM_CALL_NOTIFICATION_PREFERENCE_KEY = "SETTINGS_SYSTEM_CALL_NOTIFICATION_PREFERENCE_KEY";
+    public static final String SETTINGS_SYSTEM_NOISY_NOTIFICATION_PREFERENCE_KEY = "SETTINGS_SYSTEM_NOISY_NOTIFICATION_PREFERENCE_KEY";
+    public static final String SETTINGS_SYSTEM_SILENT_NOTIFICATION_PREFERENCE_KEY = "SETTINGS_SYSTEM_SILENT_NOTIFICATION_PREFERENCE_KEY";
     public static final String SETTINGS_NOTIFICATION_RINGTONE_PREFERENCE_KEY = "SETTINGS_NOTIFICATION_RINGTONE_PREFERENCE_KEY";
     public static final String SETTINGS_NOTIFICATION_RINGTONE_SELECTION_PREFERENCE_KEY = "SETTINGS_NOTIFICATION_RINGTONE_SELECTION_PREFERENCE_KEY";
     public static final String SETTINGS_CONTAINING_MY_DISPLAY_NAME_PREFERENCE_KEY = "SETTINGS_CONTAINING_MY_DISPLAY_NAME_PREFERENCE_KEY_2";
@@ -126,14 +137,24 @@ public class PreferencesManager {
     public static final String SETTINGS_INVITED_TO_ROOM_PREFERENCE_KEY = "SETTINGS_INVITED_TO_ROOM_PREFERENCE_KEY_2";
     public static final String SETTINGS_CALL_INVITATIONS_PREFERENCE_KEY = "SETTINGS_CALL_INVITATIONS_PREFERENCE_KEY_2";
 
+    // media
+    private static final String SETTINGS_DEFAULT_MEDIA_COMPRESSION_KEY = "SETTINGS_DEFAULT_MEDIA_COMPRESSION_KEY";
+    private static final String SETTINGS_DEFAULT_MEDIA_SOURCE_KEY = "SETTINGS_DEFAULT_MEDIA_SOURCE_KEY";
+    private static final String SETTINGS_PREVIEW_MEDIA_BEFORE_SENDING_KEY = "SETTINGS_PREVIEW_MEDIA_BEFORE_SENDING_KEY";
+    private static final String SETTINGS_PLAY_SHUTTER_SOUND_KEY = "SETTINGS_PLAY_SHUTTER_SOUND_KEY";
+
     // background sync
+    public static final String SETTINGS_FDROID_BACKGROUND_SYNC_MODE = "SETTINGS_FDROID_BACKGROUND_SYNC_MODE";
     public static final String SETTINGS_START_ON_BOOT_PREFERENCE_KEY = "SETTINGS_START_ON_BOOT_PREFERENCE_KEY";
-    public static final String SETTINGS_ENABLE_BACKGROUND_SYNC_PREFERENCE_KEY = "SETTINGS_ENABLE_BACKGROUND_SYNC_PREFERENCE_KEY";
+    //public static final String SETTINGS_ENABLE_BACKGROUND_SYNC_PREFERENCE_KEY = "SETTINGS_ENABLE_BACKGROUND_SYNC_PREFERENCE_KEY";
     public static final String SETTINGS_SET_SYNC_DELAY_PREFERENCE_KEY = "SETTINGS_SET_SYNC_DELAY_PREFERENCE_KEY";
+    public static final String SETTINGS_WORK_MANAGER_DELAY_PREFERENCE_KEY = "SETTINGS_WORK_MANAGER_DELAY_PREFERENCE_KEY";
 
     // Calls
     public static final String SETTINGS_CALL_RINGTONE_USE_RIOT_PREFERENCE_KEY = "SETTINGS_CALL_RINGTONE_USE_RIOT_PREFERENCE_KEY";
     public static final String SETTINGS_CALL_RINGTONE_URI_PREFERENCE_KEY = "SETTINGS_CALL_RINGTONE_URI_PREFERENCE_KEY";
+    public static final String SETTINGS_CALL_USE_DEFAULT_STUN_PREFERENCE_KEY = "SETTINGS_CALL_USE_DEFAULT_STUN_PREFERENCE_KEY";
+    public static final String SETTINGS_CALL_USE_DEFAULT_ASK_DEFAULT_STUN_PREFERENCE_KEY = "SETTINGS_CALL_USE_DEFAULT_ASK_DEFAULT_STUN_PREFERENCE_KEY";
 
     // labs
     public static final String SETTINGS_LAZY_LOADING_PREFERENCE_KEY = "SETTINGS_LAZY_LOADING_PREFERENCE_KEY";
@@ -149,10 +170,17 @@ public class PreferencesManager {
     public static final String SETTINGS_USE_ANALYTICS_KEY = "SETTINGS_USE_ANALYTICS_KEY";
     public static final String SETTINGS_USE_RAGE_SHAKE_KEY = "SETTINGS_USE_RAGE_SHAKE_KEY";
 
+    //Integrations
+    public static final String SETTINGS_INTEGRATION_MANAGER_UI_URL = "SETTINGS_INTEGRATION_MANAGER_UI_URL";
+    public static final String SETTINGS_INTEGRATION_MANAGER_API_URL = "SETTINGS_INTEGRATION_MANAGER_API_URL";
+    public static final String SETTINGS_INTEGRATION_MANAGER_JITSI_URL = "SETTINGS_INTEGRATION_MANAGER_JITSI_URL";
+    public static final String SETTINGS_INTEGRATION_WHITELIST_URL = "SETTINGS_INTEGRATION_WHITELIST_URL";
+
     // other
     public static final String SETTINGS_MEDIA_SAVING_PERIOD_KEY = "SETTINGS_MEDIA_SAVING_PERIOD_KEY";
     private static final String SETTINGS_MEDIA_SAVING_PERIOD_SELECTED_KEY = "SETTINGS_MEDIA_SAVING_PERIOD_SELECTED_KEY";
     private static final String DID_ASK_TO_IGNORE_BATTERY_OPTIMIZATIONS_KEY = "DID_ASK_TO_IGNORE_BATTERY_OPTIMIZATIONS_KEY";
+    private static final String DID_MIGRATE_TO_NOTIFICATION_REWORK = "DID_MIGRATE_TO_NOTIFICATION_REWORK";
     private static final String DID_ASK_TO_USE_ANALYTICS_TRACKING_KEY = "DID_ASK_TO_USE_ANALYTICS_TRACKING_KEY";
     public static final String SETTINGS_DEACTIVATE_ACCOUNT_KEY = "SETTINGS_DEACTIVATE_ACCOUNT_KEY";
     private static final String SETTINGS_DISPLAY_ALL_EVENTS_KEY = "SETTINGS_DISPLAY_ALL_EVENTS_KEY";
@@ -169,6 +197,10 @@ public class PreferencesManager {
 
     // some preferences keys must be kept after a logout
     private static final List<String> mKeysToKeepAfterLogout = Arrays.asList(
+            SETTINGS_DEFAULT_MEDIA_COMPRESSION_KEY,
+            SETTINGS_DEFAULT_MEDIA_SOURCE_KEY,
+            SETTINGS_PLAY_SHUTTER_SOUND_KEY,
+
             SETTINGS_SEND_TYPING_NOTIF_KEY,
             SETTINGS_ALWAYS_SHOW_TIMESTAMPS_KEY,
             SETTINGS_12_24_TIMESTAMPS_KEY,
@@ -178,6 +210,7 @@ public class PreferencesManager {
             SETTINGS_MEDIA_SAVING_PERIOD_KEY,
             SETTINGS_MEDIA_SAVING_PERIOD_SELECTED_KEY,
             SETTINGS_PREVIEW_MEDIA_BEFORE_SENDING_KEY,
+            SETTINGS_SEND_MESSAGE_WITH_ENTER,
 
             SETTINGS_PIN_UNREAD_MESSAGES_PREFERENCE_KEY,
             SETTINGS_PIN_MISSED_NOTIFICATIONS_PREFERENCE_KEY,
@@ -189,16 +222,24 @@ public class PreferencesManager {
             SETTINGS_NOTIFICATION_RINGTONE_PREFERENCE_KEY,
             SETTINGS_NOTIFICATION_RINGTONE_SELECTION_PREFERENCE_KEY,
 
-            SETTINGS_SET_SYNC_DELAY_PREFERENCE_KEY,
             SETTINGS_ROOM_SETTINGS_LABS_END_TO_END_PREFERENCE_KEY,
             SETTINGS_CONTACTS_PHONEBOOK_COUNTRY_PREFERENCE_KEY,
             SETTINGS_INTERFACE_LANGUAGE_PREFERENCE_KEY,
             SETTINGS_BACKGROUND_SYNC_PREFERENCE_KEY,
-            SETTINGS_ENABLE_BACKGROUND_SYNC_PREFERENCE_KEY,
+            //SETTINGS_ENABLE_BACKGROUND_SYNC_PREFERENCE_KEY,
             SETTINGS_SET_SYNC_DELAY_PREFERENCE_KEY,
 
-            SETTINGS_USE_RAGE_SHAKE_KEY
+            SETTINGS_USE_RAGE_SHAKE_KEY,
+
+            // Technical keys
+            VERSION_BUILD
     );
+
+
+    //Background sync modes
+    public static String FDROID_BACKGROUND_SYNC_MODE_FOR_BATTERY = "FDROID_BACKGROUND_SYNC_MODE_FOR_BATTERY";
+    public static String FDROID_BACKGROUND_SYNC_MODE_FOR_REALTIME = "FDROID_BACKGROUND_SYNC_MODE_FOR_REALTIME";
+    public static String FDROID_BACKGROUND_SYNC_MODE_DISABLED = "FDROID_BACKGROUND_SYNC_MODE_DISABLED";
 
     /**
      * Clear the preferences.
@@ -283,6 +324,62 @@ public class PreferencesManager {
                 .apply();
     }
 
+    public static String getIntegrationManagerUiUrl(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getString(SETTINGS_INTEGRATION_MANAGER_UI_URL,
+                null/*context.getString(R.string.integrations_ui_url)*/);
+    }
+
+    public static String getIntegrationManagerApiUrl(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getString(SETTINGS_INTEGRATION_MANAGER_API_URL,
+                null/*context.getString(R.string.integrations_rest_url)*/);
+    }
+
+    public static String getIntegrationManagerJitsiUrl(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getString(SETTINGS_INTEGRATION_MANAGER_JITSI_URL,
+                null/*context.getString(R.string.integrations_jitsi_widget_url)*/);
+    }
+
+
+    public static void setIntegrationManagerUrls(Context context, String uiURl, String apiURl, String jitsiUrl) {
+        if (uiURl != null) {
+            PreferenceManager.getDefaultSharedPreferences(context)
+                    .edit()
+                    .putString(SETTINGS_INTEGRATION_MANAGER_UI_URL, uiURl)
+                    .apply();
+        }
+        if (apiURl != null) {
+            PreferenceManager.getDefaultSharedPreferences(context)
+                    .edit()
+                    .putString(SETTINGS_INTEGRATION_MANAGER_API_URL, apiURl)
+                    .apply();
+        }
+
+        if (jitsiUrl != null) {
+            PreferenceManager.getDefaultSharedPreferences(context)
+                    .edit()
+                    .putString(SETTINGS_INTEGRATION_MANAGER_JITSI_URL, jitsiUrl)
+                    .apply();
+        }
+    }
+
+    public static List<String> getIntegrationWhiteListedUrl(Context context) {
+        Set<String> defaultSet = new HashSet<>(/*Arrays.asList(context.getResources().getStringArray(R.array.integrations_widgets_urls))*/);
+        Set<String> set = PreferenceManager.getDefaultSharedPreferences(context).getStringSet(SETTINGS_INTEGRATION_WHITELIST_URL, defaultSet);
+        return new ArrayList<>(set);
+    }
+
+
+    public static boolean didMigrateToNotificationRework(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(DID_MIGRATE_TO_NOTIFICATION_REWORK, false);
+    }
+
+    public static void setDidMigrateToNotificationRework(Context context) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(DID_MIGRATE_TO_NOTIFICATION_REWORK, true)
+                .apply();
+    }
+
     /**
      * Enable again the question to disable battery optimisations.
      *
@@ -333,6 +430,36 @@ public class PreferencesManager {
      */
     public static boolean isSendVoiceFeatureEnabled(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_ENABLE_SEND_VOICE_FEATURE_PREFERENCE_KEY, false);
+    }
+
+    /**
+     * Tells which compression level to use by default
+     *
+     * @param context the context
+     * @return the selected compression level
+     */
+    public static int getSelectedDefaultMediaCompressionLevel(Context context) {
+        return Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(context).getString(SETTINGS_DEFAULT_MEDIA_COMPRESSION_KEY, "0"));
+    }
+
+    /**
+     * Tells which media source to use by default
+     *
+     * @param context the context
+     * @return the selected media source
+     */
+    public static int getSelectedDefaultMediaSource(Context context) {
+        return Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(context).getString(SETTINGS_DEFAULT_MEDIA_SOURCE_KEY, "0"));
+    }
+
+    /**
+     * Tells whether to use shutter sound.
+     *
+     * @param context the context
+     * @return true if shutter sound should play
+     */
+    public static boolean useShutterSound(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_PLAY_SHUTTER_SOUND_KEY, true);
     }
 
     /**
@@ -502,6 +629,34 @@ public class PreferencesManager {
     }
 
     /**
+     * Tells if the default turn server must be used when none is provided by the server
+     *
+     * @param context the context
+     * @return true if the default turn server must be used.
+     */
+    public static boolean useDefaultTurnServer(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_CALL_USE_DEFAULT_STUN_PREFERENCE_KEY, false);
+    }
+
+    public static void setUseDefaultTurnServer(Context context, boolean use) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(SETTINGS_CALL_USE_DEFAULT_STUN_PREFERENCE_KEY, use)
+                .apply();
+    }
+
+    public static boolean shouldAskForDefaultTurn(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_CALL_USE_DEFAULT_ASK_DEFAULT_STUN_PREFERENCE_KEY, true);
+    }
+
+    public static void setShouldAskForDefaultTurn(Context context, boolean ask) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(SETTINGS_CALL_USE_DEFAULT_ASK_DEFAULT_STUN_PREFERENCE_KEY, ask)
+                .apply();
+    }
+
+    /**
      * Tells if the application is started on boot
      *
      * @param context the context
@@ -596,16 +751,6 @@ public class PreferencesManager {
      * Fix some migration issues
      */
     public static void fixMigrationIssues(Context context) {
-        // Notification Privacy: the REDUCED privacy mode is removed in Tchap.
-        final PushManager pushManager = Matrix.getInstance(context).getPushManager();
-        PushManager.NotificationPrivacy notificationPrivacy = pushManager.getNotificationPrivacy();
-        if (notificationPrivacy == PushManager.NotificationPrivacy.REDUCED) {
-            // We fallback to the LOW_DETAIL mode by default
-            pushManager.setNotificationPrivacy(PushManager.NotificationPrivacy.LOW_DETAIL, null);
-            // and reset the "IgnoreBatteryOptimization" to invite again the user to use the NORMAL
-            // mode on VectorHomeActivity resume.
-            PreferencesManager.resetDidAskUserToIgnoreBatteryOptimizations(context);
-        }
     }
 
     /**
@@ -750,6 +895,16 @@ public class PreferencesManager {
     }
 
     /**
+     * Tells if message should be send by pressing enter on the soft keyboard
+     *
+     * @param context the context
+     * @return true to send message with enter
+     */
+    public static boolean sendMessageWithEnter(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_SEND_MESSAGE_WITH_ENTER, false);
+    }
+
+    /**
      * Tells if the rage shake is used.
      *
      * @param context the context
@@ -781,4 +936,54 @@ public class PreferencesManager {
     public static boolean displayAllEvents(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_DISPLAY_ALL_EVENTS_KEY, false);
     }
+
+
+    public static void setFdroidSyncBackgroundMode(Context context, String mode) {
+        if (FDROID_BACKGROUND_SYNC_MODE_DISABLED.equals(mode)
+                || FDROID_BACKGROUND_SYNC_MODE_FOR_BATTERY.equals(mode)
+                || FDROID_BACKGROUND_SYNC_MODE_FOR_REALTIME.equals(mode)) {
+            PreferenceManager.getDefaultSharedPreferences(context)
+                    .edit()
+                    .putString(SETTINGS_FDROID_BACKGROUND_SYNC_MODE, mode)
+                    .apply();
+        } else {
+            Log.e(LOG_TAG, "#setFdroidSyncBackgroundMode: Invalid Fdroid background sync mode");
+        }
+    }
+
+    public static String getFdroidSyncBackgroundMode(Context context) {
+        try {
+            return PreferenceManager
+                    .getDefaultSharedPreferences(context)
+                    .getString(SETTINGS_FDROID_BACKGROUND_SYNC_MODE, FDROID_BACKGROUND_SYNC_MODE_FOR_BATTERY);
+        } catch (ClassCastException e) {
+            PreferenceManager.getDefaultSharedPreferences(context)
+                    .edit()
+                    .remove(SETTINGS_FDROID_BACKGROUND_SYNC_MODE)
+                    .putString(SETTINGS_FDROID_BACKGROUND_SYNC_MODE, FDROID_BACKGROUND_SYNC_MODE_FOR_BATTERY)
+                    .apply();
+            setFdroidSyncBackgroundMode(context, FDROID_BACKGROUND_SYNC_MODE_FOR_BATTERY);
+            return FDROID_BACKGROUND_SYNC_MODE_FOR_BATTERY;
+        }
+    }
+
+
+    public static Integer getWorkManagerSyncIntervalMillis(Context context) {
+        //For whatever reason save as string
+        String sValue = PreferenceManager.getDefaultSharedPreferences(context).getString(SETTINGS_WORK_MANAGER_DELAY_PREFERENCE_KEY, "60000");
+        try {
+            return Integer.parseInt(sValue);
+        } catch (Exception e) {
+            return 60 * 1000;
+        }
+    }
+
+    public static void setWorkManagerSyncIntervalMillis(Context context, int delay) {
+        //For whatever reason save as string (preference fragment)
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putString(SETTINGS_WORK_MANAGER_DELAY_PREFERENCE_KEY, String.valueOf(Math.abs(delay)))
+                .apply();
+    }
+
 }

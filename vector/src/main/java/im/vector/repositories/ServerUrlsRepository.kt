@@ -17,9 +17,9 @@
 package im.vector.repositories
 
 import android.content.Context
-import android.preference.PreferenceManager
 import android.text.TextUtils
 import androidx.core.content.edit
+import androidx.preference.PreferenceManager
 import im.vector.R
 
 /**

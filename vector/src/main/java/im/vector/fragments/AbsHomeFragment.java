@@ -29,14 +29,14 @@ import android.view.View;
 import android.widget.Toast;
 
 import org.matrix.androidsdk.MXSession;
-import org.matrix.androidsdk.data.Room;
-import org.matrix.androidsdk.data.RoomSummary;
-import org.matrix.androidsdk.data.RoomTag;
+import org.matrix.androidsdk.core.BingRulesManager;
+import org.matrix.androidsdk.core.Log;
 import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.core.callback.SimpleApiCallback;
 import org.matrix.androidsdk.core.model.MatrixError;
-import org.matrix.androidsdk.core.BingRulesManager;
-import org.matrix.androidsdk.core.Log;
+import org.matrix.androidsdk.data.Room;
+import org.matrix.androidsdk.data.RoomSummary;
+import org.matrix.androidsdk.data.RoomTag;
 
 import java.util.HashMap;
 import java.util.List;
@@ -49,6 +49,7 @@ import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.VectorHomeActivity;
 import im.vector.activity.VectorRoomActivity;
 import im.vector.adapters.AbsAdapter;
+import im.vector.ui.badge.BadgeProxy;
 import im.vector.util.HomeRoomsViewModel;
 import im.vector.util.RoomUtils;
 
@@ -83,7 +84,8 @@ public abstract class AbsHomeFragment extends VectorBaseFragment implements
 
     protected int mPrimaryColor = -1;
     protected int mSecondaryColor = -1;
-
+    protected int mFabColor = -1;
+    protected int mFabPressedColor = -1;
 
     /*
      * *********************************************************************************************
@@ -116,9 +118,8 @@ public abstract class AbsHomeFragment extends VectorBaseFragment implements
     public void onResume() {
         super.onResume();
         if (mActivity != null) {
-            if (mPrimaryColor != -1) {
-                mActivity.updateTabStyle(mPrimaryColor, mSecondaryColor != -1 ? mSecondaryColor : mPrimaryColor);
-            }
+            mActivity.updateTabStyle(mPrimaryColor, mSecondaryColor, mFabColor, mFabPressedColor);
+
             final HomeRoomsViewModel.Result result = mActivity.getRoomsViewModel().getResult();
             onRoomResultUpdated(result);
         }
@@ -354,7 +355,7 @@ public abstract class AbsHomeFragment extends VectorBaseFragment implements
             }
 
             // Update badge unread count in case device is offline
-            CommonActivityUtils.specificUpdateBadgeUnreadCount(mSession, getContext());
+            BadgeProxy.INSTANCE.specificUpdateBadgeUnreadCount(mSession, getContext());
 
             // Launch corresponding room activity
             Map<String, Object> params = new HashMap<>();

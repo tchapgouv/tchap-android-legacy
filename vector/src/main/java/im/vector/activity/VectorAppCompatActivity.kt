@@ -18,14 +18,16 @@
 package im.vector.activity
 
 import android.content.Context
+import android.content.res.Configuration
 import android.os.Bundle
-import androidx.annotation.*
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
+
+import android.view.WindowManager
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.view.WindowManager
+import androidx.annotation.*
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.core.view.isVisible
 import butterknife.BindView
 import butterknife.ButterKnife
@@ -40,6 +42,7 @@ import im.vector.ui.themes.ActivityOtherThemes
 import im.vector.ui.themes.ThemeUtils
 import im.vector.util.AssetReader
 import io.realm.Realm
+import im.vector.util.BugReporter
 import org.matrix.androidsdk.core.Log
 
 /**
@@ -48,6 +51,8 @@ import org.matrix.androidsdk.core.Log
 abstract class VectorAppCompatActivity : AppCompatActivity() {
 
     lateinit var realm: Realm
+
+    private var LOG_TAG = VectorAppCompatActivity::class.java.simpleName
 
     /* ==========================================================================================
      * DATA
@@ -64,7 +69,6 @@ abstract class VectorAppCompatActivity : AppCompatActivity() {
      * UI
      * ========================================================================================== */
 
-    // TODO Maintenance: Toolbar is bound here now. Use this member in children Activities
     @Nullable
     @BindView(R.id.toolbar)
     protected lateinit var toolbar: Toolbar
@@ -158,6 +162,13 @@ abstract class VectorAppCompatActivity : AppCompatActivity() {
         }
     }
 
+    override fun onMultiWindowModeChanged(isInMultiWindowMode: Boolean, newConfig: Configuration?) {
+        super.onMultiWindowModeChanged(isInMultiWindowMode, newConfig)
+
+        Log.w(LOG_TAG, "onMultiWindowModeChanged. isInMultiWindowMode: $isInMultiWindowMode")
+        BugReporter.setMultiWindowMode(isInMultiWindowMode)
+    }
+
     /* ==========================================================================================
      * MENU MANAGEMENT
      * ========================================================================================== */
@@ -237,14 +248,14 @@ abstract class VectorAppCompatActivity : AppCompatActivity() {
     /**
      * Show the waiting view
      */
-    fun showWaitingView() {
+    open fun showWaitingView() {
         waitingView?.isVisible = true
     }
 
     /**
      * Hide the waiting view
      */
-    fun hideWaitingView() {
+    open fun hideWaitingView() {
         waitingView?.isVisible = false
     }
 
