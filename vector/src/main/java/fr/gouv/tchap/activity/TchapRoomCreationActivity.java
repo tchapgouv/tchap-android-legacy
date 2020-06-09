@@ -276,6 +276,8 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
             mRoomParams.preset = CreateRoomParams.PRESET_PUBLIC_CHAT;
             mRoomParams.setHistoryVisibility(RoomState.HISTORY_VISIBILITY_WORLD_READABLE);
             Log.d(LOG_TAG, "## public");
+            // Public rooms are not federated by default
+            disableFederationSwitch.setChecked(true);
             disableFederationSwitch.setVisibility(View.VISIBLE);
             // Disable room external access option
             updateRoomExternalAccessOption(false);
@@ -287,7 +289,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
             // Hide the encrypted messages sent before the member is invited.
             mRoomParams.setHistoryVisibility(RoomState.HISTORY_VISIBILITY_INVITED);
             Log.d(LOG_TAG, "## private");
-            // Remove potential change related to the federation
+            // Private rooms are all federated
             disableFederationSwitch.setChecked(false);
             disableFederationSwitch.setVisibility(View.GONE);
             mRoomParams.creation_content = null;
