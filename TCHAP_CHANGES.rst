@@ -2,8 +2,9 @@
 Changes in Tchap 1.0.39 (2020-06-08)
 ===================================================
 
-Improvement:
+Improvements:
  * Device verification: update wordings and remove IP address displayed in the incoming demand.
+ * Room creation - The public rooms are not federated by default (They are restricted to the user's Homeserver).
 
 Changes in Tchap 1.0.38 (2020-06-04)
 ===================================================
