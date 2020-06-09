@@ -170,7 +170,7 @@ class KeyRequestHandler(val session: MXSession) : VerificationManager.Verificati
             val time = dateFormatTime.format(Date(moreInfo.last_seen_ts))
             val dateFormat = DateFormat.getDateInstance(DateFormat.SHORT, Locale.getDefault())
             val lastSeenTime = dateFormat.format(Date(moreInfo.last_seen_ts)) + ", " + time
-            val lastSeenInfo = context.getString(R.string.devices_details_last_seen_format, lastSeenIp, lastSeenTime)
+            val lastSeenInfo = lastSeenTime //context.getString(R.string.devices_details_last_seen_format, lastSeenIp, lastSeenTime)
             dialogText = if (wasNewDevice)
                 context.getString(R.string.you_added_a_new_device_with_info, deviceName, lastSeenInfo)
             else
