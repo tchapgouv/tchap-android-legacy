@@ -16,9 +16,11 @@
 package im.vector.push.fcm
 
 import androidx.fragment.app.Fragment
+import im.vector.Matrix
 import im.vector.fragments.troubleshoot.*
 import im.vector.push.fcm.troubleshoot.TestAutoStartBoot
 import im.vector.push.fcm.troubleshoot.TestBackgroundRestrictions
+import im.vector.push.fcm.troubleshoot.TestBatteryOptimization
 import org.matrix.androidsdk.MXSession
 
 class NotificationTroubleshootTestManagerFactory {
@@ -38,7 +40,15 @@ class NotificationTroubleshootTestManagerFactory {
             // mgr.addTest(TestServiceRestart(fragment))
             mgr.addTest(TestAutoStartBoot(fragment))
             mgr.addTest(TestBackgroundRestrictions(fragment))
-            // mgr.addTest(TestBatteryOptimization(fragment))
+
+            // Check whether we're using Fdroid mode
+            val pushManager = Matrix.getInstance(fragment.context).pushManager
+            if (!pushManager.useFcm() || !pushManager.hasRegistrationToken()) {
+                // We're using Fdroid: test the Battery Optimization for RealTime sync mode
+                if (pushManager.idFdroidSyncModeOptimizedForRealTime()) {
+                    mgr.addTest(TestBatteryOptimization(fragment))
+                }
+            }
             return mgr
         }
     }
