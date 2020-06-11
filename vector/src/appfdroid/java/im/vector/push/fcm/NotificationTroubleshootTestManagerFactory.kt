@@ -41,13 +41,10 @@ class NotificationTroubleshootTestManagerFactory {
             mgr.addTest(TestAutoStartBoot(fragment))
             mgr.addTest(TestBackgroundRestrictions(fragment))
 
-            // Check whether we're using Fdroid mode
+            // Test the Battery Optimization for RealTime sync mode
             val pushManager = Matrix.getInstance(fragment.context).pushManager
-            if (!pushManager.useFcm() || !pushManager.hasRegistrationToken()) {
-                // We're using Fdroid: test the Battery Optimization for RealTime sync mode
-                if (pushManager.idFdroidSyncModeOptimizedForRealTime()) {
-                    mgr.addTest(TestBatteryOptimization(fragment))
-                }
+            if (pushManager.idFdroidSyncModeOptimizedForRealTime()) {
+                mgr.addTest(TestBatteryOptimization(fragment))
             }
             return mgr
         }
