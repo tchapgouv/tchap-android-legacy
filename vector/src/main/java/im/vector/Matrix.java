@@ -741,7 +741,7 @@ public class Matrix {
         dataHandler.setLazyLoadingEnabled(PreferencesManager.useLazyLoading(context));
 
         final MXSession session = new MXSession.Builder(hsConfig, dataHandler, context)
-                .withPushServerUrl(context.getString(R.string.push_server_url))
+                .withPushServerUrl(null)
                 .withMetricsListener(metricsListener)
                 .withFileEncryption(CONFIG_ENABLE_LOCAL_FILE_ENCRYPTION)
                 .build();
