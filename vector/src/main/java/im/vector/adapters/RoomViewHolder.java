@@ -185,10 +185,12 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
         }
 
         String displayName = DinsicUtils.getRoomDisplayName(context, room);
-        String roomName = DinsicUtils.getNameFromDisplayName(displayName);
 
         if (null != vRoomDomain) {
             vRoomDomain.setText(DinsicUtils.getDomainFromDisplayName(displayName));
+            vRoomName.setText(DinsicUtils.getNameFromDisplayName(displayName));
+        } else {
+            vRoomName.setText(displayName);
         }
 
         if (null != vSenderDisplayName && null != roomSummary.getLatestReceivedEvent()) {
@@ -224,8 +226,6 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
         } else if (null != vRoomAvatar) {
             VectorUtils.loadRoomAvatar(context, session, vRoomAvatar, room);
         }
-
-        vRoomName.setText(roomName);
 
         // get last message to be displayed
         if (vRoomLastMessage != null) {
