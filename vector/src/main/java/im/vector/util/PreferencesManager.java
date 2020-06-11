@@ -952,18 +952,28 @@ public class PreferencesManager {
     }
 
     public static String getFdroidSyncBackgroundMode(Context context) {
+        // Tchap: Contrary to Riot, the default mode will be FDROID_BACKGROUND_SYNC_MODE_FOR_REALTIME
+        // because it was the actual mode before the multiple Fdroid sync background modes was
+        // introduced. We don't want to change implicitly the notification handling on application update.
+        //
+        // When this default value is returned, we should check whether the user has already ignored
+        // the Battery optim (Indeed, this may be needed in this mode: Even if using foreground
+        // service with foreground notif, it stops to work in doze mode for certain devices)
+        // We decided to not prompt the user about the Battery optim here in order to not disturb
+        // them during the application update too.
+        // This Battery optim question will be considered if the user changes the sync mode from the
+        // settings, or run the troubleshooting tests
         try {
             return PreferenceManager
                     .getDefaultSharedPreferences(context)
-                    .getString(SETTINGS_FDROID_BACKGROUND_SYNC_MODE, FDROID_BACKGROUND_SYNC_MODE_FOR_BATTERY);
+                    .getString(SETTINGS_FDROID_BACKGROUND_SYNC_MODE, FDROID_BACKGROUND_SYNC_MODE_FOR_REALTIME);
         } catch (ClassCastException e) {
             PreferenceManager.getDefaultSharedPreferences(context)
                     .edit()
                     .remove(SETTINGS_FDROID_BACKGROUND_SYNC_MODE)
-                    .putString(SETTINGS_FDROID_BACKGROUND_SYNC_MODE, FDROID_BACKGROUND_SYNC_MODE_FOR_BATTERY)
+                    .putString(SETTINGS_FDROID_BACKGROUND_SYNC_MODE, FDROID_BACKGROUND_SYNC_MODE_FOR_REALTIME)
                     .apply();
-            setFdroidSyncBackgroundMode(context, FDROID_BACKGROUND_SYNC_MODE_FOR_BATTERY);
-            return FDROID_BACKGROUND_SYNC_MODE_FOR_BATTERY;
+            return FDROID_BACKGROUND_SYNC_MODE_FOR_REALTIME;
         }
     }
 
