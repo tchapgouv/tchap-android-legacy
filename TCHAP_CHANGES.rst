@@ -1,3 +1,8 @@
+Changes in Tchap 1.0.40 (2020-06-11)
+===================================================
+
+Improvement:
+ * Fdroid: force the realtime sync mode by default #590
 
 Changes in Tchap 1.0.39 (2020-06-08)
 ===================================================
