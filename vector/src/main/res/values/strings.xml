@@ -1099,6 +1099,8 @@
         <item quantity="other">%d rooms</item>
     </plurals>
 
+    <string name="notification_compat_summary_line_for_event">%1$s: %2$s \"%3$s\"</string>
+    <string name="notification_compat_summary_line_for_direct_event">%1$s: \"%2$s\"</string>
     <plurals name="notification_compat_summary_line_for_room">
         <item quantity="one">%1$s: 1 message</item>
         <item quantity="other">%1$s: %2$d messages</item>

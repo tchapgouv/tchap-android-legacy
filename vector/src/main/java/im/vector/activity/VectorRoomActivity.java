@@ -2680,11 +2680,10 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
             boolean hasUndeliverableEvents = (undeliveredEvents != null) && (undeliveredEvents.size() > 0);
             boolean hasUnknownDeviceEvents = (unknownDeviceEvents != null) && (unknownDeviceEvents.size() > 0);
 
-            //don't alert the user
-            // if (hasUndeliverableEvents || hasUnknownDeviceEvents) {
-            if (hasUndeliverableEvents) {
+            if (hasUndeliverableEvents || hasUnknownDeviceEvents) {
+                // Don't alert the user about the unknown devices, consider this is always undelivered events
                 mHasUnsentEvents = true;
-                state = new NotificationAreaView.State.UnsentEvents(hasUndeliverableEvents, hasUnknownDeviceEvents);
+                state = new NotificationAreaView.State.UnsentEvents(true, false);
             } else if ((null != mIsScrolledToTheBottom) && (!mIsScrolledToTheBottom)) {
                 int unreadCount = 0;
                 final RoomSummary summary = mRoom.getDataHandler().getStore().getSummary(mRoom.getRoomId());
