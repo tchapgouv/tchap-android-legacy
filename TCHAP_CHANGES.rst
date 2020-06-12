@@ -1,3 +1,13 @@
+Changes in Tchap 1.0.41 (2020-06-12)
+===================================================
+
+Improvement:
+ * Improve the notifications display on devices running API level < 24 (PR #591)
+
+ Bug Fixes:
+  * Quick Reply: Handle correctly the failure on unknown devices (PR #592)
+  * Rooms list: The room names with [ ] are not displayed correctly
+ 
 Changes in Tchap 1.0.40 (2020-06-11)
 ===================================================
 
