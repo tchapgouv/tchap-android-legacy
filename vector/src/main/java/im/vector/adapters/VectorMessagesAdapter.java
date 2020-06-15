@@ -2305,16 +2305,23 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
      */
     private void onNewDecryptionSession(final String sessionId) {
         // We are able to decrypt one (or more) event(s)!
-        // Reset the message row text for the concerned event(s)
+        // Go through all the events to check those of this session
+        boolean areAllSessionEventsDecrypted = true;
         for (int i = 0; i < getCount(); i++) {
             MessageRow row = getItem(i);
             Event event = row.getEvent();
-            if (null != event) {
+            if (event != null) {
                 final String eventSessionId = MatrixSdkExtensionsKt.getSessionId(event);
-                if (null != eventSessionId
-                && TextUtils.equals(eventSessionId, sessionId)) {
-                    // Reset the row message text
-                    row.updateEvent(event);
+                if (eventSessionId != null
+                        && TextUtils.equals(eventSessionId, sessionId)) {
+                    // Check if the event has been decrypted (this may take some time)
+                    if (event.getCryptoError() != null
+                            && MXCryptoError.UNKNOWN_INBOUND_SESSION_ID_ERROR_CODE.equals(event.getCryptoError().errcode)) {
+                        areAllSessionEventsDecrypted = false;
+                    } else {
+                        // Reset the row message text to build the actual message text.
+                        row.updateEvent(event);
+                    }
                 }
             }
         }
@@ -2325,7 +2332,12 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
         }
 
         mSessionIdsWaitingForE2eReRequest.remove(sessionId);
-        mUndecryptedSessionIds.remove(sessionId);
+        
+        if (areAllSessionEventsDecrypted) {
+            mUndecryptedSessionIds.remove(sessionId);
+        } else if (!mUndecryptedSessionIds.contains(sessionId)) {
+            mUndecryptedSessionIds.add(sessionId);
+        }
     }
 
     /**
