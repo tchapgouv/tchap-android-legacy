@@ -158,6 +158,9 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
     // true when the room is a 1:1 discussion
     public boolean mIsDirectRoom;
 
+    // Current sessionIds for which the decryption failed
+    private Set<String> mUndecryptedSessionIds = new HashSet<>();
+
     // Current sessionId set waiting for an encryption key, after a reRequest from user
     private Set<String> mSessionIdsWaitingForE2eReRequest = new HashSet<>();
 
@@ -1254,14 +1257,19 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
 
                 EventDisplay display = new RiotEventDisplay(mContext, mHtmlToolbox);
 
-                // Check whether a e2ee re-request is in progress for this event session id.
-                // and check whether the decryption succeeded for this event
                 final String sessionId = MatrixSdkExtensionsKt.getSessionId(event);
-                if (sessionId != null
-                        && mSessionIdsWaitingForE2eReRequest.contains(sessionId)
-                        && event.getCryptoError() == null) {
-                    // We are able to decrypt one (or more) event(s)!
-                    onNewDecryptionSession(sessionId);
+                if (sessionId != null) {
+                    // Check whether the decryption failed for this event because its session was unknown.
+                    if (event.getCryptoError() != null
+                            && MXCryptoError.UNKNOWN_INBOUND_SESSION_ID_ERROR_CODE.equals(event.getCryptoError().errcode)) {
+                        if (!mUndecryptedSessionIds.contains(sessionId)) {
+                            mUndecryptedSessionIds.add(sessionId);
+                        }
+                    } else if (mSessionIdsWaitingForE2eReRequest.contains(sessionId)
+                            || mUndecryptedSessionIds.contains(sessionId)) {
+                        // We are able to decrypt one (or more) event(s)!
+                        onNewDecryptionSession(sessionId);
+                    }
                 }
 
                 Spannable body = row.getText(new VectorQuoteSpan(mContext), display);
@@ -2257,11 +2265,11 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                 } else {
                     // Show the link to re-request the key
                     reRequestE2EKeyTextView.setText(R.string.e2e_re_request_encryption_key);
-
                     reRequestE2EKeyTextView.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             mSessionIdsWaitingForE2eReRequest.add(sessionId);
+                            mUndecryptedSessionIds.remove(sessionId);
 
                             if (mVectorMessagesAdapterEventsListener != null) {
                                 mVectorMessagesAdapterEventsListener.onEventAction(event, null, R.id.ic_action_re_request_e2e_key);
@@ -2271,6 +2279,10 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                             notifyDataSetChanged();
                         }
                     });
+
+                    if (!mUndecryptedSessionIds.contains(sessionId)) {
+                        mUndecryptedSessionIds.add(sessionId);
+                    }
                 }
             } else {
                 reRequestE2EKeyTextView.setVisibility(View.GONE);
@@ -2278,7 +2290,8 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
 
                 // Check whether a e2ee re-request was pending for this event session id
                 if (sessionId != null
-                        && mSessionIdsWaitingForE2eReRequest.contains(sessionId)) {
+                        && (mSessionIdsWaitingForE2eReRequest.contains(sessionId)
+                        || mUndecryptedSessionIds.contains(sessionId))) {
                     // We are able to decrypt one (or more) event(s)!
                     onNewDecryptionSession(sessionId);
                 }
@@ -2306,11 +2319,13 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             }
         }
 
-        if (mVectorMessagesAdapterEventsListener != null) {
+        if (mVectorMessagesAdapterEventsListener != null
+                && mSessionIdsWaitingForE2eReRequest.contains(sessionId)) {
             mVectorMessagesAdapterEventsListener.onEventDecrypted();
         }
 
         mSessionIdsWaitingForE2eReRequest.remove(sessionId);
+        mUndecryptedSessionIds.remove(sessionId);
     }
 
     /**
