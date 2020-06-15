@@ -217,7 +217,8 @@ public class LockScreenActivity extends VectorAppCompatActivity { // do NOT exte
             @Override
             public void onNetworkError(Exception e) {
                 Log.d(LOG_TAG, "Send message : onNetworkError " + e.getMessage(), e);
-                Toast.makeText(LockScreenActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                // Use application context to fix issue related to the special theme of this Activity
+                Toast.makeText(getApplicationContext(), e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -225,16 +226,19 @@ public class LockScreenActivity extends VectorAppCompatActivity { // do NOT exte
                 Log.d(LOG_TAG, "Send message : onMatrixError " + e.getMessage());
 
                 if (e instanceof MXCryptoError) {
-                    Toast.makeText(LockScreenActivity.this, R.string.notification_inline_reply_failed, Toast.LENGTH_SHORT).show();
+                    // Use application context to fix issue related to the special theme of this Activity
+                    Toast.makeText(getApplicationContext(), R.string.notification_inline_reply_failed, Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(LockScreenActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                    // Use application context to fix issue related to the special theme of this Activity
+                    Toast.makeText(getApplicationContext(), e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onUnexpectedError(Exception e) {
                 Log.d(LOG_TAG, "Send message : onUnexpectedError " + e.getMessage(), e);
-                Toast.makeText(LockScreenActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                // Use application context to fix issue related to the special theme of this Activity
+                Toast.makeText(getApplicationContext(), e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
             }
         });
 
