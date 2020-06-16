@@ -25,6 +25,7 @@ import android.view.WindowManager
 import android.widget.ImageView
 import androidx.core.app.NotificationCompat
 import androidx.core.app.Person
+import fr.gouv.tchap.util.DinsicUtils
 import im.vector.BuildConfig
 import im.vector.Matrix
 import im.vector.R
@@ -252,7 +253,11 @@ class NotificationDrawerManager(val context: Context) {
                 roomGroup.hasNewEvent = false
                 roomGroup.shouldBing = false
                 roomGroup.isDirect = events[0].roomIsDirect
-                val roomName = events[0].roomName ?: events[0].senderName ?: ""
+                val roomName = if (roomGroup.isDirect) {
+                    DinsicUtils.getNameFromDisplayName(events[0].roomName) ?: DinsicUtils.getNameFromDisplayName(events[0].senderName) ?: ""
+                } else {
+                    events[0].roomName ?: DinsicUtils.getNameFromDisplayName(events[0].senderName) ?: ""
+                }
                 val style = NotificationCompat.MessagingStyle(Person.Builder()
                         .setName(myUserDisplayName)
                         .setIcon(iconLoader.getUserIcon(myUserAvatarUrl))
@@ -278,7 +283,7 @@ class NotificationDrawerManager(val context: Context) {
                     roomGroup.hasNewEvent = roomGroup.hasNewEvent || !event.hasBeenDisplayed
 
                     val senderPerson = Person.Builder()
-                            .setName(event.senderName)
+                            .setName(DinsicUtils.getNameFromDisplayName(event.senderName))
                             .setIcon(iconLoader.getUserIcon(event.senderAvatarPath))
                             .setKey(event.senderId)
                             .build()
@@ -297,9 +302,16 @@ class NotificationDrawerManager(val context: Context) {
                 }
 
                 try {
-                    val summaryLine = context.resources.getQuantityString(
-                            R.plurals.notification_compat_summary_line_for_room, events.size, roomName, events.size)
-                    summaryInboxStyle.addLine(summaryLine)
+                    if (events.size > 1) {
+                        val summaryLine = context.resources.getQuantityString(
+                                R.plurals.notification_compat_summary_line_for_room, events.size, roomName, events.size)
+                        summaryInboxStyle.addLine(summaryLine)
+                    } else if (events[0].roomIsDirect) {
+                        summaryInboxStyle.addLine(context.getString(R.string.notification_compat_summary_line_for_direct_event, roomName, events[0].body))
+                    } else {
+                        val shortSenderName = DinsicUtils.getNameFromDisplayName(events[0].senderName)
+                        summaryInboxStyle.addLine(context.getString(R.string.notification_compat_summary_line_for_event, roomName, shortSenderName, events[0].body))
+                    }
                 } catch (e: Throwable) {
                     //String not found or bad format
                     Log.d(LOG_TAG, "%%%%%%%% REFRESH NOTIFICATION DRAWER failed to resolve string")
@@ -362,17 +374,21 @@ class NotificationDrawerManager(val context: Context) {
                 NotificationUtils.cancelNotificationMessage(context, null, SUMMARY_NOTIFICATION_ID)
             } else {
                 val nbEvents = roomIdToEventMap.size + simpleEvents.size
-                val sumTitle = context.resources.getQuantityString(
-                        R.plurals.notification_compat_summary_title, nbEvents, nbEvents)
-                summaryInboxStyle.setBigContentTitle(sumTitle)
-                NotificationUtils.buildSummaryListNotification(
-                        context,
-                        summaryInboxStyle,
-                        sumTitle,
-                        noisy = hasNewEvent && summaryIsNoisy,
-                        lastMessageTimestamp = globalLastMessageTimestamp
-                )?.let {
-                    NotificationUtils.showNotificationMessage(context, null, SUMMARY_NOTIFICATION_ID, it)
+                // Do not show a summary when only one notification is displayed
+                // This fixes the display of this notification on devices running API level < 24.
+                if (nbEvents > 1) {
+                    val sumTitle = context.resources.getQuantityString(
+                            R.plurals.notification_compat_summary_title, nbEvents, nbEvents)
+                    summaryInboxStyle.setBigContentTitle(sumTitle)
+                    NotificationUtils.buildSummaryListNotification(
+                            context,
+                            summaryInboxStyle,
+                            sumTitle,
+                            noisy = hasNewEvent && summaryIsNoisy,
+                            lastMessageTimestamp = globalLastMessageTimestamp
+                    )?.let {
+                        NotificationUtils.showNotificationMessage(context, null, SUMMARY_NOTIFICATION_ID, it)
+                    }
                 }
 
                 if (hasNewEvent && summaryIsNoisy) {

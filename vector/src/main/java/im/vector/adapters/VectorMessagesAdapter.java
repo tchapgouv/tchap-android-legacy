@@ -160,6 +160,9 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
     // true when the room is a 1:1 discussion
     public boolean mIsDirectRoom;
 
+    // Current sessionIds for which the decryption failed
+    private Set<String> mUndecryptedSessionIds = new HashSet<>();
+
     // Current sessionId set waiting for an encryption key, after a reRequest from user
     private Set<String> mSessionIdsWaitingForE2eReRequest = new HashSet<>();
 
@@ -1267,6 +1270,21 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
 
                 EventDisplay display = new RiotEventDisplay(mContext, mHtmlToolbox);
 
+                final String sessionId = MatrixSdkExtensionsKt.getSessionId(event);
+                if (sessionId != null) {
+                    // Check whether the decryption failed for this event because its session was unknown.
+                    if (event.getCryptoError() != null
+                            && MXCryptoError.UNKNOWN_INBOUND_SESSION_ID_ERROR_CODE.equals(event.getCryptoError().errcode)) {
+                        if (!mUndecryptedSessionIds.contains(sessionId)) {
+                            mUndecryptedSessionIds.add(sessionId);
+                        }
+                    } else if (mSessionIdsWaitingForE2eReRequest.contains(sessionId)
+                            || mUndecryptedSessionIds.contains(sessionId)) {
+                        // We are able to decrypt one (or more) event(s)!
+                        onNewDecryptionSession(sessionId);
+                    }
+                }
+
                 Spannable body = row.getText(new VectorQuoteSpan(mContext), display);
 
                 CharSequence result = mHelper.highlightPattern(body,
@@ -2269,11 +2287,11 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                 } else {
                     // Show the link to re-request the key
                     reRequestE2EKeyTextView.setText(R.string.e2e_re_request_encryption_key);
-
                     reRequestE2EKeyTextView.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             mSessionIdsWaitingForE2eReRequest.add(sessionId);
+                            mUndecryptedSessionIds.remove(sessionId);
 
                             if (mVectorMessagesAdapterEventsListener != null) {
                                 mVectorMessagesAdapterEventsListener.onEventAction(event, null, R.id.ic_action_re_request_e2e_key);
@@ -2283,21 +2301,64 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                             notifyDataSetChanged();
                         }
                     });
+
+                    if (!mUndecryptedSessionIds.contains(sessionId)) {
+                        mUndecryptedSessionIds.add(sessionId);
+                    }
                 }
             } else {
                 reRequestE2EKeyTextView.setVisibility(View.GONE);
                 reRequestE2EKeyTextView.setOnClickListener(null);
 
+                // Check whether a e2ee re-request was pending for this event session id
                 if (sessionId != null
-                        && mSessionIdsWaitingForE2eReRequest.contains(sessionId)) {
-                    // We have decrypted one (or more) event!
-                    if (mVectorMessagesAdapterEventsListener != null) {
-                        mVectorMessagesAdapterEventsListener.onEventDecrypted();
-                    }
-
-                    mSessionIdsWaitingForE2eReRequest.remove(sessionId);
+                        && (mSessionIdsWaitingForE2eReRequest.contains(sessionId)
+                        || mUndecryptedSessionIds.contains(sessionId))) {
+                    // We are able to decrypt one (or more) event(s)!
+                    onNewDecryptionSession(sessionId);
                 }
             }
+        }
+    }
+
+    /**
+     * Called when a e2ee re-request has been handled.
+     * @param sessionId the session Id for which a e2ee re-request has been handled.
+     */
+    private void onNewDecryptionSession(final String sessionId) {
+        // We are able to decrypt one (or more) event(s)!
+        // Go through all the events to check those of this session
+        boolean areAllSessionEventsDecrypted = true;
+        for (int i = 0; i < getCount(); i++) {
+            MessageRow row = getItem(i);
+            Event event = row.getEvent();
+            if (event != null) {
+                final String eventSessionId = MatrixSdkExtensionsKt.getSessionId(event);
+                if (eventSessionId != null
+                        && TextUtils.equals(eventSessionId, sessionId)) {
+                    // Check if the event has been decrypted (this may take some time)
+                    if (event.getCryptoError() != null
+                            && MXCryptoError.UNKNOWN_INBOUND_SESSION_ID_ERROR_CODE.equals(event.getCryptoError().errcode)) {
+                        areAllSessionEventsDecrypted = false;
+                    } else {
+                        // Reset the row message text to build the actual message text.
+                        row.updateEvent(event);
+                    }
+                }
+            }
+        }
+
+        if (mVectorMessagesAdapterEventsListener != null
+                && mSessionIdsWaitingForE2eReRequest.contains(sessionId)) {
+            mVectorMessagesAdapterEventsListener.onEventDecrypted();
+        }
+
+        mSessionIdsWaitingForE2eReRequest.remove(sessionId);
+        
+        if (areAllSessionEventsDecrypted) {
+            mUndecryptedSessionIds.remove(sessionId);
+        } else if (!mUndecryptedSessionIds.contains(sessionId)) {
+            mUndecryptedSessionIds.add(sessionId);
         }
     }
 

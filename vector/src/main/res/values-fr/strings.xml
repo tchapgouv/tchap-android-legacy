@@ -1511,6 +1511,8 @@ Si vous n’avez pas configuré de nouvelle méthode de récupération, un attaq
 
     <string name="action_mark_room_read">Marquer comme lu</string>
     <string name="settings_notification_privacy_no_background_sync">Les applications &lt;b&gt;n’&lt;/a&gt;ont &lt;b&gt;pas&lt;/b&gt; besoin d’être connectées au serveur d’accueil en arrière-plan, cela devrait diminuer l’utilisation de la batterie<b>not</b> need to connect to the HomeServer in the background, it should reduce battery usage</string>
+    <string name="notification_compat_summary_line_for_event">%1$s : %2$s « %3$s »</string>
+    <string name="notification_compat_summary_line_for_direct_event">%1$s : « %2$s »</string>
     <plurals name="notification_compat_summary_line_for_room">
         <item quantity="one">%1$s : 1 message</item>
         <item quantity="other">%1$s : %2$d messages</item>

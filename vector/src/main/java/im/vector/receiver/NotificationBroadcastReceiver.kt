@@ -127,8 +127,8 @@ class NotificationBroadcastReceiver : BroadcastReceiver() {
             override fun onMatrixError(e: MatrixError) {
                 Log.d(LOG_TAG, "Send message : onMatrixError " + e.message)
                 if (e is MXCryptoError) {
-                    Toast.makeText(context, e.detailedErrorDescription, Toast.LENGTH_SHORT).show()
-                    onSmartReplyFailed(e.detailedErrorDescription)
+                    Toast.makeText(context, R.string.notification_inline_reply_failed, Toast.LENGTH_SHORT).show()
+                    onSmartReplyFailed(context?.getString(R.string.notification_inline_reply_failed))
                 } else {
                     Toast.makeText(context, e.localizedMessage, Toast.LENGTH_SHORT).show()
                     onSmartReplyFailed(e.localizedMessage)
