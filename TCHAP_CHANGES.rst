@@ -1,3 +1,10 @@
+Changes in Tchap 1.0.42 (2020-06-16)
+===================================================
+
+ Bug Fixes:
+  * Some messages are stuck on decryption failure whereas the keys have been shared #594
+  * Quick reply: Fix issue with Toast display (PR #593)
+
 Changes in Tchap 1.0.41 (2020-06-12)
 ===================================================
 
