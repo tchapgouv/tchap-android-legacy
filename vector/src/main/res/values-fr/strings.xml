@@ -1896,7 +1896,7 @@ Si vous n’avez pas configuré de nouvelle méthode de récupération, un attaq
     <!-- Favourite messages screen -->
     <string name="favourite_messages_title">Messages favoris</string>
     <plurals name="favourite_messages_subtitle">
-        <item quantity="one">1 message</item>
+        <item quantity="one">%d message</item>
         <item quantity="other">%d messages</item>
     </plurals>
 

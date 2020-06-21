@@ -1877,7 +1877,7 @@
     <!-- Favourite messages screen -->
     <string name="favourite_messages_title">Favourite messages</string>
     <plurals name="favourite_messages_subtitle">
-        <item quantity="one">1 message</item>
+        <item quantity="one">%d message</item>
         <item quantity="other">%d messages</item>
     </plurals>
 
