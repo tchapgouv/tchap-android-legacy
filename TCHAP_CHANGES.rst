@@ -1,3 +1,9 @@
+Changes in Tchap 1.0.44 (2020-06-25)
+===================================================
+
+Bug Fix:
+ * The notification sound is missing for the first one after backgrounding the app (PR #598)
+
 Changes in Tchap 1.0.43 (2020-06-25)
 ===================================================
 Improvement:
