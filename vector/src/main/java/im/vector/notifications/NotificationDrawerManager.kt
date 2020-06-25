@@ -380,7 +380,7 @@ class NotificationDrawerManager(val context: Context) {
 
             if (eventList.isEmpty()) {
                 NotificationUtils.cancelNotificationMessage(context, null, SUMMARY_NOTIFICATION_ID)
-            } else {
+            } else if (firstTime || hasNewEvent) {
                 val nbEvents = roomIdToEventMap.size + simpleEvents.size
                 // Patch: When only one notification is displayed on devices running API level < 24,
                 // We use the unique line of the summary as sumTitle (in order to display some details).
