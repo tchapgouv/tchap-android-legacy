@@ -203,7 +203,9 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                     // In case of a public room, the room alias is mandatory.
                     // That's why, we deduce the room alias from the room name.
 
-                    mRoomParams.roomAliasName = mRoomParams.name.trim().replace(" ", "");
+                    mRoomParams.roomAliasName = mRoomParams.name.trim()
+                            .replace(" ", "")
+                            .replaceAll("[^abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789]", "");
 
                     if (mRoomParams.roomAliasName.contains(":")) {
                         mRoomParams.roomAliasName = mRoomParams.roomAliasName.replace(":", "");
