@@ -205,7 +205,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
                     mRoomParams.roomAliasName = mRoomParams.name.trim()
                             .replace(" ", "")
-                            .replaceAll("[^abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789]", "");
+                            .replaceAll("[^a-zA-Z0-9]", "");
 
                     if (mRoomParams.roomAliasName.contains(":")) {
                         mRoomParams.roomAliasName = mRoomParams.roomAliasName.replace(":", "");
