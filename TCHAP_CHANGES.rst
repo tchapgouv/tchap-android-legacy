@@ -1,3 +1,13 @@
+Changes in Tchap 1.0.XX (2020-XX-XX)
+===================================================
+
+Improvements:
+ * Update matrix-sdk.aar libs - Revision: 31d8a991d1b73cdf62db3b81f8b05d4566c3e879 [31d8a991d]
+ * Room creation: remove special character from the room link (#599)
+
+Bug Fix:
+ * Fix java.lang.NullPointerException at org.matrix.androidsdk.data.RoomAccountData.handleEvent
+
 Changes in Tchap 1.0.44 (2020-06-25)
 ===================================================
 
