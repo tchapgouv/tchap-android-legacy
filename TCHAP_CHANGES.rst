@@ -1,7 +1,32 @@
+Changes in Tchap 1.0.XX (2020-XX-XX)
+===================================================
+
+Improvements:
+ * Update matrix-sdk.aar libs - Revision: 31d8a991d1b73cdf62db3b81f8b05d4566c3e879 [31d8a991d]
+ * Room creation: remove special character from the room link (#599)
+
+Bug Fix:
+ * Fix java.lang.NullPointerException at org.matrix.androidsdk.data.RoomAccountData.handleEvent
+
+Changes in Tchap 1.0.44 (2020-06-25)
+===================================================
+
+Bug Fix:
+ * The notification sound is missing for the first one after backgrounding the app (PR #598)
+
+Changes in Tchap 1.0.43 (2020-06-25)
+===================================================
+Improvement:
+ * Update matrix-sdk.aar libs - Revision: c4509211c2e28b5ae4f2b052c8c9f2bb049fed85 [c4509211c]
+
+Bug Fixes:
+ * The sound is missing on some notifications (PR #597)
+ * Killed Tchap misses some notifications
+
 Changes in Tchap 1.0.42 (2020-06-16)
 ===================================================
 
- Bug Fixes:
+Bug Fixes:
   * Some messages are stuck on decryption failure whereas the keys have been shared #594
   * Quick reply: Fix issue with Toast display (PR #593)
 
@@ -11,7 +36,7 @@ Changes in Tchap 1.0.41 (2020-06-12)
 Improvement:
  * Improve the notifications display on devices running API level < 24 (PR #591)
 
- Bug Fixes:
+Bug Fixes:
   * Quick Reply: Handle correctly the failure on unknown devices (PR #592)
   * Rooms list: The room names with [ ] are not displayed correctly
  
