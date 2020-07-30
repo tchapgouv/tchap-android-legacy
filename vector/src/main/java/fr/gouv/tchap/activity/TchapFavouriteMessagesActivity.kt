@@ -90,8 +90,6 @@ class TchapFavouriteMessagesActivity : VectorAppCompatActivity(), VectorMessageL
         if (session.isAlive()) {
             addEventsListener()
         }
-
-        showWaitingView()
     }
 
     override fun onPause() {
@@ -111,9 +109,8 @@ class TchapFavouriteMessagesActivity : VectorAppCompatActivity(), VectorMessageL
             private var refreshOnChunkEnd = false
 
             private fun refresh() {
-                val favNb = favouriteMessagesFragment.refreshFavouriteMessages()
-                actionBarCustomSubTitle.text = getResources().getQuantityString(R.plurals.favourite_messages_subtitle,
-                        favNb, favNb)
+                favouriteMessagesFragment.refreshFavouriteEvents()
+                refreshTitle()
             }
 
             override fun onInitialSyncComplete(toToken: String?) {
@@ -127,7 +124,6 @@ class TchapFavouriteMessagesActivity : VectorAppCompatActivity(), VectorMessageL
                 }
 
                 refreshOnChunkEnd = false
-                hideWaitingView()
             }
 
             override fun onTaggedEventsEvent(roomId: String?) {
@@ -160,6 +156,12 @@ class TchapFavouriteMessagesActivity : VectorAppCompatActivity(), VectorMessageL
         }
     }
 
+    private fun refreshTitle() {
+        val favNb = favouriteMessagesFragment.favouriteEventsCount()
+        actionBarCustomSubTitle.text = getResources().getQuantityString(R.plurals.favourite_messages_subtitle,
+                favNb, favNb)
+    }
+
     /* ==========================================================================================
      * Implement VectorMessageListFragmentListener
      * ========================================================================================== */
@@ -171,9 +173,12 @@ class TchapFavouriteMessagesActivity : VectorAppCompatActivity(), VectorMessageL
     }
 
     override fun showNextEventsLoadingWheel() {
+        showWaitingView()
     }
 
     override fun hideNextEventsLoadingWheel() {
+        hideWaitingView()
+        refreshTitle()
     }
 
     override fun showMainLoadingWheel() {
@@ -182,6 +187,7 @@ class TchapFavouriteMessagesActivity : VectorAppCompatActivity(), VectorMessageL
 
     override fun hideMainLoadingWheel() {
         hideWaitingView()
+        refreshTitle()
     }
 
     override fun replyTo(event: Event) {

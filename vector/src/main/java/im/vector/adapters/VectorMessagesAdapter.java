@@ -2632,11 +2632,11 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             //menu.findItem(R.id.ic_action_vector_quote).setVisible(true);
         }
 
-        if (event.isUploadingMedia(mMediaCache)) {
+        if (event.isUploadingMedia(mMediaCache) && !mIsPreviewMode) {
             menu.findItem(R.id.ic_action_vector_cancel_upload).setVisible(true);
         }
 
-        if (event.isDownloadingMedia(mMediaCache)) {
+        if (event.isDownloadingMedia(mMediaCache) && !mIsPreviewMode) {
             menu.findItem(R.id.ic_action_vector_cancel_download).setVisible(true);
         }
 
@@ -2684,7 +2684,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                 Message message = JsonUtils.toMessage(event.getContentAsJsonObject());
 
                 // reply to
-                menu.findItem(R.id.ic_action_vector_reply).setVisible(true);
+                menu.findItem(R.id.ic_action_vector_reply).setVisible(!mIsPreviewMode);
 
                 // share / forward the message
                 menu.findItem(R.id.ic_action_vector_share).setVisible(!mIsRoomEncrypted);

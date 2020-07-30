@@ -1880,6 +1880,8 @@
         <item quantity="one">%d message</item>
         <item quantity="other">%d messages</item>
     </plurals>
+    <string name="favourite_offline_notification">Connectivity to the server has been lost.</string>
+    <string name="favourite_offline_message">Some favourite messages may be missing in this list. Some actions are not available.</string>
 
     <!-- Overrided sdk's strings -->
     <string name="notice_room_name_changed">%1$s changed the room name to: %2$s</string>

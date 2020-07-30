@@ -778,7 +778,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
                 public void run() {
                     // When the displayed room history is not live, the account data are not available in mRoom instance
                     // To handle the "favourites" here we have to retrieve de live version of the room
-                    Room room = mEventTimeLine.isLiveTimeline() ? mRoom : mSession.getDataHandler().getRoom(mRoom.getRoomId(), false);
+                    Room room = (mEventTimeLine != null && mEventTimeLine.isLiveTimeline()) ? mRoom : mSession.getDataHandler().getRoom(event.getRoomId(), false);
                     if (room != null) {
                         boolean isFavourite = room.getAccountData().favouriteEventInfo(event.eventId) != null;
                         if (isFavourite) {

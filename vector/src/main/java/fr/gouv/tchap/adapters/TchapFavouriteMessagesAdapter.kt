@@ -18,20 +18,20 @@ package fr.gouv.tchap.adapters
 
 import android.content.Context
 import android.text.TextUtils
+import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RelativeLayout
 import android.widget.TextView
 import im.vector.R
+import im.vector.adapters.AdapterUtils
 import im.vector.adapters.VectorMessagesAdapter
 import org.matrix.androidsdk.MXSession
 import org.matrix.androidsdk.adapters.MessageRow
 import org.matrix.androidsdk.core.Log
 import org.matrix.androidsdk.db.MXMediaCache
 import org.matrix.androidsdk.rest.model.Event
-import android.util.TypedValue
-import im.vector.adapters.AdapterUtils
-import java.util.Date
+import java.util.*
 
 
 class TchapFavouriteMessagesAdapter(session: MXSession, context: Context, mediaCache: MXMediaCache) :
@@ -118,22 +118,26 @@ class TchapFavouriteMessagesAdapter(session: MXSession, context: Context, mediaC
             val favouriteIcon = convertView.findViewById<View>(R.id.messagesAdapter_favourite_icon)
             favouriteIcon?.visibility = View.GONE
 
-            convertView.setOnClickListener(object : View.OnClickListener {
+            // make visible the message separator for the last favourite message
+            if (position + 1 == count) {
+                val messageSeparatorView = convertView.findViewById<View>(R.id.messagesAdapter_message_separator)
+                messageSeparatorView?.visibility = View.VISIBLE
+            }
+
+            val contentClickListener = object : View.OnClickListener {
                 override fun onClick(v: View) {
                     if (null != mVectorMessagesAdapterEventsListener) {
                         mVectorMessagesAdapterEventsListener.onContentClick(position)
                     }
                 }
-            })
+            }
 
-            convertView.setOnLongClickListener(object : View.OnLongClickListener {
-                override fun onLongClick(v: View): Boolean {
-                    return if (null != mVectorMessagesAdapterEventsListener) {
-                        mVectorMessagesAdapterEventsListener.onContentLongClick(position)
-                    } else false
+            // Replace the listener on sender display name click
+            val senderTextView = convertView.findViewById<View>(R.id.messagesAdapter_sender)
+            senderTextView?.setOnClickListener(contentClickListener)
 
-                }
-            })
+            // Enlarge content click
+            convertView.setOnClickListener(contentClickListener)
         } catch (t: Throwable) {
             Log.e(LOG_TAG, "## getView() failed " + t.message, t)
         }
