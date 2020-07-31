@@ -18,6 +18,8 @@ package fr.gouv.tchap.fragments
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -159,20 +161,26 @@ class TchapFavouriteMessagesFragment : VectorMessageListFragment() {
 
         showInitLoading()
 
-        innerPaginate(id,  limit, object : ApiCallback<Void> {
+        innerPaginate(id, limit, object : ApiCallback<Void> {
             private fun done(isSuccessful: Boolean) {
-                Log.i(LOG_TAG, "## paginate(): done, id =" + id)
-                isPaginating = false
-                hideInitLoading()
+                if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
+                    Log.i(LOG_TAG, "## paginate(): done, id =" + id)
+                    isPaginating = false
+                    hideInitLoading()
 
-                if (!isSuccessful) {
-                    // Prompt the user on the limitations
-                    activity?.let {
-                        AlertDialog.Builder(it)
-                                .setTitle(R.string.favourite_offline_notification)
-                                .setMessage(R.string.favourite_offline_message)
-                                .setPositiveButton(R.string.ok, null)
-                                .show()
+                    if (!isSuccessful) {
+                        // Prompt the user on the limitations
+                        activity?.let {
+                            AlertDialog.Builder(it)
+                                    .setTitle(R.string.favourite_offline_notification)
+                                    .setMessage(R.string.favourite_offline_message)
+                                    .setPositiveButton(R.string.ok, null)
+                                    .show()
+                        }
+                    }
+                } else {
+                    Handler(Looper.getMainLooper()).post {
+                        done(isSuccessful)
                     }
                 }
             }
