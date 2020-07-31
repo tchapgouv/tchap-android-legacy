@@ -21,6 +21,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AbsListView
 import android.widget.AbsListView.TRANSCRIPT_MODE_DISABLED
 import androidx.appcompat.app.AlertDialog
 import fr.gouv.tchap.adapters.TchapFavouriteMessagesAdapter
@@ -44,8 +45,9 @@ class TchapFavouriteMessagesFragment : VectorMessageListFragment() {
     private val LOG_TAG = TchapFavouriteMessagesFragment::class.java.getSimpleName()
 
     private val favouriteEvents = ArrayList<FavouriteEvent>()
-    private var paginationIndex = 0
+    private var favouriteEventIndex = 0
     private var isPaginating = false
+    private var paginationId = 0
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = super.onCreateView(inflater, container, savedInstanceState)
@@ -75,8 +77,7 @@ class TchapFavouriteMessagesFragment : VectorMessageListFragment() {
     }
 
     override fun onInitialMessagesLoaded() {
-        // Do not jump to the bottom of the list
-        Log.d(LOG_TAG, "## onInitialMessagesLoaded(): cancelled")
+        // Do nothing here (we don't want to jump to the bottom of the list)
     }
 
     override fun onContentClick(position: Int) {
@@ -124,14 +125,43 @@ class TchapFavouriteMessagesFragment : VectorMessageListFragment() {
     }
 
     private fun refreshDisplay() {
+        Log.i(LOG_TAG, "## refreshDisplay()")
+
+        // Remove the potential scroll listener
+        mMessageListView.setOnScrollListener(null)
+
+        paginationId++
         mAdapter.clear();
-        paginationIndex = 0
+        favouriteEventIndex = 0
+
+        paginate(paginationId, PAGINATION_LIMIT)
+
+        // Restore the scroll listener
+        mMessageListView.setOnScrollListener(scrollListener)
+    }
+
+    private fun addItems() {
+        // Ignore if a pagination is in progress, or if all events are displayed
+        if (isPaginating || favouriteEventIndex >= favouriteEvents.size) {
+            Log.i(LOG_TAG, "## addItems(): ignored")
+            return
+        }
+
+        Log.i(LOG_TAG, "## addItems()")
+
+        paginationId++
+        paginate(paginationId, favouriteEventIndex + PAGINATION_LIMIT)
+    }
+
+    private fun paginate(id: Int, limit: Int) {
         isPaginating = true
+        Log.i(LOG_TAG, "## paginate(): id = " + id)
 
         showInitLoading()
 
-        paginate(PAGINATION_LIMIT, object : ApiCallback<Void> {
+        innerPaginate(id,  limit, object : ApiCallback<Void> {
             private fun done(isSuccessful: Boolean) {
+                Log.i(LOG_TAG, "## paginate(): done, id =" + id)
                 isPaginating = false
                 hideInitLoading()
 
@@ -152,71 +182,95 @@ class TchapFavouriteMessagesFragment : VectorMessageListFragment() {
             }
 
             override fun onNetworkError(e: Exception) {
-                Log.e(LOG_TAG, "## refreshDisplay(): " + e.localizedMessage)
+                Log.e(LOG_TAG, "## paginate(): " + e.localizedMessage)
                 done(false)
             }
 
             override fun onMatrixError(e: MatrixError) {
-                Log.e(LOG_TAG, "## refreshDisplay(): " + e.localizedMessage)
+                Log.e(LOG_TAG, "## paginate(): " + e.localizedMessage)
                 done(false)
             }
 
             override fun onUnexpectedError(e: Exception) {
-                Log.e(LOG_TAG, "## refreshDisplay(): " + e.localizedMessage)
+                Log.e(LOG_TAG, "## paginate(): " + e.localizedMessage)
                 done(false)
             }
         })
     }
 
-    private fun paginate(limit: Int, callback: ApiCallback<Void> ) {
-        if (paginationIndex < favouriteEvents.size) {
-            session.dataHandler.store
-                    ?.takeIf { it.isReady }
-                    ?.let { store ->
-                        val favourite = favouriteEvents[paginationIndex]
+    private fun innerPaginate(id: Int, limit: Int, callback: ApiCallback<Void> ) {
+        session.dataHandler.store
+                ?.takeIf { it.isReady }
+                ?.let { store ->
+                    if (favouriteEventIndex < favouriteEvents.size) {
+                        val favourite = favouriteEvents[favouriteEventIndex]
                         session.dataHandler.dataRetriever.getEvent(store, favourite.roomId, favourite.eventId, object : ApiCallback<Event> {
                             override fun onSuccess(event: Event) {
-                                paginationIndex ++
-                                session.dataHandler.decryptEvent(event, null)
-                                mAdapter.add(MessageRow(event, favourite.roomState))
-                                if (paginationIndex < limit) {
-                                    paginate(limit, callback)
-                                } else {
-                                    callback.onSuccess(null)
+                                // Check whether the pagination has not been cancelled by another one
+                                if (id == paginationId) {
+                                    favouriteEventIndex ++
+                                    session.dataHandler.decryptEvent(event, null)
+                                    mAdapter.add(MessageRow(event, favourite.roomState))
+                                    if (favouriteEventIndex < limit) {
+                                        innerPaginate(id, limit, callback)
+                                    } else {
+                                        callback.onSuccess(null)
+                                    }
                                 }
                             }
 
                             override fun onNetworkError(e: Exception) {
-                                callback.onNetworkError(e)
+                                if (id == paginationId) {
+                                    callback.onNetworkError(e)
+                                }
                             }
 
                             override fun onUnexpectedError(e: Exception) {
-                                callback.onUnexpectedError(e)
+                                if (id == paginationId) {
+                                    callback.onUnexpectedError(e)
+                                }
                             }
 
                             override fun onMatrixError(e: MatrixError) {
-                                when (e.errcode) {
-                                    MatrixError.NOT_FOUND -> {
-                                        favouriteEvents.removeAt(paginationIndex)
-                                        if (paginationIndex < limit) {
-                                            paginate(limit, callback)
-                                        } else {
-                                            callback.onSuccess(null)
+                                if (id == paginationId) {
+                                    when (e.errcode) {
+                                        MatrixError.NOT_FOUND -> {
+                                            favouriteEvents.removeAt(favouriteEventIndex)
+                                            if (favouriteEventIndex < limit) {
+                                                innerPaginate(id, limit, callback)
+                                            } else {
+                                                callback.onSuccess(null)
+                                            }
                                         }
-                                    }
-                                    else -> {
-                                        callback.onMatrixError(e)
+                                        else -> {
+                                            callback.onMatrixError(e)
+                                        }
                                     }
                                 }
                             }
                         } )
-                        return
+                    } else {
+                        // All favourite events have been retrieved
+                        callback.onSuccess(null)
                     }
-        }
-
-        callback.onSuccess(null)
+                }
     }
 
+    private val scrollListener = object : AbsListView.OnScrollListener {
+        override fun onScrollStateChanged(view: AbsListView, scrollState: Int) {
+            // Check only when the user scrolls the content
+            if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+                if (mMessageListView.lastVisiblePosition + 10 >= mMessageListView.count) {
+                    addItems()
+                }
+            }
+        }
+        override fun onScroll(view: AbsListView, firstVisibleItem: Int, visibleItemCount: Int, totalItemCount: Int) {
+            if (firstVisibleItem + visibleItemCount + 10 >= totalItemCount) {
+                addItems()
+            }
+        }
+    }
 
     data class FavouriteEvent(val roomId: String, val eventId: String, val eventInfo: TaggedEventInfo, val roomState: RoomState)
 
@@ -227,6 +281,6 @@ class TchapFavouriteMessagesFragment : VectorMessageListFragment() {
             return frag
         }
 
-        private const val PAGINATION_LIMIT = 30
+        private const val PAGINATION_LIMIT = 20
     }
 }
