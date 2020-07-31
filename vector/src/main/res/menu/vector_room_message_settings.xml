@@ -22,7 +22,7 @@
 
     <item
         android:id="@+id/ic_action_vector_favourite"
-        android:icon="@drawable/ic_material_star_border_black"
+        android:icon="@drawable/icn_favori_border"
         android:title="@string/favourite"
         app:showAsAction="never" />
 
@@ -34,7 +34,7 @@
 
     <item
         android:id="@+id/ic_action_vector_reply"
-        android:icon="@drawable/ic_material_reply"
+        android:icon="@drawable/icn_repondre"
         android:title="@string/reply"
         app:showAsAction="never" />
 
@@ -46,13 +46,13 @@
 
     <item
         android:id="@+id/ic_action_vector_share"
-        android:icon="@drawable/ic_material_share"
+        android:icon="@drawable/icn_partager"
         android:title="@string/share"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/ic_action_vector_forward"
-        android:icon="@drawable/ic_material_forward"
+        android:icon="@drawable/icn_transferer"
         android:title="@string/forward"
         app:showAsAction="never" />
 
@@ -82,7 +82,7 @@
 
     <item
         android:id="@+id/ic_action_vector_report"
-        android:icon="@drawable/ic_report_black"
+        android:icon="@drawable/icn_signaler"
         android:title="@string/report_content"
         app:showAsAction="never" />
 
@@ -94,7 +94,7 @@
 
     <item
         android:id="@+id/ic_action_vector_redact_message"
-        android:icon="@drawable/ic_material_delete"
+        android:icon="@drawable/icn_effacer"
         android:title="@string/redact"
         app:showAsAction="never" />
 

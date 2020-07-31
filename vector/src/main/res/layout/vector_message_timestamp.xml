@@ -4,12 +4,12 @@
 
     <ImageView
         android:id="@+id/messagesAdapter_favourite_icon"
-        android:layout_width="15dp"
-        android:layout_height="15dp"
-        android:layout_marginEnd="2dp"
-        android:layout_marginRight="2dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="4dp"
+        android:layout_marginRight="4dp"
         android:layout_gravity="center_vertical"
-        android:src="@drawable/ic_material_star_black"
+        android:src="@drawable/favori_label"
         android:visibility="gone"
         tools:visibility="visible"/>
 
@@ -17,7 +17,7 @@
         android:id="@+id/messagesAdapter_timestamp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="?android:textColorSecondary"
+        android:textColor="@color/tchap_text_color_light"
         android:textSize="12sp"
         tools:text="11:32" />
 

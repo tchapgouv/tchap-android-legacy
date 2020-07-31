@@ -1160,7 +1160,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             if (event.isUndelivered() || event.isUnknownDevice()) {
                 tsTextView.setTextColor(mNotSentMessageTextColor);
             } else {
-                tsTextView.setTextColor(isOutgoingMsg ? mOutgoingMessageTextColor : mIncomingMessageTextColor);
+                tsTextView.setTextColor(isOutgoingMsg ? mOutgoingMessageTextColor : ContextCompat.getColor(mContext, R.color.tchap_text_color_light));
             }
 
             tsTextView.setVisibility(mIsSearchMode
@@ -2654,9 +2654,9 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                 RoomAccountData accountData = room.getAccountData();
                 MenuItem favItem = menu.findItem(R.id.ic_action_vector_favourite);
                 if (accountData.favouriteEventInfo(event.eventId) != null) {
-                    favItem.setIcon(R.drawable.ic_material_star_black);
+                    favItem.setIcon(R.drawable.icn_favori);
                 } else {
-                    favItem.setIcon(R.drawable.ic_material_star_border_black);
+                    favItem.setIcon(R.drawable.icn_favori_border);
                 }
                 favItem.setVisible(true);
             }
