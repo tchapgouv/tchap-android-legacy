@@ -1460,8 +1460,8 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
 
             manageSubView(position, convertView, imageLayout, type);
 
-            ImageView imageView = convertView.findViewById(R.id.messagesAdapter_image);
-            addContentViewListeners(convertView, imageView, position, type);
+            View bodyLayout = convertView.findViewById(R.id.messagesAdapter_body_layout);
+            addContentViewListeners(convertView, bodyLayout, position, type);
         } catch (Exception e) {
             Log.e(LOG_TAG, "## getImageVideoView() failed : " + e.getMessage(), e);
         }
