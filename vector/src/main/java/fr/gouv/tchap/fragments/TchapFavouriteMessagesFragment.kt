@@ -216,9 +216,15 @@ class TchapFavouriteMessagesFragment : VectorMessageListFragment() {
                             override fun onSuccess(event: Event) {
                                 // Check whether the pagination has not been cancelled by another one
                                 if (id == paginationId) {
-                                    favouriteEventIndex ++
-                                    session.dataHandler.decryptEvent(event, null)
-                                    mAdapter.add(MessageRow(event, favourite.roomState))
+                                    // Ignore state events and redacted ones
+                                    if (event.stateKey != null || event.isRedacted) {
+                                        favouriteEvents.removeAt(favouriteEventIndex)
+                                    } else {
+                                        favouriteEventIndex ++
+                                        session.dataHandler.decryptEvent(event, null)
+                                        mAdapter.add(MessageRow(event, favourite.roomState))
+                                    }
+
                                     if (favouriteEventIndex < limit) {
                                         innerPaginate(id, limit, callback)
                                     } else {
@@ -244,11 +250,7 @@ class TchapFavouriteMessagesFragment : VectorMessageListFragment() {
                                     when (e.errcode) {
                                         MatrixError.NOT_FOUND -> {
                                             favouriteEvents.removeAt(favouriteEventIndex)
-                                            if (favouriteEventIndex < limit) {
-                                                innerPaginate(id, limit, callback)
-                                            } else {
-                                                callback.onSuccess(null)
-                                            }
+                                            innerPaginate(id, limit, callback)
                                         }
                                         else -> {
                                             callback.onMatrixError(e)
