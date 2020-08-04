@@ -66,7 +66,6 @@ import org.matrix.androidsdk.core.EventDisplay;
 import org.matrix.androidsdk.core.JsonUtils;
 import org.matrix.androidsdk.core.Log;
 import org.matrix.androidsdk.core.MXPatterns;
-import org.matrix.androidsdk.core.PermalinkUtils;
 import org.matrix.androidsdk.crypto.MXCryptoError;
 import org.matrix.androidsdk.crypto.data.MXDeviceInfo;
 import org.matrix.androidsdk.crypto.model.crypto.EncryptedEventContent;
@@ -106,6 +105,7 @@ import java.util.Set;
 import androidx.core.content.res.ResourcesCompat;
 import fr.gouv.tchap.media.MediaScanManager;
 import fr.gouv.tchap.model.MediaScan;
+import fr.gouv.tchap.util.DinumPermalinkUtilsKt;
 import im.vector.R;
 import im.vector.VectorApp;
 import im.vector.extensions.MatrixSdkExtensionsKt;
@@ -1794,7 +1794,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
         }
         final MessageRow row = getItem(position);
         final RoomCreateContent roomCreateContent = JsonUtils.toRoomCreateContent(row.getEvent().getContent());
-        final String roomLink = PermalinkUtils.createPermalink(roomCreateContent.predecessor.roomId);
+        final String roomLink = DinumPermalinkUtilsKt.createPermalink(getContext().getString(R.string.permalink_prefix), roomCreateContent.predecessor.roomId);
         final ClickableSpan urlSpan = new MatrixURLSpan(roomLink, MXPatterns.PATTERN_CONTAIN_APP_LINK_PERMALINK_ROOM_ID, mVectorMessagesAdapterEventsListener);
         final int textColorInt = ContextCompat.getColor(mContext, R.color.riot_primary_text_color_light);
         final CharSequence text = new Spanny(mContext.getString(R.string.room_tombstone_continuation_description),
@@ -2625,7 +2625,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
 
         //menu.findItem(R.id.ic_action_view_source).setVisible(true);
         //menu.findItem(R.id.ic_action_view_decrypted_source).setVisible(event.isEncrypted() && (null != event.getClearEvent()));
-        menu.findItem(R.id.ic_action_vector_permalink).setVisible(false);// Tchap disable permalink
+        menu.findItem(R.id.ic_action_vector_permalink).setVisible(true);
 
         if (!TextUtils.isEmpty(textMsg) && !isUncheckedOrUntrustedMediaEvent) {
             menu.findItem(R.id.ic_action_vector_copy).setVisible(true);

@@ -21,6 +21,7 @@ import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import androidx.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -35,8 +36,11 @@ import org.matrix.androidsdk.core.model.MatrixError;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomPreviewData;
 import org.matrix.androidsdk.rest.model.User;
+import java.util.Arrays;
+import java.util.List;
 
 import fr.gouv.tchap.util.DinsicUtils;
+import fr.gouv.tchap.util.DinumPermalinkUtilsKt;
 import im.vector.R;
 import im.vector.VectorApp;
 import im.vector.util.VectorUtils;
@@ -90,13 +94,22 @@ public class PillView extends LinearLayout {
     /**
      * Tells if a pill can be displayed for this url.
      *
+     * @param supportedHosts the supported hosts for the Tchap links.
      * @param url the url
      * @return true if a pill can be made.
      */
-    public static boolean isPillable(String url) {
-        String linkedUrl = PermalinkUtils.getLinkedId(url);
+    public static boolean isPillable(@NonNull List<String> supportedHosts, @NonNull String url) {
+        boolean isPillable;
 
-        return (null != linkedUrl) && (MXPatterns.isRoomAlias(linkedUrl) || MXPatterns.isUserId(linkedUrl));
+        String linkedId = PermalinkUtils.getLinkedId(url);
+        if (linkedId != null) {
+            isPillable = (MXPatterns.isUserId(linkedId) || MXPatterns.isRoomAlias(linkedId));
+        } else {
+            isPillable = (DinumPermalinkUtilsKt.getUserIdFromPermalink(supportedHosts, url) != null
+                    || DinumPermalinkUtilsKt.getRoomAliasFromPermalink(supportedHosts, url) != null);
+        }
+
+        return isPillable;
     }
 
     /**
@@ -130,20 +143,40 @@ public class PillView extends LinearLayout {
         a.recycle();
         mTextView.setTextColor(ContextCompat.getColor(getContext(), attributeResourceId));
 
-        final String linkedUrl = PermalinkUtils.getLinkedId(url);
+        String linkedUserId = null;
+        String linkedRoomAlias = null;
 
-        if (MXPatterns.isUserId(linkedUrl)) {
-            User user = session.getDataHandler().getUser(linkedUrl);
+        // Check whether the url is a "matrix.to" url
+        final String linkedId = PermalinkUtils.getLinkedId(url);
+        if (linkedId != null) {
+            if (MXPatterns.isUserId(linkedId)) {
+                linkedUserId = linkedId;
+            } else if (MXPatterns.isRoomAlias(linkedId)) {
+                linkedRoomAlias = linkedId;
+            }
+        } else {
+            // Check whether the url is related to a user
+            List<String> supportedHosts = Arrays.asList(getContext().getResources().getStringArray(R.array.permalink_supported_hosts));
+            linkedUserId = DinumPermalinkUtilsKt.getUserIdFromPermalink(supportedHosts, url);
+            if (linkedUserId == null) {
+                // Check whether the url is related to a room alias
+                linkedRoomAlias = DinumPermalinkUtilsKt.getRoomAliasFromPermalink(supportedHosts, url);
+            }
+        }
+
+        if (linkedUserId != null) {
+            User user = session.getDataHandler().getUser(linkedUserId);
 
             if (null == user) {
                 user = new User();
-                user.user_id = linkedUrl;
-                user.displayname = DinsicUtils.computeDisplayNameFromUserId(linkedUrl);
+                user.user_id = linkedUserId;
+                user.displayname = DinsicUtils.computeDisplayNameFromUserId(linkedUserId);
             }
 
             VectorUtils.loadUserAvatar(VectorApp.getInstance(), session, mAvatarView, user);
-        } else {
-            session.getDataHandler().roomIdByAlias(linkedUrl, new ApiCallback<String>() {
+        } else if (linkedRoomAlias != null) {
+            final String finalLinkedRoomAlias = linkedRoomAlias;
+            session.getDataHandler().roomIdByAlias(finalLinkedRoomAlias, new ApiCallback<String>() {
                 @Override
                 public void onSuccess(String roomId) {
                     if (null != mOnUpdateListener) {
@@ -154,11 +187,19 @@ public class PillView extends LinearLayout {
                         } else {
                             // Here the room is not joined by the user yet.
                             // Display the default avatar based on the room alias.
-                            final Bitmap bitmap = VectorUtils.getAvatar(VectorApp.getInstance(), VectorUtils.getAvatarColor(roomId), linkedUrl, true);
+                            final Bitmap bitmap = VectorUtils.getAvatar(VectorApp.getInstance(),
+                                    VectorUtils.getAvatarColor(roomId),
+                                    finalLinkedRoomAlias,
+                                    true);
                             mAvatarView.setImageBitmap(bitmap);
 
                             // Fetch the preview data to display the room avatar if any.
-                            final RoomPreviewData roomPreviewData = new RoomPreviewData(session, roomId, null, linkedUrl, null);
+                            final RoomPreviewData roomPreviewData = new RoomPreviewData(session,
+                                    roomId,
+                                    null,
+                                    finalLinkedRoomAlias,
+                                    null);
+
                             roomPreviewData.fetchPreviewData(new ApiCallback<Void>() {
                                 @Override
                                 public void onSuccess(Void info) {

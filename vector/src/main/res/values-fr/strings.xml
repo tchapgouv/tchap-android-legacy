@@ -20,7 +20,7 @@
     <string name="share">Partager</string>
     <string name="later">Plus tard</string>
     <string name="forward">Transférer</string>
-    <string name="permalink">Permalien</string>
+    <string name="permalink">Créer un lien</string>
     <string name="view_source">Afficher la source</string>
     <string name="view_decrypted_source">Afficher la source déchiffrée</string>
     <string name="delete">Supprimer</string>

@@ -53,7 +53,6 @@ import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.core.BingRulesManager;
 import org.matrix.androidsdk.core.Log;
 import org.matrix.androidsdk.core.MXPatterns;
-import org.matrix.androidsdk.core.PermalinkUtils;
 import org.matrix.androidsdk.core.ResourceUtils;
 import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.core.callback.SimpleApiCallback;
@@ -81,6 +80,7 @@ import java.util.List;
 import fr.gouv.tchap.sdk.session.room.model.RoomAccessRulesKt;
 import fr.gouv.tchap.sdk.session.room.model.RoomRetentionKt;
 import fr.gouv.tchap.util.DinsicUtils;
+import fr.gouv.tchap.util.DinumPermalinkUtilsKt;
 import fr.gouv.tchap.util.DinumUtilsKt;
 import fr.gouv.tchap.util.RoomRetentionPeriodPickerDialogFragment;
 import im.vector.activity.SelectPictureActivity;
@@ -1845,7 +1845,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
                         }
                     });
                 } else if (item.getItemId() == R.id.ic_action_vector_room_url) {
-                    SystemUtilsKt.copyToClipboard(getActivity(), PermalinkUtils.createPermalink(roomAlias));
+                    SystemUtilsKt.copyToClipboard(getActivity(), DinumPermalinkUtilsKt.createPermalink(context.getString(R.string.permalink_prefix), roomAlias));
                 } else {
                     SystemUtilsKt.copyToClipboard(getActivity(), roomAlias);
                 }

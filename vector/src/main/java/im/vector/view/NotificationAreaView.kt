@@ -17,7 +17,6 @@
 package im.vector.view
 
 import android.content.Context
-import android.graphics.Color
 import android.graphics.Typeface
 import android.preference.PreferenceManager
 import android.text.SpannableString
