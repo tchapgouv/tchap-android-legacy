@@ -1076,7 +1076,11 @@ class VectorMessagesAdapterHelper {
                 || Event.EVENT_TYPE_MESSAGE_ENCRYPTION.equals(eventType)) {
             // if we can display text for it, it's valid.
             EventDisplay display = new RiotEventDisplay(context);
-            return event.hasContentFields() && row.getText(null, display) != null;
+            boolean ret = event.hasContentFields() && row.getText(null, display) != null;
+            // Reset the temporary row message text (by updating the event)
+            // This is required to build the actual text message later.
+            row.updateEvent(event);
+            return ret;
         } else if (TextUtils.equals(WidgetsManager.WIDGET_EVENT_TYPE, event.getType())) {
             // Matrix apps are enabled
             return true;

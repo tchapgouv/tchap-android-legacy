@@ -79,7 +79,7 @@ class HomeRoomsViewModel(private val session: MXSession) {
 
         val joinedRooms = getJoinedRooms()
         for (room in joinedRooms) {
-            val tags = room.accountData?.keys ?: emptySet()
+            val tags = room.accountData?.roomTagsKeys ?: emptySet()
             when {
                 tags.contains(RoomTag.ROOM_TAG_SERVER_NOTICE) -> serverNotices.add(room)
                 tags.contains(RoomTag.ROOM_TAG_FAVOURITE) -> favourites.add(room)

@@ -1094,17 +1094,10 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
         if (null != mRoomTagListPreference) {
 
             if (null != mRoom.getAccountData()) {
-                //Set<String> customTagList = mRoom.getAccountData().getKeys();
-
                 if (null != mRoom.getAccountData().roomTag(RoomTag.ROOM_TAG_FAVOURITE)) {
                     value = RoomTag.ROOM_TAG_FAVOURITE;
                 } else if (null != mRoom.getAccountData().roomTag(RoomTag.ROOM_TAG_LOW_PRIORITY)) {
                     value = RoomTag.ROOM_TAG_LOW_PRIORITY;
-                /* For further use in case of multiple tags support
-                } else if (!mRoom.getAccountData().getKeys().isEmpty()) {
-                    for (String tag : customTagList){
-                        summary += (!summary.isEmpty()?" ":"") + tag;
-                    }*/
                 } else {
                     // no tag associated to the room
                     value = RoomTag.ROOM_TAG_NO_TAG;
@@ -1201,8 +1194,8 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
 
             // retrieve the tag from the room info
             RoomAccountData accountData = mRoom.getAccountData();
-            if ((null != accountData) && accountData.hasTags()) {
-                currentTag = accountData.getKeys().iterator().next();
+            if ((null != accountData) && accountData.hasRoomTags()) {
+                currentTag = accountData.getRoomTagsKeys().iterator().next();
             }
 
             if (!newTag.equals(currentTag)) {

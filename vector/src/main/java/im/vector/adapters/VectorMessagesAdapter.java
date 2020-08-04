@@ -38,6 +38,7 @@ import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.util.TypedValue;
+import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -69,6 +70,7 @@ import org.matrix.androidsdk.crypto.MXCryptoError;
 import org.matrix.androidsdk.crypto.data.MXDeviceInfo;
 import org.matrix.androidsdk.crypto.model.crypto.EncryptedEventContent;
 import org.matrix.androidsdk.data.Room;
+import org.matrix.androidsdk.data.RoomAccountData;
 import org.matrix.androidsdk.db.MXMediaCache;
 import org.matrix.androidsdk.interfaces.HtmlToolbox;
 import org.matrix.androidsdk.rest.model.Event;
@@ -131,14 +133,14 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
     private Event mSelectedEvent;
 
     // events listeners
-    IMessagesAdapterActionsListener mVectorMessagesAdapterEventsListener = null;
+    protected IMessagesAdapterActionsListener mVectorMessagesAdapterEventsListener = null;
 
     // current date : used to compute the day header
-    private Date mReferenceDate = new Date();
+    protected Date mReferenceDate = new Date();
 
     // day date of each message
     // the hours, minutes and seconds are removed
-    private List<Date> mMessagesDateList = new ArrayList<>();
+    protected List<Date> mMessagesDateList = new ArrayList<>();
 
     // when the adapter is used in search mode
     // the searched message should be highlighted
@@ -157,6 +159,9 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
 
     // true when the room is a 1:1 discussion
     public boolean mIsDirectRoom;
+
+    // Current sessionIds for which the decryption failed
+    private Set<String> mUndecryptedSessionIds = new HashSet<>();
 
     // Current sessionId set waiting for an encryption key, after a reRequest from user
     private Set<String> mSessionIdsWaitingForE2eReRequest = new HashSet<>();
@@ -177,7 +182,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
     static final int ROW_TYPE_MEDIA_SCAN = 13;
     static final int NUM_ROW_TYPES = 14;
 
-    final Context mContext;
+    protected final Context mContext;
     private final Map<Integer, Integer> mRowTypeToLayoutId = new HashMap<>();
     final LayoutInflater mLayoutInflater;
 
@@ -206,7 +211,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
     private final MXMediaCache mMediaCache;
 
     // session
-    final MXSession mSession;
+    protected final MXSession mSession;
 
     private boolean mIsSearchMode = false;
     private boolean mIsPreviewMode = false;
@@ -320,7 +325,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
      * @param mediaScanResLayoutId  the unchecked or untrusted attachments layout
      * @param mediaCache           the medias cache.
      */
-    VectorMessagesAdapter(MXSession session,
+    public VectorMessagesAdapter(MXSession session,
                           Context context,
                           int textResLayoutId,
                           int imageResLayoutId,
@@ -478,7 +483,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
      * @param row the message row to test
      * @return true if the row can be merged
      */
-    boolean supportMessageRowMerge(MessageRow row) {
+    protected boolean supportMessageRowMerge(MessageRow row) {
         return EventGroup.isSupported(row);
     }
 
@@ -1138,16 +1143,29 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
         mHelper.updatePhylactView(convertView, isMergedView, isOutgoingMsg);
         mHelper.setSenderValue(convertView, row, isMergedView, isOutgoingMsg);
 
+        // favourite message?
+        View favouriteIcon = convertView.findViewById(R.id.messagesAdapter_favourite_icon);
+        if (favouriteIcon != null) {
+            boolean isFavourite = false;
+            Room room = mSession.getDataHandler().getRoom(event.roomId);
+            if (room != null) {
+                isFavourite = room.getAccountData().favouriteEventInfo(event.eventId) != null;
+            }
+            favouriteIcon.setVisibility(isFavourite ? View.VISIBLE : View.GONE);
+        }
+
         // message timestamp
         TextView tsTextView = VectorMessagesAdapterHelper.setTimestampValue(convertView, getFormattedTimestamp(event));
         if (null != tsTextView) {
             if (event.isUndelivered() || event.isUnknownDevice()) {
                 tsTextView.setTextColor(mNotSentMessageTextColor);
             } else {
-                tsTextView.setTextColor(isOutgoingMsg ? mOutgoingMessageTextColor : mIncomingMessageTextColor);
+                tsTextView.setTextColor(isOutgoingMsg ? mOutgoingMessageTextColor : ContextCompat.getColor(mContext, R.color.tchap_text_color_light));
             }
 
-            tsTextView.setVisibility((((position + 1) == getCount()) || mIsSearchMode || mAlwaysShowTimeStamps) ? View.VISIBLE : View.GONE);
+            tsTextView.setVisibility(mIsSearchMode
+                    || mAlwaysShowTimeStamps
+                    || !isMergedView ? View.VISIBLE : View.GONE);
         }
 
         TextView filenameTextView = convertView.findViewById(R.id.messagesAdapter_filename);
@@ -1188,9 +1206,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
         }
 
         // messages separator
-
         View messageSeparatorView = convertView.findViewById(R.id.messagesAdapter_message_separator);
-
         if (null != messageSeparatorView) {
             messageSeparatorView.setVisibility((willBeMerged || ((position + 1) == getCount())) ? View.GONE : View.VISIBLE);
         }
@@ -1253,6 +1269,21 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                 }
 
                 EventDisplay display = new RiotEventDisplay(mContext, mHtmlToolbox);
+
+                final String sessionId = MatrixSdkExtensionsKt.getSessionId(event);
+                if (sessionId != null) {
+                    // Check whether the decryption failed for this event because its session was unknown.
+                    if (event.getCryptoError() != null
+                            && MXCryptoError.UNKNOWN_INBOUND_SESSION_ID_ERROR_CODE.equals(event.getCryptoError().errcode)) {
+                        if (!mUndecryptedSessionIds.contains(sessionId)) {
+                            mUndecryptedSessionIds.add(sessionId);
+                        }
+                    } else if (mSessionIdsWaitingForE2eReRequest.contains(sessionId)
+                            || mUndecryptedSessionIds.contains(sessionId)) {
+                        // We are able to decrypt one (or more) event(s)!
+                        onNewDecryptionSession(sessionId);
+                    }
+                }
 
                 Spannable body = row.getText(new VectorQuoteSpan(mContext), display);
 
@@ -1429,8 +1460,8 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
 
             manageSubView(position, convertView, imageLayout, type);
 
-            ImageView imageView = convertView.findViewById(R.id.messagesAdapter_image);
-            addContentViewListeners(convertView, imageView, position, type);
+            View bodyLayout = convertView.findViewById(R.id.messagesAdapter_body_layout);
+            addContentViewListeners(convertView, bodyLayout, position, type);
         } catch (Exception e) {
             Log.e(LOG_TAG, "## getImageVideoView() failed : " + e.getMessage(), e);
         }
@@ -2048,7 +2079,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
      * @param nbrDays the number of days between the reference days
      * @return the date text
      */
-    private String dateDiff(Date date, long nbrDays) {
+    protected String dateDiff(Date date, long nbrDays) {
         if (nbrDays == 0) {
             return mContext.getString(R.string.today);
         } else if (nbrDays == 1) {
@@ -2057,7 +2088,8 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             return (new SimpleDateFormat("EEEE", mLocale)).format(date);
         } else {
             int flags = DateUtils.FORMAT_SHOW_DATE |
-                    DateUtils.FORMAT_SHOW_YEAR |
+                    // Tchap: hide the year because the max retention period is one year
+                    //DateUtils.FORMAT_SHOW_YEAR |
                     DateUtils.FORMAT_ABBREV_ALL |
                     DateUtils.FORMAT_SHOW_WEEKDAY;
 
@@ -2073,7 +2105,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
      * @param position the event position
      * @return the header
      */
-    String headerMessage(int position) {
+    protected String headerMessage(int position) {
         Date prevMessageDate = null;
         Date messageDate = null;
 
@@ -2115,7 +2147,11 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
 
         // the message body is dimmed when not selected
         contentView.findViewById(R.id.messagesAdapter_body_view).setAlpha(alpha);
-        contentView.findViewById(R.id.messagesAdapter_avatars_list).setAlpha(alpha);
+
+        View readReceiptView = contentView.findViewById(R.id.messagesAdapter_avatars_list);
+        if (null != readReceiptView) {
+            readReceiptView.setAlpha(alpha);
+        }
 
         View urlsPreviewView = contentView.findViewById(R.id.messagesAdapter_urls_preview_list);
         if (null != urlsPreviewView) {
@@ -2144,7 +2180,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
      * @param shouldBeMerged true if the event should be merged
      * @return true to merge the event
      */
-    boolean mergeView(Event event, int position, boolean shouldBeMerged) {
+    protected boolean mergeView(Event event, int position, boolean shouldBeMerged) {
         if (shouldBeMerged) {
             shouldBeMerged = null == headerMessage(position);
         }
@@ -2206,7 +2242,11 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                     Event event = row.getEvent();
 
                     if (!mIsSearchMode) {
-                        onMessageClick(event, getEventText(contentView, event, msgType), convertView.findViewById(R.id.messagesAdapter_action_anchor));
+                        View anchorView = convertView.findViewById(R.id.messageAdapter_heart);
+                        if (anchorView == null) {
+                            anchorView = convertView.findViewById(R.id.messagesAdapter_action_anchor);
+                        }
+                        onMessageClick(event, getEventText(contentView, event, msgType), anchorView);
                         selectEvent(event);
 
                         return true;
@@ -2247,11 +2287,11 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                 } else {
                     // Show the link to re-request the key
                     reRequestE2EKeyTextView.setText(R.string.e2e_re_request_encryption_key);
-
                     reRequestE2EKeyTextView.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             mSessionIdsWaitingForE2eReRequest.add(sessionId);
+                            mUndecryptedSessionIds.remove(sessionId);
 
                             if (mVectorMessagesAdapterEventsListener != null) {
                                 mVectorMessagesAdapterEventsListener.onEventAction(event, null, R.id.ic_action_re_request_e2e_key);
@@ -2261,21 +2301,64 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                             notifyDataSetChanged();
                         }
                     });
+
+                    if (!mUndecryptedSessionIds.contains(sessionId)) {
+                        mUndecryptedSessionIds.add(sessionId);
+                    }
                 }
             } else {
                 reRequestE2EKeyTextView.setVisibility(View.GONE);
                 reRequestE2EKeyTextView.setOnClickListener(null);
 
+                // Check whether a e2ee re-request was pending for this event session id
                 if (sessionId != null
-                        && mSessionIdsWaitingForE2eReRequest.contains(sessionId)) {
-                    // We have decrypted one (or more) event!
-                    if (mVectorMessagesAdapterEventsListener != null) {
-                        mVectorMessagesAdapterEventsListener.onEventDecrypted();
-                    }
-
-                    mSessionIdsWaitingForE2eReRequest.remove(sessionId);
+                        && (mSessionIdsWaitingForE2eReRequest.contains(sessionId)
+                        || mUndecryptedSessionIds.contains(sessionId))) {
+                    // We are able to decrypt one (or more) event(s)!
+                    onNewDecryptionSession(sessionId);
                 }
             }
+        }
+    }
+
+    /**
+     * Called when a e2ee re-request has been handled.
+     * @param sessionId the session Id for which a e2ee re-request has been handled.
+     */
+    private void onNewDecryptionSession(final String sessionId) {
+        // We are able to decrypt one (or more) event(s)!
+        // Go through all the events to check those of this session
+        boolean areAllSessionEventsDecrypted = true;
+        for (int i = 0; i < getCount(); i++) {
+            MessageRow row = getItem(i);
+            Event event = row.getEvent();
+            if (event != null) {
+                final String eventSessionId = MatrixSdkExtensionsKt.getSessionId(event);
+                if (eventSessionId != null
+                        && TextUtils.equals(eventSessionId, sessionId)) {
+                    // Check if the event has been decrypted (this may take some time)
+                    if (event.getCryptoError() != null
+                            && MXCryptoError.UNKNOWN_INBOUND_SESSION_ID_ERROR_CODE.equals(event.getCryptoError().errcode)) {
+                        areAllSessionEventsDecrypted = false;
+                    } else {
+                        // Reset the row message text to build the actual message text.
+                        row.updateEvent(event);
+                    }
+                }
+            }
+        }
+
+        if (mVectorMessagesAdapterEventsListener != null
+                && mSessionIdsWaitingForE2eReRequest.contains(sessionId)) {
+            mVectorMessagesAdapterEventsListener.onEventDecrypted();
+        }
+
+        mSessionIdsWaitingForE2eReRequest.remove(sessionId);
+        
+        if (areAllSessionEventsDecrypted) {
+            mUndecryptedSessionIds.remove(sessionId);
+        } else if (!mUndecryptedSessionIds.contains(sessionId)) {
+            mUndecryptedSessionIds.add(sessionId);
         }
     }
 
@@ -2506,8 +2589,9 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
      */
     @SuppressLint("NewApi")
     private void onMessageClick(final Event event, final String textMsg, final View anchorView) {
+        Context popmenuContext = new ContextThemeWrapper(mContext, R.style.Vector_PopupMenu);
         final PopupMenu popup = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) ?
-                new PopupMenu(mContext, anchorView, Gravity.END) : new PopupMenu(mContext, anchorView);
+                new PopupMenu(popmenuContext, anchorView, Gravity.END) : new PopupMenu(popmenuContext, anchorView);
 
         popup.getMenuInflater().inflate(R.menu.vector_room_message_settings, popup.getMenu());
 
@@ -2548,11 +2632,11 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
             //menu.findItem(R.id.ic_action_vector_quote).setVisible(true);
         }
 
-        if (event.isUploadingMedia(mMediaCache)) {
+        if (event.isUploadingMedia(mMediaCache) && !mIsPreviewMode) {
             menu.findItem(R.id.ic_action_vector_cancel_upload).setVisible(true);
         }
 
-        if (event.isDownloadingMedia(mMediaCache)) {
+        if (event.isDownloadingMedia(mMediaCache) && !mIsPreviewMode) {
             menu.findItem(R.id.ic_action_vector_cancel_download).setVisible(true);
         }
 
@@ -2563,6 +2647,19 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                 menu.findItem(R.id.ic_action_vector_redact_message).setVisible(true);
             }
         } else if (event.mSentState == Event.SentState.SENT) {
+            Room room = mSession.getDataHandler().getRoom(event.roomId);
+
+            // Prepare favourite option (this option is not allowed on a state event)
+            if (room != null && event.stateKey == null) {
+                RoomAccountData accountData = room.getAccountData();
+                MenuItem favItem = menu.findItem(R.id.ic_action_vector_favourite);
+                if (accountData.favouriteEventInfo(event.eventId) != null) {
+                    favItem.setIcon(R.drawable.icn_favori);
+                } else {
+                    favItem.setIcon(R.drawable.icn_favori_border);
+                }
+                favItem.setVisible(true);
+            }
 
             // test if the event can be redacted
             // Tchap : redaction is disable for state events
@@ -2574,8 +2671,6 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                     canBeRedacted = true;
                 } else {
                     // need the minimum power level to redact an event
-                    Room room = mSession.getDataHandler().getRoom(event.roomId);
-
                     if ((null != room) && (null != room.getState().getPowerLevels())) {
                         PowerLevels powerLevels = room.getState().getPowerLevels();
                         canBeRedacted = powerLevels.getUserPowerLevel(mSession.getMyUserId()) >= powerLevels.redact;
@@ -2589,7 +2684,7 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                 Message message = JsonUtils.toMessage(event.getContentAsJsonObject());
 
                 // reply to
-                menu.findItem(R.id.ic_action_vector_reply).setVisible(true);
+                menu.findItem(R.id.ic_action_vector_reply).setVisible(!mIsPreviewMode);
 
                 // share / forward the message
                 menu.findItem(R.id.ic_action_vector_share).setVisible(!mIsRoomEncrypted);

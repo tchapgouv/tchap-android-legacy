@@ -19,12 +19,14 @@ import android.app.Notification
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.os.Build
 import android.os.PowerManager
 import android.text.TextUtils
 import android.view.WindowManager
 import android.widget.ImageView
 import androidx.core.app.NotificationCompat
 import androidx.core.app.Person
+import fr.gouv.tchap.util.DinsicUtils
 import im.vector.BuildConfig
 import im.vector.Matrix
 import im.vector.R
@@ -205,6 +207,10 @@ class NotificationDrawerManager(val context: Context) {
             var hasNewEvent = false
             var summaryIsNoisy = false
             val summaryInboxStyle = NotificationCompat.InboxStyle()
+            // Tchap: The summary prevents the user from seeing the messages when only one room is
+            // notified on devices running API level < 24.
+            // We added a patch to handle this case (see summaryLine use).
+            var summaryLine : String? = null
 
             //group events by room to create a single MessagingStyle notif
             val roomIdToEventMap: MutableMap<String, ArrayList<NotifiableMessageEvent>> = HashMap()
@@ -252,7 +258,11 @@ class NotificationDrawerManager(val context: Context) {
                 roomGroup.hasNewEvent = false
                 roomGroup.shouldBing = false
                 roomGroup.isDirect = events[0].roomIsDirect
-                val roomName = events[0].roomName ?: events[0].senderName ?: ""
+                val roomName = if (roomGroup.isDirect) {
+                    DinsicUtils.getNameFromDisplayName(events[0].roomName) ?: DinsicUtils.getNameFromDisplayName(events[0].senderName) ?: ""
+                } else {
+                    events[0].roomName ?: DinsicUtils.getNameFromDisplayName(events[0].senderName) ?: ""
+                }
                 val style = NotificationCompat.MessagingStyle(Person.Builder()
                         .setName(myUserDisplayName)
                         .setIcon(iconLoader.getUserIcon(myUserAvatarUrl))
@@ -278,7 +288,7 @@ class NotificationDrawerManager(val context: Context) {
                     roomGroup.hasNewEvent = roomGroup.hasNewEvent || !event.hasBeenDisplayed
 
                     val senderPerson = Person.Builder()
-                            .setName(event.senderName)
+                            .setName(DinsicUtils.getNameFromDisplayName(event.senderName))
                             .setIcon(iconLoader.getUserIcon(event.senderAvatarPath))
                             .setKey(event.senderId)
                             .build()
@@ -297,13 +307,23 @@ class NotificationDrawerManager(val context: Context) {
                 }
 
                 try {
-                    val summaryLine = context.resources.getQuantityString(
-                            R.plurals.notification_compat_summary_line_for_room, events.size, roomName, events.size)
-                    summaryInboxStyle.addLine(summaryLine)
+                    if (events.size > 1) {
+                        summaryLine = context.resources.getQuantityString(
+                                R.plurals.notification_compat_summary_line_for_room, events.size, roomName, events.size)
+                        summaryInboxStyle.addLine(summaryLine)
+                    } else if (events[0].roomIsDirect) {
+                        summaryLine = context.getString(R.string.notification_compat_summary_line_for_direct_event, roomName, events[0].body)
+                        summaryInboxStyle.addLine(summaryLine)
+                    } else {
+                        val shortSenderName = DinsicUtils.getNameFromDisplayName(events[0].senderName)
+                        summaryLine = context.getString(R.string.notification_compat_summary_line_for_event, roomName, shortSenderName, events[0].body)
+                        summaryInboxStyle.addLine(summaryLine)
+                    }
                 } catch (e: Throwable) {
                     //String not found or bad format
                     Log.d(LOG_TAG, "%%%%%%%% REFRESH NOTIFICATION DRAWER failed to resolve string")
                     summaryInboxStyle.addLine(roomName)
+                    summaryLine = null
                 }
 
                 if (firstTime || roomGroup.hasNewEvent) {
@@ -360,10 +380,17 @@ class NotificationDrawerManager(val context: Context) {
 
             if (eventList.isEmpty()) {
                 NotificationUtils.cancelNotificationMessage(context, null, SUMMARY_NOTIFICATION_ID)
-            } else {
+            } else if (firstTime || hasNewEvent) {
                 val nbEvents = roomIdToEventMap.size + simpleEvents.size
-                val sumTitle = context.resources.getQuantityString(
-                        R.plurals.notification_compat_summary_title, nbEvents, nbEvents)
+                // Patch: When only one notification is displayed on devices running API level < 24,
+                // We use the unique line of the summary as sumTitle (in order to display some details).
+                var sumTitle: String
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N && nbEvents == 1 && summaryLine != null) {
+                    sumTitle = summaryLine
+                } else {
+                    sumTitle = context.resources.getQuantityString(
+                            R.plurals.notification_compat_summary_title, nbEvents, nbEvents)
+                }
                 summaryInboxStyle.setBigContentTitle(sumTitle)
                 NotificationUtils.buildSummaryListNotification(
                         context,

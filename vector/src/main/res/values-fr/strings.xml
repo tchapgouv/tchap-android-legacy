@@ -14,6 +14,7 @@
     <string name="cancel">Annuler</string>
     <string name="save">Enregistrer</string>
     <string name="send">Envoyer</string>
+    <string name="favourite">Favori</string>
     <string name="copy">Copier</string>
     <string name="resend">Renvoyer</string>
     <string name="share">Partager</string>
@@ -1510,6 +1511,8 @@ Si vous n’avez pas configuré de nouvelle méthode de récupération, un attaq
 
     <string name="action_mark_room_read">Marquer comme lu</string>
     <string name="settings_notification_privacy_no_background_sync">Les applications &lt;b&gt;n’&lt;/a&gt;ont &lt;b&gt;pas&lt;/b&gt; besoin d’être connectées au serveur d’accueil en arrière-plan, cela devrait diminuer l’utilisation de la batterie<b>not</b> need to connect to the HomeServer in the background, it should reduce battery usage</string>
+    <string name="notification_compat_summary_line_for_event">%1$s : %2$s « %3$s »</string>
+    <string name="notification_compat_summary_line_for_direct_event">%1$s : « %2$s »</string>
     <plurals name="notification_compat_summary_line_for_room">
         <item quantity="one">%1$s : 1 message</item>
         <item quantity="other">%1$s : %2$d messages</item>
@@ -1889,6 +1892,15 @@ Si vous n’avez pas configuré de nouvelle méthode de récupération, un attaq
 \nAutorisez l’accès dans le prochaine fenêtre pour pouvoir exporter vos clés manuellement.</string>
 
     <string name="no_network_indicator">Il n’y a aucune connexion au réseau pour le moment</string>
+
+    <!-- Favourite messages screen -->
+    <string name="favourite_messages_title">Messages favoris</string>
+    <plurals name="favourite_messages_subtitle">
+        <item quantity="one">%d message</item>
+        <item quantity="other">%d messages</item>
+    </plurals>
+    <string name="favourite_offline_notification">La connexion au serveur a été perdue.</string>
+    <string name="favourite_offline_message">Des messages favoris peuvent être absents de cette liste. Certaines actions ne sont pas disponibles.</string>
 
     <!-- Overrided sdk's strings -->
     <string name="notice_room_name_changed">%1$s a changé le nom du salon en : %2$s</string>

@@ -31,7 +31,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.core.Log;
-import org.matrix.androidsdk.core.MXPatterns;
 import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomSummary;
 import org.matrix.androidsdk.data.RoomTag;
@@ -185,10 +184,12 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
         }
 
         String displayName = DinsicUtils.getRoomDisplayName(context, room);
-        String roomName = DinsicUtils.getNameFromDisplayName(displayName);
 
         if (null != vRoomDomain) {
             vRoomDomain.setText(DinsicUtils.getDomainFromDisplayName(displayName));
+            vRoomName.setText(DinsicUtils.getNameFromDisplayName(displayName));
+        } else {
+            vRoomName.setText(displayName);
         }
 
         if (null != vSenderDisplayName && null != roomSummary.getLatestReceivedEvent()) {
@@ -224,8 +225,6 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
         } else if (null != vRoomAvatar) {
             VectorUtils.loadRoomAvatar(context, session, vRoomAvatar, room);
         }
-
-        vRoomName.setText(roomName);
 
         // get last message to be displayed
         if (vRoomLastMessage != null) {
@@ -291,7 +290,7 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
 
         if (null != room && null != vRoomPinFavorite) {
             // Check first whether the room is pinned
-            final Set<String> tagsRoom = room.getAccountData().getKeys();
+            final Set<String> tagsRoom = room.getAccountData().getRoomTagsKeys();
             final boolean isPinnedRoom = tagsRoom != null && tagsRoom.contains(RoomTag.ROOM_TAG_FAVOURITE);
 
             if (isPinnedRoom) {

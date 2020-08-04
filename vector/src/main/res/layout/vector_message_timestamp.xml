@@ -2,13 +2,24 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <ImageView
+        android:id="@+id/messagesAdapter_favourite_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="4dp"
+        android:layout_marginRight="4dp"
+        android:layout_gravity="center_vertical"
+        android:src="@drawable/favori_label"
+        android:visibility="gone"
+        tools:visibility="visible"/>
+
     <TextView
         android:id="@+id/messagesAdapter_timestamp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="?android:textColorSecondary"
+        android:textColor="@color/tchap_text_color_light"
         android:textSize="12sp"
-        tools:text="1970/01/01 00:00:00" />
+        tools:text="11:32" />
 
     <View
         android:id="@+id/messagesAdapter_action_anchor"

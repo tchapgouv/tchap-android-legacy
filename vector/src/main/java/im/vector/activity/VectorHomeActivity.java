@@ -118,6 +118,7 @@ import java.util.Set;
 import butterknife.BindView;
 import butterknife.OnClick;
 
+import fr.gouv.tchap.activity.TchapFavouriteMessagesActivity;
 import fr.gouv.tchap.activity.TchapPublicRoomSelectionActivity;
 import fr.gouv.tchap.activity.TchapRoomCreationActivity;
 import fr.gouv.tchap.version.TchapVersionCheckActivity;
@@ -821,8 +822,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
 
     @Override
     public int getMenuRes() {
-        //no more menus on tchap ... until when ?
-        return -1;
+        return R.menu.vector_home;
     }
 
     @Override
@@ -831,8 +831,19 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
         if (CommonActivityUtils.shouldRestartApp(this)) {
             return false;
         }
-        //no more menus on tchap ... until when ?
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.ic_action_favourite:
+                final Intent favIntent = new Intent(this, TchapFavouriteMessagesActivity.class);
+                startActivity(favIntent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
