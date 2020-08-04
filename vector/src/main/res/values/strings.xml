@@ -59,6 +59,7 @@
     <string name="leave">Leave</string>
     <string name="stay">Stay</string>
     <string name="send">Send</string>
+    <string name="favourite">Favourite</string>
     <string name="copy">Copy</string>
     <string name="resend">Resend</string>
     <string name="redact">Remove</string>
@@ -1872,6 +1873,15 @@
     <string name="permissions_rationale_msg_keys_backup_export">Riot needs permission to save your E2E keys on disk.\n\nPlease allow access on the next pop-up to be able to export your keys manually.</string>
 
     <string name="no_network_indicator">There is no network connection right now</string>
+
+    <!-- Favourite messages screen -->
+    <string name="favourite_messages_title">Favourite messages</string>
+    <plurals name="favourite_messages_subtitle">
+        <item quantity="one">%d message</item>
+        <item quantity="other">%d messages</item>
+    </plurals>
+    <string name="favourite_offline_notification">Connectivity to the server has been lost.</string>
+    <string name="favourite_offline_message">Some favourite messages may be missing in this list. Some actions are not available.</string>
 
     <!-- Overrided sdk's strings -->
     <string name="notice_room_name_changed">%1$s changed the room name to: %2$s</string>

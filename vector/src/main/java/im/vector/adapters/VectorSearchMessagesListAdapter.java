@@ -101,10 +101,7 @@ public class VectorSearchMessagesListAdapter extends VectorMessagesAdapter {
             Event event = row.getEvent();
 
             //  some items are always hidden
-            convertView.findViewById(R.id.messagesAdapter_avatars_list).setVisibility(View.GONE);
-            convertView.findViewById(R.id.messagesAdapter_message_separator).setVisibility(View.GONE);
-            convertView.findViewById(R.id.messagesAdapter_top_margin_when_no_room_name).setVisibility(mDisplayRoomName ? View.GONE : View.VISIBLE);
-            convertView.findViewById(R.id.messagesAdapter_message_header).setVisibility(View.GONE);
+            mHelper.hideReadReceipts(convertView);
 
             Room room = mSession.getDataHandler().getStore().getRoom(event.roomId);
 
@@ -144,21 +141,24 @@ public class VectorSearchMessagesListAdapter extends VectorMessagesAdapter {
             TextView timeTextView = convertView.findViewById(R.id.messagesAdapter_timestamp);
             timeTextView.setText(AdapterUtils.tsToString(mContext, event.getOriginServerTs(), true));
 
-            // display the room name
-            View roomNameLayout = convertView.findViewById(R.id.messagesAdapter_message_room_name_layout);
-            roomNameLayout.setVisibility(mDisplayRoomName ? View.VISIBLE : View.GONE);
-
-            if (mDisplayRoomName) {
-                TextView roomTextView = convertView.findViewById(R.id.messagesAdapter_message_room_name_textview);
-                if (room != null) {
-                    roomTextView.setText(DinsicUtils.getRoomDisplayName(mContext, room));
-                } else {
-                    roomTextView.setText(null);
-                }
-            }
+            // Tchap: The global search has been disabled
+            // This adapter will be used only for a search in a room (a public one because the encryption is disabled for these rooms)
+            // So no room name will be displayed
+//            // display the room name
+//            View roomNameLayout = convertView.findViewById(R.id.messagesAdapter_message_room_name_layout);
+//            roomNameLayout.setVisibility(mDisplayRoomName ? View.VISIBLE : View.GONE);
+//
+//            if (mDisplayRoomName) {
+//                TextView roomTextView = convertView.findViewById(R.id.messagesAdapter_message_room_name_textview);
+//                if (room != null) {
+//                    roomTextView.setText(DinsicUtils.getRoomDisplayName(mContext, room));
+//                } else {
+//                    roomTextView.setText(null);
+//                }
+//            }
 
             // display the day
-            View dayLayout = convertView.findViewById(R.id.messagesAdapter_search_message_day_separator);
+            View dayLayout = convertView.findViewById(R.id.messagesAdapter_message_header);
 
             // day separator
             String headerMessage = headerMessage(position);
@@ -176,7 +176,7 @@ public class VectorSearchMessagesListAdapter extends VectorMessagesAdapter {
             }
 
             // message separator is only displayed when a message is not the last message in a day section
-            convertView.findViewById(R.id.messagesAdapter_search_separator_line)
+            convertView.findViewById(R.id.messagesAdapter_message_separator)
                     .setVisibility(!TextUtils.isEmpty(headerMessage(position + 1)) ? View.GONE : View.VISIBLE);
 
             final int fPosition = position;
@@ -189,7 +189,6 @@ public class VectorSearchMessagesListAdapter extends VectorMessagesAdapter {
                     }
                 }
             });
-
 
             convertView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
