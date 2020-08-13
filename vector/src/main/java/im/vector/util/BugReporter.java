@@ -286,7 +286,7 @@ public class BugReporter {
                     }
 
                     // tag Tchap bug reports to better triage them
-                    builder.addFormDataPart("label", "dinsic");
+                    builder.addFormDataPart("label", "DINUM");
 
                     BugReporterMultipartBody requestBody = builder.build();
 
