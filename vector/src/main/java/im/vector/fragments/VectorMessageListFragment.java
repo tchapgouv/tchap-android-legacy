@@ -22,15 +22,15 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -40,7 +40,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.FileProvider;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.FragmentManager;
 
 import com.google.gson.Gson;
@@ -61,13 +60,17 @@ import org.matrix.androidsdk.crypto.data.MXDeviceInfo;
 import org.matrix.androidsdk.crypto.data.MXUsersDevicesMap;
 import org.matrix.androidsdk.crypto.model.crypto.EncryptedEventContent;
 import org.matrix.androidsdk.crypto.model.crypto.EncryptedFileInfo;
+import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomState;
 import org.matrix.androidsdk.data.timeline.EventTimeline;
 import org.matrix.androidsdk.db.MXMediaCache;
 import org.matrix.androidsdk.fragments.MatrixMessageListFragment;
 import org.matrix.androidsdk.fragments.MatrixMessagesFragment;
+import org.matrix.androidsdk.listeners.IMXEventListener;
+import org.matrix.androidsdk.listeners.MXEventListener;
 import org.matrix.androidsdk.listeners.MXMediaDownloadListener;
 import org.matrix.androidsdk.rest.model.Event;
+import org.matrix.androidsdk.rest.model.TaggedEventsContent;
 import org.matrix.androidsdk.rest.model.message.FileMessage;
 import org.matrix.androidsdk.rest.model.message.ImageMessage;
 import org.matrix.androidsdk.rest.model.message.Message;
@@ -83,6 +86,7 @@ import java.util.Map;
 import fr.gouv.tchap.media.MediaScanManager;
 import fr.gouv.tchap.model.MediaScan;
 import fr.gouv.tchap.sdk.session.room.model.RoomRetentionKt;
+import fr.gouv.tchap.util.DinumPermalinkUtilsKt;
 import fr.gouv.tchap.util.DinumUtilsKt;
 import im.vector.BuildConfig;
 import im.vector.Matrix;
@@ -99,7 +103,6 @@ import im.vector.adapters.VectorMessagesAdapter;
 import im.vector.extensions.MatrixSdkExtensionsKt;
 import im.vector.listeners.IMessagesAdapterActionsListener;
 import im.vector.receiver.VectorUniversalLinkReceiver;
-import im.vector.ui.themes.ThemeUtils;
 import im.vector.util.EventGroup;
 import im.vector.util.ExternalApplicationsUtilKt;
 import im.vector.util.PermissionsToolsKt;
@@ -182,6 +185,45 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
 
     private VectorMessagesFragment messagesFragment;
 
+    // Define here the same events listener as the MatrixMessageListFragment one.
+    // in order to use it for the Past timeline (which are not considered as live).
+    // TODO Fix this at sdk level.
+    private final IMXEventListener mEventsListener = new MXEventListener() {
+
+        @Override
+        public void onEventSentStateUpdated(Event event) {
+            if (mAdapter != null) mAdapter.notifyDataSetChanged();
+        }
+
+        @Override
+        public void onTaggedEventsEvent(String roomId) {
+            if (mAdapter != null) mAdapter.notifyDataSetChanged();
+        }
+
+        private boolean mRefreshAfterEventsDecryption;
+
+        @Override
+        public void onEventDecrypted(final String roomId, final String eventId) {
+            // avoid refreshing the whole list for each event
+            // they are often refreshed by bunches.
+            if (mRefreshAfterEventsDecryption) {
+                Log.d(LOG_TAG, "## onEventDecrypted " + eventId + " : there is a pending refresh");
+            } else {
+                Log.d(LOG_TAG, "## onEventDecrypted " + eventId);
+
+                mRefreshAfterEventsDecryption = true;
+                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.d(LOG_TAG, "## onEventDecrypted : refresh the list");
+                        mRefreshAfterEventsDecryption = false;
+                        mAdapter.notifyDataSetChanged();
+                    }
+                }, 500);
+            }
+        }
+    };
+
     public static VectorMessageListFragment newInstance(String matrixId, String roomId, String eventId, String previewMode, int layoutResId) {
         VectorMessageListFragment f = new VectorMessageListFragment();
         Bundle args = getArguments(matrixId, roomId, layoutResId);
@@ -229,8 +271,6 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
             mAdapter.setImageGetter(mVectorImageGetter);
         }
 
-        Drawable myDrawable = ResourcesCompat.getDrawable(VectorApp.getInstance().getResources(), R.drawable.room_background, null);
-        v.setBackground(myDrawable);
         return v;
     }
 
@@ -303,6 +343,13 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
     public void onPause() {
         super.onPause();
 
+        if (null != this.mRoom && !mEventTimeLine.isLiveTimeline()) {
+            Room room =  mSession.getDataHandler().getRoom(mRoom.getRoomId(), false);
+            if (null != room) {
+                room.removeEventListener(mEventsListener);
+            }
+        }
+
         mAdapter.setVectorMessagesAdapterActionsListener(null);
         mAdapter.onPause();
 
@@ -313,6 +360,16 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
     @Override
     public void onResume() {
         super.onResume();
+
+        // We fix here some issues on Past timeline. The room history is not updated on events changes,
+        // because the events listener is not added at the SDK level when the used timeline is not live.
+        // TODO: Add this listener at the SDK level in MatrixMessageListFragment class
+        if (null != this.mRoom && !mEventTimeLine.isLiveTimeline()) {
+            Room room =  mSession.getDataHandler().getRoom(mRoom.getRoomId(), false);
+            if (null != room) {
+                room.addEventListener(mEventsListener);
+            }
+        }
 
         mAdapter.setVectorMessagesAdapterActionsListener(this);
 
@@ -715,6 +772,31 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
                             .show();
                 }
             });
+        } else if (action == R.id.ic_action_vector_favourite) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    // When the displayed room history is not live, the account data are not available in mRoom instance
+                    // To handle the "favourites" here we have to retrieve de live version of the room
+                    Room room = (mEventTimeLine != null && mEventTimeLine.isLiveTimeline()) ? mRoom : mSession.getDataHandler().getRoom(event.getRoomId(), false);
+                    if (room != null) {
+                        boolean isFavourite = room.getAccountData().favouriteEventInfo(event.eventId) != null;
+                        if (isFavourite) {
+                            room.untagEvent(event, TaggedEventsContent.TAG_FAVOURITE, new SimpleApiCallback<Void>() {
+                                @Override
+                                public void onSuccess(Void info) {
+                                }
+                            });
+                        } else {
+                            room.tagEvent(event, TaggedEventsContent.TAG_FAVOURITE, null, new SimpleApiCallback<Void>() {
+                                @Override
+                                public void onSuccess(Void info) {
+                                }
+                            });
+                        }
+                    }
+                }
+            });
         } else if (action == R.id.ic_action_vector_copy) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
@@ -821,9 +903,9 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
                     startActivity(sendIntent);
                 }
             }
-        } /*else if (action == R.id.ic_action_vector_permalink) {
-            SystemUtilsKt.copyToClipboard(getActivity(), PermalinkUtils.createPermalink(event));
-        } */else if (action == R.id.ic_action_vector_report) {
+        } else if (action == R.id.ic_action_vector_permalink) {
+            SystemUtilsKt.copyToClipboard(getActivity(), DinumPermalinkUtilsKt.createPermalink(getContext().getString(R.string.permalink_prefix), event.roomId, event.eventId));
+        } else if (action == R.id.ic_action_vector_report) {
             onMessageReport(event);
         } else if ((action == R.id.ic_action_view_source) || (action == R.id.ic_action_view_decrypted_source)) {
             getActivity().runOnUiThread(new Runnable() {
@@ -1371,7 +1453,7 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
     public void onURLClick(Uri uri) {
         try {
             if (null != uri) {
-                Map<String, String> universalParams = VectorUniversalLinkReceiver.parseUniversalLink(uri);
+                Map<String, String> universalParams = VectorUniversalLinkReceiver.parseUniversalLink(getContext(), uri);
 
                 if (null != universalParams) {
                     // open the member sheet from the current activity
@@ -1413,37 +1495,37 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
 
     @Override
     public void onRoomAliasClick(String roomAlias) {
-        // Tchap disable permalink for the moment
-        /*try {
-            onURLClick(Uri.parse(PermalinkUtils.createPermalink(roomAlias)));
+        try {
+            String prefix = getContext().getString(R.string.permalink_prefix);
+            onURLClick(Uri.parse(DinumPermalinkUtilsKt.createPermalink(prefix, roomAlias)));
         } catch (Exception e) {
             Log.e(LOG_TAG, "onRoomAliasClick failed " + e.getLocalizedMessage(), e);
-        }*/
+        }
     }
 
     @Override
     public void onRoomIdClick(String roomId) {
-        // Tchap disable permalink for the moment
-        /*try {
-            onURLClick(Uri.parse(PermalinkUtils.createPermalink(roomId)));
+        try {
+            String prefix = getContext().getString(R.string.permalink_prefix);
+            onURLClick(Uri.parse(DinumPermalinkUtilsKt.createPermalink(prefix, roomId)));
         } catch (Exception e) {
             Log.e(LOG_TAG, "onRoomIdClick failed " + e.getLocalizedMessage(), e);
-        }*/
+        }
     }
 
     @Override
     public void onEventIdClick(String eventId) {
-        // Tchap disable permalink for the moment
-        /*try {
-            onURLClick(Uri.parse(PermalinkUtils.createPermalink(mRoom.getRoomId(), eventId)));
+        try {
+            String prefix = getContext().getString(R.string.permalink_prefix);
+            onURLClick(Uri.parse(DinumPermalinkUtilsKt.createPermalink(prefix, mRoom.getRoomId(), eventId)));
         } catch (Exception e) {
             Log.e(LOG_TAG, "onEventIdClick failed " + e.getLocalizedMessage(), e);
-        }*/
+        }
     }
 
     @Override
     public void onGroupIdClick(String groupId) {
-        // Tchap disable permalink for the moment
+        // Tchap disable permalink for the moment for group
         /*try {
             onURLClick(Uri.parse(PermalinkUtils.createPermalink(groupId)));
         } catch (Exception e) {

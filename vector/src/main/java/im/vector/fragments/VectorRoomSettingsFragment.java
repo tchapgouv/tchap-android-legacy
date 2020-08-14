@@ -53,7 +53,6 @@ import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.core.BingRulesManager;
 import org.matrix.androidsdk.core.Log;
 import org.matrix.androidsdk.core.MXPatterns;
-import org.matrix.androidsdk.core.PermalinkUtils;
 import org.matrix.androidsdk.core.ResourceUtils;
 import org.matrix.androidsdk.core.callback.ApiCallback;
 import org.matrix.androidsdk.core.callback.SimpleApiCallback;
@@ -81,6 +80,7 @@ import java.util.List;
 import fr.gouv.tchap.sdk.session.room.model.RoomAccessRulesKt;
 import fr.gouv.tchap.sdk.session.room.model.RoomRetentionKt;
 import fr.gouv.tchap.util.DinsicUtils;
+import fr.gouv.tchap.util.DinumPermalinkUtilsKt;
 import fr.gouv.tchap.util.DinumUtilsKt;
 import fr.gouv.tchap.util.RoomRetentionPeriodPickerDialogFragment;
 import im.vector.activity.SelectPictureActivity;
@@ -1094,17 +1094,10 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
         if (null != mRoomTagListPreference) {
 
             if (null != mRoom.getAccountData()) {
-                //Set<String> customTagList = mRoom.getAccountData().getKeys();
-
                 if (null != mRoom.getAccountData().roomTag(RoomTag.ROOM_TAG_FAVOURITE)) {
                     value = RoomTag.ROOM_TAG_FAVOURITE;
                 } else if (null != mRoom.getAccountData().roomTag(RoomTag.ROOM_TAG_LOW_PRIORITY)) {
                     value = RoomTag.ROOM_TAG_LOW_PRIORITY;
-                /* For further use in case of multiple tags support
-                } else if (!mRoom.getAccountData().getKeys().isEmpty()) {
-                    for (String tag : customTagList){
-                        summary += (!summary.isEmpty()?" ":"") + tag;
-                    }*/
                 } else {
                     // no tag associated to the room
                     value = RoomTag.ROOM_TAG_NO_TAG;
@@ -1201,8 +1194,8 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
 
             // retrieve the tag from the room info
             RoomAccountData accountData = mRoom.getAccountData();
-            if ((null != accountData) && accountData.hasTags()) {
-                currentTag = accountData.getKeys().iterator().next();
+            if ((null != accountData) && accountData.hasRoomTags()) {
+                currentTag = accountData.getRoomTagsKeys().iterator().next();
             }
 
             if (!newTag.equals(currentTag)) {
@@ -1852,7 +1845,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
                         }
                     });
                 } else if (item.getItemId() == R.id.ic_action_vector_room_url) {
-                    SystemUtilsKt.copyToClipboard(getActivity(), PermalinkUtils.createPermalink(roomAlias));
+                    SystemUtilsKt.copyToClipboard(getActivity(), DinumPermalinkUtilsKt.createPermalink(context.getString(R.string.permalink_prefix), roomAlias));
                 } else {
                     SystemUtilsKt.copyToClipboard(getActivity(), roomAlias);
                 }

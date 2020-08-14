@@ -5,20 +5,8 @@
     tools:context="org.matrix.vector.activity.VectorHomeActivity">
 
     <item
-        android:id="@+id/ic_action_global_search"
-        android:icon="@drawable/ic_material_search_white"
-        android:title="@string/action_global_search"
-        app:showAsAction="collapseActionView" />
-
-    <item
-        android:id="@+id/ic_action_historical"
-        android:icon="@drawable/ic_material_history_white"
-        android:title="@string/action_historical"
-        app:showAsAction="collapseActionView" />
-
-    <item
-        android:id="@+id/ic_action_mark_all_as_read"
-        android:icon="@drawable/ic_material_done_all_white"
-        android:title="@string/action_mark_all_as_read"
-        app:showAsAction="collapseActionView" />
+        android:id="@+id/ic_action_favourite"
+        android:icon="@drawable/icon_page_favoris"
+        android:title="@string/favourite"
+        app:showAsAction="always" />
 </menu>

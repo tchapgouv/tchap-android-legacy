@@ -58,7 +58,6 @@ import org.matrix.androidsdk.rest.model.RoomCreateContent;
 import org.matrix.androidsdk.rest.model.RoomMember;
 import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.rest.model.pid.Invite3Pid;
-import org.matrix.androidsdk.rest.model.pid.RoomThirdPartyInvite;
 import org.matrix.androidsdk.rest.model.pid.ThreePid;
 import org.matrix.androidsdk.core.Log;
 
@@ -72,11 +71,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import fr.gouv.tchap.sdk.rest.client.TchapThirdPidRestClient;
 import fr.gouv.tchap.sdk.session.room.model.RoomAccessRulesKt;
-import fr.gouv.tchap.sdk.session.room.model.RoomRetentionKt;
 import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.VectorAppCompatActivity;
@@ -878,9 +875,9 @@ public class DinsicUtils {
 
             public int compare(Room room1, Room room2) {
                 // Check first whether some rooms are pinned
-                final Set<String> tagsRoom1 = room1.getAccountData().getKeys();
+                final Set<String> tagsRoom1 = room1.getAccountData().getRoomTagsKeys();
                 final boolean isPinnedRoom1 = tagsRoom1 != null && tagsRoom1.contains(RoomTag.ROOM_TAG_FAVOURITE);
-                final Set<String> tagsRoom2 = room2.getAccountData().getKeys();
+                final Set<String> tagsRoom2 = room2.getAccountData().getRoomTagsKeys();
                 final boolean isPinnedRoom2 = tagsRoom2 != null && tagsRoom2.contains(RoomTag.ROOM_TAG_FAVOURITE);
 
                 if (isPinnedRoom1 && !isPinnedRoom2) {

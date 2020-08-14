@@ -811,14 +811,13 @@ class VectorMessagesAdapterHelper {
     private void makeLinkClickable(SpannableStringBuilder strBuilder, final URLSpan span, final boolean isHighlighted) {
         int start = strBuilder.getSpanStart(span);
         int end = strBuilder.getSpanEnd(span);
+        String url = span.getURL();
 
-        if (start >= 0 && end >= 0) {
+        if (start >= 0 && end >= 0 && url != null) {
             int flags = strBuilder.getSpanFlags(span);
+            List<String> supportedHosts = Arrays.asList(mContext.getResources().getStringArray(R.array.permalink_supported_hosts));
 
-            // Tchap: the pillview are not clikable for the moment
-            // We have to replace the matrix.to use.
-
-            if (PillView.isPillable(span.getURL())) {
+            if (PillView.isPillable(supportedHosts, url)) {
                 // This URL link can be replaced by a Pill:
                 // Build the Drawable spannable thanks to a PillView
                 // And replace the URLSpan by a clickable ImageSpan
@@ -857,18 +856,17 @@ class VectorMessagesAdapterHelper {
                     drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
                     strBuilder.setSpan(imageSpan, start, end, flags);
                 }
-            } else {
-                ClickableSpan clickable = new ClickableSpan() {
-                    public void onClick(View view) {
-                        if (null != mEventsListener) {
-                            mEventsListener.onURLClick(Uri.parse(span.getURL()));
-                        }
-                    }
-                };
-
-                strBuilder.setSpan(clickable, start, end, flags);
             }
 
+            ClickableSpan clickable = new ClickableSpan() {
+                public void onClick(View view) {
+                    if (null != mEventsListener) {
+                        mEventsListener.onURLClick(Uri.parse(span.getURL()));
+                    }
+                }
+            };
+
+            strBuilder.setSpan(clickable, start, end, flags);
             strBuilder.removeSpan(span);
         }
     }

@@ -59,6 +59,7 @@
     <string name="leave">Leave</string>
     <string name="stay">Stay</string>
     <string name="send">Send</string>
+    <string name="favourite">Favourite</string>
     <string name="copy">Copy</string>
     <string name="resend">Resend</string>
     <string name="redact">Remove</string>
@@ -1340,6 +1341,9 @@
     <string name="tchap_register_unauthorized_email">This email address is unauthorized</string>
     <string name="tchap_password_weak_pwd_error">This password is too weak. It must include a lower-case letter, an upper-case letter, a number and a symbol and be at a minimum 8 characters in length.</string>
     <string name="tchap_password_pwd_in_dict_error">This password was found in a dictionary, and is not acceptable</string>
+    <string name="tchap_register_user_already_logged_in_prompt">It looks like you’re trying to connect with another account. Do you want to sign out?</string>
+    <string name="tchap_email_validation_succeeded">The email has been validated. You may pursue the related operation.</string>
+    <string name="tchap_email_validation_failed">The email validation failed. The link has expired, or it is not valid.</string>
 
     <string name="tchap_change_password_help">Your new password must include a lower-case letter, an upper-case letter, a number and a symbol and be at a minimum 8 characters in length.</string>
 
@@ -1872,6 +1876,15 @@
     <string name="permissions_rationale_msg_keys_backup_export">Riot needs permission to save your E2E keys on disk.\n\nPlease allow access on the next pop-up to be able to export your keys manually.</string>
 
     <string name="no_network_indicator">There is no network connection right now</string>
+
+    <!-- Favourite messages screen -->
+    <string name="favourite_messages_title">Favourite messages</string>
+    <plurals name="favourite_messages_subtitle">
+        <item quantity="one">%d message</item>
+        <item quantity="other">%d messages</item>
+    </plurals>
+    <string name="favourite_offline_notification">Connectivity to the server has been lost.</string>
+    <string name="favourite_offline_message">Some favourite messages may be missing in this list. Some actions are not available.</string>
 
     <!-- Overrided sdk's strings -->
     <string name="notice_room_name_changed">%1$s changed the room name to: %2$s</string>

@@ -127,12 +127,6 @@ public abstract class AbsHomeFragment extends VectorBaseFragment implements
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.ic_action_mark_all_as_read:
-                Log.d(LOG_TAG, "onOptionsItemSelected mark all as read");
-                onMarkAllAsRead();
-                return true;
-        }
         return false;
     }
 
@@ -177,7 +171,7 @@ public abstract class AbsHomeFragment extends VectorBaseFragment implements
     @Override
     public void onMoreActionClick(View itemView, Room room) {
         // User clicked on the "more actions" area
-        final Set<String> tags = room.getAccountData().getKeys();
+        final Set<String> tags = room.getAccountData().getRoomTagsKeys();
         final boolean isFavorite = tags != null && tags.contains(RoomTag.ROOM_TAG_FAVOURITE);
         final boolean isLowPriority = tags != null && tags.contains(RoomTag.ROOM_TAG_LOW_PRIORITY);
         RoomUtils.displayPopupMenu(mActivity, mSession, room, itemView, isFavorite, isLowPriority, this);
@@ -186,7 +180,7 @@ public abstract class AbsHomeFragment extends VectorBaseFragment implements
     @Override
     public void onTchapMoreActionClick(View itemView, Room room, View notificationMuteView) {
         // User clicked on the "more actions" area
-        final Set<String> tags = room.getAccountData().getKeys();
+        final Set<String> tags = room.getAccountData().getRoomTagsKeys();
         final boolean isFavorite = tags != null && tags.contains(RoomTag.ROOM_TAG_FAVOURITE);
         final boolean isLowPriority = tags != null && tags.contains(RoomTag.ROOM_TAG_LOW_PRIORITY);
         RoomUtils.displayTchapPopupMenu(mActivity, mSession, room, itemView, notificationMuteView, isFavorite, isLowPriority, this);

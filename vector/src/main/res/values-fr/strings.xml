@@ -14,12 +14,13 @@
     <string name="cancel">Annuler</string>
     <string name="save">Enregistrer</string>
     <string name="send">Envoyer</string>
+    <string name="favourite">Favori</string>
     <string name="copy">Copier</string>
     <string name="resend">Renvoyer</string>
     <string name="share">Partager</string>
     <string name="later">Plus tard</string>
     <string name="forward">Transférer</string>
-    <string name="permalink">Permalien</string>
+    <string name="permalink">Créer un lien</string>
     <string name="view_source">Afficher la source</string>
     <string name="view_decrypted_source">Afficher la source déchiffrée</string>
     <string name="delete">Supprimer</string>
@@ -913,6 +914,9 @@ Appareils inconnus :</string>
     <string name="tchap_register_unauthorized_email">Cette adresse e-mail n’est pas autorisée</string>
     <string name="tchap_password_weak_pwd_error">Ce mot de passe est trop faible. Il doit contenir au moins 8 caractères, avec au moins un caractère de chaque type : majuscule, minuscule, chiffre, caractère spécial.</string>
     <string name="tchap_password_pwd_in_dict_error">Ce mot de passe a été trouvé dans un dictionnaire, il n’est pas autorisé</string>
+    <string name="tchap_register_user_already_logged_in_prompt">Il semblerait que vous essayez de vous connecter avec un autre compte. Voulez-vous vous déconnecter \?</string>
+    <string name="tchap_email_validation_succeeded">Votre email a été validé, vous pouvez poursuivre l’opération qui attendait cette validation.</string>
+    <string name="tchap_email_validation_failed">La validation de l’email a échouée. Le lien a expiré, ou il n’est pas valide.</string>
 
     <string name="tchap_change_password_help">Votre nouveau mot de passe doit contenir au moins 8 caractères, avec au moins un caractère de chaque type : majuscule, minuscule, chiffre, caractère spécial.</string>
 
@@ -1891,6 +1895,15 @@ Si vous n’avez pas configuré de nouvelle méthode de récupération, un attaq
 \nAutorisez l’accès dans le prochaine fenêtre pour pouvoir exporter vos clés manuellement.</string>
 
     <string name="no_network_indicator">Il n’y a aucune connexion au réseau pour le moment</string>
+
+    <!-- Favourite messages screen -->
+    <string name="favourite_messages_title">Messages favoris</string>
+    <plurals name="favourite_messages_subtitle">
+        <item quantity="one">%d message</item>
+        <item quantity="other">%d messages</item>
+    </plurals>
+    <string name="favourite_offline_notification">La connexion au serveur a été perdue.</string>
+    <string name="favourite_offline_message">Des messages favoris peuvent être absents de cette liste. Certaines actions ne sont pas disponibles.</string>
 
     <!-- Overrided sdk's strings -->
     <string name="notice_room_name_changed">%1$s a changé le nom du salon en : %2$s</string>

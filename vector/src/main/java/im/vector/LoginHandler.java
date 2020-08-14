@@ -217,7 +217,8 @@ public class LoginHandler {
                                            final ApiCallback<Boolean> aRespCallback) {
         ThirdPidRestClient restClient = new ThirdPidRestClient(aHomeServerConfig);
 
-        restClient.submitValidationToken(
+        // Tchap: submitValidationToken returns an error 403 on Tchap server - We force the legacy version for the moment
+        restClient.submitValidationTokenLegacy(
                 ThreePid.MEDIUM_EMAIL,
                 aToken,
                 aClientSecret,

@@ -13,8 +13,12 @@
                 <data android:scheme="http" />
                 <data android:scheme="https" />
                 <data android:host="matrix.agent.dev-durable.tchap.gouv.fr" />
-                <!-- mail validation -->
-                <data android:pathPrefix="/_matrix/" />
+                <!-- email validation, account renew -->
+                <data android:pathPrefix="/_matrix/client/unstable/registration/email/submit_token" />
+                <data android:pathPrefix="/_matrix/client/unstable/password_reset/email/submit_token" />
+                <data android:pathPrefix="/_matrix/client/unstable/account_validity/renew" />
+                <!-- legacy email validation -->
+                <data android:pathPrefix="/_matrix/identity/api/v1/validate/email/submitToken" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -25,8 +29,12 @@
                 <data android:scheme="http" />
                 <data android:scheme="https" />
                 <data android:host="matrix.agent.dinum.tchap.gouv.fr" />
-                <!-- mail validation -->
-                <data android:pathPrefix="/_matrix/" />
+                <!-- email validation, account renew -->
+                <data android:pathPrefix="/_matrix/client/unstable/registration/email/submit_token" />
+                <data android:pathPrefix="/_matrix/client/unstable/password_reset/email/submit_token" />
+                <data android:pathPrefix="/_matrix/client/unstable/account_validity/renew" />
+                <!-- legacy email validation -->
+                <data android:pathPrefix="/_matrix/identity/api/v1/validate/email/submitToken" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -37,8 +45,12 @@
                 <data android:scheme="http" />
                 <data android:scheme="https" />
                 <data android:host="matrix.agent.intradef.tchap.gouv.fr" />
-                <!-- mail validation -->
-                <data android:pathPrefix="/_matrix/" />
+                <!-- email validation, account renew -->
+                <data android:pathPrefix="/_matrix/client/unstable/registration/email/submit_token" />
+                <data android:pathPrefix="/_matrix/client/unstable/password_reset/email/submit_token" />
+                <data android:pathPrefix="/_matrix/client/unstable/account_validity/renew" />
+                <!-- legacy email validation -->
+                <data android:pathPrefix="/_matrix/identity/api/v1/validate/email/submitToken" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -49,8 +61,12 @@
                 <data android:scheme="http" />
                 <data android:scheme="https" />
                 <data android:host="matrix.agent.diplomatie.tchap.gouv.fr" />
-                <!-- mail validation -->
-                <data android:pathPrefix="/_matrix/" />
+                <!-- email validation, account renew -->
+                <data android:pathPrefix="/_matrix/client/unstable/registration/email/submit_token" />
+                <data android:pathPrefix="/_matrix/client/unstable/password_reset/email/submit_token" />
+                <data android:pathPrefix="/_matrix/client/unstable/account_validity/renew" />
+                <!-- legacy email validation -->
+                <data android:pathPrefix="/_matrix/identity/api/v1/validate/email/submitToken" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -61,8 +77,12 @@
                 <data android:scheme="http" />
                 <data android:scheme="https" />
                 <data android:host="matrix.agent.justice.tchap.gouv.fr" />
-                <!-- mail validation -->
-                <data android:pathPrefix="/_matrix/" />
+                <!-- email validation, account renew -->
+                <data android:pathPrefix="/_matrix/client/unstable/registration/email/submit_token" />
+                <data android:pathPrefix="/_matrix/client/unstable/password_reset/email/submit_token" />
+                <data android:pathPrefix="/_matrix/client/unstable/account_validity/renew" />
+                <!-- legacy email validation -->
+                <data android:pathPrefix="/_matrix/identity/api/v1/validate/email/submitToken" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -73,8 +93,12 @@
                 <data android:scheme="http" />
                 <data android:scheme="https" />
                 <data android:host="matrix.agent.agriculture.tchap.gouv.fr" />
-                <!-- mail validation -->
-                <data android:pathPrefix="/_matrix/" />
+                <!-- email validation, account renew -->
+                <data android:pathPrefix="/_matrix/client/unstable/registration/email/submit_token" />
+                <data android:pathPrefix="/_matrix/client/unstable/password_reset/email/submit_token" />
+                <data android:pathPrefix="/_matrix/client/unstable/account_validity/renew" />
+                <!-- legacy email validation -->
+                <data android:pathPrefix="/_matrix/identity/api/v1/validate/email/submitToken" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -85,8 +109,12 @@
                 <data android:scheme="http" />
                 <data android:scheme="https" />
                 <data android:host="matrix.agent.interieur.tchap.gouv.fr" />
-                <!-- mail validation -->
-                <data android:pathPrefix="/_matrix/" />
+                <!-- email validation, account renew -->
+                <data android:pathPrefix="/_matrix/client/unstable/registration/email/submit_token" />
+                <data android:pathPrefix="/_matrix/client/unstable/password_reset/email/submit_token" />
+                <data android:pathPrefix="/_matrix/client/unstable/account_validity/renew" />
+                <!-- legacy email validation -->
+                <data android:pathPrefix="/_matrix/identity/api/v1/validate/email/submitToken" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -97,8 +125,12 @@
                 <data android:scheme="http" />
                 <data android:scheme="https" />
                 <data android:host="matrix.agent.social.tchap.gouv.fr" />
-                <!-- mail validation -->
-                <data android:pathPrefix="/_matrix/" />
+                <!-- email validation, account renew -->
+                <data android:pathPrefix="/_matrix/client/unstable/registration/email/submit_token" />
+                <data android:pathPrefix="/_matrix/client/unstable/password_reset/email/submit_token" />
+                <data android:pathPrefix="/_matrix/client/unstable/account_validity/renew" />
+                <!-- legacy email validation -->
+                <data android:pathPrefix="/_matrix/identity/api/v1/validate/email/submitToken" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -109,8 +141,12 @@
                 <data android:scheme="http" />
                 <data android:scheme="https" />
                 <data android:host="matrix.agent.education.tchap.gouv.fr" />
-                <!-- mail validation -->
-                <data android:pathPrefix="/_matrix/" />
+                <!-- email validation, account renew -->
+                <data android:pathPrefix="/_matrix/client/unstable/registration/email/submit_token" />
+                <data android:pathPrefix="/_matrix/client/unstable/password_reset/email/submit_token" />
+                <data android:pathPrefix="/_matrix/client/unstable/account_validity/renew" />
+                <!-- legacy email validation -->
+                <data android:pathPrefix="/_matrix/identity/api/v1/validate/email/submitToken" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -121,8 +157,12 @@
                 <data android:scheme="http" />
                 <data android:scheme="https" />
                 <data android:host="matrix.agent.finances.tchap.gouv.fr" />
-                <!-- mail validation -->
-                <data android:pathPrefix="/_matrix/" />
+                <!-- email validation, account renew -->
+                <data android:pathPrefix="/_matrix/client/unstable/registration/email/submit_token" />
+                <data android:pathPrefix="/_matrix/client/unstable/password_reset/email/submit_token" />
+                <data android:pathPrefix="/_matrix/client/unstable/account_validity/renew" />
+                <!-- legacy email validation -->
+                <data android:pathPrefix="/_matrix/identity/api/v1/validate/email/submitToken" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -133,8 +173,12 @@
                 <data android:scheme="http" />
                 <data android:scheme="https" />
                 <data android:host="matrix.agent.ssi.tchap.gouv.fr" />
-                <!-- mail validation -->
-                <data android:pathPrefix="/_matrix/" />
+                <!-- email validation, account renew -->
+                <data android:pathPrefix="/_matrix/client/unstable/registration/email/submit_token" />
+                <data android:pathPrefix="/_matrix/client/unstable/password_reset/email/submit_token" />
+                <data android:pathPrefix="/_matrix/client/unstable/account_validity/renew" />
+                <!-- legacy email validation -->
+                <data android:pathPrefix="/_matrix/identity/api/v1/validate/email/submitToken" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -145,8 +189,12 @@
                 <data android:scheme="http" />
                 <data android:scheme="https" />
                 <data android:host="matrix.agent.pm.tchap.gouv.fr" />
-                <!-- mail validation -->
-                <data android:pathPrefix="/_matrix/" />
+                <!-- email validation, account renew -->
+                <data android:pathPrefix="/_matrix/client/unstable/registration/email/submit_token" />
+                <data android:pathPrefix="/_matrix/client/unstable/password_reset/email/submit_token" />
+                <data android:pathPrefix="/_matrix/client/unstable/account_validity/renew" />
+                <!-- legacy email validation -->
+                <data android:pathPrefix="/_matrix/identity/api/v1/validate/email/submitToken" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -157,8 +205,12 @@
                 <data android:scheme="http" />
                 <data android:scheme="https" />
                 <data android:host="matrix.agent.elysee.tchap.gouv.fr" />
-                <!-- mail validation -->
-                <data android:pathPrefix="/_matrix/" />
+                <!-- email validation, account renew -->
+                <data android:pathPrefix="/_matrix/client/unstable/registration/email/submit_token" />
+                <data android:pathPrefix="/_matrix/client/unstable/password_reset/email/submit_token" />
+                <data android:pathPrefix="/_matrix/client/unstable/account_validity/renew" />
+                <!-- legacy email validation -->
+                <data android:pathPrefix="/_matrix/identity/api/v1/validate/email/submitToken" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -169,8 +221,12 @@
                 <data android:scheme="http" />
                 <data android:scheme="https" />
                 <data android:host="matrix.agent.culture.tchap.gouv.fr" />
-                <!-- mail validation -->
-                <data android:pathPrefix="/_matrix/" />
+                <!-- email validation, account renew -->
+                <data android:pathPrefix="/_matrix/client/unstable/registration/email/submit_token" />
+                <data android:pathPrefix="/_matrix/client/unstable/password_reset/email/submit_token" />
+                <data android:pathPrefix="/_matrix/client/unstable/account_validity/renew" />
+                <!-- legacy email validation -->
+                <data android:pathPrefix="/_matrix/identity/api/v1/validate/email/submitToken" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -181,8 +237,12 @@
                 <data android:scheme="http" />
                 <data android:scheme="https" />
                 <data android:host="matrix.agent.tchap.gouv.fr" />
-                <!-- mail validation -->
-                <data android:pathPrefix="/_matrix/" />
+                <!-- email validation, account renew -->
+                <data android:pathPrefix="/_matrix/client/unstable/registration/email/submit_token" />
+                <data android:pathPrefix="/_matrix/client/unstable/password_reset/email/submit_token" />
+                <data android:pathPrefix="/_matrix/client/unstable/account_validity/renew" />
+                <!-- legacy email validation -->
+                <data android:pathPrefix="/_matrix/identity/api/v1/validate/email/submitToken" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -193,8 +253,12 @@
                 <data android:scheme="http" />
                 <data android:scheme="https" />
                 <data android:host="matrix.agent.collectivites.tchap.gouv.fr" />
-                <!-- mail validation -->
-                <data android:pathPrefix="/_matrix/" />
+                <!-- email validation, account renew -->
+                <data android:pathPrefix="/_matrix/client/unstable/registration/email/submit_token" />
+                <data android:pathPrefix="/_matrix/client/unstable/password_reset/email/submit_token" />
+                <data android:pathPrefix="/_matrix/client/unstable/account_validity/renew" />
+                <!-- legacy email validation -->
+                <data android:pathPrefix="/_matrix/identity/api/v1/validate/email/submitToken" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -204,7 +268,33 @@
 
                 <data android:scheme="http" />
                 <data android:scheme="https" />
-                <data android:host="@string/universal_link_supported_host" />
+                <data android:host="matrix.agent.externe.tchap.gouv.fr" />
+                <!-- email validation, account renew -->
+                <data android:pathPrefix="/_matrix/client/unstable/registration/email/submit_token" />
+                <data android:pathPrefix="/_matrix/client/unstable/password_reset/email/submit_token" />
+                <data android:pathPrefix="/_matrix/client/unstable/account_validity/renew" />
+                <!-- legacy email validation -->
+                <data android:pathPrefix="/_matrix/identity/api/v1/validate/email/submitToken" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="www.tchap.gouv.fr" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="tchap.gouv.fr" />
             </intent-filter>
         </activity>
 
