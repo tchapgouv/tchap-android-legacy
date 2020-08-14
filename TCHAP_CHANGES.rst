@@ -1,9 +1,12 @@
-Changes in Tchap 1.0.XX (2020-XX-XX)
+Changes in Tchap 1.0.45 (2020-08-14)
 ===================================================
 
 Improvements:
+ * Enable the favorite messages #571
+ * Turn on the permalink option #555
  * Update matrix-sdk.aar libs - Revision: 31d8a991d1b73cdf62db3b81f8b05d4566c3e879 [31d8a991d]
  * Room creation: remove special character from the room link (#599)
+ * Improve email validation catch up (PR #602)
 
 Bug Fix:
  * Fix java.lang.NullPointerException at org.matrix.androidsdk.data.RoomAccountData.handleEvent
