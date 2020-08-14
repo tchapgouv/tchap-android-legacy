@@ -1341,6 +1341,9 @@
     <string name="tchap_register_unauthorized_email">This email address is unauthorized</string>
     <string name="tchap_password_weak_pwd_error">This password is too weak. It must include a lower-case letter, an upper-case letter, a number and a symbol and be at a minimum 8 characters in length.</string>
     <string name="tchap_password_pwd_in_dict_error">This password was found in a dictionary, and is not acceptable</string>
+    <string name="tchap_register_user_already_logged_in_prompt">It looks like you’re trying to connect with another account. Do you want to sign out?</string>
+    <string name="tchap_email_validation_succeeded">The email has been validated. You may pursue the related operation.</string>
+    <string name="tchap_email_validation_failed">The email validation failed. The link has expired, or it is not valid.</string>
 
     <string name="tchap_change_password_help">Your new password must include a lower-case letter, an upper-case letter, a number and a symbol and be at a minimum 8 characters in length.</string>
 

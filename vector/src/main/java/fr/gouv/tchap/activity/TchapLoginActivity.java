@@ -310,6 +310,9 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             Log.d(LOG_TAG, "## onNewIntent(): Unexpected value - aIntent=null ");
         } else if (null == (receivedBundle = aIntent.getExtras())) {
             Log.d(LOG_TAG, "## onNewIntent(): Unexpected value - extras are missing");
+        } else if (receivedBundle.containsKey(VectorUniversalLinkActivity.EXTRA_VALIDATED_EMAIL_PARAMS)) {
+            Log.d(LOG_TAG, "## onNewIntent() Login activity resumed on a successful email verification");
+            resumeOnValidatedEmail(receivedBundle);
         } else if (receivedBundle.containsKey(VectorUniversalLinkActivity.EXTRA_EMAIL_VALIDATION_PARAMS)) {
             Log.d(LOG_TAG, "## onNewIntent() Login activity started by email verification for registration");
 
@@ -439,6 +442,9 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             if (receivedBundle.containsKey(VectorUniversalLinkReceiver.EXTRA_UNIVERSAL_LINK_URI)) {
                 mUniversalLinkUri = receivedBundle.getParcelable(VectorUniversalLinkReceiver.EXTRA_UNIVERSAL_LINK_URI);
                 Log.d(LOG_TAG, "## onCreate() Login activity started by universal link");
+            } else if (receivedBundle.containsKey(VectorUniversalLinkActivity.EXTRA_VALIDATED_EMAIL_PARAMS)) {
+                Log.d(LOG_TAG, "## onCreate() Login activity resumed on a successful email verification");
+                resumeOnValidatedEmail(receivedBundle);
             } else if (receivedBundle.containsKey(VectorUniversalLinkActivity.EXTRA_EMAIL_VALIDATION_PARAMS)) {
                 Log.d(LOG_TAG, "## onCreate() Login activity started by email verification for registration");
                 if (processEmailValidationExtras(receivedBundle)) {
@@ -969,6 +975,84 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
     }
 
     /**
+     * Parse the given bundle to check if it contains the parameters to pursue the operation for
+     * which the email has been verified.
+     * If yes, it initializes the TchapLoginActivity to finalize a registration or a reset password
+     * This is mainly used when the TchapLoginActivity is triggered from the {@link VectorUniversalLinkActivity}.
+     *
+     * @param bundle bundle to be parsed
+     */
+    private void resumeOnValidatedEmail(Bundle bundle) {
+        HashMap<String, String> extraParams = (HashMap<String, String>) bundle.getSerializable(VectorUniversalLinkActivity.EXTRA_VALIDATED_EMAIL_PARAMS);
+
+        if (null != extraParams) {
+            Log.d(LOG_TAG, "## resumeOnValidatedEmail(): IN");
+            Matrix.getInstance(this).clearSessions(this, true, null);
+
+            // display waiting UI..
+            enableLoadingScreen(true);
+            // display wait screen with no text (same as iOS) for now..
+            hideMainLayoutAndToast("");
+
+            String clientSecret = extraParams.get(VectorUniversalLinkActivity.KEY_MAIL_VALIDATION_CLIENT_SECRET);
+            String identityServerSessId = extraParams.get(VectorUniversalLinkActivity.KEY_MAIL_VALIDATION_IDENTITY_SERVER_SESSION_ID);
+            String sessionId = extraParams.get(VectorUniversalLinkActivity.KEY_MAIL_VALIDATION_SESSION_ID);
+            String homeServer = extraParams.get(VectorUniversalLinkActivity.KEY_MAIL_VALIDATION_HOME_SERVER_URL);
+            String identityServer = extraParams.get(VectorUniversalLinkActivity.KEY_MAIL_VALIDATION_IDENTITY_SERVER_URL);
+
+            // When the user tries to update his/her password after forgetting it (tap on the dedicated link)
+            // The HS / IS urls are not provided in the email link.
+            // This link should be only opened by the webclient (known issue server side)
+            // Use the current configuration by default (it might not work on some account if the user uses another HS)
+            if (null == homeServer) {
+                homeServer = getHomeServerUrl();
+            }
+            if (null == identityServer) {
+                identityServer = getIdentityServerUrl();
+            }
+
+            // test if the home server urls are valid
+            try {
+                Uri.parse(homeServer);
+                Uri.parse(identityServer);
+            } catch (Exception e) {
+                // Stop and display a toast to notify email has been validated
+                enableLoadingScreen(false);
+                Toast.makeText(TchapLoginActivity.this, getString(R.string.tchap_email_validation_succeeded), Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            final HomeServerConnectionConfig homeServerConfig
+                    = mServerConfig
+                    = HomeServerConnectionConfigFactoryKt.createHomeServerConnectionConfig(homeServer, identityServer);
+
+            // if sessionId is null, it means that this request has been triggered by clicking on a "forgot password" link
+            if (null == sessionId) {
+                Log.d(TchapLoginActivity.LOG_TAG, "## resumeOnValidatedEmail(): the password update is in progress");
+
+                mMode = MODE_FORGOT_PASSWORD_WAITING_VALIDATION;
+
+                mForgotPid = new ThreePidCredentials();
+                mForgotPid.clientSecret = clientSecret;
+                mForgotPid.idServer = homeServerConfig.getIdentityServerUri().getHost();
+                mForgotPid.sid = identityServerSessId;
+
+                mIsPasswordResetted = false;
+                onForgotOnEmailValidated(homeServerConfig);
+            } else {
+                // the validation of mail ownership succeed, just resume the registration flow
+                // next step: just register
+                Log.d(TchapLoginActivity.LOG_TAG, "## resumeOnValidatedEmail(): registerAfterEmailValidations() started");
+                mRegistrationManager.setHsConfig(homeServerConfig);
+                mMode = MODE_ACCOUNT_CREATION;
+                mRegistrationManager.registerAfterEmailValidation(TchapLoginActivity.this, clientSecret, identityServerSessId, identityServer, sessionId, TchapLoginActivity.this);
+            }
+        } else {
+            Log.d(LOG_TAG, "## resumeOnValidatedEmail(): skipped");
+        }
+    }
+
+    /**
      * Parse the given bundle to check if it contains the email verification extra.
      * If yes, it initializes the TchapLoginActivity to start in registration mode to finalize a registration
      * process that is in progress. This is mainly used when the TchapLoginActivity
@@ -1137,8 +1221,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
      * @param registrationFlowResponse the response
      */
     private void onRegistrationFlow(RegistrationFlowResponse registrationFlowResponse) {
-        enableLoadingScreen(false);
-
         mRegistrationResponse = registrationFlowResponse;
     }
 

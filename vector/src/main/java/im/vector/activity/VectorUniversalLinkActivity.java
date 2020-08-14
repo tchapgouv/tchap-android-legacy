@@ -27,6 +27,8 @@ import android.net.Uri;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
+import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -54,6 +56,10 @@ import im.vector.Matrix;
 import im.vector.R;
 import im.vector.receiver.LoginConfig;
 import im.vector.receiver.VectorUniversalLinkReceiver;
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * Dummy activity used to dispatch the vector URL links.
@@ -65,9 +71,17 @@ public class VectorUniversalLinkActivity extends VectorAppCompatActivity {
     private final VectorUniversalLinkReceiver mUniversalLinkReceiver = new VectorUniversalLinkReceiver();
 
     //private static final String SUPPORTED_PATH_CONFIG = "/config/config";
+
+    private static final String MATRIX_PATH_PREFIX = "/_matrix/";
+    // Email validation query
+    private static final String REGISTRATION_EMAIL_VALIDATION_PATH_SUFFIX = "/registration/email/submit_token";
+    private static final String PASSWORD_RESET_EMAIL_VALIDATION_PATH_SUFFIX = "/password_reset/email/submit_token";
     // Account validity query
     private static final String ACCOUNT_VALIDITY_RENEW_PATH_SUFFIX = "/account_validity/renew";
     private static final String ACCOUNT_VALIDITY_RENEW_TOKEN = "token";
+
+    // Intent Extras
+    public static final String EXTRA_VALIDATED_EMAIL_PARAMS = "EXTRA_VALIDATED_EMAIL_PARAMS";
 
     @Override
     public int getLayoutRes() {
@@ -91,46 +105,61 @@ public class VectorUniversalLinkActivity extends VectorAppCompatActivity {
             Uri intentUri = getIntent().getData();
             String dataPath = intentUri.getPath();
 
-            if (dataPath.endsWith(EMAIL_VALIDATION_PATH_SUFFIX)) {
-                // We consider here an email validation
-                final Map<String, String> mailRegParams = parseMailRegistrationLink(intentUri);
-
-                // Assume it is a new account creation when there is a next link, or when no session is already available.
-                MXSession session = Matrix.getInstance(this).getDefaultSession();
-
-                if (mailRegParams.containsKey(KEY_MAIL_VALIDATION_NEXT_LINK) || (null == session)) {
-                    if (session == null) {
-                        // build Login intent
-                        Intent intent = new Intent(VectorUniversalLinkActivity.this, TchapLoginActivity.class);
-                        intent.putExtra(EXTRA_EMAIL_VALIDATION_PARAMS, (HashMap) mailRegParams);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent);
-
-                        finish();
+            if (dataPath.startsWith(MATRIX_PATH_PREFIX)) {
+                if (dataPath.endsWith(REGISTRATION_EMAIL_VALIDATION_PATH_SUFFIX)) {
+                    MXSession session = Matrix.getInstance(this).getDefaultSession();
+                    if (session != null) {
+                        Log.d(LOG_TAG, "## Prompt the user to logout before finalizing an account creation based on an email validation");
+                        promptToLogoutBeforeHandlingRegistrationLink(intentUri.toString());
                     } else {
-                        Log.d(LOG_TAG, "## logout the current sessions, before finalizing an account creation based on an email validation");
-
-                        // This logout is asynchronous, pursue the action in the callback to have the LoginActivity in a "no credentials state".
-                        CommonActivityUtils.logout(VectorUniversalLinkActivity.this,
-                                Matrix.getMXSessions(VectorUniversalLinkActivity.this),
-                                true,
-                                new SimpleApiCallback<Void>() {
-                                    @Override
-                                    public void onSuccess(Void info) {
-                                        Log.d(LOG_TAG, "## logout succeeded");
-
-                                        // build Login intent
-                                        Intent intent = new Intent(VectorUniversalLinkActivity.this, TchapLoginActivity.class);
-                                        intent.putExtra(EXTRA_EMAIL_VALIDATION_PARAMS, (HashMap) mailRegParams);
-                                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                        startActivity(intent);
-
-                                        finish();
-                                    }
-                                });
+                        new EmailValidationTask().execute(intentUri.toString(), true);
                     }
-                } else {
-                    emailBinding(intentUri, mailRegParams);
+                } else if (dataPath.endsWith(PASSWORD_RESET_EMAIL_VALIDATION_PATH_SUFFIX)) {
+                    MXSession session = Matrix.getInstance(this).getDefaultSession();
+                    new EmailValidationTask().execute(intentUri.toString(), session == null);
+                } else if (dataPath.endsWith(ACCOUNT_VALIDITY_RENEW_PATH_SUFFIX)) {
+                    renewAccountValidity(intentUri);
+                } else if (dataPath.endsWith(LEGACY_EMAIL_VALIDATION_PATH_SUFFIX)) {
+                    // We consider here an email validation
+                    final Map<String, String> mailRegParams = parseMailRegistrationLink(intentUri);
+
+                    // Assume it is a new account creation when there is a next link, or when no session is already available.
+                    MXSession session = Matrix.getInstance(this).getDefaultSession();
+
+                    if (mailRegParams.containsKey(KEY_MAIL_VALIDATION_NEXT_LINK) || (null == session)) {
+                        if (session == null) {
+                            // build Login intent
+                            Intent intent = new Intent(VectorUniversalLinkActivity.this, TchapLoginActivity.class);
+                            intent.putExtra(EXTRA_EMAIL_VALIDATION_PARAMS, (HashMap) mailRegParams);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+
+                            finish();
+                        } else {
+                            Log.d(LOG_TAG, "## logout the current sessions, before finalizing an account creation based on an email validation");
+
+                            // This logout is asynchronous, pursue the action in the callback to have the LoginActivity in a "no credentials state".
+                            CommonActivityUtils.logout(VectorUniversalLinkActivity.this,
+                                    Matrix.getMXSessions(VectorUniversalLinkActivity.this),
+                                    true,
+                                    new SimpleApiCallback<Void>() {
+                                        @Override
+                                        public void onSuccess(Void info) {
+                                            Log.d(LOG_TAG, "## logout succeeded");
+
+                                            // build Login intent
+                                            Intent intent = new Intent(VectorUniversalLinkActivity.this, TchapLoginActivity.class);
+                                            intent.putExtra(EXTRA_EMAIL_VALIDATION_PARAMS, (HashMap) mailRegParams);
+                                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                            startActivity(intent);
+
+                                            finish();
+                                        }
+                                    });
+                        }
+                    } else {
+                        emailBinding(intentUri, mailRegParams);
+                    }
                 }
 //            } else if (SUPPORTED_PATH_CONFIG.equals(dataPath)) {
 //                MXSession mSession = Matrix.getInstance(this).getDefaultSession();
@@ -143,8 +172,6 @@ public class VectorUniversalLinkActivity extends VectorAppCompatActivity {
 //                    displayAlreadyLoginPopup();
 //                    return;
 //                }
-            } else if (dataPath.endsWith(ACCOUNT_VALIDITY_RENEW_PATH_SUFFIX)) {
-                renewAccountValidity(intentUri);
             } else {
                 intentAction = VectorUniversalLinkReceiver.BROADCAST_ACTION_UNIVERSAL_LINK;
             }
@@ -168,6 +195,139 @@ public class VectorUniversalLinkActivity extends VectorAppCompatActivity {
         super.onPause();
 
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mUniversalLinkReceiver);
+    }
+
+    /**
+     * Prompt to disconnect when clicking on registration email validation link
+     */
+    private void promptToLogoutBeforeHandlingRegistrationLink(String emailValidationLink) {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.dialog_title_warning)
+                .setMessage(R.string.tchap_register_user_already_logged_in_prompt)
+                .setCancelable(false)
+                .setPositiveButton(R.string.logout, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        CommonActivityUtils.logout(VectorUniversalLinkActivity.this,
+                                Matrix.getMXSessions(VectorUniversalLinkActivity.this),
+                                true,
+                                new SimpleApiCallback<Void>() {
+                                    @Override
+                                    public void onSuccess(Void info) {
+                                        Log.d(LOG_TAG, "## promptToLogoutBeforeHandlingRegistrationLink(): logout succeeded");
+                                        new EmailValidationTask().execute(emailValidationLink, true);
+                                    }
+                                });
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                })
+                .show();
+    }
+
+    private class EmailValidationTask extends AsyncTask<Object, Void, Void> {
+        @Override
+        protected Void doInBackground(Object... params) {
+            boolean isSuccess = false;
+            String validationLink = (String)params[0];
+            Boolean goToLoginActivityOnSuccess = (Boolean)params[1];
+            if (null != validationLink) {
+                Request request = new Request.Builder()
+                        .url(validationLink)
+                        .build();
+
+                int responseCode = HttpURLConnection.HTTP_INTERNAL_ERROR;
+                Response response = null;
+
+                // Trigger the request
+                try {
+                    response = new OkHttpClient().newCall(request).execute();
+                    responseCode = response.code();
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, "response " + e.getMessage(), e);
+                }
+
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    isSuccess = true;
+
+                    if (goToLoginActivityOnSuccess) {
+                        // Extract the parameters from the request url
+                        // In case of registration, the url has been replaced with the next link
+                        // provided during the request of the token (url redirection).
+                        HttpUrl httpURL = response.request().url();
+                        final Map<String, String> linkParams = parseEmailValidationLink(httpURL);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (linkParams != null) {
+                                    Intent intent = new Intent(VectorUniversalLinkActivity.this, TchapLoginActivity.class);
+                                    intent.putExtra(EXTRA_VALIDATED_EMAIL_PARAMS, (HashMap) linkParams);
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    startActivity(intent);
+                                } else {
+                                    Toast.makeText(getApplicationContext(), getString(R.string.tchap_email_validation_succeeded), Toast.LENGTH_LONG).show();
+                                }
+                                finish();
+                            }
+                        });
+                    } else {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getApplicationContext(), getString(R.string.tchap_email_validation_succeeded), Toast.LENGTH_LONG).show();
+                                finish();
+                            }
+                        });
+                    }
+                }
+            }
+
+            if (!isSuccess) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), getString(R.string.tchap_email_validation_failed), Toast.LENGTH_LONG).show();
+                        finish();
+                    }
+                });
+            }
+            return null;
+        }
+    }
+
+    private Map<String, String> parseEmailValidationLink(HttpUrl url) {
+        Map<String, String> mapParams = new HashMap<>();
+        try {
+            // remove potential "#" to allow query params parsing
+            Uri uri = Uri.parse(url.toString().replace("#/", ""));
+            String host = uri.getHost();
+            Log.i(LOG_TAG, "## parseEmailValidationLink(): host=" + host);
+
+            String clientSecret = uri.getQueryParameter(KEY_MAIL_VALIDATION_CLIENT_SECRET);
+            mapParams.put(KEY_MAIL_VALIDATION_CLIENT_SECRET, clientSecret);
+            String sid = uri.getQueryParameter(KEY_MAIL_VALIDATION_IDENTITY_SERVER_SESSION_ID);
+            mapParams.put(KEY_MAIL_VALIDATION_IDENTITY_SERVER_SESSION_ID, sid);
+            String sessionId = uri.getQueryParameter(KEY_MAIL_VALIDATION_SESSION_ID);
+            mapParams.put(KEY_MAIL_VALIDATION_SESSION_ID, sessionId);
+
+            String hsURL = uri.getQueryParameter(KEY_MAIL_VALIDATION_HOME_SERVER_URL);
+            mapParams.put(KEY_MAIL_VALIDATION_HOME_SERVER_URL, hsURL);
+            String idServerUrl = uri.getQueryParameter(KEY_MAIL_VALIDATION_IDENTITY_SERVER_URL);
+            if (idServerUrl != null) {
+                mapParams.put(KEY_MAIL_VALIDATION_IDENTITY_SERVER_URL, idServerUrl);
+            } else {
+                mapParams.put(KEY_MAIL_VALIDATION_IDENTITY_SERVER_URL, hsURL);
+            }
+        } catch (Exception e) {
+            mapParams = null;
+            Log.e(LOG_TAG, "## parseEmailValidationLink(): Exception - Msg=" + e.getLocalizedMessage(), e);
+        }
+
+        return mapParams;
     }
 
 //    /**
@@ -380,14 +540,16 @@ public class VectorUniversalLinkActivity extends VectorAppCompatActivity {
     }
 
     /* ==========================================================================================
-     * Registration link
+     * Registration link - Deprecated (the handling of this email validation via the id server
+     * must be removed when all the servers will be updated on Prod. We should only keep the email
+     * binding, but this option is not allowed on Tchap for the moment)
      * ========================================================================================== */
 
     // Intent Extras
     public static final String EXTRA_EMAIL_VALIDATION_PARAMS = "EXTRA_EMAIL_VALIDATION_PARAMS";
 
     // The suffix of the email validation path
-    private static final String EMAIL_VALIDATION_PATH_SUFFIX = "/validate/email/submitToken";
+    private static final String LEGACY_EMAIL_VALIDATION_PATH_SUFFIX = "/validate/email/submitToken";
 
     // mail validation url query parameters
     // Examples:

@@ -914,6 +914,9 @@ Appareils inconnus :</string>
     <string name="tchap_register_unauthorized_email">Cette adresse e-mail n’est pas autorisée</string>
     <string name="tchap_password_weak_pwd_error">Ce mot de passe est trop faible. Il doit contenir au moins 8 caractères, avec au moins un caractère de chaque type : majuscule, minuscule, chiffre, caractère spécial.</string>
     <string name="tchap_password_pwd_in_dict_error">Ce mot de passe a été trouvé dans un dictionnaire, il n’est pas autorisé</string>
+    <string name="tchap_register_user_already_logged_in_prompt">Il semblerait que vous essayez de vous connecter avec un autre compte. Voulez-vous vous déconnecter \?</string>
+    <string name="tchap_email_validation_succeeded">Votre email a été validé, vous pouvez poursuivre l’opération qui attendait cette validation.</string>
+    <string name="tchap_email_validation_failed">La validation de l’email a échouée. Le lien a expiré, ou il n’est pas valide.</string>
 
     <string name="tchap_change_password_help">Votre nouveau mot de passe doit contenir au moins 8 caractères, avec au moins un caractère de chaque type : majuscule, minuscule, chiffre, caractère spécial.</string>
 
