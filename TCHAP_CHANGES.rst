@@ -1,3 +1,12 @@
+Changes in Tchap 1.0.xx (2020-xx-xx)
+===================================================
+
+Improvements:
+ * 
+
+Bug Fix:
+ * LoginActivity: block the UI when the loading wheel is running
+
 Changes in Tchap 1.0.45 (2020-08-14)
 ===================================================
 
