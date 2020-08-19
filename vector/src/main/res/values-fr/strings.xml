@@ -78,7 +78,7 @@
     <string name="no_conversation_placeholder">Aucune discussion</string>
     <string name="no_contact_access_placeholder">Vous n’avez pas autorisé Tchap à accéder à vos contacts locaux</string>
     <string name="no_result_placeholder">Aucun résultat</string>
-    <string name="no_email">Email pas disponible</string>
+    <string name="no_email">E-mail pas disponible</string>
 
     <string name="rooms_header">Conversations</string>
     <string name="rooms_directory_header">Répertoire des salons</string>
@@ -226,9 +226,9 @@
     <string name="room_participants_action_devices_list">Afficher la liste des appareils</string>
     <string name="people_search_local_contacts">Contacts locaux (%d)</string>
     <string name="people_search_filter_text">Utilisateurs Matrix uniquement</string>
-    <string name="people_search_invite_by_id_dialog_title">Inviter par email</string>
+    <string name="people_search_invite_by_id_dialog_title">Inviter par e-mail</string>
     <string name="people_search_invite_by_id_dialog_hint">Email</string>
-    <string name="people_invalid_warning_msg">Pour inviter un contact un email est requis</string>
+    <string name="people_invalid_warning_msg">Pour inviter un contact un e-mail est requis</string>
     <string name="people_edit_contact_warning_msg">Accès à la fiche contact impossible</string>
     <string name="room_invite_people">Voulez-vous l’inviter dans Tchap (un mail lui sera envoyé) ?</string>
 
@@ -249,7 +249,7 @@
     <string name="room_details_people">MEMBRES</string>
     <string name="room_details_files">FICHIERS</string>
     <string name="room_details_files_title">Fichiers partagés</string>
-    <string name="room_details_settings">PARAMETRES</string>
+    <string name="room_details_settings">PARAMÈTRES</string>
     <string name="room_details_people_invited_group_name">INVITÉS</string>
     <string name="room_details_people_present_group_name">MEMBRES</string>
 
@@ -360,7 +360,7 @@
     <string name="settings_password_updated">Votre mot de passe a été mis à jour</string>
     <string name="settings_select_country">Choisissez un pays</string>
 
-    <string name="settings_change_pwd_caution">Changer le mot de passe réinitialise les clés de chiffrement sur tous les appareils, rendant l’historique des discussions illisible: pensez d’abord à sauvegarder vos clés pour pouvoir les récupérer après le changement de mot de passe.</string>
+    <string name="settings_change_pwd_caution">Changer le mot de passe réinitialise les clés de chiffrement sur tous les appareils, rendant l’historique des discussions illisible : pensez d’abord à sauvegarder vos clés pour pouvoir les récupérer après le changement de mot de passe.</string>
     <string name="settings_change_pwd_key_backup">Effectuer la sauvegarde des clés</string>
     <string name="settings_change_pwd_success_title">Succès</string>
     <string name="settings_change_pwd_success_msg">Votre mot de passe a été changé avec succès.\nVous ne recevrez plus de notifications sur vos autres appareils tant que vous ne vous y reconnecterez pas.</string>
@@ -545,16 +545,16 @@ Vous pouvez vous identifier avec un compte différent ou ajouter cette adresse e
     <string name="room_participants_idle">Inactif</string>
     <string name="room_participants_action_ignore">Masquer tous les messages de cet utilisateur</string>
     <string name="room_participants_action_unignore">Afficher tous les messages de cet utilisateur</string>
-    <string name="room_participants_invite_search_another_user">Nom ou email</string>
+    <string name="room_participants_invite_search_another_user">Nom ou e-mail</string>
     <string name="room_participants_power_level_prompt">Vous ne pourrez pas annuler cette modification car vous promouvez l’utilisateur au même rang que le vôtre.
 
 En êtes-vous sûr(e) ?</string>
 
     <string name="room_participants_invite_prompt_msg">Voulez-vous vraiment inviter %s à ce salon ?</string>
 
-    <string name="people_search_invite_by_id"><u>Inviter par email</u></string>
+    <string name="people_search_invite_by_id"><u>Inviter par e-mail</u></string>
 
-    <string name="people_search_invite_by_id_dialog_description">Entrez une ou plusieurs adresses email</string>
+    <string name="people_search_invite_by_id_dialog_description">Entrez une ou plusieurs adresses e-mail</string>
     <string name="room_one_user_is_typing">%s écrit…</string>
     <string name="room_two_users_are_typing">%1$s et %2$s écrivent…</string>
     <string name="room_many_users_are_typing">%1$s, %2$s et d’autres écrivent…</string>
@@ -592,7 +592,7 @@ Veuillez noter que cette action redémarrera l’application et pourra prendre u
 
     <string name="settings_hide_from_users_directory_title">Inscrire mon compte sur liste rouge</string>
     <string name="settings_hide_from_users_directory_summary">Les autres utilisateurs ne pourront pas découvrir mon compte lors de leurs recherches</string>
-    <string name="settings_show_external_user_in_users_directory_prompt">Pour désactiver cette option, vous devez accepter que votre adresse email soit visible des autres utilisateurs lors de leurs recherches.</string>
+    <string name="settings_show_external_user_in_users_directory_prompt">Pour désactiver cette option, vous devez accepter que votre adresse e-mail soit visible des autres utilisateurs lors de leurs recherches.</string>
 
     <string name="settings_delete_notification_targets_confirmation">Voulez-vous vraiment supprimer cette cible de notification ?</string>
 
@@ -874,10 +874,10 @@ Appareils inconnus :</string>
     </plurals>
 
     <!-- tchap account validity -->
-    <string name="tchap_expired_account_msg">La durée de validité de votre compte a expiré. Un email vous a été envoyé pour la renouveler. Une fois que vous aurez suivi le lien qu’il contient, cliquez ci-dessous.</string>
+    <string name="tchap_expired_account_msg">La durée de validité de votre compte a expiré. Un e-mail vous a été envoyé pour la renouveler. Une fois que vous aurez suivi le lien qu’il contient, cliquez ci-dessous.</string>
     <string name="tchap_expired_account_resume_button">J’ai renouvelé mon compte</string>
     <string name="tchap_request_renewal_email_button">Demander l’envoi d’un nouvel email</string>
-    <string name="tchap_expired_account_on_new_sent_email_msg">Un nouvel email vous a été envoyé pour renouveler la validité de votre compte. Une fois que vous aurez suivi le lien qu’il contient, cliquez ci-dessous.</string>
+    <string name="tchap_expired_account_on_new_sent_email_msg">Un nouvel e-mail vous a été envoyé pour renouveler la validité de votre compte. Une fois que vous aurez suivi le lien qu’il contient, cliquez ci-dessous.</string>
     <string name="tchap_renew_account_validity_success_msg">Votre compte a été renouvelé avec succès</string>
     <string name="tchap_renew_account_validity_invalid_token_msg">Le jeton de renouvellement est invalide</string>
 
@@ -905,18 +905,18 @@ Appareils inconnus :</string>
     <string name="tchap_connection_password_confirm">Confirmer le mot de passe</string>
     <string name="tchap_connection_forgotten_email">J’ai oublié mon mot de passe</string>
     <string name="tchap_register_warning_for_external_title">Information concernant votre inscription</string>
-    <string name="tchap_register_warning_for_external">Le domaine de votre adresse email n’est pas déclaré dans Tchap. Si vous avez reçu une invitation, vous allez pouvoir créer un compte Tchap « invité », permettant uniquement de participer aux échanges privés auxquels vous êtes convié.</string>
+    <string name="tchap_register_warning_for_external">Le domaine de votre adresse e-mail n’est pas déclaré dans Tchap. Si vous avez reçu une invitation, vous allez pouvoir créer un compte Tchap « invité », permettant uniquement de participer aux échanges privés auxquels vous êtes convié.</string>
     <string name="tchap_register_warning_for_external_proceed">Poursuivre</string>
-    <string name="tchap_register_wait_for_email_title">Un email vous a été envoyé à l’adresse suivante, sauf si un compte Tchap lui a déjà été associé :</string>
-    <string name="tchap_register_wait_for_email_subtitle">Merci de cliquer sur le lien proposé dans cet email afin de terminer la création de votre compte. Vous pourrez alors vous connecter en allant sur l’écran de connexion.</string>
+    <string name="tchap_register_wait_for_email_title">Un e-mail vous a été envoyé à l’adresse suivante, sauf si un compte Tchap lui a déjà été associé :</string>
+    <string name="tchap_register_wait_for_email_subtitle">Merci de cliquer sur le lien proposé dans cet e-mail afin de terminer la création de votre compte. Vous pourrez alors vous connecter en allant sur l’écran de connexion.</string>
     <string name="tchap_register_wait_for_email_login_button">Aller à l’écran de connexion</string>
     <string name="tchap_register_wait_for_email_no_email">Je n’ai pas reçu l’email!</string>
     <string name="tchap_register_unauthorized_email">Cette adresse e-mail n’est pas autorisée</string>
     <string name="tchap_password_weak_pwd_error">Ce mot de passe est trop faible. Il doit contenir au moins 8 caractères, avec au moins un caractère de chaque type : majuscule, minuscule, chiffre, caractère spécial.</string>
     <string name="tchap_password_pwd_in_dict_error">Ce mot de passe a été trouvé dans un dictionnaire, il n’est pas autorisé</string>
     <string name="tchap_register_user_already_logged_in_prompt">Il semblerait que vous essayez de vous connecter avec un autre compte. Voulez-vous vous déconnecter \?</string>
-    <string name="tchap_email_validation_succeeded">Votre email a été validé, vous pouvez poursuivre l’opération qui attendait cette validation.</string>
-    <string name="tchap_email_validation_failed">La validation de l’email a échouée. Le lien a expiré, ou il n’est pas valide.</string>
+    <string name="tchap_email_validation_succeeded">Votre e-mail a été validé, vous pouvez poursuivre l’opération qui attendait cette validation.</string>
+    <string name="tchap_email_validation_failed">La validation de l’e-mail a échouée. Le lien a expiré, ou il n’est pas valide.</string>
 
     <string name="tchap_change_password_help">Votre nouveau mot de passe doit contenir au moins 8 caractères, avec au moins un caractère de chaque type : majuscule, minuscule, chiffre, caractère spécial.</string>
 
@@ -1305,7 +1305,7 @@ Sur l’écran suivant on vous demandera d’autoriser Tchap à toujours fonctio
     <string name="done">Terminé</string>
 
     <string name="settings_notification_advanced">Paramètres de notification avancés</string>
-    <string name="settings_notification_advanced_summary">Régler l’importance des notifications par évènement, configurer le son, les led, les vibrations</string>
+    <string name="settings_notification_advanced_summary">Régler l’importance des notifications par évènement, configurer le son, les LED, les vibrations</string>
     <string name="settings_notification_by_event">Importance des notifications par évènement</string>
 
     <string name="settings_troubleshoot_test_bing_settings_title">Paramètres personnalisés.</string>
@@ -1931,14 +1931,14 @@ Si vous n’avez pas configuré de nouvelle méthode de récupération, un attaq
     <string name="security_dialog_start_an_stop_detecting">Ne plus me prévenir</string>
     <string name="security_dialog_stop">Sortir</string>
     <string name="detect_notification_listener">Détecter si un écouteur de notification est actif.</string>
-    <string name="notification_security_dialog_message">Un écouteur de notification lit le contenu des notifications de message. Les écouteurs suivant sont activés :</string>
+    <string name="notification_security_dialog_message">Un écouteur de notification lit le contenu des notifications de message. Les écouteurs suivants sont activés :</string>
     <string name="security_dialog_continue">Continuer</string>
     <string name="accessibility_change_security_dialog_message">Un service d’accessibilité a été activé. Il observe le clavier et les fenêtres.</string>
-    <string name="notification_change_security_dialog_message">Un écouteur de notification lit le contenu des notifications de message. Les écouteurs suivant ont été activés :</string>
+    <string name="notification_change_security_dialog_message">Un écouteur de notification lit le contenu des notifications de message. Les écouteurs suivants ont été activés :</string>
 
     <string name="an_update_is_available_critical">Une nouvelle version est disponible, pour des raisons de sécurité veuillez mettre à jour votre application</string>
     <string name="an_update_is_available_mandatory">Une nouvelle version est disponible, veuillez mettre à jour votre application</string>
-    <string name="an_update_is_available_info">Une nouvelle version est disponible!</string>
+    <string name="an_update_is_available_info">Une nouvelle version est disponible !</string>
     <string name="an_update_is_available_upgrade_help">Si vous utilisez un téléphone professionnel qui n’autorise pas l’accès au PlayStore, veuillez utiliser le magasin privé dédié pour mettre à jour Tchap.</string>
     <string name="an_update_is_available_upgrade_button">Ouvrir le PlayStore</string>
     <string name="an_update_is_available_ignore">Ignorer</string>
