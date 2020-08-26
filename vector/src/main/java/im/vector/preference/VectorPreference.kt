@@ -41,6 +41,9 @@ open class VectorPreference : Preference {
 
     var mTypeface = Typeface.NORMAL
 
+    private var mChevronIconView: View? = null
+    private var mIsChevronIconVisible = false
+
     // long press listener
     /**
      * Returns the callback to be invoked when this Preference is long clicked.
@@ -75,6 +78,7 @@ open class VectorPreference : Preference {
     constructor(context: Context, attrs: AttributeSet, defStyle: Int) : super(context, attrs, defStyle)
 
     init {
+        widgetLayoutResource = R.layout.vector_settings_preference_with_chevron
         isIconSpaceReserved = false
     }
 
@@ -89,6 +93,9 @@ open class VectorPreference : Preference {
     override fun onBindViewHolder(holder: PreferenceViewHolder) {
         val itemView = holder.itemView
         addClickListeners(itemView)
+
+        mChevronIconView = itemView.findViewById(R.id.preference_chevron_icon)
+        mChevronIconView!!.visibility = if (mIsChevronIconVisible) View.VISIBLE else View.GONE
 
         // display the title in multi-line to avoid ellipsis.
         try {
@@ -154,6 +161,19 @@ open class VectorPreference : Preference {
             if (onPreferenceClickListener != null) {
                 onPreferenceClickListener.onPreferenceClick(this@VectorPreference)
             }
+        }
+    }
+
+    /**
+     * Set the chevron icon visibility.
+     *
+     * @param isVisible to display the icon
+     */
+    fun setChevronIconVisible(isVisible: Boolean) {
+        mIsChevronIconVisible = isVisible
+
+        if (null != mChevronIconView) {
+            mChevronIconView!!.visibility = if (mIsChevronIconVisible) View.VISIBLE else View.GONE
         }
     }
 

@@ -858,7 +858,7 @@ Appareils inconnus :</string>
     <!-- tchap room settings -->
     <string name="tchap_room_settings_remove_from_directory">Retirer ce salon de la liste des salons publics</string>
     <string name="tchap_room_settings_remove_from_directory_prompt_msg"><b>Cette action est irréversible.</b>\nVoulez-vous vraiment retirer ce salon des salons publics ?</string>
-    <string name="tchap_room_settings_room_access_title">Information complémentaire :</string>
+    <string name="tchap_room_settings_room_access_title">Gestion des comptes externes</string>
     <string name="tchap_room_settings_room_access_restricted">Les externes ne sont pas autorisés à rejoindre ce salon</string>
     <string name="tchap_room_settings_room_access_unrestricted">Les externes sont autorisés à rejoindre ce salon</string>
     <string name="tchap_room_settings_allow_external_users_to_join">Autoriser l’accès aux externes à ce salon</string>
@@ -872,6 +872,10 @@ Appareils inconnus :</string>
         <item quantity="one">L’historique du salon est limité à %d jour</item>
         <item quantity="other">L’historique du salon est limité à %d jours</item>
     </plurals>
+    <string name="tchap_room_settings_leave_room">Quitter ce salon</string>
+    <string name="tchap_room_settings_room_access_by_link_title">Accès par lien</string>
+    <string name="tchap_room_settings_room_access_by_link_disabled">Ce salon n’est pas accessible par lien</string>
+    <string name="tchap_room_settings_room_access_by_link_enabled">Ce salon est accessible par lien</string>
 
     <!-- tchap account validity -->
     <string name="tchap_expired_account_msg">La durée de validité de votre compte a expiré. Un e\u2011mail vous a été envoyé pour la renouveler. Une fois que vous aurez suivi le lien qu’il contient, cliquez ci-dessous.</string>

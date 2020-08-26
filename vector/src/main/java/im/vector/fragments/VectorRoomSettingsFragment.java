@@ -132,6 +132,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
     private static final String PREF_KEY_REMOVE_FROM_ROOMS_DIRECTORY = "removeFromRoomsDirectory";
     private static final String PREF_KEY_ROOM_ACCESS_RULE = "roomAccessRule";
     private static final String PREF_KEY_ROOM_RETENTION = "roomRetention";
+    private static final String PREF_KEY_ROOM_ACCESS_BY_LINK = "roomAccessByLink";
     private static final String PREF_KEY_ROOM_INTERNAL_ID = "roomInternalId";
     private static final String PREF_KEY_ADDRESSES = "addresses";
     private static final String PREF_KEY_ADVANCED = "advanced";
@@ -178,6 +179,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
     private EditTextPreference mRoomTopicEditTxt;
     private Preference mRemoveFromDirectoryPreference;
     private Preference mRoomRetentionPreference;
+    private VectorPreference mRoomAccessByLinkPreference;
     private Preference mRoomAccessRulePreference;
     private CheckBoxPreference mRoomDirectoryVisibilitySwitch;
     private ListPreference mRoomTagListPreference;
@@ -531,6 +533,9 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
 
         // Display the room retention period
         mRoomRetentionPreference = findPreference(PREF_KEY_ROOM_RETENTION);
+
+        // Handle the room access by link
+        mRoomAccessByLinkPreference = (VectorPreference)findPreference(PREF_KEY_ROOM_ACCESS_BY_LINK);
 
         // Handle the room access rules
         mRoomAccessRulePreference = findPreference(PREF_KEY_ROOM_ACCESS_RULE);
@@ -986,6 +991,34 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
                 PreferenceScreen preferenceScreen = getPreferenceScreen();
                 preferenceScreen.removePreference(mRoomRetentionPreference);
                 mRoomRetentionPreference = null;
+            }
+        }
+
+        if (null != mRoomAccessByLinkPreference) {
+            mRoomAccessByLinkPreference.setOnPreferenceClickListener(null);
+            mRoomAccessByLinkPreference.setEnabled(true);
+            Boolean isChevronIconVisible;
+
+            String joinRule = mRoom.getState().join_rule;
+            if (RoomState.JOIN_RULE_INVITE.equals(joinRule)) {
+                mRoomAccessByLinkPreference.setSummary(getString(R.string.tchap_room_settings_room_access_by_link_disabled));
+                // Only the room admin is able to change this value
+                isChevronIconVisible = (isAdmin && isConnected);
+            } else {
+                mRoomAccessByLinkPreference.setSummary(getString(R.string.tchap_room_settings_room_access_by_link_enabled));
+                // Allow anyone to open "Access by link screen" to get the link. Admin will be able to change option too.
+                isChevronIconVisible = true;
+            }
+
+            if (isChevronIconVisible) {
+                mRoomAccessByLinkPreference.setChevronIconVisible(true);
+                mRoomAccessByLinkPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        // TODO open specific screen "Access by link"
+                        return true;
+                    }
+                });
             }
         }
 

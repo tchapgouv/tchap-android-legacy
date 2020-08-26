@@ -24,6 +24,27 @@
 <!--        android:summary="%s"-->
 <!--        android:title="@string/room_settings_room_tag" />-->
 
+    <!-- the current room retention period -->
+    <im.vector.preference.VectorPreference
+        android:key="roomRetention"
+        android:title="@plurals/tchap_room_settings_retention"/>
+
+    <!-- a public room may become private -->
+    <im.vector.preference.VectorPreference
+        android:key="removeFromRoomsDirectory"
+        android:title="@string/tchap_room_settings_remove_from_directory" />
+
+    <im.vector.preference.VectorPreference
+        android:key="roomAccessByLink"
+        android:title="@string/tchap_room_settings_room_access_by_link_title"
+        android:summary="@string/tchap_room_settings_room_access_by_link_disabled" />
+
+    <!-- the current room access rule (a restricted room may become unrestrictive) -->
+    <im.vector.preference.VectorPreference
+        android:key="roomAccessRule"
+        android:title="@string/tchap_room_settings_room_access_title"
+        android:summary="@string/tchap_room_settings_room_access_restricted"/>
+
     <!-- the notification rule selection -->
     <im.vector.preference.VectorListPreference
         android:entries="@array/notification_entries"
@@ -32,25 +53,9 @@
         android:summary="%s"
         android:title="@string/room_settings_room_notifications_title" />
 
-    <!-- the current room retention period -->
-    <im.vector.preference.VectorPreference
-        android:key="roomRetention"
-        android:title="@plurals/tchap_room_settings_retention"/>
-
     <im.vector.preference.VectorPreference
         android:key="roomLeave"
-        android:title="@string/leave" />
-
-    <!-- a public room may become private -->
-    <im.vector.preference.VectorPreference
-        android:key="removeFromRoomsDirectory"
-        android:title="@string/tchap_room_settings_remove_from_directory" />
-
-    <!-- the current room access rule (a restricted room may become unrestrictive) -->
-    <im.vector.preference.VectorPreference
-        android:key="roomAccessRule"
-        android:title="@string/tchap_room_settings_room_access_title"
-        android:summary="@string/tchap_room_settings_room_access_restricted"/>
+        android:title="@string/tchap_room_settings_leave_room" />
 
     <!-- im.vector.preference.VectorPreferenceDivider /-->
 

@@ -1285,7 +1285,7 @@
     <!-- tchap room settings -->
     <string name="tchap_room_settings_remove_from_directory">Remove this room from the rooms directory</string>
     <string name="tchap_room_settings_remove_from_directory_prompt_msg"><b>This action is irreversible.</b>\nAre you sure you want to remove this room from the rooms directory?</string>
-    <string name="tchap_room_settings_room_access_title">Additional information</string>
+    <string name="tchap_room_settings_room_access_title">External accounts handling</string>
     <string name="tchap_room_settings_room_access_restricted">The externals are not allowed to join this room</string>
     <string name="tchap_room_settings_room_access_unrestricted">The externals are allowed to join this room</string>
     <string name="tchap_room_settings_allow_external_users_to_join">Allow the externals to join this room</string>
@@ -1299,6 +1299,10 @@
         <item quantity="one">The room history is limited to %d day</item>
         <item quantity="other">The room history is limited to %d days</item>
     </plurals>
+    <string name="tchap_room_settings_leave_room">Leave this room</string>
+    <string name="tchap_room_settings_room_access_by_link_title">Access by link</string>
+    <string name="tchap_room_settings_room_access_by_link_disabled">This room is not accessible by link</string>
+    <string name="tchap_room_settings_room_access_by_link_enabled">This room is accessible by link</string>
 
     <!-- tchap account validity -->
     <string name="tchap_expired_account_msg">The validity period of your account has expired. An email has been sent to you in order to renew it. Once you’ve followed the link it contains, click below.</string>
