@@ -77,6 +77,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import fr.gouv.tchap.activity.TchapRoomAccessByLinkActivity;
 import fr.gouv.tchap.sdk.session.room.model.RoomAccessRulesKt;
 import fr.gouv.tchap.sdk.session.room.model.RoomRetentionKt;
 import fr.gouv.tchap.util.DinsicUtils;
@@ -159,6 +160,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
     private Room mRoom;
     private BingRulesManager mBingRulesManager;
     private boolean mIsUiUpdateSkipped;
+    private Boolean mIsForumRoom;
 
     // addresses
     private PreferenceCategory mAddressesSettingsCategory;
@@ -820,6 +822,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
                     hideLoadingView(DO_NOT_UPDATE_UI);
 
                     boolean isPublicRoom = RoomDirectoryVisibility.DIRECTORY_VISIBILITY_PUBLIC.equals(aVisibilityValue);
+                    mIsForumRoom = isPublicRoom;
 
                     if (null != mRoomDirectoryVisibilitySwitch) {
                         // set checked status
@@ -1015,8 +1018,13 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
                 mRoomAccessByLinkPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        // TODO open specific screen "Access by link"
-                        return true;
+                        Intent roomAccessByLinkIntent = new Intent(getActivity(), TchapRoomAccessByLinkActivity.class);
+                        roomAccessByLinkIntent.putExtra(TchapRoomAccessByLinkActivity.EXTRA_ROOM_ID, mRoom.getRoomId());
+                        if (mIsForumRoom != null) {
+                            roomAccessByLinkIntent.putExtra(TchapRoomAccessByLinkActivity.EXTRA_IS_FORUM_ROOM, mIsForumRoom);
+                        }
+                        getActivity().startActivity(roomAccessByLinkIntent);
+                        return false;
                     }
                 });
             }

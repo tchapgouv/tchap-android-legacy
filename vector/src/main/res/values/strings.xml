@@ -1303,6 +1303,11 @@
     <string name="tchap_room_settings_room_access_by_link_title">Access by link</string>
     <string name="tchap_room_settings_room_access_by_link_disabled">This room is not accessible by link</string>
     <string name="tchap_room_settings_room_access_by_link_enabled">This room is accessible by link</string>
+    <string name="tchap_room_settings_enable_room_access_by_link">Enable the room access by link</string>
+    <string name="tchap_room_settings_enable_room_access_by_link_info_off">Users will be allowed to join the room from a link</string>
+    <string name="tchap_room_settings_enable_room_access_by_link_info_on">Users can join the room from the following link:</string>
+    <string name="tchap_room_settings_room_access_by_link_forward">Forward the link</string>
+    <string name="tchap_room_settings_room_access_by_link_share">Share the link</string>
 
     <!-- tchap account validity -->
     <string name="tchap_expired_account_msg">The validity period of your account has expired. An email has been sent to you in order to renew it. Once you’ve followed the link it contains, click below.</string>
