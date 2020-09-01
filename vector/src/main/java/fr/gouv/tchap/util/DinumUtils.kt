@@ -163,9 +163,7 @@ private fun clearExpiredRoomContentsFromStore(store: IMXStore, room: Room): Bool
 fun createRoomAliasName(prefix: String): String {
     return prefix.trim()
             .replace("[^a-zA-Z0-9]".toRegex(), "")
-            .takeIf { !it.isEmpty() }
-            ?.let { it + getRandomString() }
-            ?: getRandomString()
+            .let { it + getRandomString() }
 }
 
 /**
