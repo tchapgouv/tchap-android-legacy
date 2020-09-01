@@ -27,18 +27,21 @@ import butterknife.BindView
 import butterknife.OnCheckedChanged
 import butterknife.OnClick
 import fr.gouv.tchap.sdk.session.room.model.RESTRICTED
-import fr.gouv.tchap.util.DinsicUtils
-import fr.gouv.tchap.util.HexagonMaskView
-import fr.gouv.tchap.util.createPermalink
+import fr.gouv.tchap.sdk.session.room.model.UNRESTRICTED
+import fr.gouv.tchap.util.*
 import im.vector.Matrix
 import im.vector.R
 import im.vector.activity.CommonActivityUtils
 import im.vector.activity.VectorAppCompatActivity
 import im.vector.util.VectorUtils
 import im.vector.util.copyToClipboard
+import org.jetbrains.anko.longToast
 import org.matrix.androidsdk.MXSession
 import org.matrix.androidsdk.core.Log
+import org.matrix.androidsdk.core.MXPatterns
 import org.matrix.androidsdk.core.callback.ApiCallback
+import org.matrix.androidsdk.core.callback.ApiFailureCallback
+import org.matrix.androidsdk.core.callback.SimpleApiCallback
 import org.matrix.androidsdk.core.model.MatrixError
 import org.matrix.androidsdk.data.Room
 import org.matrix.androidsdk.data.RoomState
@@ -104,7 +107,7 @@ class TchapRoomAccessByLinkActivity : VectorAppCompatActivity(){
         session = defaultSession
 
         val roomId = intent.getStringExtra(EXTRA_ROOM_ID)
-        val selectedRoom = session.dataHandler.getRoom(roomId)
+        val selectedRoom: Room? = session.dataHandler.getRoom(roomId, false)
         if (selectedRoom == null) {
             Log.e(LOG_TAG, "## onCreate() : undefined parameters")
             finish()
@@ -155,6 +158,7 @@ class TchapRoomAccessByLinkActivity : VectorAppCompatActivity(){
             switchRoomAccessByLink.visibility = View.GONE
         }
 
+        switchRoomAccessByLink.isEnabled = false
         if (RoomState.JOIN_RULE_INVITE == joinRule) {
             roomAccessByLinkStatus.text = getString(R.string.tchap_room_settings_room_access_by_link_disabled)
             switchRoomAccessByLink.isChecked = false
@@ -169,6 +173,7 @@ class TchapRoomAccessByLinkActivity : VectorAppCompatActivity(){
             roomAccessLink.visibility = View.VISIBLE
             buttonsContainer.visibility = View.VISIBLE
         }
+        switchRoomAccessByLink.isEnabled = true
     }
 
     private fun getRoomDirectoryVisibility() {
@@ -203,13 +208,115 @@ class TchapRoomAccessByLinkActivity : VectorAppCompatActivity(){
         })
     }
 
+    private fun forbidGuestAccess(callback: ApiCallback<Void>) {
+        if (room.state.guestAccess == RoomState.GUEST_ACCESS_FORBIDDEN) {
+            callback.onSuccess(null)
+        } else {
+            room.updateGuestAccess(RoomState.GUEST_ACCESS_FORBIDDEN, callback)
+        }
+    }
+
+    private fun setCanonicalAlias(callback: ApiCallback<Void>) {
+        // Check whether a canonical alias is defined,
+        // and check it is correct (some alias were created with invalid character).
+        val canonicalAlias = room.state.canonicalAlias
+        if (canonicalAlias != null && MXPatterns.isRoomAlias(canonicalAlias)) {
+            callback.onSuccess(null)
+        } else {
+            val roomAlias = createRoomAlias(session, room.state.name ?: "")
+            room.addAlias(roomAlias, object: SimpleApiCallback<Void>(callback) {
+                override fun onSuccess(v: Void?) {
+                    room.updateCanonicalAlias(roomAlias, callback)
+                }
+            })
+        }
+    }
+
+    private fun enableRoomAccessByLink() {
+        Log.d(LOG_TAG, "## enableRoomAccessByLink")
+        showWaitingView()
+
+        val failureCallBack = object : ApiFailureCallback {
+            private fun onError(errorMessage: String) {
+                Log.e(LOG_TAG, "## enableRoomAccessByLink: failed $errorMessage")
+                hideWaitingView()
+                refreshDisplay()
+                val rule = DinsicUtils.getRoomAccessRule(room)
+                if (TextUtils.equals(rule, UNRESTRICTED)) {
+                    longToast(R.string.tchap_room_settings_room_access_by_link_forbidden)
+                } else {
+                    longToast(R.string.tchap_error_message_default)
+                }
+            }
+
+            override fun onNetworkError(e: Exception) {
+                onError(e.localizedMessage)
+            }
+
+            override fun onMatrixError(e: MatrixError) {
+                onError(e.message)
+            }
+
+            override fun onUnexpectedError(e: Exception) {
+                onError(e.localizedMessage)
+            }
+        }
+
+        forbidGuestAccess(object: SimpleApiCallback<Void>(failureCallBack) {
+            override fun onSuccess(v: Void?) {
+                setCanonicalAlias(object: SimpleApiCallback<Void>(failureCallBack) {
+                    override fun onSuccess(v: Void?) {
+                        room.updateJoinRules(RoomState.JOIN_RULE_PUBLIC, object: SimpleApiCallback<Void>(failureCallBack) {
+                            override fun onSuccess(v: Void?) {
+                                hideWaitingView()
+                                refreshDisplay()
+                            }
+                        })
+                    }
+                })
+            }
+        })
+    }
+
+    private fun disableRoomAccessByLink() {
+        Log.d(LOG_TAG, "## disableRoomAccessByLink")
+        showWaitingView()
+
+        room.updateJoinRules(RoomState.JOIN_RULE_INVITE, object: ApiCallback<Void> {
+            override fun onSuccess(v: Void?) {
+                hideWaitingView()
+                refreshDisplay()
+            }
+
+            private fun onError(errorMessage: String) {
+                Log.e(LOG_TAG, "## disableRoomAccessByLink: failed $errorMessage")
+                hideWaitingView()
+                refreshDisplay()
+                longToast(R.string.tchap_error_message_default)
+            }
+
+            override fun onNetworkError(e: Exception) {
+                onError(e.localizedMessage)
+            }
+
+            override fun onMatrixError(e: MatrixError) {
+                onError(e.message)
+            }
+
+            override fun onUnexpectedError(e: Exception) {
+                onError(e.localizedMessage)
+            }
+        })
+    }
+
     @OnCheckedChanged(R.id.switch_room_access_by_link)
     fun setRoomAccessByLink() {
-        if (switchRoomAccessByLink.isChecked()) {
-            Log.d(LOG_TAG, "## enabled")
-
-        } else {
-            Log.d(LOG_TAG, "## disabled")
+        if (switchRoomAccessByLink.isEnabled) {
+            if (switchRoomAccessByLink.isChecked()) {
+                enableRoomAccessByLink()
+            } else {
+                disableRoomAccessByLink()
+            }
         }
     }
 

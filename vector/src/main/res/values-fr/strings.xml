@@ -881,6 +881,7 @@ Appareils inconnus :</string>
     <string name="tchap_room_settings_enable_room_access_by_link_info_on">Les autres utilisateurs peuvent rejoindre ce salon à partir du lien suivant\u00A0:</string>
     <string name="tchap_room_settings_room_access_by_link_forward">Transférer le lien</string>
     <string name="tchap_room_settings_room_access_by_link_share">Partager le lien</string>
+    <string name="tchap_room_settings_room_access_by_link_forbidden">Ce changement n’est pas supporté actuellement car les externes sont autorisés à rejoindre ce salon. Il sera supporté ultérieurement</string>
 
     <!-- tchap account validity -->
     <string name="tchap_expired_account_msg">La durée de validité de votre compte a expiré. Un e\u2011mail vous a été envoyé pour la renouveler. Une fois que vous aurez suivi le lien qu’il contient, cliquez ci-dessous.</string>

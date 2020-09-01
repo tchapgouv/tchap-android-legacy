@@ -60,7 +60,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import butterknife.BindView;
 import butterknife.OnCheckedChanged;
@@ -202,20 +201,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                 if (mRoomParams.preset.equals(CreateRoomParams.PRESET_PUBLIC_CHAT)) {
                     // In case of a public room, the room alias is mandatory.
                     // That's why, we deduce the room alias from the room name.
-
-                    mRoomParams.roomAliasName = mRoomParams.name.trim()
-                            .replace(" ", "")
-                            .replaceAll("[^a-zA-Z0-9]", "");
-
-                    if (mRoomParams.roomAliasName.contains(":")) {
-                        mRoomParams.roomAliasName = mRoomParams.roomAliasName.replace(":", "");
-                    }
-
-                    if (mRoomParams.roomAliasName.isEmpty()) {
-                        mRoomParams.roomAliasName = getRandomString();
-                    } else {
-                        mRoomParams.roomAliasName = mRoomParams.roomAliasName + getRandomString();
-                    }
+                    mRoomParams.roomAliasName = DinumUtilsKt.createRoomAliasName(mRoomParams.name);
                 }
                 inviteMembers(REQ_CODE_ADD_PARTICIPANTS);
                 hideKeyboard();
@@ -542,12 +528,12 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                     switch (e.error) {
                         case ERROR_CODE_ROOM_ALIAS_INVALID_CHARACTERS:
                             hideWaitingView();
-                            mRoomParams.roomAliasName = getRandomString();
+                            mRoomParams.roomAliasName = DinumUtilsKt.getRandomString();
                             createNewRoom();
                             break;
                         case ERROR_CODE_ROOM_ALIAS_ALREADY_TAKEN:
                             hideWaitingView();
-                            mRoomParams.roomAliasName = getRandomString();
+                            mRoomParams.roomAliasName = DinumUtilsKt.getRandomString();
                             createNewRoom();
                             break;
                         default:
@@ -723,20 +709,5 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         }
 
         startActivityForResult(intent, requestCode);
-    }
-
-    /**
-     * Generate a random room alias of 10 characters to avoid empty room alias.
-     */
-    protected String getRandomString() {
-        String RANDOMCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
-        StringBuilder stringBuilder = new StringBuilder();
-        Random rnd = new Random();
-        while (stringBuilder.length() < 7) { // length of the random string.
-            int index = (int) (rnd.nextFloat() * RANDOMCHARS.length());
-            stringBuilder.append(RANDOMCHARS.charAt(index));
-        }
-        String randomString = stringBuilder.toString();
-        return randomString;
     }
 }
