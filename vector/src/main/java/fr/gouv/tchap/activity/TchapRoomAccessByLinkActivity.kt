@@ -16,6 +16,7 @@
 
 package fr.gouv.tchap.activity
 
+import android.content.Intent
 import android.text.TextUtils
 import android.view.View
 import android.widget.Button
@@ -28,7 +29,10 @@ import butterknife.OnCheckedChanged
 import butterknife.OnClick
 import fr.gouv.tchap.sdk.session.room.model.RESTRICTED
 import fr.gouv.tchap.sdk.session.room.model.UNRESTRICTED
-import fr.gouv.tchap.util.*
+import fr.gouv.tchap.util.DinsicUtils
+import fr.gouv.tchap.util.HexagonMaskView
+import fr.gouv.tchap.util.createPermalink
+import fr.gouv.tchap.util.createRoomAlias
 import im.vector.Matrix
 import im.vector.R
 import im.vector.activity.CommonActivityUtils
@@ -323,6 +327,32 @@ class TchapRoomAccessByLinkActivity : VectorAppCompatActivity(){
     @OnClick(R.id.room_access_link)
     fun copyRoomLink() {
         copyToClipboard(this, roomAccessLink.text)
+    }
+
+    @OnClick(R.id.forward_link_button)
+    fun forwardRoomLink() {
+        roomAccessLink.text?.let { link ->
+            val sendIntent = Intent()
+
+            sendIntent.action = Intent.ACTION_SEND
+            sendIntent.putExtra(Intent.EXTRA_TEXT, link)
+            sendIntent.type = "text/plain"
+
+            CommonActivityUtils.sendFilesTo(this, sendIntent)
+        }
+    }
+
+    @OnClick(R.id.share_link_button)
+    fun shareRoomLink() {
+        roomAccessLink.text?.let { link ->
+            val sendIntent = Intent()
+
+            sendIntent.action = Intent.ACTION_SEND
+            sendIntent.putExtra(Intent.EXTRA_TEXT, link)
+            sendIntent.type = "text/plain"
+
+            startActivity(sendIntent)
+        }
     }
 
     companion object {
