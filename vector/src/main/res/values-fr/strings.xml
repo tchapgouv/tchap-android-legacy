@@ -818,6 +818,7 @@ Appareils inconnus :</string>
     <string name="tchap_room_admin_leave_prompt_msg">Voulez-vous vraiment quitter cette conversation ?\n\nElle ne sera plus administrée, et vous risquez de ne plus pouvoir la joindre de nouveau.</string>
     <string name="tchap_invite_contacts_to_tchap">Inviter des contacts dans Tchap</string>
     <string name="tchap_invite_contacts_by_email">Inviter par e\u2011mail</string>
+    <string name="tchap_invite_contacts_by_link">Inviter par lien</string>
     <string name="tchap_invite_contacts_to_room">Inviter au salon</string>
     <string name="tchap_room_invite_member_direct_chat">Nouvelle discussion</string>
     <string name="tchap_invite_already_send_message">Vous avez déjà envoyé une invitation à %s</string>
