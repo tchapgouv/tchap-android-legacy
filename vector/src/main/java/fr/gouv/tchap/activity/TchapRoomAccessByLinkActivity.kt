@@ -212,7 +212,7 @@ class TchapRoomAccessByLinkActivity : VectorAppCompatActivity(){
         })
     }
 
-    private fun forbidGuestAccess(callback: ApiCallback<Void>) {
+    private fun forbidGuestAccess(callback: ApiCallback<Void?>) {
         if (room.state.guestAccess == RoomState.GUEST_ACCESS_FORBIDDEN) {
             callback.onSuccess(null)
         } else {
@@ -220,7 +220,7 @@ class TchapRoomAccessByLinkActivity : VectorAppCompatActivity(){
         }
     }
 
-    private fun setCanonicalAlias(callback: ApiCallback<Void>) {
+    private fun setCanonicalAlias(callback: ApiCallback<Void?>) {
         // Check whether a canonical alias is defined,
         // and check it is correct (some alias were created with invalid character).
         val canonicalAlias = room.state.canonicalAlias
@@ -228,7 +228,7 @@ class TchapRoomAccessByLinkActivity : VectorAppCompatActivity(){
             callback.onSuccess(null)
         } else {
             val roomAlias = createRoomAlias(session, room.state.name ?: "")
-            room.addAlias(roomAlias, object: SimpleApiCallback<Void>(callback) {
+            room.addAlias(roomAlias, object: SimpleApiCallback<Void?>(callback) {
                 override fun onSuccess(v: Void?) {
                     room.updateCanonicalAlias(roomAlias, callback)
                 }
@@ -246,7 +246,7 @@ class TchapRoomAccessByLinkActivity : VectorAppCompatActivity(){
                 hideWaitingView()
                 refreshDisplay()
                 val rule = DinsicUtils.getRoomAccessRule(room)
-                if (TextUtils.equals(rule, UNRESTRICTED)) {
+                if (rule == UNRESTRICTED) {
                     longToast(R.string.tchap_room_settings_room_access_by_link_forbidden)
                 } else {
                     longToast(R.string.tchap_error_message_default)
@@ -266,11 +266,11 @@ class TchapRoomAccessByLinkActivity : VectorAppCompatActivity(){
             }
         }
 
-        forbidGuestAccess(object: SimpleApiCallback<Void>(failureCallBack) {
+        forbidGuestAccess(object: SimpleApiCallback<Void?>(failureCallBack) {
             override fun onSuccess(v: Void?) {
-                setCanonicalAlias(object: SimpleApiCallback<Void>(failureCallBack) {
+                setCanonicalAlias(object: SimpleApiCallback<Void?>(failureCallBack) {
                     override fun onSuccess(v: Void?) {
-                        room.updateJoinRules(RoomState.JOIN_RULE_PUBLIC, object: SimpleApiCallback<Void>(failureCallBack) {
+                        room.updateJoinRules(RoomState.JOIN_RULE_PUBLIC, object: SimpleApiCallback<Void?>(failureCallBack) {
                             override fun onSuccess(v: Void?) {
                                 hideWaitingView()
                                 refreshDisplay()
@@ -286,7 +286,7 @@ class TchapRoomAccessByLinkActivity : VectorAppCompatActivity(){
         Log.d(LOG_TAG, "## disableRoomAccessByLink")
         showWaitingView()
 
-        room.updateJoinRules(RoomState.JOIN_RULE_INVITE, object: ApiCallback<Void> {
+        room.updateJoinRules(RoomState.JOIN_RULE_INVITE, object: ApiCallback<Void?> {
             override fun onSuccess(v: Void?) {
                 hideWaitingView()
                 refreshDisplay()
