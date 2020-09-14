@@ -242,27 +242,27 @@ class TchapRoomAccessByLinkActivity : VectorAppCompatActivity(){
 
         val failureCallBack = object : ApiFailureCallback {
             private fun onError(errorMessage: String) {
-                Log.e(LOG_TAG, "## enableRoomAccessByLink: failed $errorMessage")
                 hideWaitingView()
                 refreshDisplay()
-                val rule = DinsicUtils.getRoomAccessRule(room)
-                if (rule == UNRESTRICTED) {
-                    longToast(R.string.tchap_room_settings_room_access_by_link_forbidden)
-                } else {
-                    longToast(R.string.tchap_error_message_default)
-                }
+                longToast(errorMessage)
             }
 
             override fun onNetworkError(e: Exception) {
-                onError(e.localizedMessage)
+                Log.e(LOG_TAG, "## enableRoomAccessByLink: failed $e.localizedMessage")
+                onError(getString(R.string.network_error_please_check_and_retry))
             }
 
             override fun onMatrixError(e: MatrixError) {
-                onError(e.message)
+                Log.e(LOG_TAG, "## enableRoomAccessByLink: failed $e.message")
+                val rule = DinsicUtils.getRoomAccessRule(room)
+                val errorMessage = if (e.errcode == MatrixError.FORBIDDEN && rule == UNRESTRICTED) getString(R.string.tchap_room_settings_room_access_by_link_forbidden)
+                else getString(R.string.tchap_error_message_default)
+                onError(errorMessage)
             }
 
             override fun onUnexpectedError(e: Exception) {
-                onError(e.localizedMessage)
+                Log.e(LOG_TAG, "## enableRoomAccessByLink: failed $e.localizedMessage")
+                onError(getString(R.string.tchap_error_message_default))
             }
         }
 
