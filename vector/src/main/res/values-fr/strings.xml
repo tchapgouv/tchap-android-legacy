@@ -522,10 +522,10 @@ Veuillez autoriser l’accès dans la prochaine fenêtre contextuelle pour pouvo
     <string name="permissions_rationale_msg_camera_and_audio">Tchap a besoin d’accéder à votre appareil photo et à votre microphone pour passer des appels vidéo.
 
 Veuillez autoriser l’accès dans les prochaines fenêtres contextuelles pour pouvoir effectuer l’appel.</string>
-    <string name="permissions_rationale_msg_contacts">Tchap a besoin d’accéder aux contacts de votre carnet d’adresses pour trouver d’autres utilisateurs de Tchap avec leur numéro de téléphone et leur adresse e\u2011mail.
+    <string name="permissions_rationale_msg_contacts">Tchap a besoin d’accéder aux contacts de votre carnet d’adresses pour trouver d’autres utilisateurs de Tchap avec leur adresse e\u2011mail.
 
 Veuillez autoriser l’accès dans la prochaine fenêtre contextuelle pour découvrir les utilisateurs du carnet d’adresses joignables avec Tchap.</string>
-    <string name="permissions_msg_contacts_warning_other_androids">Tchap a besoin d’accéder aux contacts de votre carnet d’adresses pour trouver d’autres utilisateurs de Tchap avec leur numéro de téléphone et leur adresse e\u2011mail.
+    <string name="permissions_msg_contacts_warning_other_androids">Tchap a besoin d’accéder aux contacts de votre carnet d’adresses pour trouver d’autres utilisateurs de Tchap avec leur adresse e\u2011mail.
 
 Autorisez-vous Tchap à accéder à vos contacts ?</string>
 
