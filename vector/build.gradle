@@ -46,7 +46,7 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 21
         targetSdkVersion 28
         // use the version code
         versionCode rootProject.ext.versionCodeProp
@@ -343,7 +343,7 @@ dependencies {
     //implementation project(':matrix-sdk-core')
 
     /************* jitsi **************/
-    withvoipImplementation('org.jitsi.react:jitsi-meet-sdk:2.2.2')
+    withvoipImplementation('org.jitsi.react:jitsi-meet-sdk:2.9.3') { transitive = true }
 
     /************* analytics **************/
     // another tracking than GA

@@ -326,17 +326,17 @@ public class PreferencesManager {
 
     public static String getIntegrationManagerUiUrl(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context).getString(SETTINGS_INTEGRATION_MANAGER_UI_URL,
-                null/*context.getString(R.string.integrations_ui_url)*/);
+                context.getString(R.string.integrations_ui_url));
     }
 
     public static String getIntegrationManagerApiUrl(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context).getString(SETTINGS_INTEGRATION_MANAGER_API_URL,
-                null/*context.getString(R.string.integrations_rest_url)*/);
+                context.getString(R.string.integrations_rest_url));
     }
 
     public static String getIntegrationManagerJitsiUrl(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context).getString(SETTINGS_INTEGRATION_MANAGER_JITSI_URL,
-                null/*context.getString(R.string.integrations_jitsi_widget_url)*/);
+                context.getString(R.string.integrations_jitsi_widget_url));
     }
 
 
@@ -625,7 +625,7 @@ public class PreferencesManager {
      * @return true if the conference call must be done with jitsi.
      */
     public static boolean useJitsiConfCall(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_USE_JITSI_CONF_PREFERENCE_KEY, false);
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_USE_JITSI_CONF_PREFERENCE_KEY, true);
     }
 
     /**

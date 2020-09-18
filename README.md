@@ -120,7 +120,7 @@ FAQ
 
 1. What is the minimum android version supported?
 
-    > the mininum SDK is 16 (android 4.1)
+    > the mininum SDK is 21 (Android 5.0 Lollipop)
 
 2. Where the apk is generated?
 

@@ -79,7 +79,7 @@ abstract class VectorBaseFragment : Fragment() {
         mUnBinder = null
     }
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
 
         vectorActivity = context as VectorAppCompatActivity
