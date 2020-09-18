@@ -3654,41 +3654,23 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
 
     @OnClick(R.id.room_start_call_image_view)
     void onStartCallClick() {
-        if ((null != mRoom) && mRoom.isEncrypted() && (mRoom.getNumberOfMembers() > 2)) {
-            // display the dialog with the info text
-            new AlertDialog.Builder(this)
-                    .setMessage(R.string.room_no_conference_call_in_encrypted_rooms)
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setPositiveButton(R.string.ok, null)
-                    .show();
-        } else if (isUserAllowedToStartConfCall()) {
+        if (isUserAllowedToStartConfCall()) {
             if (mRoom.getNumberOfMembers() > 2) {
-                new AlertDialog.Builder(this)
-                        .setTitle(R.string.conference_call_warning_title)
-                        .setMessage(R.string.conference_call_warning_message)
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                if (PreferencesManager.useJitsiConfCall(VectorRoomActivity.this)) {
-                                    if (WidgetManagerProvider.INSTANCE.getWidgetManager(VectorRoomActivity.this) == null) {
-                                    //if (Matrix.getWidgetManager(VectorRoomActivity.this) == null) {
-                                        // display the dialog with the info text
-                                        new AlertDialog.Builder(VectorRoomActivity.this)
-                                                .setMessage(R.string.integration_manager_not_configured)
-                                                .setIcon(android.R.drawable.ic_dialog_alert)
-                                                .setPositiveButton(R.string.ok, null)
-                                                .show();
-                                    } else {
-                                        startJitsiCall(true);
-                                    }
-                                } else {
-                                    displayVideoCallIpDialog();
-                                }
-                            }
-                        })
-                        .setNegativeButton(R.string.cancel, null)
-                        .show();
+                if (PreferencesManager.useJitsiConfCall(VectorRoomActivity.this)) {
+                    if (WidgetManagerProvider.INSTANCE.getWidgetManager(VectorRoomActivity.this) == null) {
+                        //if (Matrix.getWidgetManager(VectorRoomActivity.this) == null) {
+                        // display the dialog with the info text
+                        new AlertDialog.Builder(VectorRoomActivity.this)
+                                .setMessage(R.string.integration_manager_not_configured)
+                                .setIcon(android.R.drawable.ic_dialog_alert)
+                                .setPositiveButton(R.string.ok, null)
+                                .show();
+                    } else {
+                        startJitsiCall(true);
+                    }
+                } else {
+                    displayVideoCallIpDialog();
+                }
             } else {
                 displayVideoCallIpDialog();
             }

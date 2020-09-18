@@ -206,10 +206,10 @@ public class VectorApp extends MultiDexApplication {
                 .build();
         Realm.setDefaultConfiguration(config);
 
-//        PreferencesManager.setIntegrationManagerUrls(this,
-//                getString(R.string.integrations_ui_url),
-//                getString(R.string.integrations_rest_url),
-//                getString(R.string.integrations_jitsi_widget_url));
+        PreferencesManager.setIntegrationManagerUrls(this,
+                getString(R.string.integrations_ui_url),
+                getString(R.string.integrations_rest_url),
+                getString(R.string.integrations_jitsi_widget_url));
 
         mLifeCycleListener = new VectorLifeCycleObserver();
         ProcessLifecycleOwner.get().getLifecycle().addObserver(mLifeCycleListener);
