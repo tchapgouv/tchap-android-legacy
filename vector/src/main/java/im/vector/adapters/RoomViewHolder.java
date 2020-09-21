@@ -36,6 +36,8 @@ import org.matrix.androidsdk.data.RoomSummary;
 import org.matrix.androidsdk.data.RoomTag;
 import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.core.BingRulesManager;
+import org.matrix.androidsdk.rest.model.User;
+
 import java.util.Set;
 
 import butterknife.BindView;
@@ -193,8 +195,14 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
         }
 
         if (null != vSenderDisplayName && null != roomSummary.getLatestReceivedEvent()) {
-            String senderName = session.getDataHandler().getUser(roomSummary.getLatestReceivedEvent().getSender()).displayname;
-            String userNameWithoutDomain = DinsicUtils.getNameFromDisplayName(senderName);
+            String userNameWithoutDomain;
+            String senderId = roomSummary.getLatestReceivedEvent().getSender();
+            User sender = session.getDataHandler().getUser(senderId);
+            if (null != sender && null != sender.displayname) {
+                userNameWithoutDomain = DinsicUtils.getNameFromDisplayName(sender.displayname);
+            } else {
+                userNameWithoutDomain = DinsicUtils.computeDisplayNameFromUserId(senderId);
+            }
             vSenderDisplayName.setText(userNameWithoutDomain);
             vSenderDisplayName.setVisibility(View.VISIBLE);
         }
