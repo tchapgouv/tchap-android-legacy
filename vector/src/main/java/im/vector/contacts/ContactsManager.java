@@ -226,6 +226,8 @@ public class ContactsManager implements SharedPreferences.OnSharedPreferenceChan
                                 public void onSuccess(User user) {
                                     Log.d(LOG_TAG, "retrieve the presence of " + mxid.mMatrixId + " :" + user);
                                     mxid.mUser = user;
+                                    //user coming from API no longer contains his id. we must add it to him.
+                                    mxid.mUser.user_id = mxid.mMatrixId;
                                     onContactPresenceUpdate(contact, mxid);
                                 }
 

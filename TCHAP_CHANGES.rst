@@ -2,10 +2,11 @@ Changes in Tchap 1.0.xx (2020-xx-xx)
 ===================================================
 
 Improvements:
- * 
+ * Update matrix-sdk.aar libs - Revision: 3d3c42c5a55bcc4e80d268a6eace93eb1dfc0247 [3d3c42c5a]
 
 Bug Fix:
  * LoginActivity: block the UI when the loading wheel is running
+ * [Preprod] Tchap crashes when it checks user presence #603
 
 Changes in Tchap 1.0.45 (2020-08-14)
 ===================================================
