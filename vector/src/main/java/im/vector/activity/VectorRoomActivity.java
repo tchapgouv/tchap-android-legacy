@@ -2713,7 +2713,9 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
      */
     private void refreshCallButtons(boolean refreshOngoingConferenceCallView) {
         if ((null == sRoomPreviewData) && (null == mEventId) && (null == mTchapUser) && canSendMessages()) {
-            boolean isCallSupported = mRoom.canPerformCall() && mSession.isVoipCallSupported();
+            boolean isCallSupported = mRoom.canPerformCall()
+                    && mSession.isVoipCallSupported()
+                    && (mRoom.getNumberOfMembers() > 2 || mRoom.getNumberOfJoinedMembers() == 2);
             IMXCall call = CallsManager.getSharedInstance().getActiveCall();
             Widget activeWidget = mVectorOngoingConferenceCallView.getActiveWidget();
 
