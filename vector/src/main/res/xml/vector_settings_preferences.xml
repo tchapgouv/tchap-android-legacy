@@ -194,16 +194,10 @@
         android:title="@string/settings_notifications">
 
         <im.vector.preference.VectorSwitchPreference
-            android:key="SETTINGS_ENABLE_ALL_NOTIF_PREFERENCE_KEY"
-            android:title="@string/settings_enable_all_notif" />
-
-        <im.vector.preference.VectorSwitchPreference
-            android:dependency="SETTINGS_ENABLE_ALL_NOTIF_PREFERENCE_KEY"
             android:key="SETTINGS_ENABLE_THIS_DEVICE_PREFERENCE_KEY"
             android:title="@string/settings_enable_this_device" />
 
         <im.vector.preference.VectorSwitchPreference
-            android:dependency="SETTINGS_ENABLE_ALL_NOTIF_PREFERENCE_KEY"
             android:key="SETTINGS_TURN_SCREEN_ON_PREFERENCE_KEY"
             android:title="@string/settings_turn_screen_on" />
 
