@@ -161,7 +161,7 @@ class VectorSettingsNotificationsTroubleshootFragment : VectorBaseFragment() {
 
     override fun onResume() {
         super.onResume()
-        (activity as? MXCActionBarActivity)?.supportActionBar?.setTitle(R.string.settings_notification_troubleshoot)
+        (activity as? MXCActionBarActivity)?.supportActionBar?.setTitle(R.string.settings_notification_troubleshoot_title)
     }
 
     override fun onAttach(context: Context?) {
