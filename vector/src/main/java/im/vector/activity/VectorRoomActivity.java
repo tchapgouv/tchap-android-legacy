@@ -1594,6 +1594,8 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
         final int permissions;
         final int requestCode;
 
+        CallsManager.getSharedInstance().forceServiceStateToPlaceACall();
+
         if (which == 0) {
             isVideoCall = false;
             permissions = PermissionsToolsKt.PERMISSIONS_FOR_AUDIO_IP_CALL;
