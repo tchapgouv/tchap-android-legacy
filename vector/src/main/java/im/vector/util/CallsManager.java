@@ -50,6 +50,7 @@ import im.vector.activity.VectorCallViewActivity;
 import im.vector.activity.VectorHomeActivity;
 import im.vector.notifications.NotificationUtils;
 import im.vector.services.CallService;
+import im.vector.services.EventStreamServiceX;
 
 /**
  * This class contains the call toolbox.
@@ -78,6 +79,7 @@ public class CallsManager {
 
     private String mPrevCallState;
     private boolean mIsStoppedByUser;
+    private boolean mIsSessionListening;
 
     private final HeadsetConnectionReceiver.OnHeadsetStatusUpdateListener mOnHeadsetStatusUpdateListener
             = new HeadsetConnectionReceiver.OnHeadsetStatusUpdateListener() {
@@ -460,6 +462,7 @@ public class CallsManager {
      */
     public void addSession(MXSession session) {
         session.getDataHandler().getCallsManager().addListener(mCallsManagerListener);
+        mIsSessionListening = true;
     }
 
     /**
@@ -469,6 +472,19 @@ public class CallsManager {
      */
     public void removeSession(MXSession session) {
         session.getDataHandler().getCallsManager().removeListener(mCallsManagerListener);
+        mIsSessionListening = false;
+    }
+
+    /**
+     * Check if the event stream service state is correctly started.
+     *
+     * For unknown reason this service is sometimes stopped whereas the application is in foreground.
+     */
+    public void forceServiceStateToPlaceACall() {
+        // check whether the session has been added.
+        if (!mIsSessionListening) {
+            EventStreamServiceX.Companion.onAppGoingToForeground(mContext);
+        }
     }
 
     /**
