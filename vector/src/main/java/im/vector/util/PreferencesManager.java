@@ -646,7 +646,7 @@ public class PreferencesManager {
     }
 
     public static boolean shouldAskForDefaultTurn(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_CALL_USE_DEFAULT_ASK_DEFAULT_STUN_PREFERENCE_KEY, true);
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_CALL_USE_DEFAULT_ASK_DEFAULT_STUN_PREFERENCE_KEY, false);
     }
 
     public static void setShouldAskForDefaultTurn(Context context, boolean ask) {
