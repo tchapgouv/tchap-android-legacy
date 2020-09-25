@@ -32,9 +32,11 @@ class NotificationTroubleshootTestManagerFactory {
                 mgr.addTest(TestAccountSettings(fragment, session))
             }
             mgr.addTest(TestDeviceSettings(fragment))
-            if (session != null) {
-                mgr.addTest(TestBingRulesSettings(fragment, session))
-            }
+            // Tchap: comment the test on the bing rules, because we remove the advanced settings
+            // screen on Android app.
+//            if (session != null) {
+//                mgr.addTest(TestBingRulesSettings(fragment, session))
+//            }
             mgr.addTest(TestPlayServices(fragment))
             mgr.addTest(TestFirebaseToken(fragment))
             mgr.addTest(TestTokenRegistration(fragment))
