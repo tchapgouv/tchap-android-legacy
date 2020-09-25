@@ -573,26 +573,43 @@ public class RoomUtils {
                 item.setIcon(R.drawable.ic_material_transparent);
             }
 
-            BingRulesManager.RoomNotificationState state = session.getDataHandler().getBingRulesManager().getRoomNotificationState(room.getRoomId());
-
-            if (BingRulesManager.RoomNotificationState.ALL_MESSAGES_NOISY != state) {
-                item = popup.getMenu().findItem(R.id.ic_action_notifications_noisy);
-                item.setIcon(R.drawable.ic_material_transparent);
-            }
-
-            if (BingRulesManager.RoomNotificationState.ALL_MESSAGES != state) {
-                item = popup.getMenu().findItem(R.id.ic_action_notifications_all_message);
-                item.setIcon(R.drawable.ic_material_transparent);
-            }
-
-            if (BingRulesManager.RoomNotificationState.MENTIONS_ONLY != state) {
+            if (room.isDirect()) {
+                // Tchap: The "mention only" mode is not suggested anymore for the direct chats
+                // We consider people will not mention the other member in 1:1.
                 item = popup.getMenu().findItem(R.id.ic_action_notifications_mention_only);
-                item.setIcon(R.drawable.ic_material_transparent);
+                item.setVisible(false);
             }
 
-            if (BingRulesManager.RoomNotificationState.MUTE != state) {
-                item = popup.getMenu().findItem(R.id.ic_action_notifications_mute);
-                item.setIcon(R.drawable.ic_material_transparent);
+            BingRulesManager.RoomNotificationState state = session.getDataHandler().getBingRulesManager().getRoomNotificationState(room.getRoomId());
+            if (state != null) {
+                switch (state) {
+                    case ALL_MESSAGES_NOISY:
+                    case ALL_MESSAGES:
+                        // Tchap: We don't distinguish these 2 modes
+                        // All the room notifications are noisy by default in the bing rules
+                        item = popup.getMenu().findItem(R.id.ic_action_notifications_mention_only);
+                        item.setIcon(R.drawable.ic_material_transparent);
+                        item = popup.getMenu().findItem(R.id.ic_action_notifications_mute);
+                        item.setIcon(R.drawable.ic_material_transparent);
+                        break;
+                    case MENTIONS_ONLY:
+                        item = popup.getMenu().findItem(R.id.ic_action_notifications_all_message);
+                        item.setIcon(R.drawable.ic_material_transparent);
+                        if (room.isDirect()) {
+                            // The room is considered mute.
+                            item = popup.getMenu().findItem(R.id.ic_action_notifications_mention_only);
+                            item.setIcon(R.drawable.ic_material_transparent);
+                        } else {
+                            item = popup.getMenu().findItem(R.id.ic_action_notifications_mute);
+                            item.setIcon(R.drawable.ic_material_transparent);
+                        }
+                        break;
+                    case MUTE:
+                        item = popup.getMenu().findItem(R.id.ic_action_notifications_all_message);
+                        item.setIcon(R.drawable.ic_material_transparent);
+                        item = popup.getMenu().findItem(R.id.ic_action_notifications_mention_only);
+                        item.setIcon(R.drawable.ic_material_transparent);
+                }
             }
 
             // TODO LazyLoading, current user may be null
@@ -620,13 +637,6 @@ public class RoomUtils {
                                 }
                                 break;
                             }
-                            case R.id.ic_action_notifications_noisy:
-                                moreActionListener.onUpdateRoomNotificationsState(session,
-                                        room.getRoomId(), BingRulesManager.RoomNotificationState.ALL_MESSAGES_NOISY);
-                                if (null != notificationMuteView) {
-                                    notificationMuteView.setVisibility(View.GONE);
-                                }
-                                break;
 
                             case R.id.ic_action_notifications_all_message:
                                 moreActionListener.onUpdateRoomNotificationsState(session,
