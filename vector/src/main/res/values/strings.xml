@@ -662,6 +662,7 @@
     <string name="settings_notification_privacy">Notification privacy</string>
 
     <string name="settings_notification_troubleshoot">Troubleshoot Notifications</string>
+    <string name="settings_notification_troubleshoot_title">Troubleshoot Notifications</string>
     <string name="settings_troubleshoot_diagnostic">Troubleshooting diagnostics</string>
     <string name="settings_troubleshoot_diagnostic_run_button_title">Run Tests</string>
     <string name="settings_troubleshoot_diagnostic_running_status">Running… (%1$d of %2$d)</string>

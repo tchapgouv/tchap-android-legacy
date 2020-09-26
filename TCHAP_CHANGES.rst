@@ -3,6 +3,7 @@ Changes in Tchap 1.0.xx (2020-xx-xx)
 
 Improvements:
  * Update matrix-sdk.aar libs - Revision: 3d3c42c5a55bcc4e80d268a6eace93eb1dfc0247 [3d3c42c5a]
+ * Simplify the notifications handling #605
 
 Bug Fix:
  * LoginActivity: block the UI when the loading wheel is running

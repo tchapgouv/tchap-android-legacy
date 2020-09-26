@@ -100,8 +100,8 @@ class VectorSettingsActivity : MXCActionBarActivity(),
         val oFragment = when (pref.key) {
             PreferencesManager.SETTINGS_NOTIFICATION_TROUBLESHOOT_PREFERENCE_KEY ->
                 VectorSettingsNotificationsTroubleshootFragment.newInstance(session.myUserId)
-            PreferencesManager.SETTINGS_NOTIFICATION_ADVANCED_PREFERENCE_KEY     ->
-                VectorSettingsAdvancedNotificationPreferenceFragment.newInstance(session.myUserId)
+//            PreferencesManager.SETTINGS_NOTIFICATION_ADVANCED_PREFERENCE_KEY     ->
+//                VectorSettingsAdvancedNotificationPreferenceFragment.newInstance(session.myUserId)
 //            PreferencesManager.SETTINGS_DISCOVERY_PREFERENCE_KEY,
 //            PreferencesManager.SETTINGS_IDENTITY_SERVER_PREFERENCE_KEY           ->
 //                VectorSettingsDiscoveryFragment.newInstance(session.myUserId)
