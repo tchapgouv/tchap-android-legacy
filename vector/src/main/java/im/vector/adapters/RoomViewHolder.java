@@ -36,6 +36,8 @@ import org.matrix.androidsdk.data.RoomSummary;
 import org.matrix.androidsdk.data.RoomTag;
 import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.core.BingRulesManager;
+import org.matrix.androidsdk.rest.model.User;
+
 import java.util.Set;
 
 import butterknife.BindView;
@@ -193,8 +195,14 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
         }
 
         if (null != vSenderDisplayName && null != roomSummary.getLatestReceivedEvent()) {
-            String senderName = session.getDataHandler().getUser(roomSummary.getLatestReceivedEvent().getSender()).displayname;
-            String userNameWithoutDomain = DinsicUtils.getNameFromDisplayName(senderName);
+            String userNameWithoutDomain;
+            String senderId = roomSummary.getLatestReceivedEvent().getSender();
+            User sender = session.getDataHandler().getUser(senderId);
+            if (null != sender && null != sender.displayname) {
+                userNameWithoutDomain = DinsicUtils.getNameFromDisplayName(sender.displayname);
+            } else {
+                userNameWithoutDomain = DinsicUtils.computeDisplayNameFromUserId(senderId);
+            }
             vSenderDisplayName.setText(userNameWithoutDomain);
             vSenderDisplayName.setVisibility(View.VISIBLE);
         }
@@ -280,11 +288,24 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
         }
 
         BingRulesManager.RoomNotificationState roomNotificationState = session.getDataHandler().getBingRulesManager().getRoomNotificationState(room.getRoomId());
-        if (null != vRoomNotificationMute) {
-            if (roomNotificationState.equals(BingRulesManager.RoomNotificationState.MUTE)) {
-                vRoomNotificationMute.setVisibility(View.VISIBLE);
-            } else {
-                vRoomNotificationMute.setVisibility(View.GONE);
+        if (null != vRoomNotificationMute && null != roomNotificationState) {
+            switch (roomNotificationState) {
+                case ALL_MESSAGES_NOISY:
+                case ALL_MESSAGES:
+                    vRoomNotificationMute.setVisibility(View.GONE);
+                    break;
+                case MENTIONS_ONLY:
+                    if (room.isDirect()) {
+                        // Tchap: This mode is not suggested anymore for the direct chats
+                        // We consider people will not mention the other member in 1:1.
+                        // The room is considered mute.
+                        vRoomNotificationMute.setVisibility(View.VISIBLE);
+                    } else {
+                        vRoomNotificationMute.setVisibility(View.GONE);
+                    }
+                    break;
+                case MUTE:
+                    vRoomNotificationMute.setVisibility(View.VISIBLE);
             }
         }
 

@@ -198,6 +198,7 @@
         <item name="editTextColor">@android:color/white</item>
         <item name="android:editTextColor">@android:color/white</item>
         <item name="android:textColorHint">?attr/vctr_activity_bottom_gradient_color</item>
+        <item name="colorControlActivated">@android:color/white</item>
     </style>
 
     <!-- call activity -->

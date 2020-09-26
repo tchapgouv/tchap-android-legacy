@@ -78,7 +78,7 @@
     <string name="no_conversation_placeholder">Aucune discussion</string>
     <string name="no_contact_access_placeholder">Vous n’avez pas autorisé Tchap à accéder à vos contacts locaux</string>
     <string name="no_result_placeholder">Aucun résultat</string>
-    <string name="no_email">Email pas disponible</string>
+    <string name="no_email">E\u2011mail pas disponible</string>
 
     <string name="rooms_header">Conversations</string>
     <string name="rooms_directory_header">Répertoire des salons</string>
@@ -122,14 +122,14 @@
     <string name="go_register">Je n’ai pas de compte</string>
     <string name="auth_submit">Valider</string>
     <string name="auth_skip">Ignorer</string>
-    <string name="auth_send_reset_email">Envoyer l’e-mail de réinitialisation</string>
+    <string name="auth_send_reset_email">Envoyer l’e\u2011mail de réinitialisation</string>
     <string name="auth_return_to_login">Retourner à l’écran de connexion</string>
-    <string name="auth_user_id_placeholder">E-mail ou nom d’utilisateur</string>
+    <string name="auth_user_id_placeholder">E\u2011mail ou nom d’utilisateur</string>
     <string name="auth_password_placeholder">Mot de passe</string>
     <string name="auth_new_password_placeholder">Nouveau mot de passe</string>
     <string name="auth_user_name_placeholder">Nom d’utilisateur</string>
-    <string name="auth_email_placeholder">Adresse e-mail</string>
-    <string name="auth_opt_email_placeholder">Adresse e-mail (facultatif)</string>
+    <string name="auth_email_placeholder">Adresse e\u2011mail</string>
+    <string name="auth_opt_email_placeholder">Adresse e\u2011mail (facultatif)</string>
     <string name="auth_phone_number_placeholder">Numéro de téléphone</string>
     <string name="auth_opt_phone_number_placeholder">Numéro de téléphone (facultatif)</string>
     <string name="auth_repeat_password_placeholder">Répéter le mot de passe</string>
@@ -137,9 +137,9 @@
     <string name="auth_invalid_login_param">Nom d’utilisateur et/ou mot de passe incorrect</string>
     <string name="auth_invalid_password">Mot de passe trop court (8 min)</string>
     <string name="auth_missing_password">Mot de passe manquant</string>
-    <string name="auth_missing_email">Adresse e-mail manquante</string>
+    <string name="auth_missing_email">Adresse e\u2011mail manquante</string>
     <string name="auth_missing_phone">Numéro de téléphone manquant</string>
-    <string name="auth_missing_email_or_phone">Adresse e-mail ou numéro de téléphone manquant</string>
+    <string name="auth_missing_email_or_phone">Adresse e\u2011mail ou numéro de téléphone manquant</string>
     <string name="auth_invalid_token">Jeton non valide</string>
     <string name="auth_password_dont_match">Les mots de passe ne correspondent pas</string>
     <string name="auth_forgot_password">Mot de passe oublié ?</string>
@@ -148,7 +148,7 @@
     <string name="auth_home_server">Serveur d’accueil :</string>
     <string name="auth_identity_server">Serveur d’identité :</string>
     <string name="login_error_unable_register">Impossible de s’inscrire</string>
-    <string name="login_error_unable_register_mail_ownership">Impossible de s’inscrire : erreur sur le propriétaire de l’adresse e-mail</string>
+    <string name="login_error_unable_register_mail_ownership">Impossible de s’inscrire : erreur sur le propriétaire de l’adresse e\u2011mail</string>
     <string name="login_error_invalid_home_server">Veuillez saisir une URL valide</string>
 
     <string name="login_error_forbidden">Nom d’utilisateur/mot de passe invalide</string>
@@ -226,11 +226,11 @@
     <string name="room_participants_action_devices_list">Afficher la liste des appareils</string>
     <string name="people_search_local_contacts">Contacts locaux (%d)</string>
     <string name="people_search_filter_text">Utilisateurs Matrix uniquement</string>
-    <string name="people_search_invite_by_id_dialog_title">Inviter par email</string>
+    <string name="people_search_invite_by_id_dialog_title">Inviter par e\u2011mail</string>
     <string name="people_search_invite_by_id_dialog_hint">Email</string>
-    <string name="people_invalid_warning_msg">Pour inviter un contact un email est requis</string>
+    <string name="people_invalid_warning_msg">Pour inviter un contact un e\u2011mail est requis</string>
     <string name="people_edit_contact_warning_msg">Accès à la fiche contact impossible</string>
-    <string name="room_invite_people">Voulez-vous l’inviter dans Tchap (un mail lui sera envoyé) ?</string>
+    <string name="room_invite_people">Voulez-vous l’inviter dans Tchap (un e\u2011mail lui sera envoyé) ?</string>
 
     <string name="room_menu_search">Rechercher</string>
     <string name="room_message_placeholder_encrypted">Envoyer un message chiffré…</string>
@@ -249,7 +249,7 @@
     <string name="room_details_people">MEMBRES</string>
     <string name="room_details_files">FICHIERS</string>
     <string name="room_details_files_title">Fichiers partagés</string>
-    <string name="room_details_settings">PARAMETRES</string>
+    <string name="room_details_settings">PARAMÈTRES</string>
     <string name="room_details_people_invited_group_name">INVITÉS</string>
     <string name="room_details_people_present_group_name">MEMBRES</string>
 
@@ -297,8 +297,8 @@
 
     <string name="settings_profile_picture">Image de profil</string>
     <string name="settings_display_name">Nom affiché</string>
-    <string name="settings_email_address">E-mail</string>
-    <string name="settings_add_email_address">Ajouter une adresse e-mail</string>
+    <string name="settings_email_address">E\u2011mail</string>
+    <string name="settings_add_email_address">Ajouter une adresse e\u2011mail</string>
     <string name="settings_phone_number">Téléphone</string>
     <string name="settings_add_phone_number">Ajouter un numéro de téléphone</string>
     <string name="settings_app_info_link_summary">Affiche les informations de l’application dans les paramètres système.</string>
@@ -360,7 +360,7 @@
     <string name="settings_password_updated">Votre mot de passe a été mis à jour</string>
     <string name="settings_select_country">Choisissez un pays</string>
 
-    <string name="settings_change_pwd_caution">Changer le mot de passe réinitialise les clés de chiffrement sur tous les appareils, rendant l’historique des discussions illisible: pensez d’abord à sauvegarder vos clés pour pouvoir les récupérer après le changement de mot de passe.</string>
+    <string name="settings_change_pwd_caution">Changer le mot de passe réinitialise les clés de chiffrement sur tous les appareils, rendant l’historique des discussions illisible : pensez d’abord à sauvegarder vos clés pour pouvoir les récupérer après le changement de mot de passe.</string>
     <string name="settings_change_pwd_key_backup">Effectuer la sauvegarde des clés</string>
     <string name="settings_change_pwd_success_title">Succès</string>
     <string name="settings_change_pwd_success_msg">Votre mot de passe a été changé avec succès.\nVous ne recevrez plus de notifications sur vos autres appareils tant que vous ne vous y reconnecterez pas.</string>
@@ -466,20 +466,20 @@
     <string name="send_bug_report_sent">Le rapport d’erreur a bien été envoyé</string>
     <string name="send_bug_report_failed">L’envoi du rapport d’erreur a échoué (%s)</string>
     <string name="auth_invalid_user_name">Les noms d’utilisateurs ne peuvent contenir que des lettres, des nombres, des points, des traits d’union et des tirets bas</string>
-    <string name="auth_invalid_email">Cela ne ressemble pas à une adresse e-mail valide</string>
+    <string name="auth_invalid_email">Cela ne ressemble pas à une adresse e\u2011mail valide</string>
     <string name="auth_invalid_phone">Cela ne ressemble pas à un numéro de téléphone valide</string>
-    <string name="auth_email_already_defined">Cette adresse e-mail est déjà utilisée.</string>
-    <string name="auth_email_validation_message">Veuillez vérifier votre e-mail pour continuer votre inscription</string>
-    <string name="auth_threepid_warning_message">L’inscription avec e-mail et numéro de téléphone à la fois n’est pas prise en charge tant que l’API n’existe pas. Seul le numéro de téléphone sera pris en compte.
+    <string name="auth_email_already_defined">Cette adresse e\u2011mail est déjà utilisée.</string>
+    <string name="auth_email_validation_message">Veuillez vérifier votre e\u2011mail pour continuer votre inscription</string>
+    <string name="auth_threepid_warning_message">L’inscription avec e\u2011mail et numéro de téléphone à la fois n’est pas prise en charge tant que l’API n’existe pas. Seul le numéro de téléphone sera pris en compte.
 
-Vous pouvez ajouter votre adresse e-mail à votre profil dans les paramètres.</string>
+Vous pouvez ajouter votre adresse e\u2011mail à votre profil dans les paramètres.</string>
     <string name="auth_recaptcha_message">Ce serveur d’accueil souhaite s’assurer que vous n’êtes pas un robot</string>
-    <string name="auth_reset_password_next_step_button">J’ai vérifié mon adresse e-mail</string>
-    <string name="auth_reset_password_message">Pour réinitialiser votre mot de passe, saisissez l’adresse e-mail associée à votre compte :</string>
-    <string name="auth_reset_password_missing_email">L’adresse e-mail liée à votre compte doit être saisie.</string>
+    <string name="auth_reset_password_next_step_button">J’ai vérifié mon adresse e\u2011mail</string>
+    <string name="auth_reset_password_message">Pour réinitialiser votre mot de passe, saisissez l’adresse e\u2011mail associée à votre compte :</string>
+    <string name="auth_reset_password_missing_email">L’adresse e\u2011mail liée à votre compte doit être saisie.</string>
     <string name="auth_reset_password_missing_password">Un nouveau mot de passe doit être saisi.</string>
-    <string name="auth_reset_password_email_validation_message">Si un compte Tchap existe, un e-mail a été envoyé à l’adresse : %s. Une fois que vous aurez suivi le lien qu’il contient, cliquez ci-dessous.</string>
-    <string name="auth_reset_password_error_unauthorized">Impossible de vérifier l’adresse e-mail : assurez-vous d’avoir cliqué sur le lien dans l’e-mail</string>
+    <string name="auth_reset_password_email_validation_message">Si un compte Tchap existe, un e\u2011mail a été envoyé à l’adresse : %s. Une fois que vous aurez suivi le lien qu’il contient, cliquez ci-dessous.</string>
+    <string name="auth_reset_password_error_unauthorized">Impossible de vérifier l’adresse e\u2011mail : assurez-vous d’avoir cliqué sur le lien dans l’e\u2011mail</string>
     <string name="auth_reset_password_success_message">Votre mot de passe a été réinitialisé.
 
 Vous avez été déconnecté de tous les appareils et ne recevrez plus de notifications. Pour réactiver les notifications, reconnectez-vous sur chaque appareil.</string>
@@ -493,7 +493,7 @@ Vous avez été déconnecté de tous les appareils et ne recevrez plus de notifi
     <string name="login_error_unknown_token">Le jeton d’accès fourni n’a pas été reconnu</string>
     <string name="login_error_limit_exceeded">Vos trois dernières tentatives de connexion ont échoué. Veuillez réessayer dans 30 minutes</string>
     <string name="login_error_user_in_use">Ce nom d’utilisateur est déjà utilisé</string>
-    <string name="login_error_login_email_not_yet">Vous n’avez pas encore cliqué sur le lien dans l’e-mail</string>
+    <string name="login_error_login_email_not_yet">Vous n’avez pas encore cliqué sur le lien dans l’e\u2011mail</string>
 
     <string name="e2e_need_log_in_again">Vous devez vous identifier à nouveau pour générer des clés de chiffrement de bout en bout pour cet appareil et envoyer la clé publique à votre serveur d’accueil.
 Il s’agit d’une erreur exceptionnelle.
@@ -522,10 +522,10 @@ Veuillez autoriser l’accès dans la prochaine fenêtre contextuelle pour pouvo
     <string name="permissions_rationale_msg_camera_and_audio">Tchap a besoin d’accéder à votre appareil photo et à votre microphone pour passer des appels vidéo.
 
 Veuillez autoriser l’accès dans les prochaines fenêtres contextuelles pour pouvoir effectuer l’appel.</string>
-    <string name="permissions_rationale_msg_contacts">Tchap a besoin d’accéder aux contacts de votre carnet d’adresses pour trouver d’autres utilisateurs de Tchap avec leur numéro de téléphone et leur adresse e-mail.
+    <string name="permissions_rationale_msg_contacts">Tchap a besoin d’accéder aux contacts de votre carnet d’adresses pour trouver d’autres utilisateurs de Tchap avec leur adresse e\u2011mail.
 
 Veuillez autoriser l’accès dans la prochaine fenêtre contextuelle pour découvrir les utilisateurs du carnet d’adresses joignables avec Tchap.</string>
-    <string name="permissions_msg_contacts_warning_other_androids">Tchap a besoin d’accéder aux contacts de votre carnet d’adresses pour trouver d’autres utilisateurs de Tchap avec leur numéro de téléphone et leur adresse e-mail.
+    <string name="permissions_msg_contacts_warning_other_androids">Tchap a besoin d’accéder aux contacts de votre carnet d’adresses pour trouver d’autres utilisateurs de Tchap avec leur adresse e\u2011mail.
 
 Autorisez-vous Tchap à accéder à vos contacts ?</string>
 
@@ -535,7 +535,7 @@ Autorisez-vous Tchap à accéder à vos contacts ?</string>
 
     <string name="room_preview_invitation_format">%s vous a invité à rejoindre cette conversation</string>
     <string name="room_preview_unlinked_email_warning">Cette invitation a été envoyée à %s, qui n’est pas associé à ce compte.
-Vous pouvez vous identifier avec un compte différent ou ajouter cette adresse e-mail à votre compte.</string>
+Vous pouvez vous identifier avec un compte différent ou ajouter cette adresse e\u2011mail à votre compte.</string>
     <string name="room_preview_try_join_an_unknown_room">Vous essayez d’accéder à %s. Souhaitez-vous rejoindre la conversation pour y participer ?</string>
     <string name="room_preview_room_interactions_disabled">Ceci est un aperçu de la conversation. Vous ne pouvez pas interagir.</string>
 
@@ -545,16 +545,16 @@ Vous pouvez vous identifier avec un compte différent ou ajouter cette adresse e
     <string name="room_participants_idle">Inactif</string>
     <string name="room_participants_action_ignore">Masquer tous les messages de cet utilisateur</string>
     <string name="room_participants_action_unignore">Afficher tous les messages de cet utilisateur</string>
-    <string name="room_participants_invite_search_another_user">Nom ou email</string>
+    <string name="room_participants_invite_search_another_user">Nom ou e\u2011mail</string>
     <string name="room_participants_power_level_prompt">Vous ne pourrez pas annuler cette modification car vous promouvez l’utilisateur au même rang que le vôtre.
 
 En êtes-vous sûr(e) ?</string>
 
     <string name="room_participants_invite_prompt_msg">Voulez-vous vraiment inviter %s à ce salon ?</string>
 
-    <string name="people_search_invite_by_id"><u>Inviter par email</u></string>
+    <string name="people_search_invite_by_id"><u>Inviter par e\u2011mail</u></string>
 
-    <string name="people_search_invite_by_id_dialog_description">Entrez une ou plusieurs adresses email</string>
+    <string name="people_search_invite_by_id_dialog_description">Entrez une ou plusieurs adresse(s) e\u2011mail(s)</string>
     <string name="room_one_user_is_typing">%s écrit…</string>
     <string name="room_two_users_are_typing">%1$s et %2$s écrivent…</string>
     <string name="room_many_users_are_typing">%1$s, %2$s et d’autres écrivent…</string>
@@ -570,7 +570,7 @@ En êtes-vous sûr(e) ?</string>
     <string name="ssl_unexpected_existing_expl">Le certificat n’est plus celui qui a été approuvé par votre téléphone. Ce comportement est INATTENDU. Il est recommandé de ne PAS ACCEPTER ce nouveau certificat.</string>
     <string name="ssl_expected_existing_expl">Le certificat n’est plus celui qui a été approuvé par votre téléphone. Le serveur a peut-être renouvelé son certificat. Contactez l’administrateur du serveur pour lui demander l’empreinte de son certificat.</string>
     <string name="ssl_only_accept">Acceptez le certificat uniquement si l’administrateur du serveur a publié une empreinte correspondant à celle ci-dessus.</string>
-    <string name="malformed_id">Identifiant au mauvais format. Une adresse e-mail ou un identifiant Matrix au format \"@utilisateur:domaine\" est attendu</string>
+    <string name="malformed_id">Identifiant au mauvais format. Une adresse e\u2011mail ou un identifiant Matrix au format \"@utilisateur:domaine\" est attendu</string>
     <string name="room_event_action_report_prompt_ignore_user">Voulez-vous cacher tous les messages de cet utilisateur ?
 
 Veuillez noter que cette action redémarrera l’application et pourra prendre un certain temps.</string>
@@ -583,8 +583,8 @@ Veuillez noter que cette action redémarrera l’application et pourra prendre u
     <string name="devices_details_last_seen_format">%1$s @ %2$s</string>
     <string name="devices_delete_dialog_text">Cette opération nécessite de s’authentifier à nouveau.
 Pour continuer, veuillez saisir votre mot de passe.</string>
-    <string name="account_email_validation_message">Vérifiez votre e-mail et cliquez sur le lien qu’il contient. Une fois cela fait, cliquez sur continuer.</string>
-    <string name="account_email_validation_error">Impossible de vérifier l’adresse e-mail. Vérifiez vos e-mails et cliquez sur le lien qui a été envoyé. Ensuite, cliquez sur continuer.</string>
+    <string name="account_email_validation_message">Vérifiez votre e\u2011mail et cliquez sur le lien qu’il contient. Une fois cela fait, cliquez sur continuer.</string>
+    <string name="account_email_validation_error">Impossible de vérifier l’adresse e\u2011mail. Vérifiez vos e\u2011mails et cliquez sur le lien qui a été envoyé. Ensuite, cliquez sur continuer.</string>
 
     <string name="settings_unignore_user">Afficher tous les messages de %s ?
 
@@ -592,7 +592,7 @@ Veuillez noter que cette action redémarrera l’application et pourra prendre u
 
     <string name="settings_hide_from_users_directory_title">Inscrire mon compte sur liste rouge</string>
     <string name="settings_hide_from_users_directory_summary">Les autres utilisateurs ne pourront pas découvrir mon compte lors de leurs recherches</string>
-    <string name="settings_show_external_user_in_users_directory_prompt">Pour désactiver cette option, vous devez accepter que votre adresse email soit visible des autres utilisateurs lors de leurs recherches.</string>
+    <string name="settings_show_external_user_in_users_directory_prompt">Pour désactiver cette option, vous devez accepter que votre adresse e\u2011mail soit visible des autres utilisateurs lors de leurs recherches.</string>
 
     <string name="settings_delete_notification_targets_confirmation">Voulez-vous vraiment supprimer cette cible de notification ?</string>
 
@@ -657,8 +657,8 @@ Appareils inconnus :</string>
     <string name="settings_interface_language">Langue</string>
     <string name="settings_select_language">Choisissez une langue</string>
 
-    <string name="account_email_already_used_error">Cette adresse e-mail est déjà utilisée.</string>
-    <string name="account_email_not_found_error">Cette adresse e-mail n’a pas été trouvée.</string>
+    <string name="account_email_already_used_error">Cette adresse e\u2011mail est déjà utilisée.</string>
+    <string name="account_email_not_found_error">Cette adresse e\u2011mail n’a pas été trouvée.</string>
     <string name="account_phone_number_already_used_error">Ce numéro de téléphone est déjà utilisé.</string>
 
     <string name="offline">Hors ligne</string>
@@ -775,7 +775,7 @@ Appareils inconnus :</string>
     <string name="action_exit">Quitter</string>
     <string name="room_settings_all_messages_noisy">Notification sonore pour chaque message</string>
     <string name="room_settings_all_messages">Notification pour chaque message</string>
-    <string name="room_settings_mention_only">Notifier uniquement lorsque mon nom est mentionné</string>
+    <string name="room_settings_mention_only">Seulement les mentions</string>
     <string name="room_settings_mute">Pas de notification</string>
     <string name="room_settings_add_homescreen_shortcut">Ajouter un raccourci sur l’écran d’accueil</string>
 
@@ -817,7 +817,7 @@ Appareils inconnus :</string>
     <!-- tchap new strings -->
     <string name="tchap_room_admin_leave_prompt_msg">Voulez-vous vraiment quitter cette conversation ?\n\nElle ne sera plus administrée, et vous risquez de ne plus pouvoir la joindre de nouveau.</string>
     <string name="tchap_invite_contacts_to_tchap">Inviter des contacts dans Tchap</string>
-    <string name="tchap_invite_contacts_by_email">Inviter par e-mail</string>
+    <string name="tchap_invite_contacts_by_email">Inviter par e\u2011mail</string>
     <string name="tchap_invite_contacts_to_room">Inviter au salon</string>
     <string name="tchap_room_invite_member_direct_chat">Nouvelle discussion</string>
     <string name="tchap_invite_already_send_message">Vous avez déjà envoyé une invitation à %s</string>
@@ -874,10 +874,10 @@ Appareils inconnus :</string>
     </plurals>
 
     <!-- tchap account validity -->
-    <string name="tchap_expired_account_msg">La durée de validité de votre compte a expiré. Un email vous a été envoyé pour la renouveler. Une fois que vous aurez suivi le lien qu’il contient, cliquez ci-dessous.</string>
+    <string name="tchap_expired_account_msg">La durée de validité de votre compte a expiré. Un e\u2011mail vous a été envoyé pour la renouveler. Une fois que vous aurez suivi le lien qu’il contient, cliquez ci-dessous.</string>
     <string name="tchap_expired_account_resume_button">J’ai renouvelé mon compte</string>
     <string name="tchap_request_renewal_email_button">Demander l’envoi d’un nouvel email</string>
-    <string name="tchap_expired_account_on_new_sent_email_msg">Un nouvel email vous a été envoyé pour renouveler la validité de votre compte. Une fois que vous aurez suivi le lien qu’il contient, cliquez ci-dessous.</string>
+    <string name="tchap_expired_account_on_new_sent_email_msg">Un nouvel e\u2011mail vous a été envoyé pour renouveler la validité de votre compte. Une fois que vous aurez suivi le lien qu’il contient, cliquez ci-dessous.</string>
     <string name="tchap_renew_account_validity_success_msg">Votre compte a été renouvelé avec succès</string>
     <string name="tchap_renew_account_validity_invalid_token_msg">Le jeton de renouvellement est invalide</string>
 
@@ -905,18 +905,18 @@ Appareils inconnus :</string>
     <string name="tchap_connection_password_confirm">Confirmer le mot de passe</string>
     <string name="tchap_connection_forgotten_email">J’ai oublié mon mot de passe</string>
     <string name="tchap_register_warning_for_external_title">Information concernant votre inscription</string>
-    <string name="tchap_register_warning_for_external">Le domaine de votre adresse email n’est pas déclaré dans Tchap. Si vous avez reçu une invitation, vous allez pouvoir créer un compte Tchap « invité », permettant uniquement de participer aux échanges privés auxquels vous êtes convié.</string>
+    <string name="tchap_register_warning_for_external">Le domaine de votre adresse e\u2011mail n’est pas déclaré dans Tchap. Si vous avez reçu une invitation, vous allez pouvoir créer un compte Tchap « invité », permettant uniquement de participer aux échanges privés auxquels vous êtes convié.</string>
     <string name="tchap_register_warning_for_external_proceed">Poursuivre</string>
-    <string name="tchap_register_wait_for_email_title">Un email vous a été envoyé à l’adresse suivante, sauf si un compte Tchap lui a déjà été associé :</string>
-    <string name="tchap_register_wait_for_email_subtitle">Merci de cliquer sur le lien proposé dans cet email afin de terminer la création de votre compte. Vous pourrez alors vous connecter en allant sur l’écran de connexion.</string>
+    <string name="tchap_register_wait_for_email_title">Un e\u2011mail vous a été envoyé à l’adresse suivante, sauf si un compte Tchap lui a déjà été associé :</string>
+    <string name="tchap_register_wait_for_email_subtitle">Merci de cliquer sur le lien proposé dans cet e\u2011mail afin de terminer la création de votre compte. Vous pourrez alors vous connecter en allant sur l’écran de connexion.</string>
     <string name="tchap_register_wait_for_email_login_button">Aller à l’écran de connexion</string>
     <string name="tchap_register_wait_for_email_no_email">Je n’ai pas reçu l’email!</string>
-    <string name="tchap_register_unauthorized_email">Cette adresse e-mail n’est pas autorisée</string>
+    <string name="tchap_register_unauthorized_email">Cette adresse e\u2011mail n’est pas autorisée</string>
     <string name="tchap_password_weak_pwd_error">Ce mot de passe est trop faible. Il doit contenir au moins 8 caractères, avec au moins un caractère de chaque type : majuscule, minuscule, chiffre, caractère spécial.</string>
     <string name="tchap_password_pwd_in_dict_error">Ce mot de passe a été trouvé dans un dictionnaire, il n’est pas autorisé</string>
     <string name="tchap_register_user_already_logged_in_prompt">Il semblerait que vous essayez de vous connecter avec un autre compte. Voulez-vous vous déconnecter \?</string>
-    <string name="tchap_email_validation_succeeded">Votre email a été validé, vous pouvez poursuivre l’opération qui attendait cette validation.</string>
-    <string name="tchap_email_validation_failed">La validation de l’email a échouée. Le lien a expiré, ou il n’est pas valide.</string>
+    <string name="tchap_email_validation_succeeded">Votre e\u2011mail a été validé, vous pouvez poursuivre l’opération qui attendait cette validation.</string>
+    <string name="tchap_email_validation_failed">La validation de l’e\u2011mail a échouée. Le lien a expiré, ou il n’est pas valide.</string>
 
     <string name="tchap_change_password_help">Votre nouveau mot de passe doit contenir au moins 8 caractères, avec au moins un caractère de chaque type : majuscule, minuscule, chiffre, caractère spécial.</string>
 
@@ -1033,7 +1033,7 @@ Voulez-vous en ajouter ?</string>
 
 Désactiver votre compte <b>ne nous fait pas oublier les messages que vous avez envoyés par défaut</b>. Si vous souhaitez que nous oubliions vos messages, cochez la case ci-dessous.
 
-La visibilité des messages dans Matrix est identique à celle des e-mails. Si nous oublions vos messages, cela signifie que les messages que vous avez envoyés ne seront plus partagés avec les nouveaux utilisateurs ou les utilisateurs non enregistrés, mais les utilisateurs enregistrés qui ont déjà accès à ces messages en conserveront leur copie.</string>
+La visibilité des messages dans Matrix est identique à celle des e\u2011mails. Si nous oublions vos messages, cela signifie que les messages que vous avez envoyés ne seront plus partagés avec les nouveaux utilisateurs ou les utilisateurs non enregistrés, mais les utilisateurs enregistrés qui ont déjà accès à ces messages en conserveront leur copie.</string>
     <string name="deactivate_account_delete_checkbox">Veuillez oublier tous les messages que j’ai envoyé quand mon compte sera désactivé (Avertissement : les futurs utilisateurs verront une version incomplète des conversations)</string>
     <string name="deactivate_account_prompt_password">Pour continuer, veuillez renseigner votre mot de passe :</string>
     <string name="deactivate_account_submit">Désactiver le compte</string>
@@ -1212,7 +1212,8 @@ Veuillez noter que cette action redémarrera l’application et pourra prendre u
 
     <string name="encryption_import_room_keys_success">%1$d/%2$d clé(s) importée(s) avec succès.</string>
 
-    <string name="settings_notification_troubleshoot">Résoudre les problèmes de notification</string>
+    <string name="settings_notification_troubleshoot">Résoudre les problèmes de notifications</string>
+    <string name="settings_notification_troubleshoot_title">Réparer les notifications</string>
     <string name="settings_troubleshoot_diagnostic">Diagnostics de résolution de problème</string>
     <string name="settings_troubleshoot_diagnostic_run_button_title">Lancer les tests</string>
     <string name="settings_troubleshoot_diagnostic_running_status">"Exécution…  (%1$d sur %2$d)"</string>
@@ -1288,7 +1289,7 @@ Le travail qu’essayera de faire l’application sera restreint agressivement t
 Sur l’écran suivant on vous demandera d’autoriser Tchap à toujours fonctionner en arrière-plan, veuillez accepter.</string>
     <string name="startup_notification_fdroid_battery_optim_button_grant">Donner la permission</string>
 
-    <string name="account_email_error">Une erreur est survenue lors de la vérification de votre adresse e-mail.</string>
+    <string name="account_email_error">Une erreur est survenue lors de la vérification de votre adresse e\u2011mail.</string>
 
     <string name="account_phone_number_error">Une erreur est survenue lors de la vérification de votre numéro de téléphone.</string>
     <string name="account_additional_info">Informations additionnelles : %s</string>
@@ -1305,7 +1306,7 @@ Sur l’écran suivant on vous demandera d’autoriser Tchap à toujours fonctio
     <string name="done">Terminé</string>
 
     <string name="settings_notification_advanced">Paramètres de notification avancés</string>
-    <string name="settings_notification_advanced_summary">Régler l’importance des notifications par évènement, configurer le son, les led, les vibrations</string>
+    <string name="settings_notification_advanced_summary">Régler l’importance des notifications par évènement, configurer le son, les LED, les vibrations</string>
     <string name="settings_notification_by_event">Importance des notifications par évènement</string>
 
     <string name="settings_troubleshoot_test_bing_settings_title">Paramètres personnalisés.</string>
@@ -1772,10 +1773,10 @@ Si vous n’avez pas configuré de nouvelle méthode de récupération, un attaq
     <string name="call_failed_no_ice_use_alt">Essayez d’utiliser %s</string>
     <string name="call_failed_dont_ask_again">Ne plus me demander</string>
 
-    <string name="auth_add_email_message_2">Renseignez une adresse e-mail pour la récupération de compte et pour être éventuellement découvrable par les personnes qui vous connaissent.</string>
+    <string name="auth_add_email_message_2">Renseignez une adresse e\u2011mail pour la récupération de compte et pour être éventuellement découvrable par les personnes qui vous connaissent.</string>
     <string name="auth_add_phone_message_2">Renseignez un numéro de téléphone pour être éventuellement découvrable par les personnes qui vous connaissent.</string>
-    <string name="auth_add_email_phone_message_2">Renseignez une adresse e-mail pour la récupération de compte. Utilisez ensuite un e-mail ou un téléphone pour être éventuellement découvrable par les personnes qui vous connaissent.</string>
-    <string name="auth_add_email_and_phone_message_2">Renseignez une adresse e-mail pour la récupération de compte. Utilisez ensuite un e-mail ou un téléphone pour être éventuellement découvrable par les personnes qui vous connaissent.</string>
+    <string name="auth_add_email_phone_message_2">Renseignez une adresse e\u2011mail pour la récupération de compte. Utilisez ensuite un e\u2011mail ou un téléphone pour être éventuellement découvrable par les personnes qui vous connaissent.</string>
+    <string name="auth_add_email_and_phone_message_2">Renseignez une adresse e\u2011mail pour la récupération de compte. Utilisez ensuite un e\u2011mail ou un téléphone pour être éventuellement découvrable par les personnes qui vous connaissent.</string>
     <string name="login_error_homeserver_not_found">Impossible de joindre le serveur d’accueil à cette URL, veuillez la vérifier</string>
     <string name="settings_call_ringtone_use_default_stun">Autoriser le serveur d’assistance d’appel de secours</string>
     <string name="settings_call_ringtone_use_default_stun_sum">Utilisera %s comme assistant quand votre serveur d’accueil n’en offre pas (votre adresse IP sera partagée lors d’un appel)</string>
@@ -1810,12 +1811,12 @@ Si vous n’avez pas configuré de nouvelle méthode de récupération, un attaq
     <string name="change_identity_server">Modifier le serveur d’identité</string>
     <string name="settings_discovery_identity_server_info">Vous utilisez actuellement %1$s pour découvrir et être découvrable par les contacts existants que vous connaissez.</string>
     <string name="settings_discovery_identity_server_info_none">Vous n’utilisez actuellement aucun serveur d’identité. Pour découvrir et être découvrable par les contacts existants que vous connaissez, configurez-en un ci-dessous.</string>
-    <string name="settings_discovery_emails_title">Adresses e-mail découvrables</string>
-    <string name="settings_discovery_no_mails">Les options de découverte apparaîtront quand vous aurez ajouté(e) un e-mail.</string>
+    <string name="settings_discovery_emails_title">Adresses e\u2011mail découvrables</string>
+    <string name="settings_discovery_no_mails">Les options de découverte apparaîtront quand vous aurez ajouté(e) un e\u2011mail.</string>
     <string name="settings_discovery_no_msisdn">Les options de découverte apparaîtront quand vous aurez ajouté un numéro de téléphone.</string>
-    <string name="settings_discovery_disconnect_identity_server_info">La déconnexion du serveur d’identité signifie que vous ne pourrez plus être découvrable par les autres utilisateurs et que vous ne pourrez plus inviter d’autres personnes par e-mail ou par téléphone.</string>
+    <string name="settings_discovery_disconnect_identity_server_info">La déconnexion du serveur d’identité signifie que vous ne pourrez plus être découvrable par les autres utilisateurs et que vous ne pourrez plus inviter d’autres personnes par e\u2011mail ou par téléphone.</string>
     <string name="settings_discovery_msisdn_title">Numéros de téléphone découvrables</string>
-    <string name="settings_discovery_confirm_mail">Nous vous avons envoyé un e-mail de confirmation à %s, vérifiez vos e-mails et cliquez sur le lien de confirmation</string>
+    <string name="settings_discovery_confirm_mail">Nous vous avons envoyé un e\u2011mail de confirmation à %s, vérifiez vos e\u2011mails et cliquez sur le lien de confirmation</string>
     <string name="settings_discovery_mail_pending">En attente</string>
 
     <string name="settings_discovery_enter_identity_server">Renseignez un nouveau serveur d’identité</string>
@@ -1825,8 +1826,8 @@ Si vous n’avez pas configuré de nouvelle méthode de récupération, un attaq
     <string name="settings_discovery_no_terms">Le serveur d’identité qui vous avez choisi n’a pas de conditions de service. Continuez uniquement si vous faites confiance au propriétaire de ce service</string>
     <string name="settings_text_message_sent">Un SMS a été envoyé à %s. Saisissez le code de vérification qu’il contient.</string>
 
-    <string name="settings_discovery_disconnect_with_bound_pid">Vous partagez actuellement des adresse e-mails et des numéros de téléphone sur le serveur d’identité %1$s. Vous devrez vous reconnecter à %2$s pour arrêter de les partager.</string>
-    <string name="settings_agree_to_terms">Acceptez les conditions de service du serveur d’identité (%s) pour vous permettre d’être découvrable avec une adresse e-mail ou un numéro de téléphone.</string>
+    <string name="settings_discovery_disconnect_with_bound_pid">Vous partagez actuellement des adresses e\u2011mails et des numéros de téléphone sur le serveur d’identité %1$s. Vous devrez vous reconnecter à %2$s pour arrêter de les partager.</string>
+    <string name="settings_agree_to_terms">Acceptez les conditions de service du serveur d’identité (%s) pour vous permettre d’être découvrable avec une adresse e\u2011mail ou un numéro de téléphone.</string>
     <string name="resources_script">Latn</string>
 
     <string name="labs_allow_extended_logging">Activer les journaux verbeux.</string>
@@ -1931,14 +1932,14 @@ Si vous n’avez pas configuré de nouvelle méthode de récupération, un attaq
     <string name="security_dialog_start_an_stop_detecting">Ne plus me prévenir</string>
     <string name="security_dialog_stop">Sortir</string>
     <string name="detect_notification_listener">Détecter si un écouteur de notification est actif.</string>
-    <string name="notification_security_dialog_message">Un écouteur de notification lit le contenu des notifications de message. Les écouteurs suivant sont activés :</string>
+    <string name="notification_security_dialog_message">Un écouteur de notification lit le contenu des notifications de message. Les écouteurs suivants sont activés :</string>
     <string name="security_dialog_continue">Continuer</string>
     <string name="accessibility_change_security_dialog_message">Un service d’accessibilité a été activé. Il observe le clavier et les fenêtres.</string>
-    <string name="notification_change_security_dialog_message">Un écouteur de notification lit le contenu des notifications de message. Les écouteurs suivant ont été activés :</string>
+    <string name="notification_change_security_dialog_message">Un écouteur de notification lit le contenu des notifications de message. Les écouteurs suivants ont été activés :</string>
 
     <string name="an_update_is_available_critical">Une nouvelle version est disponible, pour des raisons de sécurité veuillez mettre à jour votre application</string>
     <string name="an_update_is_available_mandatory">Une nouvelle version est disponible, veuillez mettre à jour votre application</string>
-    <string name="an_update_is_available_info">Une nouvelle version est disponible!</string>
+    <string name="an_update_is_available_info">Une nouvelle version est disponible !</string>
     <string name="an_update_is_available_upgrade_help">Si vous utilisez un téléphone professionnel qui n’autorise pas l’accès au PlayStore, veuillez utiliser le magasin privé dédié pour mettre à jour Tchap.</string>
     <string name="an_update_is_available_upgrade_button">Ouvrir le PlayStore</string>
     <string name="an_update_is_available_ignore">Ignorer</string>

@@ -3661,13 +3661,6 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .setPositiveButton(R.string.ok, null)
                     .show();
-        } else if (WidgetManagerProvider.INSTANCE.getWidgetManager(this) == null) {
-            // display the dialog with the info text
-            new AlertDialog.Builder(this)
-                    .setMessage(R.string.integration_manager_not_configured)
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setPositiveButton(R.string.ok, null)
-                    .show();
         } else if (isUserAllowedToStartConfCall()) {
             if (mRoom.getNumberOfMembers() > 2) {
                 new AlertDialog.Builder(this)
@@ -3678,7 +3671,17 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 if (PreferencesManager.useJitsiConfCall(VectorRoomActivity.this)) {
-                                    startJitsiCall(true);
+                                    if (WidgetManagerProvider.INSTANCE.getWidgetManager(VectorRoomActivity.this) == null) {
+                                    //if (Matrix.getWidgetManager(VectorRoomActivity.this) == null) {
+                                        // display the dialog with the info text
+                                        new AlertDialog.Builder(VectorRoomActivity.this)
+                                                .setMessage(R.string.integration_manager_not_configured)
+                                                .setIcon(android.R.drawable.ic_dialog_alert)
+                                                .setPositiveButton(R.string.ok, null)
+                                                .show();
+                                    } else {
+                                        startJitsiCall(true);
+                                    }
                                 } else {
                                     displayVideoCallIpDialog();
                                 }

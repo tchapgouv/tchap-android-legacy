@@ -1080,14 +1080,22 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
         }
 
         if (null != mRoomNotificationsPreference) {
+            String stateValue = BingRulesManager.RoomNotificationState.MUTE.name();
             BingRulesManager.RoomNotificationState state = mSession.getDataHandler().getBingRulesManager().getRoomNotificationState(mRoom.getRoomId());
-
             if (state != null) {
-                mRoomNotificationsPreference.setValue(state.name());
-            } else {
-                // Should not happen
-                mRoomNotificationsPreference.setValue(BingRulesManager.RoomNotificationState.MUTE.name());
+                switch (state) {
+                    case ALL_MESSAGES_NOISY:
+                    case ALL_MESSAGES:
+                        // Tchap: We don't distinguish these 2 modes
+                        // All the room notifications are noisy by default in the bing rules
+                        stateValue = BingRulesManager.RoomNotificationState.ALL_MESSAGES.name();
+                        break;
+                    case MENTIONS_ONLY:
+                    case MUTE:
+                        stateValue = state.name();
+                }
             }
+            mRoomNotificationsPreference.setValue(stateValue);
         }
 
         // update the room tag preference
@@ -1298,9 +1306,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
         String value = mRoomNotificationsPreference.getValue();
         BingRulesManager.RoomNotificationState updatedState;
 
-        if (TextUtils.equals(value, BingRulesManager.RoomNotificationState.ALL_MESSAGES_NOISY.name())) {
-            updatedState = BingRulesManager.RoomNotificationState.ALL_MESSAGES_NOISY;
-        } else if (TextUtils.equals(value, BingRulesManager.RoomNotificationState.ALL_MESSAGES.name())) {
+        if (TextUtils.equals(value, BingRulesManager.RoomNotificationState.ALL_MESSAGES.name())) {
             updatedState = BingRulesManager.RoomNotificationState.ALL_MESSAGES;
         } else if (TextUtils.equals(value, BingRulesManager.RoomNotificationState.MENTIONS_ONLY.name())) {
             updatedState = BingRulesManager.RoomNotificationState.MENTIONS_ONLY;
