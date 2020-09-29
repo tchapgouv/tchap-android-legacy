@@ -522,10 +522,10 @@ Veuillez autoriser l’accès dans la prochaine fenêtre contextuelle pour pouvo
     <string name="permissions_rationale_msg_camera_and_audio">Tchap a besoin d’accéder à votre appareil photo et à votre microphone pour passer des appels vidéo.
 
 Veuillez autoriser l’accès dans les prochaines fenêtres contextuelles pour pouvoir effectuer l’appel.</string>
-    <string name="permissions_rationale_msg_contacts">Tchap a besoin d’accéder aux contacts de votre carnet d’adresses pour trouver d’autres utilisateurs de Tchap avec leur numéro de téléphone et leur adresse e\u2011mail.
+    <string name="permissions_rationale_msg_contacts">Tchap a besoin d’accéder aux contacts de votre carnet d’adresses pour trouver d’autres utilisateurs de Tchap avec leur adresse e\u2011mail.
 
 Veuillez autoriser l’accès dans la prochaine fenêtre contextuelle pour découvrir les utilisateurs du carnet d’adresses joignables avec Tchap.</string>
-    <string name="permissions_msg_contacts_warning_other_androids">Tchap a besoin d’accéder aux contacts de votre carnet d’adresses pour trouver d’autres utilisateurs de Tchap avec leur numéro de téléphone et leur adresse e\u2011mail.
+    <string name="permissions_msg_contacts_warning_other_androids">Tchap a besoin d’accéder aux contacts de votre carnet d’adresses pour trouver d’autres utilisateurs de Tchap avec leur adresse e\u2011mail.
 
 Autorisez-vous Tchap à accéder à vos contacts ?</string>
 
@@ -775,7 +775,7 @@ Appareils inconnus :</string>
     <string name="action_exit">Quitter</string>
     <string name="room_settings_all_messages_noisy">Notification sonore pour chaque message</string>
     <string name="room_settings_all_messages">Notification pour chaque message</string>
-    <string name="room_settings_mention_only">Notifier uniquement lorsque mon nom est mentionné</string>
+    <string name="room_settings_mention_only">Seulement les mentions</string>
     <string name="room_settings_mute">Pas de notification</string>
     <string name="room_settings_add_homescreen_shortcut">Ajouter un raccourci sur l’écran d’accueil</string>
 
@@ -1224,7 +1224,8 @@ Veuillez noter que cette action redémarrera l’application et pourra prendre u
 
     <string name="encryption_import_room_keys_success">%1$d/%2$d clé(s) importée(s) avec succès.</string>
 
-    <string name="settings_notification_troubleshoot">Résoudre les problèmes de notification</string>
+    <string name="settings_notification_troubleshoot">Résoudre les problèmes de notifications</string>
+    <string name="settings_notification_troubleshoot_title">Réparer les notifications</string>
     <string name="settings_troubleshoot_diagnostic">Diagnostics de résolution de problème</string>
     <string name="settings_troubleshoot_diagnostic_run_button_title">Lancer les tests</string>
     <string name="settings_troubleshoot_diagnostic_running_status">"Exécution…  (%1$d sur %2$d)"</string>

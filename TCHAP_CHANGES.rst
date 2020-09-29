@@ -1,11 +1,16 @@
-Changes in Tchap 1.0.xx (2020-xx-xx)
+Changes in Tchap 1.0.46 (2020-09-26)
 ===================================================
 
 Improvements:
- * 
+ * Update matrix-sdk.aar libs - Revision: 3d3c42c5a55bcc4e80d268a6eace93eb1dfc0247 [3d3c42c5a]
+   Note: targetSdkVersion has been updated in matrix-sdk to Android 10 (API 29).
+ * Simplify the notifications handling #605
 
-Bug Fix:
+Bug Fixes:
  * LoginActivity: block the UI when the loading wheel is running
+ * java.lang.NullPointerException (RoomViewHolder.java:197) #611
+ * matrix-sdk: Tchap crashes when it checks user presence #603
+ * matrix-sdk: Fix a crash on the crypto code (potentially a race condition)
 
 Changes in Tchap 1.0.45 (2020-08-14)
 ===================================================
