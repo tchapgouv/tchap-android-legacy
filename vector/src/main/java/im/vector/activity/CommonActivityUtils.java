@@ -258,7 +258,7 @@ public class CommonActivityUtils {
         PreferenceManager.getDefaultSharedPreferences(activity)
                 .edit()
                 .putBoolean(RESTART_IN_PROGRESS_KEY, false)
-                .apply();
+                .commit();
     }
 
 
@@ -285,7 +285,7 @@ public class CommonActivityUtils {
             preferences
                     .edit()
                     .putBoolean(RESTART_IN_PROGRESS_KEY, true)
-                    .apply();
+                    .commit();
 
             Intent loginIntent = new Intent(activity, TchapLoginActivity.class);
             if (invalidatedCredentials) {
