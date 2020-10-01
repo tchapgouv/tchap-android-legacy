@@ -35,7 +35,8 @@
                 android:layout_marginTop="12dp"
                 android:background="@drawable/tchap_search_field"
                 android:clickable="true"
-                android:textAlignment="center" />
+                android:textAlignment="center"
+                android:theme="@style/Toolbar.SearchView.Light"/>
         </androidx.appcompat.widget.Toolbar>
 
         <com.google.android.material.tabs.TabLayout
