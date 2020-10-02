@@ -1,4 +1,12 @@
-Changes in Tchap 1.0.46 (2020-09-26)
+Changes in Tchap 1.0.47 (2020-10-02)
+===================================================
+
+Bug Fixes:
+ * Configure correctly activity launchmode PR #630
+ * Fix searchview cursor color PR #633
+ * fix crash loop back off on invalid access token #636
+ 
+ Changes in Tchap 1.0.46 (2020-09-26)
 ===================================================
 
 Improvements:
