@@ -164,7 +164,7 @@ class EventStreamServiceX : VectorService() {
         }
         val action = intent.action
 
-        Log.i(LOG_TAG, "onStartCommand with action : $action (current state $serviceState)")
+        Log.i(LOG_TAG, "onStartCommand with action : $action (current state $serviceState) $this")
 
         // Manage foreground notification
         when (action) {
@@ -220,9 +220,17 @@ class EventStreamServiceX : VectorService() {
                     EventStreamServiceX.ServiceState.CATCHUP ->
                         // A push has been received before, just change state, to avoid stopping the service when catchup is over
                         serviceState = ServiceState.STARTED
-                    EventStreamServiceX.ServiceState.STARTED -> {
-                        // Nothing to do
-                    }
+                    EventStreamServiceX.ServiceState.STARTED ->
+                        // Force a restart if the currentSyncToken is null whereas the store is ready.
+                        // This means the service is not correctly started because the syncToken should
+                        // be updated as soon as the event stream is started (This case is observed when
+                        // the account has expired).
+                        if (null == mSession?.currentSyncToken && mSession?.dataHandler?.store?.isReady ?: false) {
+                            mSession!!.stopEventStream()
+                            mSession!!.dataHandler.removeListener(mEventsListener)
+                            CallsManager.getSharedInstance().removeSession(mSession)
+                            start(false)
+                        }
                 }
             }
             ACTION_STOP,
