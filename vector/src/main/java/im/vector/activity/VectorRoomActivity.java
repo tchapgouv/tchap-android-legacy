@@ -3318,11 +3318,17 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
 
                             @Override
                             public void onMatrixError(MatrixError e) {
-                                if (MatrixError.M_CONSENT_NOT_GIVEN.equals(e.errcode)) {
-                                    hideWaitingView();
-                                    getConsentNotGivenHelper().displayDialog(e);
-                                } else {
-                                    onError(e.getLocalizedMessage());
+                                Log.e(LOG_TAG, "## joinRoom: onMatrixError Msg= " + e.getLocalizedMessage());
+                                switch (e.errcode) {
+                                    case MatrixError.M_CONSENT_NOT_GIVEN:
+                                        hideWaitingView();
+                                        getConsentNotGivenHelper().displayDialog(e);
+                                        break;
+                                    case MatrixError.FORBIDDEN:
+                                        onError(getString(R.string.tchap_room_access_unauthorized));
+                                        break;
+                                    default:
+                                        onError(getString(R.string.tchap_error_message_default));
                                 }
                             }
 

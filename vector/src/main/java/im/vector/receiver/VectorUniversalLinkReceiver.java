@@ -336,7 +336,12 @@ public class VectorUniversalLinkReceiver extends BroadcastReceiver {
 
                 @Override
                 public void onMatrixError(MatrixError e) {
-                    onError(e.getLocalizedMessage());
+                    Log.e(LOG_TAG, "## manageRoom: onMatrixError Msg= " + e.getLocalizedMessage());
+                    if (MatrixError.NOT_FOUND.equals(e.errcode)) {
+                        onError(aContext.getResources().getString(R.string.tchap_room_invalid_link));
+                    } else {
+                        onError(aContext.getResources().getString(R.string.tchap_error_message_default));
+                    }
                 }
 
                 @Override

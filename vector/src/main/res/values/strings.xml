@@ -1272,6 +1272,8 @@
 
     <!-- tchap room -->
     <string name="tchap_room_access_unrestricted">Room accessible to external users</string>
+    <string name="tchap_room_invalid_link">This link is invalid</string>
+    <string name="tchap_room_access_unauthorized">You are not allowed to join this conversation. An invitation is needed.</string>
     <plurals name="tchap_room_retention_info">
         <item quantity="one">History limited to %d day</item>
         <item quantity="other">History limited to %d days</item>
