@@ -2,10 +2,10 @@ Changes in Tchap 1.0.xx (2020-xx-xx)
 ===================================================
 
 Improvements:
- *
+ * Increase targetSdk to 29 #609
 
 Bug Fixes:
- *
+ * Tchap crashes on invalid access token #631
 
 Changes in Tchap 1.0.47 (2020-10-02)
 ===================================================
