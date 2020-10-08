@@ -845,7 +845,7 @@ Appareils inconnus :</string>
     <!-- tchap room -->
     <string name="tchap_room_access_unrestricted">Salon accessible aux externes</string>
     <string name="tchap_room_invalid_link">Ce lien n’est pas valide</string>
-    <string name="tchap_room_access_unauthorized">Vous n\'êtes pas autorisé à rejoindre cette conversation. Une invitation est nécessaire.</string>
+    <string name="tchap_room_access_unauthorized">Vous n’êtes pas autorisé à rejoindre cette conversation. Une invitation est nécessaire.</string>
     <plurals name="tchap_room_retention_info">
         <item quantity="one">Historique limité à %d jour</item>
         <item quantity="other">Historique limité à %d jours</item>
