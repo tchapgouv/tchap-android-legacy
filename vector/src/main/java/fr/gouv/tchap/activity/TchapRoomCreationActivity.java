@@ -174,11 +174,6 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         // Hide the encrypted messages sent before the member is invited.
         mRoomParams.setHistoryVisibility(RoomState.HISTORY_VISIBILITY_INVITED);
 
-        // A Tchap room member must be moderator to invite
-        mRoomParams.powerLevelContentOverride = new HashMap<String, Object>() {{
-            put("invite", CommonActivityUtils.UTILS_POWER_LEVEL_MODERATOR);
-        }};
-
         // Prepare disable federation label by adding the hs display name of the current user.
         String userHSDomain = DinsicUtils.getHomeServerDisplayNameFromMXIdentifier(mSession.getMyUserId());
         disableFederationSwitch.setText(getString(R.string.tchap_room_creation_disable_federation, userHSDomain));
