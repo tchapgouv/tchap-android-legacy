@@ -296,11 +296,10 @@ public class VectorUniversalLinkReceiver extends BroadcastReceiver {
                     = new RoomPreviewData(mSession, roomIdOrAlias, mParameters.get(PermalinkUtils.ULINK_EVENT_ID_KEY), roomAlias, mParameters);
             Room room = mSession.getDataHandler().getRoom(roomIdOrAlias, false);
 
-            // if the room exists
-            if ((null != room) && !room.isInvited()) {
+            // Check if the room exists and if this is not a fake one (the summary should exist too)
+            if ((null != room) && (null != room.getRoomSummary()) && !room.isInvited()) {
                 openRoomActivity(aContext);
             } else {
-
                 CommonActivityUtils.previewRoom(VectorApp.getCurrentActivity(), mSession, roomIdOrAlias, roomPreviewData, null);
             }
         } else { // room ID is provided as a room alias: get corresponding room ID
