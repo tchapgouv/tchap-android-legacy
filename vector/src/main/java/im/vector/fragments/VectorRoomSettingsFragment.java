@@ -77,6 +77,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import fr.gouv.tchap.activity.TchapRoomAccessByLinkActivity;
 import fr.gouv.tchap.sdk.session.room.model.RoomAccessRulesKt;
 import fr.gouv.tchap.sdk.session.room.model.RoomRetentionKt;
 import fr.gouv.tchap.util.DinsicUtils;
@@ -123,7 +124,6 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
     private static final String PREF_KEY_ROOM_PHOTO_AVATAR = "roomPhotoAvatar";
     private static final String PREF_KEY_ROOM_NAME = "roomNameEditText";
     private static final String PREF_KEY_ROOM_TOPIC = "roomTopicEditText";
-    private static final String PREF_KEY_ROOM_DIRECTORY_VISIBILITY_SWITCH = "roomNameListedInDirectorySwitch";
     private static final String PREF_KEY_ROOM_TAG_LIST = "roomTagList";
     private static final String PREF_KEY_ROOM_ACCESS_RULES_LIST = "roomAccessRulesList";
     private static final String PREF_KEY_ROOM_HISTORY_READABILITY_LIST = "roomReadHistoryRulesList";
@@ -132,6 +132,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
     private static final String PREF_KEY_REMOVE_FROM_ROOMS_DIRECTORY = "removeFromRoomsDirectory";
     private static final String PREF_KEY_ROOM_ACCESS_RULE = "roomAccessRule";
     private static final String PREF_KEY_ROOM_RETENTION = "roomRetention";
+    private static final String PREF_KEY_ROOM_ACCESS_BY_LINK = "roomAccessByLink";
     private static final String PREF_KEY_ROOM_INTERNAL_ID = "roomInternalId";
     private static final String PREF_KEY_ADDRESSES = "addresses";
     private static final String PREF_KEY_ADVANCED = "advanced";
@@ -158,6 +159,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
     private Room mRoom;
     private BingRulesManager mBingRulesManager;
     private boolean mIsUiUpdateSkipped;
+    private Boolean mIsForumRoom;
 
     // addresses
     private PreferenceCategory mAddressesSettingsCategory;
@@ -178,8 +180,8 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
     private EditTextPreference mRoomTopicEditTxt;
     private Preference mRemoveFromDirectoryPreference;
     private Preference mRoomRetentionPreference;
+    private VectorPreference mRoomAccessByLinkPreference;
     private Preference mRoomAccessRulePreference;
-    private CheckBoxPreference mRoomDirectoryVisibilitySwitch;
     private ListPreference mRoomTagListPreference;
     private VectorListPreference mRoomAccessRulesListPreference;
     private ListPreference mRoomHistoryReadabilityRulesListPreference;
@@ -225,20 +227,20 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
 
         @Override
         public void onNetworkError(Exception e) {
-            Log.w(LOG_TAG, "##NetworkError " + e.getLocalizedMessage());
-            onDone(e.getLocalizedMessage(), UPDATE_UI);
+            Log.e(LOG_TAG, "##NetworkError " + e.getLocalizedMessage());
+            onDone(getString(R.string.network_error_please_check_and_retry), UPDATE_UI);
         }
 
         @Override
         public void onMatrixError(MatrixError e) {
-            Log.w(LOG_TAG, "##MatrixError " + e.getLocalizedMessage());
-            onDone(e.getLocalizedMessage(), UPDATE_UI);
+            Log.e(LOG_TAG, "##MatrixError " + e.getLocalizedMessage());
+            onDone(getString(R.string.tchap_error_message_default), UPDATE_UI);
         }
 
         @Override
         public void onUnexpectedError(Exception e) {
-            Log.w(LOG_TAG, "##UnexpectedError " + e.getLocalizedMessage());
-            onDone(e.getLocalizedMessage(), UPDATE_UI);
+            Log.e(LOG_TAG, "##UnexpectedError " + e.getLocalizedMessage());
+            onDone(getString(R.string.tchap_error_message_default), UPDATE_UI);
         }
     };
 
@@ -409,7 +411,6 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
         mRoomPhotoAvatar = (TchapRoomAvatarPreference) findPreference(PREF_KEY_ROOM_PHOTO_AVATAR);
         mRoomNameEditTxt = (EditTextPreference) findPreference(PREF_KEY_ROOM_NAME);
         mRoomTopicEditTxt = (EditTextPreference) findPreference(PREF_KEY_ROOM_TOPIC);
-        mRoomDirectoryVisibilitySwitch = (CheckBoxPreference) findPreference(PREF_KEY_ROOM_DIRECTORY_VISIBILITY_SWITCH);
         mRoomTagListPreference = (ListPreference) findPreference(PREF_KEY_ROOM_TAG_LIST);
         mRoomAccessRulesListPreference = (VectorListPreference) findPreference(PREF_KEY_ROOM_ACCESS_RULES_LIST);
         mRoomHistoryReadabilityRulesListPreference = (ListPreference) findPreference(PREF_KEY_ROOM_HISTORY_READABILITY_LIST);
@@ -532,6 +533,9 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
         // Display the room retention period
         mRoomRetentionPreference = findPreference(PREF_KEY_ROOM_RETENTION);
 
+        // Handle the room access by link
+        mRoomAccessByLinkPreference = (VectorPreference)findPreference(PREF_KEY_ROOM_ACCESS_BY_LINK);
+
         // Handle the room access rules
         mRoomAccessRulePreference = findPreference(PREF_KEY_ROOM_ACCESS_RULE);
         if (null != mRoomAccessRulePreference && DinumUtilsKt.isSecure()) {
@@ -644,7 +648,37 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
         displayLoadingView();
 
         // The room will become unrestricted
-        DinsicUtils.setRoomAccessRule(mSession, mRoom, RoomAccessRulesKt.UNRESTRICTED, mUpdateCallback);
+        DinsicUtils.setRoomAccessRule(mSession, mRoom, RoomAccessRulesKt.UNRESTRICTED, new ApiCallback<Void>() {
+            @Override
+            public void onSuccess(Void info) {
+                mUpdateCallback.onSuccess(info);
+            }
+
+            @Override
+            public void onNetworkError(Exception e) {
+                mUpdateCallback.onNetworkError(e);
+            }
+
+            @Override
+            public void onMatrixError(MatrixError e) {
+                // Notify the user that this change is not allowed for the moment, this will allowed soon
+                String joinRule = mRoom.getState().join_rule;
+                if (MatrixError.FORBIDDEN.equals(e.errcode) && RoomState.JOIN_RULE_PUBLIC.equals(joinRule)) {
+                    Log.e(LOG_TAG, "##MatrixError " + e.getLocalizedMessage());
+                    if (null != getActivity()) {
+                        Toast.makeText(getActivity(), R.string.tchap_room_settings_allow_external_users_forbidden, Toast.LENGTH_LONG).show();
+                        hideLoadingView(UPDATE_UI);
+                    }
+                } else {
+                    mUpdateCallback.onMatrixError(e);
+                }
+            }
+
+            @Override
+            public void onUnexpectedError(Exception e) {
+                mUpdateCallback.onUnexpectedError(e);
+            }
+        });
     }
 
     private void setRetentionPeriod(int period) {
@@ -810,20 +844,10 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
                         return;
                     }
 
-                    // only stop loading screen and do not update UI since the
-                    // update is done here below..
-                    hideLoadingView(DO_NOT_UPDATE_UI);
-
                     boolean isPublicRoom = RoomDirectoryVisibility.DIRECTORY_VISIBILITY_PUBLIC.equals(aVisibilityValue);
+                    mIsForumRoom = isPublicRoom;
 
-                    if (null != mRoomDirectoryVisibilitySwitch) {
-                        // set checked status
-                        // Note: the preference listener is disabled when the switch is updated, otherwise it will be seen
-                        // as a user action on the preference
-                        enableSharedPreferenceListener(false);
-                        mRoomDirectoryVisibilitySwitch.setChecked(isPublicRoom);
-                        enableSharedPreferenceListener(true);
-                    }
+                    updatePreferenceAccessFromPowerLevel();
 
                     if (null != mRemoveFromDirectoryPreference) {
                         if (isPublicRoom) {
@@ -835,6 +859,10 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
                             mRemoveFromDirectoryPreference = null;
                         }
                     }
+
+                    // Stop loading screen and do not update UI since the
+                    // update is just done above.
+                    hideLoadingView(DO_NOT_UPDATE_UI);
                 }
 
                 @Override
@@ -922,10 +950,8 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
 
             String rule = DinsicUtils.getRoomAccessRule(mRoom);
             if (TextUtils.equals(rule, RoomAccessRulesKt.RESTRICTED)) {
-                // The room admin is able to open a "private room" to the external users
-                // (We name "private rooms" those which require an invite to be joined)
-                String joinRule = mRoom.getState().join_rule;
-                if (isAdmin && isConnected && RoomState.JOIN_RULE_INVITE.equals(joinRule)) {
+                // The room admin is allowed to open a room to the external users, except if the room is published to the rooms directory.
+                if (isAdmin && isConnected && (mIsForumRoom != null && !mIsForumRoom)) {
                     mRoomAccessRulePreference.setTitle(getString(R.string.tchap_room_settings_allow_external_users_to_join));
                     mRoomAccessRulePreference.setSummary(null);
                     mRoomAccessRulePreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -989,9 +1015,38 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
             }
         }
 
-        // room present in the directory list: admin only
-        if (null != mRoomDirectoryVisibilitySwitch)
-            mRoomDirectoryVisibilitySwitch.setEnabled(isAdmin && isConnected);
+        if (null != mRoomAccessByLinkPreference) {
+            mRoomAccessByLinkPreference.setOnPreferenceClickListener(null);
+            mRoomAccessByLinkPreference.setEnabled(true);
+            Boolean isChevronIconVisible;
+
+            String joinRule = mRoom.getState().join_rule;
+            if (RoomState.JOIN_RULE_INVITE.equals(joinRule)) {
+                mRoomAccessByLinkPreference.setSummary(getString(R.string.tchap_room_settings_room_access_by_link_disabled));
+                // Only the room admin is able to change this value
+                isChevronIconVisible = (isAdmin && isConnected);
+            } else {
+                mRoomAccessByLinkPreference.setSummary(getString(R.string.tchap_room_settings_room_access_by_link_enabled));
+                // Allow anyone to open "Access by link screen" to get the link. Admin will be able to change option too.
+                isChevronIconVisible = true;
+            }
+
+            if (isChevronIconVisible) {
+                mRoomAccessByLinkPreference.setChevronIconVisible(true);
+                mRoomAccessByLinkPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        Intent roomAccessByLinkIntent = new Intent(getActivity(), TchapRoomAccessByLinkActivity.class);
+                        roomAccessByLinkIntent.putExtra(TchapRoomAccessByLinkActivity.EXTRA_ROOM_ID, mRoom.getRoomId());
+                        if (mIsForumRoom != null) {
+                            roomAccessByLinkIntent.putExtra(TchapRoomAccessByLinkActivity.EXTRA_IS_FORUM_ROOM, mIsForumRoom);
+                        }
+                        getActivity().startActivity(roomAccessByLinkIntent);
+                        return false;
+                    }
+                });
+            }
+        }
 
         // room tagging: no power condition
         if (null != mRoomTagListPreference)
@@ -1156,8 +1211,6 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
             onRoomTopicPreferenceChanged();
         } else if (aKey.equals(PREF_KEY_ROOM_NOTIFICATIONS_LIST)) {
             onRoomNotificationsPreferenceChanged();
-        } else if (aKey.equals(PREF_KEY_ROOM_DIRECTORY_VISIBILITY_SWITCH)) {
-            onRoomDirectoryVisibilityPreferenceChanged(); // TBT
         } else if (aKey.equals(PREF_KEY_ROOM_TAG_LIST)) {
             onRoomTagPreferenceChanged(); // TBT
         } else if (aKey.equals(PREF_KEY_ROOM_ACCESS_RULES_LIST)) {
@@ -1273,25 +1326,6 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
                 displayLoadingView();
                 mRoom.updateGuestAccess(guestAccessRuleToApply, mUpdateCallback);
             }
-        }
-    }
-
-    private void onRoomDirectoryVisibilityPreferenceChanged() {
-        String visibility;
-
-        if ((null == mRoom) || (null == mRoomDirectoryVisibilitySwitch)) {
-            Log.w(LOG_TAG, "## onRoomDirectoryVisibilityPreferenceChanged(): not processed due to invalid parameters");
-            visibility = null;
-        } else if (mRoomDirectoryVisibilitySwitch.isChecked()) {
-            visibility = RoomDirectoryVisibility.DIRECTORY_VISIBILITY_PUBLIC;
-        } else {
-            visibility = RoomDirectoryVisibility.DIRECTORY_VISIBILITY_PRIVATE;
-        }
-
-        if (null != visibility) {
-            Log.d(LOG_TAG, "## onRoomDirectoryVisibilityPreferenceChanged(): directory visibility set to " + visibility);
-            displayLoadingView();
-            mRoom.updateDirectoryVisibility(visibility, mUpdateCallback);
         }
     }
 

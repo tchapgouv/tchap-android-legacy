@@ -41,6 +41,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import org.matrix.androidsdk.data.Room;
+import org.matrix.androidsdk.data.RoomState;
 import org.matrix.androidsdk.listeners.MXEventListener;
 import org.matrix.androidsdk.core.callback.ApiCallback;
 import androidx.annotation.NonNull;
@@ -49,6 +50,7 @@ import org.matrix.androidsdk.core.Log;
 import org.matrix.androidsdk.features.terms.TermsManager;
 import org.matrix.androidsdk.rest.model.Event;
 import org.matrix.androidsdk.core.model.MatrixError;
+import org.matrix.androidsdk.rest.model.PowerLevels;
 import org.matrix.androidsdk.rest.model.User;
 import org.matrix.androidsdk.rest.model.pid.RoomThirdPartyInvite;
 import org.matrix.androidsdk.rest.model.pid.ThreePid;
@@ -62,6 +64,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import fr.gouv.tchap.activity.TchapLoginActivity;
+import fr.gouv.tchap.activity.TchapRoomAccessByLinkActivity;
 import fr.gouv.tchap.sdk.rest.client.TchapThirdPidRestClient;
 import fr.gouv.tchap.sdk.rest.model.Platform;
 
@@ -404,10 +407,38 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
             }
         });
 
+        View inviteByLinkView = findViewById(R.id.ly_invite_contacts_by_link);
+        inviteByLinkView.setVisibility(View.GONE);
         View inviteByEmailView = findViewById(R.id.ly_invite_contacts_by_email);
         inviteByEmailView.setVisibility(View.GONE);
-        // Show this option when no tchap contacts are allowed, AND the current user is not an external one.
-        if(DinsicUtils.isExternalTchapSession(mSession) == false) {
+
+        // Consider these 2 options when the current user is not an external one.
+        if(!DinsicUtils.isExternalTchapSession(mSession)) {
+            // Check whether a room is provided before considering the option "Invite by link"
+            if (mRoom != null && mSession != null) {
+                // This option is visible only when the user is admin or the join_rule is public
+                PowerLevels powerLevels = mRoom.getState().getPowerLevels();
+                int powerLevel = powerLevels.getUserPowerLevel(mSession.getMyUserId());
+                boolean isAdmin = (powerLevel >= CommonActivityUtils.UTILS_POWER_LEVEL_ADMIN);
+
+                if (isAdmin || RoomState.JOIN_RULE_PUBLIC.equals(mRoom.getState().join_rule)) {
+                    inviteByLinkView.setVisibility(View.VISIBLE);
+                    inviteByLinkView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            // Cancel the potential search
+                            mSearchView.setQuery("", false);
+                            mParentLayout.requestFocus();
+
+                            Intent roomAccessByLinkIntent = new Intent(VectorRoomInviteMembersActivity.this, TchapRoomAccessByLinkActivity.class);
+                            roomAccessByLinkIntent.putExtra(TchapRoomAccessByLinkActivity.EXTRA_ROOM_ID, mRoom.getRoomId());
+                            VectorRoomInviteMembersActivity.this.startActivity(roomAccessByLinkIntent);
+                        }
+                    });
+                }
+            }
+
+            // The option "Invite by email" is visible only when no tchap contacts are allowed
             switch (mContactsFilter) {
                 case ALL:
                 case ALL_WITHOUT_EXTERNALS:

@@ -22,15 +22,52 @@
         android:layout_margin="10dp"
         android:background="@drawable/tchap_search_bar_style"
         android:clickable="true"
-        android:textAlignment="center" />
+        android:focusable="true"
+        android:textAlignment="center"
+        android:gravity="center_horizontal"/>
+
+    <RelativeLayout
+        android:id="@+id/ly_invite_contacts_by_link"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_below="@+id/external_search_view"
+        android:layout_marginLeft="24dp"
+        android:layout_marginStart="24dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <ImageView
+            android:id="@+id/icon_add_contacts_by_link"
+            android:layout_width="41dp"
+            android:layout_height="41dp"
+            android:layout_marginTop="10dp"
+            android:src="@drawable/icon_link" />
+
+        <TextView
+            android:id="@+id/tv_invite_contacts_by_link"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="20dp"
+            android:layout_toRightOf="@+id/icon_add_contacts_by_link"
+            android:layout_toEndOf="@+id/icon_add_contacts_by_link"
+            android:text="@string/tchap_invite_contacts_by_link"
+            android:textColor="@color/tchap_text_color_light"
+            android:textSize="16sp" />
+    </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/ly_invite_contacts_by_email"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_below="@+id/external_search_view"
+        android:layout_below="@+id/ly_invite_contacts_by_link"
         android:layout_marginLeft="24dp"
+        android:layout_marginStart="24dp"
         android:clickable="true"
+        android:focusable="true"
         android:visibility="gone"
         tools:visibility="visible">
 
@@ -46,8 +83,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="15dp"
+            android:layout_marginStart="15dp"
             android:layout_marginTop="20dp"
             android:layout_toRightOf="@+id/icon_add_contacts_by_email"
+            android:layout_toEndOf="@+id/icon_add_contacts_by_email"
             android:text="@string/tchap_invite_contacts_by_email"
             android:textColor="@color/tchap_text_color_light"
             android:textSize="16sp" />
