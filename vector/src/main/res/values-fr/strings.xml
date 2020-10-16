@@ -882,6 +882,7 @@ Appareils inconnus :</string>
     <string name="tchap_room_settings_enable_room_access_by_link">Activer l’accès au salon par lien</string>
     <string name="tchap_room_settings_enable_room_access_by_link_info_off">Les autres utilisateurs seront autorisés à rejoindre ce salon à partir d’un lien</string>
     <string name="tchap_room_settings_enable_room_access_by_link_info_on">Les autres utilisateurs peuvent rejoindre ce salon à partir du lien suivant\u00A0:</string>
+    <string name="tchap_room_settings_enable_room_access_by_link_info_on_with_limitation">Les autres utilisateurs peuvent rejoindre ce salon à partir du lien suivant (une invitation reste nécessaire pour les externes)\u00A0:</string>
     <string name="tchap_room_settings_room_access_by_link_forward">Transférer le lien</string>
     <string name="tchap_room_settings_room_access_by_link_share">Partager le lien</string>
     <string name="tchap_room_settings_room_access_by_link_forbidden">Ce changement n’est pas supporté actuellement car les externes sont autorisés à rejoindre ce salon. Il sera supporté prochainement</string>

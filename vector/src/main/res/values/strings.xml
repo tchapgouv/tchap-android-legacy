@@ -1310,6 +1310,7 @@
     <string name="tchap_room_settings_enable_room_access_by_link">Enable the room access by link</string>
     <string name="tchap_room_settings_enable_room_access_by_link_info_off">Users will be allowed to join the room from a link</string>
     <string name="tchap_room_settings_enable_room_access_by_link_info_on">Users can join the room from the following link:</string>
+    <string name="tchap_room_settings_enable_room_access_by_link_info_on_with_limitation">Users can join the room from the following link (an invite is still required for externals):</string>
     <string name="tchap_room_settings_room_access_by_link_forward">Forward the link</string>
     <string name="tchap_room_settings_room_access_by_link_share">Share the link</string>
     <string name="tchap_room_settings_room_access_by_link_forbidden">This change is currently forbidden when externals are allowed to join the room</string>
