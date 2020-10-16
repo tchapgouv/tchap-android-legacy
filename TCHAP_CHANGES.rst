@@ -3,6 +3,9 @@ Changes in Tchap 1.0.xx (2020-xx-xx)
 
 Improvements:
  * Increase targetSdk to 29 #609
+ * Private rooms: turn on the option to join on room’s link #573
+ * Room preview: we have to support the preview on shared room link #612
+ * [Room creation] Do not override the power levels anymore #632
 
 Bug Fixes:
  * Tchap crashes on invalid access token #631
