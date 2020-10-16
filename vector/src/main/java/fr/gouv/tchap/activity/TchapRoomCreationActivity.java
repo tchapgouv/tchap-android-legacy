@@ -35,6 +35,7 @@ import android.text.style.UnderlineSpan;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.ValueCallback;
 import android.widget.Switch;
@@ -73,6 +74,7 @@ import fr.gouv.tchap.util.DinumUtilsKt;
 import fr.gouv.tchap.util.HexagonMaskView;
 
 import fr.gouv.tchap.util.RoomRetentionPeriodPickerDialogFragment;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 
@@ -112,23 +114,27 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     @BindView(R.id.tv_room_msg_retention)
     TextView roomMessageRetentionText;
 
-    @BindView(R.id.switch_external_access_room)
-    Switch externalAccessRoomSwitch;
-
-    @BindView(R.id.switch_public_private_room)
-    Switch publicPrivateRoomSwitch;
-
     @BindView(R.id.switch_disable_federation)
     Switch disableFederationSwitch;
 
-    @BindView(R.id.tv_public_private_room_description)
-    TextView tvPublicPrivateRoomDescription;
+    @BindView(R.id.private_room_layout)
+    ViewGroup privateRoomLayout;
+
+    @BindView(R.id.extern_room_layout)
+    ViewGroup externRoomLayout;
+
+    @BindView(R.id.forum_room_layout)
+    ViewGroup forumRoomLayout;
+
+    @BindView(R.id.federation_layout)
+    ViewGroup federationLayout;
 
     private MXSession mSession;
     private Uri mThumbnailUri = null;
     private int mRetentionPeriod = RoomRetentionKt.DEFAULT_RETENTION_VALUE_IN_DAYS;
     private CreateRoomParams mRoomParams = new CreateRoomParams();
     private List<String> mParticipantsIds = new ArrayList<>();
+    private boolean mRestricted;
 
     @Override
     public int getLayoutRes() {
@@ -150,7 +156,10 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
             @Override
             public void onClick(View v) {
                 new RoomRetentionPeriodPickerDialogFragment(TchapRoomCreationActivity.this)
-                        .create(mRetentionPeriod, (number) -> {setRoomRetentionPeriod(number); return null;})
+                        .create(mRetentionPeriod, (number) -> {
+                            setRoomRetentionPeriod(number);
+                            return null;
+                        })
                         .show();
 
             }
@@ -161,13 +170,13 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         }
 
         // Initialize default room params as private and restricted
-        externalAccessRoomSwitch.setChecked(false);
+        mRestricted = true;
         if (DinumUtilsKt.isSecure()) {
             // There is no external users on Tchap secure, so hide this option
-            externalAccessRoomSwitch.setVisibility(View.GONE);
+            externRoomLayout.setVisibility(View.GONE);
         }
         setRoomAccessRule(RoomAccessRulesKt.RESTRICTED);
-        publicPrivateRoomSwitch.setChecked(false);
+
         mRoomParams.visibility = RoomDirectoryVisibility.DIRECTORY_VISIBILITY_PRIVATE;
         mRoomParams.preset = CreateRoomParams.PRESET_PRIVATE_CHAT;
         // Hide the encrypted messages sent before the member is invited.
@@ -226,9 +235,8 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         startActivityForResult(intent, REQ_CODE_UPDATE_ROOM_AVATAR);
     }
 
-    @OnCheckedChanged(R.id.switch_external_access_room)
     void setRoomExternalAccess() {
-        if (externalAccessRoomSwitch.isChecked()) {
+        if (!mRestricted) {
             Log.d(LOG_TAG, "## unrestricted");
             setRoomAccessRule(RoomAccessRulesKt.UNRESTRICTED);
             hexagonMaskView.setBorderSettings(ContextCompat.getColor(this, R.color.unrestricted_room_avatar_border_color), 10);
@@ -251,34 +259,74 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         }
     }
 
-    @OnCheckedChanged(R.id.switch_public_private_room)
-    void setRoomPrivacy() {
-        if (publicPrivateRoomSwitch.isChecked()) {
-            tvPublicPrivateRoomDescription.setTextColor(ContextCompat.getColor(this, R.color.vector_fuchsia_color));
-            mRoomParams.visibility = RoomDirectoryVisibility.DIRECTORY_VISIBILITY_PUBLIC;
-            mRoomParams.preset = CreateRoomParams.PRESET_PUBLIC_CHAT;
-            mRoomParams.setHistoryVisibility(RoomState.HISTORY_VISIBILITY_WORLD_READABLE);
-            Log.d(LOG_TAG, "## public");
-            // Public rooms are not federated by default
-            disableFederationSwitch.setChecked(true);
-            disableFederationSwitch.setVisibility(View.VISIBLE);
-            // Disable room external access option
-            updateRoomExternalAccessOption(false);
+    @OnClick(R.id.private_room_layout)
+    void enablePrivateRoom() {
+        disableExternRoom();
+        disableForumRoom();
+        privateRoomLayout.setSelected(true);
 
-        } else {
-            tvPublicPrivateRoomDescription.setTextColor(ContextCompat.getColor(this, R.color.vector_tchap_text_color_light_grey));
-            mRoomParams.visibility = RoomDirectoryVisibility.DIRECTORY_VISIBILITY_PRIVATE;
-            mRoomParams.preset = CreateRoomParams.PRESET_PRIVATE_CHAT;
-            // Hide the encrypted messages sent before the member is invited.
-            mRoomParams.setHistoryVisibility(RoomState.HISTORY_VISIBILITY_INVITED);
-            Log.d(LOG_TAG, "## private");
-            // Private rooms are all federated
-            disableFederationSwitch.setChecked(false);
-            disableFederationSwitch.setVisibility(View.GONE);
-            mRoomParams.creation_content = null;
-            // Enable the room access option
-            updateRoomExternalAccessOption(true);
-        }
+        mRoomParams.visibility = RoomDirectoryVisibility.DIRECTORY_VISIBILITY_PRIVATE;
+        mRoomParams.preset = CreateRoomParams.PRESET_PRIVATE_CHAT;
+        // Hide the encrypted messages sent before the member is invited.
+        mRoomParams.setHistoryVisibility(RoomState.HISTORY_VISIBILITY_INVITED);
+        Log.d(LOG_TAG, "## private restricted");
+        // Private rooms are all federated
+        disableFederationSwitch.setChecked(false);
+        mRoomParams.creation_content = null;
+        // Disable room external access option
+        mRestricted = true;
+        setRoomExternalAccess();
+    }
+
+    @OnClick(R.id.extern_room_layout)
+    void enableExternRoom() {
+        disablePrivateRoom();
+        disableForumRoom();
+        externRoomLayout.setSelected(true);
+
+        mRoomParams.visibility = RoomDirectoryVisibility.DIRECTORY_VISIBILITY_PRIVATE;
+        mRoomParams.preset = CreateRoomParams.PRESET_PRIVATE_CHAT;
+        // Hide the encrypted messages sent before the member is invited.
+        mRoomParams.setHistoryVisibility(RoomState.HISTORY_VISIBILITY_INVITED);
+        Log.d(LOG_TAG, "## private unrestricted");
+        // Private rooms are all federated
+        disableFederationSwitch.setChecked(false);
+        mRoomParams.creation_content = null;
+        // Disable room external access option
+        mRestricted = false;
+        setRoomExternalAccess();
+    }
+
+    @OnClick(R.id.forum_room_layout)
+    void enableForumRoom() {
+        disablePrivateRoom();
+        disableExternRoom();
+
+        federationLayout.setVisibility(View.VISIBLE);
+        forumRoomLayout.setSelected(true);
+
+        mRoomParams.visibility = RoomDirectoryVisibility.DIRECTORY_VISIBILITY_PUBLIC;
+        mRoomParams.preset = CreateRoomParams.PRESET_PUBLIC_CHAT;
+        mRoomParams.setHistoryVisibility(RoomState.HISTORY_VISIBILITY_WORLD_READABLE);
+        Log.d(LOG_TAG, "## public");
+        // Public rooms are not federated by default
+        disableFederationSwitch.setChecked(true);
+        // Disable room external access option
+        mRestricted = true;
+        setRoomExternalAccess();
+    }
+
+    void disablePrivateRoom() {
+        privateRoomLayout.setSelected(false);
+    }
+
+    void disableExternRoom() {
+        externRoomLayout.setSelected(false);
+    }
+
+    void disableForumRoom() {
+        federationLayout.setVisibility(View.GONE);
+        forumRoomLayout.setSelected(false);
     }
 
     @OnCheckedChanged(R.id.switch_disable_federation)
@@ -433,17 +481,6 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
             } else {
                 mRoomParams.initialStates.add(roomAccessRulesEvent);
             }
-        }
-    }
-
-    private void updateRoomExternalAccessOption(boolean enable) {
-        externalAccessRoomSwitch.setEnabled(enable);
-        if (enable) {
-            externalAccessRoomSwitch.setTextColor(ContextCompat.getColor(this, R.color.vector_tchap_text_color_dark));
-        } else {
-            externalAccessRoomSwitch.setTextColor(ContextCompat.getColor(this, R.color.vector_tchap_text_color_light_grey));
-            // Remove any pending change
-            externalAccessRoomSwitch.setChecked(false);
         }
     }
 
@@ -690,7 +727,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         // Check whether the federation has been disabled to limit the invitation to the non federated users
         if (null == mRoomParams.creation_content) {
             // Check whether the external users are allowed or not
-            if (externalAccessRoomSwitch.isChecked()) {
+            if (!mRestricted) {
                 intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_USERS_ONLY);
             } else {
                 intent.putExtra(VectorRoomInviteMembersActivity.EXTRA_CONTACTS_FILTER, VectorRoomInviteMembersActivity.ContactsFilter.TCHAP_USERS_ONLY_WITHOUT_EXTERNALS);
