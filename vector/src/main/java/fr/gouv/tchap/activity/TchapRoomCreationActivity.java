@@ -169,18 +169,13 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
             roomMessageRetentionText.setVisibility(View.GONE);
         }
 
-        // Initialize default room params as private and restricted
-        mRestricted = true;
         if (DinumUtilsKt.isSecure()) {
             // There is no external users on Tchap secure, so hide this option
             externRoomLayout.setVisibility(View.GONE);
         }
-        setRoomAccessRule(RoomAccessRulesKt.RESTRICTED);
 
-        mRoomParams.visibility = RoomDirectoryVisibility.DIRECTORY_VISIBILITY_PRIVATE;
-        mRoomParams.preset = CreateRoomParams.PRESET_PRIVATE_CHAT;
-        // Hide the encrypted messages sent before the member is invited.
-        mRoomParams.setHistoryVisibility(RoomState.HISTORY_VISIBILITY_INVITED);
+        // Select by default the private restricted type
+        enablePrivateRoom();
 
         // Prepare disable federation label by adding the hs display name of the current user.
         String userHSDomain = DinsicUtils.getHomeServerDisplayNameFromMXIdentifier(mSession.getMyUserId());
@@ -235,25 +230,27 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         startActivityForResult(intent, REQ_CODE_UPDATE_ROOM_AVATAR);
     }
 
-    void setRoomExternalAccess() {
-        if (!mRestricted) {
-            Log.d(LOG_TAG, "## unrestricted");
-            setRoomAccessRule(RoomAccessRulesKt.UNRESTRICTED);
-            hexagonMaskView.setBorderSettings(ContextCompat.getColor(this, R.color.unrestricted_room_avatar_border_color), 10);
-        } else {
-            Log.d(LOG_TAG, "## restricted");
-            setRoomAccessRule(RoomAccessRulesKt.RESTRICTED);
-            hexagonMaskView.setBorderSettings(ContextCompat.getColor(this, R.color.restricted_room_avatar_border_color), 3);
+    void enableExternalAccess() {
+        Log.d(LOG_TAG, "## unrestricted");
+        mRestricted = false;
+        setRoomAccessRule(RoomAccessRulesKt.UNRESTRICTED);
+        hexagonMaskView.setBorderSettings(ContextCompat.getColor(this, R.color.unrestricted_room_avatar_border_color), 10);
+    }
 
-            if (!mParticipantsIds.isEmpty()) {
-                // Remove the potential selected external users
-                for (int index = 0; index < mParticipantsIds.size(); ) {
-                    String selectedUserId = mParticipantsIds.get(index);
-                    if (DinsicUtils.isExternalTchapUser(selectedUserId)) {
-                        mParticipantsIds.remove(selectedUserId);
-                    } else {
-                        index++;
-                    }
+    void disableExternalAccess() {
+        Log.d(LOG_TAG, "## restricted");
+        mRestricted = true;
+        setRoomAccessRule(RoomAccessRulesKt.RESTRICTED);
+        hexagonMaskView.setBorderSettings(ContextCompat.getColor(this, R.color.restricted_room_avatar_border_color), 3);
+
+        if (!mParticipantsIds.isEmpty()) {
+            // Remove the potential selected external users
+            for (int index = 0; index < mParticipantsIds.size(); ) {
+                String selectedUserId = mParticipantsIds.get(index);
+                if (DinsicUtils.isExternalTchapUser(selectedUserId)) {
+                    mParticipantsIds.remove(selectedUserId);
+                } else {
+                    index++;
                 }
             }
         }
@@ -273,9 +270,8 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         // Private rooms are all federated
         disableFederationSwitch.setChecked(false);
         mRoomParams.creation_content = null;
-        // Disable room external access option
-        mRestricted = true;
-        setRoomExternalAccess();
+        // Prevent the externals from joining the room
+        disableExternalAccess();
     }
 
     @OnClick(R.id.extern_room_layout)
@@ -292,9 +288,8 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         // Private rooms are all federated
         disableFederationSwitch.setChecked(false);
         mRoomParams.creation_content = null;
-        // Disable room external access option
-        mRestricted = false;
-        setRoomExternalAccess();
+        // Allow the externals to join the room
+        enableExternalAccess();
     }
 
     @OnClick(R.id.forum_room_layout)
@@ -311,9 +306,8 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         Log.d(LOG_TAG, "## public");
         // Public rooms are not federated by default
         disableFederationSwitch.setChecked(true);
-        // Disable room external access option
-        mRestricted = true;
-        setRoomExternalAccess();
+        // Prevent the externals from joining the room
+        disableExternalAccess();
     }
 
     void disablePrivateRoom() {
