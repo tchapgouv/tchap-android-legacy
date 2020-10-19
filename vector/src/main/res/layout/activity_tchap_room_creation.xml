@@ -46,7 +46,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="30dp"
-                    android:layout_marginBottom="60dp"
+                    android:layout_marginBottom="30dp"
                     android:descendantFocusability="beforeDescendants"
                     android:focusableInTouchMode="true"
                     android:orientation="horizontal">
@@ -63,12 +63,13 @@
                             android:src="@color/vector_tchap_hexagon_background_color_dark_grey" />
 
                         <ImageView
-                            android:layout_width="20dp"
+                            android:id="@+id/avatar_image_icon"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="78dp"
-                            android:layout_marginTop="7dp"
-                            android:src="@drawable/e2e_verified"
-                            android:tint="@color/tchap_greyish_brown_color" />
+                            android:layout_marginStart="80dp"
+                            android:layout_marginLeft="80dp"
+                            android:layout_marginTop="5dp"
+                            android:src="@drawable/private_avatar_icon_hr" />
 
                         <TextView
                             android:id="@+id/tv_add_avatar_image"
@@ -119,15 +120,14 @@
                     android:focusableInTouchMode="true"
                     android:gravity="center_vertical"
                     android:minHeight="48dp"
-                    android:orientation="vertical"
-                    android:visibility="gone">
+                    android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/tv_room_msg_retention"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingBottom="3dp"
-                        android:textColor="@color/vector_tchap_text_color_dark"
+                        android:textColor="@color/tchap_greyish_brown_color"
                         android:textSize="15sp"
                         tools:text="@plurals/tchap_room_creation_retention" />
                 </LinearLayout>
@@ -172,7 +172,7 @@
                     android:paddingTop="3dp"
                     android:paddingBottom="3dp"
                     android:scaleType="fitStart"
-                    android:src="@drawable/e2e_verified"
+                    android:src="@drawable/private_room"
                     android:tint="@color/tchap_coral_color" />
 
                 <TextView
@@ -222,8 +222,8 @@
                     android:paddingTop="3dp"
                     android:paddingBottom="3dp"
                     android:scaleType="fitStart"
-                    android:src="@drawable/e2e_verified"
-                    android:tint="#fff2994a" />
+                    android:src="@drawable/private_room"
+                    android:tint="@color/tchap_pumpkin_orange_color" />
 
                 <TextView
                     android:id="@+id/extern_room_title"
@@ -270,7 +270,7 @@
                     android:paddingTop="3dp"
                     android:paddingBottom="3dp"
                     android:scaleType="fitStart"
-                    android:src="@drawable/union"
+                    android:src="@drawable/forum_room"
                     android:tint="@color/tchap_jade_green_color" />
 
                 <TextView

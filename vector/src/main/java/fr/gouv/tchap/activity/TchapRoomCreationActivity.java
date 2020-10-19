@@ -38,6 +38,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.ValueCallback;
+import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -104,6 +105,9 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
     @BindView(R.id.rly_hexagon_avatar)
     View hexagonAvatar;
+
+    @BindView(R.id.avatar_image_icon)
+    ImageView avatarIcon;
 
     @BindView(R.id.tv_add_avatar_image)
     TextView addAvatarText;
@@ -272,6 +276,8 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         mRoomParams.creation_content = null;
         // Prevent the externals from joining the room
         disableExternalAccess();
+
+        avatarIcon.setImageResource(R.drawable.private_avatar_icon_hr);
     }
 
     @OnClick(R.id.extern_room_layout)
@@ -290,6 +296,8 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         mRoomParams.creation_content = null;
         // Allow the externals to join the room
         enableExternalAccess();
+
+        avatarIcon.setImageResource(R.drawable.private_avatar_icon_hr);
     }
 
     @OnClick(R.id.forum_room_layout)
@@ -308,6 +316,8 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         disableFederationSwitch.setChecked(true);
         // Prevent the externals from joining the room
         disableExternalAccess();
+
+        avatarIcon.setImageResource(R.drawable.forum_avatar_icon_hr);
     }
 
     void disablePrivateRoom() {
