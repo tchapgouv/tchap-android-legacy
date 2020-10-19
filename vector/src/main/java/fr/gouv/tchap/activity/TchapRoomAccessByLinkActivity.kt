@@ -148,6 +148,7 @@ class TchapRoomAccessByLinkActivity : VectorAppCompatActivity(){
         var isAdmin = false
         val isConnected = Matrix.getInstance(this).isConnected
         val joinRule: String = room.state.join_rule
+        val accessRule = DinsicUtils.getRoomAccessRule(room)
         val powerLevels: PowerLevels = room.state.powerLevels
         if (null != powerLevels) {
             val powerLevel = powerLevels.getUserPowerLevel(session.myUserId)
@@ -172,7 +173,11 @@ class TchapRoomAccessByLinkActivity : VectorAppCompatActivity(){
         } else {
             roomAccessByLinkStatus.text = getString(R.string.tchap_room_settings_room_access_by_link_enabled)
             switchRoomAccessByLink.isChecked = true
-            roomAccessByLinkInfo.text = getString(R.string.tchap_room_settings_enable_room_access_by_link_info_on)
+            if (accessRule == RESTRICTED) {
+                roomAccessByLinkInfo.text = getString(R.string.tchap_room_settings_enable_room_access_by_link_info_on)
+            } else {
+                roomAccessByLinkInfo.text = getString(R.string.tchap_room_settings_enable_room_access_by_link_info_on_with_limitation)
+            }
             roomAccessLink.text = createPermalink(getString(R.string.permalink_prefix), room.state.canonicalAlias)
             roomAccessLink.visibility = View.VISIBLE
             buttonsContainer.visibility = View.VISIBLE
