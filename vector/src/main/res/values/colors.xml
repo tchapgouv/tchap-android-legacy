@@ -42,6 +42,14 @@
     <color name="tchap_unsent_msg_color">#FFF56679</color>
     <color name="tchap_dark_red">#FF7f0d15</color>
     <color name="tchap_light_background">#FFecf0f7</color>
+    <color name="tchap_coral_color">@color/vector_fuchsia_color</color>
+    <color name="tchap_pumpkin_orange_color">#fff07a12</color>
+    <color name="tchap_jade_green_color">#ff27ae60</color>
+    <color name="tchap_coral_border_color">#b2eb5757</color>
+    <color name="tchap_pumpkin_orange_border_color">#b2f07a12</color>
+    <color name="tchap_jade_green_border_color">#b227ae60</color>
+    <color name="tchap_greyish_brown_color">#ff4f4f4f</color>
+    <color name="tchap_pale_grey_color">#fff2f5f8</color>
 
     <!-- home activity tab bar color -->
     <color name="tab_favourites">#BD79CC</color>
