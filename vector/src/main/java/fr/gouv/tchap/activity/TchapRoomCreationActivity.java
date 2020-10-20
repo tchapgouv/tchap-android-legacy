@@ -106,7 +106,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     @BindView(R.id.rly_hexagon_avatar)
     View hexagonAvatar;
 
-    @BindView(R.id.avatar_image_icon)
+    @BindView(R.id.avatar_icon_image)
     ImageView avatarIcon;
 
     @BindView(R.id.tv_add_avatar_image)
