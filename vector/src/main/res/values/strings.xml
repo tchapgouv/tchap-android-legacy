@@ -165,7 +165,7 @@
     <string name="rooms_header">Rooms</string>
     <string name="rooms_directory_header">Room directory</string>
     <string name="no_room_placeholder">No rooms</string>
-    <string name="no_public_room_placeholder">No public rooms available</string>
+    <string name="no_public_room_placeholder">No forum available</string>
     <plurals name="public_room_nb_users">
         <item quantity="one">1 user</item>
         <item quantity="other">%d users</item>
@@ -603,8 +603,8 @@
     <string name="room_recents_start_chat">Start chat</string>
     <string name="room_recents_create_room">Create room</string>
     <string name="room_recents_join_room">Join room</string>
-    <string name="room_join_public_room_title">Join public room</string>
-    <string name="room_join_public_room_alt_title">Join room</string>
+    <string name="room_join_public_room_title">Join a forum</string>
+    <string name="room_join_public_room_alt_title">Join a forum</string>
     <string name="room_recents_join_room_title">Join a room</string>
     <string name="room_recents_join_room_prompt">Type a room id or a room alias</string>
 
@@ -1079,7 +1079,7 @@
     <!-- directory activity  -->
     <string name="select_room_directory">Select a room directory</string>
     <string name="directory_server_fail_to_retrieve_server">The server may be unavailable or overloaded</string>
-    <string name="directory_server_type_homeserver">Type a homeserver to list public rooms from</string>
+    <string name="directory_server_type_homeserver">Type a homeserver to list forums from</string>
     <string name="directory_server_placeholder">Homeserver URL</string>
     <string name="directory_server_all_rooms_on_server">All rooms on %s server</string>
     <string name="directory_server_native_rooms">All native %s rooms</string>
@@ -1269,7 +1269,7 @@
         <item quantity="other">%d invitations have been sent.</item>
     </plurals>
     <string name="tchap_burger_menu_contacts">Contacts</string>
-    <string name="tchap_burger_menu_public_rooms">Public rooms</string>
+    <string name="tchap_burger_menu_public_rooms">Forums</string>
     <string name="tchap_burger_menu_info">This app is not approved for\nrestricted information interchange</string>
     <string name="tchap_error_message_default">An error occurred, please try later</string>
 
@@ -1292,8 +1292,8 @@
     <string name="tchap_scan_media_untrusted_content_message">The file (%s) has been blocked</string>
 
     <!-- tchap room settings -->
-    <string name="tchap_room_settings_remove_from_directory">Remove this room from the rooms directory</string>
-    <string name="tchap_room_settings_remove_from_directory_prompt_msg"><b>This action is irreversible.</b>\nAre you sure you want to remove this room from the rooms directory?</string>
+    <string name="tchap_room_settings_remove_from_directory">Remove this room from the forums directory</string>
+    <string name="tchap_room_settings_remove_from_directory_prompt_msg"><b>This action is irreversible.</b>\nAre you sure you want to remove this room from the forums directory?</string>
     <string name="tchap_room_settings_room_access_title">External accounts handling</string>
     <string name="tchap_room_settings_room_access_restricted">The externals are not allowed to join this room</string>
     <string name="tchap_room_settings_room_access_unrestricted">The externals are allowed to join this room</string>

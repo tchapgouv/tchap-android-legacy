@@ -8,6 +8,7 @@ Improvements:
  * Apply the new room creation design #604
  * [Room creation] Do not override the power levels anymore #632
  * [Room access] Improve the wordings related to the room link access #645
+ * Rename "Salon public" with "Salon forum" #649
 
 Bug Fixes:
  * Tchap crashes on invalid access token #631

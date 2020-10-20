@@ -83,7 +83,7 @@
     <string name="rooms_header">Conversations</string>
     <string name="rooms_directory_header">Répertoire des salons</string>
     <string name="no_room_placeholder">Aucune conversation</string>
-    <string name="no_public_room_placeholder">Aucun salon public disponible</string>
+    <string name="no_public_room_placeholder">Aucun forum disponible</string>
     <string name="title_activity_room">Conversation</string>
     <string name="redact">Effacer</string>
     <string name="redact_prompt">Voulez-vous vraiment effacer ce message ?</string>
@@ -275,8 +275,8 @@
     <string name="room_recents_create_room">Créer un salon</string>
     <string name="room_recents_join_room">Rejoindre le salon</string>
     <string name="room_recents_join_room_title">Rejoindre un salon</string>
-    <string name="room_join_public_room_title">Accéder à un salon public</string>
-    <string name="room_join_public_room_alt_title">Accéder à un salon</string>
+    <string name="room_join_public_room_title">Accéder à un salon forum</string>
+    <string name="room_join_public_room_alt_title">Accéder à un forum</string>
     <string name="directory_search_results_title">Parcourir le répertoire</string>
     <string name="directory_searching_title">Recherche dans le répertoire…</string>
 
@@ -651,7 +651,7 @@ Nous vous recommandons d’effectuer le processus de vérification pour chaque a
 Appareils inconnus :</string>
 
     <string name="directory_server_fail_to_retrieve_server">Le serveur est peut-être indisponible ou surchargé</string>
-    <string name="directory_server_type_homeserver">Saisir un serveur d’accueil pour lister ses salons publics</string>
+    <string name="directory_server_type_homeserver">Saisir un serveur d’accueil pour lister ses forums</string>
 
     <string name="settings_user_interface">Préférences</string>
     <string name="settings_interface_language">Langue</string>
@@ -841,7 +841,7 @@ Appareils inconnus :</string>
         <item quantity="other">%d invitations ont bien été envoyées.</item>
     </plurals>
     <string name="tchap_burger_menu_contacts">Contacts</string>
-    <string name="tchap_burger_menu_public_rooms">Salons publics</string>
+    <string name="tchap_burger_menu_public_rooms">Salons forums</string>
     <string name="tchap_burger_menu_info">Cette application n’est pas approuvée\npour l’échange d’informations en diffusion restreinte</string>
     <string name="tchap_error_message_default">Une erreur est survenue, veuillez réessayer ultérieurement</string>
 
@@ -864,8 +864,8 @@ Appareils inconnus :</string>
     <string name="tchap_scan_media_untrusted_content_message">Le document (%s) a été filtré par la politique de sécurité</string>
 
     <!-- tchap room settings -->
-    <string name="tchap_room_settings_remove_from_directory">Retirer ce salon de la liste des salons publics</string>
-    <string name="tchap_room_settings_remove_from_directory_prompt_msg"><b>Cette action est irréversible.</b>\nVoulez-vous vraiment retirer ce salon des salons publics ?</string>
+    <string name="tchap_room_settings_remove_from_directory">Retirer ce salon de la liste des forums</string>
+    <string name="tchap_room_settings_remove_from_directory_prompt_msg"><b>Cette action est irréversible.</b>\nVoulez-vous vraiment retirer ce salon de la liste des forums ?</string>
     <string name="tchap_room_settings_room_access_title">Gestion des comptes externes</string>
     <string name="tchap_room_settings_room_access_restricted">Les externes ne sont pas autorisés à rejoindre ce salon</string>
     <string name="tchap_room_settings_room_access_unrestricted">Les externes sont autorisés à rejoindre ce salon</string>
