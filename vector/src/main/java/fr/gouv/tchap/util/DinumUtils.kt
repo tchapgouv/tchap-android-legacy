@@ -204,7 +204,7 @@ fun getRandomString(): String {
     val RANDOMCHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
     val stringBuilder = StringBuilder()
     val rnd = Random()
-    while (stringBuilder.length < 7) { // length of the random string.
+    while (stringBuilder.length < 11) { // length of the random string.
         val index = (rnd.nextFloat() * RANDOMCHARS.length).toInt()
         stringBuilder.append(RANDOMCHARS[index])
     }
