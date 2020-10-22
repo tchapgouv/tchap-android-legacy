@@ -28,17 +28,16 @@
 
     <ImageView
         android:id="@+id/room_avatar_encrypted_icon"
-        android:layout_width="15dp"
-        android:layout_height="15dp"
-        android:layout_alignBottom="@+id/room_avatar"
-        android:layout_marginStart="-10dp"
-        android:layout_marginLeft="-10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/room_avatar"
+        android:layout_marginTop="-3dp"
+        android:layout_marginStart="-7dp"
+        android:layout_marginLeft="-7dp"
         android:layout_toEndOf="@+id/room_avatar"
         android:layout_toRightOf="@+id/room_avatar"
-        android:src="@drawable/e2e_verified"
-        android:tint="?attr/padlock_icon_tint_color"
-        android:visibility="invisible"
-        tools:visibility="visible" />
+        android:src="@drawable/private_avatar_icon"
+        android:visibility="visible" />
 
     <RelativeLayout
         android:layout_width="wrap_content"

@@ -32,6 +32,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.core.Log;
 import org.matrix.androidsdk.data.Room;
+import org.matrix.androidsdk.data.RoomState;
 import org.matrix.androidsdk.data.RoomSummary;
 import org.matrix.androidsdk.data.RoomTag;
 import org.matrix.androidsdk.data.store.IMXStore;
@@ -93,7 +94,7 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
     TextView vRoomUnreadCount;
 
     @BindView(R.id.room_avatar_encrypted_icon)
-    View vRoomEncryptedIcon;
+    ImageView vRoomEncryptedIcon;
 
     @BindView(R.id.room_more_action_click_area)
     @Nullable
@@ -264,7 +265,17 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
             }
         }
 
-        vRoomEncryptedIcon.setVisibility(room.isEncrypted() ? View.VISIBLE : View.INVISIBLE);
+        if (room.isEncrypted()) {
+            vRoomEncryptedIcon.setImageResource(R.drawable.private_avatar_icon);
+            vRoomEncryptedIcon.setVisibility(View.VISIBLE);
+        } else if (RoomState.JOIN_RULE_PUBLIC.equals(room.getState().join_rule)){
+            // Tchap: we consider as forum all the unencrypted rooms with a public join_rule
+            vRoomEncryptedIcon.setImageResource(R.drawable.forum_avatar_icon);
+            vRoomEncryptedIcon.setVisibility(View.VISIBLE);
+        } else {
+            // This case should not happen for the moment in Tchap
+            vRoomEncryptedIcon.setVisibility(View.INVISIBLE);
+        }
 
         if (vRoomTimestamp != null) {
             vRoomTimestamp.setText(RoomUtils.getRoomTimestamp(context, roomSummary.getLatestReceivedEvent()));
