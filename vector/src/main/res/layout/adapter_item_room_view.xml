@@ -30,7 +30,7 @@
         tools:src="@tools:sample/avatars" />
 
     <ImageView
-        android:id="@+id/room_avatar_encrypted_icon"
+        android:id="@+id/room_avatar_marker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignTop="@+id/room_avatar_hexagon"

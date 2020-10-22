@@ -53,7 +53,7 @@
 
 
         <ImageView
-            android:id="@+id/room_avatar_encrypted_icon"
+            android:id="@+id/room_avatar_marker"
             android:layout_width="15dp"
             android:layout_height="15dp"
             android:layout_alignStart="@+id/adapter_item_recent_room_avatar"

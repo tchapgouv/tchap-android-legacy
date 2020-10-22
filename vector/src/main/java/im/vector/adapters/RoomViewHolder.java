@@ -97,8 +97,8 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.room_unread_count)
     TextView vRoomUnreadCount;
 
-    @BindView(R.id.room_avatar_encrypted_icon)
-    ImageView vRoomEncryptedIcon;
+    @BindView(R.id.room_avatar_marker)
+    ImageView vRoomAvatarMarker;
 
     @BindView(R.id.room_more_action_click_area)
     @Nullable
@@ -290,15 +290,15 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
         }
 
         if (room.isEncrypted()) {
-            vRoomEncryptedIcon.setImageResource(R.drawable.private_avatar_icon);
-            vRoomEncryptedIcon.setVisibility(View.VISIBLE);
+            vRoomAvatarMarker.setImageResource(R.drawable.private_avatar_icon);
+            vRoomAvatarMarker.setVisibility(View.VISIBLE);
         } else if (RoomState.JOIN_RULE_PUBLIC.equals(room.getState().join_rule)) {
             // Tchap: we consider as forum all the unencrypted rooms with a public join_rule
-            vRoomEncryptedIcon.setImageResource(R.drawable.forum_avatar_icon);
-            vRoomEncryptedIcon.setVisibility(View.VISIBLE);
+            vRoomAvatarMarker.setImageResource(R.drawable.forum_avatar_icon);
+            vRoomAvatarMarker.setVisibility(View.VISIBLE);
         } else {
             // This case should not happen for the moment in Tchap
-            vRoomEncryptedIcon.setVisibility(View.INVISIBLE);
+            vRoomAvatarMarker.setVisibility(View.INVISIBLE);
         }
 
         if (vRoomTimestamp != null) {
