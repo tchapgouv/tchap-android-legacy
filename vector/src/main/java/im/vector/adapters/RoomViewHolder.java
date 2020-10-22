@@ -78,6 +78,10 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
     @Nullable
     TextView vRoomDomain;
 
+    @BindView(R.id.room_type)
+    @Nullable
+    TextView vRoomType;
+
     @BindView(R.id.sender_name)
     @Nullable
     TextView vSenderDisplayName;
@@ -154,11 +158,9 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
         }
 
         int unreadMsgCount = roomSummary.getUnreadEventsCount();
-        int highlightCount;
-        int notificationCount;
-
-        highlightCount = roomSummary.getHighlightCount();
-        notificationCount = roomSummary.getNotificationCount();
+        int highlightCount = roomSummary.getHighlightCount();
+        int notificationCount = roomSummary.getNotificationCount();
+        String roomAccessRule = DinsicUtils.getRoomAccessRule(room);
 
         // fix a crash reported by GA
         if ((null != room.getDataHandler()) && room.getDataHandler().getBingRulesManager().isRoomMentionOnly(room.getRoomId())) {
@@ -195,6 +197,28 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
             vRoomName.setText(displayName);
         }
 
+        if (null != vRoomType) {
+            if (room.isEncrypted()) {
+                if (TextUtils.equals(roomAccessRule, RoomAccessRulesKt.RESTRICTED)) {
+                    vRoomType.setText(R.string.tchap_room_private_room_type);
+                    vRoomType.setTextColor(ContextCompat.getColor(context, R.color.tchap_coral_color));
+                    vRoomType.setVisibility(View.VISIBLE);
+                } else if (TextUtils.equals(roomAccessRule, RoomAccessRulesKt.UNRESTRICTED)) {
+                    vRoomType.setText(R.string.tchap_room_extern_room_type);
+                    vRoomType.setTextColor(ContextCompat.getColor(context, R.color.tchap_pumpkin_orange_color));
+                    vRoomType.setVisibility(View.VISIBLE);
+                } else {
+                    vRoomType.setVisibility(View.INVISIBLE);
+                }
+            } else if (RoomState.JOIN_RULE_PUBLIC.equals(room.getState().join_rule)) {
+                vRoomType.setText(R.string.tchap_room_forum_type);
+                vRoomType.setTextColor(ContextCompat.getColor(context, R.color.tchap_jade_green_color));
+                vRoomType.setVisibility(View.VISIBLE);
+            } else {
+                vRoomType.setVisibility(View.INVISIBLE);
+            }
+        }
+
         if (null != vSenderDisplayName && null != roomSummary.getLatestReceivedEvent()) {
             String userNameWithoutDomain;
             String senderId = roomSummary.getLatestReceivedEvent().getSender();
@@ -226,7 +250,7 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
         } else if (null != vRoomAvatarHexagon) {
             VectorUtils.loadRoomAvatar(context, session, vRoomAvatarHexagon, room);
             // Set the right border color
-            if (TextUtils.equals(DinsicUtils.getRoomAccessRule(room), RoomAccessRulesKt.RESTRICTED)) {
+            if (TextUtils.equals(roomAccessRule, RoomAccessRulesKt.RESTRICTED)) {
                 vRoomAvatarHexagon.setBorderSettings(ContextCompat.getColor(context, R.color.restricted_room_avatar_border_color), 3);
             } else {
                 vRoomAvatarHexagon.setBorderSettings(ContextCompat.getColor(context, R.color.unrestricted_room_avatar_border_color), 10);
@@ -268,7 +292,7 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
         if (room.isEncrypted()) {
             vRoomEncryptedIcon.setImageResource(R.drawable.private_avatar_icon);
             vRoomEncryptedIcon.setVisibility(View.VISIBLE);
-        } else if (RoomState.JOIN_RULE_PUBLIC.equals(room.getState().join_rule)){
+        } else if (RoomState.JOIN_RULE_PUBLIC.equals(room.getState().join_rule)) {
             // Tchap: we consider as forum all the unencrypted rooms with a public join_rule
             vRoomEncryptedIcon.setImageResource(R.drawable.forum_avatar_icon);
             vRoomEncryptedIcon.setVisibility(View.VISIBLE);

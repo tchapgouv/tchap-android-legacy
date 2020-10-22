@@ -104,6 +104,23 @@
             android:visibility="gone" />
 
         <TextView
+            android:id="@+id/room_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginTop="4dp"
+            android:layout_toStartOf="@+id/room_more_action_ic"
+            android:layout_toLeftOf="@+id/room_more_action_ic"
+            android:gravity="end"
+            android:maxLines="1"
+            android:textAllCaps="false"
+            android:textColor="@color/vector_tchap_primary_color"
+            android:fontFamily="sans-serif-medium"
+            android:textStyle="normal"
+            android:textSize="12sp"
+            tools:text="Private room" />
+
+        <TextView
             android:id="@+id/sender_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

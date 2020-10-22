@@ -110,12 +110,14 @@
             android:layout_toStartOf="@+id/room_more_action_ic"
             android:layout_toLeftOf="@+id/room_more_action_ic"
             android:ellipsize="end"
-            android:gravity="right"
+            android:gravity="end"
             android:maxLines="1"
             android:maxWidth="95dp"
             android:textAllCaps="false"
             android:textColor="@color/vector_tchap_primary_color"
-            android:textSize="10sp"
+            android:fontFamily="sans-serif-medium"
+            android:textStyle="normal"
+            android:textSize="12sp"
             tools:text="Room member domain" />
 
         <TextView

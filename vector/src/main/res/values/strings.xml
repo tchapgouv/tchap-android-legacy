@@ -1277,6 +1277,9 @@
     <string name="tchap_cannot_invite_deactivated_account_user">The remote user left definitely this room</string>
 
     <!-- tchap room -->
+    <string name="tchap_room_private_room_type">Private</string>
+    <string name="tchap_room_extern_room_type">External</string>
+    <string name="tchap_room_forum_type">Forum</string>
     <string name="tchap_room_access_unrestricted">Room accessible to external users</string>
     <string name="tchap_room_invalid_link">This link is invalid</string>
     <string name="tchap_room_access_unauthorized">You are not allowed to join this conversation. An invitation is needed.</string>

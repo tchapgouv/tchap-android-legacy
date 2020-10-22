@@ -849,6 +849,9 @@ Appareils inconnus :</string>
     <string name="tchap_cannot_invite_deactivated_account_user">Votre correspondant a quitté définitivement cette discussion.\nVous devez en créer une nouvelle pour le recontacter.</string>
 
     <!-- tchap room -->
+    <string name="tchap_room_private_room_type">Privé</string>
+    <string name="tchap_room_extern_room_type">Externes</string>
+    <string name="tchap_room_forum_type">Forum</string>
     <string name="tchap_room_access_unrestricted">Salon accessible aux externes</string>
     <string name="tchap_room_invalid_link">Ce lien n’est pas valide</string>
     <string name="tchap_room_access_unauthorized">Vous n’êtes pas autorisé à rejoindre cette conversation. Une invitation est nécessaire.</string>
