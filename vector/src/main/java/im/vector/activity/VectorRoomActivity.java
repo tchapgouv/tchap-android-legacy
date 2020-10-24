@@ -491,7 +491,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
                             break;
                         case Event.EVENT_TYPE_MESSAGE_ENCRYPTION:
                             boolean canSendEncryptedEvent = mRoom.isEncrypted() && mSession.isCryptoEnabled();
-                            mE2eImageView.setImageResource(canSendEncryptedEvent ? R.drawable.e2e_verified : R.drawable.e2e_unencrypted);
+                            mE2eImageView.setImageResource(canSendEncryptedEvent ? R.drawable.private_room : R.drawable.e2e_unencrypted);
                             mVectorMessageListFragment.setIsRoomEncrypted(mRoom.isEncrypted());
                             break;
                         case Event.EVENT_TYPE_STATE_ROOM_TOMBSTONE:
@@ -1183,7 +1183,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
             if (null != mTchapUser) {
                 // consider an encrypted room by default
                 mEditText.setHint(mSession.isCryptoEnabled() ? R.string.room_message_placeholder_encrypted : R.string.room_message_placeholder_not_encrypted);
-                mE2eImageView.setImageResource(mSession.isCryptoEnabled() ? R.drawable.e2e_verified : R.drawable.e2e_unencrypted);
+                mE2eImageView.setImageResource(mSession.isCryptoEnabled() ? R.drawable.private_room : R.drawable.e2e_unencrypted);
             }
         }
 
@@ -1204,7 +1204,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
             }
 
             boolean canSendEncryptedEvent = mRoom.isEncrypted() && mSession.isCryptoEnabled();
-            mE2eImageView.setImageResource(canSendEncryptedEvent ? R.drawable.e2e_verified : R.drawable.e2e_unencrypted);
+            mE2eImageView.setImageResource(canSendEncryptedEvent ? R.drawable.private_room : R.drawable.e2e_unencrypted);
             mVectorMessageListFragment.setIsRoomEncrypted(mRoom.isEncrypted());
         }
 

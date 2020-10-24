@@ -26,7 +26,7 @@
 
         <!-- Avatar -->
         <im.vector.view.VectorCircularImageView
-            android:id="@+id/adapter_item_recent_room_avatar"
+            android:id="@+id/room_avatar"
             android:layout_width="@dimen/chat_avatar_size"
             android:layout_height="@dimen/chat_avatar_size"
             android:layout_centerInParent="true"
@@ -37,34 +37,34 @@
             android:scaleType="centerCrop"
             tools:src="@tools:sample/avatars" />
 
-        <!-- Note: cannot tint with colorAccent here... -->
-        <ImageView
-            android:id="@+id/room_avatar_direct_chat_icon"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_alignStart="@+id/adapter_item_recent_room_avatar"
-            android:layout_alignLeft="@+id/adapter_item_recent_room_avatar"
-            android:layout_alignTop="@+id/adapter_item_recent_room_avatar"
-            android:layout_marginStart="30dp"
-            android:layout_marginLeft="30dp"
-            android:src="@drawable/icon_person"
-            android:visibility="gone"
-            tools:visibility="visible" />
-
+        <fr.gouv.tchap.util.HexagonMaskView
+            android:id="@+id/room_avatar_hexagon"
+            android:layout_width="@dimen/hexagonal_avatar_size"
+            android:layout_height="@dimen/hexagonal_avatar_size"
+            android:maxWidth="@dimen/hexagonal_avatar_size"
+            android:maxHeight="@dimen/hexagonal_avatar_size"
+            android:background="@color/riot_primary_background_color_light"
+            android:layout_marginTop="17dp"
+            android:layout_toEndOf="@+id/bing_indicator_unread_message"
+            android:layout_toRightOf="@+id/bing_indicator_unread_message"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/avatar"
+            android:scaleType="centerCrop"
+            tools:src="@tools:sample/avatars"
+            tools:visibility="invisible"/>
 
         <ImageView
             android:id="@+id/room_avatar_marker"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
-            android:layout_alignStart="@+id/adapter_item_recent_room_avatar"
-            android:layout_alignLeft="@+id/adapter_item_recent_room_avatar"
-            android:layout_alignBottom="@+id/adapter_item_recent_room_avatar"
-            android:layout_marginStart="35dp"
-            android:layout_marginLeft="35dp"
-            android:src="@drawable/e2e_verified"
-            android:tint="?attr/padlock_icon_tint_color"
-            android:visibility="gone"
-            tools:visibility="visible" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/room_avatar"
+            android:layout_toEndOf="@+id/room_avatar"
+            android:layout_toRightOf="@+id/room_avatar"
+            android:layout_marginTop="-3dp"
+            android:layout_marginStart="-7dp"
+            android:layout_marginLeft="-7dp"
+            android:src="@drawable/private_avatar_icon"
+            android:visibility="visible" />
 
         <RelativeLayout
             android:id="@+id/roomSummaryAdapter_show_more_layout"
@@ -95,8 +95,8 @@
             android:layout_marginRight="15dp"
             android:layout_toStartOf="@id/roomSummaryAdapter_show_more_layout"
             android:layout_toLeftOf="@id/roomSummaryAdapter_show_more_layout"
-            android:layout_toEndOf="@id/adapter_item_recent_room_avatar"
-            android:layout_toRightOf="@id/adapter_item_recent_room_avatar"
+            android:layout_toEndOf="@id/room_avatar"
+            android:layout_toRightOf="@id/room_avatar"
             android:orientation="vertical">
 
             <RelativeLayout
@@ -248,62 +248,6 @@
             android:layout_height="match_parent"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true" />
-    </RelativeLayout>
-
-    <!-- invitation section -->
-    <RelativeLayout
-        android:id="@+id/recents_groups_invitation_group"
-        android:layout_width="match_parent"
-        android:layout_height="36dp"
-        android:layout_marginBottom="20dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <View
-                android:id="@+id/recents_invite_sep1"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.20"
-                android:background="@android:color/white" />
-
-            <Button
-                android:id="@+id/recents_invite_join_button"
-                android:layout_width="0dp"
-                android:layout_height="36dp"
-                android:layout_weight="0.26"
-                android:background="?attr/colorAccent"
-                android:fontFamily="sans-serif-medium"
-                android:text="@string/join"
-                android:textColor="@android:color/white"
-                android:textSize="14sp" />
-
-            <View
-                android:id="@+id/recents_invite_sep2"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.04"
-                android:background="@android:color/white" />
-
-            <Button
-                android:id="@+id/recents_invite_reject_button"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.26"
-                android:background="?attr/colorAccent"
-                android:fontFamily="sans-serif-medium"
-                android:text="@string/reject"
-                android:textColor="@android:color/white"
-                android:textSize="14sp" />
-
-            <View
-                android:id="@+id/recents_invite_sep3"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.20"
-                android:background="@android:color/white" />
-        </LinearLayout>
     </RelativeLayout>
 
     <!-- message line separator -->

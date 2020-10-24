@@ -257,8 +257,7 @@
                     android:layout_height="12dp"
                     android:layout_gravity="center_vertical"
                     android:scaleType="fitCenter"
-                    android:src="@drawable/e2e_verified"
-                    android:tint="?attr/padlock_icon_tint_color" />
+                    android:src="@drawable/private_room" />
 
                 <im.vector.view.VectorAutoCompleteTextView
                     android:id="@+id/editText_messageBox"
