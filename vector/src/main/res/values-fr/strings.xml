@@ -850,9 +850,11 @@ Appareils inconnus :</string>
 
     <!-- tchap room -->
     <string name="tchap_room_private_room_type">Privé</string>
+    <string name="tchap_room_long_private_room_type">Salon privé</string>
     <string name="tchap_room_extern_room_type">Externes</string>
+    <string name="tchap_room_long_extern_room_type">Salon privé ouvert aux externes</string>
     <string name="tchap_room_forum_type">Forum</string>
-    <string name="tchap_room_access_unrestricted">Salon accessible aux externes</string>
+    <string name="tchap_room_long_forum_type">Salon forum</string>
     <string name="tchap_room_invalid_link">Ce lien n’est pas valide</string>
     <string name="tchap_room_access_unauthorized">Vous n’êtes pas autorisé à rejoindre cette conversation. Une invitation est nécessaire.</string>
     <plurals name="tchap_room_retention_info">
@@ -968,8 +970,8 @@ Appareils inconnus :</string>
         <item quantity="other">%d membres actifs</item>
     </plurals>
     <plurals name="room_title_members">
-        <item quantity="one">%d membre</item>
-        <item quantity="other">%d membres</item>
+        <item quantity="one">・1 membre</item>
+        <item quantity="other">・%d membres</item>
     </plurals>
     <plurals name="room_new_messages_notification">
         <item quantity="one">%d nouveau message</item>
