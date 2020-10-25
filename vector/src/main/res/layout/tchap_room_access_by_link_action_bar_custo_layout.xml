@@ -40,13 +40,26 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:layout_marginEnd="5dp"
-        android:layout_marginRight="5dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
 
         android:adjustViewBounds="true"
         android:maxWidth="@dimen/hexagonal_avatar_size"
         android:maxHeight="@dimen/hexagonal_avatar_size"
         android:scaleType="centerCrop"
         tools:background="#f00" />
+
+    <ImageView
+        android:id="@+id/room_avatar_marker"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_alignTop="@+id/avatar_img"
+        android:layout_alignEnd="@+id/avatar_img"
+        android:layout_alignRight="@+id/avatar_img"
+        android:layout_marginTop="-2dp"
+        android:layout_marginEnd="-5dp"
+        android:layout_marginRight="-5dp"
+        android:src="@drawable/private_avatar_icon"
+        android:visibility="visible" />
 
 </RelativeLayout>
