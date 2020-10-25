@@ -29,6 +29,7 @@
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:layout_below="@+id/room_action_bar"
         android:background="?attr/room_header_divider_color" />
 

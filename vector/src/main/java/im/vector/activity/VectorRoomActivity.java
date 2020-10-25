@@ -28,6 +28,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -269,6 +270,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
 
     private ImageView mActionBarHeaderRoomAvatar;
     private HexagonMaskView mActionBarHeaderHexagonRoomAvatar;
+    private ImageView mActionBarHeaderRoomAvatarMarker;
 
     // notifications area
     @BindView(R.id.room_notifications_area)
@@ -693,8 +695,9 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
 
         configureToolbar();
 
-        mActionBarHeaderRoomAvatar = toolbar.findViewById(R.id.avatar_img);
-        mActionBarHeaderHexagonRoomAvatar = toolbar.findViewById(R.id.avatar_h_img);
+        mActionBarHeaderRoomAvatar = toolbar.findViewById(R.id.room_avatar);
+        mActionBarHeaderHexagonRoomAvatar = toolbar.findViewById(R.id.room_avatar_hexagon);
+        mActionBarHeaderRoomAvatarMarker = toolbar.findViewById(R.id.room_avatar_marker);
 
         mCallId = intent.getStringExtra(EXTRA_START_CALL_ID);
         mEventId = intent.getStringExtra(EXTRA_EVENT_ID);
@@ -2858,6 +2861,18 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
                     mActionBarHeaderHexagonRoomAvatar.setBorderSettings(ContextCompat.getColor(this, R.color.unrestricted_room_avatar_border_color), 10);
                 }
             }
+
+            if (mRoom.isEncrypted()) {
+                mActionBarHeaderRoomAvatarMarker.setImageResource(R.drawable.private_avatar_icon);
+                mActionBarHeaderRoomAvatarMarker.setVisibility(View.VISIBLE);
+            } else if (RoomState.JOIN_RULE_PUBLIC.equals(mRoom.getState().join_rule)) {
+                // Tchap: we consider as forum all the unencrypted rooms with a public join_rule
+                mActionBarHeaderRoomAvatarMarker.setImageResource(R.drawable.forum_avatar_icon);
+                mActionBarHeaderRoomAvatarMarker.setVisibility(View.VISIBLE);
+            } else {
+                // This case should not happen for the moment in Tchap
+                mActionBarHeaderRoomAvatarMarker.setVisibility(View.INVISIBLE);
+            }
         } else if (null != sRoomPreviewData) {
             mActionBarHeaderHexagonRoomAvatar.setVisibility(View.VISIBLE);
             mActionBarHeaderRoomAvatar.setVisibility(View.INVISIBLE);
@@ -2867,12 +2882,23 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
                 roomName = " ";
             }
             VectorUtils.loadUserAvatar(this, sRoomPreviewData.getSession(), mActionBarHeaderHexagonRoomAvatar, sRoomPreviewData.getRoomAvatarUrl(), sRoomPreviewData.getRoomId(), roomName);
-            // The room preview is only supported for public room which are restricted by default (external users can not join them)
-            mActionBarHeaderHexagonRoomAvatar.setBorderSettings(ContextCompat.getColor(this, R.color.restricted_room_avatar_border_color), 3);
+
+            if (sRoomPreviewData.getPublicRoom() != null) {
+                // Public room are restricted by default (external users can not join them)
+                mActionBarHeaderHexagonRoomAvatar.setBorderSettings(ContextCompat.getColor(this, R.color.restricted_room_avatar_border_color), 3);
+                mActionBarHeaderRoomAvatarMarker.setImageResource(R.drawable.forum_avatar_icon);
+                mActionBarHeaderRoomAvatarMarker.setVisibility(View.VISIBLE);
+            } else {
+                // We don't have the information to custom the avatar border and select the right marker
+                mActionBarHeaderHexagonRoomAvatar.setBorderSettings(Color.LTGRAY, 3);
+                mActionBarHeaderRoomAvatarMarker.setVisibility(View.INVISIBLE);
+            }
         } else if (null != mTchapUser) {
             mActionBarHeaderHexagonRoomAvatar.setVisibility(View.INVISIBLE);
             mActionBarHeaderRoomAvatar.setVisibility(View.VISIBLE);
             VectorUtils.loadUserAvatar(this, mSession, mActionBarHeaderRoomAvatar, mTchapUser);
+            mActionBarHeaderRoomAvatarMarker.setImageResource(R.drawable.private_avatar_icon);
+            mActionBarHeaderRoomAvatarMarker.setVisibility(View.VISIBLE);
         }
     }
 
