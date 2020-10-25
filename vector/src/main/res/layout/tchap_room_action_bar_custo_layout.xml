@@ -10,14 +10,13 @@
         android:id="@+id/header_texts_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginRight="50dp"
-        android:layout_marginEnd="50dp"
-
-        android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+
         android:layout_centerVertical="true"
-        android:orientation="vertical"
-        >
+        android:layout_marginEnd="50dp"
+        android:layout_marginRight="50dp"
+        android:orientation="vertical">
 
 
         <!-- keep singleLine="true" because maxLines="1" truncation is not the expected one.-->
@@ -27,7 +26,7 @@
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:singleLine="true"
-             android:textColor="@android:color/black"
+            android:textColor="@android:color/black"
             android:textSize="16sp"
             android:textStyle="bold"
             tools:text="title" />
@@ -50,17 +49,29 @@
         android:id="@+id/avatar_img"
         android:layout_width="@dimen/hexagonal_avatar_size"
         android:layout_height="@dimen/hexagonal_avatar_size"
-        android:layout_marginRight="5dp"
-        android:layout_marginEnd="5dp"
-        android:maxWidth="@dimen/hexagonal_avatar_size"
-        android:maxHeight="@dimen/hexagonal_avatar_size"
-
-        android:scaleType="centerCrop"
-        android:adjustViewBounds="true"
-        tools:background="#f00"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        />
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
 
+        android:adjustViewBounds="true"
+        android:maxWidth="@dimen/hexagonal_avatar_size"
+        android:maxHeight="@dimen/hexagonal_avatar_size"
+        android:scaleType="centerCrop"
+        tools:background="#f00" />
 
-    </RelativeLayout>
+    <ImageView
+        android:id="@+id/room_avatar_marker"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_alignTop="@+id/avatar_img"
+        android:layout_alignEnd="@+id/avatar_img"
+        android:layout_alignRight="@+id/avatar_img"
+        android:layout_marginTop="-2dp"
+        android:layout_marginEnd="-5dp"
+        android:layout_marginRight="-5dp"
+        android:src="@drawable/private_avatar_icon"
+        android:visibility="visible" />
+
+</RelativeLayout>

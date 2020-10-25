@@ -26,6 +26,8 @@ import androidx.appcompat.app.ActionBar;
 import androidx.core.content.ContextCompat;
 
 import android.text.TextUtils;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +38,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.tabs.TabLayout;
 
 import org.matrix.androidsdk.core.Log;
+import org.matrix.androidsdk.data.RoomState;
 import org.matrix.androidsdk.fragments.MatrixMessageListFragment;
 import org.matrix.androidsdk.listeners.MXEventListener;
 
@@ -95,6 +98,7 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
     private TextView mActionBarCustomTitle;
     private TextView mActionBarCustomTopic;
     private HexagonMaskView mAvatar;
+    private ImageView mAvatarMarker;
 
     // activity life cycle management:
     // - Bundle keys
@@ -181,6 +185,7 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
         mActionBarCustomTitle = findViewById(R.id.room_action_bar_title);
         mActionBarCustomTopic = findViewById(R.id.room_action_bar_topic);
         mAvatar = findViewById(R.id.avatar_img);
+        mAvatarMarker = findViewById(R.id.room_avatar_marker);
         setRoomTitle();
         setTopic();
         setAvatar();
@@ -516,6 +521,18 @@ public class VectorRoomDetailsActivity extends MXCActionBarActivity {
                 mAvatar.setBorderSettings(ContextCompat.getColor(this, R.color.restricted_room_avatar_border_color), 3);
             } else {
                 mAvatar.setBorderSettings(ContextCompat.getColor(this, R.color.unrestricted_room_avatar_border_color), 10);
+            }
+
+            if (mRoom.isEncrypted()) {
+                mAvatarMarker.setImageResource(R.drawable.private_avatar_icon);
+                mAvatarMarker.setVisibility(View.VISIBLE);
+            } else if (RoomState.JOIN_RULE_PUBLIC.equals(mRoom.getState().join_rule)) {
+                // Tchap: we consider as forum all the unencrypted rooms with a public join_rule
+                mAvatarMarker.setImageResource(R.drawable.forum_avatar_icon);
+                mAvatarMarker.setVisibility(View.VISIBLE);
+            } else {
+                // This case should not happen for the moment in Tchap
+                mAvatarMarker.setVisibility(View.INVISIBLE);
             }
         }
     }
