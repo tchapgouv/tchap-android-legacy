@@ -46,7 +46,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="30dp"
-                    android:layout_marginBottom="60dp"
+                    android:layout_marginBottom="30dp"
                     android:descendantFocusability="beforeDescendants"
                     android:focusableInTouchMode="true"
                     android:orientation="horizontal">
@@ -61,6 +61,15 @@
                             android:layout_width="95dp"
                             android:layout_height="95dp"
                             android:src="@color/vector_tchap_hexagon_background_color_dark_grey" />
+
+                        <ImageView
+                            android:id="@+id/avatar_icon_image"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="80dp"
+                            android:layout_marginLeft="80dp"
+                            android:layout_marginTop="5dp"
+                            android:src="@drawable/private_avatar_icon_hr" />
 
                         <TextView
                             android:id="@+id/tv_add_avatar_image"
@@ -118,76 +127,211 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingBottom="3dp"
-                        android:textColor="@color/vector_tchap_text_color_dark"
+                        android:textColor="@color/tchap_greyish_brown_color"
                         android:textSize="15sp"
-                        tools:text="@plurals/tchap_room_creation_retention"/>
+                        tools:text="@plurals/tchap_room_creation_retention" />
                 </LinearLayout>
 
-                <Switch
-                    android:id="@+id/switch_external_access_room"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginEnd="7dp"
-                    android:layout_marginRight="7dp"
-                    android:checked="false"
-                    android:gravity="center_vertical"
-                    android:minHeight="48dp"
-                    android:orientation="horizontal"
-                    android:text="@string/tchap_room_creation_unrestricted"
-                    android:textColor="@color/vector_tchap_text_color_dark"
-                    android:textSize="15sp" />
+            </LinearLayout>
 
-                <Switch
-                    android:id="@+id/switch_public_private_room"
-                    android:layout_width="match_parent"
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginEnd="7dp"
+                android:layout_marginRight="7dp"
+                android:layout_marginBottom="20dp"
+                android:fontFamily="sans-serif-medium"
+                android:text="@string/tchap_room_creation_room_type_title"
+                android:textAllCaps="true"
+                android:textColor="@color/tchap_greyish_brown_color"
+                android:textSize="16sp"
+                android:textStyle="normal" />
+
+            <RelativeLayout
+                android:id="@+id/private_room_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginEnd="7dp"
+                android:layout_marginRight="7dp"
+                android:layout_marginBottom="5dp"
+                android:background="@drawable/button_private_bg"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="15dp">
+
+                <ImageView
+                    android:id="@+id/private_room_image_view"
+                    android:layout_width="20dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginEnd="7dp"
-                    android:layout_marginRight="7dp"
-                    android:checked="false"
-                    android:gravity="center_vertical"
-                    android:minHeight="48dp"
-                    android:orientation="horizontal"
-                    android:text="@string/tchap_room_creation_public"
-                    android:textColor="@color/vector_tchap_text_color_dark"
-                    android:textSize="15sp" />
+                    android:layout_alignTop="@+id/private_room_title"
+                    android:layout_alignBottom="@+id/private_room_title"
+                    android:duplicateParentState="true"
+                    android:paddingTop="3dp"
+                    android:paddingBottom="3dp"
+                    android:scaleType="fitStart"
+                    android:src="@drawable/private_room"
+                    android:tint="@color/tchap_coral_color" />
 
                 <TextView
-                    android:id="@+id/tv_public_private_room_description"
+                    android:id="@+id/private_room_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginTop="13dp"
-                    android:layout_marginEnd="7dp"
-                    android:layout_marginRight="7dp"
-                    android:paddingBottom="10dp"
-                    android:text="@string/tchap_room_creation_public_info"
-                    android:textColor="@color/vector_tchap_text_color_light_grey"
-                    android:textSize="12sp" />
+                    android:layout_toEndOf="@+id/private_room_image_view"
+                    android:layout_toRightOf="@+id/private_room_image_view"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="@string/tchap_room_creation_private_room_title"
+                    android:textColor="@color/tchap_coral_color"
+                    android:textSize="16sp"
+                    android:textStyle="normal" />
 
-                <Switch
-                    android:id="@+id/switch_disable_federation"
+                <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginEnd="7dp"
-                    android:layout_marginRight="7dp"
-                    android:checked="false"
-                    android:gravity="center_vertical"
-                    android:minHeight="48dp"
-                    android:orientation="horizontal"
-                    android:textColor="@color/vector_tchap_text_color_dark"
-                    android:textSize="15sp"
-                    android:visibility="gone"
-                    tools:text="Limit the access to this room to the members of the domain xxx"
-                    tools:visibility="visible" />
+                    android:layout_below="@+id/private_room_title"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="sans-serif"
+                    android:text="@string/tchap_room_creation_private_room_info"
+                    android:textColor="@color/tchap_greyish_brown_color"
+                    android:textStyle="normal" />
+            </RelativeLayout>
 
-            </LinearLayout>
+            <RelativeLayout
+                android:id="@+id/extern_room_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="7dp"
+                android:layout_marginRight="7dp"
+                android:layout_marginBottom="5dp"
+                android:background="@drawable/button_extern_bg"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="15dp">
+
+                <ImageView
+                    android:id="@+id/extern_room_image_view"
+                    android:layout_width="20dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignTop="@+id/extern_room_title"
+                    android:layout_alignBottom="@+id/extern_room_title"
+                    android:paddingTop="3dp"
+                    android:paddingBottom="3dp"
+                    android:scaleType="fitStart"
+                    android:src="@drawable/private_room"
+                    android:tint="@color/tchap_pumpkin_orange_color" />
+
+                <TextView
+                    android:id="@+id/extern_room_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@+id/extern_room_image_view"
+                    android:layout_toRightOf="@+id/extern_room_image_view"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="@string/tchap_room_creation_extern_room_title"
+                    android:textColor="@color/tchap_pumpkin_orange_color"
+                    android:textSize="16sp"
+                    android:textStyle="normal" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/extern_room_title"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="sans-serif"
+                    android:text="@string/tchap_room_creation_extern_room_info"
+                    android:textColor="@color/tchap_greyish_brown_color"
+                    android:textStyle="normal" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/forum_room_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginEnd="7dp"
+                android:layout_marginRight="7dp"
+                android:background="@drawable/button_forum_bg"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="15dp">
+
+                <ImageView
+                    android:id="@+id/forum_room_image_view"
+                    android:layout_width="20dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignTop="@+id/forum_room_title"
+                    android:layout_alignBottom="@+id/forum_room_title"
+                    android:paddingTop="3dp"
+                    android:paddingBottom="3dp"
+                    android:scaleType="fitStart"
+                    android:src="@drawable/forum_room"
+                    android:tint="@color/tchap_jade_green_color" />
+
+                <TextView
+                    android:id="@+id/forum_room_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@+id/forum_room_image_view"
+                    android:layout_toRightOf="@+id/forum_room_image_view"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="@string/tchap_room_creation_forum_room_title"
+                    android:textColor="@color/tchap_jade_green_color"
+                    android:textSize="16sp"
+                    android:textStyle="normal" />
+
+                <TextView
+                    android:id="@+id/description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/forum_room_title"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="sans-serif"
+                    android:text="@string/tchap_room_creation_forum_room_info"
+                    android:textColor="@color/tchap_greyish_brown_color"
+                    android:textStyle="normal" />
+
+                <LinearLayout
+                    android:id="@+id/federation_layout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/description"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/tv_public_private_room_description"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/tchap_room_creation_public_info"
+                        android:textColor="@color/tchap_greyish_brown_color"
+                        android:textStyle="bold"
+                        android:visibility="visible" />
+
+                    <Switch
+                        android:id="@+id/switch_disable_federation"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:checked="false"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center_vertical"
+                        android:minHeight="48dp"
+                        android:orientation="horizontal"
+                        android:textColor="@color/tchap_greyish_brown_color"
+                        android:textStyle="normal"
+                        android:visibility="visible"
+                        tools:text="Limit the access to this room to the members of the domain xxx"
+                        tools:visibility="visible" />
+                </LinearLayout>
+            </RelativeLayout>
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </LinearLayout>

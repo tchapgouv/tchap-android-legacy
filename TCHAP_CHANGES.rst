@@ -1,3 +1,28 @@
+Changes in Tchap 1.0.xx (2020-xx-xx)
+===================================================
+
+Improvements:
+ * Increase targetSdk to 29 #609
+ * Private rooms: turn on the option to join on room’s link #573
+ * Room preview: we have to support the preview on shared room link #612
+ * Apply the new room creation design #604
+ * [Room creation] Do not override the power levels anymore #632
+ * [Room access] Improve the wordings related to the room link access #645
+ * Rename "Salon public" with "Salon forum" #649
+ * [Room alias] Harden the room aliases #644
+
+Bug Fixes:
+ * Tchap crashes on invalid access token #631
+
+Changes in Tchap 1.0.47 (2020-10-02)
+===================================================
+
+Bug Fixes:
+ * Configure correctly activity launchmode PR #630
+ * Fix searchview cursor color PR #633
+ * fix crash loop back off on invalid access token #636
+ * [Expired Account] Tchap is stuck on the splash screen whereas the account is renewed #639
+ 
 Changes in Tchap 1.0.46 (2020-09-26)
 ===================================================
 

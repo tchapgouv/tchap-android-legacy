@@ -87,7 +87,9 @@
         <activity
             android:name="fr.gouv.tchap.activity.NotificationListenerDetectionActivity"
             android:configChanges="orientation|screenSize"
-            android:theme="@style/AppTheme.NoActionBar.Swipe.Dark">
+            android:theme="@style/AppTheme.NoActionBar.Swipe.Dark"
+            android:launchMode="singleTask"
+            android:taskAffinity="">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -124,6 +126,18 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="im.vector.activity.VectorHomeActivity" />
+        </activity>
+        <activity
+            android:name="fr.gouv.tchap.activity.TchapRoomAccessByLinkActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/tchap_room_settings_room_access_by_link_title"
+            android:launchMode="singleTop"
+            android:parentActivityName=".activity.VectorRoomActivity"
+            android:theme="@style/AppTheme.Light"
+            android:windowSoftInputMode="adjustResize">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="im.vector.activity.VectorRoomActivity" />
         </activity>
         <activity
             android:name="fr.gouv.tchap.activity.TchapPublicRoomSelectionActivity"

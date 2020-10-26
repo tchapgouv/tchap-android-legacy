@@ -739,7 +739,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
             }
         });
 
-        if (null != roomId) {
+        if (null != roomId && (null == sRoomPreviewData)) {
             mRoom = mSession.getDataHandler().getRoom(roomId, false);
         }
 
@@ -3186,115 +3186,35 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
 
             final RoomEmailInvitation roomEmailInvitation = sRoomPreviewData.getRoomEmailInvitation();
 
-            String roomName = sRoomPreviewData.getRoomName();
-            if (TextUtils.isEmpty(roomName)) {
-                roomName = " ";
-            }
-
             Log.d(LOG_TAG, "Preview the room " + sRoomPreviewData.getRoomId());
 
-
-            // if the room already exists
-            if (null != mRoom) {
-                Log.d(LOG_TAG, "manageRoomPreview : The room is known");
-
-                String inviter = "";
-
-                if (null != roomEmailInvitation) {
-                    inviter = roomEmailInvitation.inviterName;
-                }
-
-                if (TextUtils.isEmpty(inviter)) {
-                    mRoom.getActiveMembersAsync(new SimpleApiCallback<List<RoomMember>>(this) {
-                        @Override
-                        public void onSuccess(List<RoomMember> members) {
-                            String inviter = "";
-
-                            for (RoomMember member : members) {
-                                if (TextUtils.equals(member.membership, RoomMember.MEMBERSHIP_JOIN)) {
-                                    inviter = TextUtils.isEmpty(member.displayname) ? member.getUserId() : member.displayname;
-                                }
-                            }
-
-                            invitationTextView.setText(getString(R.string.room_preview_invitation_format, inviter));
-                        }
-                    });
-                } else {
-                    invitationTextView.setText(getString(R.string.room_preview_invitation_format, inviter));
-                }
-
-                declineButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Log.d(LOG_TAG, "The user clicked on decline.");
-
-                        showWaitingView();
-
-                        mRoom.leave(new ApiCallback<Void>() {
-                            @Override
-                            public void onSuccess(Void info) {
-                                Log.d(LOG_TAG, "The invitation is rejected");
-                                onDeclined();
-                            }
-
-                            private void onError(String errorMessage) {
-                                Log.d(LOG_TAG, "The invitation rejection failed " + errorMessage);
-                                Toast.makeText(VectorRoomActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
-                                hideWaitingView();
-                            }
-
-                            @Override
-                            public void onNetworkError(Exception e) {
-                                onError(e.getLocalizedMessage());
-                            }
-
-                            @Override
-                            public void onMatrixError(MatrixError e) {
-                                if (MatrixError.M_CONSENT_NOT_GIVEN.equals(e.errcode)) {
-                                    hideWaitingView();
-                                    getConsentNotGivenHelper().displayDialog(e);
-                                } else {
-                                    onError(e.getLocalizedMessage());
-                                }
-                            }
-
-                            @Override
-                            public void onUnexpectedError(Exception e) {
-                                onError(e.getLocalizedMessage());
-                            }
-                        });
-                    }
-                });
-
+            if ((null != roomEmailInvitation) && !TextUtils.isEmpty(roomEmailInvitation.email)) {
+                invitationTextView.setText(getString(R.string.room_preview_invitation_format, roomEmailInvitation.inviterName));
+                subInvitationTextView.setText(getString(R.string.room_preview_unlinked_email_warning, roomEmailInvitation.email));
             } else {
-                if ((null != roomEmailInvitation) && !TextUtils.isEmpty(roomEmailInvitation.email)) {
-                    invitationTextView.setText(getString(R.string.room_preview_invitation_format, roomEmailInvitation.inviterName));
-                    subInvitationTextView.setText(getString(R.string.room_preview_unlinked_email_warning, roomEmailInvitation.email));
-                } else {
-                    String myRoomName = sRoomPreviewData.getRoomName();
-                    if (sRoomPreviewData.getRoomState() != null
-                            && sRoomPreviewData.getRoomState().name != null
-                            && sRoomPreviewData.getRoomState().name.length() > 0) {
-                        myRoomName = sRoomPreviewData.getRoomState().name;
-                    }
-                    invitationTextView.setText(getString(R.string.room_preview_try_join_an_unknown_room, TextUtils.isEmpty(myRoomName) ? getResources().getString(R.string.room_preview_try_join_an_unknown_room_default) : myRoomName));
-
-                    // the room preview has some messages
-                    if ((null != sRoomPreviewData.getRoomResponse()) && (null != sRoomPreviewData.getRoomResponse().messages)) {
-                        subInvitationTextView.setText(getString(R.string.room_preview_room_interactions_disabled));
-                    }
+                String myRoomName = sRoomPreviewData.getRoomName();
+                if (sRoomPreviewData.getRoomState() != null
+                        && sRoomPreviewData.getRoomState().name != null
+                        && sRoomPreviewData.getRoomState().name.length() > 0) {
+                    myRoomName = sRoomPreviewData.getRoomState().name;
                 }
+                invitationTextView.setText(getString(R.string.room_preview_try_join_an_unknown_room, TextUtils.isEmpty(myRoomName) ? getResources().getString(R.string.room_preview_try_join_an_unknown_room_default) : myRoomName));
 
-                declineButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Log.d(LOG_TAG, "The invitation is declined (unknown room)");
-
-                        sRoomPreviewData = null;
-                        finish();
-                    }
-                });
+                // the room preview has some messages
+                if ((null != sRoomPreviewData.getRoomResponse()) && (null != sRoomPreviewData.getRoomResponse().messages)) {
+                    subInvitationTextView.setText(getString(R.string.room_preview_room_interactions_disabled));
+                }
             }
+
+            declineButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d(LOG_TAG, "The invitation is declined (unknown room)");
+
+                    sRoomPreviewData = null;
+                    finish();
+                }
+            });
 
             joinButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -3322,11 +3242,17 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
 
                             @Override
                             public void onMatrixError(MatrixError e) {
-                                if (MatrixError.M_CONSENT_NOT_GIVEN.equals(e.errcode)) {
-                                    hideWaitingView();
-                                    getConsentNotGivenHelper().displayDialog(e);
-                                } else {
-                                    onError(e.getLocalizedMessage());
+                                Log.e(LOG_TAG, "## joinRoom: onMatrixError Msg= " + e.getLocalizedMessage());
+                                switch (e.errcode) {
+                                    case MatrixError.M_CONSENT_NOT_GIVEN:
+                                        hideWaitingView();
+                                        getConsentNotGivenHelper().displayDialog(e);
+                                        break;
+                                    case MatrixError.FORBIDDEN:
+                                        onError(getString(R.string.tchap_room_access_unauthorized));
+                                        break;
+                                    default:
+                                        onError(getString(R.string.tchap_error_message_default));
                                 }
                             }
 
