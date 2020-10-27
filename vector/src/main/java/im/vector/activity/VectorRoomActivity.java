@@ -2861,7 +2861,13 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
      * @param aTopicValue the new topic value
      */
     private void setTopic(String aTopicValue) {
-        mActionBarTopic.setText(aTopicValue);
+        // topic is only displayed if its content is not empty
+        if (TextUtils.isEmpty(aTopicValue)) {
+            mActionBarTopic.setVisibility(View.GONE);
+        } else {
+            mActionBarTopic.setText(aTopicValue);
+            mActionBarTopic.setVisibility(View.VISIBLE);
+        }
 
         // topic is only displayed if its content is not empty
         if (TextUtils.isEmpty(aTopicValue)) {
