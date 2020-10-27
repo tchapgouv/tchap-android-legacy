@@ -2868,13 +2868,6 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
             mActionBarTopic.setText(aTopicValue);
             mActionBarTopic.setVisibility(View.VISIBLE);
         }
-
-        // topic is only displayed if its content is not empty
-        if (TextUtils.isEmpty(aTopicValue)) {
-            mActionBarTopic.setVisibility(View.GONE);
-        } else {
-            mActionBarTopic.setVisibility(View.VISIBLE);
-        }
     }
 
     /**
