@@ -19,10 +19,7 @@ package fr.gouv.tchap.activity
 import android.content.Intent
 import android.text.TextUtils
 import android.view.View
-import android.widget.Button
-import android.widget.RelativeLayout
-import android.widget.Switch
-import android.widget.TextView
+import android.widget.*
 import androidx.core.content.ContextCompat
 import butterknife.BindView
 import butterknife.OnCheckedChanged
@@ -59,6 +56,9 @@ class TchapRoomAccessByLinkActivity : VectorAppCompatActivity(){
 
     @BindView(R.id.avatar_img)
     lateinit var roomAvatar: HexagonMaskView
+
+    @BindView(R.id.room_avatar_marker)
+    lateinit var roomAvatarMarker: ImageView
 
     @BindView(R.id.room_access_by_link_status)
     lateinit var roomAccessByLinkStatus: TextView
@@ -136,6 +136,18 @@ class TchapRoomAccessByLinkActivity : VectorAppCompatActivity(){
             roomAvatar.setBorderSettings(ContextCompat.getColor(this, R.color.restricted_room_avatar_border_color), 3)
         } else {
             roomAvatar.setBorderSettings(ContextCompat.getColor(this, R.color.unrestricted_room_avatar_border_color), 10)
+        }
+
+        if (room.isEncrypted()) {
+            roomAvatarMarker.setImageResource(R.drawable.private_avatar_icon);
+            roomAvatarMarker.setVisibility(View.VISIBLE);
+        } else if (RoomState.JOIN_RULE_PUBLIC.equals(room.state.join_rule)) {
+            // Tchap: we consider as forum all the unencrypted rooms with a public join_rule
+            roomAvatarMarker.setImageResource(R.drawable.forum_avatar_icon);
+            roomAvatarMarker.setVisibility(View.VISIBLE);
+        } else {
+            // This case should not happen for the moment in Tchap
+            roomAvatarMarker.setVisibility(View.INVISIBLE);
         }
     }
 

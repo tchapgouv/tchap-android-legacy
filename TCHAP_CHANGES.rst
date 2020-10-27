@@ -6,6 +6,7 @@ Improvements:
  * Private rooms: turn on the option to join on room’s link #573
  * Room preview: we have to support the preview on shared room link #612
  * Apply the new room creation design #604
+ * Apply the new design on the room avatar and name #648
  * [Room creation] Do not override the power levels anymore #632
  * [Room access] Improve the wordings related to the room link access #645
  * Rename "Salon public" with "Salon forum" #649

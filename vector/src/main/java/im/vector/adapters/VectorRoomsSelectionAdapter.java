@@ -98,7 +98,9 @@ public class VectorRoomsSelectionAdapter extends ArrayAdapter<RoomSummary> {
         RoomSummary roomSummary = getItem(position);
 
         // retrieve the UI items
-        ImageView avatarImageView = convertView.findViewById(R.id.adapter_item_recent_room_avatar);
+        ImageView avatarImageView = convertView.findViewById(R.id.room_avatar);
+        ImageView avatarHexagonImageView = convertView.findViewById(R.id.room_avatar_hexagon);
+        ImageView avatarIcon = convertView.findViewById(R.id.room_avatar_marker);
         TextView roomNameTxtView = convertView.findViewById(R.id.roomSummaryAdapter_roomName);
         TextView roomMessageTxtView = convertView.findViewById(R.id.roomSummaryAdapter_roomMessage);
 
@@ -106,10 +108,24 @@ public class VectorRoomsSelectionAdapter extends ArrayAdapter<RoomSummary> {
         View separatorView = convertView.findViewById(R.id.recents_separator);
 
         // display the room avatar
-        Room childRoom = mSession.getDataHandler().getRoom(roomSummary.getRoomId());
+        Room room = mSession.getDataHandler().getRoom(roomSummary.getRoomId());
 
-        if (null != childRoom) {
-            VectorUtils.loadRoomAvatar(mContext, mSession, avatarImageView, childRoom);
+        if (null != room) {
+            if (room.isDirect()) {
+                VectorUtils.loadRoomAvatar(mContext, mSession, avatarImageView, room);
+                avatarHexagonImageView.setVisibility(View.INVISIBLE);
+                avatarImageView.setVisibility(View.VISIBLE);
+            } else {
+                VectorUtils.loadRoomAvatar(mContext, mSession, avatarHexagonImageView, room);
+                avatarImageView.setVisibility(View.INVISIBLE);
+                avatarHexagonImageView.setVisibility(View.VISIBLE);
+            }
+
+            if (room.isEncrypted()) {
+                avatarIcon.setImageResource(R.drawable.private_avatar_icon);
+            } else {
+                avatarIcon.setImageResource(R.drawable.forum_avatar_icon);
+            }
         }
 
         if (roomSummary.getLatestReceivedEvent() != null) {
@@ -128,7 +144,6 @@ public class VectorRoomsSelectionAdapter extends ArrayAdapter<RoomSummary> {
             timestampTxtView.setVisibility(View.GONE);
         }
 
-        Room room = mSession.getDataHandler().getRoom(roomSummary.getRoomId());
         if (room != null) {
             // display the room name
             String roomName = DinsicUtils.getRoomDisplayName(mContext, room);
@@ -144,8 +159,6 @@ public class VectorRoomsSelectionAdapter extends ArrayAdapter<RoomSummary> {
         convertView.findViewById(R.id.recents_groups_separator_line).setVisibility(View.GONE);
         convertView.findViewById(R.id.roomSummaryAdapter_action).setVisibility(View.GONE);
         convertView.findViewById(R.id.roomSummaryAdapter_action_image).setVisibility(View.GONE);
-
-        convertView.findViewById(R.id.recents_groups_invitation_group).setVisibility(View.GONE);
 
         return convertView;
     }
