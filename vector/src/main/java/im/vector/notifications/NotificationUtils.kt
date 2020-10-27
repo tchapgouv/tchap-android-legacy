@@ -295,7 +295,7 @@ object NotificationUtils {
         //
         val pendingIntent = stackBuilder.getPendingIntent(Random().nextInt(1000), PendingIntent.FLAG_UPDATE_CURRENT)
 
-        builder.setContentIntent(pendingIntent)
+        builder.setFullScreenIntent(pendingIntent, true)
 
         return builder.build()
     }
