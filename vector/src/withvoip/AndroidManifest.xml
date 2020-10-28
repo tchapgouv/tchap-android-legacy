@@ -21,6 +21,9 @@
 
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
 
+    <!-- Needed to show incoming calls activity in lock screen-->
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+
 
     <!-- videocall feature -->
     <!-- android.permission.CAMERA defines android.hardware.camera -->

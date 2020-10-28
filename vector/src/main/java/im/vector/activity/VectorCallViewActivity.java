@@ -657,8 +657,8 @@ public class VectorCallViewActivity extends VectorAppCompatActivity implements S
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         turnScreenOffAndKeyguardOn();
+        super.onDestroy();
     }
 
     @Override
@@ -1347,8 +1347,6 @@ public class VectorCallViewActivity extends VectorAppCompatActivity implements S
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
             setShowWhenLocked(true);
             setTurnScreenOn(true);
-            KeyguardManager keyguardManager = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
-            keyguardManager.requestDismissKeyguard(this, null);
         } else {
             getWindow().addFlags(
                     WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |
