@@ -20,6 +20,8 @@ package im.vector.activity;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.app.KeyguardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Point;
@@ -28,6 +30,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.text.TextUtils;
@@ -372,6 +375,7 @@ public class VectorCallViewActivity extends VectorAppCompatActivity implements S
             return;
         }
 
+        turnScreenOnAndKeyguardOff();
 
         mCallsManager = CallsManager.getSharedInstance();
 
@@ -649,6 +653,12 @@ public class VectorCallViewActivity extends VectorAppCompatActivity implements S
         if (!mIsScreenOff) {
             stopProximitySensor();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        turnScreenOffAndKeyguardOn();
+        super.onDestroy();
     }
 
     @Override
@@ -1327,5 +1337,40 @@ public class VectorCallViewActivity extends VectorAppCompatActivity implements S
         finish();
     }
 
+    //==============================================================================================================
+    // Manage call when the phone is locked
+    //==============================================================================================================
 
+    // Needed to let you answer call when phone is locked
+    private void turnScreenOnAndKeyguardOff() {
+        Log.d(LOG_TAG, "## VOIP turnScreenOnAndKeyguardOff");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            setShowWhenLocked(true);
+            setTurnScreenOn(true);
+        } else {
+            getWindow().addFlags(
+                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |
+                    WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
+                    WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
+            );
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            KeyguardManager keyguardManager = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+            keyguardManager.requestDismissKeyguard(this, null);
+        }
+    }
+
+    private void turnScreenOffAndKeyguardOn() {
+        Log.d(LOG_TAG, "## VOIP turnScreenOnAndKeyguardOn");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            setShowWhenLocked(false);
+            setTurnScreenOn(false);
+        } else {
+            getWindow().clearFlags(
+                    WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
+                    WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
+            );
+        }
+    }
 }
