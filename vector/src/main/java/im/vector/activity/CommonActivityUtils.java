@@ -21,9 +21,7 @@ package im.vector.activity;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
-import android.app.AlarmManager;
 import android.app.DownloadManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -34,7 +32,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcelable;
-
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -48,7 +45,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.preference.PreferenceManager;
-import androidx.core.content.ContextCompat;
 
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.core.Log;
@@ -288,17 +284,15 @@ public class CommonActivityUtils {
                     .commit();
 
             Intent loginIntent = new Intent(activity, TchapLoginActivity.class);
+            Intent mainIntent = Intent.makeRestartActivityTask(loginIntent.getComponent());
             if (invalidatedCredentials) {
-                loginIntent.putExtra(TchapLoginActivity.EXTRA_RESTART_FROM_INVALID_CREDENTIALS, true);
+                mainIntent.putExtra(TchapLoginActivity.EXTRA_RESTART_FROM_INVALID_CREDENTIALS, true);
             }
-            PendingIntent mPendingIntent =
-                    PendingIntent.getActivity(activity, 314159, loginIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
-            // so restart the application after 100ms
-            AlarmManager mgr = (AlarmManager) activity.getSystemService(Context.ALARM_SERVICE);
-            mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 50, mPendingIntent);
+            // so restart the application
+            activity.startActivity(mainIntent);
 
-            System.exit(0);
+            Runtime.getRuntime().exit(0);
         } else {
             Log.e(LOG_TAG, "The application is restarting, please wait !!");
             if (activity instanceof Activity) {

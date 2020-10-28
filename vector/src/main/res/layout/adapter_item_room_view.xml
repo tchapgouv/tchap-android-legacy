@@ -30,18 +30,17 @@
         tools:src="@tools:sample/avatars" />
 
     <ImageView
-        android:id="@+id/room_avatar_encrypted_icon"
-        android:layout_width="15dp"
-        android:layout_height="15dp"
-        android:layout_alignBottom="@+id/room_avatar_hexagon"
-        android:layout_marginStart="-10dp"
-        android:layout_marginLeft="-10dp"
+        android:id="@+id/room_avatar_marker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/room_avatar_hexagon"
+        android:layout_marginTop="-3dp"
+        android:layout_marginStart="-11dp"
+        android:layout_marginLeft="-11dp"
         android:layout_toEndOf="@+id/room_avatar_hexagon"
         android:layout_toRightOf="@+id/room_avatar_hexagon"
-        android:src="@drawable/e2e_verified"
-        android:tint="?attr/padlock_icon_tint_color"
-        android:visibility="invisible"
-        tools:visibility="visible" />
+        android:src="@drawable/private_avatar_icon"
+        android:visibility="visible" />
 
     <RelativeLayout
         android:layout_width="wrap_content"
@@ -103,6 +102,23 @@
             android:layout_toRightOf="@+id/room_name"
             android:src="@drawable/tchap_ic_notification_mute_bell"
             android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/room_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginTop="4dp"
+            android:layout_toStartOf="@+id/room_more_action_ic"
+            android:layout_toLeftOf="@+id/room_more_action_ic"
+            android:gravity="end"
+            android:maxLines="1"
+            android:textAllCaps="false"
+            android:textColor="@color/vector_tchap_primary_color"
+            android:fontFamily="sans-serif-medium"
+            android:textStyle="normal"
+            android:textSize="12sp"
+            tools:text="Private room" />
 
         <TextView
             android:id="@+id/sender_name"

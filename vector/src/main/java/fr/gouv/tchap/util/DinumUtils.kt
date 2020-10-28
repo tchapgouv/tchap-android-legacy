@@ -23,6 +23,7 @@ import org.matrix.androidsdk.core.Log
 import org.matrix.androidsdk.core.callback.ApiCallback
 import org.matrix.androidsdk.data.Room
 import org.matrix.androidsdk.data.store.IMXStore
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 private const val LOG_TAG = "DinumUtils"
@@ -150,6 +151,33 @@ private fun clearExpiredRoomContentsFromStore(store: IMXStore, room: Room): Bool
 }
 
 //=============================================================================================
+// Room alias
+//=============================================================================================
+
+/**
+ * Create a room alias name with a prefix.
+ *
+ * @param prefix
+ * @return the suggested alias name.
+ */
+fun createRoomAliasName(prefix: String): String {
+    return prefix.trim()
+            .replace("[^a-zA-Z0-9]".toRegex(), "") + getRandomString()
+}
+
+/**
+ * Create a room alias with a prefix.
+ *
+ * @param session the user's session
+ * @param prefix
+ * @return the suggested alias.
+ */
+fun createRoomAlias(session: MXSession, prefix: String): String {
+    return "#" + createRoomAliasName(prefix) + ":" + DinsicUtils.getHomeServerNameFromMXIdentifier(session.myUserId)
+}
+
+
+//=============================================================================================
 // Others
 //=============================================================================================
 
@@ -168,3 +196,17 @@ fun convertDaysToMs(daysNb: Int) = TimeUnit.DAYS.toMillis(daysNb.toLong())
  * @return the number of days.
  */
 fun convertMsToDays(durationMs: Long) = TimeUnit.MILLISECONDS.toDays(durationMs).toInt()
+
+/**
+ * Generate a random room alias of 7 characters to avoid empty room alias.
+ */
+fun getRandomString(): String {
+    val RANDOMCHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+    val stringBuilder = StringBuilder()
+    val rnd = Random()
+    while (stringBuilder.length < 11) { // length of the random string.
+        val index = (rnd.nextFloat() * RANDOMCHARS.length).toInt()
+        stringBuilder.append(RANDOMCHARS[index])
+    }
+    return stringBuilder.toString()
+}

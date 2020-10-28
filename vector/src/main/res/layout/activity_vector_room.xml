@@ -29,6 +29,7 @@
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:layout_below="@+id/room_action_bar"
         android:background="?attr/room_header_divider_color" />
 
@@ -257,8 +258,7 @@
                     android:layout_height="12dp"
                     android:layout_gravity="center_vertical"
                     android:scaleType="fitCenter"
-                    android:src="@drawable/e2e_verified"
-                    android:tint="?attr/padlock_icon_tint_color" />
+                    android:src="@drawable/private_room" />
 
                 <im.vector.view.VectorAutoCompleteTextView
                     android:id="@+id/editText_messageBox"

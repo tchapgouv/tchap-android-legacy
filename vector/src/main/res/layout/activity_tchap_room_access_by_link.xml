@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:id="@+id/main_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            style="@style/TchapRoomToolbarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:layout_alignParentTop="true"
+            app:contentInsetEnd="0dp"
+            app:contentInsetStart="0dp">
+
+            <include layout="@layout/tchap_room_access_by_link_action_bar_custo_layout" />
+
+        </androidx.appcompat.widget.Toolbar>
+
+        <View
+            android:id="@+id/header_bottom_separator"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@+id/toolbar"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:background="?attr/room_header_divider_color" />        <!-- downloading progress bar -->
+        <FrameLayout
+            android:id="@+id/waiting_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/header_bottom_separator"
+            android:background="?attr/vctr_waiting_background_color"
+            android:visibility="gone">
+
+            <ProgressBar
+                android:id="@+id/loading_settings_progress_bar"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:visibility="visible" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/room_access_by_link_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/waiting_view"
+            android:layout_centerHorizontal="true">
+
+            <androidx.core.widget.NestedScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/room_access_by_link_status"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="@string/tchap_room_settings_room_access_by_link_enabled"
+                        android:textColor="@color/vector_tchap_primary_color"
+                        android:textSize="16sp"
+                        android:visibility="gone" />
+
+                    <Switch
+                        android:id="@+id/switch_room_access_by_link"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/room_access_by_link_status"
+                        android:checked="false"
+                        android:fontFamily="sans-serif-medium"
+                        android:gravity="center_vertical"
+                        android:minHeight="48dp"
+                        android:orientation="horizontal"
+                        android:text="@string/tchap_room_settings_enable_room_access_by_link"
+                        android:textColor="@color/vector_tchap_primary_color"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/room_access_by_link_info"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/switch_room_access_by_link"
+                        android:layout_marginTop="16dp"
+                        android:text="@string/tchap_room_settings_enable_room_access_by_link_info_off"
+                        android:textColor="@color/vector_tchap_text_color_dark_grey"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/room_access_link"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/room_access_by_link_info"
+                        android:layout_marginTop="10dp"
+                        android:background="@color/vector_tchap_search_background_color"
+                        android:gravity="center"
+                        android:maxLines="2"
+                        android:minHeight="55dp"
+                        android:textAlignment="center"
+                        android:textColor="@color/vector_tchap_primary_color"
+                        android:textSize="14sp"
+                        android:visibility="gone"
+                        tools:visibility="visible" />
+
+
+                </RelativeLayout>
+            </androidx.core.widget.NestedScrollView>
+
+        </FrameLayout>
+
+        <RelativeLayout
+            android:id="@+id/buttons_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/room_access_by_link_container"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <View
+                android:id="@+id/forward_link_button_separator"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?attr/room_header_divider_color" />
+
+            <Button
+                android:id="@+id/forward_link_button"
+                style="@style/TchapSettingsButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/forward_link_button_separator"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:text="@string/tchap_room_settings_room_access_by_link_forward" />
+
+            <View
+                android:id="@+id/share_link_button_separator"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@id/forward_link_button"
+                android:background="?attr/room_header_divider_color" />
+
+            <Button
+                android:id="@+id/share_link_button"
+                style="@style/TchapSettingsButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/share_link_button_separator"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:text="@string/tchap_room_settings_room_access_by_link_share" />
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+</FrameLayout>
+

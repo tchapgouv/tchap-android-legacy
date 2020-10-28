@@ -42,7 +42,7 @@
         <item name="background">@android:color/white</item>
 
         <!-- main text -->
-        <item name="titleTextAppearance">@style/Vector.Toolbar.Title</item>
+        <item name="titleTextAppearance">@style/TchapRoom.Toolbar.Title</item>
 
         <item name="theme">@style/TchapRoomToolbarTheme</item>
     </style>
@@ -54,8 +54,8 @@
 
     <style name="TchapRoom.Toolbar.Title" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
         <item name="android:textSize">20sp</item>
-        <item name="android:textColor">@android:color/white</item>
-
+        <item name="android:textColor">@color/tchap_primary_text_color</item>
+        <item name="android:fontFamily">"sans-serif-medium"</item>
     </style>
 
 
@@ -204,6 +204,13 @@
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:textSize">14sp</item>
         <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@color/tchap_text_color_light</item>
+    </style>
+
+    <style name="TchapSettingsButtonStyle" parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textAllCaps">false</item>
         <item name="android:textColor">@color/tchap_text_color_light</item>
     </style>
 

@@ -14,8 +14,8 @@
         android:layout_alignParentLeft="true"
 
         android:layout_centerVertical="true"
-        android:layout_marginEnd="50dp"
-        android:layout_marginRight="50dp"
+        android:layout_marginEnd="55dp"
+        android:layout_marginRight="55dp"
         android:orientation="vertical">
 
 
@@ -31,62 +31,117 @@
             android:textStyle="bold"
             tools:text="title" />
 
-        <TextView
-            android:id="@+id/room_action_bar_topic"
+        <FrameLayout
+            android:id="@+id/room_action_bar_subtitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/room_action_bar_title"
-            android:ellipsize="end"
-            android:gravity="center_horizontal"
-            android:maxLines="1"
-            android:textColor="@color/vector_tchap_primary_color"
-            android:textSize="12sp"
-            tools:text="topic" />
+            android:layout_below="@+id/room_action_bar_title">
+
+            <LinearLayout
+                android:id="@+id/room_action_bar_info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="horizontal"
+                tools:visibility="visible">
+
+                <TextView
+                    android:id="@+id/room_action_bar_type_info"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:fontFamily="sans-serif-medium"
+                    android:maxLines="1"
+                    android:textColor="@color/tchap_coral_color"
+                    android:textSize="12sp"
+                    android:textStyle="normal"
+                    tools:text="Private Room" />
+
+                <TextView
+                    android:id="@+id/room_action_bar_members_info"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:fontFamily="sans-serif-medium"
+                    android:maxLines="1"
+                    android:textColor="@color/vector_tchap_text_color_dark_grey"
+                    android:textSize="12sp"
+                    android:textStyle="normal"
+                    tools:text="・3 members" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/room_action_bar_topic"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center_horizontal"
+                android:maxLines="2"
+                android:textColor="@color/vector_tchap_primary_color"
+                android:textSize="12sp"
+                android:visibility="invisible"
+                tools:text="topic" />
+        </FrameLayout>
 
         <TextView
-            android:id="@+id/room_action_bar_room_info"
+            android:id="@+id/room_action_bar_third_line"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:maxLines="1"
+            android:layout_below="@+id/room_action_bar_subtitle"
             android:gravity="center_horizontal"
+            android:maxLines="1"
+            android:text="@plurals/tchap_room_retention_info"
             android:textColor="@color/vector_tchap_text_color_dark_grey"
-            android:textSize="10sp"
-            android:text="@string/tchap_room_access_unrestricted"
+            android:textSize="12sp"
             android:textStyle="italic"
-            tools:visibility="visible"
-            android:layout_below="@+id/room_action_bar_topic"/>
-
+            tools:visibility="visible" />
     </RelativeLayout>
 
-    <fr.gouv.tchap.util.HexagonMaskView
-        android:id="@+id/avatar_h_img"
+    <FrameLayout
+        android:id="@+id/room_avatar_layout"
         android:layout_width="@dimen/hexagonal_avatar_size"
         android:layout_height="@dimen/hexagonal_avatar_size"
-        android:layout_marginRight="5dp"
-        android:layout_marginEnd="5dp"
-        android:maxWidth="@dimen/hexagonal_avatar_size"
-        android:maxHeight="@dimen/hexagonal_avatar_size"
-
-        android:scaleType="centerCrop"
-        android:adjustViewBounds="true"
-        tools:background="#f00"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:visibility="gone"
-        tools:visibility="visible"
-        />
-    <im.vector.view.VectorCircularImageView
-        android:id="@+id/avatar_img"
-        android:layout_width="@dimen/chat_avatar_size"
-        android:layout_height="@dimen/chat_avatar_size"
-        android:layout_marginRight="5dp"
-        android:layout_marginEnd="5dp"
-        tools:background="#00a"
-        android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
-        android:visibility="gone"
-        tools:visibility="visible"
-        />
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp">
 
+        <fr.gouv.tchap.util.HexagonMaskView
+            android:id="@+id/room_avatar_hexagon"
+            android:layout_width="@dimen/hexagonal_avatar_size"
+            android:layout_height="@dimen/hexagonal_avatar_size"
+            android:layout_gravity="center"
+            android:adjustViewBounds="true"
+            android:background="@color/riot_primary_background_color_light"
+            android:maxWidth="@dimen/hexagonal_avatar_size"
+            android:maxHeight="@dimen/hexagonal_avatar_size"
+            android:scaleType="centerCrop"
+            tools:src="#22000000" />
 
-    </RelativeLayout>
+        <im.vector.view.VectorCircularImageView
+            android:id="@+id/room_avatar"
+            android:layout_width="@dimen/chat_avatar_size"
+            android:layout_height="@dimen/chat_avatar_size"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            tools:src="#22000000"
+            tools:visibility="visible" />
+    </FrameLayout>
+
+    <ImageView
+        android:id="@+id/room_avatar_marker"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_alignTop="@+id/room_avatar_layout"
+        android:layout_alignEnd="@+id/room_avatar_layout"
+        android:layout_alignRight="@+id/room_avatar_layout"
+        android:layout_marginTop="-2dp"
+        android:layout_marginEnd="-5dp"
+        android:layout_marginRight="-5dp"
+        android:src="@drawable/private_avatar_icon"
+        android:visibility="invisible"
+        tools:visibility="visible" />
+
+</RelativeLayout>

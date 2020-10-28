@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/tchap_pale_grey_color"/>
+
+    <stroke android:width="4dp"
+        android:color="@color/tchap_pumpkin_orange_border_color" />
+
+    <padding android:left="1dp"
+        android:top="1dp"
+        android:right="1dp"
+        android:bottom="1dp" />
+
+    <corners android:radius="12dp" />
+</shape>

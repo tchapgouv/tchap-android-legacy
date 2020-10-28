@@ -280,6 +280,7 @@ public class TchapPublicRoomsFragment extends VectorBaseFragment {
 
                     @Override
                     public void onSuccess(Void info) {
+                        roomPreviewData.setPublicRoom(publicRoom);
                         onDone();
                     }
 

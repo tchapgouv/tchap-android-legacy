@@ -165,7 +165,7 @@
     <string name="rooms_header">Rooms</string>
     <string name="rooms_directory_header">Room directory</string>
     <string name="no_room_placeholder">No rooms</string>
-    <string name="no_public_room_placeholder">No public rooms available</string>
+    <string name="no_public_room_placeholder">No forum available</string>
     <plurals name="public_room_nb_users">
         <item quantity="one">1 user</item>
         <item quantity="other">%d users</item>
@@ -431,8 +431,8 @@
         <item quantity="other">%d active members</item>
     </plurals>
     <plurals name="room_title_members">
-        <item quantity="one">1 member</item>
-        <item quantity="other">%d members</item>
+        <item quantity="one">・1 member</item>
+        <item quantity="other">・%d members</item>
     </plurals>
     <string name="room_title_one_member">1 member</string>
     <string name="room_creation_forbidden">You are not authorized to create a room</string>
@@ -603,8 +603,8 @@
     <string name="room_recents_start_chat">Start chat</string>
     <string name="room_recents_create_room">Create room</string>
     <string name="room_recents_join_room">Join room</string>
-    <string name="room_join_public_room_title">Join public room</string>
-    <string name="room_join_public_room_alt_title">Join room</string>
+    <string name="room_join_public_room_title">Join a forum</string>
+    <string name="room_join_public_room_alt_title">Join a forum</string>
     <string name="room_recents_join_room_title">Join a room</string>
     <string name="room_recents_join_room_prompt">Type a room id or a room alias</string>
 
@@ -1079,7 +1079,7 @@
     <!-- directory activity  -->
     <string name="select_room_directory">Select a room directory</string>
     <string name="directory_server_fail_to_retrieve_server">The server may be unavailable or overloaded</string>
-    <string name="directory_server_type_homeserver">Type a homeserver to list public rooms from</string>
+    <string name="directory_server_type_homeserver">Type a homeserver to list forums from</string>
     <string name="directory_server_placeholder">Homeserver URL</string>
     <string name="directory_server_all_rooms_on_server">All rooms on %s server</string>
     <string name="directory_server_native_rooms">All native %s rooms</string>
@@ -1234,18 +1234,24 @@
         <item quantity="one">The room history is limited to %d day</item>
         <item quantity="other">The room history is limited to %d days</item>
     </plurals>
-    <string name="tchap_room_creation_unrestricted">Allow the externals to join this room</string>
-    <string name="tchap_room_creation_public">Make this room public</string>
     <string name="tchap_room_creation_disable_federation">Limit the access to this room to the members of the domain \"%s\"</string>
     <string name="tchap_room_creation_public_info">A public room can be joined by any member of the Tchap community, it must not contain any sensitive data.</string>
     <string name="tchap_room_invite_member_title">Invite contacts in Room</string>
     <string name="tchap_room_invite_member_action">Validate</string>
     <string name="tchap_room_creation_save_avatar_failed">Failed to save picture.\n Do you want to retry?</string>
+    <string name="tchap_room_creation_room_type_title">Room type</string>
+    <string name="tchap_room_creation_private_room_title">Private room</string>
+    <string name="tchap_room_creation_extern_room_title">Private room opened to externals</string>
+    <string name="tchap_room_creation_forum_room_title">Forum room</string>
+    <string name="tchap_room_creation_private_room_info">Accessible to all users by invitation from an administrator.</string>
+    <string name="tchap_room_creation_extern_room_info">Accessible to all users and to external guests by invitation of an administrator.</string>
+    <string name="tchap_room_creation_forum_room_info">Accessible to all users from the forum directory or from a shared link.</string>
 
     <!-- tchap new strings -->
     <string name="tchap_room_admin_leave_prompt_msg">Are you sure you want to leave the room?\n\nThe room will no longer be administered, and you may not be able to join it again</string>
     <string name="tchap_invite_contacts_to_tchap">Invite contacts in Tchap</string>
     <string name="tchap_invite_contacts_by_email">Invite by email</string>
+    <string name="tchap_invite_contacts_by_link">Invite by link</string>
     <string name="tchap_invite_contacts_to_room">Invite contacts in Room</string>
     <string name="tchap_room_invite_member_direct_chat">New discussion</string>
     <string name="tchap_invite_already_send_message">You have already sent an invitation to %s</string>
@@ -1263,7 +1269,7 @@
         <item quantity="other">%d invitations have been sent.</item>
     </plurals>
     <string name="tchap_burger_menu_contacts">Contacts</string>
-    <string name="tchap_burger_menu_public_rooms">Public rooms</string>
+    <string name="tchap_burger_menu_public_rooms">Forums</string>
     <string name="tchap_burger_menu_info">This app is not approved for\nrestricted information interchange</string>
     <string name="tchap_error_message_default">An error occurred, please try later</string>
 
@@ -1271,7 +1277,14 @@
     <string name="tchap_cannot_invite_deactivated_account_user">The remote user left definitely this room</string>
 
     <!-- tchap room -->
-    <string name="tchap_room_access_unrestricted">Room accessible to external users</string>
+    <string name="tchap_room_private_room_type">Private</string>
+    <string name="tchap_room_long_private_room_type">Private room</string>
+    <string name="tchap_room_extern_room_type">External</string>
+    <string name="tchap_room_long_extern_room_type">Private room opened to externals</string>
+    <string name="tchap_room_forum_type">Forum</string>
+    <string name="tchap_room_long_forum_type">Forum room</string>
+    <string name="tchap_room_invalid_link">This link is invalid</string>
+    <string name="tchap_room_access_unauthorized">You are not allowed to join this conversation. An invitation is needed.</string>
     <plurals name="tchap_room_retention_info">
         <item quantity="one">History limited to %d day</item>
         <item quantity="other">History limited to %d days</item>
@@ -1284,9 +1297,9 @@
     <string name="tchap_scan_media_untrusted_content_message">The file (%s) has been blocked</string>
 
     <!-- tchap room settings -->
-    <string name="tchap_room_settings_remove_from_directory">Remove this room from the rooms directory</string>
-    <string name="tchap_room_settings_remove_from_directory_prompt_msg"><b>This action is irreversible.</b>\nAre you sure you want to remove this room from the rooms directory?</string>
-    <string name="tchap_room_settings_room_access_title">Additional information</string>
+    <string name="tchap_room_settings_remove_from_directory">Remove this room from the forums directory</string>
+    <string name="tchap_room_settings_remove_from_directory_prompt_msg"><b>This action is irreversible.</b>\nAre you sure you want to remove this room from the forums directory?</string>
+    <string name="tchap_room_settings_room_access_title">External accounts handling</string>
     <string name="tchap_room_settings_room_access_restricted">The externals are not allowed to join this room</string>
     <string name="tchap_room_settings_room_access_unrestricted">The externals are allowed to join this room</string>
     <string name="tchap_room_settings_allow_external_users_to_join">Allow the externals to join this room</string>
@@ -1300,6 +1313,18 @@
         <item quantity="one">The room history is limited to %d day</item>
         <item quantity="other">The room history is limited to %d days</item>
     </plurals>
+    <string name="tchap_room_settings_leave_room">Leave this room</string>
+    <string name="tchap_room_settings_room_access_by_link_title">Access by link</string>
+    <string name="tchap_room_settings_room_access_by_link_disabled">This room is not accessible by link</string>
+    <string name="tchap_room_settings_room_access_by_link_enabled">This room is accessible by link</string>
+    <string name="tchap_room_settings_enable_room_access_by_link">Enable the room access by link</string>
+    <string name="tchap_room_settings_enable_room_access_by_link_info_off">Users will be allowed to join the room from a link</string>
+    <string name="tchap_room_settings_enable_room_access_by_link_info_on">Users can join the room from the following link:</string>
+    <string name="tchap_room_settings_enable_room_access_by_link_info_on_with_limitation">Users can join the room from the following link (an invite is still required for externals):</string>
+    <string name="tchap_room_settings_room_access_by_link_forward">Forward the link</string>
+    <string name="tchap_room_settings_room_access_by_link_share">Share the link</string>
+    <string name="tchap_room_settings_room_access_by_link_forbidden">This change is currently forbidden when externals are allowed to join the room</string>
+    <string name="tchap_room_settings_allow_external_users_forbidden">This change is currently forbidden when the room is accessible by link</string>
 
     <!-- tchap account validity -->
     <string name="tchap_expired_account_msg">The validity period of your account has expired. An email has been sent to you in order to renew it. Once you’ve followed the link it contains, click below.</string>
