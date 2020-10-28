@@ -1,10 +1,10 @@
-Changes in Tchap 1.0.xx (2020-xx-xx)
+Changes in Tchap 1.0.48 (2020-10-28)
 ===================================================
 
 Improvements:
  * Increase targetSdk to 29 #609
  * Private rooms: turn on the option to join on room’s link #573
- * Room preview: we have to support the preview on shared room link #612
+ * Room preview: support the preview on shared room link #612
  * Apply the new room creation design #604
  * Apply the new design on the room avatar and name #648
  * [Room creation] Do not override the power levels anymore #632
