@@ -168,6 +168,8 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
     public static final String EXTRA_ROOM_PREVIEW_ROOM_ALIAS = "EXTRA_ROOM_PREVIEW_ROOM_ALIAS";
     // expand the room header when the activity is launched (boolean)
     public static final String EXTRA_EXPAND_ROOM_HEADER = "EXTRA_EXPAND_ROOM_HEADER";
+    // try to start a call
+    public static final String EXTRA_NEW_CALL = "EXTRA_NEW_CALL";
 
     // display the room information while joining a room.
     // until the join is done.
@@ -476,6 +478,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
                         case Event.EVENT_TYPE_STATE_ROOM_MEMBER:
                             setTitle();
                             updateRoomHeaderAvatar();
+                            refreshCallButtons(true);
                             break;
                         case Event.EVENT_TYPE_STATE_ROOM_TOPIC:
                             setTopic();
@@ -857,6 +860,13 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
             } else {
                 intent.removeExtra(EXTRA_TEXT_MESSAGE);
                 Log.e(LOG_TAG, "## onCreate() : ignore EXTRA_TEXT_MESSAGE because savedInstanceState != null");
+            }
+        } else if (intent.hasExtra(EXTRA_NEW_CALL)) {
+            if (isFirstCreation()) {
+                displayCallMemberNotJoined();
+            } else {
+                intent.removeExtra(EXTRA_NEW_CALL);
+                Log.e(LOG_TAG, "## onCreate() : ignore EXTRA_NEW_CALL because savedInstanceState != null");
             }
         }
 
@@ -1567,6 +1577,19 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
     }
 
     /**
+     * Display a dialog box to indicate that the call can no be performed when member did not join the discussion.
+     */
+    private void displayCallMemberNotJoined() {
+        // display the dialog with the info text
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.missing_permissions_title_to_start_conf_call)
+                .setMessage(R.string.tchap_cannot_start_call)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setPositiveButton(R.string.ok, null)
+                .show();
+    }
+
+    /**
      * Start an IP call with the management of the corresponding permissions.
      * According to the IP call, the corresponding permissions are asked: {@link im.vector.util.PermissionsToolsKt#PERMISSIONS_FOR_AUDIO_IP_CALL}
      * or {@link im.vector.util.PermissionsToolsKt#PERMISSIONS_FOR_VIDEO_IP_CALL}.
@@ -1993,6 +2016,14 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
         return null;
     }
 
+    private boolean startCallByInvitingLeftMemberInDirectChat() {
+        return inviteLeftMemberInDirectChat(null, true);
+    }
+
+    private boolean sendMessageByInvitingLeftMemberInDirectChat(final @Nullable Intent mediaIntent) {
+        return inviteLeftMemberInDirectChat(mediaIntent, false);
+    }
+
     /**
      * Check whether the current room is a direct chat left by the other member.
      * In this case, this method will handle the message by inviting again the left member
@@ -2000,9 +2031,10 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
      *
      * @param mediaIntent selected media to send (if any). When this param is null, this method
      *                    will send the current editText text.
+     * @param isCall attempt a call.
      * @return true when the message has been handled.
      */
-    private boolean sendMessageByInvitingLeftMemberInDirectChat(final @Nullable Intent mediaIntent) {
+    private boolean inviteLeftMemberInDirectChat(final @Nullable Intent mediaIntent, boolean isCall) {
         // In the case of a direct chat, we check if the other member has left the room.
         String leftMemberId = leftMemberInDirectChat();
         if (null != leftMemberId) {
@@ -2011,37 +2043,42 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
                 @Override
                 public void onSuccess(String info) {
                     if (info == null) {
-                        Log.d(LOG_TAG, "sendMessageByInvitingLeftMemberInDirectChat: the left member has deactivated his account");
+                        Log.d(LOG_TAG, "inviteLeftMemberInDirectChat: the left member has deactivated his account");
                         Toast.makeText(getApplicationContext(), getString(R.string.tchap_cannot_invite_deactivated_account_user), Toast.LENGTH_LONG).show();
                     } else {
-                        Log.d(LOG_TAG, "sendMessageByInvitingLeftMemberInDirectChat: invite again " + leftMemberId);
+                        Log.d(LOG_TAG, "inviteLeftMemberInDirectChat: invite again " + leftMemberId);
                         mRoom.invite(mSession, leftMemberId, new ApiCallback<Void>() {
                             @Override
                             public void onSuccess(Void info) {
-                                if (null != mediaIntent) {
-                                    Log.d(LOG_TAG, "sendMessageByInvitingLeftMemberInDirectChat: sendMediasIntent");
-                                    sendMediasIntent(mediaIntent);
+                                if (!isCall) {
+                                    if (null != mediaIntent) {
+                                        Log.d(LOG_TAG, "inviteLeftMemberInDirectChat: sendMediasIntent");
+                                        sendMediasIntent(mediaIntent);
+                                    } else {
+                                        Log.d(LOG_TAG, "inviteLeftMemberInDirectChat: sendTextMessage");
+                                        sendTextMessage();
+                                    }
                                 } else {
-                                    Log.d(LOG_TAG, "sendMessageByInvitingLeftMemberInDirectChat: sendTextMessage");
-                                    sendTextMessage();
+                                    Log.d(LOG_TAG, "inviteLeftMemberInDirectChat: startCall");
+                                    displayCallMemberNotJoined();
                                 }
                             }
 
                             @Override
                             public void onNetworkError(Exception e) {
-                                Log.e(LOG_TAG, "sendMessageByInvitingLeftMemberInDirectChat invite failed " + e.getMessage());
+                                Log.e(LOG_TAG, "inviteLeftMemberInDirectChat invite failed " + e.getMessage());
                                 Toast.makeText(getApplicationContext(), getString(R.string.tchap_error_message_default), Toast.LENGTH_SHORT).show();
                             }
 
                             @Override
                             public void onMatrixError(MatrixError e) {
-                                Log.e(LOG_TAG, "sendMessageByInvitingLeftMemberInDirectChat invite failed " + e.getMessage());
+                                Log.e(LOG_TAG, "inviteLeftMemberInDirectChat invite failed " + e.getMessage());
                                 Toast.makeText(getApplicationContext(), getString(R.string.tchap_error_message_default), Toast.LENGTH_SHORT).show();
                             }
 
                             @Override
                             public void onUnexpectedError(Exception e) {
-                                Log.e(LOG_TAG, "sendMessageByInvitingLeftMemberInDirectChat invite failed " + e.getMessage());
+                                Log.e(LOG_TAG, "inviteLeftMemberInDirectChat invite failed " + e.getMessage());
                                 Toast.makeText(getApplicationContext(), getString(R.string.tchap_error_message_default), Toast.LENGTH_SHORT).show();
                             }
                         });
@@ -2050,19 +2087,19 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
 
                 @Override
                 public void onNetworkError(Exception e) {
-                    Log.e(LOG_TAG, "sendMessageByInvitingLeftMemberInDirectChat get displayname failed " + e.getMessage());
+                    Log.e(LOG_TAG, "inviteLeftMemberInDirectChat get displayname failed " + e.getMessage());
                     Toast.makeText(getApplicationContext(), getString(R.string.tchap_error_message_default), Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
                 public void onMatrixError(MatrixError e) {
-                    Log.e(LOG_TAG, "sendMessageByInvitingLeftMemberInDirectChat get displayname failed " + e.getMessage());
+                    Log.e(LOG_TAG, "inviteLeftMemberInDirectChat get displayname failed " + e.getMessage());
                     Toast.makeText(getApplicationContext(), getString(R.string.tchap_error_message_default), Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
                 public void onUnexpectedError(Exception e) {
-                    Log.e(LOG_TAG, "sendMessageByInvitingLeftMemberInDirectChat get displayname failed " + e.getMessage());
+                    Log.e(LOG_TAG, "inviteLeftMemberInDirectChat get displayname failed " + e.getMessage());
                     Toast.makeText(getApplicationContext(), getString(R.string.tchap_error_message_default), Toast.LENGTH_SHORT).show();
                 }
             });
@@ -2070,6 +2107,14 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
             return true;
         }
         return false;
+    }
+
+    private boolean startCallByCreatingNewDirectChat() {
+        return createNewDirectChat(null, true);
+    }
+
+    private boolean sendMessageByCreatingNewDirectChat(final @Nullable Intent mediaIntent) {
+        return createNewDirectChat(mediaIntent, false);
     }
 
     /**
@@ -2080,9 +2125,10 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
      *
      * @param mediaIntent selected media to send (if any). When this param is null, this method
      *                    will send the current editText text.
+     * @param isCall attempt a call.
      * @return true when the text message has been handled.
      */
-    private boolean sendMessageByCreatingNewDirectChat(final @Nullable Intent mediaIntent) {
+    private boolean createNewDirectChat(final @Nullable Intent mediaIntent, boolean isCall) {
         if (null != mTchapUser) {
             // Here we create a new direct chat with the selected user, and post the message.
 
@@ -2106,13 +2152,17 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
                         HashMap<String, Object> params = new HashMap<>();
                         params.put(VectorRoomActivity.EXTRA_MATRIX_ID, mSession.getMyUserId());
                         params.put(VectorRoomActivity.EXTRA_ROOM_ID, roomId);
-                        if (null != mediaIntent) {
-                            params.put(VectorRoomActivity.EXTRA_ROOM_INTENT, mediaIntent);
+                        if (!isCall) {
+                            if (null != mediaIntent) {
+                                params.put(VectorRoomActivity.EXTRA_ROOM_INTENT, mediaIntent);
+                            } else {
+                                params.put(VectorRoomActivity.EXTRA_TEXT_MESSAGE, mEditText.getText().toString());
+                            }
                         } else {
-                            params.put(VectorRoomActivity.EXTRA_TEXT_MESSAGE, mEditText.getText().toString());
+                            params.put(VectorRoomActivity.EXTRA_NEW_CALL, true);
                         }
 
-                        Log.d(LOG_TAG, "## sendMessageByCreatingNewDirectChat: onSuccess - start goToRoomPage");
+                        Log.d(LOG_TAG, "## createNewDirectChat: onSuccess - start goToRoomPage");
                         CommonActivityUtils.goToRoomPage(VectorRoomActivity.this, mSession, params);
                     }
 
@@ -2714,10 +2764,14 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
      * Refresh the call buttons display.
      */
     private void refreshCallButtons(boolean refreshOngoingConferenceCallView) {
-        if ((null == sRoomPreviewData) && (null == mEventId) && (null == mTchapUser) && canSendMessages()) {
-            boolean isCallSupported = mRoom.canPerformCall()
-                    && mSession.isVoipCallSupported()
-                    && (mRoom.getNumberOfMembers() > 2 || mRoom.getNumberOfJoinedMembers() == 2);
+        if ((null == sRoomPreviewData) && (null == mEventId) && canSendMessages()) {
+            boolean isCallSupported = mSession.isVoipCallSupported();
+
+            if (mRoom != null && !mRoom.isDirect()) {
+                isCallSupported &= mRoom.canPerformCall()
+                        && (mRoom.getNumberOfMembers() > 2 || mRoom.getNumberOfJoinedMembers() == 2);
+            }
+
             IMXCall call = CallsManager.getSharedInstance().getActiveCall();
             Widget activeWidget = mVectorOngoingConferenceCallView.getActiveWidget();
 
@@ -3585,7 +3639,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
     @OnClick(R.id.room_start_call_image_view)
     void onStartCallClick() {
         if (isUserAllowedToStartConfCall()) {
-            if (mRoom.getNumberOfMembers() > 2) {
+            if (mRoom != null && mRoom.getNumberOfMembers() > 2) {
                 if (PreferencesManager.useJitsiConfCall(VectorRoomActivity.this)) {
                     if (WidgetManagerProvider.INSTANCE.getWidgetManager(VectorRoomActivity.this) == null) {
                         //if (Matrix.getWidgetManager(VectorRoomActivity.this) == null) {
@@ -3601,8 +3655,12 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
                 } else {
                     displayVideoCallIpDialog();
                 }
-            } else {
+            } else if (mRoom != null && mRoom.getNumberOfJoinedMembers() == 2) {
                 displayVideoCallIpDialog();
+            } else if (!startCallByInvitingLeftMemberInDirectChat()) {
+                if (!startCallByCreatingNewDirectChat()) {
+                    displayCallMemberNotJoined();
+                }
             }
         } else {
             displayConfCallNotAllowed();
