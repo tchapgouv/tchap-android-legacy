@@ -87,9 +87,12 @@ public class VectorCallViewActivity extends VectorAppCompatActivity implements S
 
     public static final String EXTRA_MATRIX_ID = "CallViewActivity.EXTRA_MATRIX_ID";
     public static final String EXTRA_CALL_ID = "CallViewActivity.EXTRA_CALL_ID";
+    public static final String EXTRA_MODE = "CallViewActivity.EXTRA_MODE";
     public static final String EXTRA_UNKNOWN_DEVICES = "CallViewActivity.EXTRA_UNKNOWN_DEVICES";
 
     private static final String EXTRA_LOCAL_FRAME_LAYOUT = "EXTRA_LOCAL_FRAME_LAYOUT";
+
+    public enum Mode { INCOMING_RINGING, INCOMING_ACCEPT, INCOMING_REJECT }
 
     private View mCallView;
 
@@ -542,6 +545,14 @@ public class VectorCallViewActivity extends VectorAppCompatActivity implements S
                 mCall.createCallView();
             }
         });
+
+        if (intent.hasExtra(EXTRA_MODE)) {
+            Mode mode = (Mode) intent.getSerializableExtra(EXTRA_MODE);
+
+            if (Mode.INCOMING_ACCEPT == mode) {
+                mAcceptIncomingCallButton.performClick();
+            }
+        }
 
         rejectIncomingCallButton.setOnClickListener(new View.OnClickListener() {
             @Override

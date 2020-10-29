@@ -186,6 +186,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
     public static final String EXTRA_CALL_SESSION_ID = "VectorHomeActivity.EXTRA_CALL_SESSION_ID";
     public static final String EXTRA_CALL_ID = "VectorHomeActivity.EXTRA_CALL_ID";
     public static final String EXTRA_CALL_UNKNOWN_DEVICES = "VectorHomeActivity.EXTRA_CALL_UNKNOWN_DEVICES";
+    public static final String EXTRA_MODE = "VectorHomeActivity.EXTRA_MODE";
 
     public static final String EXTRA_CLEAR_EXISTING_NOTIFICATION = "VectorHomeActivity.EXTRA_CLEAR_EXISTING_NOTIFICATION";
 
@@ -448,12 +449,22 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
         } else {
 
             if (intent.hasExtra(EXTRA_CALL_SESSION_ID) && intent.hasExtra(EXTRA_CALL_ID)) {
+                VectorCallViewActivity.Mode mode;
+
+                if (intent.hasExtra(EXTRA_MODE)) {
+                    mode = (VectorCallViewActivity.Mode) intent.getSerializableExtra(EXTRA_MODE);
+                } else {
+                    mode = VectorCallViewActivity.Mode.INCOMING_RINGING;
+                }
+
                 startCall(intent.getStringExtra(EXTRA_CALL_SESSION_ID),
                         intent.getStringExtra(EXTRA_CALL_ID),
+                        mode,
                         (MXUsersDevicesMap<MXDeviceInfo>) intent.getSerializableExtra(EXTRA_CALL_UNKNOWN_DEVICES));
                 intent.removeExtra(EXTRA_CALL_SESSION_ID);
                 intent.removeExtra(EXTRA_CALL_ID);
                 intent.removeExtra(EXTRA_CALL_UNKNOWN_DEVICES);
+                intent.removeExtra(EXTRA_MODE);
             }
 
             // the activity could be started with a spinner
@@ -2016,13 +2027,14 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
      * @param callId         the call Id
      * @param unknownDevices the unknown e2e devices
      */
-    public void startCall(String sessionId, String callId, MXUsersDevicesMap<MXDeviceInfo> unknownDevices) {
+    public void startCall(String sessionId, String callId, VectorCallViewActivity.Mode mode, MXUsersDevicesMap<MXDeviceInfo> unknownDevices) {
         // sanity checks
         if ((null != sessionId) && (null != callId)) {
             final Intent intent = new Intent(VectorHomeActivity.this, VectorCallViewActivity.class);
 
             intent.putExtra(VectorCallViewActivity.EXTRA_MATRIX_ID, sessionId);
             intent.putExtra(VectorCallViewActivity.EXTRA_CALL_ID, callId);
+            intent.putExtra(VectorCallViewActivity.EXTRA_MODE , mode);
 
             if (null != unknownDevices) {
                 intent.putExtra(VectorCallViewActivity.EXTRA_UNKNOWN_DEVICES, unknownDevices);

@@ -38,6 +38,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.RemoteInput
 import androidx.core.app.TaskStackBuilder
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.IconCompat
 import androidx.fragment.app.Fragment
 import im.vector.BuildConfig
 import im.vector.R
@@ -45,6 +46,7 @@ import im.vector.activity.JoinRoomActivity
 import im.vector.activity.LockScreenActivity
 import im.vector.activity.VectorHomeActivity
 import im.vector.activity.VectorRoomActivity
+import im.vector.receiver.CallHeadsUpActionReceiver
 import im.vector.receiver.NotificationBroadcastReceiver
 import im.vector.util.PreferencesManager
 import org.matrix.androidsdk.rest.model.bingrules.BingRule
@@ -277,11 +279,15 @@ object NotificationUtils {
         //Compat: Display the incoming call notification on the lock screen
         builder.priority = NotificationCompat.PRIORITY_MAX
 
+        // request code
+        val requestId = kotlin.random.Random.nextInt(1000)
+
         // clear the activity stack to home activity
         val intent = Intent(context, VectorHomeActivity::class.java)
                 .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
                 .putExtra(VectorHomeActivity.EXTRA_CALL_SESSION_ID, matrixId)
                 .putExtra(VectorHomeActivity.EXTRA_CALL_ID, callId)
+                .putExtra(VectorHomeActivity.EXTRA_MODE, VectorCallViewActivity.Mode.INCOMING_RINGING)
 
         // Recreate the back stack
         val stackBuilder = TaskStackBuilder.create(context)
@@ -293,9 +299,44 @@ object NotificationUtils {
         // use a generator for the private requestCode.
         // When using 0, the intent is not created/launched when the user taps on the notification.
         //
-        val pendingIntent = stackBuilder.getPendingIntent(Random().nextInt(1000), PendingIntent.FLAG_UPDATE_CURRENT)
+        val contentPendingIntent = stackBuilder.getPendingIntent(requestId, PendingIntent.FLAG_UPDATE_CURRENT)
 
-        builder.setFullScreenIntent(pendingIntent, true)
+        val answerCallPendingIntent = TaskStackBuilder.create(context)
+                .addParentStack(VectorHomeActivity::class.java)
+                .addNextIntent(Intent(context, VectorHomeActivity::class.java)
+                        .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                        .putExtra(VectorHomeActivity.EXTRA_CALL_SESSION_ID, matrixId)
+                        .putExtra(VectorHomeActivity.EXTRA_CALL_ID, callId)
+                        .putExtra(VectorHomeActivity.EXTRA_MODE, VectorCallViewActivity.Mode.INCOMING_ACCEPT))
+                .getPendingIntent(requestId + 1, PendingIntent.FLAG_UPDATE_CURRENT)
+
+        val rejectCallActionReceiver = Intent(context, CallHeadsUpActionReceiver::class.java).apply {
+            putExtra(CallHeadsUpActionReceiver.EXTRA_CALL_ACTION_KEY, CallHeadsUpActionReceiver.CALL_ACTION_REJECT)
+        }
+
+        val rejectCallPendingIntent = PendingIntent.getBroadcast(
+                context,
+                requestId + 2,
+                rejectCallActionReceiver,
+                PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        builder.addAction(
+                NotificationCompat.Action(
+                        R.drawable.voice_call_start_green,
+                        context.getString(R.string.call_notification_answer),
+                        answerCallPendingIntent
+                )
+        )
+
+        builder.addAction(
+                NotificationCompat.Action(
+                        R.drawable.voice_call_end_fushia,
+                        context.getString(R.string.call_notification_reject),
+                        rejectCallPendingIntent)
+        )
+
+        builder.setFullScreenIntent(contentPendingIntent, true)
 
         return builder.build()
     }

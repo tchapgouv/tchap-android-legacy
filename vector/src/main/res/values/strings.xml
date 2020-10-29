@@ -106,6 +106,9 @@
     <string name="review">Review</string>
     <string name="decline">Decline</string>
 
+    <string name="call_notification_answer">Accept</string>
+    <string name="call_notification_reject">Decline</string>
+
     <!-- actions -->
     <string name="action_exit">Exit</string>
     <string name="actions">Actions</string>
