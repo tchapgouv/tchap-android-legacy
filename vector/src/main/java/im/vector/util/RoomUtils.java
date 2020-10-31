@@ -72,6 +72,7 @@ import im.vector.R;
 import im.vector.activity.CommonActivityUtils;
 import im.vector.activity.VectorRoomActivity;
 import im.vector.adapters.AdapterUtils;
+import im.vector.push.PushManager;
 import im.vector.ui.themes.ThemeUtils;
 
 public class RoomUtils {
@@ -573,8 +574,10 @@ public class RoomUtils {
                 item.setIcon(R.drawable.ic_material_transparent);
             }
 
-            if (room.isDirect()) {
+            final PushManager pushManager = Matrix.getInstance(context).getPushManager();
+            if ((pushManager.useFcm() && room.isEncrypted()) || room.isDirect()) {
                 // Tchap: The "mention only" mode is not suggested anymore for the direct chats
+                // and the encrypted rooms on Google Play variant   .
                 // We consider people will not mention the other member in 1:1.
                 item = popup.getMenu().findItem(R.id.ic_action_notifications_mention_only);
                 item.setVisible(false);
@@ -595,7 +598,7 @@ public class RoomUtils {
                     case MENTIONS_ONLY:
                         item = popup.getMenu().findItem(R.id.ic_action_notifications_all_message);
                         item.setIcon(R.drawable.ic_material_transparent);
-                        if (room.isDirect()) {
+                        if ((pushManager.useFcm() && room.isEncrypted()) || room.isDirect()) {
                             // The room is considered mute.
                             item = popup.getMenu().findItem(R.id.ic_action_notifications_mention_only);
                             item.setIcon(R.drawable.ic_material_transparent);
@@ -655,8 +658,14 @@ public class RoomUtils {
                                 break;
 
                             case R.id.ic_action_notifications_mute:
-                                moreActionListener.onUpdateRoomNotificationsState(session,
-                                        room.getRoomId(), BingRulesManager.RoomNotificationState.MUTE);
+                                BingRulesManager.RoomNotificationState state;
+                                if (pushManager.useFcm() && room.isEncrypted() && !room.isDirect()) {
+                                    state = BingRulesManager.RoomNotificationState.MENTIONS_ONLY;
+                                } else {
+                                    state = BingRulesManager.RoomNotificationState.MUTE;
+                                }
+
+                                moreActionListener.onUpdateRoomNotificationsState(session, room.getRoomId(), state);
                                 if (null != notificationMuteView) {
                                     notificationMuteView.setVisibility(View.VISIBLE);
                                 }
