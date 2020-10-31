@@ -44,6 +44,7 @@ import im.vector.BuildConfig
 import im.vector.R
 import im.vector.activity.JoinRoomActivity
 import im.vector.activity.LockScreenActivity
+import im.vector.activity.VectorCallViewActivity
 import im.vector.activity.VectorHomeActivity
 import im.vector.activity.VectorRoomActivity
 import im.vector.receiver.CallHeadsUpActionReceiver
