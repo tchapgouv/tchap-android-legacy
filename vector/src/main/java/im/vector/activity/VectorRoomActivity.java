@@ -2017,11 +2017,11 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
     }
 
     private boolean startCallByInvitingLeftMemberInDirectChat() {
-        return inviteLeftMemberInDirectChat(null, true);
+        return inviteLeftMemberInDirectChat(true, null);
     }
 
     private boolean sendMessageByInvitingLeftMemberInDirectChat(final @Nullable Intent mediaIntent) {
-        return inviteLeftMemberInDirectChat(mediaIntent, false);
+        return inviteLeftMemberInDirectChat(false, mediaIntent);
     }
 
     /**
@@ -2029,12 +2029,12 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
      * In this case, this method will handle the message by inviting again the left member
      * before sending the message (text or media).
      *
+     * @param isCall attempt a call. If this value is true the other param mediaIntent is ignored.
      * @param mediaIntent selected media to send (if any). When this param is null, this method
      *                    will send the current editText text.
-     * @param isCall attempt a call.
      * @return true when the message has been handled.
      */
-    private boolean inviteLeftMemberInDirectChat(final @Nullable Intent mediaIntent, boolean isCall) {
+    private boolean inviteLeftMemberInDirectChat(boolean isCall, final @Nullable Intent mediaIntent) {
         // In the case of a direct chat, we check if the other member has left the room.
         String leftMemberId = leftMemberInDirectChat();
         if (null != leftMemberId) {
@@ -2110,11 +2110,11 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
     }
 
     private boolean startCallByCreatingNewDirectChat() {
-        return createNewDirectChat(null, true);
+        return createNewDirectChat(true, null);
     }
 
     private boolean sendMessageByCreatingNewDirectChat(final @Nullable Intent mediaIntent) {
-        return createNewDirectChat(mediaIntent, false);
+        return createNewDirectChat(false, mediaIntent);
     }
 
     /**
@@ -2123,12 +2123,12 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
      * this user.
      * A new activity will be started to open the resulting room and send the message (text or media)
      *
+     * @param isCall attempt a call. If this value is true the other param mediaIntent is ignored.
      * @param mediaIntent selected media to send (if any). When this param is null, this method
      *                    will send the current editText text.
-     * @param isCall attempt a call.
      * @return true when the text message has been handled.
      */
-    private boolean createNewDirectChat(final @Nullable Intent mediaIntent, boolean isCall) {
+    private boolean createNewDirectChat(boolean isCall, final @Nullable Intent mediaIntent) {
         if (null != mTchapUser) {
             // Here we create a new direct chat with the selected user, and post the message.
 
