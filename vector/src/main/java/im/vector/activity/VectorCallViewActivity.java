@@ -378,8 +378,6 @@ public class VectorCallViewActivity extends VectorAppCompatActivity implements S
             return;
         }
 
-        turnScreenOnAndKeyguardOff();
-
         mCallsManager = CallsManager.getSharedInstance();
 
         // UI binding
@@ -549,8 +547,13 @@ public class VectorCallViewActivity extends VectorAppCompatActivity implements S
         if (intent.hasExtra(EXTRA_MODE)) {
             Mode mode = (Mode) intent.getSerializableExtra(EXTRA_MODE);
 
-            if (Mode.INCOMING_ACCEPT == mode) {
-                mAcceptIncomingCallButton.performClick();
+            switch (mode) {
+                case INCOMING_ACCEPT:
+                    mAcceptIncomingCallButton.performClick();
+                    break;
+                case INCOMING_RINGING:
+                    turnScreenOnAndKeyguardOff();
+                    break;
             }
         }
 

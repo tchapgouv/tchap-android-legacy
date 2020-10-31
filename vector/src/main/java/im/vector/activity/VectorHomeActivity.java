@@ -2025,6 +2025,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
      *
      * @param sessionId      the session Id
      * @param callId         the call Id
+     * @param mode           the call mode (INCOMING_RINGING, INCOMING_ACCEPT, INCOMING_REJECT)
      * @param unknownDevices the unknown e2e devices
      */
     public void startCall(String sessionId, String callId, VectorCallViewActivity.Mode mode, MXUsersDevicesMap<MXDeviceInfo> unknownDevices) {
