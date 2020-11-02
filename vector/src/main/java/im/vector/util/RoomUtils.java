@@ -660,6 +660,11 @@ public class RoomUtils {
                             case R.id.ic_action_notifications_mute:
                                 BingRulesManager.RoomNotificationState state;
                                 if (pushManager.useFcm() && room.isEncrypted() && !room.isDirect()) {
+                                    // The mention only option is not supported for the encrypted room on Tchap-Android (GooglePlay variant).
+                                    // That's why we could not suggest it to the user,
+                                    // but this option seems to be the most appropriate when they decide to mute the notifications for a room.
+                                    // By selecting "Mention_Only" here, the notifications will be disabled on Mobile clients,
+                                    // but the user will keep receiving notifications on Tchap-Web in case of mention.
                                     state = BingRulesManager.RoomNotificationState.MENTIONS_ONLY;
                                 } else {
                                     state = BingRulesManager.RoomNotificationState.MUTE;
