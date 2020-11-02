@@ -1275,6 +1275,7 @@
 
     <!-- tchap discussion -->
     <string name="tchap_cannot_invite_deactivated_account_user">The remote user left definitely this room</string>
+    <string name="tchap_cannot_start_call">You cannot call your contact when he did not accept the invitation to join this discussion</string>
 
     <!-- tchap room -->
     <string name="tchap_room_access_unrestricted">Room accessible to external users</string>

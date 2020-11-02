@@ -847,6 +847,7 @@ Appareils inconnus :</string>
 
     <!-- tchap discussion -->
     <string name="tchap_cannot_invite_deactivated_account_user">Votre correspondant a quitté définitivement cette discussion.\nVous devez en créer une nouvelle pour le recontacter.</string>
+    <string name="tchap_cannot_start_call">Vous ne pouvez pas appeler votre contact tant qu’il n’a pas accepté l’invitation à rejoindre cette discussion</string>
 
     <!-- tchap room -->
     <string name="tchap_room_access_unrestricted">Salon accessible aux externes</string>
