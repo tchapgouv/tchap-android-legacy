@@ -186,7 +186,7 @@ class VectorMessagesAdapterHelper {
                     senderTextView.setText(DinsicUtils.getNameFromDisplayName(row.getSenderDisplayName()));
 
                     final String fSenderId = event.getSender();
-                    final String fDisplayName = (null == senderTextView.getText()) ? "" : senderTextView.getText().toString();
+                    final String fDisplayName = (null == senderTextView.getText()) ? "" : row.getSenderDisplayName();
 
 //                    Context context = senderTextView.getContext();
 //                    int textColor = colorIndexForSender(fSenderId);
