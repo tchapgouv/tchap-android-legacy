@@ -87,7 +87,7 @@
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/messagesAdapter_media_layout"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
                         <View
