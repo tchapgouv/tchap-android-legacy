@@ -413,7 +413,7 @@ public class CallsManager {
                         } else {
                             Log.d(LOG_TAG, "onIncomingCall : the home activity exists : but permissions have to be checked before");
                             // check incoming call required permissions, before allowing the call..
-                            homeActivity.startCall(mActiveCall.getSession().getMyUserId(), mActiveCall.getCallId(), unknownDevices);
+                            homeActivity.startCall(mActiveCall.getSession().getMyUserId(), mActiveCall.getCallId(), VectorCallViewActivity.Mode.INCOMING_RINGING, unknownDevices);
                         }
 
                         startRinging();

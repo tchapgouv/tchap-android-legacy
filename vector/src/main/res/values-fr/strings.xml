@@ -41,6 +41,9 @@
     <string name="invite">Inviter</string>
     <string name="add">Ajouter</string>
 
+    <string name="call_notification_answer">Accepter</string>
+    <string name="call_notification_reject">Refuser</string>
+
     <string name="action_sign_out">Se déconnecter</string>
     <string name="action_voice_call">Appel vocal</string>
     <string name="action_video_call">Appel vidéo</string>

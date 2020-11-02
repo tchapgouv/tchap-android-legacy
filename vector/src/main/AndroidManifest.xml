@@ -381,6 +381,10 @@
             android:enabled="true"
             android:exported="false" />
 
+        <receiver
+            android:name=".receiver.CallHeadsUpActionReceiver"
+            android:exported="false" />
+
         <!--
         Disable INSTALL_REFERRER on tchap
         <receiver
