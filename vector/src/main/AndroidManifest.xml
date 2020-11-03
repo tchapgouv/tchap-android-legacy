@@ -88,7 +88,7 @@
             android:name="fr.gouv.tchap.activity.NotificationListenerDetectionActivity"
             android:configChanges="orientation|screenSize"
             android:theme="@style/AppTheme.NoActionBar.Swipe.Dark"
-            android:launchMode="singleTask"
+            android:launchMode="singleInstance"
             android:taskAffinity="">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
