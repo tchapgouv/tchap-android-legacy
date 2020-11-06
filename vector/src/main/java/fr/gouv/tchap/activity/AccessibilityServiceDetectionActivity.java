@@ -81,6 +81,7 @@ public class AccessibilityServiceDetectionActivity extends AppCompatActivity {
         finish();
         if(startNext) {
             Intent start = new Intent(this, TchapVersionCheckActivity.class);
+            start.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(start);
         }
     }

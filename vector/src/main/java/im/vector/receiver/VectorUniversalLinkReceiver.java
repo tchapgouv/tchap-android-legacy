@@ -153,7 +153,7 @@ public class VectorUniversalLinkReceiver extends BroadcastReceiver {
                     // sent back to resume the URL link processing.
                     Intent intent = new Intent(aContext, TchapLoginActivity.class);
                     intent.putExtra(EXTRA_UNIVERSAL_LINK_URI, aIntent.getData());
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     aContext.startActivity(intent);
                 } else {
                     mParameters = params;

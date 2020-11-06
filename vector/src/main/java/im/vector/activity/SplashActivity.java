@@ -93,6 +93,7 @@ public class SplashActivity extends MXCActionBarActivity {
         if (!hasCorruptedStore()) {
             // Go to the home page
             Intent intent = new Intent(this, VectorHomeActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 
             Bundle receivedBundle = getIntent().getExtras();
 

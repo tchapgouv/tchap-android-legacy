@@ -132,6 +132,7 @@ public class NotificationListenerDetectionActivity extends AppCompatActivity {
         finish();
         if (startNext) {
             Intent start = new Intent(this, AccessibilityServiceDetectionActivity.class);
+            start.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(start);
         }
     }
