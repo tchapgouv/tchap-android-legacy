@@ -366,7 +366,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
                 Log.d(LOG_TAG, "The application has been updated from version " + version + " to version " + BuildConfig.VERSION_CODE);
 
                 // Add some dedicated actions here
-                if (version < 54) {
+                if (version < 74) {
                     // Force a cache clearing, this is required because of the new state event room_access_rules handling.
                     Matrix.getInstance(this).reloadSessions(this, true);
                     return;

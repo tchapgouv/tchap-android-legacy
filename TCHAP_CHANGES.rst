@@ -1,4 +1,17 @@
-Changes in Tchap 1.0.48 (2020-10-28)
+Changes in Tchap 1.x.x (2020-xx-xx)
+===================================================
+
+Improvements:
+ * [Notifications] Hide the unsupported "mention only" option for the encrypted rooms #643
+ * [Notifications] Add the full display name of the sender when the user click on them #629
+ * Force a cache clearing to force an update of the stored RoomAccountData
+
+Bug Fixes:
+ * Crash: on new favorite message #670
+ * Crash: java.lang.NullPointerException at org.matrix.androidsdk.data.RoomAccountData.handleEvent #671
+ * Attachments: an empty bubble is displayed for the infected attachments #637
+ 
+ Changes in Tchap 1.0.48 (2020-10-28)
 ===================================================
 
 Improvements:
