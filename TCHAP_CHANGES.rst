@@ -10,6 +10,7 @@ Bug Fixes:
  * Crash: on new favorite message #670
  * Crash: java.lang.NullPointerException at org.matrix.androidsdk.data.RoomAccountData.handleEvent #671
  * Attachments: an empty bubble is displayed for the infected attachments #637
+ * Crash: Activity:im.vector.activity.VectorHomeActivity, Exception: java.lang.NullPointerException #668
  
  Changes in Tchap 1.0.48 (2020-10-28)
 ===================================================
