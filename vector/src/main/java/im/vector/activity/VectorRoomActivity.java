@@ -2669,7 +2669,8 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
                 || (null == mSession.getDataHandler())
                 || (null == mSession.getDataHandler().getStore())
                 || (null == mRoom)
-                || (null != sRoomPreviewData)) {
+                || (null != sRoomPreviewData)
+                || (null == mNotificationsArea)) {
             return;
         }
         final LimitResourceState limitResourceState = mResourceLimitEventListener.getLimitResourceState();
