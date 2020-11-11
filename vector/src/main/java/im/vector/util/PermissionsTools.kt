@@ -372,14 +372,17 @@ private fun updatePermissionsToBeGranted(activity: Activity,
     if (PackageManager.PERMISSION_GRANTED != ContextCompat.checkSelfPermission(activity.applicationContext, permissionType)) {
         isRequestPermissionRequested = true
 
-        // add permission to the ones that were already asked to the user
-        if (ActivityCompat.shouldShowRequestPermissionRationale(activity, permissionType)) {
+        // Tchap: handle separately the permission to access to the local contacts.
+        // we want to display the permission rationale for the first time we request the contacts access too.
+        if (permissionType == Manifest.permission.READ_CONTACTS) {
+            if (!isAlreadyAskedPermission(activity, permissionType)
+                    || ActivityCompat.shouldShowRequestPermissionRationale(activity, permissionType)) {
+                permissionAlreadyDeniedList_out.add(permissionType)
+                markAsAskedPermission(activity, permissionType)
+            }
+        } else if (ActivityCompat.shouldShowRequestPermissionRationale(activity, permissionType)) {
+            // add permission to the ones that were already asked to the user
             permissionAlreadyDeniedList_out.add(permissionType)
-        } else if (permissionType == Manifest.permission.READ_CONTACTS
-                && !isAlreadyAskedPermission(activity, permissionType)) {
-            // Tchap: we force here the display of the permission rationale for the first time we request the contacts access.
-            permissionAlreadyDeniedList_out.add(permissionType)
-            markAsAskedPermission(activity, permissionType)
         }
     }
     return isRequestPermissionRequested
