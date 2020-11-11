@@ -2,6 +2,7 @@ Changes in Tchap 1.0.47_1 (2020-11-11)
 ===================================================
 
 Improvement:
+ * Increase targetSdk to 29 #609
  * Improve the prominent disclosure, user consent and privacy policy which discloses
  the access, collection, use or sharing of users' contact list information.
 
