@@ -12,7 +12,7 @@ Bug Fixes:
  * Attachments: an empty bubble is displayed for the infected attachments #637
  * Crash: Activity:im.vector.activity.VectorHomeActivity, Exception: java.lang.NullPointerException #668
  
- Changes in Tchap 1.0.48 (2020-10-28)
+Changes in Tchap 1.0.48 (2020-10-28)
 ===================================================
 
 Improvements:
@@ -28,6 +28,14 @@ Improvements:
 
 Bug Fixes:
  * Tchap crashes on invalid access token #631
+
+Changes in Tchap 1.0.47_1 (2020-11-11)
+===================================================
+
+Improvement:
+ * Increase targetSdk to 29 #609
+ * Improve the prominent disclosure, user consent and privacy policy which discloses
+ the access, collection, use or sharing of users' contact list information.
 
 Changes in Tchap 1.0.47 (2020-10-02)
 ===================================================
