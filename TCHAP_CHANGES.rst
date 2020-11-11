@@ -1,3 +1,10 @@
+Changes in Tchap 1.0.47_1 (2020-11-11)
+===================================================
+
+Improvement:
+ * Improve the prominent disclosure, user consent and privacy policy which discloses
+ the access, collection, use or sharing of users' contact list information.
+
 Changes in Tchap 1.0.47 (2020-10-02)
 ===================================================
 
@@ -7,7 +14,7 @@ Bug Fixes:
  * fix crash loop back off on invalid access token #636
  * [Expired Account] Tchap is stuck on the splash screen whereas the account is renewed #639
  
- Changes in Tchap 1.0.46 (2020-09-26)
+Changes in Tchap 1.0.46 (2020-09-26)
 ===================================================
 
 Improvements:

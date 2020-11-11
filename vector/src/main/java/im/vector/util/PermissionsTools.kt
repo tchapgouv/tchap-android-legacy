@@ -19,6 +19,7 @@ package im.vector.util
 import android.Manifest
 import android.app.Activity
 import android.content.Context
+import android.content.Context.MODE_PRIVATE
 import android.content.pm.PackageManager
 import android.os.Build
 import android.text.TextUtils
@@ -68,6 +69,8 @@ const val PERMISSION_REQUEST_CODE_VIDEO_CALL = 572
 const val PERMISSION_REQUEST_CODE_EXPORT_KEYS = 573
 const val PERMISSION_REQUEST_CODE_CHANGE_AVATAR = 574
 
+private const val PREFS_PERMISSION = "PermissionsTools"
+
 /**
  * Log the used permissions statuses.
  */
@@ -91,6 +94,15 @@ fun logPermissionStatuses(context: Context) {
     }
 }
 
+fun markAsAskedPermission(context: Context, permission: String) {
+    val sharedPreference = context.getSharedPreferences(PREFS_PERMISSION, MODE_PRIVATE)
+    sharedPreference.edit().putBoolean(permission, true).apply()
+}
+
+fun isAlreadyAskedPermission(context: Context, permission: String): Boolean {
+    val sharedPreference = context.getSharedPreferences(PREFS_PERMISSION, MODE_PRIVATE)
+    return sharedPreference.getBoolean(permission, false)
+}
 
 /**
  * See [.checkPermissions]
@@ -363,6 +375,11 @@ private fun updatePermissionsToBeGranted(activity: Activity,
         // add permission to the ones that were already asked to the user
         if (ActivityCompat.shouldShowRequestPermissionRationale(activity, permissionType)) {
             permissionAlreadyDeniedList_out.add(permissionType)
+        } else if (permissionType == Manifest.permission.READ_CONTACTS
+                && !isAlreadyAskedPermission(activity, permissionType)) {
+            // Tchap: we force here the display of the permission rationale for the first time we request the contacts access.
+            permissionAlreadyDeniedList_out.add(permissionType)
+            markAsAskedPermission(activity, permissionType)
         }
     }
     return isRequestPermissionRequested
