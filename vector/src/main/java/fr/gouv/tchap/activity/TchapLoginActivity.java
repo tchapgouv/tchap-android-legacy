@@ -338,10 +338,8 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         // Limit Tchap to Android 5.0 Lollipop (API 21) and higher
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
             // Prompt the user (ask him to log out by exporting eventually his keys if a session exists)
-            Intent intent = new Intent(this, TchapUnsupportedAndroidVersionActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
+            startActivity(new Intent(this, TchapUnsupportedAndroidVersionActivity.class));
+            finishAffinity();
 
             return;
         } else {
@@ -360,7 +358,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             Log.d(LOG_TAG, "## onCreate(): goToSplash because the credentials are already provided.");
             goToSplash();
 
-            finish();
+            finishAffinity();
             return;
         }
 
@@ -676,7 +674,6 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         Log.d(LOG_TAG, "## gotoSplash(): Go to splash.");
 
         Intent intent = new Intent(this, SplashActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         if (null != mUniversalLinkUri) {
             intent.putExtra(VectorUniversalLinkReceiver.EXTRA_UNIVERSAL_LINK_URI, mUniversalLinkUri);
         }

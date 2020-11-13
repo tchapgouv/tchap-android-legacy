@@ -69,10 +69,9 @@ class TchapVersionCheckActivity : VectorAppCompatActivity(), SuccessCallback<Ver
     }
 
     private fun finish(startNext: Boolean) {
-        finish()
+        finishAffinity()
         if (startNext) {
             val start = Intent(this, TchapLoginActivity::class.java)
-            start.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(start)
         }
     }

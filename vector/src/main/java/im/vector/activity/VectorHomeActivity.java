@@ -568,10 +568,9 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
                 Log.e(LOG_TAG, "No loaded session : reload them");
                 // start splash activity and stop here
                 Intent splashIntent = new Intent(VectorHomeActivity.this, SplashActivity.class);
-                splashIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(splashIntent);
 
-                finish();
+                finishAffinity();
                 return;
             }
         }
@@ -618,9 +617,9 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
             public void onSuccess(VersionCheckResult versionCheckResult) {
                 if (versionCheckResult instanceof VersionCheckResult.ShowUpgradeScreen) {
                     Intent intent = new Intent(VectorHomeActivity.this, TchapVersionCheckActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
-                    finish();
+                    finishAffinity();
+//                    finish();
                 }
             }
         });

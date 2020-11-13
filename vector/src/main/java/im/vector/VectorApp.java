@@ -21,10 +21,14 @@ package im.vector;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -279,12 +283,84 @@ public class VectorApp extends MultiDexApplication {
         registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
             final Map<String, String> mLocalesByActivity = new HashMap<>();
 
+            /**
+             * Check if all activities running on the task with default affinity are legitimate.
+             *
+             * @return true if an activity is not legitimate
+             */
+            private boolean isCorrupted() {
+                PackageManager packageManager = getPackageManager();
+
+                try {
+                    // Get all activities from app manifest
+                    ActivityInfo[] activityInfos = packageManager.getPackageInfo(getPackageName(), PackageManager.GET_ACTIVITIES).activities;
+
+                    // Get all running activities on app task
+                    // and compare to activities declared in manifest
+                    ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        List<ActivityManager.AppTask> tasks = manager.getAppTasks();
+
+                        for (ActivityManager.AppTask task : tasks) {
+                            ComponentName topActivity = task.getTaskInfo().topActivity;
+
+                            if (null != topActivity && isNotAppActivity(topActivity, activityInfos)) {
+                                return true;
+                            }
+                        }
+                    } else {
+                        List<ActivityManager.RunningTaskInfo> runningTaskInfos = manager.getRunningTasks(10);
+
+                        for (ActivityManager.RunningTaskInfo runningTaskInfo : runningTaskInfos) {
+                            ComponentName topActivity = runningTaskInfo.topActivity;
+
+                            if (null != topActivity && isNotAppActivity(topActivity, activityInfos)) {
+                                return true;
+                            }
+                        }
+                    }
+                } catch (PackageManager.NameNotFoundException e) {
+                    Log.e(LOG_TAG, "Error " + e.getMessage(), e);
+                }
+
+                return false;
+            }
+
+            /**
+             * Check if the activity running with default task affinity is declared in app manifest.
+             *
+             * @param activity      the activity on top of the task
+             * @param activityInfos the list of activityInfos
+             * @return the activityInfo found
+             */
+            private boolean isNotAppActivity(ComponentName activity, ActivityInfo[] activityInfos) throws PackageManager.NameNotFoundException {
+                String taskAffinity = getPackageManager().getActivityInfo(activity, 0).taskAffinity;
+
+                if (taskAffinity != null && taskAffinity.equals(getPackageName())) {
+                    for (ActivityInfo activityInfo : activityInfos) {
+                        if (activityInfo.name.equals(activity.getClassName())) {
+                            return false;
+                        }
+                    }
+                } else {
+                    return false;
+                }
+                return true;
+            }
+
             @Override
             public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
                 Log.d(LOG_TAG, "onActivityCreated " + activity);
                 mCreatedActivities.add(activity.toString());
                 // matomo
                 onNewScreen(activity);
+
+                // restart the app if the task contains an unknown activity
+                if (isCorrupted()) {
+                    Log.e(LOG_TAG, "Application is potentially corrupted by an unknown activity");
+                    CommonActivityUtils.restartApp(VectorApp.this);
+                    return;
+                }
             }
 
             @Override

@@ -229,7 +229,6 @@ public class CommonActivityUtils {
             for (MXSession session : sessions) {
                 if (session.isAlive() && !session.getDataHandler().getStore().isReady()) {
                     Intent intent = new Intent(activity, SplashActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
                     if ((null != sessionId) && (null != roomId)) {
                         intent.putExtra(SplashActivity.EXTRA_MATRIX_ID, sessionId);
@@ -237,7 +236,7 @@ public class CommonActivityUtils {
                     }
 
                     activity.startActivity(intent);
-                    activity.finish();
+                    activity.finishAffinity();
                     return true;
                 }
             }
@@ -264,7 +263,7 @@ public class CommonActivityUtils {
     }
 
     /**
-     * Restart the application after 100ms
+     * Restart the application
      *
      * @param activity activity
      */
