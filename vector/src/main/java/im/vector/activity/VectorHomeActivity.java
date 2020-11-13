@@ -619,7 +619,6 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
                     Intent intent = new Intent(VectorHomeActivity.this, TchapVersionCheckActivity.class);
                     startActivity(intent);
                     finishAffinity();
-//                    finish();
                 }
             }
         });
