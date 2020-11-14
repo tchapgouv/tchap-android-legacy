@@ -76,6 +76,7 @@
         android:resizeableActivity="false"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.Light"
+        android:requestLegacyExternalStorage="true"
         tools:replace="allowBackup,label">
 
         <!-- No limit for screen ratio: avoid black strips -->
