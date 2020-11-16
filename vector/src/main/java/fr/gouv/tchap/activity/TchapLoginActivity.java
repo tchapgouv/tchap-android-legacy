@@ -339,7 +339,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
             // Prompt the user (ask him to log out by exporting eventually his keys if a session exists)
             startActivity(new Intent(this, TchapUnsupportedAndroidVersionActivity.class));
-            finish();
+            finishAffinity();
 
             return;
         } else {
@@ -358,7 +358,7 @@ public class TchapLoginActivity extends MXCActionBarActivity implements Registra
             Log.d(LOG_TAG, "## onCreate(): goToSplash because the credentials are already provided.");
             goToSplash();
 
-            finish();
+            finishAffinity();
             return;
         }
 

@@ -96,16 +96,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name="fr.gouv.tchap.version.TchapVersionCheckActivity" />
+        <activity android:name="fr.gouv.tchap.version.TchapVersionCheckActivity" />
         <activity
             android:name="fr.gouv.tchap.activity.TchapLoginActivity"
             android:configChanges="orientation|screenSize"
             android:theme="@style/LoginAppTheme.Light"
-            android:windowSoftInputMode="stateHidden|adjustResize"></activity>
-        <activity
-            android:name="fr.gouv.tchap.activity.TchapUnsupportedAndroidVersionActivity">
-        </activity>
+            android:windowSoftInputMode="stateHidden|adjustResize" />
+        <activity android:name="fr.gouv.tchap.activity.TchapUnsupportedAndroidVersionActivity" />
         <activity
             android:name="fr.gouv.tchap.activity.TchapRoomCreationActivity"
             android:configChanges="orientation|screenSize"

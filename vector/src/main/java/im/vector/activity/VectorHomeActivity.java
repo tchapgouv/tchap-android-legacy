@@ -567,8 +567,10 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
             if (null != Matrix.getInstance(this).getDefaultSession()) {
                 Log.e(LOG_TAG, "No loaded session : reload them");
                 // start splash activity and stop here
-                startActivity(new Intent(VectorHomeActivity.this, SplashActivity.class));
-                finish();
+                Intent splashIntent = new Intent(VectorHomeActivity.this, SplashActivity.class);
+                startActivity(splashIntent);
+
+                finishAffinity();
                 return;
             }
         }
@@ -614,8 +616,9 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
             @Override
             public void onSuccess(VersionCheckResult versionCheckResult) {
                 if (versionCheckResult instanceof VersionCheckResult.ShowUpgradeScreen) {
-                    startActivity(new Intent(VectorHomeActivity.this, TchapVersionCheckActivity.class));
-                    finish();
+                    Intent intent = new Intent(VectorHomeActivity.this, TchapVersionCheckActivity.class);
+                    startActivity(intent);
+                    finishAffinity();
                 }
             }
         });

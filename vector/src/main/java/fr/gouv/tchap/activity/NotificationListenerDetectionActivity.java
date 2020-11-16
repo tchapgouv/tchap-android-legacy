@@ -129,7 +129,7 @@ public class NotificationListenerDetectionActivity extends AppCompatActivity {
     }
 
     private void finish(boolean startNext) {
-        finish();
+        finishAffinity();
         if (startNext) {
             Intent start = new Intent(this, AccessibilityServiceDetectionActivity.class);
             startActivity(start);

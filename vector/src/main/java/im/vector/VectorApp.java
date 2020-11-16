@@ -21,10 +21,14 @@ package im.vector;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -134,6 +138,11 @@ public class VectorApp extends MultiDexApplication {
      * Monitor the created activities to detect memory leaks.
      */
     private final List<String> mCreatedActivities = new ArrayList<>();
+
+    /**
+     * The activities information collected from the app manifest.
+     */
+    private ActivityInfo[] mActivityInfos = null;
 
     /**
      * Markdown parser
@@ -279,8 +288,89 @@ public class VectorApp extends MultiDexApplication {
         registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
             final Map<String, String> mLocalesByActivity = new HashMap<>();
 
+            /**
+             * Check if all activities running on the task with package name affinity are safe.
+             *
+             * @return true if the task is corrupted by a potentially malicious activity
+             */
+            private boolean isTaskCorrupted() {
+                PackageManager packageManager = getPackageManager();
+
+                try {
+                    // Get all activities from app manifest
+                    if (null == mActivityInfos) {
+                        mActivityInfos = packageManager.getPackageInfo(getPackageName(), PackageManager.GET_ACTIVITIES).activities;
+                    }
+
+                    // Get all running activities on app task
+                    // and compare to activities declared in manifest
+                    ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        List<ActivityManager.AppTask> tasks = manager.getAppTasks();
+
+                        for (ActivityManager.AppTask task : tasks) {
+                            ComponentName topActivity = task.getTaskInfo().topActivity;
+
+                            if (null != topActivity && isPotentialMaliciousActivity(topActivity, mActivityInfos)) {
+                                return true;
+                            }
+                        }
+                    } else {
+                        List<ActivityManager.RunningTaskInfo> runningTaskInfos = manager.getRunningTasks(10);
+
+                        for (ActivityManager.RunningTaskInfo runningTaskInfo : runningTaskInfos) {
+                            ComponentName topActivity = runningTaskInfo.topActivity;
+
+                            if (null != topActivity && isPotentialMaliciousActivity(topActivity, mActivityInfos)) {
+                                return true;
+                            }
+                        }
+                    }
+                } catch (PackageManager.NameNotFoundException e) {
+                    Log.e(LOG_TAG, "Error " + e.getMessage(), e);
+                    return true;
+                }
+
+                return false;
+            }
+
+            /**
+             * Detect potential malicious activity.
+             * Check if the activity running with package name task affinity is declared in app manifest.
+             *
+             * @param activity      the activity of the task
+             * @param activityInfos the list of activities declared in app manifest
+             * @return true if the activity is potentially malicious
+             */
+            private boolean isPotentialMaliciousActivity(ComponentName activity, ActivityInfo[] activityInfos) throws PackageManager.NameNotFoundException {
+                boolean isPotentialMaliciousActivity = true;
+                String taskAffinity = getPackageManager().getActivityInfo(activity, 0).taskAffinity;
+
+                // Check whether the task affinity matches with the package name
+                if (taskAffinity != null && taskAffinity.equals(getPackageName())) {
+                    // Check whether the activity is legitimate (declared in the manifest)
+                    for (ActivityInfo activityInfo : activityInfos) {
+                        if (activityInfo.name.equals(activity.getClassName())) {
+                            isPotentialMaliciousActivity = false;
+                            break;
+                        }
+                    }
+                } else {
+                    // The activity is considered safe when its task affinity doesn't correspond to the package name
+                    isPotentialMaliciousActivity = false;
+                }
+                return isPotentialMaliciousActivity;
+            }
+
             @Override
             public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+                // restart the app if the task contains an unknown activity
+                if (isTaskCorrupted()) {
+                    Log.e(LOG_TAG, "Application is potentially corrupted by an unknown activity");
+                    CommonActivityUtils.restartApp(VectorApp.this);
+                    return;
+                }
+
                 Log.d(LOG_TAG, "onActivityCreated " + activity);
                 mCreatedActivities.add(activity.toString());
                 // matomo

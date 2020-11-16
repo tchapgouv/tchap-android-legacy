@@ -121,7 +121,7 @@ public class SplashActivity extends MXCActionBarActivity {
             }
 
             startActivity(intent);
-            finish();
+            finishAffinity();
         } else {
             Log.e(LOG_TAG, "##onFinish(): corrupted store");
             CommonActivityUtils.logout(this);
