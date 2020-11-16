@@ -38,6 +38,7 @@ import org.matrix.androidsdk.core.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import butterknife.BindView;
@@ -256,9 +257,12 @@ public class TchapContactAdapter extends AbsAdapter {
         updateSections();
     }
 
-    public void setFilteredKnownContacts(List<ParticipantAdapterItem> filteredKnownContacts, String pattern) {
-        Collections.sort(filteredKnownContacts, ParticipantAdapterItem.getComparator(mSession));
-        mKnownContactsSection.setFilteredItems(filteredKnownContacts, pattern);
+    public void setFilteredKnownContacts(List<ParticipantAdapterItem> filteredKnownDomainContacts, List<ParticipantAdapterItem> filteredKnownOtherContacts, String pattern) {
+        Comparator comparator = ParticipantAdapterItem.getComparator(mSession);
+        Collections.sort(filteredKnownDomainContacts, comparator);
+        Collections.sort(filteredKnownOtherContacts, comparator);
+        filteredKnownDomainContacts.addAll(filteredKnownOtherContacts);
+        mKnownContactsSection.setFilteredItems(filteredKnownDomainContacts, pattern);
         updateSections();
     }
 

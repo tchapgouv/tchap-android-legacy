@@ -404,7 +404,7 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
 
             // display the known contacts section
             if (isNewSearch) {
-                mAdapter.setFilteredKnownContacts(new ArrayList<ParticipantAdapterItem>(), mCurrentFilter);
+                mAdapter.setFilteredKnownContacts(new ArrayList<ParticipantAdapterItem>(), new ArrayList<ParticipantAdapterItem>(), mCurrentFilter);
                 showKnownContactLoadingView();
             }
 
@@ -417,17 +417,24 @@ public class TchapContactFragment extends AbsHomeFragment implements ContactsMan
                     if (TextUtils.equals(fPattern, mCurrentFilter)) {
                         hideKnownContactLoadingView();
 
-                        List<ParticipantAdapterItem> list = new ArrayList<>();
+                        List<ParticipantAdapterItem> domainList = new ArrayList<>();
+                        List<ParticipantAdapterItem> otherList = new ArrayList<>();
 
                         if (null != searchUsersResponse.results) {
+                            String userDomain = DinsicUtils.getDomainFromDisplayName(mSession.getMyUser().displayname);
                             for (User user : searchUsersResponse.results) {
-                                list.add(new ParticipantAdapterItem(user));
+                                ParticipantAdapterItem item = new ParticipantAdapterItem(user);
+                                if (TextUtils.equals(userDomain, DinsicUtils.getDomainFromDisplayName(user.displayname))) {
+                                    domainList.add(item);
+                                } else {
+                                    otherList.add(item);
+                                }
                             }
                         }
 
                         mAdapter.setKnownContactsExtraTitle(null);
                         mAdapter.setKnownContactsLimited((null != searchUsersResponse.limited) ? searchUsersResponse.limited : false);
-                        mAdapter.setFilteredKnownContacts(list, mCurrentFilter);
+                        mAdapter.setFilteredKnownContacts(domainList, otherList, mCurrentFilter);
                     }
                 }
 
