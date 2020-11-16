@@ -2,6 +2,7 @@ Changes in Tchap 1.x.x (2020-xx-xx)
 ===================================================
 
 Improvements:
+ * Update matrix-sdk.aar libs - Revision: 11b9e99983f102a33f36fcee0de6bd04f8776f3d [11b9e9998]
  * [Notifications] Hide the unsupported "mention only" option for the encrypted rooms #643
  * [Notifications] Add the full display name of the sender when the user click on them #629
  * Force a cache clearing to force an update of the stored RoomAccountData
@@ -13,6 +14,7 @@ Bug Fixes:
  * Multiple activity instances #665
  * Crash: Activity:im.vector.activity.VectorHomeActivity, Exception: java.lang.NullPointerException #668
  * Crash: java.lang.StackOverflowError (PushManager.registerToThirdPartyServerRecursive) #672
+ * Notifications fail because BingRulesManager is not initialized #677
  
 Changes in Tchap 1.0.48 (2020-10-28)
 ===================================================
