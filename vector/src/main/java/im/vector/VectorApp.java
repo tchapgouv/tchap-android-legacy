@@ -305,7 +305,7 @@ public class VectorApp extends MultiDexApplication {
                     // Get all running activities on app task
                     // and compare to activities declared in manifest
                     ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         List<ActivityManager.AppTask> tasks = manager.getAppTasks();
 
                         for (ActivityManager.AppTask task : tasks) {
@@ -328,6 +328,7 @@ public class VectorApp extends MultiDexApplication {
                     }
                 } catch (PackageManager.NameNotFoundException e) {
                     Log.e(LOG_TAG, "Error " + e.getMessage(), e);
+                    return true;
                 }
 
                 return false;
@@ -342,18 +343,23 @@ public class VectorApp extends MultiDexApplication {
              * @return true if the activity is potentially malicious
              */
             private boolean isPotentialMaliciousActivity(ComponentName activity, ActivityInfo[] activityInfos) throws PackageManager.NameNotFoundException {
+                boolean isPotentialMaliciousActivity = true;
                 String taskAffinity = getPackageManager().getActivityInfo(activity, 0).taskAffinity;
 
+                // Check whether the task affinity matches with the package name
                 if (taskAffinity != null && taskAffinity.equals(getPackageName())) {
+                    // Check whether the activity is legitimate (declared in the manifest)
                     for (ActivityInfo activityInfo : activityInfos) {
                         if (activityInfo.name.equals(activity.getClassName())) {
-                            return false;
+                            isPotentialMaliciousActivity = false;
+                            break;
                         }
                     }
                 } else {
-                    return false;
+                    // The activity is considered safe when its task affinity doesn't correspond to the package name
+                    isPotentialMaliciousActivity = false;
                 }
-                return true;
+                return isPotentialMaliciousActivity;
             }
 
             @Override
