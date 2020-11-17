@@ -24,3 +24,5 @@ const val CONFIGURATION_VARIANT = "preprod"
 const val ENABLE_ROOM_RETENTION = true
 
 const val SUPPORT_KEYS_BACKUP = false
+
+const val ENABLE_JOIN_BY_LINK = true

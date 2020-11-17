@@ -102,6 +102,7 @@ import im.vector.util.VectorUtils;
 
 import fr.gouv.tchap.preference.TchapRoomAvatarPreference;
 
+import static fr.gouv.tchap.config.TargetConfigurationKt.ENABLE_JOIN_BY_LINK;
 import static fr.gouv.tchap.config.TargetConfigurationKt.ENABLE_ROOM_RETENTION;
 
 public class VectorRoomSettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -1016,35 +1017,42 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
         }
 
         if (null != mRoomAccessByLinkPreference) {
-            mRoomAccessByLinkPreference.setOnPreferenceClickListener(null);
-            mRoomAccessByLinkPreference.setEnabled(true);
-            Boolean isChevronIconVisible;
+            if (ENABLE_JOIN_BY_LINK) {
+                mRoomAccessByLinkPreference.setOnPreferenceClickListener(null);
+                mRoomAccessByLinkPreference.setEnabled(true);
+                Boolean isChevronIconVisible;
 
-            String joinRule = mRoom.getState().join_rule;
-            if (RoomState.JOIN_RULE_INVITE.equals(joinRule)) {
-                mRoomAccessByLinkPreference.setSummary(getString(R.string.tchap_room_settings_room_access_by_link_disabled));
-                // Only the room admin is able to change this value
-                isChevronIconVisible = (isAdmin && isConnected);
-            } else {
-                mRoomAccessByLinkPreference.setSummary(getString(R.string.tchap_room_settings_room_access_by_link_enabled));
-                // Allow anyone to open "Access by link screen" to get the link. Admin will be able to change option too.
-                isChevronIconVisible = true;
-            }
+                String joinRule = mRoom.getState().join_rule;
+                if (RoomState.JOIN_RULE_INVITE.equals(joinRule)) {
+                    mRoomAccessByLinkPreference.setSummary(getString(R.string.tchap_room_settings_room_access_by_link_disabled));
+                    // Only the room admin is able to change this value
+                    isChevronIconVisible = (isAdmin && isConnected);
+                } else {
+                    mRoomAccessByLinkPreference.setSummary(getString(R.string.tchap_room_settings_room_access_by_link_enabled));
+                    // Allow anyone to open "Access by link screen" to get the link. Admin will be able to change option too.
+                    isChevronIconVisible = true;
+                }
 
-            if (isChevronIconVisible) {
-                mRoomAccessByLinkPreference.setChevronIconVisible(true);
-                mRoomAccessByLinkPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        Intent roomAccessByLinkIntent = new Intent(getActivity(), TchapRoomAccessByLinkActivity.class);
-                        roomAccessByLinkIntent.putExtra(TchapRoomAccessByLinkActivity.EXTRA_ROOM_ID, mRoom.getRoomId());
-                        if (mIsForumRoom != null) {
-                            roomAccessByLinkIntent.putExtra(TchapRoomAccessByLinkActivity.EXTRA_IS_FORUM_ROOM, mIsForumRoom);
+                if (isChevronIconVisible) {
+                    mRoomAccessByLinkPreference.setChevronIconVisible(true);
+                    mRoomAccessByLinkPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                        @Override
+                        public boolean onPreferenceClick(Preference preference) {
+                            Intent roomAccessByLinkIntent = new Intent(getActivity(), TchapRoomAccessByLinkActivity.class);
+                            roomAccessByLinkIntent.putExtra(TchapRoomAccessByLinkActivity.EXTRA_ROOM_ID, mRoom.getRoomId());
+                            if (mIsForumRoom != null) {
+                                roomAccessByLinkIntent.putExtra(TchapRoomAccessByLinkActivity.EXTRA_IS_FORUM_ROOM, mIsForumRoom);
+                            }
+                            getActivity().startActivity(roomAccessByLinkIntent);
+                            return false;
                         }
-                        getActivity().startActivity(roomAccessByLinkIntent);
-                        return false;
-                    }
-                });
+                    });
+                }
+            } else {
+                // Remove this option
+                PreferenceScreen preferenceScreen = getPreferenceScreen();
+                preferenceScreen.removePreference(mRoomAccessByLinkPreference);
+                mRoomAccessByLinkPreference = null;
             }
         }
 
