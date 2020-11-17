@@ -270,13 +270,13 @@ public class VectorApp extends MultiDexApplication {
         // log the application version to trace update
         // useful to track backward compatibility issues
 
-        Log.d(LOG_TAG, "----------------------------------------------------------------");
-        Log.d(LOG_TAG, "----------------------------------------------------------------");
-        Log.d(LOG_TAG, " Application version: " + VECTOR_VERSION_STRING);
-        Log.d(LOG_TAG, " SDK version: " + SDK_VERSION_STRING);
-        Log.d(LOG_TAG, " Local time: " + (new SimpleDateFormat("MM-dd HH:mm:ss.SSSZ", Locale.US)).format(new Date()));
-        Log.d(LOG_TAG, "----------------------------------------------------------------");
-        Log.d(LOG_TAG, "----------------------------------------------------------------\n\n\n\n");
+        Log.i(LOG_TAG, "----------------------------------------------------------------");
+        Log.i(LOG_TAG, "----------------------------------------------------------------");
+        Log.i(LOG_TAG, " Application version: " + VECTOR_VERSION_STRING);
+        Log.i(LOG_TAG, " SDK version: " + SDK_VERSION_STRING);
+        Log.i(LOG_TAG, " Local time: " + (new SimpleDateFormat("MM-dd HH:mm:ss.SSSZ", Locale.US)).format(new Date()));
+        Log.i(LOG_TAG, "----------------------------------------------------------------");
+        Log.i(LOG_TAG, "----------------------------------------------------------------\n\n\n\n");
 
         mRageShake = new RageShake(this);
 
@@ -670,11 +670,6 @@ public class VectorApp extends MultiDexApplication {
 
         if (VectorApp.isAppInBackground() && (null != activity)) {
             Matrix matrixInstance = Matrix.getInstance(activity.getApplicationContext());
-
-            // sanity check
-            if (null != matrixInstance) {
-                matrixInstance.refreshPushRules();
-            }
 
             Log.d(LOG_TAG, "The application is resumed");
             // display the memory usage when the application is put iun foreground..
