@@ -2,10 +2,11 @@ Changes in Tchap 1.x.x (2020-xx-xx)
 ===================================================
 
 Improvements:
- * Update matrix-sdk.aar libs - Revision: 11b9e99983f102a33f36fcee0de6bd04f8776f3d [11b9e9998]
+ * Update matrix-sdk.aar libs - Revision: 184214f2eeed351801b18052f39e22fbb6ed3b3a [184214f2e]
  * [Notifications] Hide the unsupported "mention only" option for the encrypted rooms #643
  * [Notifications] Add the full display name of the sender when the user click on them #629
  * Force a cache clearing to force an update of the stored RoomAccountData
+ * The room access by link is enabled only on Btchap for the moment
 
 Bug Fixes:
  * Crash: on new favorite message #670
