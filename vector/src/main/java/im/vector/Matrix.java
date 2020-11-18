@@ -1116,27 +1116,6 @@ public class Matrix {
     }
 
     //==============================================================================================================
-    // Push rules management
-    //==============================================================================================================
-
-    /**
-     * Refresh the sessions push rules.
-     */
-    public void refreshPushRules() {
-        List<MXSession> sessions;
-
-        synchronized (this) {
-            sessions = getSessions();
-        }
-
-        for (MXSession session : sessions) {
-            if (null != session.getDataHandler()) {
-                session.getDataHandler().refreshPushRules();
-            }
-        }
-    }
-
-    //==============================================================================================================
     // Network events manager
     //==============================================================================================================
 

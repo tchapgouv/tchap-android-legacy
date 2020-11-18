@@ -46,7 +46,9 @@ import butterknife.ButterKnife;
 import fr.gouv.tchap.sdk.session.room.model.RoomAccessRulesKt;
 import fr.gouv.tchap.util.DinsicUtils;
 import fr.gouv.tchap.util.HexagonMaskView;
+import im.vector.Matrix;
 import im.vector.R;
+import im.vector.push.PushManager;
 import im.vector.ui.themes.ThemeUtils;
 import im.vector.util.RoomUtils;
 import im.vector.util.VectorUtils;
@@ -322,6 +324,7 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
             });
         }
 
+        final PushManager pushManager = Matrix.getInstance(context).getPushManager();
         BingRulesManager.RoomNotificationState roomNotificationState = session.getDataHandler().getBingRulesManager().getRoomNotificationState(room.getRoomId());
         if (null != vRoomNotificationMute && null != roomNotificationState) {
             switch (roomNotificationState) {
@@ -330,10 +333,12 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
                     vRoomNotificationMute.setVisibility(View.GONE);
                     break;
                 case MENTIONS_ONLY:
-                    if (room.isDirect()) {
-                        // Tchap: This mode is not suggested anymore for the direct chats
-                        // We consider people will not mention the other member in 1:1.
+                    if ((pushManager.useFcm() && room.isEncrypted()) || room.isDirect()) {
                         // The room is considered mute.
+                        // Tchap: This mode is not suggested anymore for:
+                        // - the direct chats: we consider people will not mention the other member in 1:1
+                        // - the encrypted rooms on Google Play variant: the pusher is not able to send pushes
+                        // only on the mentions because the content is encrypted.
                         vRoomNotificationMute.setVisibility(View.VISIBLE);
                     } else {
                         vRoomNotificationMute.setVisibility(View.GONE);

@@ -94,6 +94,7 @@ import im.vector.activity.VectorMemberDetailsActivity;
 import im.vector.preference.VectorEditTextPreference;
 import im.vector.preference.VectorListPreference;
 import im.vector.preference.VectorPreference;
+import im.vector.push.PushManager;
 import im.vector.settings.VectorLocale;
 import im.vector.ui.themes.ThemeUtils;
 import im.vector.util.RoomUtils;
@@ -102,6 +103,7 @@ import im.vector.util.VectorUtils;
 
 import fr.gouv.tchap.preference.TchapRoomAvatarPreference;
 
+import static fr.gouv.tchap.config.TargetConfigurationKt.ENABLE_JOIN_BY_LINK;
 import static fr.gouv.tchap.config.TargetConfigurationKt.ENABLE_ROOM_RETENTION;
 
 public class VectorRoomSettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -160,6 +162,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
     private BingRulesManager mBingRulesManager;
     private boolean mIsUiUpdateSkipped;
     private Boolean mIsForumRoom;
+    private Boolean mIsMentionsOnlyNotSupported = false;
 
     // addresses
     private PreferenceCategory mAddressesSettingsCategory;
@@ -402,6 +405,11 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
                 Log.e(LOG_TAG, "## onCreatePreferences(): unable to retrieve Room object");
                 getActivity().finish();
             }
+
+            // Tchap: The "Mentions Only" mode is not supported for the encrypted rooms on Google Play variant.
+            // The pusher is not able to send pushes only on mentions because the content is encrypted.
+            final PushManager pushManager = Matrix.getInstance(getActivity()).getPushManager();
+            mIsMentionsOnlyNotSupported = (pushManager.useFcm() && mRoom.isEncrypted());
         }
 
         // load preference xml file
@@ -421,6 +429,11 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
         mFlairSettingsCategory = (PreferenceCategory) getPreferenceManager().findPreference(PREF_KEY_FLAIR);
         mRoomNotificationsPreference = (ListPreference) getPreferenceManager().findPreference(PREF_KEY_ROOM_NOTIFICATIONS_LIST);
 
+        if (null != mRoomNotificationsPreference && mIsMentionsOnlyNotSupported) {
+            mRoomNotificationsPreference.setEntries(R.array.minimized_notification_entries);
+            mRoomNotificationsPreference.setEntryValues(R.array.minimized_notification_values);
+        }
+
         if (null != mRoomAccessRulesListPreference) {
             mRoomAccessRulesListPreference.setOnPreferenceWarningIconClickListener(new VectorListPreference.OnPreferenceWarningIconClickListener() {
                 @Override
@@ -429,7 +442,6 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
                 }
             });
         }
-
 
         // display the room Id.
         Preference roomInternalIdPreference = findPreference(PREF_KEY_ROOM_INTERNAL_ID);
@@ -1016,35 +1028,42 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
         }
 
         if (null != mRoomAccessByLinkPreference) {
-            mRoomAccessByLinkPreference.setOnPreferenceClickListener(null);
-            mRoomAccessByLinkPreference.setEnabled(true);
-            Boolean isChevronIconVisible;
+            if (ENABLE_JOIN_BY_LINK) {
+                mRoomAccessByLinkPreference.setOnPreferenceClickListener(null);
+                mRoomAccessByLinkPreference.setEnabled(true);
+                Boolean isChevronIconVisible;
 
-            String joinRule = mRoom.getState().join_rule;
-            if (RoomState.JOIN_RULE_INVITE.equals(joinRule)) {
-                mRoomAccessByLinkPreference.setSummary(getString(R.string.tchap_room_settings_room_access_by_link_disabled));
-                // Only the room admin is able to change this value
-                isChevronIconVisible = (isAdmin && isConnected);
-            } else {
-                mRoomAccessByLinkPreference.setSummary(getString(R.string.tchap_room_settings_room_access_by_link_enabled));
-                // Allow anyone to open "Access by link screen" to get the link. Admin will be able to change option too.
-                isChevronIconVisible = true;
-            }
+                String joinRule = mRoom.getState().join_rule;
+                if (RoomState.JOIN_RULE_INVITE.equals(joinRule)) {
+                    mRoomAccessByLinkPreference.setSummary(getString(R.string.tchap_room_settings_room_access_by_link_disabled));
+                    // Only the room admin is able to change this value
+                    isChevronIconVisible = (isAdmin && isConnected);
+                } else {
+                    mRoomAccessByLinkPreference.setSummary(getString(R.string.tchap_room_settings_room_access_by_link_enabled));
+                    // Allow anyone to open "Access by link screen" to get the link. Admin will be able to change option too.
+                    isChevronIconVisible = true;
+                }
 
-            if (isChevronIconVisible) {
-                mRoomAccessByLinkPreference.setChevronIconVisible(true);
-                mRoomAccessByLinkPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        Intent roomAccessByLinkIntent = new Intent(getActivity(), TchapRoomAccessByLinkActivity.class);
-                        roomAccessByLinkIntent.putExtra(TchapRoomAccessByLinkActivity.EXTRA_ROOM_ID, mRoom.getRoomId());
-                        if (mIsForumRoom != null) {
-                            roomAccessByLinkIntent.putExtra(TchapRoomAccessByLinkActivity.EXTRA_IS_FORUM_ROOM, mIsForumRoom);
+                if (isChevronIconVisible) {
+                    mRoomAccessByLinkPreference.setChevronIconVisible(true);
+                    mRoomAccessByLinkPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                        @Override
+                        public boolean onPreferenceClick(Preference preference) {
+                            Intent roomAccessByLinkIntent = new Intent(getActivity(), TchapRoomAccessByLinkActivity.class);
+                            roomAccessByLinkIntent.putExtra(TchapRoomAccessByLinkActivity.EXTRA_ROOM_ID, mRoom.getRoomId());
+                            if (mIsForumRoom != null) {
+                                roomAccessByLinkIntent.putExtra(TchapRoomAccessByLinkActivity.EXTRA_IS_FORUM_ROOM, mIsForumRoom);
+                            }
+                            getActivity().startActivity(roomAccessByLinkIntent);
+                            return false;
                         }
-                        getActivity().startActivity(roomAccessByLinkIntent);
-                        return false;
-                    }
-                });
+                    });
+                }
+            } else {
+                // Remove this option
+                PreferenceScreen preferenceScreen = getPreferenceScreen();
+                preferenceScreen.removePreference(mRoomAccessByLinkPreference);
+                mRoomAccessByLinkPreference = null;
             }
         }
 
@@ -1146,6 +1165,11 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
                         stateValue = BingRulesManager.RoomNotificationState.ALL_MESSAGES.name();
                         break;
                     case MENTIONS_ONLY:
+                        if (mIsMentionsOnlyNotSupported) {
+                            // The room is considered mute.
+                            stateValue = BingRulesManager.RoomNotificationState.MUTE.name();
+                            break;
+                        }
                     case MUTE:
                         stateValue = state.name();
                 }
@@ -1343,6 +1367,13 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
         if (TextUtils.equals(value, BingRulesManager.RoomNotificationState.ALL_MESSAGES.name())) {
             updatedState = BingRulesManager.RoomNotificationState.ALL_MESSAGES;
         } else if (TextUtils.equals(value, BingRulesManager.RoomNotificationState.MENTIONS_ONLY.name())) {
+            updatedState = BingRulesManager.RoomNotificationState.MENTIONS_ONLY;
+        } else if (mIsMentionsOnlyNotSupported) {
+            // The mention only option is not supported for the encrypted room on Tchap-Android (GooglePlay variant).
+            // That's why we could not suggest it to the user,
+            // but this option seems to be the most appropriate when they decide to mute the notifications for a room.
+            // By selecting "Mention_Only" here, the notifications will be disabled on Mobile clients,
+            // but the user will keep receiving notifications on Tchap-Web in case of mention.
             updatedState = BingRulesManager.RoomNotificationState.MENTIONS_ONLY;
         } else {
             updatedState = BingRulesManager.RoomNotificationState.MUTE;

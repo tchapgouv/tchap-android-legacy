@@ -396,10 +396,8 @@ public final class PushManager {
 
     /**
      * Manage the 500 http error case.
-     *
-     * @param callback the callback
      */
-    private void manage500Error(final ApiCallback<Void> callback) {
+    private void manage500Error() {
         Log.i(LOG_TAG, "got a 500 error -> reset the registration and try again");
 
         Timer relaunchTimer = new Timer();
@@ -418,7 +416,7 @@ public final class PushManager {
 
                             setAndStoreRegistrationToken(null);
                             setAndStoreRegistrationState(RegistrationState.UNREGISTRATED);
-                            register(callback);
+                            register(null);
                         }
 
                         @Override
@@ -441,7 +439,7 @@ public final class PushManager {
 
                             setAndStoreRegistrationToken(null);
                             setAndStoreRegistrationState(RegistrationState.UNREGISTRATED);
-                            register(callback);
+                            register(null);
                         }
                     });
 
@@ -450,7 +448,7 @@ public final class PushManager {
 
                     setAndStoreRegistrationToken(null);
                     setAndStoreRegistrationState(RegistrationState.UNREGISTRATED);
-                    register(callback);
+                    register(null);
                 }
             }
         }, 30 * 1000);
@@ -551,7 +549,7 @@ public final class PushManager {
                         setAndStoreRegistrationState(RegistrationState.FCM_REGISTERED);
 
                         if (MatrixError.UNKNOWN.equals(e.errcode)) {
-                            manage500Error(callback);
+                            manage500Error();
                         } else {
                             callback.onMatrixError(e);
                         }

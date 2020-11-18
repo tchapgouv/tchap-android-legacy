@@ -76,6 +76,7 @@
         android:resizeableActivity="false"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.Light"
+        android:requestLegacyExternalStorage="true"
         tools:replace="allowBackup,label">
 
         <!-- No limit for screen ratio: avoid black strips -->
@@ -88,23 +89,20 @@
             android:name="fr.gouv.tchap.activity.NotificationListenerDetectionActivity"
             android:configChanges="orientation|screenSize"
             android:theme="@style/AppTheme.NoActionBar.Swipe.Dark"
-            android:launchMode="singleTask"
+            android:launchMode="singleInstance"
             android:taskAffinity="">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name="fr.gouv.tchap.version.TchapVersionCheckActivity" />
+        <activity android:name="fr.gouv.tchap.version.TchapVersionCheckActivity" />
         <activity
             android:name="fr.gouv.tchap.activity.TchapLoginActivity"
             android:configChanges="orientation|screenSize"
             android:theme="@style/LoginAppTheme.Light"
-            android:windowSoftInputMode="stateHidden|adjustResize"></activity>
-        <activity
-            android:name="fr.gouv.tchap.activity.TchapUnsupportedAndroidVersionActivity">
-        </activity>
+            android:windowSoftInputMode="stateHidden|adjustResize" />
+        <activity android:name="fr.gouv.tchap.activity.TchapUnsupportedAndroidVersionActivity" />
         <activity
             android:name="fr.gouv.tchap.activity.TchapRoomCreationActivity"
             android:configChanges="orientation|screenSize"
