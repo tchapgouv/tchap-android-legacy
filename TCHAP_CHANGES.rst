@@ -1,4 +1,4 @@
-Changes in Tchap 1.x.x (2020-xx-xx)
+Changes in Tchap 1.0.49 (2020-11-18)
 ===================================================
 
 Improvements:
