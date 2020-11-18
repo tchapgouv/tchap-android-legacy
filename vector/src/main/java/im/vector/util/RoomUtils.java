@@ -576,9 +576,10 @@ public class RoomUtils {
 
             final PushManager pushManager = Matrix.getInstance(context).getPushManager();
             if ((pushManager.useFcm() && room.isEncrypted()) || room.isDirect()) {
-                // Tchap: The "mention only" mode is not suggested anymore for the direct chats
-                // and the encrypted rooms on Google Play variant   .
-                // We consider people will not mention the other member in 1:1.
+                // Tchap: The "mention only" mode is not suggested anymore for:
+                // - the direct chats: we consider people will not mention the other member in 1:1
+                // - the encrypted rooms on Google Play variant: the pusher is not able to send pushes
+                // only on mention because the content is encrypted.
                 item = popup.getMenu().findItem(R.id.ic_action_notifications_mention_only);
                 item.setVisible(false);
             }

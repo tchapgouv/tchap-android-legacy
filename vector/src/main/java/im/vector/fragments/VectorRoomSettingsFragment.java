@@ -94,6 +94,7 @@ import im.vector.activity.VectorMemberDetailsActivity;
 import im.vector.preference.VectorEditTextPreference;
 import im.vector.preference.VectorListPreference;
 import im.vector.preference.VectorPreference;
+import im.vector.push.PushManager;
 import im.vector.settings.VectorLocale;
 import im.vector.ui.themes.ThemeUtils;
 import im.vector.util.RoomUtils;
@@ -161,6 +162,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
     private BingRulesManager mBingRulesManager;
     private boolean mIsUiUpdateSkipped;
     private Boolean mIsForumRoom;
+    private Boolean mIsMentionsOnlyNotSupported = false;
 
     // addresses
     private PreferenceCategory mAddressesSettingsCategory;
@@ -403,6 +405,11 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
                 Log.e(LOG_TAG, "## onCreatePreferences(): unable to retrieve Room object");
                 getActivity().finish();
             }
+
+            // Tchap: The "Mentions Only" mode is not supported for the encrypted rooms on Google Play variant.
+            // The pusher is not able to send pushes only on mentions because the content is encrypted.
+            final PushManager pushManager = Matrix.getInstance(getActivity()).getPushManager();
+            mIsMentionsOnlyNotSupported = (pushManager.useFcm() && mRoom.isEncrypted());
         }
 
         // load preference xml file
@@ -422,6 +429,11 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
         mFlairSettingsCategory = (PreferenceCategory) getPreferenceManager().findPreference(PREF_KEY_FLAIR);
         mRoomNotificationsPreference = (ListPreference) getPreferenceManager().findPreference(PREF_KEY_ROOM_NOTIFICATIONS_LIST);
 
+        if (null != mRoomNotificationsPreference && mIsMentionsOnlyNotSupported) {
+            mRoomNotificationsPreference.setEntries(R.array.minimized_notification_entries);
+            mRoomNotificationsPreference.setEntryValues(R.array.minimized_notification_values);
+        }
+
         if (null != mRoomAccessRulesListPreference) {
             mRoomAccessRulesListPreference.setOnPreferenceWarningIconClickListener(new VectorListPreference.OnPreferenceWarningIconClickListener() {
                 @Override
@@ -430,7 +442,6 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
                 }
             });
         }
-
 
         // display the room Id.
         Preference roomInternalIdPreference = findPreference(PREF_KEY_ROOM_INTERNAL_ID);
@@ -1154,6 +1165,11 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
                         stateValue = BingRulesManager.RoomNotificationState.ALL_MESSAGES.name();
                         break;
                     case MENTIONS_ONLY:
+                        if (mIsMentionsOnlyNotSupported) {
+                            // The room is considered mute.
+                            stateValue = BingRulesManager.RoomNotificationState.MUTE.name();
+                            break;
+                        }
                     case MUTE:
                         stateValue = state.name();
                 }
@@ -1351,6 +1367,13 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
         if (TextUtils.equals(value, BingRulesManager.RoomNotificationState.ALL_MESSAGES.name())) {
             updatedState = BingRulesManager.RoomNotificationState.ALL_MESSAGES;
         } else if (TextUtils.equals(value, BingRulesManager.RoomNotificationState.MENTIONS_ONLY.name())) {
+            updatedState = BingRulesManager.RoomNotificationState.MENTIONS_ONLY;
+        } else if (mIsMentionsOnlyNotSupported) {
+            // The mention only option is not supported for the encrypted room on Tchap-Android (GooglePlay variant).
+            // That's why we could not suggest it to the user,
+            // but this option seems to be the most appropriate when they decide to mute the notifications for a room.
+            // By selecting "Mention_Only" here, the notifications will be disabled on Mobile clients,
+            // but the user will keep receiving notifications on Tchap-Web in case of mention.
             updatedState = BingRulesManager.RoomNotificationState.MENTIONS_ONLY;
         } else {
             updatedState = BingRulesManager.RoomNotificationState.MUTE;
