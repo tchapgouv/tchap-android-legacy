@@ -1,5 +1,17 @@
+Changes in Tchap 1.x.x (2020-xx-xx)
+===================================================
+
+Improvements:
+ *
+
+Bug Fixes:
+ *
+
 Changes in Tchap 1.1.0 (2020-11-22)
 ===================================================
+
+Improvement:
+ * Update the version used to trigger a clear cache during the application update (PR #676)
 
 Changes in Tchap 1.0.49 (2020-11-18)
 ===================================================
