@@ -17,6 +17,7 @@ package fr.gouv.tchap.sdk.rest.client
 
 import fr.gouv.tchap.sdk.rest.api.TchapUserInfoApi
 import fr.gouv.tchap.sdk.rest.model.UserStatusInfo
+import fr.gouv.tchap.sdk.rest.model.UsersInfoParams
 import org.matrix.androidsdk.HomeServerConnectionConfig
 import org.matrix.androidsdk.RestClient
 import org.matrix.androidsdk.core.callback.ApiCallback
@@ -26,17 +27,18 @@ import org.matrix.androidsdk.rest.callback.RestAdapterCallback
 
 class TchapUserInfoRestClient(hsConfig: HomeServerConnectionConfig) : RestClient<TchapUserInfoApi>(hsConfig,
         TchapUserInfoApi::class.java,
-        RestClient.URI_API_PREFIX_PATH_R0,
+        RestClient.URI_API_PREFIX_PATH_UNSTABLE,
         GsonProvider.provideKotlinGson(),
         false) {
 
     /**
-     * Get the expiration and deactivation information about a given user.
-     * @param userId the user identifier
+     * Get the expiration and deactivation information about the given users.
+     * @param usersInfoParams the user identifiers list
      * @param callback the callback
      */
-    fun getUserStatusInfo(userId: String, callback: ApiCallback<UserStatusInfo>) {
-        mApi.getUserStatusInfo(userId)
-                .enqueue(RestAdapterCallback<UserStatusInfo>("getUserStatusInfo", null, callback, null))
+    fun getUsersInfo(usersInfoParams: UsersInfoParams, callback: ApiCallback<Map<String, UserStatusInfo>>) {
+        mApi.getUsersInfo(usersInfoParams)
+                .enqueue(RestAdapterCallback<Map<String, UserStatusInfo>>("getUsersInfo", null, callback, null))
     }
+
 }

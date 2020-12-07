@@ -13,19 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package fr.gouv.tchap.sdk.rest.api
 
-import fr.gouv.tchap.sdk.rest.model.UserStatusInfo
-import fr.gouv.tchap.sdk.rest.model.UsersInfoParams
-import retrofit2.Call
-import retrofit2.http.Body
-import retrofit2.http.POST
+package fr.gouv.tchap.sdk.rest.model
 
-interface TchapUserInfoApi {
+import com.google.gson.annotations.SerializedName
 
-    /**
-     * Get the expiration and deactivation information about the given user ids.
-     */
-    @POST("users/info")
-    fun getUsersInfo(@Body usersInfoParams: UsersInfoParams): Call<Map<String, UserStatusInfo>>
-}
+data class UsersInfoParams(
+        @JvmField
+        @SerializedName("user_ids")
+        var userIds: List<String>
+)
