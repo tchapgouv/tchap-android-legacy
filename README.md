@@ -16,10 +16,10 @@ Build instructions
 This client is a standard android studio project.
 
 Several [flavorDimensions](https://github.com/dinsic-pim/tchap-android/blob/develop/vector/build.gradle#L143) are defined: "base", "target", "voip", "pinning".
-The 'base' dimension permits to deal with GooglePlay/Fdroid app
-The 'target' dimension permits to specify which platform are used
-The 'voip' flavor dimension permits to include/exclude jitsi at compilation time
-The 'pinning' flavor dimension permits to enable/disable certificate pinning with fingerprint check
+- The 'base' dimension permits to deal with GooglePlay/Fdroid app
+- The 'target' dimension permits to specify which platform are used
+- The 'voip' flavor dimension permits to include/exclude jitsi at compilation time
+- The 'pinning' flavor dimension permits to enable/disable certificate pinning with fingerprint check
 
 If you want to compile the Google Play variant in command line with gradle, go to the project directory:
 
@@ -40,15 +40,18 @@ By default the tchap-android project will build with the current version of the 
 To compile the Matrix Android SDK with the tchap-android project:
 - Clone the [matrix-android-sdk](https://github.com/matrix-org/matrix-android-sdk) repository in the same directory as tchap-android, and checkout the wanted branch or revision.
 - Run the following script:
-sh compile_with_sdk_project.sh
+
+`sh compile_with_sdk_project.sh`
 
 You may compile again with the available Matrix SDK libs by running:
-sh compile_with_sdk_lib.sh
+
+`sh compile_with_sdk_lib.sh`
 
 You may update/replace the Matrix SDK libs (in tchap-android/vector/libs/ dir) thanks to the following steps:
 - Clone the [matrix-android-sdk](https://github.com/matrix-org/matrix-android-sdk) repository in the same directory as tchap-android, and checkout the wanted branch or revision.
 - Run the dedicated script:
-sh build_matrix_sdk_lib.sh
+
+`sh build_matrix_sdk_lib.sh`
 
 FAQ
 ===
