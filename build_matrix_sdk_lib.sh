@@ -19,42 +19,25 @@
 # exit on any error
 set -e
 
-if [ "$#" -ne 1 ]; then
-  echo "Usage: $0 GIT_BRANCH" >&2
-  exit 1
-fi
-
-# which branch to build?
-branch=$1
-
-if [ -z "$branch" ]; then
-   echo "Please specify the branch to build as a parameter"
-   exit 1
-fi
-
-echo ${branch}
-
 echo "Save current dir"
 currentDir=`pwd`
 
-echo "up dir"
-cd ..
+echo "Go to matrix-android-sdk folder"
+cd ../matrix-android-sdk
 
-echo "remove sdk folder"
-rm -rf matrix-android-sdk
-
-echo "clone the matrix-android-sdk repository, and checkout ${branch} branch"
-git clone -b ${branch} https://github.com/matrix-org/matrix-android-sdk
-
-cd matrix-android-sdk
+echo "The current matrix-android-sdk branch:"
+git branch --show-current
 
 echo "Build matrix sdk from source"
 ./gradlew clean assembleRelease
 
+echo "Copy freshly built matrix sdk libs to the libs folder"
 cd ${currentDir}
-
-echo "Copy freshly built matrix sdk to the libs folder"
 # Ensure the lib is updated by removing the previous one
 rm vector/libs/matrix-sdk.aar
+rm vector/libs/matrix-sdk-core.aar
+rm vector/libs/matrix-sdk-crypto.aar
 
 cp ../matrix-android-sdk/matrix-sdk/build/outputs/aar/matrix-sdk-release-*.aar vector/libs/matrix-sdk.aar
+cp ../matrix-android-sdk/matrix-sdk-core/build/outputs/aar/matrix-sdk-core-release.aar vector/libs/matrix-sdk-core.aar
+cp ../matrix-android-sdk/matrix-sdk-crypto/build/outputs/aar/matrix-sdk-crypto-release.aar vector/libs/matrix-sdk-crypto.aar
