@@ -1,8 +1,8 @@
-Changes in Tchap 1.x.x (2020-xx-xx)
+Changes in Tchap 1.1.1 (2020-12-xx)
 ===================================================
 
 Improvements:
- *
+ * Enable the room access by link
 
 Bug Fixes:
  *
