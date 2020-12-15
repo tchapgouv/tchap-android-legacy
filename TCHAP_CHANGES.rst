@@ -5,7 +5,7 @@ Improvements:
  * Enable the room access by link
 
 Bug Fixes:
- *
+ * Server notice rooms (Tchap info) are hidden in the rooms list #692
 
 Changes in Tchap 1.1.0 (2020-11-22)
 ===================================================
