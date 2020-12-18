@@ -1,5 +1,17 @@
+Changes in Tchap 1.1.1 (2020-12-18)
+===================================================
+
+Improvements:
+ * Enable the room access by link
+
+Bug Fixes:
+ * Server notice rooms (Tchap info) are hidden in the rooms list #692
+
 Changes in Tchap 1.1.0 (2020-11-22)
 ===================================================
+
+Improvement:
+ * Update the version used to trigger a clear cache during the application update (PR #676)
 
 Changes in Tchap 1.0.49 (2020-11-18)
 ===================================================
