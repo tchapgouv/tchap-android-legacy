@@ -1,11 +1,55 @@
-Changes in Tchap 1.0.xx (2020-xx-xx)
+Changes in Tchap 1.2.0 (2021-xx-xx)
+===================================================
+
+Improvements:
+ *
+
+Bug Fixes:
+ *
+
+Changes in Tchap 1.1.1 (2020-12-18)
+===================================================
+
+Improvements:
+ * Enable the room access by link
+
+Bug Fixes:
+ * Server notice rooms (Tchap info) are hidden in the rooms list #692
+
+Changes in Tchap 1.1.0 (2020-11-22)
+===================================================
+
+Improvement:
+ * Update the version used to trigger a clear cache during the application update (PR #676)
+
+Changes in Tchap 1.0.49 (2020-11-18)
+===================================================
+
+Improvements:
+ * Update matrix-sdk.aar libs - Revision: 184214f2eeed351801b18052f39e22fbb6ed3b3a [184214f2e]
+ * [Notifications] Hide the unsupported "mention only" option for the encrypted rooms #643
+ * [Notifications] Add the full display name of the sender when the user click on them #629
+ * Force a cache clearing to force an update of the stored RoomAccountData
+ * The room access by link is enabled only on Btchap for the moment
+
+Bug Fixes:
+ * Crash: on new favorite message #670
+ * Crash: java.lang.NullPointerException at org.matrix.androidsdk.data.RoomAccountData.handleEvent #671
+ * Attachments: an empty bubble is displayed for the infected attachments #637
+ * Multiple activity instances #665
+ * Crash: Activity:im.vector.activity.VectorHomeActivity, Exception: java.lang.NullPointerException #668
+ * Crash: java.lang.StackOverflowError (PushManager.registerToThirdPartyServerRecursive) #672
+ * Notifications fail because BingRulesManager is not initialized #677
+ 
+Changes in Tchap 1.0.48 (2020-10-28)
 ===================================================
 
 Improvements:
  * Increase targetSdk to 29 #609
  * Private rooms: turn on the option to join on room’s link #573
- * Room preview: we have to support the preview on shared room link #612
+ * Room preview: support the preview on shared room link #612
  * Apply the new room creation design #604
+ * Apply the new design on the room avatar and name #648
  * [Room creation] Do not override the power levels anymore #632
  * [Room access] Improve the wordings related to the room link access #645
  * Rename "Salon public" with "Salon forum" #649
@@ -13,6 +57,20 @@ Improvements:
 
 Bug Fixes:
  * Tchap crashes on invalid access token #631
+
+Changes in Tchap 1.0.47_2 (2020-11-16)
+===================================================
+
+Bug Fix:
+ * [Android 10] permission denied to open a pdf #683
+
+Changes in Tchap 1.0.47_1 (2020-11-11)
+===================================================
+
+Improvement:
+ * Increase targetSdk to 29 #609
+ * Improve the prominent disclosure, user consent and privacy policy which discloses
+ the access, collection, use or sharing of users' contact list information.
 
 Changes in Tchap 1.0.47 (2020-10-02)
 ===================================================

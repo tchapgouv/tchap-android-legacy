@@ -28,6 +28,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -45,6 +46,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -261,16 +263,26 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
 
     // action bar header
     @BindView(R.id.room_action_bar_title)
-    TextView mActionBarCustomTitle;
+    TextView mActionBarTitle;
+
+    @BindView(R.id.room_action_bar_info)
+    LinearLayout mActionBarInfo;
+
+    @BindView(R.id.room_action_bar_type_info)
+    TextView mActionBarTypeInfo;
+
+    @BindView(R.id.room_action_bar_members_info)
+    TextView mActionBarMembersInfo;
 
     @BindView(R.id.room_action_bar_topic)
-    TextView mActionBarCustomTopic;
+    TextView mActionBarTopic;
 
-    @BindView(R.id.room_action_bar_room_info)
-    TextView mActionBarRoomInfo;
+    @BindView(R.id.room_action_bar_third_line)
+    TextView mActionBarThirdLine;
 
     private ImageView mActionBarHeaderRoomAvatar;
     private HexagonMaskView mActionBarHeaderHexagonRoomAvatar;
+    private ImageView mActionBarHeaderRoomAvatarMarker;
 
     // notifications area
     @BindView(R.id.room_notifications_area)
@@ -432,7 +444,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    updateActionBarTitleAndTopic();
+                    updateActionBarTitleAndSubTitle();
                     updateRoomHeaderAvatar();
                 }
             });
@@ -476,12 +488,13 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
                         case Event.EVENT_TYPE_STATE_ROOM_NAME:
                         case Event.EVENT_TYPE_STATE_ROOM_ALIASES:
                         case Event.EVENT_TYPE_STATE_ROOM_MEMBER:
-                            setTitle();
+                        case RoomAccessRulesKt.EVENT_TYPE_STATE_ROOM_ACCESS_RULES:
+                            updateActionBarTitleAndSubTitle();
                             updateRoomHeaderAvatar();
                             refreshCallButtons(true);
                             break;
                         case Event.EVENT_TYPE_STATE_ROOM_TOPIC:
-                            setTopic();
+                            updateSubTitle();
                             break;
                         case Event.EVENT_TYPE_STATE_ROOM_POWER_LEVELS:
                             checkSendEventStatus();
@@ -494,7 +507,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
                             break;
                         case Event.EVENT_TYPE_MESSAGE_ENCRYPTION:
                             boolean canSendEncryptedEvent = mRoom.isEncrypted() && mSession.isCryptoEnabled();
-                            mE2eImageView.setImageResource(canSendEncryptedEvent ? R.drawable.e2e_verified : R.drawable.e2e_unencrypted);
+                            mE2eImageView.setImageResource(canSendEncryptedEvent ? R.drawable.private_room : R.drawable.e2e_unencrypted);
                             mVectorMessageListFragment.setIsRoomEncrypted(mRoom.isEncrypted());
                             break;
                         case Event.EVENT_TYPE_STATE_ROOM_TOMBSTONE:
@@ -522,7 +535,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    updateActionBarTitleAndTopic();
+                    updateActionBarTitleAndSubTitle();
                     mVectorMessageListFragment.onBingRulesUpdate();
                 }
             });
@@ -696,8 +709,9 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
 
         configureToolbar();
 
-        mActionBarHeaderRoomAvatar = toolbar.findViewById(R.id.avatar_img);
-        mActionBarHeaderHexagonRoomAvatar = toolbar.findViewById(R.id.avatar_h_img);
+        mActionBarHeaderRoomAvatar = toolbar.findViewById(R.id.room_avatar);
+        mActionBarHeaderHexagonRoomAvatar = toolbar.findViewById(R.id.room_avatar_hexagon);
+        mActionBarHeaderRoomAvatarMarker = toolbar.findViewById(R.id.room_avatar_marker);
 
         mCallId = intent.getStringExtra(EXTRA_START_CALL_ID);
         mEventId = intent.getStringExtra(EXTRA_EVENT_ID);
@@ -1193,7 +1207,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
             if (null != mTchapUser) {
                 // consider an encrypted room by default
                 mEditText.setHint(mSession.isCryptoEnabled() ? R.string.room_message_placeholder_encrypted : R.string.room_message_placeholder_not_encrypted);
-                mE2eImageView.setImageResource(mSession.isCryptoEnabled() ? R.drawable.e2e_verified : R.drawable.e2e_unencrypted);
+                mE2eImageView.setImageResource(mSession.isCryptoEnabled() ? R.drawable.private_room : R.drawable.e2e_unencrypted);
             }
         }
 
@@ -1214,13 +1228,13 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
             }
 
             boolean canSendEncryptedEvent = mRoom.isEncrypted() && mSession.isCryptoEnabled();
-            mE2eImageView.setImageResource(canSendEncryptedEvent ? R.drawable.e2e_verified : R.drawable.e2e_unencrypted);
+            mE2eImageView.setImageResource(canSendEncryptedEvent ? R.drawable.private_room : R.drawable.e2e_unencrypted);
             mVectorMessageListFragment.setIsRoomEncrypted(mRoom.isEncrypted());
         }
 
         manageSendMoreButtons();
 
-        updateActionBarTitleAndTopic();
+        updateActionBarTitleAndSubTitle();
 
         sendReadReceipt();
 
@@ -2707,7 +2721,8 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
                 || (null == mSession.getDataHandler())
                 || (null == mSession.getDataHandler().getStore())
                 || (null == mRoom)
-                || (null != sRoomPreviewData)) {
+                || (null != sRoomPreviewData)
+                || (null == mNotificationsArea)) {
             return;
         }
         final LimitResourceState limitResourceState = mResourceLimitEventListener.getLimitResourceState();
@@ -2848,30 +2863,55 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
     /**
      * Refresh the collapsed or the expanded headers
      */
-    private void updateActionBarTitleAndTopic() {
+    private void updateActionBarTitleAndSubTitle() {
         setTitle();
-        setTopic();
+        updateSubTitle();
     }
 
     /**
      * Set the topic
      */
-    private void setTopic() {
-        String topic = null;
+    private void updateSubTitle() {
         if (null != mRoom) {
-            if (mRoom.isDirect()) {
-                topic = DinsicUtils.getDomainFromDisplayName(DinsicUtils.getRoomDisplayName(this, mRoom));
+            mActionBarInfo.setVisibility(View.VISIBLE);
+            mActionBarTopic.setVisibility(View.GONE);
+
+            String roomAccessRule = DinsicUtils.getRoomAccessRule(mRoom);
+            if (mRoom.isEncrypted()) {
+                if (TextUtils.equals(roomAccessRule, RoomAccessRulesKt.RESTRICTED)) {
+                    mActionBarTypeInfo.setText(R.string.tchap_room_long_private_room_type);
+                    mActionBarTypeInfo.setTextColor(ContextCompat.getColor(this, R.color.tchap_coral_color));
+                } else if (TextUtils.equals(roomAccessRule, RoomAccessRulesKt.UNRESTRICTED)) {
+                    mActionBarTypeInfo.setText(R.string.tchap_room_long_extern_room_type);
+                    mActionBarTypeInfo.setTextColor(ContextCompat.getColor(this, R.color.tchap_pumpkin_orange_color));
+                } else {
+                    mActionBarTypeInfo.setText("");
+                }
+            } else if (RoomState.JOIN_RULE_PUBLIC.equals(mRoom.getState().join_rule)) {
+                mActionBarTypeInfo.setText(R.string.tchap_room_long_forum_type);
+                mActionBarTypeInfo.setTextColor(ContextCompat.getColor(this, R.color.tchap_jade_green_color));
             } else {
-                topic = getResources().getQuantityString(R.plurals.room_title_members,
+                mActionBarTypeInfo.setText("");
+            }
+
+            String membersInfo;
+            if (mRoom.isDirect()) {
+                membersInfo = DinsicUtils.getDomainFromDisplayName(DinsicUtils.getRoomDisplayName(this, mRoom));
+            } else {
+                membersInfo = getResources().getQuantityString(R.plurals.room_title_members,
                         mRoom.getNumberOfJoinedMembers(), mRoom.getNumberOfJoinedMembers());
             }
-        } else if ((null != sRoomPreviewData) && (null != sRoomPreviewData.getRoomState())) {
-            topic = sRoomPreviewData.getRoomState().topic;
-        } else if ((null != sRoomPreviewData) && (null != sRoomPreviewData.getPublicRoom())) {
-            topic = sRoomPreviewData.getPublicRoom().topic;
+            mActionBarMembersInfo.setText(membersInfo);
+        } else if (null != sRoomPreviewData) {
+            String topic = null;
+            if (null != sRoomPreviewData.getRoomState()) {
+                topic = sRoomPreviewData.getRoomState().topic;
+            } else if (null != sRoomPreviewData.getPublicRoom()) {
+                topic = sRoomPreviewData.getPublicRoom().topic;
+            }
+            setTopic(topic);
+            mActionBarInfo.setVisibility(View.GONE);
         }
-
-        setTopic(topic);
     }
 
     /**
@@ -2880,19 +2920,12 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
      * @param aTopicValue the new topic value
      */
     private void setTopic(String aTopicValue) {
-        // in search mode, the topic is not displayed
-        if (!TextUtils.isEmpty(mEventId)) {
-            mActionBarCustomTopic.setVisibility(View.GONE);
+        // topic is only displayed if its content is not empty
+        if (TextUtils.isEmpty(aTopicValue)) {
+            mActionBarTopic.setVisibility(View.GONE);
         } else {
-            // update the action bar topic anyway
-            mActionBarCustomTopic.setText(aTopicValue);
-
-            // topic is only displayed if its content is not empty
-            if (TextUtils.isEmpty(aTopicValue)) {
-                mActionBarCustomTopic.setVisibility(View.GONE);
-            } else {
-                mActionBarCustomTopic.setVisibility(View.VISIBLE);
-            }
+            mActionBarTopic.setText(aTopicValue);
+            mActionBarTopic.setVisibility(View.VISIBLE);
         }
     }
 
@@ -2916,6 +2949,18 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
                     mActionBarHeaderHexagonRoomAvatar.setBorderSettings(ContextCompat.getColor(this, R.color.unrestricted_room_avatar_border_color), 10);
                 }
             }
+
+            if (mRoom.isEncrypted()) {
+                mActionBarHeaderRoomAvatarMarker.setImageResource(R.drawable.private_avatar_icon);
+                mActionBarHeaderRoomAvatarMarker.setVisibility(View.VISIBLE);
+            } else if (RoomState.JOIN_RULE_PUBLIC.equals(mRoom.getState().join_rule)) {
+                // Tchap: we consider as forum all the unencrypted rooms with a public join_rule
+                mActionBarHeaderRoomAvatarMarker.setImageResource(R.drawable.forum_avatar_icon);
+                mActionBarHeaderRoomAvatarMarker.setVisibility(View.VISIBLE);
+            } else {
+                // This case should not happen for the moment in Tchap
+                mActionBarHeaderRoomAvatarMarker.setVisibility(View.INVISIBLE);
+            }
         } else if (null != sRoomPreviewData) {
             mActionBarHeaderHexagonRoomAvatar.setVisibility(View.VISIBLE);
             mActionBarHeaderRoomAvatar.setVisibility(View.INVISIBLE);
@@ -2925,12 +2970,23 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
                 roomName = " ";
             }
             VectorUtils.loadUserAvatar(this, sRoomPreviewData.getSession(), mActionBarHeaderHexagonRoomAvatar, sRoomPreviewData.getRoomAvatarUrl(), sRoomPreviewData.getRoomId(), roomName);
-            // The room preview is only supported for public room which are restricted by default (external users can not join them)
-            mActionBarHeaderHexagonRoomAvatar.setBorderSettings(ContextCompat.getColor(this, R.color.restricted_room_avatar_border_color), 3);
+
+            if (sRoomPreviewData.getPublicRoom() != null) {
+                // Public room are restricted by default (external users can not join them)
+                mActionBarHeaderHexagonRoomAvatar.setBorderSettings(ContextCompat.getColor(this, R.color.restricted_room_avatar_border_color), 3);
+                mActionBarHeaderRoomAvatarMarker.setImageResource(R.drawable.forum_avatar_icon);
+                mActionBarHeaderRoomAvatarMarker.setVisibility(View.VISIBLE);
+            } else {
+                // We don't have the information to custom the avatar border and select the right marker
+                mActionBarHeaderHexagonRoomAvatar.setBorderSettings(Color.LTGRAY, 3);
+                mActionBarHeaderRoomAvatarMarker.setVisibility(View.INVISIBLE);
+            }
         } else if (null != mTchapUser) {
             mActionBarHeaderHexagonRoomAvatar.setVisibility(View.INVISIBLE);
             mActionBarHeaderRoomAvatar.setVisibility(View.VISIBLE);
             VectorUtils.loadUserAvatar(this, mSession, mActionBarHeaderRoomAvatar, mTchapUser);
+            mActionBarHeaderRoomAvatarMarker.setImageResource(R.drawable.private_avatar_icon);
+            mActionBarHeaderRoomAvatarMarker.setVisibility(View.VISIBLE);
         }
     }
 
@@ -2978,34 +3034,22 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
         }
 
         // set action bar title
-        if (null != mActionBarCustomTitle) {
-            mActionBarCustomTitle.setText(titleToApply);
+        if (null != mActionBarTitle) {
+            mActionBarTitle.setText(titleToApply);
         } else {
             setTitle(titleToApply);
         }
     }
 
-    private void updateRoomAccessInfo() {
-        // Hide the room info by default
-        mActionBarRoomInfo.setVisibility(View.GONE);
+    private void updateAdditionalRoomInfo() {
+        // Hide the third line by default
+        mActionBarThirdLine.setVisibility(View.GONE);
         if (null != mRoom) {
             if (ENABLE_ROOM_RETENTION) {
-                StringBuilder roomInfoBuilder = new StringBuilder();
-                if (TextUtils.equals(DinsicUtils.getRoomAccessRule(mRoom), RoomAccessRulesKt.UNRESTRICTED)) {
-                    roomInfoBuilder.append(getString(R.string.tchap_room_access_unrestricted));
-                    roomInfoBuilder.append(" - ");
-                }
-
                 int retentionPeriod = DinumUtilsKt.getRoomRetention(mRoom);
-                roomInfoBuilder.append(getResources().getQuantityString(R.plurals.tchap_room_retention_info,
+                mActionBarThirdLine.setText(getResources().getQuantityString(R.plurals.tchap_room_retention_info,
                         retentionPeriod, retentionPeriod));
-                mActionBarRoomInfo.setText(roomInfoBuilder.toString());
-                mActionBarRoomInfo.setVisibility(View.VISIBLE);
-            } else {
-                if (TextUtils.equals(DinsicUtils.getRoomAccessRule(mRoom), RoomAccessRulesKt.UNRESTRICTED)) {
-                    mActionBarRoomInfo.setText(getString(R.string.tchap_room_access_unrestricted));
-                    mActionBarRoomInfo.setVisibility(View.VISIBLE);
-                }
+                mActionBarThirdLine.setVisibility(View.VISIBLE);
             }
         }
     }
@@ -3018,10 +3062,10 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
         updateRoomHeaderAvatar();
 
         // update the room name
-        setTitle();
+        updateActionBarTitleAndSubTitle();
 
-        // update the room access info
-        updateRoomAccessInfo();
+        // update other info
+        updateAdditionalRoomInfo();
     }
 
     /**
@@ -3435,7 +3479,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
                                         }
 
                                         hideWaitingView();
-                                        updateActionBarTitleAndTopic();
+                                        updateActionBarTitleAndSubTitle();
                                     }
 
                                     @Override
@@ -3500,7 +3544,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
                                         }
 
                                         hideWaitingView();
-                                        updateActionBarTitleAndTopic();
+                                        updateActionBarTitleAndSubTitle();
                                     }
 
                                     @Override

@@ -19,6 +19,19 @@
         android:adjustViewBounds="true"
         tools:src="@tools:sample/avatars" />
 
+    <ImageView
+        android:id="@+id/room_avatar_marker"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_alignTop="@+id/public_room_avatar"
+        android:layout_alignEnd="@+id/public_room_avatar"
+        android:layout_alignRight="@+id/public_room_avatar"
+        android:layout_marginTop="-2dp"
+        android:layout_marginEnd="-5dp"
+        android:layout_marginRight="-5dp"
+        android:src="@drawable/forum_avatar_icon"
+        android:visibility="visible" />
+
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

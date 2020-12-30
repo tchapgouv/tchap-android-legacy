@@ -82,6 +82,8 @@ import im.vector.util.PermissionsToolsKt;
 import im.vector.util.VectorUtils;
 import im.vector.view.VectorAutoCompleteTextView;
 
+import static fr.gouv.tchap.config.TargetConfigurationKt.ENABLE_JOIN_BY_LINK;
+
 /**
  * This class provides a way to search other user to invite them in a dedicated room
  */
@@ -415,7 +417,7 @@ public class VectorRoomInviteMembersActivity extends MXCActionBarActivity implem
         // Consider these 2 options when the current user is not an external one.
         if(!DinsicUtils.isExternalTchapSession(mSession)) {
             // Check whether a room is provided before considering the option "Invite by link"
-            if (mRoom != null && mSession != null) {
+            if (mRoom != null && mSession != null && ENABLE_JOIN_BY_LINK) {
                 // This option is visible only when the user is admin or the join_rule is public
                 PowerLevels powerLevels = mRoom.getState().getPowerLevels();
                 int powerLevel = powerLevels.getUserPowerLevel(mSession.getMyUserId());

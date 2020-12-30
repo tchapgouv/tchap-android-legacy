@@ -525,9 +525,7 @@ Veuillez autoriser l’accès dans la prochaine fenêtre contextuelle pour pouvo
     <string name="permissions_rationale_msg_camera_and_audio">Tchap a besoin d’accéder à votre appareil photo et à votre microphone pour passer des appels vidéo.
 
 Veuillez autoriser l’accès dans les prochaines fenêtres contextuelles pour pouvoir effectuer l’appel.</string>
-    <string name="permissions_rationale_msg_contacts">Tchap a besoin d’accéder aux contacts de votre carnet d’adresses pour trouver d’autres utilisateurs de Tchap avec leur adresse e\u2011mail.
-
-Veuillez autoriser l’accès dans la prochaine fenêtre contextuelle pour découvrir les utilisateurs du carnet d’adresses joignables avec Tchap.</string>
+    <string name="permissions_rationale_msg_contacts">Veuillez autoriser l’accès à vos contacts locaux dans la prochaine fenêtre contextuelle pour pouvoir échanger avec eux dans Tchap. Ces données personnelles ne sont pas mémorisées sur les serveurs.\nPour plus d’informations, veuillez consulter les Termes et Conditions disponibles dans les paramètres de l’application.</string>
     <string name="permissions_msg_contacts_warning_other_androids">Tchap a besoin d’accéder aux contacts de votre carnet d’adresses pour trouver d’autres utilisateurs de Tchap avec leur adresse e\u2011mail.
 
 Autorisez-vous Tchap à accéder à vos contacts ?</string>
@@ -853,7 +851,12 @@ Appareils inconnus :</string>
     <string name="tchap_cannot_start_call">Vous ne pouvez pas appeler votre contact tant qu’il n’a pas accepté l’invitation à rejoindre cette discussion</string>
 
     <!-- tchap room -->
-    <string name="tchap_room_access_unrestricted">Salon accessible aux externes</string>
+    <string name="tchap_room_private_room_type">Privé</string>
+    <string name="tchap_room_long_private_room_type">Salon privé</string>
+    <string name="tchap_room_extern_room_type">Externes</string>
+    <string name="tchap_room_long_extern_room_type">Salon privé ouvert aux externes</string>
+    <string name="tchap_room_forum_type">Forum</string>
+    <string name="tchap_room_long_forum_type">Salon forum</string>
     <string name="tchap_room_invalid_link">Ce lien n’est pas valide</string>
     <string name="tchap_room_access_unauthorized">Vous n’êtes pas autorisé à rejoindre cette conversation. Une invitation est nécessaire.</string>
     <plurals name="tchap_room_retention_info">
@@ -969,8 +972,8 @@ Appareils inconnus :</string>
         <item quantity="other">%d membres actifs</item>
     </plurals>
     <plurals name="room_title_members">
-        <item quantity="one">%d membre</item>
-        <item quantity="other">%d membres</item>
+        <item quantity="one">・1 membre</item>
+        <item quantity="other">・%d membres</item>
     </plurals>
     <plurals name="room_new_messages_notification">
         <item quantity="one">%d nouveau message</item>

@@ -24,3 +24,5 @@ const val CONFIGURATION_VARIANT = "agent"
 const val ENABLE_ROOM_RETENTION = false
 
 const val SUPPORT_KEYS_BACKUP = false
+
+const val ENABLE_JOIN_BY_LINK = true

@@ -108,6 +108,11 @@ class VectorSettingsPreferencesFragment : PreferenceFragmentCompat(), SharedPref
     private val mNetworkListener = IMXNetworkEventListener { refreshDisplay() }
     // events listener
     private val mEventsListener = object : MXEventListener() {
+        override fun onStoreReady() {
+            refreshPreferences()
+            refreshDisplay()
+        }
+
         override fun onBingRulesUpdate() {
             refreshPreferences()
             refreshDisplay()

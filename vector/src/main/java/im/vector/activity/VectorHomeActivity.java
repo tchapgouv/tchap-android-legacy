@@ -367,8 +367,8 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
                 Log.d(LOG_TAG, "The application has been updated from version " + version + " to version " + BuildConfig.VERSION_CODE);
 
                 // Add some dedicated actions here
-                if (version < 54) {
-                    // Force a cache clearing, this is required because of the new state event room_access_rules handling.
+                if (version < 76) {
+                    // Force a cache clearing in case of update with v1.1.0 and higher to refresh the stored RoomAccountData.
                     Matrix.getInstance(this).reloadSessions(this, true);
                     return;
                 }
@@ -578,8 +578,10 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
             if (null != Matrix.getInstance(this).getDefaultSession()) {
                 Log.e(LOG_TAG, "No loaded session : reload them");
                 // start splash activity and stop here
-                startActivity(new Intent(VectorHomeActivity.this, SplashActivity.class));
-                finish();
+                Intent splashIntent = new Intent(VectorHomeActivity.this, SplashActivity.class);
+                startActivity(splashIntent);
+
+                finishAffinity();
                 return;
             }
         }
@@ -625,8 +627,9 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
             @Override
             public void onSuccess(VersionCheckResult versionCheckResult) {
                 if (versionCheckResult instanceof VersionCheckResult.ShowUpgradeScreen) {
-                    startActivity(new Intent(VectorHomeActivity.this, TchapVersionCheckActivity.class));
-                    finish();
+                    Intent intent = new Intent(VectorHomeActivity.this, TchapVersionCheckActivity.class);
+                    startActivity(intent);
+                    finishAffinity();
                 }
             }
         });

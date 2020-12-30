@@ -32,6 +32,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.matrix.androidsdk.MXSession;
 import org.matrix.androidsdk.core.Log;
 import org.matrix.androidsdk.data.Room;
+import org.matrix.androidsdk.data.RoomState;
 import org.matrix.androidsdk.data.RoomSummary;
 import org.matrix.androidsdk.data.RoomTag;
 import org.matrix.androidsdk.data.store.IMXStore;
@@ -45,7 +46,9 @@ import butterknife.ButterKnife;
 import fr.gouv.tchap.sdk.session.room.model.RoomAccessRulesKt;
 import fr.gouv.tchap.util.DinsicUtils;
 import fr.gouv.tchap.util.HexagonMaskView;
+import im.vector.Matrix;
 import im.vector.R;
+import im.vector.push.PushManager;
 import im.vector.ui.themes.ThemeUtils;
 import im.vector.util.RoomUtils;
 import im.vector.util.VectorUtils;
@@ -77,6 +80,10 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
     @Nullable
     TextView vRoomDomain;
 
+    @BindView(R.id.room_type)
+    @Nullable
+    TextView vRoomType;
+
     @BindView(R.id.sender_name)
     @Nullable
     TextView vSenderDisplayName;
@@ -92,8 +99,8 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.room_unread_count)
     TextView vRoomUnreadCount;
 
-    @BindView(R.id.room_avatar_encrypted_icon)
-    View vRoomEncryptedIcon;
+    @BindView(R.id.room_avatar_marker)
+    ImageView vRoomAvatarMarker;
 
     @BindView(R.id.room_more_action_click_area)
     @Nullable
@@ -153,11 +160,9 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
         }
 
         int unreadMsgCount = roomSummary.getUnreadEventsCount();
-        int highlightCount;
-        int notificationCount;
-
-        highlightCount = roomSummary.getHighlightCount();
-        notificationCount = roomSummary.getNotificationCount();
+        int highlightCount = roomSummary.getHighlightCount();
+        int notificationCount = roomSummary.getNotificationCount();
+        String roomAccessRule = DinsicUtils.getRoomAccessRule(room);
 
         // fix a crash reported by GA
         if ((null != room.getDataHandler()) && room.getDataHandler().getBingRulesManager().isRoomMentionOnly(room.getRoomId())) {
@@ -194,6 +199,28 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
             vRoomName.setText(displayName);
         }
 
+        if (null != vRoomType) {
+            if (room.isEncrypted()) {
+                if (TextUtils.equals(roomAccessRule, RoomAccessRulesKt.RESTRICTED)) {
+                    vRoomType.setText(R.string.tchap_room_private_room_type);
+                    vRoomType.setTextColor(ContextCompat.getColor(context, R.color.tchap_coral_color));
+                    vRoomType.setVisibility(View.VISIBLE);
+                } else if (TextUtils.equals(roomAccessRule, RoomAccessRulesKt.UNRESTRICTED)) {
+                    vRoomType.setText(R.string.tchap_room_extern_room_type);
+                    vRoomType.setTextColor(ContextCompat.getColor(context, R.color.tchap_pumpkin_orange_color));
+                    vRoomType.setVisibility(View.VISIBLE);
+                } else {
+                    vRoomType.setVisibility(View.INVISIBLE);
+                }
+            } else if (RoomState.JOIN_RULE_PUBLIC.equals(room.getState().join_rule)) {
+                vRoomType.setText(R.string.tchap_room_forum_type);
+                vRoomType.setTextColor(ContextCompat.getColor(context, R.color.tchap_jade_green_color));
+                vRoomType.setVisibility(View.VISIBLE);
+            } else {
+                vRoomType.setVisibility(View.INVISIBLE);
+            }
+        }
+
         if (null != vSenderDisplayName && null != roomSummary.getLatestReceivedEvent()) {
             String userNameWithoutDomain;
             String senderId = roomSummary.getLatestReceivedEvent().getSender();
@@ -225,7 +252,7 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
         } else if (null != vRoomAvatarHexagon) {
             VectorUtils.loadRoomAvatar(context, session, vRoomAvatarHexagon, room);
             // Set the right border color
-            if (TextUtils.equals(DinsicUtils.getRoomAccessRule(room), RoomAccessRulesKt.RESTRICTED)) {
+            if (TextUtils.equals(roomAccessRule, RoomAccessRulesKt.RESTRICTED)) {
                 vRoomAvatarHexagon.setBorderSettings(ContextCompat.getColor(context, R.color.restricted_room_avatar_border_color), 3);
             } else {
                 vRoomAvatarHexagon.setBorderSettings(ContextCompat.getColor(context, R.color.unrestricted_room_avatar_border_color), 10);
@@ -264,7 +291,17 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
             }
         }
 
-        vRoomEncryptedIcon.setVisibility(room.isEncrypted() ? View.VISIBLE : View.INVISIBLE);
+        if (room.isEncrypted()) {
+            vRoomAvatarMarker.setImageResource(R.drawable.private_avatar_icon);
+            vRoomAvatarMarker.setVisibility(View.VISIBLE);
+        } else if (RoomState.JOIN_RULE_PUBLIC.equals(room.getState().join_rule)) {
+            // Tchap: we consider as forum all the unencrypted rooms with a public join_rule
+            vRoomAvatarMarker.setImageResource(R.drawable.forum_avatar_icon);
+            vRoomAvatarMarker.setVisibility(View.VISIBLE);
+        } else {
+            // This case should not happen for the moment in Tchap
+            vRoomAvatarMarker.setVisibility(View.INVISIBLE);
+        }
 
         if (vRoomTimestamp != null) {
             vRoomTimestamp.setText(RoomUtils.getRoomTimestamp(context, roomSummary.getLatestReceivedEvent()));
@@ -287,6 +324,7 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
             });
         }
 
+        final PushManager pushManager = Matrix.getInstance(context).getPushManager();
         BingRulesManager.RoomNotificationState roomNotificationState = session.getDataHandler().getBingRulesManager().getRoomNotificationState(room.getRoomId());
         if (null != vRoomNotificationMute && null != roomNotificationState) {
             switch (roomNotificationState) {
@@ -295,10 +333,12 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
                     vRoomNotificationMute.setVisibility(View.GONE);
                     break;
                 case MENTIONS_ONLY:
-                    if (room.isDirect()) {
-                        // Tchap: This mode is not suggested anymore for the direct chats
-                        // We consider people will not mention the other member in 1:1.
+                    if ((pushManager.useFcm() && room.isEncrypted()) || room.isDirect()) {
                         // The room is considered mute.
+                        // Tchap: This mode is not suggested anymore for:
+                        // - the direct chats: we consider people will not mention the other member in 1:1
+                        // - the encrypted rooms on Google Play variant: the pusher is not able to send pushes
+                        // only on the mentions because the content is encrypted.
                         vRoomNotificationMute.setVisibility(View.VISIBLE);
                     } else {
                         vRoomNotificationMute.setVisibility(View.GONE);

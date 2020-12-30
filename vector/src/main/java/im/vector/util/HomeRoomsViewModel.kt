@@ -56,7 +56,7 @@ class HomeRoomsViewModel(private val session: MXSession) {
          * Use this method when you need to get all the joined rooms
          */
         fun getJoinedRooms(): List<Room> {
-            return favourites + directChats + lowPriorities + otherRooms
+            return favourites + directChats + lowPriorities + serverNotices + otherRooms
         }
     }
 

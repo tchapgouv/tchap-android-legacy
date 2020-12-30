@@ -236,7 +236,7 @@ public class CommonActivityUtils {
                     }
 
                     activity.startActivity(intent);
-                    activity.finish();
+                    activity.finishAffinity();
                     return true;
                 }
             }
@@ -263,7 +263,7 @@ public class CommonActivityUtils {
     }
 
     /**
-     * Restart the application after 100ms
+     * Restart the application
      *
      * @param activity activity
      */
