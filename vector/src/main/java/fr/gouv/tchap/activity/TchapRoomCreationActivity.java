@@ -98,6 +98,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     private static final int REQ_CODE_ADD_PARTICIPANTS = 0x11;
     private static final String ERROR_CODE_ROOM_ALIAS_ALREADY_TAKEN = "Room alias already taken";
     private static final String ERROR_CODE_ROOM_ALIAS_INVALID_CHARACTERS = "Invalid characters in room alias";
+    private static final String AGENT_SERVER_DOMAIN = "Agent";
 
 
     @BindView(R.id.hexagon_mask_view)
@@ -139,6 +140,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     private CreateRoomParams mRoomParams = new CreateRoomParams();
     private List<String> mParticipantsIds = new ArrayList<>();
     private boolean mRestricted;
+    private String userHSDomain;
 
     @Override
     public int getLayoutRes() {
@@ -182,7 +184,7 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         enablePrivateRoom();
 
         // Prepare disable federation label by adding the hs display name of the current user.
-        String userHSDomain = DinsicUtils.getHomeServerDisplayNameFromMXIdentifier(mSession.getMyUserId());
+        userHSDomain = DinsicUtils.getHomeServerDisplayNameFromMXIdentifier(mSession.getMyUserId());
         disableFederationSwitch.setText(getString(R.string.tchap_room_creation_disable_federation, userHSDomain));
 
         // Set the right border color on avatar
@@ -312,8 +314,10 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
         mRoomParams.preset = CreateRoomParams.PRESET_PUBLIC_CHAT;
         mRoomParams.setHistoryVisibility(RoomState.HISTORY_VISIBILITY_WORLD_READABLE);
         Log.d(LOG_TAG, "## public");
-        // Public rooms are not federated by default
-        disableFederationSwitch.setChecked(true);
+        // Public rooms are not federated by default except for agent server domain
+        final boolean isAgentServerDomain = userHSDomain.equalsIgnoreCase(AGENT_SERVER_DOMAIN);
+        disableFederationSwitch.setVisibility(isAgentServerDomain ? View.GONE : View.VISIBLE);
+        disableFederationSwitch.setChecked(!isAgentServerDomain);
         // Prevent the externals from joining the room
         disableExternalAccess();
 
