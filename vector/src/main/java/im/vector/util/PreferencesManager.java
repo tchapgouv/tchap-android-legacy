@@ -962,17 +962,24 @@ public class PreferencesManager {
         // them during the application update too.
         // This Battery optim question will be considered if the user changes the sync mode from the
         // settings, or run the troubleshooting tests
+        String backgroundMode = null;
         try {
-            return PreferenceManager
+            backgroundMode = androidx.preference.PreferenceManager
                     .getDefaultSharedPreferences(context)
-                    .getString(SETTINGS_FDROID_BACKGROUND_SYNC_MODE, FDROID_BACKGROUND_SYNC_MODE_FOR_REALTIME);
+                    .getString(SETTINGS_FDROID_BACKGROUND_SYNC_MODE, null);
         } catch (ClassCastException e) {
-            PreferenceManager.getDefaultSharedPreferences(context)
-                    .edit()
-                    .remove(SETTINGS_FDROID_BACKGROUND_SYNC_MODE)
-                    .putString(SETTINGS_FDROID_BACKGROUND_SYNC_MODE, FDROID_BACKGROUND_SYNC_MODE_FOR_REALTIME)
-                    .apply();
-            return FDROID_BACKGROUND_SYNC_MODE_FOR_REALTIME;
+            backgroundMode = null;
+        } finally {
+            if (null == backgroundMode) {
+                backgroundMode = FDROID_BACKGROUND_SYNC_MODE_FOR_REALTIME;
+                androidx.preference.PreferenceManager.getDefaultSharedPreferences(context)
+                        .edit()
+                        .remove(SETTINGS_FDROID_BACKGROUND_SYNC_MODE)
+                        .putString(SETTINGS_FDROID_BACKGROUND_SYNC_MODE, backgroundMode)
+                        .apply();
+
+            }
+            return backgroundMode;
         }
     }
 
