@@ -39,99 +39,68 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="visible">
+                android:layout_marginTop="30dp"
+                android:layout_marginBottom="30dp"
+                android:descendantFocusability="beforeDescendants"
+                android:focusableInTouchMode="true"
+                android:orientation="horizontal">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="30dp"
-                    android:layout_marginBottom="30dp"
-                    android:descendantFocusability="beforeDescendants"
-                    android:focusableInTouchMode="true"
-                    android:orientation="horizontal">
+                <RelativeLayout
+                    android:id="@+id/rly_hexagon_avatar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
 
-                    <RelativeLayout
-                        android:id="@+id/rly_hexagon_avatar"
+                    <fr.gouv.tchap.util.HexagonMaskView
+                        android:id="@+id/hexagon_mask_view"
+                        android:layout_width="95dp"
+                        android:layout_height="95dp"
+                        android:src="@color/vector_tchap_hexagon_background_color_dark_grey" />
+
+                    <ImageView
+                        android:id="@+id/avatar_icon_image"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
-
-                        <fr.gouv.tchap.util.HexagonMaskView
-                            android:id="@+id/hexagon_mask_view"
-                            android:layout_width="95dp"
-                            android:layout_height="95dp"
-                            android:src="@color/vector_tchap_hexagon_background_color_dark_grey" />
-
-                        <ImageView
-                            android:id="@+id/avatar_icon_image"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="80dp"
-                            android:layout_marginLeft="80dp"
-                            android:layout_marginTop="5dp"
-                            android:src="@drawable/private_avatar_icon_hr" />
-
-                        <TextView
-                            android:id="@+id/tv_add_avatar_image"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerHorizontal="true"
-                            android:layout_centerVertical="true"
-                            android:layout_margin="1dp"
-                            android:gravity="center"
-                            android:paddingTop="5dp"
-                            android:paddingBottom="5dp"
-                            android:text="@string/tchap_room_creation_avatar"
-                            android:textAllCaps="false"
-                            android:textColor="@color/tchap_text_color_light"
-                            android:textSize="12sp" />
-                    </RelativeLayout>
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="20dp"
-                        android:layout_marginLeft="20dp"
-                        android:layout_marginTop="15dp"
-                        android:layout_marginEnd="10dp"
-                        android:layout_marginRight="10dp"
-                        android:textColorHint="?attr/vctr_default_text_hint_color">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/et_room_name"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:hint="@string/tchap_room_creation_name"
-                            android:minHeight="40dp"
-                            android:textColor="@color/vector_tchap_text_color_dark_grey"
-                            android:textSize="18.8sp" />
-                    </com.google.android.material.textfield.TextInputLayout>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginEnd="7dp"
-                    android:layout_marginRight="7dp"
-                    android:descendantFocusability="beforeDescendants"
-                    android:focusableInTouchMode="true"
-                    android:gravity="center_vertical"
-                    android:minHeight="48dp"
-                    android:orientation="vertical">
+                        android:layout_marginStart="80dp"
+                        android:layout_marginLeft="80dp"
+                        android:layout_marginTop="5dp"
+                        android:src="@drawable/private_avatar_icon_hr" />
 
                     <TextView
-                        android:id="@+id/tv_room_msg_retention"
+                        android:id="@+id/tv_add_avatar_image"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:paddingBottom="3dp"
-                        android:textColor="@color/tchap_greyish_brown_color"
-                        android:textSize="15sp"
-                        tools:text="@plurals/tchap_room_creation_retention" />
-                </LinearLayout>
+                        android:layout_centerHorizontal="true"
+                        android:layout_centerVertical="true"
+                        android:layout_margin="1dp"
+                        android:gravity="center"
+                        android:paddingTop="5dp"
+                        android:paddingBottom="5dp"
+                        android:text="@string/tchap_room_creation_avatar"
+                        android:textAllCaps="false"
+                        android:textColor="@color/tchap_text_color_light"
+                        android:textSize="12sp" />
+                </RelativeLayout>
 
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginRight="10dp"
+                    android:textColorHint="?attr/vctr_default_text_hint_color">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_room_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="@string/tchap_room_creation_name"
+                        android:minHeight="40dp"
+                        android:textColor="@color/vector_tchap_text_color_dark_grey"
+                        android:textSize="18.8sp" />
+                </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
             <TextView

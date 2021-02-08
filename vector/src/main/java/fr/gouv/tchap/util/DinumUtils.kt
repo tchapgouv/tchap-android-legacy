@@ -74,7 +74,7 @@ fun getRoomRetention(room: Room): Int {
             ?.let { getMaxLifetime(it) }
             ?.also { Log.d(LOG_TAG, "## getRoomRetention(): the period ${it}ms is defined") }
             ?.let { lifetime -> convertMsToDays(lifetime).coerceIn(1..365) }
-            ?: DEFAULT_RETENTION_VALUE_IN_DAYS
+            ?: INITIAL_RETENTION_VALUE
 }
 
 fun setRoomRetention(session: MXSession, room: Room, periodInDays: Int, callback: ApiCallback<Void>) {
@@ -125,28 +125,32 @@ fun clearExpiredRoomContents(session: MXSession, room: Room): Boolean {
 
 private fun clearExpiredRoomContentsFromStore(store: IMXStore, room: Room): Boolean {
     var shouldCommitStore = false
-    val limitEventTs = System.currentTimeMillis() - convertDaysToMs(getRoomRetention(room))
+    val retentionInDays = getRoomRetention(room)
 
-    // This is a bit more optimized than using a filter, even if the algorithm is not very nice to read
-    store.getRoomMessages(room.roomId)
-            .orEmpty()
-            .firstOrNull { event ->
-                when {
-                    event.stateKey != null                   ->
-                        // Ignore state event
-                        false
-                    event.getOriginServerTs() < limitEventTs -> {
-                        store.deleteEvent(event)
-                        shouldCommitStore = true
-                        // Go on
-                        false
+    if (0 <= retentionInDays) {
+        val limitEventTs = System.currentTimeMillis() - convertDaysToMs(retentionInDays)
+
+        // This is a bit more optimized than using a filter, even if the algorithm is not very nice to read
+        store.getRoomMessages(room.roomId)
+                .orEmpty()
+                .firstOrNull { event ->
+                    when {
+                        event.stateKey != null                   ->
+                            // Ignore state event
+                            false
+                        event.getOriginServerTs() < limitEventTs -> {
+                            store.deleteEvent(event)
+                            shouldCommitStore = true
+                            // Go on
+                            false
+                        }
+                        else                                     ->
+                            // Break the loop, we've reached the first non-state event in the timeline which is not expired
+                            true
                     }
-                    else                                     ->
-                        // Break the loop, we've reached the first non-state event in the timeline which is not expired
-                        true
                 }
-            }
-
+    }
+    
     return shouldCommitStore
 }
 
