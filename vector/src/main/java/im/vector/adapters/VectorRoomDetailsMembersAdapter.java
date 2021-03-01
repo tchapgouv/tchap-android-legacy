@@ -360,6 +360,13 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
                         memberIds.add(activeMember.getUserId());
                     }
 
+                    uiHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            updateRoomMembersDataModel(aSearchListener, activeMembers);
+                        }
+                    });
+
                     userInfoRestClient.getUsersInfo(new UsersInfoParams(memberIds), new ApiCallback<Map<String, UserStatusInfo>>() {
                         @Override
                         public void onSuccess(Map<String, UserStatusInfo> stringUserStatusInfoMap) {
@@ -369,22 +376,16 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
                         @Override
                         public void onNetworkError(Exception e) {
                             Log.e(LOG_TAG, "## getUsersInfo(): onNetworkError() Msg=" + e.getLocalizedMessage());
-
-                            updateRoomMembersDataModel(aSearchListener, activeMembers);
                         }
 
                         @Override
                         public void onMatrixError(MatrixError e) {
                             Log.e(LOG_TAG, "## getUsersInfo(): onMatrixError() Msg=" + e.getLocalizedMessage());
-
-                            updateRoomMembersDataModel(aSearchListener, activeMembers);
                         }
 
                         @Override
                         public void onUnexpectedError(Exception e) {
                             Log.e(LOG_TAG, "## getUsersInfo(): onUnexpectedError() Msg=" + e.getLocalizedMessage());
-
-                            updateRoomMembersDataModel(aSearchListener, activeMembers);
                         }
                     });
                 } else {
