@@ -352,20 +352,23 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
 
                 // check that members are here
                 if (errorMessage[0] == null) {
+                    // Check whether nothing has been displayed yet
+                    if (mGroupIndexJoinedMembers == -1) {
+                        // Display a first version of the room members before retrieving their status (expiration info)
+                        uiHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                updateRoomMembersDataModel(aSearchListener, activeMembers);
+                            }
+                        });
+                    }
 
-                    //Retrieve the expiration information for active members.
+                    // Retrieve the expiration information for active members.
                     TchapUserInfoRestClient userInfoRestClient = new TchapUserInfoRestClient(mSession.getHomeServerConfig());
                     List<String> memberIds = new ArrayList<>();
                     for (RoomMember activeMember : activeMembers) {
                         memberIds.add(activeMember.getUserId());
                     }
-
-                    uiHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            updateRoomMembersDataModel(aSearchListener, activeMembers);
-                        }
-                    });
 
                     userInfoRestClient.getUsersInfo(new UsersInfoParams(memberIds), new ApiCallback<Map<String, UserStatusInfo>>() {
                         @Override
