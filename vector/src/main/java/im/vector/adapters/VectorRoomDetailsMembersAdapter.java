@@ -308,6 +308,8 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
             return;
         }
 
+        final Handler uiHandler = new Handler();
+
         Thread t = new Thread(new Runnable() {
             public void run() {
                 final Collection<RoomMember> activeMembers = new ArrayList<>();
@@ -386,7 +388,7 @@ public class VectorRoomDetailsMembersAdapter extends BaseExpandableListAdapter {
                         }
                     });
                 } else {
-                    new Handler().post(new Runnable() {
+                    uiHandler.post(new Runnable() {
                         @Override
                         public void run() {
                             // Show an error
