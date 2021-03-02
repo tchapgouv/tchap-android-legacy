@@ -3,6 +3,7 @@ Changes in Tchap 1.2.0 (2021-xx-xx)
 
 Improvements:
  * Update matrix-sdk.aar libs - Revision: 68165b6ddbbea51524b5c7e6192d4ae4a0083ad3 [68165b6d]
+ * [FDroid] Prompt the user about the Battery optim if this is not already done #646
  * Public room creation: improve UI for agent.agent users #698
  * Room members: gray out the expired users #556
 
