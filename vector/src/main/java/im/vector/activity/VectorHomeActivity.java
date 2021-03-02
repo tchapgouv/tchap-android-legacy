@@ -367,7 +367,7 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
 
                 // Add some dedicated actions here
                 if (version < 78) {
-                    // Force a cache clearing in case of update with v1.1.0 and higher to refresh the stored RoomAccountData.
+                    // Force a cache clearing in case of update with v1.2.0 and higher to refresh the store (unlimited room history is allowed).
                     Matrix.getInstance(this).reloadSessions(this, true);
                     return;
                 }

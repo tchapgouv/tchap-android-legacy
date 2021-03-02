@@ -4,6 +4,8 @@ Changes in Tchap 1.2.0 (2021-xx-xx)
 Improvements:
  * Update matrix-sdk.aar libs - Revision: 68165b6ddbbea51524b5c7e6192d4ae4a0083ad3 [68165b6d]
  * Public room creation: improve UI for agent.agent users #698
+ * [Room retention] Support unlimited room history (PR #700)
+ * Update the version used to trigger a clear cache during the application update (PR #700)
 
 Bug Fixes:
  *

@@ -64,7 +64,7 @@ fun getJoinedRooms(session: MXSession): List<Room> {
  * Get the current room retention period in days.
  *
  * @param room the room.
- * @return the room retention period
+ * @return the room retention period in days, or UNDEFINED_RETENTION_VALUE if none.
  */
 fun getRoomRetention(room: Room): Int {
     // Select the latest state event if any
@@ -74,7 +74,7 @@ fun getRoomRetention(room: Room): Int {
             ?.let { getMaxLifetime(it) }
             ?.also { Log.d(LOG_TAG, "## getRoomRetention(): the period ${it}ms is defined") }
             ?.let { lifetime -> convertMsToDays(lifetime).coerceIn(1..365) }
-            ?: INITIAL_RETENTION_VALUE
+            ?: UNDEFINED_RETENTION_VALUE
 }
 
 fun setRoomRetention(session: MXSession, room: Room, periodInDays: Int, callback: ApiCallback<Void>) {
@@ -127,7 +127,7 @@ private fun clearExpiredRoomContentsFromStore(store: IMXStore, room: Room): Bool
     var shouldCommitStore = false
     val retentionInDays = getRoomRetention(room)
 
-    if (0 <= retentionInDays) {
+    if (retentionInDays != UNDEFINED_RETENTION_VALUE) {
         val limitEventTs = System.currentTimeMillis() - convertDaysToMs(retentionInDays)
 
         // This is a bit more optimized than using a filter, even if the algorithm is not very nice to read

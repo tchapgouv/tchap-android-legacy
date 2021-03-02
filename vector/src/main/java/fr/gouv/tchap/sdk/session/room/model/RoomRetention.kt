@@ -26,7 +26,7 @@ const val EVENT_TYPE_STATE_ROOM_RETENTION = "m.room.retention"
 const val STATE_EVENT_CONTENT_MAX_LIFETIME = "max_lifetime"
 const val STATE_EVENT_CONTENT_EXPIRE_ON_CLIENTS = "expire_on_clients"
 
-const val INITIAL_RETENTION_VALUE = -1
+const val UNDEFINED_RETENTION_VALUE = -1
 
 data class RoomRetentionContent(
         @JvmField
