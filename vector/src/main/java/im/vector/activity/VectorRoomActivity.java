@@ -99,6 +99,7 @@ import java.util.TimerTask;
 
 import fr.gouv.tchap.activity.TchapDirectRoomDetailsActivity;
 import fr.gouv.tchap.sdk.session.room.model.RoomAccessRulesKt;
+import fr.gouv.tchap.sdk.session.room.model.RoomRetentionKt;
 import fr.gouv.tchap.util.DinsicUtils;
 import fr.gouv.tchap.util.DinumUtilsKt;
 import fr.gouv.tchap.util.HexagonMaskView;
@@ -2989,9 +2990,11 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
         if (null != mRoom) {
             if (ENABLE_ROOM_RETENTION) {
                 int retentionPeriod = DinumUtilsKt.getRoomRetention(mRoom);
-                mActionBarThirdLine.setText(getResources().getQuantityString(R.plurals.tchap_room_retention_info,
-                        retentionPeriod, retentionPeriod));
-                mActionBarThirdLine.setVisibility(View.VISIBLE);
+                if (retentionPeriod != RoomRetentionKt.UNDEFINED_RETENTION_VALUE) {
+                    mActionBarThirdLine.setText(getResources().getQuantityString(R.plurals.tchap_room_retention_info,
+                            retentionPeriod, retentionPeriod));
+                    mActionBarThirdLine.setVisibility(View.VISIBLE);
+                }
             }
         }
     }

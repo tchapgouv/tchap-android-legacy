@@ -69,12 +69,9 @@ import butterknife.OnClick;
 import butterknife.OnTextChanged;
 
 import fr.gouv.tchap.sdk.session.room.model.RoomAccessRulesKt;
-import fr.gouv.tchap.sdk.session.room.model.RoomRetentionKt;
 import fr.gouv.tchap.util.DinsicUtils;
 import fr.gouv.tchap.util.DinumUtilsKt;
 import fr.gouv.tchap.util.HexagonMaskView;
-
-import fr.gouv.tchap.util.RoomRetentionPeriodPickerDialogFragment;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -87,8 +84,6 @@ import im.vector.activity.SelectPictureActivity;
 import im.vector.activity.VectorRoomActivity;
 import im.vector.activity.VectorRoomInviteMembersActivity;
 import im.vector.util.VectorUtils;
-
-import static fr.gouv.tchap.config.TargetConfigurationKt.ENABLE_ROOM_RETENTION;
 
 public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
@@ -116,9 +111,6 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
     @BindView(R.id.et_room_name)
     TextInputEditText etRoomName;
 
-    @BindView(R.id.tv_room_msg_retention)
-    TextView roomMessageRetentionText;
-
     @BindView(R.id.switch_disable_federation)
     Switch disableFederationSwitch;
 
@@ -136,7 +128,6 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
     private MXSession mSession;
     private Uri mThumbnailUri = null;
-    private int mRetentionPeriod = RoomRetentionKt.DEFAULT_RETENTION_VALUE_IN_DAYS;
     private CreateRoomParams mRoomParams = new CreateRoomParams();
     private List<String> mParticipantsIds = new ArrayList<>();
     private boolean mRestricted;
@@ -155,25 +146,6 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
 
         configureToolbar();
         setTitle(R.string.tchap_room_creation_title);
-
-        // Initialize the room messages retention period which is underlined and clickable
-        setRoomRetentionPeriod(RoomRetentionKt.DEFAULT_RETENTION_VALUE_IN_DAYS);
-        roomMessageRetentionText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new RoomRetentionPeriodPickerDialogFragment(TchapRoomCreationActivity.this)
-                        .create(mRetentionPeriod, (number) -> {
-                            setRoomRetentionPeriod(number);
-                            return null;
-                        })
-                        .show();
-
-            }
-        });
-
-        if (!ENABLE_ROOM_RETENTION) {
-            roomMessageRetentionText.setVisibility(View.GONE);
-        }
 
         if (DinumUtilsKt.isSecure()) {
             // There is no external users on Tchap secure, so hide this option
@@ -409,52 +381,6 @@ public class TchapRoomCreationActivity extends MXCActionBarActivity {
                 }
                 break;
         }
-    }
-
-    /**
-     * Force the room retention period in the room creation parameters.
-     *
-     * @param periodInDays the retention period in days.
-     */
-    private void setRoomRetentionPeriod(int periodInDays) {
-        // Remove the existing value if any.
-        if (mRoomParams.initialStates != null && !mRoomParams.initialStates.isEmpty()) {
-            final List<Event> newInitialStates = new ArrayList<>();
-            for (Event event : mRoomParams.initialStates) {
-                if (!event.type.equals(RoomRetentionKt.EVENT_TYPE_STATE_ROOM_RETENTION)) {
-                    newInitialStates.add(event);
-                }
-            }
-            mRoomParams.initialStates = newInitialStates;
-        }
-
-        Event roomRetentionEvent = new Event();
-        roomRetentionEvent.type = RoomRetentionKt.EVENT_TYPE_STATE_ROOM_RETENTION;
-
-        Map<String, Object> contentMap = new HashMap<>();
-        contentMap.put(RoomRetentionKt.STATE_EVENT_CONTENT_MAX_LIFETIME, DinumUtilsKt.convertDaysToMs(periodInDays));
-        contentMap.put(RoomRetentionKt.STATE_EVENT_CONTENT_EXPIRE_ON_CLIENTS, true);
-        roomRetentionEvent.updateContent(JsonUtils.getGson(false).toJsonTree(contentMap));
-        roomRetentionEvent.stateKey = "";
-
-        if (null == mRoomParams.initialStates) {
-            mRoomParams.initialStates = Arrays.asList(roomRetentionEvent);
-        } else {
-            mRoomParams.initialStates.add(roomRetentionEvent);
-        }
-
-        // Update room retention text label
-        SpannableString ss = new SpannableString(getResources().getQuantityString(R.plurals.tchap_room_creation_retention,
-                periodInDays, periodInDays));
-        String valueString = String.valueOf(periodInDays);
-        int pos = ss.toString().indexOf(valueString);
-
-        if (pos >= 0) {
-            ss.setSpan(new UnderlineSpan(), pos, ss.length(), 0);
-        }
-
-        roomMessageRetentionText.setText(ss);
-        mRetentionPeriod = periodInDays;
     }
 
     /**
