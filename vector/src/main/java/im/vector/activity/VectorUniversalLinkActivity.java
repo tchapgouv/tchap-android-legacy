@@ -521,6 +521,7 @@ public class VectorUniversalLinkActivity extends VectorAppCompatActivity {
         });
     }
 
+    @SuppressLint("NewApi")
     private void bringAppToForeground() {
         final ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         List<ActivityManager.RunningTaskInfo> tasklist = am.getRunningTasks(100);

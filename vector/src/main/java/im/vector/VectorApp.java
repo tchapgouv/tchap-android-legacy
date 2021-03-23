@@ -293,6 +293,7 @@ public class VectorApp extends MultiDexApplication {
              *
              * @return true if an app task is corrupted by a potentially malicious activity
              */
+            @SuppressLint("NewApi")
             private boolean isTaskCorrupted() {
                 PackageManager packageManager = getPackageManager();
 
