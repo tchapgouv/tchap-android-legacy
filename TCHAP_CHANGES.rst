@@ -10,7 +10,7 @@ Improvements:
  * Room members: gray out the expired users #556
 
 Bug Fixes:
- *
+ * Crash: isTaskCorrupted failed on java.lang.IllegalArgumentException #694
 
 Changes in Tchap 1.1.1 (2020-12-18)
 ===================================================
