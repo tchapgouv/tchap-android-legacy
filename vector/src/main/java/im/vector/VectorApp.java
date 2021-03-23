@@ -291,7 +291,7 @@ public class VectorApp extends MultiDexApplication {
             /**
              * Check if all activities running on the task with package name affinity are safe.
              *
-             * @return true if the task is corrupted by a potentially malicious activity
+             * @return true if an app task is corrupted by a potentially malicious activity
              */
             private boolean isTaskCorrupted() {
                 PackageManager packageManager = getPackageManager();
@@ -309,20 +309,39 @@ public class VectorApp extends MultiDexApplication {
                         List<ActivityManager.AppTask> tasks = manager.getAppTasks();
 
                         for (ActivityManager.AppTask task : tasks) {
-                            ComponentName topActivity = task.getTaskInfo().topActivity;
+                            try {
+                                // Android lint may return an error on topActivity field.
+                                // This field was added in ActivityManager.RecentTaskInfo class since Android M (API level 23)
+                                // and it is inherited from TaskInfo since Android Q (API level 29).
+                                // API 23 changes : https://developer.android.com/sdk/api_diff/23/changes/android.app.ActivityManager.RecentTaskInfo
+                                // API 29 changes : https://developer.android.com/sdk/api_diff/29/changes/android.app.ActivityManager.RecentTaskInfo
+                                ComponentName topActivity = task.getTaskInfo().topActivity;
 
-                            if (null != topActivity && isPotentialMaliciousActivity(topActivity, mActivityInfos)) {
-                                return true;
+                                if (null != topActivity && isPotentialMaliciousActivity(topActivity, mActivityInfos)) {
+                                    return true;
+                                }
+                            } catch (IllegalArgumentException e) {
+                                //The task was not found. We can ignore it.
+                                Log.e(LOG_TAG, "The task was not found: " + e.getLocalizedMessage(), e);
                             }
                         }
                     } else {
                         List<ActivityManager.RunningTaskInfo> runningTaskInfos = manager.getRunningTasks(10);
 
                         for (ActivityManager.RunningTaskInfo runningTaskInfo : runningTaskInfos) {
-                            ComponentName topActivity = runningTaskInfo.topActivity;
+                            try {
+                                // Android lint may return an error on topActivity field.
+                                // This was present in ActivityManager.RunningTaskInfo class since API level 1!
+                                // and it is inherited from TaskInfo since Android Q (API level 29).
+                                // API 29 changes : https://developer.android.com/sdk/api_diff/29/changes/android.app.ActivityManager.RunningTaskInfo
+                                ComponentName topActivity = runningTaskInfo.topActivity;
 
-                            if (null != topActivity && isPotentialMaliciousActivity(topActivity, mActivityInfos)) {
-                                return true;
+                                if (null != topActivity && isPotentialMaliciousActivity(topActivity, mActivityInfos)) {
+                                    return true;
+                                }
+                            } catch (IllegalArgumentException e) {
+                                //The task was not found. We can ignore it.
+                                Log.e(LOG_TAG, "The task was not found: " + e.getLocalizedMessage(), e);
                             }
                         }
                     }
