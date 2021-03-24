@@ -27,6 +27,7 @@ import android.widget.AbsListView
 import android.widget.AbsListView.TRANSCRIPT_MODE_DISABLED
 import androidx.appcompat.app.AlertDialog
 import fr.gouv.tchap.adapters.TchapFavouriteMessagesAdapter
+import fr.gouv.tchap.sdk.session.room.model.UNDEFINED_RETENTION_VALUE
 import fr.gouv.tchap.util.convertDaysToMs
 import fr.gouv.tchap.util.getJoinedRooms
 import fr.gouv.tchap.util.getRoomRetention
@@ -98,7 +99,11 @@ class TchapFavouriteMessagesFragment : VectorMessageListFragment() {
 
         val joinedRooms = getJoinedRooms(session)
         for (room in joinedRooms) {
-            val limitEventTs = System.currentTimeMillis() - convertDaysToMs(getRoomRetention(room))
+            val limitEventTs = getRoomRetention(room).takeIf { it != UNDEFINED_RETENTION_VALUE }
+                    ?.let { retentionInDays ->
+                        System.currentTimeMillis() - convertDaysToMs(retentionInDays)
+                    }
+
             room.accountData
                     ?.let { roomAccountData ->
                         roomAccountData.favouriteEventIds
@@ -106,7 +111,7 @@ class TchapFavouriteMessagesFragment : VectorMessageListFragment() {
                                 ?.map { eventId ->
                                     roomAccountData.favouriteEventInfo(eventId)
                                             // Ignore the favourite events which are out of the room retention period
-                                            ?.takeIf { it.originServerTs == null || it.originServerTs!! >= limitEventTs }
+                                            ?.takeIf { it.originServerTs == null || limitEventTs == null || it.originServerTs!! >= limitEventTs }
                                             ?.let { eventInfo ->
                                                 favouriteEvents.add(FavouriteEvent(room.roomId, eventId, eventInfo, room.state))
                                             }

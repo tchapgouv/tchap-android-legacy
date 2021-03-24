@@ -65,6 +65,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
+import fr.gouv.tchap.sdk.session.room.model.RoomRetentionKt;
 import fr.gouv.tchap.util.DinsicUtils;
 import fr.gouv.tchap.util.DinumUtilsKt;
 import im.vector.Matrix;
@@ -385,14 +386,17 @@ public class RoomUtils {
                 String roomId = roomSummary.getRoomId();
                 Room room = session.getDataHandler().getStore().getRoom(roomId);
                 if (room != null) {
-                    long retentionDurationMs = TimeUnit.DAYS.toMillis(DinumUtilsKt.getRoomRetention(room));
-                    long eventLifetime = System.currentTimeMillis() - latestEvent.getOriginServerTs();
-                    if (eventLifetime <= retentionDurationMs) {
-                        eventDisplay = new EventDisplay(context);
-                        eventDisplay.setPrependMessagesWithAuthor(false);
-                        messageToDisplay = eventDisplay.getTextualDisplay(ThemeUtils.INSTANCE.getColor(context, R.attr.vctr_room_notification_text_color),
-                                latestEvent,
-                                roomSummary.getLatestRoomState());
+                    int retentionInDays = DinumUtilsKt.getRoomRetention(room);
+                    if (retentionInDays != RoomRetentionKt.UNDEFINED_RETENTION_VALUE) {
+                        long retentionDurationMs = TimeUnit.DAYS.toMillis(retentionInDays);
+                        long eventLifetime = System.currentTimeMillis() - latestEvent.getOriginServerTs();
+                        if (eventLifetime <= retentionDurationMs) {
+                            eventDisplay = new EventDisplay(context);
+                            eventDisplay.setPrependMessagesWithAuthor(false);
+                            messageToDisplay = eventDisplay.getTextualDisplay(ThemeUtils.INSTANCE.getColor(context, R.attr.vctr_room_notification_text_color),
+                                    latestEvent,
+                                    roomSummary.getLatestRoomState());
+                        }
                     }
                 }
             }

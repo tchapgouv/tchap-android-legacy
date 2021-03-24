@@ -1,3 +1,18 @@
+Changes in Tchap 1.2.0 (2021-03-24)
+===================================================
+
+Improvements:
+ * Update matrix-sdk.aar libs - Revision: 68165b6ddbbea51524b5c7e6192d4ae4a0083ad3 [68165b6d]
+ * [FDroid] Prompt the user about the Battery optim if this is not already done #646
+ * Public room creation: improve UI for agent.agent users #698
+ * [Room retention] Support unlimited room history (PR #700)
+ * Update the version used to trigger a clear cache during the application update (PR #700)
+ * Room members: gray out the expired users #556
+
+Bug Fixes:
+ * Crash: java.lang.NullPointerException: at org.matrix.androidsdk.data.RoomState.getMembersAsync #680
+ * Crash: isTaskCorrupted failed on java.lang.IllegalArgumentException #694
+
 Changes in Tchap 1.1.1 (2020-12-18)
 ===================================================
 

@@ -133,6 +133,7 @@ import im.vector.Matrix;
 import im.vector.MyPresenceManager;
 import im.vector.R;
 import im.vector.VectorApp;
+import im.vector.activity.util.RequestCodesKt;
 import im.vector.extensions.ViewExtensionsKt;
 import im.vector.fragments.AbsHomeFragment;
 import im.vector.fragments.signout.SignOutBottomSheetDialogFragment;
@@ -147,6 +148,7 @@ import im.vector.util.CallsManager;
 import im.vector.util.HomeRoomsViewModel;
 import im.vector.util.PreferencesManager;
 import im.vector.util.RoomUtils;
+import im.vector.util.SystemUtilsKt;
 import im.vector.util.VectorUtils;
 import im.vector.view.KeysBackupBanner;
 import im.vector.view.UnreadCounterBadgeView;
@@ -366,8 +368,8 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
                 Log.d(LOG_TAG, "The application has been updated from version " + version + " to version " + BuildConfig.VERSION_CODE);
 
                 // Add some dedicated actions here
-                if (version < 76) {
-                    // Force a cache clearing in case of update with v1.1.0 and higher to refresh the stored RoomAccountData.
+                if (version < 78) {
+                    // Force a cache clearing in case of update with v1.2.0 and higher to refresh the store (unlimited room history is allowed).
                     Matrix.getInstance(this).reloadSessions(this, true);
                     return;
                 }
@@ -770,7 +772,6 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
                 return;
             }
 
-            /*
             if (pushManager.isBackgroundSyncAllowed() && !PreferencesManager.didAskUserToIgnoreBatteryOptimizations(this)) {
                 PreferencesManager.setDidAskUserToIgnoreBatteryOptimizations(this);
 
@@ -793,7 +794,6 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
                             .show();
                 }
             }
-            */
         }
     }
 

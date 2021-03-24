@@ -999,6 +999,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
                 mRoomRetentionPreference.setOnPreferenceClickListener(null);
                 mRoomRetentionPreference.setEnabled(true);
 
+                // TODO: handle the undefined retention value as infinite history
                 int period = DinumUtilsKt.getRoomRetention(mRoom);
 
                 // Only the room admin is able to change this value
