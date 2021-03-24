@@ -1,4 +1,4 @@
-Changes in Tchap 1.2.0 (2021-xx-xx)
+Changes in Tchap 1.2.0 (2021-03-24)
 ===================================================
 
 Improvements:
@@ -10,6 +10,7 @@ Improvements:
  * Room members: gray out the expired users #556
 
 Bug Fixes:
+ * Crash: java.lang.NullPointerException: at org.matrix.androidsdk.data.RoomState.getMembersAsync #680
  * Crash: isTaskCorrupted failed on java.lang.IllegalArgumentException #694
 
 Changes in Tchap 1.1.1 (2020-12-18)
