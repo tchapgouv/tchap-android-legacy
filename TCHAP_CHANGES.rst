@@ -1,11 +1,8 @@
-Changes in Tchap 1.3.0 (2021-xx-xx)
+Changes in Tchap 1.2.1 (2021-04-02)
 ===================================================
 
-Improvements:
- *
-
-Bug Fixes:
- *
+Bug Fix:
+ * Some last message are missing in the rooms list (PR #707)
 
 Changes in Tchap 1.2.0 (2021-03-24)
 ===================================================
