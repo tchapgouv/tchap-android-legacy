@@ -390,13 +390,17 @@ public class RoomUtils {
                     if (retentionInDays != RoomRetentionKt.UNDEFINED_RETENTION_VALUE) {
                         long retentionDurationMs = TimeUnit.DAYS.toMillis(retentionInDays);
                         long eventLifetime = System.currentTimeMillis() - latestEvent.getOriginServerTs();
-                        if (eventLifetime <= retentionDurationMs) {
-                            eventDisplay = new EventDisplay(context);
-                            eventDisplay.setPrependMessagesWithAuthor(false);
-                            messageToDisplay = eventDisplay.getTextualDisplay(ThemeUtils.INSTANCE.getColor(context, R.attr.vctr_room_notification_text_color),
-                                    latestEvent,
-                                    roomSummary.getLatestRoomState());
+                        if (eventLifetime > retentionDurationMs) {
+                            latestEvent = null;
                         }
+                    }
+
+                    if (latestEvent != null) {
+                        eventDisplay = new EventDisplay(context);
+                        eventDisplay.setPrependMessagesWithAuthor(false);
+                        messageToDisplay = eventDisplay.getTextualDisplay(ThemeUtils.INSTANCE.getColor(context, R.attr.vctr_room_notification_text_color),
+                                latestEvent,
+                                roomSummary.getLatestRoomState());
                     }
                 }
             }
