@@ -105,6 +105,7 @@ import java.util.Set;
 import androidx.core.content.res.ResourcesCompat;
 import fr.gouv.tchap.media.MediaScanManager;
 import fr.gouv.tchap.model.MediaScan;
+import fr.gouv.tchap.sdk.session.room.model.RoomRetentionKt;
 import fr.gouv.tchap.util.DinumPermalinkUtilsKt;
 import im.vector.R;
 import im.vector.VectorApp;
@@ -1076,7 +1077,8 @@ public class VectorMessagesAdapter extends AbstractMessagesAdapter {
                         || Event.EVENT_TYPE_STATE_ROOM_MEMBER.equals(eventType)
                         || Event.EVENT_TYPE_STATE_ROOM_NAME.equals(eventType)
                         || Event.EVENT_TYPE_STATE_ROOM_THIRD_PARTY_INVITE.equals(eventType)
-                        || Event.EVENT_TYPE_MESSAGE_ENCRYPTION.equals(eventType)) {
+                        || Event.EVENT_TYPE_MESSAGE_ENCRYPTION.equals(eventType)
+                        || RoomRetentionKt.EVENT_TYPE_STATE_ROOM_RETENTION.equals(eventType)) {
             viewType = ROW_TYPE_ROOM_MEMBER;
 
         } else if (WidgetsManager.WIDGET_EVENT_TYPE.equals(eventType)) {

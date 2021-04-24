@@ -37,6 +37,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import fr.gouv.tchap.sdk.session.room.model.RoomRetentionKt;
+import fr.gouv.tchap.util.DinumUtilsKt;
 import im.vector.Matrix;
 import im.vector.R;
 import im.vector.VectorApp;
@@ -100,6 +102,31 @@ public class RiotEventDisplay extends EventDisplay {
                 } else {
                     String type = WidgetContent.toWidgetContent(event.getContentAsJsonObject()).getHumanName();
                     text = mContext.getString(R.string.event_formatter_widget_added, type, senderDisplayName);
+                }
+            } else if (TextUtils.equals(event.getType(), RoomRetentionKt.EVENT_TYPE_STATE_ROOM_RETENTION)) {
+                Long maxLifetime = RoomRetentionKt.getMaxLifetime(event);
+                String retentionPeriod = null;
+                if (maxLifetime != null) {
+                    retentionPeriod = DinumUtilsKt.getRetentionLabel(mContext, DinumUtilsKt.convertMsToDays(maxLifetime));
+                }
+
+                String selfUserId = null;
+                if ((null != roomState) && (null != roomState.getDataHandler())) {
+                    selfUserId = roomState.getDataHandler().getUserId();
+                }
+                if (TextUtils.equals(event.getSender(), selfUserId)) {
+                    if (retentionPeriod != null) {
+                        text = mContext.getString(R.string.notice_room_retention_changed_by_you, retentionPeriod);
+                    } else {
+                        text = mContext.getString(R.string.notice_room_retention_removed_by_you);
+                    }
+                } else {
+                    String senderDisplayName = senderDisplayNameForEvent(event, null, null, roomState);
+                    if (retentionPeriod != null) {
+                        text = mContext.getString(R.string.notice_room_retention_changed, senderDisplayName, retentionPeriod);
+                    } else {
+                        text = mContext.getString(R.string.notice_room_retention_removed, senderDisplayName);
+                    }
                 }
             } else {
                 text = super.getTextualDisplay(displayNameColor, event, roomState);

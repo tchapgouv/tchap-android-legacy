@@ -74,6 +74,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import fr.gouv.tchap.sdk.session.room.model.RoomRetentionKt;
 import fr.gouv.tchap.util.DinsicUtils;
 import im.vector.R;
 import im.vector.listeners.IMessagesAdapterActionsListener;
@@ -1087,6 +1088,8 @@ class VectorMessagesAdapterHelper {
         } else if (Event.EVENT_TYPE_STATE_ROOM_CREATE.equals(eventType)) {
             final RoomCreateContent roomCreateContent = JsonUtils.toRoomCreateContent(event.getContent());
             return roomCreateContent != null && roomCreateContent.predecessor != null;
+        } else if (RoomRetentionKt.EVENT_TYPE_STATE_ROOM_RETENTION.equals(eventType)) {
+            return true;
         }
         return false;
     }
