@@ -34,7 +34,7 @@ class RoomRetentionPeriodPickerDialogFragment(private val activity: Activity) {
         numberPicker.value = value
 
         return AlertDialog.Builder(activity)
-                .setTitle(R.string.tchap_room_creation_retention)
+                .setTitle(R.string.tchap_room_settings_retention_title)
                 .setPositiveButton(R.string.ok, DialogInterface.OnClickListener { _, _ ->
                     valueChangeListener.invoke(numberPicker.value)
                 })

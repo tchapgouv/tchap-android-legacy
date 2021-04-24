@@ -1229,11 +1229,6 @@
     <string name="tchap_action_next">Next</string>
     <string name="tchap_room_creation_avatar">Add\nan avatar</string>
     <string name="tchap_room_creation_name">Name this room</string>
-    <string name="tchap_room_creation_retention">Set the room history retention (in days)</string>
-    <plurals name="tchap_room_creation_retention">
-        <item quantity="one">The room history is limited to %d day</item>
-        <item quantity="other">The room history is limited to %d days</item>
-    </plurals>
     <string name="tchap_room_creation_disable_federation">Limit the access to this room to the members of the domain \"%s\"</string>
     <string name="tchap_room_creation_public_info">A public room can be joined by any member of the Tchap community, it must not contain any sensitive data.</string>
     <string name="tchap_room_invite_member_title">Invite contacts in Room</string>
@@ -1305,13 +1300,14 @@
     <string name="tchap_room_settings_allow_external_users_to_join">Allow the externals to join this room</string>
     <string name="tchap_room_settings_allow_external_users_to_join_prompt_msg"><b>This action is irreversible.</b>\nAre you sure you want to allow the externals to join this room?</string>
     <string name="tchap_room_settings_retention_title">Room history</string>
-    <plurals name="tchap_room_settings_retention_summary">
-        <item quantity="one">The history is limited to %d day</item>
-        <item quantity="other">The history is limited to %d days</item>
-    </plurals>
-    <plurals name="tchap_room_settings_retention">
-        <item quantity="one">The room history is limited to %d day</item>
-        <item quantity="other">The room history is limited to %d days</item>
+    <string name="tchap_room_settings_retention_infinite">unlimited</string>
+    <string name="tchap_room_settings_retention_1_year">1 year</string>
+    <string name="tchap_room_settings_retention_6_months">6 months</string>
+    <string name="tchap_room_settings_retention_1_month">1 month</string>
+    <string name="tchap_room_settings_retention_1_week">1 week</string>
+    <plurals name="tchap_room_settings_retention_in_days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
     </plurals>
     <string name="tchap_room_settings_leave_room">Leave this room</string>
     <string name="tchap_room_settings_room_access_by_link_title">Access by link</string>

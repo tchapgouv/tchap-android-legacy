@@ -27,7 +27,7 @@
     <!-- the current room retention period -->
     <im.vector.preference.VectorPreference
         android:key="roomRetention"
-        android:title="@plurals/tchap_room_settings_retention"/>
+        android:title="@string/tchap_room_settings_retention_title"/>
 
     <!-- a public room may become private -->
     <im.vector.preference.VectorPreference

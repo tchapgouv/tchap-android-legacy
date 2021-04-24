@@ -16,8 +16,10 @@
 
 package fr.gouv.tchap.util
 
+import android.content.Context
 import fr.gouv.tchap.sdk.session.room.model.*
 import im.vector.BuildConfig
+import im.vector.R
 import org.matrix.androidsdk.MXSession
 import org.matrix.androidsdk.core.Log
 import org.matrix.androidsdk.core.callback.ApiCallback
@@ -60,6 +62,15 @@ fun getJoinedRooms(session: MXSession): List<Room> {
 // Room messages retention
 //=============================================================================================
 
+enum class RetentionConstants(val value: Int) {
+    undefined(UNDEFINED_RETENTION_VALUE),
+    oneDay(1),
+    oneWeek(7),
+    oneMonth(30),
+    sixMonths(180),
+    oneYear(365)
+}
+
 /**
  * Get the current room retention period in days.
  *
@@ -87,6 +98,17 @@ fun setRoomRetention(session: MXSession, room: Room, periodInDays: Int, callback
                     STATE_EVENT_CONTENT_EXPIRE_ON_CLIENTS to true
             )
             , callback)
+}
+
+fun getRetentionLabel(context: Context, retentionValue: Int): String {
+    return when (retentionValue) {
+        RetentionConstants.undefined.value -> context.getString(R.string.tchap_room_settings_retention_infinite)
+        RetentionConstants.oneYear.value -> context.getString(R.string.tchap_room_settings_retention_1_year)
+        RetentionConstants.sixMonths.value -> context.getString(R.string.tchap_room_settings_retention_6_months)
+        RetentionConstants.oneMonth.value -> context.getString(R.string.tchap_room_settings_retention_1_month)
+        RetentionConstants.oneWeek.value -> context.getString(R.string.tchap_room_settings_retention_1_week)
+        else -> context.resources.getQuantityString(R.plurals.tchap_room_settings_retention_in_days, retentionValue, retentionValue)
+    }
 }
 
 /**

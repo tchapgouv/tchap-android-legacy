@@ -995,18 +995,15 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
 
         if (null != mRoomRetentionPreference) {
             if (ENABLE_ROOM_RETENTION) {
-                // Get the current room retention
                 mRoomRetentionPreference.setOnPreferenceClickListener(null);
-                mRoomRetentionPreference.setEnabled(true);
+                mRoomRetentionPreference.setEnabled(false);
 
-                // TODO: handle the undefined retention value as infinite history
+                // Display the current room retention
                 int period = DinumUtilsKt.getRoomRetention(mRoom);
+                mRoomRetentionPreference.setSummary(DinumUtilsKt.getRetentionLabel(getActivity(), period));
 
                 // Only the room admin is able to change this value
                 if (isAdmin && isConnected) {
-                    mRoomRetentionPreference.setTitle(getString(R.string.tchap_room_settings_retention_title));
-                    mRoomRetentionPreference.setSummary(getResources().getQuantityString(R.plurals.tchap_room_settings_retention_summary,
-                            period, period));
                     mRoomRetentionPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                         @Override
                         public boolean onPreferenceClick(Preference preference) {
@@ -1016,9 +1013,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
                             return true;
                         }
                     });
-                } else {
-                    mRoomRetentionPreference.setTitle(getResources().getQuantityString(R.plurals.tchap_room_settings_retention,
-                            period, period));
+                    mRoomRetentionPreference.setEnabled(true);
                 }
             } else {
                 // Remove this option

@@ -799,11 +799,6 @@ Appareils inconnus :</string>
     <string name="tchap_action_next">Suivant</string>
     <string name="tchap_room_creation_avatar">Ajouter\nune photo</string>
     <string name="tchap_room_creation_name">Nommer le salon</string>
-    <string name="tchap_room_creation_retention">Définir la durée de conservation de l’historique (en jours) :</string>
-    <plurals name="tchap_room_creation_retention">
-        <item quantity="one">Limiter l’historique du salon à %d jour</item>
-        <item quantity="other">Limiter l’historique du salon à %d jours</item>
-    </plurals>
     <string name="tchap_room_creation_disable_federation">Limiter l’accès à ce salon aux membres du domaine \"%s\"</string>
     <string name="tchap_room_creation_public_info">Un forum peut être rejoint par tous les utilisateurs excepté les invités externes. Il ne doit contenir aucune donnée sensible.</string>
     <string name="tchap_room_invite_member_title">Inviter au salon</string>
@@ -874,14 +869,15 @@ Appareils inconnus :</string>
     <string name="tchap_room_settings_room_access_unrestricted">Les externes sont autorisés à rejoindre ce salon</string>
     <string name="tchap_room_settings_allow_external_users_to_join">Autoriser l’accès aux externes à ce salon</string>
     <string name="tchap_room_settings_allow_external_users_to_join_prompt_msg"><b>Cette action est irréversible.</b>\nVoulez-vous vraiment autoriser les externes à rejoindre ce salon ?</string>
-    <string name="tchap_room_settings_retention_title">Historique du salon</string>
-    <plurals name="tchap_room_settings_retention_summary">
-        <item quantity="one">L’historique est limité à %d jour</item>
-        <item quantity="other">L’historique est limité à %d jours</item>
-    </plurals>
-    <plurals name="tchap_room_settings_retention">
-        <item quantity="one">L’historique du salon est limité à %d jour</item>
-        <item quantity="other">L’historique du salon est limité à %d jours</item>
+    <string name="tchap_room_settings_retention_title">Durée de l’historique</string>
+    <string name="tchap_room_settings_retention_infinite">illimitée</string>
+    <string name="tchap_room_settings_retention_1_year">1 an</string>
+    <string name="tchap_room_settings_retention_6_months">6 mois</string>
+    <string name="tchap_room_settings_retention_1_month">1 mois</string>
+    <string name="tchap_room_settings_retention_1_week">1 semaine</string>
+    <plurals name="tchap_room_settings_retention_in_days">
+        <item quantity="one">%d jour</item>
+        <item quantity="other">%d jours</item>
     </plurals>
     <string name="tchap_room_settings_leave_room">Quitter ce salon</string>
     <string name="tchap_room_settings_room_access_by_link_title">Accès par lien</string>
