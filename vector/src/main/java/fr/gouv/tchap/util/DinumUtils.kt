@@ -62,13 +62,13 @@ fun getJoinedRooms(session: MXSession): List<Room> {
 // Room messages retention
 //=============================================================================================
 
-enum class RetentionConstants(val value: Int) {
-    undefined(UNDEFINED_RETENTION_VALUE),
-    oneDay(1),
-    oneWeek(7),
-    oneMonth(30),
-    sixMonths(180),
-    oneYear(365)
+public enum class RetentionConstants(val value: Int) {
+    UNLIMITED(UNDEFINED_RETENTION_VALUE),
+    ONE_DAY(1),
+    ONE_WEEK(7),
+    ONE_MONTH(30),
+    SIX_MONTHS(180),
+    ONE_YEAR(365)
 }
 
 /**
@@ -93,21 +93,47 @@ fun setRoomRetention(session: MXSession, room: Room, periodInDays: Int, callback
             room.roomId,
             EVENT_TYPE_STATE_ROOM_RETENTION,
             "",
-            mapOf(
-                    STATE_EVENT_CONTENT_MAX_LIFETIME to convertDaysToMs(periodInDays),
-                    STATE_EVENT_CONTENT_EXPIRE_ON_CLIENTS to true
-            )
+            when (periodInDays) {
+                RetentionConstants.UNLIMITED.value -> mapOf()
+                else -> mapOf(
+                        STATE_EVENT_CONTENT_MAX_LIFETIME to convertDaysToMs(periodInDays),
+                        STATE_EVENT_CONTENT_EXPIRE_ON_CLIENTS to true
+                )
+            }
             , callback)
 }
 
-fun getRetentionLabel(context: Context, retentionValue: Int): String {
-    return when (retentionValue) {
-        RetentionConstants.undefined.value -> context.getString(R.string.tchap_room_settings_retention_infinite)
-        RetentionConstants.oneYear.value -> context.getString(R.string.tchap_room_settings_retention_1_year)
-        RetentionConstants.sixMonths.value -> context.getString(R.string.tchap_room_settings_retention_6_months)
-        RetentionConstants.oneMonth.value -> context.getString(R.string.tchap_room_settings_retention_1_month)
-        RetentionConstants.oneWeek.value -> context.getString(R.string.tchap_room_settings_retention_1_week)
-        else -> context.resources.getQuantityString(R.plurals.tchap_room_settings_retention_in_days, retentionValue, retentionValue)
+fun getRetentionLabel(context: Context, periodInDays: Int): String {
+    return when (periodInDays) {
+        RetentionConstants.UNLIMITED.value -> context.getString(R.string.tchap_room_settings_retention_infinite)
+        RetentionConstants.ONE_YEAR.value -> context.getString(R.string.tchap_room_settings_retention_1_year)
+        RetentionConstants.SIX_MONTHS.value -> context.getString(R.string.tchap_room_settings_retention_6_months)
+        RetentionConstants.ONE_MONTH.value -> context.getString(R.string.tchap_room_settings_retention_1_month)
+        RetentionConstants.ONE_WEEK.value -> context.getString(R.string.tchap_room_settings_retention_1_week)
+        else -> context.resources.getQuantityString(R.plurals.tchap_room_settings_retention_in_days, periodInDays, periodInDays)
+    }
+}
+
+fun getRetentionPreferenceValue(periodInDays: Int): String? {
+    return when (periodInDays) {
+        RetentionConstants.UNLIMITED.value -> "UNLIMITED"
+        RetentionConstants.ONE_YEAR.value -> "ONE_YEAR"
+        RetentionConstants.SIX_MONTHS.value -> "SIX_MONTHS"
+        RetentionConstants.ONE_MONTH.value -> "ONE_MONTH"
+        RetentionConstants.ONE_WEEK.value -> "ONE_WEEK"
+        RetentionConstants.ONE_DAY.value -> "ONE_DAY"
+        else -> null
+    }
+}
+
+fun getRetentionPeriodFromPreferenceValue(value: String): Int {
+    return when (value) {
+        "ONE_YEAR" -> RetentionConstants.ONE_YEAR.value
+        "SIX_MONTHS" -> RetentionConstants.SIX_MONTHS.value
+        "ONE_MONTH" -> RetentionConstants.ONE_MONTH.value
+        "ONE_WEEK" -> RetentionConstants.ONE_WEEK.value
+        "ONE_DAY" -> RetentionConstants.ONE_DAY.value
+        else ->  RetentionConstants.UNLIMITED.value
     }
 }
 

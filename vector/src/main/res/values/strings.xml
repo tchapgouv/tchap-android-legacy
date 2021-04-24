@@ -1305,6 +1305,7 @@
     <string name="tchap_room_settings_retention_6_months">6 months</string>
     <string name="tchap_room_settings_retention_1_month">1 month</string>
     <string name="tchap_room_settings_retention_1_week">1 week</string>
+    <string name="tchap_room_settings_retention_1_day">1 day</string>
     <plurals name="tchap_room_settings_retention_in_days">
         <item quantity="one">%d day</item>
         <item quantity="other">%d days</item>

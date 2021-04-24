@@ -875,6 +875,7 @@ Appareils inconnus :</string>
     <string name="tchap_room_settings_retention_6_months">6 mois</string>
     <string name="tchap_room_settings_retention_1_month">1 mois</string>
     <string name="tchap_room_settings_retention_1_week">1 semaine</string>
+    <string name="tchap_room_settings_retention_1_day">1 jour</string>
     <plurals name="tchap_room_settings_retention_in_days">
         <item quantity="one">%d jour</item>
         <item quantity="other">%d jours</item>
