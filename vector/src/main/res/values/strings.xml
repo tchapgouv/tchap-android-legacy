@@ -1280,10 +1280,8 @@
     <string name="tchap_room_long_forum_type">Forum</string>
     <string name="tchap_room_invalid_link">This link is invalid</string>
     <string name="tchap_room_access_unauthorized">You are not allowed to join this conversation. An invitation is needed.</string>
-    <plurals name="tchap_room_retention_info">
-        <item quantity="one">History limited to %d day</item>
-        <item quantity="other">History limited to %d days</item>
-    </plurals>
+    <string name="tchap_room_header_separator">・</string>
+    <string name="tchap_room_header_retention_info">%d d</string>
 
     <!-- tchap room history -->
     <string name="notice_room_retention_changed_by_you">You have limited the room history to %1$s</string>

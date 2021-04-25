@@ -45,6 +45,14 @@
                 android:orientation="horizontal"
                 tools:visibility="visible">
 
+                <ImageView
+                    android:id="@+id/room_type_image_view"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/room_type_private"
+                    android:tint="@color/tchap_coral_color" />
+
                 <TextView
                     android:id="@+id/room_action_bar_type_info"
                     android:layout_width="wrap_content"
@@ -55,19 +63,84 @@
                     android:textColor="@color/tchap_coral_color"
                     android:textSize="12sp"
                     android:textStyle="normal"
-                    tools:text="Private Room" />
+                    tools:text="Private" />
 
-                <TextView
-                    android:id="@+id/room_action_bar_members_info"
+                <LinearLayout
+                    android:id="@+id/room_action_bar_members"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:ellipsize="end"
-                    android:fontFamily="sans-serif-medium"
-                    android:maxLines="1"
-                    android:textColor="@color/vector_tchap_text_color_dark_grey"
-                    android:textSize="12sp"
-                    android:textStyle="normal"
-                    tools:text="・3 members" />
+                    android:gravity="center_horizontal"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:fontFamily="sans-serif-medium"
+                        android:maxLines="1"
+                        android:textColor="@color/vector_tchap_text_color_dark_grey"
+                        android:textSize="12sp"
+                        android:textStyle="normal"
+                        android:text="@string/tchap_room_header_separator" />
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_marginEnd="4dp"
+                        android:layout_marginRight="4dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/room_header_members"/>
+
+                    <TextView
+                        android:id="@+id/room_action_bar_members_info"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:fontFamily="sans-serif-medium"
+                        android:maxLines="1"
+                        android:textColor="@color/vector_tchap_text_color_dark_grey"
+                        android:textSize="12sp"
+                        android:textStyle="normal"
+                        tools:text="3" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/room_action_bar_retention"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:fontFamily="sans-serif-medium"
+                        android:maxLines="1"
+                        android:textColor="@color/vector_tchap_text_color_dark_grey"
+                        android:textSize="12sp"
+                        android:textStyle="normal"
+                        android:text="@string/tchap_room_header_separator" />
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/room_header_history" />
+
+                    <TextView
+                        android:id="@+id/room_action_bar_retention_info"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:fontFamily="sans-serif-medium"
+                        android:maxLines="1"
+                        android:textColor="@color/vector_tchap_text_color_dark_grey"
+                        android:textSize="12sp"
+                        android:textStyle="normal"
+                        tools:text="30 j" />
+                </LinearLayout>
             </LinearLayout>
 
             <TextView
@@ -83,19 +156,6 @@
                 android:visibility="invisible"
                 tools:text="topic" />
         </FrameLayout>
-
-        <TextView
-            android:id="@+id/room_action_bar_third_line"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/room_action_bar_subtitle"
-            android:gravity="center_horizontal"
-            android:maxLines="1"
-            android:text="@plurals/tchap_room_retention_info"
-            android:textColor="@color/vector_tchap_text_color_dark_grey"
-            android:textSize="12sp"
-            android:textStyle="italic"
-            tools:visibility="visible" />
     </RelativeLayout>
 
     <FrameLayout

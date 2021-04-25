@@ -267,17 +267,26 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
     @BindView(R.id.room_action_bar_info)
     LinearLayout mActionBarInfo;
 
+    @BindView(R.id.room_type_image_view)
+    ImageView mActionBarTypeImage;
+
     @BindView(R.id.room_action_bar_type_info)
     TextView mActionBarTypeInfo;
+
+    @BindView(R.id.room_action_bar_members)
+    LinearLayout mActionBarMembers;
 
     @BindView(R.id.room_action_bar_members_info)
     TextView mActionBarMembersInfo;
 
+    @BindView(R.id.room_action_bar_retention)
+    LinearLayout mActionBarRetention;
+
+    @BindView(R.id.room_action_bar_retention_info)
+    TextView mActionBarRetentionInfo;
+
     @BindView(R.id.room_action_bar_topic)
     TextView mActionBarTopic;
-
-    @BindView(R.id.room_action_bar_third_line)
-    TextView mActionBarThirdLine;
 
     private ImageView mActionBarHeaderRoomAvatar;
     private HexagonMaskView mActionBarHeaderHexagonRoomAvatar;
@@ -2822,29 +2831,57 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
             String roomAccessRule = DinsicUtils.getRoomAccessRule(mRoom);
             if (mRoom.isEncrypted()) {
                 if (TextUtils.equals(roomAccessRule, RoomAccessRulesKt.RESTRICTED)) {
+                    int colorRestricted =  ContextCompat.getColor(this, R.color.tchap_coral_color);
+                    mActionBarTypeImage.setVisibility(View.VISIBLE);
+                    mActionBarTypeImage.setImageResource(R.drawable.room_type_private);
+                    mActionBarTypeImage.setColorFilter(colorRestricted);
                     mActionBarTypeInfo.setText(R.string.tchap_room_long_private_room_type);
-                    mActionBarTypeInfo.setTextColor(ContextCompat.getColor(this, R.color.tchap_coral_color));
+                    mActionBarTypeInfo.setTextColor(colorRestricted);
                 } else if (TextUtils.equals(roomAccessRule, RoomAccessRulesKt.UNRESTRICTED)) {
+                    int colorUnrestricted =  ContextCompat.getColor(this, R.color.tchap_pumpkin_orange_color);
+                    mActionBarTypeImage.setVisibility(View.VISIBLE);
+                    mActionBarTypeImage.setImageResource(R.drawable.room_type_private);
+                    mActionBarTypeImage.setColorFilter(colorUnrestricted);
                     mActionBarTypeInfo.setText(R.string.tchap_room_long_extern_room_type);
-                    mActionBarTypeInfo.setTextColor(ContextCompat.getColor(this, R.color.tchap_pumpkin_orange_color));
+                    mActionBarTypeInfo.setTextColor(colorUnrestricted);
+                } else if (TextUtils.equals(roomAccessRule, RoomAccessRulesKt.DIRECT)) {
+                    mActionBarTypeImage.setVisibility(View.GONE);
+                    String userDomain = DinsicUtils.getDomainFromDisplayName(DinsicUtils.getRoomDisplayName(this, mRoom));
+                    mActionBarTypeInfo.setText(userDomain);
+                    mActionBarTypeInfo.setTextColor(ContextCompat.getColor(this, R.color.vector_tchap_primary_color));
                 } else {
+                    mActionBarTypeImage.setVisibility(View.GONE);
                     mActionBarTypeInfo.setText("");
                 }
             } else if (RoomState.JOIN_RULE_PUBLIC.equals(mRoom.getState().join_rule)) {
+                int colorForum =  ContextCompat.getColor(this, R.color.tchap_jade_green_color);
+                mActionBarTypeImage.setVisibility(View.VISIBLE);
+                mActionBarTypeImage.setImageResource(R.drawable.room_type_forum);
+                mActionBarTypeImage.setColorFilter(colorForum);
                 mActionBarTypeInfo.setText(R.string.tchap_room_long_forum_type);
-                mActionBarTypeInfo.setTextColor(ContextCompat.getColor(this, R.color.tchap_jade_green_color));
+                mActionBarTypeInfo.setTextColor(colorForum);
             } else {
+                mActionBarTypeImage.setVisibility(View.GONE);
                 mActionBarTypeInfo.setText("");
             }
 
-            String membersInfo;
-            if (mRoom.isDirect()) {
-                membersInfo = DinsicUtils.getDomainFromDisplayName(DinsicUtils.getRoomDisplayName(this, mRoom));
+            // Room members and history retention info
+            if (TextUtils.equals(roomAccessRule, RoomAccessRulesKt.DIRECT)) {
+                mActionBarMembers.setVisibility(View.GONE);
+                mActionBarRetention.setVisibility(View.GONE);
             } else {
-                membersInfo = getResources().getQuantityString(R.plurals.room_title_members,
-                        mRoom.getNumberOfJoinedMembers(), mRoom.getNumberOfJoinedMembers());
+                mActionBarMembers.setVisibility(View.VISIBLE);
+                mActionBarMembersInfo.setText(String.valueOf(mRoom.getNumberOfJoinedMembers()));
+
+                mActionBarRetention.setVisibility(View.GONE);
+                if (ENABLE_ROOM_RETENTION) {
+                    int retentionPeriod = DinumUtilsKt.getRoomRetention(mRoom);
+                    if (retentionPeriod != RoomRetentionKt.UNDEFINED_RETENTION_VALUE) {
+                        mActionBarRetention.setVisibility(View.VISIBLE);
+                        mActionBarRetentionInfo.setText(getString(R.string.tchap_room_header_retention_info, retentionPeriod));
+                    }
+                }
             }
-            mActionBarMembersInfo.setText(membersInfo);
         } else if (null != sRoomPreviewData) {
             String topic = null;
             if (null != sRoomPreviewData.getRoomState()) {
@@ -2984,21 +3021,6 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
         }
     }
 
-    private void updateAdditionalRoomInfo() {
-        // Hide the third line by default
-        mActionBarThirdLine.setVisibility(View.GONE);
-        if (null != mRoom) {
-            if (ENABLE_ROOM_RETENTION) {
-                int retentionPeriod = DinumUtilsKt.getRoomRetention(mRoom);
-                if (retentionPeriod != RoomRetentionKt.UNDEFINED_RETENTION_VALUE) {
-                    mActionBarThirdLine.setText(getResources().getQuantityString(R.plurals.tchap_room_retention_info,
-                            retentionPeriod, retentionPeriod));
-                    mActionBarThirdLine.setVisibility(View.VISIBLE);
-                }
-            }
-        }
-    }
-
     /**
      * Update the UI content of the action bar header view
      */
@@ -3008,9 +3030,6 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
 
         // update the room name
         updateActionBarTitleAndSubTitle();
-
-        // update other info
-        updateAdditionalRoomInfo();
     }
 
     /**

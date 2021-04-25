@@ -850,10 +850,7 @@ Appareils inconnus :</string>
     <string name="tchap_room_long_forum_type">Forum</string>
     <string name="tchap_room_invalid_link">Ce lien n’est pas valide</string>
     <string name="tchap_room_access_unauthorized">Vous n’êtes pas autorisé à rejoindre cette conversation. Une invitation est nécessaire.</string>
-    <plurals name="tchap_room_retention_info">
-        <item quantity="one">Historique limité à %d jour</item>
-        <item quantity="other">Historique limité à %d jours</item>
-    </plurals>
+    <string name="tchap_room_header_retention_info">%d j</string>
 
     <!-- tchap room history -->
     <string name="notice_room_retention_changed_by_you">Vous avez limité la durée de l’historique à %1$s</string>
