@@ -254,11 +254,13 @@
 
                 <ImageView
                     android:id="@+id/room_encrypted_image_view"
-                    android:layout_width="20dp"
-                    android:layout_height="12dp"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginLeft="-4dp"
+                    android:layout_marginStart="-4dp"
                     android:layout_gravity="center_vertical"
                     android:scaleType="fitCenter"
-                    android:src="@drawable/private_room" />
+                    android:src="@drawable/room_type_private" />
 
                 <im.vector.view.VectorAutoCompleteTextView
                     android:id="@+id/editText_messageBox"
