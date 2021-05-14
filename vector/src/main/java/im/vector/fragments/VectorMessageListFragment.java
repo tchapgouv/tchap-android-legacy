@@ -452,7 +452,8 @@ public class VectorMessageListFragment extends MatrixMessageListFragment<VectorM
                 //Event.EVENT_TYPE_STATE_HISTORY_VISIBILITY.equals(type) ||
                 Event.EVENT_TYPE_STICKER.equals(type) ||
                 (event.isCallEvent() && (!Event.EVENT_TYPE_CALL_CANDIDATES.equals(type))) ||
-                WidgetsManager.WIDGET_EVENT_TYPE.equals(type);
+                WidgetsManager.WIDGET_EVENT_TYPE.equals(type) ||
+                RoomRetentionKt.EVENT_TYPE_STATE_ROOM_RETENTION.equals(type);
     }
 
     @Override

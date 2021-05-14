@@ -98,6 +98,25 @@
         <item>"MUTE"</item>
     </string-array>
 
+    <!-- Room settings retention -->
+    <string-array name="retention_entries">
+        <item>@string/tchap_room_settings_retention_infinite</item>
+        <item>@string/tchap_room_settings_retention_1_year</item>
+        <item>@string/tchap_room_settings_retention_6_months</item>
+        <item>@string/tchap_room_settings_retention_1_month</item>
+        <item>@string/tchap_room_settings_retention_1_week</item>
+        <item>@string/tchap_room_settings_retention_1_day</item>
+    </string-array>
+
+    <string-array name="retention_values">
+        <item>"UNLIMITED"</item>
+        <item>"ONE_YEAR"</item>
+        <item>"SIX_MONTHS"</item>
+        <item>"ONE_MONTH"</item>
+        <item>"ONE_WEEK"</item>
+        <item>"ONE_DAY"</item>
+    </string-array>
+
     <!-- Theme -->
     <string-array name="theme_entries">
         <item>@string/light_theme</item>
