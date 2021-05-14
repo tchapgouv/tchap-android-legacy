@@ -22,6 +22,7 @@ import org.matrix.androidsdk.MXSession
 import org.matrix.androidsdk.core.Log
 import org.matrix.androidsdk.core.callback.ApiCallback
 import org.matrix.androidsdk.data.Room
+import org.matrix.androidsdk.data.RoomTag
 import org.matrix.androidsdk.data.store.IMXStore
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -180,6 +181,13 @@ fun createRoomAlias(session: MXSession, prefix: String): String {
     return "#" + createRoomAliasName(prefix) + ":" + DinsicUtils.getHomeServerNameFromMXIdentifier(session.myUserId)
 }
 
+//=============================================================================================
+// Room server notice
+//=============================================================================================
+
+fun isServerNotice(room: Room): Boolean {
+    return room.accountData.roomTag(RoomTag.ROOM_TAG_SERVER_NOTICE) != null
+}
 
 //=============================================================================================
 // Others

@@ -46,6 +46,7 @@ import org.matrix.androidsdk.data.Room;
 import org.matrix.androidsdk.data.RoomEmailInvitation;
 import org.matrix.androidsdk.data.RoomPreviewData;
 import org.matrix.androidsdk.data.RoomState;
+import org.matrix.androidsdk.data.RoomSummary;
 import org.matrix.androidsdk.data.RoomTag;
 import org.matrix.androidsdk.data.store.IMXStore;
 import org.matrix.androidsdk.core.callback.ApiCallback;
@@ -874,12 +875,22 @@ public class DinsicUtils {
             }
 
             public int compare(Room room1, Room room2) {
-                // Check first whether some rooms are pinned
-                final Set<String> tagsRoom1 = room1.getAccountData().getRoomTagsKeys();
-                final boolean isPinnedRoom1 = tagsRoom1 != null && tagsRoom1.contains(RoomTag.ROOM_TAG_FAVOURITE);
-                final Set<String> tagsRoom2 = room2.getAccountData().getRoomTagsKeys();
-                final boolean isPinnedRoom2 = tagsRoom2 != null && tagsRoom2.contains(RoomTag.ROOM_TAG_FAVOURITE);
+                // Display first the server notice room if it has some unread messages
+                if (DinumUtilsKt.isServerNotice(room1)) {
+                    RoomSummary summary = room1.getRoomSummary();
+                    if (summary != null && summary.getUnreadEventsCount() != 0) {
+                        return reverseOrder ? 1 : -1;
+                    }
+                } else if (DinumUtilsKt.isServerNotice(room2)) {
+                    RoomSummary summary = room2.getRoomSummary();
+                    if (summary != null && summary.getUnreadEventsCount() != 0) {
+                        return reverseOrder ? -1 : 1;
+                    }
+                }
 
+                // Check first whether some rooms are pinned
+                final boolean isPinnedRoom1 = room1.getAccountData().roomTag(RoomTag.ROOM_TAG_FAVOURITE) != null;
+                final boolean isPinnedRoom2 = room2.getAccountData().roomTag(RoomTag.ROOM_TAG_FAVOURITE) != null;
                 if (isPinnedRoom1 && !isPinnedRoom2) {
                     return reverseOrder ? 1 : -1;
                 } else if (!isPinnedRoom1 && isPinnedRoom2) {

@@ -1675,6 +1675,8 @@ public class VectorHomeActivity extends VectorAppCompatActivity implements Searc
                 if (MatrixError.M_CONSENT_NOT_GIVEN.equals(e.errcode)) {
                     hideWaitingView();
                     getConsentNotGivenHelper().displayDialog(e);
+                } else if ("M_CANNOT_LEAVE_SERVER_NOTICE_ROOM".equals(e.errcode)) {
+                    onError(getString(R.string.cannot_leave_server_notice_room));
                 } else {
                     onError(e.getLocalizedMessage());
                 }
