@@ -1044,7 +1044,7 @@ public class DinsicUtils {
     @Nullable
     public static String getRoomAvatarUrl(@NonNull Room room) {
         String avatarUrl;
-        if (room.isDirect()) {
+        if (room.isDirect() || DinumUtilsKt.isServerNotice(room)) {
             avatarUrl = room.getAvatarUrl();
         } else {
             avatarUrl = room.getState().getAvatarUrl();

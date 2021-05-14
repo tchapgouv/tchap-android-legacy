@@ -1283,6 +1283,7 @@
     <string name="tchap_room_long_extern_room_type">Private room opened to externals</string>
     <string name="tchap_room_forum_type">Forum</string>
     <string name="tchap_room_long_forum_type">Forum room</string>
+    <string name="tchap_room_server_notice_type">Info</string>
     <string name="tchap_room_invalid_link">This link is invalid</string>
     <string name="tchap_room_access_unauthorized">You are not allowed to join this conversation. An invitation is needed.</string>
     <plurals name="tchap_room_retention_info">

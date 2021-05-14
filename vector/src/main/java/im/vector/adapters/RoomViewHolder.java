@@ -45,6 +45,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import fr.gouv.tchap.sdk.session.room.model.RoomAccessRulesKt;
 import fr.gouv.tchap.util.DinsicUtils;
+import fr.gouv.tchap.util.DinumUtilsKt;
 import fr.gouv.tchap.util.HexagonMaskView;
 import im.vector.Matrix;
 import im.vector.R;
@@ -190,10 +191,23 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
             vRoomUnreadCount.setVisibility(View.GONE);
         }
 
+        // Customize the cell background when a server notice is unread
+        if (DinumUtilsKt.isServerNotice(room) && roomSummary.mUnreadEventsCount != 0) {
+            itemView.setBackgroundColor(ContextCompat.getColor(context, R.color.tchap_light_blue_color));
+        } else {
+            itemView.setBackgroundResource(0);
+        }
+
         String displayName = DinsicUtils.getRoomDisplayName(context, room);
 
         if (null != vRoomDomain) {
-            vRoomDomain.setText(DinsicUtils.getDomainFromDisplayName(displayName));
+            if (DinumUtilsKt.isServerNotice(room)) {
+                vRoomDomain.setText(R.string.tchap_room_server_notice_type);
+                vRoomDomain.setTextColor(ContextCompat.getColor(context, R.color.tchap_very_soft_blue_color));
+            } else {
+                vRoomDomain.setText(DinsicUtils.getDomainFromDisplayName(displayName));
+                vRoomDomain.setTextColor(ContextCompat.getColor(context, R.color.vector_tchap_primary_color));
+            }
             vRoomName.setText(DinsicUtils.getNameFromDisplayName(displayName));
         } else {
             vRoomName.setText(displayName);
@@ -291,7 +305,10 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
             }
         }
 
-        if (room.isEncrypted()) {
+        if (DinumUtilsKt.isServerNotice(room)) {
+            // the encryption is enabled in the server notice room, but received messages are unencrypted
+            vRoomAvatarMarker.setVisibility(View.INVISIBLE);
+        } else if (room.isEncrypted()) {
             vRoomAvatarMarker.setImageResource(R.drawable.private_avatar_icon);
             vRoomAvatarMarker.setVisibility(View.VISIBLE);
         } else if (RoomState.JOIN_RULE_PUBLIC.equals(room.getState().join_rule)) {

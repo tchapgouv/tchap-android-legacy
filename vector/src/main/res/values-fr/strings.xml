@@ -853,6 +853,7 @@ Appareils inconnus :</string>
     <string name="tchap_room_long_extern_room_type">Salon privé ouvert aux externes</string>
     <string name="tchap_room_forum_type">Forum</string>
     <string name="tchap_room_long_forum_type">Salon forum</string>
+    <string name="tchap_room_server_notice_type">Info</string>
     <string name="tchap_room_invalid_link">Ce lien n’est pas valide</string>
     <string name="tchap_room_access_unauthorized">Vous n’êtes pas autorisé à rejoindre cette conversation. Une invitation est nécessaire.</string>
     <plurals name="tchap_room_retention_info">
