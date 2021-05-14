@@ -134,15 +134,12 @@
 
                 <ImageView
                     android:id="@+id/private_room_image_view"
-                    android:layout_width="20dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignTop="@+id/private_room_title"
-                    android:layout_alignBottom="@+id/private_room_title"
-                    android:duplicateParentState="true"
-                    android:paddingTop="3dp"
-                    android:paddingBottom="3dp"
-                    android:scaleType="fitStart"
-                    android:src="@drawable/private_room"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginLeft="-4dp"
+                    android:layout_marginStart="-4dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/room_type_private"
                     android:tint="@color/tchap_coral_color" />
 
                 <TextView
@@ -185,14 +182,12 @@
 
                 <ImageView
                     android:id="@+id/extern_room_image_view"
-                    android:layout_width="20dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignTop="@+id/extern_room_title"
-                    android:layout_alignBottom="@+id/extern_room_title"
-                    android:paddingTop="3dp"
-                    android:paddingBottom="3dp"
-                    android:scaleType="fitStart"
-                    android:src="@drawable/private_room"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginLeft="-4dp"
+                    android:layout_marginStart="-4dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/room_type_private"
                     android:tint="@color/tchap_pumpkin_orange_color" />
 
                 <TextView
@@ -234,14 +229,12 @@
 
                 <ImageView
                     android:id="@+id/forum_room_image_view"
-                    android:layout_width="20dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignTop="@+id/forum_room_title"
-                    android:layout_alignBottom="@+id/forum_room_title"
-                    android:paddingTop="3dp"
-                    android:paddingBottom="3dp"
-                    android:scaleType="fitStart"
-                    android:src="@drawable/forum_room"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginLeft="-4dp"
+                    android:layout_marginStart="-4dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/room_type_forum"
                     android:tint="@color/tchap_jade_green_color" />
 
                 <TextView
