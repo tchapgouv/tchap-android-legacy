@@ -2996,7 +2996,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
 
     @OnClick(R.id.header_texts_container)
     void onTextsContainerClick() {
-        if (null != mRoom) {
+        if (null != mRoom && !DinumUtilsKt.isServerNotice(mRoom)) {
             if (mRoom.isDirect()) {
                 launchDirectRoomDetails();
             } else {
