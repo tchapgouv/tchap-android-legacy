@@ -311,7 +311,7 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
         } else if (room.isEncrypted()) {
             vRoomAvatarMarker.setImageResource(R.drawable.private_avatar_icon);
             vRoomAvatarMarker.setVisibility(View.VISIBLE);
-        } else if (RoomState.JOIN_RULE_PUBLIC.equals(room.getState().join_rule)) {
+        } else if (!isInvitation && RoomState.JOIN_RULE_PUBLIC.equals(room.getState().join_rule)) {
             // Tchap: we consider as forum all the unencrypted rooms with a public join_rule
             vRoomAvatarMarker.setImageResource(R.drawable.forum_avatar_icon);
             vRoomAvatarMarker.setVisibility(View.VISIBLE);

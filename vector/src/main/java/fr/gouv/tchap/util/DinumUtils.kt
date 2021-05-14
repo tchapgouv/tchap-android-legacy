@@ -24,12 +24,22 @@ import org.matrix.androidsdk.MXSession
 import org.matrix.androidsdk.core.Log
 import org.matrix.androidsdk.core.callback.ApiCallback
 import org.matrix.androidsdk.data.Room
+import org.matrix.androidsdk.data.RoomState
 import org.matrix.androidsdk.data.RoomTag
 import org.matrix.androidsdk.data.store.IMXStore
 import java.util.*
 import java.util.concurrent.TimeUnit
 
 private const val LOG_TAG = "DinumUtils"
+
+enum class RoomCategory {
+    DIRECT,
+    RESTRICTED_PRIVATE,
+    UNRESTRICTED_PRIVATE,
+    FORUM,
+    SERVER_NOTICE,
+    UNKNOWN
+}
 
 //=============================================================================================
 // Target
@@ -230,11 +240,27 @@ fun createRoomAlias(session: MXSession, prefix: String): String {
 }
 
 //=============================================================================================
-// Room server notice
+// Room category
 //=============================================================================================
 
 fun isServerNotice(room: Room): Boolean {
     return room.accountData.roomTag(RoomTag.ROOM_TAG_SERVER_NOTICE) != null
+}
+
+fun getRoomCategory(room: Room): RoomCategory {
+    val isJoinRulePublic = RoomState.JOIN_RULE_PUBLIC.equals(room.state.join_rule)
+    val accessRules = DinsicUtils.getRoomAccessRule(room)
+    return when {
+        isServerNotice(room) -> RoomCategory.SERVER_NOTICE
+        room.isEncrypted -> when {
+            accessRules.equals(DIRECT) -> RoomCategory.DIRECT
+            accessRules.equals(RESTRICTED) -> RoomCategory.RESTRICTED_PRIVATE
+            accessRules.equals(UNRESTRICTED) -> RoomCategory.UNRESTRICTED_PRIVATE
+            else -> RoomCategory.UNKNOWN
+        }
+        isJoinRulePublic -> RoomCategory.FORUM // Tchap: we consider as forum all the unencrypted rooms with a public join_rule
+        else -> RoomCategory.UNKNOWN
+    }
 }
 
 //=============================================================================================
