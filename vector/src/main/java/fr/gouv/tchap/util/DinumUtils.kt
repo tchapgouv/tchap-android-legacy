@@ -258,7 +258,9 @@ fun getRoomCategory(room: Room): RoomCategory {
             accessRules.equals(UNRESTRICTED) -> RoomCategory.UNRESTRICTED_PRIVATE
             else -> RoomCategory.UNKNOWN
         }
-        isJoinRulePublic -> RoomCategory.FORUM // Tchap: we consider as forum all the unencrypted rooms with a public join_rule
+        // Tchap: we consider as forum all the unencrypted rooms with a public join_rule
+        // We exclude invitation here because the full room state is not available (we don't know if encryption is enabled or not)
+        isJoinRulePublic && !room.isInvited -> RoomCategory.FORUM
         else -> RoomCategory.UNKNOWN
     }
 }
