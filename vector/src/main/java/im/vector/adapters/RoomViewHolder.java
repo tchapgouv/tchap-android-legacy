@@ -195,7 +195,7 @@ public class RoomViewHolder extends RecyclerView.ViewHolder {
         if (DinumUtilsKt.isServerNotice(room) && roomSummary.mUnreadEventsCount != 0) {
             itemView.setBackgroundColor(ContextCompat.getColor(context, R.color.tchap_light_blue_color));
         } else {
-            itemView.setBackgroundResource(0);
+            itemView.setBackground(null);
         }
 
         String displayName = DinsicUtils.getRoomDisplayName(context, room);
