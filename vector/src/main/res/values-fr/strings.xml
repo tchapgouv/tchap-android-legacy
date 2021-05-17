@@ -848,6 +848,7 @@ Appareils inconnus :</string>
     <string name="tchap_room_long_extern_room_type">Privé avec externes</string>
     <string name="tchap_room_forum_type">Forum</string>
     <string name="tchap_room_long_forum_type">Forum</string>
+    <string name="tchap_room_server_notice_type">Info</string>
     <string name="tchap_room_invalid_link">Ce lien n’est pas valide</string>
     <string name="tchap_room_access_unauthorized">Vous n’êtes pas autorisé à rejoindre cette conversation. Une invitation est nécessaire.</string>
     <string name="tchap_room_header_retention_info">%d j</string>
@@ -1928,6 +1929,8 @@ Si vous n’avez pas configuré de nouvelle méthode de récupération, un attaq
     </plurals>
     <string name="favourite_offline_notification">La connexion au serveur a été perdue.</string>
     <string name="favourite_offline_message">Des messages favoris peuvent être absents de cette liste. Certaines actions ne sont pas disponibles.</string>
+
+    <string name="cannot_leave_server_notice_room">Vous ne pouvez pas rejeter cette invitation</string>
 
     <!-- Overrided sdk's strings -->
     <string name="notice_room_name_changed">%1$s a changé le nom du salon en : %2$s</string>

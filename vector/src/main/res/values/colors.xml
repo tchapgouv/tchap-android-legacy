@@ -50,6 +50,8 @@
     <color name="tchap_jade_green_border_color">#b227ae60</color>
     <color name="tchap_greyish_brown_color">#ff4f4f4f</color>
     <color name="tchap_pale_grey_color">#fff2f5f8</color>
+    <color name="tchap_very_soft_blue_color">#ff498fcf</color>
+    <color name="tchap_light_blue_color">#ffe8edf2</color>
 
     <!-- home activity tab bar color -->
     <color name="tab_favourites">#BD79CC</color>

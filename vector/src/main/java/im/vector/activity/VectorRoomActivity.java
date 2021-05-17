@@ -106,6 +106,7 @@ import fr.gouv.tchap.util.HexagonMaskView;
 import fr.gouv.tchap.util.LiveSecurityChecks;
 import butterknife.BindView;
 import butterknife.OnClick;
+import fr.gouv.tchap.util.RoomCategory;
 import im.vector.Matrix;
 import im.vector.R;
 import im.vector.VectorApp;
@@ -2828,51 +2829,61 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
             mActionBarInfo.setVisibility(View.VISIBLE);
             mActionBarTopic.setVisibility(View.GONE);
 
-            String roomAccessRule = DinsicUtils.getRoomAccessRule(mRoom);
-            if (mRoom.isEncrypted()) {
-                if (TextUtils.equals(roomAccessRule, RoomAccessRulesKt.RESTRICTED)) {
+            Boolean shouldAddRoomRetention = false;
+            RoomCategory category = DinumUtilsKt.getRoomCategory(mRoom);
+            switch (category) {
+                case DIRECT:
+                    mActionBarTypeImage.setVisibility(View.GONE);
+                    String userDomain = DinsicUtils.getDomainFromDisplayName(DinsicUtils.getRoomDisplayName(this, mRoom));
+                    mActionBarTypeInfo.setText(userDomain);
+                    mActionBarTypeInfo.setTextColor(ContextCompat.getColor(this, R.color.vector_tchap_primary_color));
+                    mActionBarMembers.setVisibility(View.GONE);
+                    mActionBarRetention.setVisibility(View.GONE);
+                    break;
+                case RESTRICTED_PRIVATE:
                     int colorRestricted =  ContextCompat.getColor(this, R.color.tchap_coral_color);
                     mActionBarTypeImage.setVisibility(View.VISIBLE);
                     mActionBarTypeImage.setImageResource(R.drawable.room_type_private);
                     mActionBarTypeImage.setColorFilter(colorRestricted);
                     mActionBarTypeInfo.setText(R.string.tchap_room_long_private_room_type);
                     mActionBarTypeInfo.setTextColor(colorRestricted);
-                } else if (TextUtils.equals(roomAccessRule, RoomAccessRulesKt.UNRESTRICTED)) {
+                    mActionBarMembers.setVisibility(View.VISIBLE);
+                    shouldAddRoomRetention = true;
+                    break;
+                case UNRESTRICTED_PRIVATE:
                     int colorUnrestricted =  ContextCompat.getColor(this, R.color.tchap_pumpkin_orange_color);
                     mActionBarTypeImage.setVisibility(View.VISIBLE);
                     mActionBarTypeImage.setImageResource(R.drawable.room_type_private);
                     mActionBarTypeImage.setColorFilter(colorUnrestricted);
                     mActionBarTypeInfo.setText(R.string.tchap_room_long_extern_room_type);
                     mActionBarTypeInfo.setTextColor(colorUnrestricted);
-                } else if (TextUtils.equals(roomAccessRule, RoomAccessRulesKt.DIRECT)) {
-                    mActionBarTypeImage.setVisibility(View.GONE);
-                    String userDomain = DinsicUtils.getDomainFromDisplayName(DinsicUtils.getRoomDisplayName(this, mRoom));
-                    mActionBarTypeInfo.setText(userDomain);
-                    mActionBarTypeInfo.setTextColor(ContextCompat.getColor(this, R.color.vector_tchap_primary_color));
-                } else {
+                    mActionBarMembers.setVisibility(View.VISIBLE);
+                    shouldAddRoomRetention = true;
+                    break;
+                case FORUM:
+                    int colorForum =  ContextCompat.getColor(this, R.color.tchap_jade_green_color);
+                    mActionBarTypeImage.setVisibility(View.VISIBLE);
+                    mActionBarTypeImage.setImageResource(R.drawable.room_type_forum);
+                    mActionBarTypeImage.setColorFilter(colorForum);
+                    mActionBarTypeInfo.setText(R.string.tchap_room_long_forum_type);
+                    mActionBarTypeInfo.setTextColor(colorForum);
+                    mActionBarMembers.setVisibility(View.VISIBLE);
+                    shouldAddRoomRetention = true;
+                    break;
+                case SERVER_NOTICE:
+                case UNKNOWN:
                     mActionBarTypeImage.setVisibility(View.GONE);
                     mActionBarTypeInfo.setText("");
-                }
-            } else if (RoomState.JOIN_RULE_PUBLIC.equals(mRoom.getState().join_rule)) {
-                int colorForum =  ContextCompat.getColor(this, R.color.tchap_jade_green_color);
-                mActionBarTypeImage.setVisibility(View.VISIBLE);
-                mActionBarTypeImage.setImageResource(R.drawable.room_type_forum);
-                mActionBarTypeImage.setColorFilter(colorForum);
-                mActionBarTypeInfo.setText(R.string.tchap_room_long_forum_type);
-                mActionBarTypeInfo.setTextColor(colorForum);
-            } else {
-                mActionBarTypeImage.setVisibility(View.GONE);
-                mActionBarTypeInfo.setText("");
+                    mActionBarMembers.setVisibility(View.GONE);
+                    mActionBarRetention.setVisibility(View.GONE);
             }
 
             // Room members and history retention info
-            if (TextUtils.equals(roomAccessRule, RoomAccessRulesKt.DIRECT)) {
-                mActionBarMembers.setVisibility(View.GONE);
-                mActionBarRetention.setVisibility(View.GONE);
-            } else {
-                mActionBarMembers.setVisibility(View.VISIBLE);
+            if (mActionBarMembers.getVisibility() == View.VISIBLE) {
                 mActionBarMembersInfo.setText(String.valueOf(mRoom.getNumberOfJoinedMembers()));
+            }
 
+            if (shouldAddRoomRetention) {
                 mActionBarRetention.setVisibility(View.GONE);
                 if (ENABLE_ROOM_RETENTION) {
                     int retentionPeriod = DinumUtilsKt.getRoomRetention(mRoom);
@@ -2914,32 +2925,45 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
      */
     private void updateRoomHeaderAvatar() {
         if (null != mRoom) {
-            if (mRoom.isDirect()) {
-                mActionBarHeaderHexagonRoomAvatar.setVisibility(View.INVISIBLE);
-                mActionBarHeaderRoomAvatar.setVisibility(View.VISIBLE);
-                VectorUtils.loadRoomAvatar(this, mSession, mActionBarHeaderRoomAvatar, mRoom);
-            } else {
-                mActionBarHeaderHexagonRoomAvatar.setVisibility(View.VISIBLE);
-                mActionBarHeaderRoomAvatar.setVisibility(View.INVISIBLE);
-                VectorUtils.loadRoomAvatar(this, mSession, mActionBarHeaderHexagonRoomAvatar, mRoom);
-                // Set the right border color
-                if (TextUtils.equals(DinsicUtils.getRoomAccessRule(mRoom), RoomAccessRulesKt.RESTRICTED)) {
+            RoomCategory category = DinumUtilsKt.getRoomCategory(mRoom);
+            switch (category) {
+                case DIRECT:
+                    mActionBarHeaderHexagonRoomAvatar.setVisibility(View.INVISIBLE);
+                    mActionBarHeaderRoomAvatar.setVisibility(View.VISIBLE);
+                    VectorUtils.loadRoomAvatar(this, mSession, mActionBarHeaderRoomAvatar, mRoom);
+                    mActionBarHeaderRoomAvatarMarker.setImageResource(R.drawable.private_avatar_icon);
+                    mActionBarHeaderRoomAvatarMarker.setVisibility(View.VISIBLE);
+                    break;
+                case RESTRICTED_PRIVATE:
+                    mActionBarHeaderHexagonRoomAvatar.setVisibility(View.VISIBLE);
+                    mActionBarHeaderRoomAvatar.setVisibility(View.INVISIBLE);
+                    VectorUtils.loadRoomAvatar(this, mSession, mActionBarHeaderHexagonRoomAvatar, mRoom);
                     mActionBarHeaderHexagonRoomAvatar.setBorderSettings(ContextCompat.getColor(this, R.color.restricted_room_avatar_border_color), 3);
-                } else {
+                    mActionBarHeaderRoomAvatarMarker.setImageResource(R.drawable.private_avatar_icon);
+                    mActionBarHeaderRoomAvatarMarker.setVisibility(View.VISIBLE);
+                    break;
+                case UNRESTRICTED_PRIVATE:
+                    mActionBarHeaderHexagonRoomAvatar.setVisibility(View.VISIBLE);
+                    mActionBarHeaderRoomAvatar.setVisibility(View.INVISIBLE);
+                    VectorUtils.loadRoomAvatar(this, mSession, mActionBarHeaderHexagonRoomAvatar, mRoom);
                     mActionBarHeaderHexagonRoomAvatar.setBorderSettings(ContextCompat.getColor(this, R.color.unrestricted_room_avatar_border_color), 10);
-                }
-            }
-
-            if (mRoom.isEncrypted()) {
-                mActionBarHeaderRoomAvatarMarker.setImageResource(R.drawable.private_avatar_icon);
-                mActionBarHeaderRoomAvatarMarker.setVisibility(View.VISIBLE);
-            } else if (RoomState.JOIN_RULE_PUBLIC.equals(mRoom.getState().join_rule)) {
-                // Tchap: we consider as forum all the unencrypted rooms with a public join_rule
-                mActionBarHeaderRoomAvatarMarker.setImageResource(R.drawable.forum_avatar_icon);
-                mActionBarHeaderRoomAvatarMarker.setVisibility(View.VISIBLE);
-            } else {
-                // This case should not happen for the moment in Tchap
-                mActionBarHeaderRoomAvatarMarker.setVisibility(View.INVISIBLE);
+                    mActionBarHeaderRoomAvatarMarker.setImageResource(R.drawable.private_avatar_icon);
+                    mActionBarHeaderRoomAvatarMarker.setVisibility(View.VISIBLE);
+                    break;
+                case FORUM:
+                    mActionBarHeaderHexagonRoomAvatar.setVisibility(View.VISIBLE);
+                    mActionBarHeaderRoomAvatar.setVisibility(View.INVISIBLE);
+                    VectorUtils.loadRoomAvatar(this, mSession, mActionBarHeaderHexagonRoomAvatar, mRoom);
+                    mActionBarHeaderHexagonRoomAvatar.setBorderSettings(ContextCompat.getColor(this, R.color.restricted_room_avatar_border_color), 3);
+                    mActionBarHeaderRoomAvatarMarker.setImageResource(R.drawable.forum_avatar_icon);
+                    mActionBarHeaderRoomAvatarMarker.setVisibility(View.VISIBLE);
+                    break;
+                case SERVER_NOTICE:
+                    mActionBarHeaderHexagonRoomAvatar.setVisibility(View.INVISIBLE);
+                    mActionBarHeaderRoomAvatar.setVisibility(View.VISIBLE);
+                    VectorUtils.loadRoomAvatar(this, mSession, mActionBarHeaderRoomAvatar, mRoom);
+                case UNKNOWN:
+                    mActionBarHeaderRoomAvatarMarker.setVisibility(View.INVISIBLE);
             }
         } else if (null != sRoomPreviewData) {
             mActionBarHeaderHexagonRoomAvatar.setVisibility(View.VISIBLE);
@@ -2972,7 +2996,7 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
 
     @OnClick(R.id.header_texts_container)
     void onTextsContainerClick() {
-        if (null != mRoom) {
+        if (null != mRoom && !DinumUtilsKt.isServerNotice(mRoom)) {
             if (mRoom.isDirect()) {
                 launchDirectRoomDetails();
             } else {

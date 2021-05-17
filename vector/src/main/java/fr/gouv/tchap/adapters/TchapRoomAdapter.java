@@ -34,6 +34,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import fr.gouv.tchap.util.DinsicUtils;
+import fr.gouv.tchap.util.DinumUtilsKt;
 import im.vector.R;
 import im.vector.adapters.AbsAdapter;
 import im.vector.adapters.AdapterSection;
@@ -68,7 +69,7 @@ public class TchapRoomAdapter extends AbsAdapter {
                     // we remove 1 from the position of the item in the list.
                     if (position - 1 < getFilteredItems().size()) {
                         final Room room = getFilteredItems().get(position - 1);
-                        if (room.isDirect()) {
+                        if (room.isDirect() || DinumUtilsKt.isServerNotice(room)) {
                             return TYPE_ROOM_DIRECT;
                         } else {
                             return TYPE_ROOM;
