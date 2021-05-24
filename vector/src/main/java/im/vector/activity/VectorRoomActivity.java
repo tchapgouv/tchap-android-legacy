@@ -2902,6 +2902,18 @@ public class VectorRoomActivity extends MXCActionBarActivity implements
             }
             setTopic(topic);
             mActionBarInfo.setVisibility(View.GONE);
+        } else if (null != mTchapUser) {
+            mActionBarInfo.setVisibility(View.VISIBLE);
+            mActionBarTopic.setVisibility(View.GONE);
+            mActionBarTypeImage.setVisibility(View.GONE);
+            if (null != mTchapUser.displayname) {
+                mActionBarTypeInfo.setText(DinsicUtils.getDomainFromDisplayName(mTchapUser.displayname));
+                mActionBarTypeInfo.setTextColor(ContextCompat.getColor(this, R.color.vector_tchap_primary_color));
+            } else {
+                mActionBarTypeInfo.setText("");
+            }
+            mActionBarMembers.setVisibility(View.GONE);
+            mActionBarRetention.setVisibility(View.GONE);
         }
     }
 
