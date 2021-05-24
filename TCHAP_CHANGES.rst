@@ -4,6 +4,7 @@ Changes in Tchap 1.x.x (2021-xx-xx)
 Improvements:
  * Apply the design for the specific Tchap Info room #718
  * Apply the new design of the Room header PR #713
+ * Define a minimum size for the passphrase used to encrypt the exported keys file #712
 
 Bug Fixes:
  *

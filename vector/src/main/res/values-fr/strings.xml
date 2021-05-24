@@ -1181,7 +1181,7 @@ Veuillez noter que cette action redémarrera l’application et pourra prendre u
     <string name="status_theme">Thème Status.im</string>
 
     <string name="room_sliding_menu_version_x">Version %s</string>
-    <string name="encryption_export_notice">Veuillez créer une phrase secrète pour chiffrer les clés exportées. Vous devrez saisir cette même phrase secrète afin de pouvoir importer les clés.</string>
+    <string name="encryption_export_notice">Veuillez créer une phrase secrète pour chiffrer les clés exportées. Elle doit contenir au moins 8 caractères. Vous devrez saisir cette phrase secrète lors de l’importation des clés.</string>
     <string name="passphrase_create_passphrase">Créer la phrase secrète</string>
     <string name="passphrase_passphrase_does_not_match">Les phrases secrètes doivent concorder</string>
     <string name="merged_events_expand">afficher</string>
