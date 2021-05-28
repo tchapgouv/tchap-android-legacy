@@ -49,7 +49,7 @@ class ExportKeysDialog {
 
             override fun afterTextChanged(s: Editable) {
                 when {
-                    TextUtils.isEmpty(passPhrase1EditText.text)                          -> {
+                    TextUtils.isEmpty(passPhrase1EditText.text) || passPhrase1EditText.length() < 8 -> {
                         exportButton.isEnabled = false
                         passPhrase2Til.error = null
                     }
