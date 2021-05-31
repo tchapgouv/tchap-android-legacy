@@ -74,6 +74,7 @@ import java.util.Map;
 
 import fr.gouv.tchap.activity.TchapLoginActivity;
 import fr.gouv.tchap.util.DinsicUtils;
+import fr.gouv.tchap.util.DinumUtilsKt;
 import im.vector.Matrix;
 import im.vector.MyPresenceManager;
 import im.vector.R;
@@ -860,7 +861,7 @@ public class CommonActivityUtils {
             RoomSummary summary = mergedSummaries.get(index);
             Room room = session.getDataHandler().getRoom(summary.getRoomId());
 
-            if ((null == room) || room.isInvited() || room.isConferenceUserRoom()) {
+            if ((null == room) || room.isInvited() || room.isConferenceUserRoom() || DinumUtilsKt.isServerNotice(room)) {
                 mergedSummaries.remove(index);
                 index--;
             }

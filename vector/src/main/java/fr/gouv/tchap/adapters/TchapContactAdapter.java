@@ -257,7 +257,8 @@ public class TchapContactAdapter extends AbsAdapter {
     }
 
     public void setFilteredKnownContacts(List<ParticipantAdapterItem> filteredKnownContacts, String pattern) {
-        Collections.sort(filteredKnownContacts, ParticipantAdapterItem.getComparator(mSession));
+        // Tchap: remove the sorting, we want to keep the server result order (the server will return local users in front of the remote ones)
+        // Collections.sort(filteredKnownContacts, ParticipantAdapterItem.getComparator(mSession));
         mKnownContactsSection.setFilteredItems(filteredKnownContacts, pattern);
         updateSections();
     }

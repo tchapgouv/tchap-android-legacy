@@ -799,20 +799,15 @@ Appareils inconnus :</string>
     <string name="tchap_action_next">Suivant</string>
     <string name="tchap_room_creation_avatar">Ajouter\nune photo</string>
     <string name="tchap_room_creation_name">Nommer le salon</string>
-    <string name="tchap_room_creation_retention">Définir la durée de conservation de l’historique (en jours) :</string>
-    <plurals name="tchap_room_creation_retention">
-        <item quantity="one">Limiter l’historique du salon à %d jour</item>
-        <item quantity="other">Limiter l’historique du salon à %d jours</item>
-    </plurals>
     <string name="tchap_room_creation_disable_federation">Limiter l’accès à ce salon aux membres du domaine \"%s\"</string>
     <string name="tchap_room_creation_public_info">Un forum peut être rejoint par tous les utilisateurs excepté les invités externes. Il ne doit contenir aucune donnée sensible.</string>
     <string name="tchap_room_invite_member_title">Inviter au salon</string>
     <string name="tchap_room_invite_member_action">Valider</string>
     <string name="tchap_room_creation_save_avatar_failed">La sauvegarde de la photo du salon a échoué. \n Que souhaitez-vous faire ?</string>
     <string name="tchap_room_creation_room_type_title">Type de salon</string>
-    <string name="tchap_room_creation_private_room_title">Salon privé</string>
-    <string name="tchap_room_creation_extern_room_title">Salon privé ouvert aux externes</string>
-    <string name="tchap_room_creation_forum_room_title">Salon forum</string>
+    <string name="tchap_room_creation_private_room_title">Privé</string>
+    <string name="tchap_room_creation_extern_room_title">Privé avec externes</string>
+    <string name="tchap_room_creation_forum_room_title">Forum</string>
     <string name="tchap_room_creation_private_room_info">Accessible à tous les utilisateurs sur invitation d’un administrateur.</string>
     <string name="tchap_room_creation_extern_room_info">Accessible à tous les utilisateurs et aux invités externes sur invitation d’un administrateur.</string>
     <string name="tchap_room_creation_forum_room_info">Accessible à tous les utilisateurs à partir de la liste des forums ou d’un lien partagé.</string>
@@ -848,17 +843,21 @@ Appareils inconnus :</string>
 
     <!-- tchap room -->
     <string name="tchap_room_private_room_type">Privé</string>
-    <string name="tchap_room_long_private_room_type">Salon privé</string>
+    <string name="tchap_room_long_private_room_type">Privé</string>
     <string name="tchap_room_extern_room_type">Externes</string>
-    <string name="tchap_room_long_extern_room_type">Salon privé ouvert aux externes</string>
+    <string name="tchap_room_long_extern_room_type">Privé avec externes</string>
     <string name="tchap_room_forum_type">Forum</string>
-    <string name="tchap_room_long_forum_type">Salon forum</string>
+    <string name="tchap_room_long_forum_type">Forum</string>
+    <string name="tchap_room_server_notice_type">Info</string>
     <string name="tchap_room_invalid_link">Ce lien n’est pas valide</string>
     <string name="tchap_room_access_unauthorized">Vous n’êtes pas autorisé à rejoindre cette conversation. Une invitation est nécessaire.</string>
-    <plurals name="tchap_room_retention_info">
-        <item quantity="one">Historique limité à %d jour</item>
-        <item quantity="other">Historique limité à %d jours</item>
-    </plurals>
+    <string name="tchap_room_header_retention_info">%d j</string>
+
+    <!-- tchap room history -->
+    <string name="notice_room_retention_changed_by_you">Vous avez limité la durée de l’historique à %1$s</string>
+    <string name="notice_room_retention_removed_by_you">Vous avez rendu illimitée la durée de l’historique</string>
+    <string name="notice_room_retention_changed">%1$s a limité la durée de l’historique à %2$s</string>
+    <string name="notice_room_retention_removed">%1$s a rendu illimitée la durée de l’historique</string>
 
     <!-- tchap scan media -->
     <string name="tchap_scan_media_unavailable">Analyse Indisponible</string>
@@ -874,14 +873,16 @@ Appareils inconnus :</string>
     <string name="tchap_room_settings_room_access_unrestricted">Les externes sont autorisés à rejoindre ce salon</string>
     <string name="tchap_room_settings_allow_external_users_to_join">Autoriser l’accès aux externes à ce salon</string>
     <string name="tchap_room_settings_allow_external_users_to_join_prompt_msg"><b>Cette action est irréversible.</b>\nVoulez-vous vraiment autoriser les externes à rejoindre ce salon ?</string>
-    <string name="tchap_room_settings_retention_title">Historique du salon</string>
-    <plurals name="tchap_room_settings_retention_summary">
-        <item quantity="one">L’historique est limité à %d jour</item>
-        <item quantity="other">L’historique est limité à %d jours</item>
-    </plurals>
-    <plurals name="tchap_room_settings_retention">
-        <item quantity="one">L’historique du salon est limité à %d jour</item>
-        <item quantity="other">L’historique du salon est limité à %d jours</item>
+    <string name="tchap_room_settings_retention_title">Durée de l’historique</string>
+    <string name="tchap_room_settings_retention_infinite">illimitée</string>
+    <string name="tchap_room_settings_retention_1_year">1 an</string>
+    <string name="tchap_room_settings_retention_6_months">6 mois</string>
+    <string name="tchap_room_settings_retention_1_month">1 mois</string>
+    <string name="tchap_room_settings_retention_1_week">1 semaine</string>
+    <string name="tchap_room_settings_retention_1_day">1 jour</string>
+    <plurals name="tchap_room_settings_retention_in_days">
+        <item quantity="one">%d jour</item>
+        <item quantity="other">%d jours</item>
     </plurals>
     <string name="tchap_room_settings_leave_room">Quitter ce salon</string>
     <string name="tchap_room_settings_room_access_by_link_title">Accès par lien</string>
@@ -1180,7 +1181,7 @@ Veuillez noter que cette action redémarrera l’application et pourra prendre u
     <string name="status_theme">Thème Status.im</string>
 
     <string name="room_sliding_menu_version_x">Version %s</string>
-    <string name="encryption_export_notice">Veuillez créer une phrase secrète pour chiffrer les clés exportées. Vous devrez saisir cette même phrase secrète afin de pouvoir importer les clés.</string>
+    <string name="encryption_export_notice">Veuillez créer une phrase secrète pour chiffrer les clés exportées. Elle doit contenir au moins 8 caractères. Vous devrez saisir cette phrase secrète lors de l’importation des clés.</string>
     <string name="passphrase_create_passphrase">Créer la phrase secrète</string>
     <string name="passphrase_passphrase_does_not_match">Les phrases secrètes doivent concorder</string>
     <string name="merged_events_expand">afficher</string>
@@ -1928,6 +1929,8 @@ Si vous n’avez pas configuré de nouvelle méthode de récupération, un attaq
     </plurals>
     <string name="favourite_offline_notification">La connexion au serveur a été perdue.</string>
     <string name="favourite_offline_message">Des messages favoris peuvent être absents de cette liste. Certaines actions ne sont pas disponibles.</string>
+
+    <string name="cannot_leave_server_notice_room">Vous ne pouvez pas rejeter cette invitation</string>
 
     <!-- Overrided sdk's strings -->
     <string name="notice_room_name_changed">%1$s a changé le nom du salon en : %2$s</string>

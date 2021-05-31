@@ -83,7 +83,7 @@ import fr.gouv.tchap.sdk.session.room.model.RoomRetentionKt;
 import fr.gouv.tchap.util.DinsicUtils;
 import fr.gouv.tchap.util.DinumPermalinkUtilsKt;
 import fr.gouv.tchap.util.DinumUtilsKt;
-import fr.gouv.tchap.util.RoomRetentionPeriodPickerDialogFragment;
+import fr.gouv.tchap.util.RetentionConstants;
 import im.vector.activity.SelectPictureActivity;
 import im.vector.Matrix;
 import im.vector.R;
@@ -182,7 +182,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
     private EditTextPreference mRoomNameEditTxt;
     private EditTextPreference mRoomTopicEditTxt;
     private Preference mRemoveFromDirectoryPreference;
-    private Preference mRoomRetentionPreference;
+    private ListPreference mRoomRetentionPreference;
     private VectorPreference mRoomAccessByLinkPreference;
     private Preference mRoomAccessRulePreference;
     private ListPreference mRoomTagListPreference;
@@ -543,7 +543,7 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
         }
 
         // Display the room retention period
-        mRoomRetentionPreference = findPreference(PREF_KEY_ROOM_RETENTION);
+        mRoomRetentionPreference = (ListPreference) getPreferenceManager().findPreference(PREF_KEY_ROOM_RETENTION);
 
         // Handle the room access by link
         mRoomAccessByLinkPreference = (VectorPreference)findPreference(PREF_KEY_ROOM_ACCESS_BY_LINK);
@@ -691,12 +691,6 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
                 mUpdateCallback.onUnexpectedError(e);
             }
         });
-    }
-
-    private void setRetentionPeriod(int period) {
-        displayLoadingView();
-
-        DinumUtilsKt.setRoomRetention(mSession, mRoom, period, mUpdateCallback);
     }
 
     @Override
@@ -995,31 +989,8 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
 
         if (null != mRoomRetentionPreference) {
             if (ENABLE_ROOM_RETENTION) {
-                // Get the current room retention
-                mRoomRetentionPreference.setOnPreferenceClickListener(null);
-                mRoomRetentionPreference.setEnabled(true);
-
-                // TODO: handle the undefined retention value as infinite history
-                int period = DinumUtilsKt.getRoomRetention(mRoom);
-
                 // Only the room admin is able to change this value
-                if (isAdmin && isConnected) {
-                    mRoomRetentionPreference.setTitle(getString(R.string.tchap_room_settings_retention_title));
-                    mRoomRetentionPreference.setSummary(getResources().getQuantityString(R.plurals.tchap_room_settings_retention_summary,
-                            period, period));
-                    mRoomRetentionPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                        @Override
-                        public boolean onPreferenceClick(Preference preference) {
-                            new RoomRetentionPeriodPickerDialogFragment(getActivity())
-                                    .create(period, ((number) -> {setRetentionPeriod(number); return null;}))
-                                    .show();
-                            return true;
-                        }
-                    });
-                } else {
-                    mRoomRetentionPreference.setTitle(getResources().getQuantityString(R.plurals.tchap_room_settings_retention,
-                            period, period));
-                }
+                mRoomRetentionPreference.setEnabled(isAdmin && isConnected);
             } else {
                 // Remove this option
                 PreferenceScreen preferenceScreen = getPreferenceScreen();
@@ -1154,6 +1125,12 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
             }
         }
 
+        if (null != mRoomRetentionPreference) {
+            int period = DinumUtilsKt.getRoomRetention(mRoom);
+            mRoomRetentionPreference.setValue(DinumUtilsKt.getRetentionPreferenceValue(period));
+            mRoomRetentionPreference.setSummary(DinumUtilsKt.getRetentionLabel(getActivity(), period));
+        }
+
         if (null != mRoomNotificationsPreference) {
             String stateValue = BingRulesManager.RoomNotificationState.MUTE.name();
             BingRulesManager.RoomNotificationState state = mSession.getDataHandler().getBingRulesManager().getRoomNotificationState(mRoom.getRoomId());
@@ -1240,6 +1217,8 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
             onRoomTagPreferenceChanged(); // TBT
         } else if (aKey.equals(PREF_KEY_ROOM_ACCESS_RULES_LIST)) {
             onRoomAccessPreferenceChanged();
+        } else if (aKey.equals(PREF_KEY_ROOM_RETENTION)) {
+            onRoomRetentionPreferenceChanged();
         } else if (aKey.equals(PREF_KEY_ROOM_HISTORY_READABILITY_LIST)) {
             onRoomHistoryReadabilityPreferenceChanged(); // TBT
         } else {
@@ -1352,6 +1331,19 @@ public class VectorRoomSettingsFragment extends PreferenceFragmentCompat impleme
                 mRoom.updateGuestAccess(guestAccessRuleToApply, mUpdateCallback);
             }
         }
+    }
+
+    private void onRoomRetentionPreferenceChanged() {
+        // sanity check
+        if ((null == mRoom) || (null == mRoomRetentionPreference)) {
+            return;
+        }
+
+        String value = mRoomRetentionPreference.getValue();
+        int period = DinumUtilsKt.getRetentionPeriodFromPreferenceValue(value);
+
+        displayLoadingView();
+        DinumUtilsKt.setRoomRetention(mSession, mRoom, period, mUpdateCallback);
     }
 
     /**

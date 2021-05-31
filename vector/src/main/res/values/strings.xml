@@ -1038,7 +1038,7 @@
     <string name="encryption_export_room_keys">Export room keys</string>
     <string name="encryption_export_room_keys_summary">Export the keys to a local file</string>
     <string name="encryption_export_export">Export</string>
-    <string name="encryption_export_notice">Please create a passphrase to encrypt the exported keys. You will need to enter the same passphrase to be able to import the keys.</string>
+    <string name="encryption_export_notice">Please create a passphrase to encrypt the exported keys. It must be at a minimum 8 characters in length. You will need to enter the same passphrase to be able to import the keys.</string>
     <string name="encryption_export_saved_as">The E2E room keys have been saved to \'%s\'.\n\nWarning: this file may be deleted if the application is uninstalled.</string>
 
     <string name="encryption_message_recovery">Encrypted Messages Recovery</string>
@@ -1229,20 +1229,15 @@
     <string name="tchap_action_next">Next</string>
     <string name="tchap_room_creation_avatar">Add\nan avatar</string>
     <string name="tchap_room_creation_name">Name this room</string>
-    <string name="tchap_room_creation_retention">Set the room history retention (in days)</string>
-    <plurals name="tchap_room_creation_retention">
-        <item quantity="one">The room history is limited to %d day</item>
-        <item quantity="other">The room history is limited to %d days</item>
-    </plurals>
     <string name="tchap_room_creation_disable_federation">Limit the access to this room to the members of the domain \"%s\"</string>
     <string name="tchap_room_creation_public_info">A public room can be joined by any member of the Tchap community, it must not contain any sensitive data.</string>
     <string name="tchap_room_invite_member_title">Invite contacts in Room</string>
     <string name="tchap_room_invite_member_action">Validate</string>
     <string name="tchap_room_creation_save_avatar_failed">Failed to save picture.\n Do you want to retry?</string>
     <string name="tchap_room_creation_room_type_title">Room type</string>
-    <string name="tchap_room_creation_private_room_title">Private room</string>
-    <string name="tchap_room_creation_extern_room_title">Private room opened to externals</string>
-    <string name="tchap_room_creation_forum_room_title">Forum room</string>
+    <string name="tchap_room_creation_private_room_title">Private</string>
+    <string name="tchap_room_creation_extern_room_title">Private with externals</string>
+    <string name="tchap_room_creation_forum_room_title">Forum</string>
     <string name="tchap_room_creation_private_room_info">Accessible to all users by invitation from an administrator.</string>
     <string name="tchap_room_creation_extern_room_info">Accessible to all users and to external guests by invitation of an administrator.</string>
     <string name="tchap_room_creation_forum_room_info">Accessible to all users from the forum directory or from a shared link.</string>
@@ -1278,17 +1273,22 @@
 
     <!-- tchap room -->
     <string name="tchap_room_private_room_type">Private</string>
-    <string name="tchap_room_long_private_room_type">Private room</string>
+    <string name="tchap_room_long_private_room_type">Private</string>
     <string name="tchap_room_extern_room_type">External</string>
-    <string name="tchap_room_long_extern_room_type">Private room opened to externals</string>
+    <string name="tchap_room_long_extern_room_type">Private with externals</string>
     <string name="tchap_room_forum_type">Forum</string>
-    <string name="tchap_room_long_forum_type">Forum room</string>
+    <string name="tchap_room_long_forum_type">Forum</string>
+    <string name="tchap_room_server_notice_type">Info</string>
     <string name="tchap_room_invalid_link">This link is invalid</string>
     <string name="tchap_room_access_unauthorized">You are not allowed to join this conversation. An invitation is needed.</string>
-    <plurals name="tchap_room_retention_info">
-        <item quantity="one">History limited to %d day</item>
-        <item quantity="other">History limited to %d days</item>
-    </plurals>
+    <string name="tchap_room_header_separator">・</string>
+    <string name="tchap_room_header_retention_info">%d d</string>
+
+    <!-- tchap room history -->
+    <string name="notice_room_retention_changed_by_you">You have limited the room history to %1$s</string>
+    <string name="notice_room_retention_removed_by_you">You have made the length of history unlimited</string>
+    <string name="notice_room_retention_changed">%1$s has limited the room history to %2$s</string>
+    <string name="notice_room_retention_removed">%1$s has made the length of history unlimited</string>
 
     <!-- tchap scan media -->
     <string name="tchap_scan_media_unavailable">Scan Unavailable</string>
@@ -1305,13 +1305,15 @@
     <string name="tchap_room_settings_allow_external_users_to_join">Allow the externals to join this room</string>
     <string name="tchap_room_settings_allow_external_users_to_join_prompt_msg"><b>This action is irreversible.</b>\nAre you sure you want to allow the externals to join this room?</string>
     <string name="tchap_room_settings_retention_title">Room history</string>
-    <plurals name="tchap_room_settings_retention_summary">
-        <item quantity="one">The history is limited to %d day</item>
-        <item quantity="other">The history is limited to %d days</item>
-    </plurals>
-    <plurals name="tchap_room_settings_retention">
-        <item quantity="one">The room history is limited to %d day</item>
-        <item quantity="other">The room history is limited to %d days</item>
+    <string name="tchap_room_settings_retention_infinite">unlimited</string>
+    <string name="tchap_room_settings_retention_1_year">1 year</string>
+    <string name="tchap_room_settings_retention_6_months">6 months</string>
+    <string name="tchap_room_settings_retention_1_month">1 month</string>
+    <string name="tchap_room_settings_retention_1_week">1 week</string>
+    <string name="tchap_room_settings_retention_1_day">1 day</string>
+    <plurals name="tchap_room_settings_retention_in_days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
     </plurals>
     <string name="tchap_room_settings_leave_room">Leave this room</string>
     <string name="tchap_room_settings_room_access_by_link_title">Access by link</string>
@@ -1911,6 +1913,8 @@
     </plurals>
     <string name="favourite_offline_notification">Connectivity to the server has been lost.</string>
     <string name="favourite_offline_message">Some favourite messages may be missing in this list. Some actions are not available.</string>
+
+    <string name="cannot_leave_server_notice_room">You cannot reject this invite</string>
 
     <!-- Overrided sdk's strings -->
     <string name="notice_room_name_changed">%1$s changed the room name to: %2$s</string>
