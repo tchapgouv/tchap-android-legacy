@@ -1,11 +1,8 @@
-Changes in Tchap 1.x.x (2021-xx-xx)
+Changes in Tchap 1.3.1 (2021-05-31)
 ===================================================
 
-Improvements:
- * 
-
-Bug Fix:
- * 
+Improvement:
+ * Enable the room retention feature in Tchap (Prod)
 
 Changes in Tchap 1.3.0 (2021-05-31)
 ===================================================

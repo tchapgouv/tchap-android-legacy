@@ -21,7 +21,7 @@ package fr.gouv.tchap.config
 
 const val CONFIGURATION_VARIANT = "agent"
 
-const val ENABLE_ROOM_RETENTION = false
+const val ENABLE_ROOM_RETENTION = true
 
 const val SUPPORT_KEYS_BACKUP = false
 
