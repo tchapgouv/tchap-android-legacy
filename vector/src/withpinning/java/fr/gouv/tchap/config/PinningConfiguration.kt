@@ -17,7 +17,7 @@
 package fr.gouv.tchap.config
 
 // Pinning is Enabled
-const val ENABLE_CERTIFICATE_PINNING = true
+const val ENABLE_CERTIFICATE_PINNING = false
 
 // Put the list of fingerprint here.
 val CERTIFICATE_FINGERPRINT_LIST = listOf<String>("90:45:FA:C4:7B:B4:8D:62:50:5F:19:EC:4E:EB:95:30:A2:B7:82:8D:E1:B9:CD:DB:18:4E:A4:93:DE:70:F3:B1",

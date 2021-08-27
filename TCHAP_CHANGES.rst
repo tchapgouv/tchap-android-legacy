@@ -1,3 +1,9 @@
+Changes in Tchap 1.2.2 (2021-08-27)
+===================================================
+
+Features/Improvements:
+ * Make certificates checking mode more flexible 
+ 
 Changes in Tchap 1.2.1 (2021-04-02)
 ===================================================
 
