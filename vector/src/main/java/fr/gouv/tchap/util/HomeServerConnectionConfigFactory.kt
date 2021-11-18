@@ -43,7 +43,7 @@ fun createHomeServerConnectionConfig(homeServerUrl: String, identityServerUrl: S
             }
             .withTlsLimitations(true, Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT)
             .withPin(ENABLE_CERTIFICATE_PINNING)
-            .withShouldAcceptTlsExtensions(true)
+            .withShouldAcceptTlsExtensions(Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1)
             .build()
 }
 
@@ -64,7 +64,7 @@ fun createHomeServerConnectionConfig(config: HomeServerConnectionConfig): HomeSe
             }
             .withTlsLimitations(true, Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT)
             .withPin(ENABLE_CERTIFICATE_PINNING)
-            .withShouldAcceptTlsExtensions(true)
+            .withShouldAcceptTlsExtensions(Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1)
             .build()
 }
 
