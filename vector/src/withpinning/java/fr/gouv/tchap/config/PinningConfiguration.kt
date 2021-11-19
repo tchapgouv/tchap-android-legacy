@@ -16,8 +16,7 @@
 
 package fr.gouv.tchap.config
 
-// Pinning is Enabled
-// Pinning is Enabled
+// Fingerprints pinning is disabled now, only the root certificate is pinned (see network-security-config)
 const val ENABLE_CERTIFICATE_PINNING = false
 
 // Put the list of fingerprint here.

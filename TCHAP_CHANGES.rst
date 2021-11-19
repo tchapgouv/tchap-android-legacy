@@ -1,3 +1,9 @@
+Changes in Tchap 1.2.3 (2021-11-19)
+===================================================
+
+Bug Fix:
+ * The connexion to the server fails on Network error on Android 5.0 and 5.1 (Lollipop) devices.
+ 
 Changes in Tchap 1.2.2 (2021-08-27)
 ===================================================
 
