@@ -1,9 +1,14 @@
-Tchap-Android
+Tchap-Android [Deprecated]
 ============
 
- Tchap-Android is an Android Matrix client.
+Tchap-Android is an Android Matrix client. It is now deprecated and has been replaced by [Tchap-Android-v2](https://github.com/tchapgouv/tchap-android-v2).
 
- [<img src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" alt="Get it on Google Play" height="60">](https://play.google.com/store/apps/details?id=fr.gouv.tchap.a)
+[<img src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" alt="Get it on Google Play" height="60">](https://play.google.com/store/apps/details?id=fr.gouv.tchap.a)
+
+⚠️ Important announcement
+============
+
+### The core team is now only working on [Tchap-Android-v2](https://github.com/tchapgouv/tchap-android-v2). **Tchap-Android-v2** is now published on the PlayStore as a replacement of Tchap-Android. So the code from this project is not published by the core team to the PlayStore.
 
 Contributing
 ============
